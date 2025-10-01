@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
-import { ArrowUpIcon } from "lucide-react";
+import { ArrowUpIcon, ChevronDownIcon } from "lucide-react";
 import { NavLink } from "@/components/layout/nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "./theme-switcher";
 import { SocialMediaIcons } from "./social-media-icons";
 import { type NavigationItem, type NavigationDropdown, navLinksArray } from "@/config/nav-links";
-import { legalLinksArray } from "@/config/legal-links";
 import { Separator } from "../ui/separator";
+import { legalLinksArray } from "@/config/legal-links";
 
 import { chain, cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 // Type guard to check if an item is a dropdown
 function isDropdown(item: NavigationItem): item is NavigationDropdown {
@@ -18,26 +19,31 @@ function isDropdown(item: NavigationItem): item is NavigationDropdown {
 
 function FooterNavigation({ items }: { items: NavigationItem[] }) {
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="flex w-full flex-col gap-2">
       {items.map((item, index) => {
         if (isDropdown(item)) {
           return (
             <li key={index}>
-              <div className="space-y-2">
-                <p className="text-sm font-medium">{item.name}</p>
-                <ul className="space-y-2 pl-2">
-                  {item.items.map((subItem) => (
-                    <li key={subItem.href}>
-                      <NavLink
-                        href={subItem.href}
-                        className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                      >
-                        {subItem.name}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <Collapsible className="w-full space-y-2">
+                <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 text-sm font-medium">
+                  {item.name}
+                  <ChevronDownIcon aria-hidden="true" className="size-4" />
+                </CollapsibleTrigger>
+                <CollapsibleContent asChild>
+                  <ul className="space-y-2 pl-2">
+                    {item.items.map((subItem) => (
+                      <li key={subItem.href}>
+                        <NavLink
+                          href={subItem.href}
+                          className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                        >
+                          {subItem.name}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </CollapsibleContent>
+              </Collapsible>
             </li>
           );
         } else {
