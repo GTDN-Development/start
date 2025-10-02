@@ -1,15 +1,16 @@
 // Icons are ported from: https://fontawesome.com/search?o=r&ic=brands&ip=brands
 
-export type IconBrandProps = React.HTMLAttributes<SVGElement>;
+export type BrandIconProps = React.HTMLAttributes<SVGElement>;
 
-function resolveClassName(props: IconBrandProps) {
+function resolveClassName(props: BrandIconProps) {
   return `${props.className || "size-5"}`;
 }
 
-export function AppleIcon(props: IconBrandProps) {
+export function AppleIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 384 512"
@@ -20,10 +21,11 @@ export function AppleIcon(props: IconBrandProps) {
   );
 }
 
-export function BehanceIcon(props: IconBrandProps) {
+export function BehanceIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 576 512"
@@ -34,10 +36,11 @@ export function BehanceIcon(props: IconBrandProps) {
   );
 }
 
-export function BlueskyIcon(props: IconBrandProps) {
+export function BlueskyIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 512 512"
@@ -48,10 +51,11 @@ export function BlueskyIcon(props: IconBrandProps) {
   );
 }
 
-export function DiscordIcon(props: IconBrandProps) {
+export function DiscordIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 640 512"
@@ -62,10 +66,11 @@ export function DiscordIcon(props: IconBrandProps) {
   );
 }
 
-export function DribbbleIcon(props: IconBrandProps) {
+export function DribbbleIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 512 512"
@@ -76,10 +81,11 @@ export function DribbbleIcon(props: IconBrandProps) {
   );
 }
 
-export function FacebookIcon(props: IconBrandProps) {
+export function FacebookIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 320 512"
@@ -90,10 +96,11 @@ export function FacebookIcon(props: IconBrandProps) {
   );
 }
 
-export function FigmaIcon(props: IconBrandProps) {
+export function FigmaIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 384 512"
@@ -104,10 +111,11 @@ export function FigmaIcon(props: IconBrandProps) {
   );
 }
 
-export function GitHubIcon(props: IconBrandProps) {
+export function GitHubIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 496 512"
@@ -118,10 +126,11 @@ export function GitHubIcon(props: IconBrandProps) {
   );
 }
 
-export function GoogleIcon(props: IconBrandProps) {
+export function GoogleIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 488 512"
@@ -132,10 +141,11 @@ export function GoogleIcon(props: IconBrandProps) {
   );
 }
 
-export function InstagramIcon(props: IconBrandProps) {
+export function InstagramIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 448 512"
@@ -146,10 +156,11 @@ export function InstagramIcon(props: IconBrandProps) {
   );
 }
 
-export function KickstarterIcon(props: IconBrandProps) {
+export function KickstarterIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 448 512"
@@ -160,10 +171,11 @@ export function KickstarterIcon(props: IconBrandProps) {
   );
 }
 
-export function LinkedInIcon(props: IconBrandProps) {
+export function LinkedInIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 448 512"
@@ -174,10 +186,11 @@ export function LinkedInIcon(props: IconBrandProps) {
   );
 }
 
-export function MessengerIcon(props: IconBrandProps) {
+export function MessengerIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 512 512"
@@ -188,10 +201,11 @@ export function MessengerIcon(props: IconBrandProps) {
   );
 }
 
-export function MetaIcon(props: IconBrandProps) {
+export function MetaIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 640 512"
@@ -202,10 +216,26 @@ export function MetaIcon(props: IconBrandProps) {
   );
 }
 
-export function PinterestIcon(props: IconBrandProps) {
+export function PatreonIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 640 512"
+      className={resolveClassName(props)}
+    >
+      <path d="M554 217.8C553.9 152.4 503 98.8 443.3 79.5C369.1 55.5 271.3 59 200.4 92.4C114.6 132.9 87.6 221.7 86.6 310.2C85.8 383 93 574.6 201.2 576C281.5 577 293.5 473.5 330.7 423.7C357.1 388.2 391.2 378.2 433.1 367.8C505.1 350 554.2 293.1 554.1 217.8L554 217.8z" />
+    </svg>
+  );
+}
+
+export function PinterestIcon(props: BrandIconProps) {
+  return (
+    <svg
+      {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 496 512"
@@ -216,10 +246,11 @@ export function PinterestIcon(props: IconBrandProps) {
   );
 }
 
-export function ProductHuntIcon(props: IconBrandProps) {
+export function ProductHuntIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 512 512"
@@ -230,10 +261,11 @@ export function ProductHuntIcon(props: IconBrandProps) {
   );
 }
 
-export function RedditIcon(props: IconBrandProps) {
+export function RedditIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 512 512"
@@ -244,10 +276,11 @@ export function RedditIcon(props: IconBrandProps) {
   );
 }
 
-export function SlackIcon(props: IconBrandProps) {
+export function SlackIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 448 512"
@@ -258,10 +291,11 @@ export function SlackIcon(props: IconBrandProps) {
   );
 }
 
-export function SoundcloudIcon(props: IconBrandProps) {
+export function SoundcloudIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 640 512"
@@ -272,10 +306,11 @@ export function SoundcloudIcon(props: IconBrandProps) {
   );
 }
 
-export function SpotifyIcon(props: IconBrandProps) {
+export function SpotifyIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 496 512"
@@ -286,10 +321,26 @@ export function SpotifyIcon(props: IconBrandProps) {
   );
 }
 
-export function TiktokIcon(props: IconBrandProps) {
+export function TelegramIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 496 512"
+      className={resolveClassName(props)}
+    >
+      <path d="M248,8C111.033,8,0,119.033,0,256S111.033,504,248,504,496,392.967,496,256,384.967,8,248,8ZM362.952,176.66c-3.732,39.215-19.881,134.378-28.1,178.3-3.476,18.584-10.322,24.816-16.948,25.425-14.4,1.326-25.338-9.517-39.287-18.661-21.827-14.308-34.158-23.215-55.346-37.177-24.485-16.135-8.612-25,5.342-39.5,3.652-3.793,67.107-61.51,68.335-66.746.153-.655.3-3.1-1.154-4.384s-3.59-.849-5.135-.5q-3.283.746-104.608,69.142-14.845,10.194-26.894,9.934c-8.855-.191-25.888-5.006-38.551-9.123-15.531-5.048-27.875-7.717-26.8-16.291q.84-6.7,18.45-13.7,108.446-47.248,144.628-62.3c68.872-28.647,83.183-33.623,92.511-33.789,2.052-.034,6.639.474,9.61,2.885a10.452,10.452,0,0,1,3.53,6.716A43.765,43.765,0,0,1,362.952,176.66Z" />
+    </svg>
+  );
+}
+
+export function TiktokIcon(props: BrandIconProps) {
+  return (
+    <svg
+      {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 448 512"
@@ -300,10 +351,11 @@ export function TiktokIcon(props: IconBrandProps) {
   );
 }
 
-export function TwitterXIcon(props: IconBrandProps) {
+export function TwitterXIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 512 512"
@@ -314,10 +366,11 @@ export function TwitterXIcon(props: IconBrandProps) {
   );
 }
 
-export function WhatsappIcon(props: IconBrandProps) {
+export function WhatsappIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 448 512"
@@ -328,10 +381,11 @@ export function WhatsappIcon(props: IconBrandProps) {
   );
 }
 
-export function YoutubeIcon(props: IconBrandProps) {
+export function YoutubeIcon(props: BrandIconProps) {
   return (
     <svg
       {...props}
+      data-slot="icon"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor"
       viewBox="0 0 576 512"
@@ -342,7 +396,7 @@ export function YoutubeIcon(props: IconBrandProps) {
   );
 }
 
-export const IconBrand = {
+export const BrandIcon = {
   apple: AppleIcon,
   behance: BehanceIcon,
   bluesky: BlueskyIcon,
@@ -357,12 +411,14 @@ export const IconBrand = {
   linkedIn: LinkedInIcon,
   messenger: MessengerIcon,
   meta: MetaIcon,
+  patreon: PatreonIcon,
   pinterest: PinterestIcon,
   productHunt: ProductHuntIcon,
   reddit: RedditIcon,
   slack: SlackIcon,
   soundcloud: SoundcloudIcon,
   spotify: SpotifyIcon,
+  telegram: TelegramIcon,
   tiktok: TiktokIcon,
   twitterX: TwitterXIcon,
   whatsapp: WhatsappIcon,
