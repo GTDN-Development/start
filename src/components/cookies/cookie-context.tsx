@@ -5,10 +5,11 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 const STORAGE_KEY = "cookie_consent";
 
 // Enable logging of the current state and always display the consent banner
-// const ENABLE_DEBUG_MODE = false;
+const ENABLE_DEBUG_MODE = false;
 
 type ConsentState = {
   necessary: boolean;
+  functional: boolean;
   analytics: boolean;
   marketing: boolean;
 };
@@ -38,6 +39,7 @@ const CookieContext = createContext<CookieContextType | undefined>(undefined);
 
 const initialConsent: ConsentState = {
   necessary: true, // Necessary cookies are always enabled
+  functional: false,
   analytics: false,
   marketing: false,
 };
@@ -79,9 +81,20 @@ export function CookieContextProvider({ children }: { children: ReactNode }) {
     const hasStored =
       typeof document !== "undefined" && window.localStorage.getItem(STORAGE_KEY) !== null;
     setConsent(storedConsent);
-    setHasInteracted(hasStored);
+    setHasInteracted(ENABLE_DEBUG_MODE ? false : hasStored);
     setIsMounted(true);
   }, []);
+
+  // Debug mode: log state changes
+  useEffect(() => {
+    if (ENABLE_DEBUG_MODE && isMounted) {
+      console.log("Cookie Consent State:", {
+        consent,
+        hasInteracted,
+        isSettingsOpen,
+      });
+    }
+  }, [consent, hasInteracted, isSettingsOpen, isMounted]);
 
   function updateConsent(category: keyof ConsentState, value: boolean) {
     if (category === "necessary") return;

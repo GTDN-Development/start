@@ -23,6 +23,7 @@ export function CookieSettingsDialog() {
   function handleDeny() {
     saveConsent({
       necessary: true,
+      functional: false,
       analytics: false,
       marketing: false,
     });
@@ -32,6 +33,7 @@ export function CookieSettingsDialog() {
   function handleAcceptAll() {
     saveConsent({
       necessary: true,
+      functional: true,
       analytics: true,
       marketing: true,
     });
@@ -49,8 +51,7 @@ export function CookieSettingsDialog() {
         <AlertDialogHeader>
           <AlertDialogTitle>Cookie Consent Settings</AlertDialogTitle>
           <AlertDialogDescription>
-            This site uses tracking technologies. You may opt in or opt out of the use of these
-            technologies.
+            Manage your cookie preferences. Blocking some cookies may impact your experience.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div>
@@ -68,8 +69,26 @@ export function CookieSettingsDialog() {
                 />
               </div>
               <p className="text-muted-foreground text-sm opacity-70">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim totam corrupti
-                voluptate recusandae harum dolorem voluptatibus quam distinctio, aliquid qui?
+                Essential for the website to function. Enable basic features like page navigation
+                and secure areas.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="functional" className="cursor-pointer">
+                  Functional
+                </Label>
+                <Switch
+                  id="functional"
+                  checked={consent.functional}
+                  onCheckedChange={(checked) => updateConsent("functional", checked as boolean)}
+                  aria-label="Functional cookies"
+                />
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Enable enhanced functionality and personalization, such as remembering your
+                preferences and settings.
               </p>
             </div>
 
@@ -86,8 +105,8 @@ export function CookieSettingsDialog() {
                 />
               </div>
               <p className="text-muted-foreground text-sm">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam quas perspiciatis
-                corporis deleniti est magni ipsam esse quis. Necessitatibus, quibusdam.
+                Help us understand how visitors interact with our website to improve content and
+                user experience.
               </p>
             </div>
 
@@ -104,25 +123,23 @@ export function CookieSettingsDialog() {
                 />
               </div>
               <p className="text-muted-foreground text-sm">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Voluptas quas totam ipsam
-                distinctio exercitationem voluptatibus aut sapiente accusantium maiores libero.
+                Used to deliver relevant advertisements and measure the effectiveness of advertising
+                campaigns.
               </p>
             </div>
           </div>
 
           <div className="mt-4">
             <p className="text-muted-foreground text-sm">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione corrupti et deleniti!
-              Read our{" "}
+              For more information about how we use cookies, please read our{" "}
               <Link
-                href={legalLinks.gdpr.href}
+                href={legalLinks.cookies.href}
                 target="_blank"
                 rel="noopenner noreferrer"
                 className="text-foreground underline"
               >
-                {legalLinks.gdpr.name}
+                cookies policy.
               </Link>
-              .
             </p>
           </div>
         </div>

@@ -103,7 +103,7 @@ export function Footer(props: React.ComponentProps<"footer">) {
                 ))}
                 <li>
                   <CookieSettingsTrigger className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                    Cookies settings
+                    Cookie settings
                   </CookieSettingsTrigger>
                 </li>
               </ul>

@@ -13,6 +13,7 @@ export function CookieConsentBanner() {
   function handleDeny() {
     saveConsent({
       necessary: true,
+      functional: false,
       analytics: false,
       marketing: false,
     });
@@ -21,6 +22,7 @@ export function CookieConsentBanner() {
   function handleAcceptAll() {
     saveConsent({
       necessary: true,
+      functional: true,
       analytics: true,
       marketing: true,
     });
@@ -31,8 +33,9 @@ export function CookieConsentBanner() {
       <div className="bg-background text-foreground border-border pointer-events-auto grid w-full gap-5 rounded-xl border p-4 shadow-md dark:shadow-none">
         <div>
           <p>
-            This site uses tracking technologies. You may opt in or opt out of the use of these
-            technologies.
+            We use cookies to enhance your browsing experience, analyze site traffic, and provide
+            personalized content. You can choose to accept all cookies or customize your
+            preferences.
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-start gap-3">
