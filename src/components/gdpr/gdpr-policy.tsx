@@ -1,6 +1,6 @@
 type Locale = "cs" | "en";
 
-type GdprPolicyStatementProps = React.ComponentProps<"div"> & {
+type GdprPolicyProps = React.ComponentProps<"div"> & {
   /** Company information */
   company: {
     name: string;
@@ -249,7 +249,7 @@ const translations = {
   },
 };
 
-export function GdprPolicyStatement({
+export function GdprPolicy({
   company,
   contact,
   dataCollected,
@@ -261,7 +261,7 @@ export function GdprPolicyStatement({
   additionalInfo,
   locale = "cs",
   ...props
-}: GdprPolicyStatementProps) {
+}: GdprPolicyProps) {
   const t = translations[locale];
   const defaults = defaultData[locale];
 

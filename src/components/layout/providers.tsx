@@ -3,6 +3,7 @@
 import { ThemeProvider } from "next-themes";
 import { usePathname } from "next/navigation";
 import { createContext, useEffect, useRef } from "react";
+import { CookieContextProvider } from "@/components/cookies/cookie-context";
 
 export const AppContext = createContext<{ previousPathname?: string }>({});
 
@@ -22,9 +23,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <AppContext.Provider value={{ previousPathname: previousPathname ?? undefined }}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        {children}
-      </ThemeProvider>
+      <CookieContextProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </CookieContextProvider>
     </AppContext.Provider>
   );
 }

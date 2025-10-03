@@ -4,6 +4,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/layout/providers";
 import { LayoutCentered } from "@/components/layout/layout-centered";
+import { ThirdPartyScripts } from "@/components/cookies/third-party-scripts";
+import { CookieConsentBanner } from "@/components/cookies/cookie-consent-banner";
+import { CookieSettingsDialog } from "@/components/cookies/cookie-settings-dialog";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,13 +48,18 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="scroll-pt-16 scroll-smooth font-sans antialiased">
-        <div className="relative isolate">
-          <Providers>
+        <Providers>
+          <div className="relative isolate">
             <LayoutCentered>{children}</LayoutCentered>
-          </Providers>
-        </div>
-        <TailwindScreen />
-        <Toaster />
+          </div>
+          <CookieConsentBanner />
+          <CookieSettingsDialog />
+          <TailwindScreen />
+          <Toaster />
+
+          {/*Load scripts that are controlled by our cookie consent settings.*/}
+          <ThirdPartyScripts />
+        </Providers>
       </body>
     </html>
   );

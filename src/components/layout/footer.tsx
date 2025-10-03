@@ -8,9 +8,10 @@ import { SocialMediaIcons } from "./social-media-icons";
 import { type NavigationItem, type NavigationDropdown, navLinksArray } from "@/config/nav-links";
 import { Separator } from "../ui/separator";
 import { legalLinksArray } from "@/config/legal-links";
+import { CookieSettingsTrigger } from "../cookies/cookie-settings-trigger";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 import { chain, cn } from "@/lib/utils";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import { site } from "@/config/site";
 
 // Type guard to check if an item is a dropdown
@@ -100,6 +101,11 @@ export function Footer(props: React.ComponentProps<"footer">) {
                     </NavLink>
                   </li>
                 ))}
+                <li>
+                  <CookieSettingsTrigger className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                    Cookies settings
+                  </CookieSettingsTrigger>
+                </li>
               </ul>
             </div>
 

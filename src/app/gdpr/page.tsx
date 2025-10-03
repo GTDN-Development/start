@@ -1,11 +1,11 @@
-import { GdprPolicyStatement } from "@/components/gdpr/gdpr-statement";
+import { GdprPolicy } from "@/components/gdpr/gdpr-policy";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { legal } from "@/config/legal";
 
 export default function Page() {
   return (
-    <div>
+    <>
       <Hero>
         <HeroContent>
           <HeroTitle>Privacy Policy</HeroTitle>
@@ -16,7 +16,7 @@ export default function Page() {
       </Hero>
 
       <Container size="sm" className="prose pb-24">
-        <GdprPolicyStatement
+        <GdprPolicy
           company={{
             name: legal.legalName,
             address: legal.address,
@@ -31,6 +31,6 @@ export default function Page() {
           locale="en"
         />
       </Container>
-    </div>
+    </>
   );
 }
