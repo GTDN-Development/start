@@ -11,6 +11,8 @@ import {
   HeroTitle,
 } from "@/components/ui/hero";
 
+import CubeSvg from "@/assets/svgs/cube.svg";
+
 export default function Page() {
   return (
     <div>
@@ -19,6 +21,7 @@ export default function Page() {
           <HeroBackgroundGrid />
         </HeroBackground>
         <HeroContent>
+          <CubeSvg className="mx-auto h-auto w-20 dark:invert" />
           <HeroTitle>Home page</HeroTitle>
           <HeroDescription>
             Lorem ipsum dolor sit, amet consectetur adipisicing elit. A, fugit?
