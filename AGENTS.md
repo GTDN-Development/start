@@ -9,6 +9,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 - **UI:** shadcn/ui + Radix UI
 - **Icons:** Lucide React
 - **Styling:** Tailwind CSS v4 (CSS-First)
+- **Forms:** TanStack Form + Zod
 - **Formatting:** Prettier
 - **Animation:** tw-animate-css
 
@@ -297,86 +298,67 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 4. **shadcn/ui components** come with accessibility built-in via Radix UI primitives
 
 ### 8. Forms
-1. **Validation:** React Hook Form + Zod for type-safe validation
+1. **Validation:** TanStack Form + Zod for type-safe validation
    ```tsx
    const schema = z.object({
-     email: z.string().min(1, "Required").pipe(z.email("Invalid email")),
+     email: z.string().email("Invalid email"),
      consent: z.boolean().refine((val) => val === true, "Must agree"),
    });
 
-   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
-     resolver: zodResolver(schema),
-     mode: "onSubmit",
-   });
-   ```
-
-2. **Structure:** Use shadcn/ui Form components with Controller
-   ```tsx
-   import { Button } from "@/components/ui/button";
-   import { Input } from "@/components/ui/input";
-   import { Label } from "@/components/ui/label";
-   import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-
-   <Form {...form}>
-     <form onSubmit={form.handleSubmit(onSubmit)}>
-       <FormField
-         control={form.control}
-         name="email"
-         render={({ field }) => (
-           <FormItem>
-             <FormLabel>Email</FormLabel>
-             <FormControl>
-               <Input {...field} />
-             </FormControl>
-             <FormMessage />
-           </FormItem>
-         )}
-       />
-       <Button type="submit">Submit</Button>
-     </form>
-   </Form>
-   ```
-
-3. **API Routes:** Submit to Next.js API routes with Nodemailer
-   ```tsx
-   async function onSubmit(data: FormData) {
-     const response = await fetch("/api/contact", {
-       method: "POST",
-       headers: { "Content-Type": "application/json" },
-       body: JSON.stringify(data),
-     });
-   }
-   ```
-
-4. **Email Setup:** Configure Nodemailer with environment variables
-   ```ts
-   const transporter = nodemailer.createTransporter({
-     host: process.env.EMAIL_HOST,
-     port: parseInt(process.env.EMAIL_PORT || "587"),
-     auth: {
-       user: process.env.EMAIL_USER,
-       pass: process.env.EMAIL_PASSWORD,
+   const form = useForm({
+     defaultValues: { email: "", consent: false },
+     validators: { onSubmit: schema },
+     onSubmit: async ({ value }) => {
+       // Handle form submission
      },
    });
    ```
 
-5. **Environment:** Required variables in `.env.local`
-   ```
-   EMAIL_HOST=smtp.gmail.com
-   EMAIL_USER=your-email@gmail.com
-   EMAIL_PASSWORD=your-app-password
-   FORM_RECIPIENT_EMAIL=recipient@domain.com
-   ```
-
-6. **Notifications:** Use Sonner for toast notifications
+2. **Structure:** Use `form.Field` with render prop pattern + shadcn/ui Field components
    ```tsx
-   import { toast } from "sonner";
+   import { Field, FieldLabel, FieldDescription, FieldError } from "@/components/ui/field";
 
-   function handleSubmit() {
-     toast.success("Form submitted successfully!");
-     // or
-     toast.error("Something went wrong!");
-   }
+   <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}>
+     <form.Field
+       name="email"
+       children={(field) => {
+         const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+         return (
+           <Field data-invalid={isInvalid}>
+             <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+             <Input
+               id={field.name}
+               name={field.name}
+               value={field.state.value}
+               onBlur={field.handleBlur}
+               onChange={(e) => field.handleChange(e.target.value)}
+               aria-invalid={isInvalid}
+             />
+             {isInvalid && <FieldError errors={field.state.meta.errors} />}
+           </Field>
+         );
+       }}
+     />
+   </form>
+   ```
+
+3. **Field Types:** Support for Input, Textarea, Select, Checkbox, RadioGroup, Switch
+   - Use `field.state.value` and `field.handleChange` for all field types
+   - Add `aria-invalid={isInvalid}` to form controls
+   - Add `data-invalid={isInvalid}` to `<Field />` wrapper
+   - For arrays: Use `mode="array"` and `field.pushValue()` / `field.removeValue()`
+
+4. **API Routes & Notifications:** Submit to Next.js API routes, use Alert component for feedback
+   ```tsx
+   import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+   // Show success/error with Alert component (preferred over toast)
+   {submitStatus.type && (
+     <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
+       <AlertTitle>{submitStatus.type === "success" ? "Success!" : "Error!"}</AlertTitle>
+       <AlertDescription>{submitStatus.message}</AlertDescription>
+     </Alert>
+   )}
    ```
 
 ### 9. Images

@@ -1,27 +1,18 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useState } from "react";
 import { Link } from "@/components/ui/link";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon, Loader2Icon } from "lucide-react";
 import { legalLinks } from "@/config/legal-links";
+import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
 
 import { cn } from "@/lib/utils";
 
@@ -75,8 +66,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
     message: string;
   }>({ type: null, message: "" });
 
-  const form = useForm<ContactFormValues>({
-    resolver: zodResolver(contactFormSchema),
+  const form = useForm({
     defaultValues: {
       name: "",
       surname: "",
@@ -85,145 +75,202 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
       message: "",
       gdprConsent: false,
     },
-  });
+    validators: {
+      onSubmit: contactFormSchema,
+    },
+    onSubmit: async ({ value }: { value: ContactFormValues }) => {
+      setIsSubmitting(true);
+      setSubmitStatus({ type: null, message: "" });
 
-  async function onSubmit(values: ContactFormValues) {
-    setIsSubmitting(true);
-    setSubmitStatus({ type: null, message: "" });
-
-    try {
-      const response = await fetch("/api/contact-form", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSubmitStatus({
-          type: "success",
-          message: data.message || "Message sent successfully!",
+      try {
+        const response = await fetch("/api/contact-form", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(value),
         });
-        form.reset();
-      } else {
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setSubmitStatus({
+            type: "success",
+            message: data.message || "Message sent successfully!",
+          });
+          form.reset();
+        } else {
+          setSubmitStatus({
+            type: "error",
+            message: data.error || "An error occurred while sending the message.",
+          });
+        }
+      } catch {
         setSubmitStatus({
           type: "error",
-          message: data.error || "An error occurred while sending the message.",
+          message: "An error occurred while sending the message. Please try again later.",
         });
+      } finally {
+        setIsSubmitting(false);
       }
-    } catch {
-      setSubmitStatus({
-        type: "error",
-        message: "An error occurred while sending the message. Please try again later.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+    },
+  });
 
   return (
     <div {...props} className={cn("@container", className)}>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <FieldGroup>
           <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2">
-            <FormField
-              control={form.control}
+            <form.Field
               name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              children={(field) => {
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Name *</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Your name"
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
             />
-            <FormField
-              control={form.control}
+
+            <form.Field
               name="surname"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Surname *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your surname" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              children={(field) => {
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Surname *</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Your surname"
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
             />
           </div>
 
-          <FormField
-            control={form.control}
+          <form.Field
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Address *</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="your@email.com" {...field} />
-                </FormControl>
-                <FormDescription>We will send our response to this address.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            children={(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Email Address *</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="email"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    aria-invalid={isInvalid}
+                    placeholder="your@email.com"
+                  />
+                  <FieldDescription>We will send our response to this address.</FieldDescription>
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
           />
 
-          <FormField
-            control={form.control}
+          <form.Field
             name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone Number *</FormLabel>
-                <FormControl>
-                  <Input type="tel" placeholder="+420 123 456 789" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Phone number for potential clarification of your inquiry.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            children={(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Phone Number *</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    type="tel"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    aria-invalid={isInvalid}
+                    placeholder="+420 123 456 789"
+                  />
+                  <FieldDescription>
+                    Phone number for potential clarification of your inquiry.
+                  </FieldDescription>
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
           />
 
-          <FormField
-            control={form.control}
+          <form.Field
             name="message"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Message *</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Write your message or inquiry..." rows={6} {...field} />
-                </FormControl>
-                <FormDescription>Describe how we can help you.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            children={(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Message *</FieldLabel>
+                  <Textarea
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    aria-invalid={isInvalid}
+                    placeholder="Write your message or inquiry..."
+                    rows={6}
+                  />
+                  <FieldDescription>Describe how we can help you.</FieldDescription>
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
           />
 
-          <FormField
-            control={form.control}
+          <form.Field
             name="gdprConsent"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-y-0 space-x-3">
-                <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>
-                    I agree to the{" "}
-                    <Link href={legalLinks.gdpr.href} className="underline hover:no-underline">
-                      processing of personal data
-                    </Link>{" "}
-                    *
-                  </FormLabel>
-                  <FormMessage />
-                </div>
-              </FormItem>
-            )}
+            children={(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field orientation="horizontal" data-invalid={isInvalid}>
+                  <Checkbox
+                    id={field.name}
+                    name={field.name}
+                    checked={field.state.value}
+                    onCheckedChange={(checked) => field.handleChange(checked === true)}
+                    aria-invalid={isInvalid}
+                  />
+                  <div className="space-y-1 leading-none">
+                    <FieldLabel htmlFor={field.name}>
+                      I agree to the{" "}
+                      <Link href={legalLinks.gdpr.href} className="underline hover:no-underline">
+                        processing of personal data
+                      </Link>{" "}
+                      *
+                    </FieldLabel>
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </div>
+                </Field>
+              );
+            }}
           />
 
           {submitStatus.type && (
@@ -244,8 +291,8 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
             )}
             {isSubmitting ? "Sending..." : "Send Message"}
           </Button>
-        </form>
-      </Form>
+        </FieldGroup>
+      </form>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/hero";
 
 import CubeSvg from "@/assets/svgs/cube.svg";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export default function Page() {
   return (
@@ -36,7 +37,14 @@ export default function Page() {
       </Hero>
 
       <Container size="sm" className="pb-24">
-        <ContactForm />
+        <Card>
+          <CardHeader>
+            <h2 className="text-2xl font-bold">Contact us</h2>
+          </CardHeader>
+          <CardContent>
+            <ContactForm />
+          </CardContent>
+        </Card>
       </Container>
     </div>
   );

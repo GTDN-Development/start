@@ -7,8 +7,9 @@ import { cn } from "@/lib/utils";
 const containerVariants = cva("mx-auto w-[min(var(--container-max-width),100%---spacing(10))]", {
   variants: {
     size: {
-      sm: "[--container-max-width:50rem]",
-      default: "[--container-max-width:80rem]",
+      sm: "[--container-max-width:48rem]",
+      default: "[--container-max-width:64rem]",
+      lg: "[--container-max-width:92rem]",
       prose: "[--container-max-width:65ch]",
       fluid: "[--container-max-width:100%]",
     },
