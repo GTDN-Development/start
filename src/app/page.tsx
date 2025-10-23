@@ -29,8 +29,10 @@ export default function Page() {
           </HeroDescription>
           <HeroActions>
             <Button size="lg">Learn more</Button>
-            <Button size="lg" variant="secondary">
-              Shadcn ui
+            <Button size="lg" variant="secondary" asChild>
+              <a href="https://ui.shadcn.com/" target="_blank" rel="noopenner noreferrer">
+                Shadcn ui docs
+              </a>
             </Button>
           </HeroActions>
         </HeroContent>
