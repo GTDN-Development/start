@@ -1,7 +1,11 @@
-import type { NavigationLink } from "./nav-links";
 import { InstagramIcon, TwitterXIcon, YoutubeIcon, GitHubIcon } from "@/components/ui/icon-brand";
 
-export type SocialMediaLink = NavigationLink & {
+export type ExternalLink = {
+  name: string;
+  href: string;
+};
+
+export type SocialMediaLink = ExternalLink & {
   icon: React.ComponentType<{ className?: string }>;
 };
 

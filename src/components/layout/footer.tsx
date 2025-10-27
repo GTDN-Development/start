@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/components/ui/link";
 import { Logo } from "@/components/ui/logo";
 import { ArrowUpIcon, ChevronDownIcon } from "lucide-react";
 import { NavLink } from "@/components/layout/nav-link";

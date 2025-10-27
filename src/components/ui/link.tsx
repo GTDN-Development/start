@@ -1,8 +1,12 @@
-import NextLink, { type LinkProps as NextLinkProps } from "next/link";
+import NextLink from "next/link";
+import type { Route } from "next";
 
-export type LinkProps = NextLinkProps &
-  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, keyof NextLinkProps>;
+type NextLinkProps = React.ComponentProps<typeof NextLink>;
 
-export function Link(props: LinkProps) {
+export type LinkProps<T extends string = string> = Omit<NextLinkProps, "href"> & {
+  href: Route<T> | URL;
+};
+
+export function Link<T extends string = string>(props: LinkProps<T>) {
   return <NextLink {...props} />;
 }

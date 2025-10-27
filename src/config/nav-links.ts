@@ -1,8 +1,9 @@
 import { legalLinksArray } from "./legal-links";
+import type { Route } from "next";
 
-export type NavigationLink = {
+export type NavigationLink<T extends string = string> = {
   name: string;
-  href: string;
+  href: Route<T>;
 };
 
 export type NavigationDropdown = {
