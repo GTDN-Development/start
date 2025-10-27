@@ -7,7 +7,8 @@ import { cookies } from "@/config/cookies";
 import { site } from "@/config/site";
 
 const title = "Cookie Policy";
-const description = `Learn about how we use cookies on our website, what types of cookies we use, and how you can manage your cookie preferences.`;
+const description =
+  "Learn about how we use cookies on our website, what types of cookies we use, and how you can manage your cookie preferences.";
 
 export const metadata: Metadata = {
   title,

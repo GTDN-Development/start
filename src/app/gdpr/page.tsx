@@ -6,7 +6,8 @@ import { legal } from "@/config/legal";
 import { site } from "@/config/site";
 
 const title = "Privacy Policy";
-const description = `Information about the processing of personal data in accordance with the GDPR regulation`;
+const description =
+  "Information about the processing of personal data in accordance with the GDPR regulation";
 
 export const metadata: Metadata = {
   title,

@@ -21,6 +21,10 @@ export const navLinks = {
     name: "Legal links",
     items: [...legalLinksArray],
   },
+  contact: {
+    name: "Contact",
+    href: "/contact",
+  },
 } as const satisfies Record<string, NavigationItem>;
 
 export const navLinksArray: NavigationItem[] = Object.values(navLinks);

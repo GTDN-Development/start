@@ -1,4 +1,3 @@
-import { ContactForm } from "@/components/home-page/contact-form";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import {
@@ -10,10 +9,11 @@ import {
   HeroDescription,
   HeroTitle,
 } from "@/components/ui/hero";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+// import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import CubeSvg from "@/assets/svgs/cube.svg";
 import type { Metadata } from "next";
 import { site } from "@/config/site";
+import { FeaturesSection } from "@/components/home-page/features-section";
 
 export const metadata: Metadata = {
   title: site.defaultTitle,
@@ -54,15 +54,8 @@ export default function Page() {
         </HeroContent>
       </Hero>
 
-      <Container size="sm" className="pb-24">
-        <Card>
-          <CardHeader>
-            <h2 className="text-2xl font-bold">Contact us</h2>
-          </CardHeader>
-          <CardContent>
-            <ContactForm />
-          </CardContent>
-        </Card>
+      <Container className="pb-24">
+        <FeaturesSection />
       </Container>
     </div>
   );

@@ -17,7 +17,7 @@ export function LayoutCentered({ children }: { children: React.ReactNode }) {
     <div
       className={clsx(
         "[--navbar-height:--spacing(16)]",
-        "relative isolate flex min-h-dvh w-full flex-col justify-between *:shrink-0 *:grow-0 *:data-[slot=main]:shrink-1 *:data-[slot=main]:grow-1"
+        "relative isolate flex min-h-dvh w-full flex-col justify-between *:shrink-0 *:grow-0 *:data-[slot=main]:shrink *:data-[slot=main]:grow"
       )}
     >
       {/* Skip to content - A11y */}
