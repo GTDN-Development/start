@@ -4,6 +4,7 @@
 
 - Contact form - Use standard render props pattern and international date format (as timestamp)
 - Add `CHANGELOG.md` (this file)
+- Turnstile - Add dev mode placeholder when API key is missing
 
 ## 25-10-27
 
