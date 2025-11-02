@@ -132,9 +132,8 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
       >
         <FieldGroup>
           <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2">
-            <form.Field
-              name="name"
-              children={(field) => {
+            <form.Field name="name">
+              {(field) => {
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
@@ -152,11 +151,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                   </Field>
                 );
               }}
-            />
+            </form.Field>
 
-            <form.Field
-              name="surname"
-              children={(field) => {
+            <form.Field name="surname">
+              {(field) => {
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
@@ -174,12 +172,11 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                   </Field>
                 );
               }}
-            />
+            </form.Field>
           </div>
 
-          <form.Field
-            name="email"
-            children={(field) => {
+          <form.Field name="email">
+            {(field) => {
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
@@ -199,11 +196,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="phone"
-            children={(field) => {
+          <form.Field name="phone">
+            {(field) => {
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
@@ -225,11 +221,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="message"
-            children={(field) => {
+          <form.Field name="message">
+            {(field) => {
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
@@ -249,11 +244,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
-          <form.Field
-            name="gdprConsent"
-            children={(field) => {
+          <form.Field name="gdprConsent">
+            {(field) => {
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field orientation="horizontal" data-invalid={isInvalid}>
@@ -277,7 +271,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
           {submitStatus.type && (
             <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
@@ -291,9 +285,8 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
             </Alert>
           )}
 
-          <form.Field
-            name="turnstileToken"
-            children={(field) => {
+          <form.Field name="turnstileToken">
+            {(field) => {
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
@@ -307,7 +300,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting && (

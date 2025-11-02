@@ -12,6 +12,14 @@ type ContactFormData = {
   turnstileToken: string;
 };
 
+/**
+ * Formats current date and time for email timestamps
+ * @returns Formatted datetime string (e.g., "2024-12-25 15:45")
+ */
+function formatEmailTimestamp(): string {
+  return new Date().toISOString().slice(0, 16).replace("T", " ");
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: ContactFormData = await request.json();
@@ -62,7 +70,7 @@ export async function POST(request: NextRequest) {
         <p><strong>Phone:</strong> ${phone}</p>
         <p><strong>Message:</strong></p>
         <p>${message.replace(/\n/g, "<br>")}</p>
-        <p><em>Sent: ${new Date().toLocaleString("en-US")}</em></p>
+        <p><em>Sent: ${formatEmailTimestamp()}</em></p>
       `,
       text: `
           New contact form message
@@ -73,7 +81,7 @@ export async function POST(request: NextRequest) {
           Phone: ${phone}
           Message: ${message}
 
-          Sent: ${new Date().toLocaleString("en-US")}
+          Sent: ${formatEmailTimestamp()}
       `,
     };
 

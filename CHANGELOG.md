@@ -2,6 +2,7 @@
 
 ## 25-11-02
 
+- Contact form - Use standard render props pattern and international date format (as timestamp)
 - Add `CHANGELOG.md` (this file)
 
 ## 25-10-27
