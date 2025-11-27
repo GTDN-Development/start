@@ -137,10 +137,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Name *</FieldLabel>
+                    <FieldLabel htmlFor={`contact-${field.name}`}>Name *</FieldLabel>
                     <Input
-                      id={field.name}
-                      name={field.name}
+                      id={`contact-${field.name}`}
+                      name={`contact-${field.name}`}
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -158,10 +158,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Surname *</FieldLabel>
+                    <FieldLabel htmlFor={`contact-${field.name}`}>Surname *</FieldLabel>
                     <Input
-                      id={field.name}
-                      name={field.name}
+                      id={`contact-${field.name}`}
+                      name={`contact-${field.name}`}
                       value={field.state.value}
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -180,10 +180,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Email Address *</FieldLabel>
+                  <FieldLabel htmlFor={`contact-${field.name}`}>Email Address *</FieldLabel>
                   <Input
-                    id={field.name}
-                    name={field.name}
+                    id={`contact-${field.name}`}
+                    name={`contact-${field.name}`}
                     type="email"
                     value={field.state.value}
                     onBlur={field.handleBlur}
@@ -203,10 +203,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Phone Number *</FieldLabel>
+                  <FieldLabel htmlFor={`contact-${field.name}`}>Phone Number *</FieldLabel>
                   <Input
-                    id={field.name}
-                    name={field.name}
+                    id={`contact-${field.name}`}
+                    name={`contact-${field.name}`}
                     type="tel"
                     value={field.state.value}
                     onBlur={field.handleBlur}
@@ -228,10 +228,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={field.name}>Message *</FieldLabel>
+                  <FieldLabel htmlFor={`contact-${field.name}`}>Message *</FieldLabel>
                   <Textarea
-                    id={field.name}
-                    name={field.name}
+                    id={`contact-${field.name}`}
+                    name={`contact-${field.name}`}
                     value={field.state.value}
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -252,14 +252,14 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
               return (
                 <Field orientation="horizontal" data-invalid={isInvalid}>
                   <Checkbox
-                    id={field.name}
-                    name={field.name}
+                    id={`contact-${field.name}`}
+                    name={`contact-${field.name}`}
                     checked={field.state.value}
                     onCheckedChange={(checked) => field.handleChange(checked === true)}
                     aria-invalid={isInvalid}
                   />
                   <div className="space-y-1 leading-none">
-                    <FieldLabel htmlFor={field.name}>
+                    <FieldLabel htmlFor={`contact-${field.name}`}>
                       I agree to the{" "}
                       <Link href={legalLinks.gdpr.href} className="underline hover:no-underline">
                         processing of personal data

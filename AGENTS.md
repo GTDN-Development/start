@@ -368,7 +368,9 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - Add `data-invalid={isInvalid}` to `<Field />` wrapper
    - For arrays: Use `mode="array"` and `field.pushValue()` / `field.removeValue()`
 
-4. **API Routes & Notifications:** Submit to Next.js API routes, use Alert component for feedback
+4. **Form Field Prefixing:** Use unique prefixes (e.g., `contact-${field.name}`) for form field IDs and names to prevent conflicts when multiple forms exist on the same page
+
+5. **API Routes & Notifications:** Submit to Next.js API routes, use Alert component for feedback
    ```tsx
    import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 

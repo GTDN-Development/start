@@ -9,7 +9,6 @@ import {
   HeroDescription,
   HeroTitle,
 } from "@/components/ui/hero";
-// import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import CubeSvg from "@/assets/svgs/cube.svg";
 import type { Metadata } from "next";
 import { site } from "@/config/site";
