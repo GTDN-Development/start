@@ -26,14 +26,17 @@ src/app/cookies/
 ### What Each File Does
 
 **`cookie-context.tsx`** - Manages consent state (client-side)
+
 - Reads/writes `cookie_consent` cookie
 - Provides `useCookieContext()` hook
 
 **`server-utils.ts`** - Read consent in Server Components
+
 - `getConsent()` - Get full consent object
 - `hasConsentedTo(category)` - Check specific permission
 
 **`third-party-scripts.tsx`** - **YOUR TRACKING SCRIPTS GO HERE**
+
 - Server Component that conditionally loads GA/GTM
 - Only renders scripts if user consented
 
@@ -82,11 +85,7 @@ export default function RootLayout({ children }) {
 import { CookieContextProvider } from "@/components/cookies/cookie-context";
 
 export function Providers({ children }) {
-  return (
-    <CookieContextProvider>
-      {children}
-    </CookieContextProvider>
-  );
+  return <CookieContextProvider>{children}</CookieContextProvider>;
 }
 ```
 
@@ -136,7 +135,7 @@ import { CookieSettingsTrigger } from "@/components/cookies/cookie-settings-trig
 
 <CookieSettingsTrigger>
   <button>Manage Cookies</button>
-</CookieSettingsTrigger>
+</CookieSettingsTrigger>;
 ```
 
 ## Consent Categories

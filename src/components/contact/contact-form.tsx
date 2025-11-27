@@ -13,6 +13,7 @@ import { CheckCircleIcon, AlertCircleIcon, Loader2Icon } from "lucide-react";
 import { legalLinks } from "@/config/legal-links";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/components/turnstile/turnstile";
+import { Spinner } from "../ui/spinner";
 
 import { cn } from "@/lib/utils";
 
@@ -260,11 +261,13 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                   />
                   <div className="space-y-1 leading-none">
                     <FieldLabel htmlFor={`contact-${field.name}`}>
-                      I agree to the{" "}
-                      <Link href={legalLinks.gdpr.href} className="underline hover:no-underline">
-                        processing of personal data
-                      </Link>{" "}
-                      *
+                      <span>
+                        I agree to the{" "}
+                        <Link href={legalLinks.gdpr.href} className="underline hover:no-underline">
+                          processing of personal data
+                        </Link>{" "}
+                        *
+                      </span>
                     </FieldLabel>
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </div>
@@ -272,18 +275,6 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
               );
             }}
           </form.Field>
-
-          {submitStatus.type && (
-            <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
-              {submitStatus.type === "success" ? (
-                <CheckCircleIcon aria-hidden="true" className="size-4" />
-              ) : (
-                <AlertCircleIcon aria-hidden="true" className="size-4" />
-              )}
-              <AlertTitle>{submitStatus.type === "success" ? "Success!" : "Error!"}</AlertTitle>
-              <AlertDescription>{submitStatus.message}</AlertDescription>
-            </Alert>
-          )}
 
           <form.Field name="turnstileToken">
             {(field) => {
@@ -302,12 +293,26 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
             }}
           </form.Field>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting && (
-              <Loader2Icon aria-hidden="true" className="mr-2 size-4 animate-spin" />
-            )}
-            {isSubmitting ? "Sending..." : "Send Message"}
+          <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
+            {isSubmitting && <Spinner />}
+            {isSubmitting ? "Sending..." : "Submit"}
           </Button>
+
+          {submitStatus.type && (
+            <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
+              {submitStatus.type === "success" ? (
+                <CheckCircleIcon aria-hidden="true" className="size-4" />
+              ) : (
+                <AlertCircleIcon aria-hidden="true" className="size-4" />
+              )}
+              <AlertTitle>
+                {submitStatus.type === "success"
+                  ? "Form submitted successfully!"
+                  : "Submission failed"}
+              </AlertTitle>
+              <AlertDescription>{submitStatus.message}</AlertDescription>
+            </Alert>
+          )}
         </FieldGroup>
       </form>
     </div>

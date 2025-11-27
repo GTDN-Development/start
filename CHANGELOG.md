@@ -2,7 +2,12 @@
 
 ## 25-11-27
 
-- Contact form - Add field prefixing to prevent conflicts when multiple forms are on the same page
+- Add a new `spinner` component
+- Add `format` fommand into the `package.json`
+- Contact form updates:
+  - Add field prefixing to prevent conflicts between multiple forms on the same page
+  - Move the feedback alert below the form
+  - Fix the text wrapping inside the checkbox label
 
 ## 25-11-02
 

@@ -1,9 +1,11 @@
 # Agent Profile: Full-Stack TypeScript Engineer
 
 ## Identity
+
 Expert full-stack developer specializing in modern, accessible web apps using TypeScript and and Next.js with shadcn/ui.
 
 ## Expertise
+
 - **Language:** TypeScript (strict mode)
 - **Framework:** Next.js 16 (App Router)
 - **React:** React 19.2
@@ -17,6 +19,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 ## Rules
 
 ### 1. Coding Style
+
 1. **TypeScript:** Use strict mode (`strictNullChecks`, `noImplicitAny`)
 2. **Components:** Named function exports
    ```tsx
@@ -43,6 +46,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    ```
 
 ### 2. Project Structure
+
 1. **Naming:**
    - Components: PascalCase (`PrimaryButton`)
    - Files/Folders: kebab-case (`primary-button.tsx`)
@@ -66,6 +70,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    ```
 
 ### 3. Configuration Management
+
 1. **config/ folder:** Central configuration hub - single source of truth for:
    - Contact information (email, phone, address)
    - Navigation links and menu structure
@@ -81,7 +86,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    export const contactInfo = {
      email: "hello@company.com",
      phone: "+1 (555) 123-4567",
-     address: "123 Main St, City, State 12345"
+     address: "123 Main St, City, State 12345",
    };
 
    // components/footer.tsx
@@ -121,6 +126,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    ```
 
 ### 4. Frameworks
+
 1. **Next.js 16:** Use `layout.tsx`, `page.tsx`, `loading.tsx`. Co-locate data fetching in Server Components. Add `'use client'` for Client Components.
    - **Turbopack** is now the default bundler
    - **Async params/searchParams:** Must use `await params`, `await searchParams` (no longer sync)
@@ -128,12 +134,15 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - **Proxy instead of Middleware:** Use `proxy.ts` instead of `middleware.ts` for request interception
    - **Cache Components:** Use `"use cache"` directive for opt-in caching (replaces old implicit caching)
    - **Custom Link Component:** Always use the custom `Link` component from `@/components/ui/link` instead of importing directly from `next/link`
+
      ```tsx
      import { Link } from "@/components/ui/link";
 
-     <Link href="/about">About Us</Link>
+     <Link href="/about">About Us</Link>;
      ```
+
 2. **shadcn/ui:** Use pre-built accessible components with Radix UI primitives. Customize via CSS variables and class variants.
+
    ```tsx
    import { Button } from "@/components/ui/button";
    import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -153,7 +162,9 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
      );
    }
    ```
+
 3. **Component Variants:** Use `class-variance-authority` (cva) for component variants
+
    ```tsx
    import { cva, type VariantProps } from "class-variance-authority";
    import { cn } from "@/lib/utils";
@@ -184,15 +195,12 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
        VariantProps<typeof buttonVariants> {}
 
    export function Button({ className, variant, size, ...props }: ButtonProps) {
-     return (
-       <button
-         className={cn(buttonVariants({ variant, size, className }))}
-         {...props}
-       />
-     );
+     return <button className={cn(buttonVariants({ variant, size, className }))} {...props} />;
    }
    ```
+
 4. **Icons:** Use Lucide React for consistent iconography. Alwais import inons with Icon suffix in the name.
+
    ```tsx
    import { ChevronRightIcon, UserIcon, SettingsIcon } from "lucide-react";
 
@@ -207,9 +215,11 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    ```
 
 ### 5. Tailwind CSS v4 (CSS-First)
+
 1. **Setup:** CSS-first syntax in `globals.css`
+
    ```css
-   @import "tailwindcss";  /* Not @tailwind directives */
+   @import "tailwindcss"; /* Not @tailwind directives */
    @variant dark (&:where(.dark, .dark *));
    ```
 
@@ -227,6 +237,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - **Variables:** `bg-(--brand-color)` not `bg-[--brand-color]`
 
 4. **Theming:** CSS variables for shadcn/ui theme system. Access: `var(--primary)`. Arbitrary: `bg-(--primary)`
+
    ```css
    :root {
      --background: 0 0% 100%;
@@ -246,27 +257,28 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    ```
 
 5. **Utilities:** Use `cn()` utility for merging classes with `tailwind-merge`
+
    ```tsx
    import { cn } from "@/lib/utils";
 
    export function Component({ className }: { className?: string }) {
-     return (
-       <div className={cn("bg-primary text-primary-foreground", className)}>
-         Content
-       </div>
-     );
+     return <div className={cn("bg-primary text-primary-foreground", className)}>Content</div>;
    }
    ```
 
 6. **Custom Extensions:** Use `@utility` and `@variant` directives
+
    ```css
-   @utility tab-4 { tab-size: 4; }
+   @utility tab-4 {
+     tab-size: 4;
+   }
    @variant pointer-coarse (@media (pointer: coarse));
    ```
 
 7. **Spacing Rules:**
    - Use `margin-top` for vertical spacing between sections
    - Exception: Inside grid or flex containers, use `gap` or `space-y` utilities instead
+
    ```tsx
    // ✅ Good - sections with margin-top
    <div>
@@ -285,6 +297,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 8. **Sizing Rules:**
    - Use `size-*` utility when width and height are the same
    - **Never** use `w-* h-*` together for equal dimensions
+
    ```tsx
    // ✅ Good - using size utility
    <SomeIcon className="size-4" />
@@ -296,6 +309,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    ```
 
 ### 6. State Management
+
 1. **Server:** Fetch in Server Components
 2. **Client:** Context API + useState
 3. **Theme:** Use `next-themes` for theme management. Use the existing `ThemeSwitcher` component in `@/components/layout/theme-switcher` which provides light/dark/system theme options with proper accessibility.
@@ -305,6 +319,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - **`<Activity>`:** Render background activity while maintaining state
 
 ### 7. Accessibility
+
 1. Semantic HTML (`<nav>`, `<main>`, `<button>`)
 2. Appropriate `aria-*` attributes
 3. **Icons:** All decorative icons MUST have `aria-hidden="true"`
@@ -314,11 +329,13 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 4. **shadcn/ui components** come with accessibility built-in via Radix UI primitives
 
 ### 8. Forms
+
 1. **Validation:** TanStack Form + Zod for type-safe validation
 2. **Server Actions APIs:**
    - **`updateTag()`:** Read-your-writes semantics - expire cache and refresh immediately
    - **`revalidateTag()`:** Requires cacheLife profile as second argument (e.g., `revalidateTag('posts', 'max')`)
    - **`refresh()`:** Refresh uncached data only
+
    ```tsx
    const schema = z.object({
      email: z.string().email("Invalid email"),
@@ -334,11 +351,17 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    });
    ```
 
-2. **Structure:** Use `form.Field` with render prop pattern + shadcn/ui Field components
+3. **Structure:** Use `form.Field` with render prop pattern + shadcn/ui Field components
+
    ```tsx
    import { Field, FieldLabel, FieldDescription, FieldError } from "@/components/ui/field";
 
-   <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}>
+   <form
+     onSubmit={(e) => {
+       e.preventDefault();
+       form.handleSubmit();
+     }}
+   >
      <form.Field
        name="email"
        children={(field) => {
@@ -359,39 +382,45 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
          );
        }}
      />
-   </form>
+   </form>;
    ```
 
-3. **Field Types:** Support for Input, Textarea, Select, Checkbox, RadioGroup, Switch
+4. **Field Types:** Support for Input, Textarea, Select, Checkbox, RadioGroup, Switch
    - Use `field.state.value` and `field.handleChange` for all field types
    - Add `aria-invalid={isInvalid}` to form controls
    - Add `data-invalid={isInvalid}` to `<Field />` wrapper
    - For arrays: Use `mode="array"` and `field.pushValue()` / `field.removeValue()`
 
-4. **Form Field Prefixing:** Use unique prefixes (e.g., `contact-${field.name}`) for form field IDs and names to prevent conflicts when multiple forms exist on the same page
+5. **Form Field Prefixing:** Use unique prefixes (e.g., `contact-${field.name}`) for form field IDs and names to prevent conflicts when multiple forms exist on the same page
 
-5. **API Routes & Notifications:** Submit to Next.js API routes, use Alert component for feedback
+6. **API Routes & Notifications:** Submit to Next.js API routes, use Alert component for feedback
+
    ```tsx
    import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
    // Show success/error with Alert component (preferred over toast)
-   {submitStatus.type && (
-     <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
-       <AlertTitle>{submitStatus.type === "success" ? "Success!" : "Error!"}</AlertTitle>
-       <AlertDescription>{submitStatus.message}</AlertDescription>
-     </Alert>
-   )}
+   {
+     submitStatus.type && (
+       <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
+         <AlertTitle>{submitStatus.type === "success" ? "Success!" : "Error!"}</AlertTitle>
+         <AlertDescription>{submitStatus.message}</AlertDescription>
+       </Alert>
+     );
+   }
    ```
 
 ### 9. Images
+
 1. **Always use Next.js `<Image>`** not `<img>`
 2. **Local images:** Import from `assets/images/` and use `StaticImage` component
+
    ```tsx
    import { StaticImage } from "@/components/ui/static-image";
    import LocalImage from "@/assets/images/local-image.jpg";
 
-   <StaticImage image={LocalImage} alt="Description" placeholder="blur" />
+   <StaticImage image={LocalImage} alt="Description" placeholder="blur" />;
    ```
+
 3. **Next.js 16 Image Changes:**
    - Default `minimumCacheTTL` is now 4 hours (was 60s)
    - Default `imageSizes` removed `16` (reduces srcset size)
@@ -406,6 +435,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    ```
 
 ### 10. UI Components
+
 1. **shadcn/ui components:** Button, Card, Dialog, Drawer (Vaul), Input, Label, etc.
 2. **Carousel:** Use Embla Carousel React for image/content carousels
 3. **Animations:** Use tw-animate-css for CSS animations with Tailwind
@@ -413,5 +443,6 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 5. **Performance:** Enhanced routing with layout deduplication and incremental prefetching
 
 ## Scope
+
 - **Files:** `**/*.{ts,tsx,css,md}`
 - **Exclude:** `node_modules`, `.next`, `dist`
