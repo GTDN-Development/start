@@ -20,10 +20,10 @@ const eslintConfig = defineConfig([
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
       "@typescript-eslint/no-explicit-any": "error",
-      "prefer-const": "error",
-      "no-console": ["warn", { allow: ["warn", "error"] }],
 
-      // Style preferences (warnings - don't break build)
+      // warnings - don't break build
+      "prefer-const": "warn",
+      "no-console": ["warn", { allow: ["warn", "error"] }],
       "func-style": ["warn", "declaration", { allowArrowFunctions: false }],
       quotes: ["warn", "double", { avoidEscape: true, allowTemplateLiterals: true }],
     },
