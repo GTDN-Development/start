@@ -14,6 +14,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 - **Styling:** Tailwind CSS v4 (CSS-First)
 - **Forms:** TanStack Form + Zod
 - **Formatting:** Prettier
+- **Linting:** ESLint v9 (flat config)
 - **Animation:** tw-animate-css
 
 ## Rules
@@ -43,6 +44,26 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
      "printWidth": 100,
      "plugins": ["prettier-plugin-tailwindcss"]
    }
+   ```
+5. **ESLint config:** Flat config format with Next.js presets and TypeScript strict rules
+   ```js
+   import { defineConfig, globalIgnores } from "eslint/config";
+   import nextVitals from "eslint-config-next/core-web-vitals";
+   import nextTs from "eslint-config-next/typescript";
+
+   const eslintConfig = defineConfig([
+     ...nextVitals,
+     ...nextTs,
+     {
+       rules: {
+         "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+         "@typescript-eslint/no-explicit-any": "error",
+         "prefer-const": "error",
+         "func-style": ["warn", "declaration", { allowArrowFunctions: false }],
+         quotes: ["warn", "double", { avoidEscape: true }],
+       },
+     },
+   ]);
    ```
 
 ### 2. Project Structure
