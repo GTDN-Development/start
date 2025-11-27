@@ -2,6 +2,7 @@
 
 ## 25-11-27
 
+- EsLint - Enforce ESLint stricter rules and fix violations
 - Updated all packages to latest versions
 - Add a new `spinner` component
 - Add `format` fommand into the `package.json`

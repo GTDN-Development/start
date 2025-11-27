@@ -107,6 +107,7 @@ export function CookieContextProvider({ children }: { children: ReactNode }) {
   // Debug mode: log state changes
   useEffect(() => {
     if (ENABLE_DEBUG_MODE && isMounted) {
+      // eslint-disable-next-line no-console
       console.log("Cookie Consent State:", {
         consent,
         hasInteracted,

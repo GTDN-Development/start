@@ -54,7 +54,7 @@ function FloatingBar({
   useLayoutEffect(() => {
     if (!(isSticky || isFixed) || !isMounted) return;
 
-    const handleScroll = () => {
+    function handleScroll() {
       const currentScrollY = window.scrollY;
 
       // Handle scrolled state
@@ -75,7 +75,7 @@ function FloatingBar({
 
       // Update previous scroll position
       prevScrollY.current = currentScrollY;
-    };
+    }
 
     window.addEventListener("scroll", handleScroll, { passive: true });
 
