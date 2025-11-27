@@ -2,19 +2,21 @@
 
 import { ThemeProvider } from "next-themes";
 import { usePathname } from "next/navigation";
-import { createContext, useEffect, useRef } from "react";
+import { createContext, useState } from "react";
 import { CookieContextProvider } from "@/components/cookies/cookie-context";
 
 export const AppContext = createContext<{ previousPathname?: string }>({});
 
-function usePrevious<T>(value: T) {
-  const ref = useRef<T>(undefined);
+function usePrevious<T>(value: T): T | undefined {
+  const [current, setCurrent] = useState(value);
+  const [previous, setPrevious] = useState<T | undefined>();
 
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
+  if (current !== value) {
+    setPrevious(current);
+    setCurrent(value);
+  }
 
-  return ref.current;
+  return previous;
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {

@@ -38,8 +38,11 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
     setTheme(value);
   }
 
-  useEffect(function () {
-    setMounted(true);
+  useEffect(() => {
+    // Defer state update to avoid synchronous setState in effect
+    Promise.resolve().then(() => {
+      setMounted(true);
+    });
   }, []);
 
   if (!mounted) {

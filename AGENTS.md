@@ -317,6 +317,21 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - **View Transitions:** Animate elements during navigation with `<ViewTransition>`
    - **`useEffectEvent`:** Extract non-reactive logic from Effects
    - **`<Activity>`:** Render background activity while maintaining state
+5. **React 19.2 ESLint Patterns:**
+   - **Deferred setState in Effects:** Avoid synchronous setState in useEffect - defer with `Promise.resolve()`
+     ```tsx
+     // ✅ Good - deferred state update
+     useEffect(() => {
+       Promise.resolve().then(() => {
+         setMounted(true);
+       });
+     }, []);
+     
+     // ❌ Bad - synchronous setState
+     useEffect(() => {
+       setMounted(true);
+     }, []);
+     ```
 
 ### 7. Accessibility
 

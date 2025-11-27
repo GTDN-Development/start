@@ -93,12 +93,15 @@ export function CookieContextProvider({ children }: { children: ReactNode }) {
     const storedConsent = getConsentFromCookie();
     const hasStored = storedConsent !== null;
 
-    if (hasStored) {
-      setConsent(storedConsent);
-    }
+    // Defer state updates to avoid synchronous setState in effect
+    Promise.resolve().then(() => {
+      if (hasStored) {
+        setConsent(storedConsent);
+      }
 
-    setHasInteracted(ENABLE_DEBUG_MODE ? false : hasStored);
-    setIsMounted(true);
+      setHasInteracted(ENABLE_DEBUG_MODE ? false : hasStored);
+      setIsMounted(true);
+    });
   }, []);
 
   // Debug mode: log state changes

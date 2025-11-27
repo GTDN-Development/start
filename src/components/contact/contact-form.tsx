@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircleIcon, AlertCircleIcon, Loader2Icon } from "lucide-react";
+import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { legalLinks } from "@/config/legal-links";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/components/turnstile/turnstile";

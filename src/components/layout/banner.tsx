@@ -36,7 +36,9 @@ export function Banner({
 
   useEffect(() => {
     if (isControlled) {
-      setInternalIsOpen(controlledIsOpen);
+      Promise.resolve().then(() => {
+        setInternalIsOpen(controlledIsOpen);
+      });
     }
   }, [isControlled, controlledIsOpen]);
 

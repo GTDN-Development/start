@@ -46,7 +46,9 @@ function FloatingBar({
 
   // Set mounted state to prevent hydration mismatch
   useEffect(() => {
-    setIsMounted(true);
+    Promise.resolve().then(() => {
+      setIsMounted(true);
+    });
   }, []);
 
   useLayoutEffect(() => {
