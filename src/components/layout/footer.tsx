@@ -75,7 +75,7 @@ export function Footer(props: React.ComponentProps<"footer">) {
             <Link href="/" aria-label="Home Page">
               <Logo aria-hidden="true" className="w-20" />
             </Link>
-            <p className="text-sm">{site.defaultDescription}</p>
+            <p className="text-sm">{site.defaultTitle}</p>
             <Separator />
             <ThemeSwitcher />
           </div>
