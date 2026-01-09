@@ -31,7 +31,7 @@ export default function Page() {
   return (
     <div>
       <Hero>
-        <HeroContent>
+        <HeroContent size="md">
           <HeroTitle>{title}</HeroTitle>
           <HeroDescription>{description}</HeroDescription>
           <HeroActions>
@@ -45,7 +45,7 @@ export default function Page() {
         </HeroContent>
       </Hero>
 
-      <Container size="sm" className="pb-24">
+      <Container size="md" className="pb-24">
         <Card>
           <CardHeader>
             <h2 className="text-2xl font-bold">Contact form</h2>

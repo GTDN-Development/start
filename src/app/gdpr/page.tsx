@@ -34,13 +34,13 @@ export default function Page() {
   return (
     <>
       <Hero>
-        <HeroContent>
+        <HeroContent size="md">
           <HeroTitle>{title}</HeroTitle>
           <HeroDescription>{description}</HeroDescription>
         </HeroContent>
       </Hero>
 
-      <Container size="sm" className="prose pb-24">
+      <Container size="md" className="prose pb-24">
         <GdprPolicy
           company={{
             name: legal.legalName,

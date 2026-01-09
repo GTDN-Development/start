@@ -85,7 +85,7 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
   });
 
   return (
-    <div {...props} className={cn("@container", className)}>
+    <div {...props} className={cn("@container w-full", className)}>
       <form
         onSubmit={(e) => {
           e.preventDefault();

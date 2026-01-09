@@ -124,7 +124,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
   });
 
   return (
-    <div {...props} className={cn("@container", className)}>
+    <div {...props} className={cn("@container w-full", className)}>
       <form
         onSubmit={(e) => {
           e.preventDefault();

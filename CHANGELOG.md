@@ -1,5 +1,11 @@
 # Changelog
 
+## 26-01-09
+
+- Updated `<Container />` component implementation (unified sizing with screen breakpoints and default tailwindcss `.container` class)
+- Updated `<Hero />` component and created brand new `pattern.tsx` and all the patterns will be now part of this file and not the Hero component
+- Updated Packages
+
 ## 25-11-27
 
 - Add Newsletter

@@ -134,13 +134,7 @@ function MobileNavigation({ items }: { items: NavigationItem[] }) {
   );
 }
 
-export function Header({
-  narrow = true,
-  navigation,
-}: {
-  narrow?: boolean;
-  navigation: NavigationItem[];
-}) {
+export function Header({ navigation }: { navigation: NavigationItem[] }) {
   return (
     <FloatingBar
       asChild
@@ -160,10 +154,7 @@ export function Header({
       )}
     >
       <header>
-        <Container
-          size={narrow ? "default" : "fluid"}
-          className="flex h-full items-center justify-between gap-8"
-        >
+        <Container className="flex h-full items-center justify-between gap-8">
           {/* Left side */}
           <div className="flex flex-1 items-center gap-4">
             <Link href="/" aria-label="Home Page">

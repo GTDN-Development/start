@@ -4,7 +4,6 @@ import {
   Hero,
   HeroActions,
   HeroBackground,
-  HeroBackgroundGrid,
   HeroContent,
   HeroDescription,
   HeroTitle,
@@ -15,6 +14,7 @@ import { site } from "@/config/site";
 import { FeaturesBlock } from "@/components/home-page/features-block";
 import { NewsletterCta } from "@/components/newsletter/newsletter-cta";
 import { Separator } from "@/components/ui/separator";
+import { PatternGrid } from "@/components/ui/patterns";
 
 export const metadata: Metadata = {
   title: site.defaultTitle,
@@ -38,7 +38,7 @@ export default function Page() {
     <div>
       <Hero>
         <HeroBackground>
-          <HeroBackgroundGrid />
+          <PatternGrid className="absolute inset-0 -z-10 size-full" />
         </HeroBackground>
         <HeroContent>
           <CubeSvg className="mx-auto h-auto w-20 dark:invert" />
