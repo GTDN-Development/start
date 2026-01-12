@@ -13,7 +13,6 @@ import type { Metadata } from "next";
 import { site } from "@/config/site";
 import { FeaturesBlock } from "@/components/home-page/features-block";
 import { NewsletterCta } from "@/components/newsletter/newsletter-cta";
-import { Separator } from "@/components/ui/separator";
 import { PatternGrid } from "@/components/ui/patterns";
 
 export const metadata: Metadata = {
@@ -55,15 +54,11 @@ export default function Page() {
         </HeroContent>
       </Hero>
 
-      <div className="space-y-12 pb-24 md:space-y-20">
+      <div className="space-y-16 pb-24 md:space-y-32">
         <Container asChild>
           <section>
             <FeaturesBlock />
           </section>
-        </Container>
-
-        <Container>
-          <Separator />
         </Container>
 
         <Container asChild>

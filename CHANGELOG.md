@@ -1,5 +1,11 @@
 # Changelog
 
+## 26-01-12
+
+- Add `<CoppyButton />` component with `useClipboard` hook.
+- Changed a `<Header />` layout a bit to more modern with centered navigation
+- Update Home page features styling
+
 ## 26-01-09
 
 - Updated `<Container />` component implementation (unified sizing with screen breakpoints and default tailwindcss `.container` class)

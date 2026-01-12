@@ -12,7 +12,7 @@ import {
 import { FloatingBar } from "@/components/layout/floating-bar";
 import { Link } from "@/components/ui//link";
 import { Container } from "@/components/ui/container";
-import { MenuIcon, ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+import { MenuIcon, ChevronDownIcon, ChevronRightIcon, CheckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { NavLink } from "@/components/layout/nav-link";
@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { type NavigationItem, type NavigationDropdown } from "@/config/nav-links";
 import { SocialMediaIcons } from "./social-media-icons";
+import { contact } from "@/config/contact";
+import { CopyButton } from "../ui/copy-button";
+import { cn } from "@/lib/utils";
 
 // Type guard to check if an item is a dropdown
 function isDropdown(item: NavigationItem): item is NavigationDropdown {
@@ -40,7 +43,7 @@ function Navigation({ items }: { items: NavigationItem[] }) {
             <DropdownMenu key={index}>
               <DropdownMenuTrigger asChild>
                 <li>
-                  <button className="text-muted-foreground hover:text-foreground data-[state=open]:text-foreground flex items-center gap-2 text-sm font-medium transition-colors">
+                  <button className="text-muted-foreground hover:text-foreground data-[state=open]:text-foreground flex items-center gap-2 text-sm font-medium whitespace-nowrap transition-colors">
                     {item.name}
                     <ChevronDownIcon className="size-4" />
                   </button>
@@ -49,7 +52,10 @@ function Navigation({ items }: { items: NavigationItem[] }) {
               <DropdownMenuContent align="start">
                 {item.items.map((subItem) => (
                   <DropdownMenuItem key={subItem.href} asChild>
-                    <NavLink href={subItem.href} className="w-full cursor-pointer">
+                    <NavLink
+                      href={subItem.href}
+                      className="w-full cursor-pointer whitespace-nowrap"
+                    >
                       {subItem.name}
                     </NavLink>
                   </DropdownMenuItem>
@@ -62,7 +68,7 @@ function Navigation({ items }: { items: NavigationItem[] }) {
             <li key={index}>
               <NavLink
                 href={item.href}
-                className="text-muted-foreground hover:text-foreground data-current:text-foreground inline-flex items-center justify-center rounded-md text-sm font-medium underline-offset-2 transition-colors data-current:underline"
+                className="text-muted-foreground hover:text-foreground data-current:text-foreground inline-flex items-center justify-center rounded-md text-sm font-medium whitespace-nowrap underline-offset-2 transition-colors data-current:underline"
               >
                 {item.name}
               </NavLink>
@@ -162,11 +168,40 @@ export function Header({ navigation }: { navigation: NavigationItem[] }) {
             </Link>
           </div>
 
-          {/* Right side */}
-          <div className="flex flex-1 items-center justify-end gap-4">
-            <nav className="ml-auto hidden lg:block">
+          {/* Center */}
+          <div className="flex flex-1 items-center justify-center gap-4">
+            <nav className="hidden lg:block">
               <Navigation items={navigation} />
             </nav>
+          </div>
+
+          {/* Right side */}
+          <div className="flex flex-1 items-center justify-end gap-4">
+            {/* Call to action */}
+            <ul className="ml-auto hidden gap-4 lg:flex">
+              <li>
+                <Button asChild variant="secondary">
+                  <CopyButton toCopy={contact.email} className="relative">
+                    {({ isCopied }) => (
+                      <>
+                        <span className={cn(!isCopied ? "visible" : "invisible")}>
+                          {contact.email}
+                        </span>
+                        <span
+                          className={cn(
+                            "absolute inset-0 flex items-center justify-center",
+                            isCopied ? "visible" : "invisible"
+                          )}
+                        >
+                          <CheckIcon aria-hidden="true" className="mr-1 size-[1em]" />
+                          Copied!
+                        </span>
+                      </>
+                    )}
+                  </CopyButton>
+                </Button>
+              </li>
+            </ul>
 
             {/* Mobile menu */}
             <div className="lg:hidden">
