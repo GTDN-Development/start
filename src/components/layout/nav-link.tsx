@@ -4,17 +4,26 @@ import { Link, type LinkProps } from "../ui/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRightIcon } from "lucide-react";
 
+export type NavLinkProps = LinkProps & {
+  showExternalIcon?: boolean;
+  matchNested?: boolean;
+};
+
 export function NavLink({
   children,
   href,
   target,
   rel,
   showExternalIcon = false,
+  matchNested = false,
   ...props
-}: LinkProps & { showExternalIcon?: boolean }) {
+}: NavLinkProps) {
   const pathname = usePathname();
   const isExternal = typeof href === "string" && href.startsWith("http");
-  const isCurrent = pathname === href;
+  const hrefString = typeof href === "string" ? href : (href.pathname ?? "");
+  const isCurrent = matchNested
+    ? pathname === hrefString || pathname.startsWith(`${hrefString}/`)
+    : pathname === hrefString;
 
   return (
     <Link

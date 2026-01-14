@@ -9,15 +9,22 @@ export function useClipboard(timeout: number = 2000) {
 
   useEffect(() => {
     if (isCopied) {
-      const timeoutId = setTimeout(() => setIsCopied(false), timeout);
+      const timeoutId = setTimeout(() => {
+        Promise.resolve().then(() => setIsCopied(false));
+      }, timeout);
       return () => clearTimeout(timeoutId);
     }
   }, [isCopied, timeout]);
 
   function copy(text: string) {
-    window.navigator.clipboard.writeText(text).then(() => {
-      setIsCopied(true);
-    });
+    window.navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setIsCopied(true);
+      })
+      .catch((error) => {
+        console.error("Failed to copy to clipboard:", error);
+      });
   }
 
   return { isCopied, copy };
@@ -30,16 +37,15 @@ export type CopyButtonRenderProps = {
 export type CopyButtonProps = Omit<React.ComponentProps<"button">, "children"> & {
   toCopy: string;
   timeout?: number;
-  copiedContent?: React.ReactNode;
   children?: React.ReactNode | ((props: CopyButtonRenderProps) => React.ReactNode);
 };
 
 export function CopyButton({
   toCopy,
   timeout = 2000,
-  copiedContent,
   onClick,
   children,
+  "aria-label": ariaLabel,
   ...props
 }: CopyButtonProps) {
   const { isCopied, copy } = useClipboard(timeout);
@@ -50,11 +56,16 @@ export function CopyButton({
     if (typeof children === "function") {
       return children(renderProps);
     }
-    return isCopied && copiedContent ? copiedContent : children;
+    return children;
   }
 
   return (
-    <button {...props} onClick={chain(() => copy(toCopy), onClick)}>
+    <button
+      type="button"
+      aria-label={ariaLabel ?? (isCopied ? "Copied" : "Copy to clipboard")}
+      {...props}
+      onClick={chain(() => copy(toCopy), onClick)}
+    >
       {renderChildren()}
     </button>
   );
