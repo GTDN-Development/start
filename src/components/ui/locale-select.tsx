@@ -6,14 +6,8 @@ import { usePathname, useRouter } from "@/i18n/navigation";
 import { Locale } from "next-intl";
 import { useParams } from "next/navigation";
 import { useTransition } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import clsx from "clsx";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import { cn } from "@/lib/utils";
 
 export function LocaleSelect({ className = "" }: { className?: string }) {
   const locale = useLocale();
@@ -22,7 +16,8 @@ export function LocaleSelect({ className = "" }: { className?: string }) {
   const pathname = usePathname();
   const params = useParams();
 
-  function onValueChange(nextLocale: string) {
+  function onChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    const nextLocale = event.target.value;
     startTransition(() => {
       router.replace(
         // @ts-expect-error -- TypeScript will validate that only known `params`
@@ -35,17 +30,18 @@ export function LocaleSelect({ className = "" }: { className?: string }) {
   }
 
   return (
-    <Select value={locale} onValueChange={onValueChange} disabled={isPending}>
-      <SelectTrigger className={clsx("w-fit", className)}>
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {routing.locales.map((cur) => (
-          <SelectItem key={cur} value={cur}>
-            {cur}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <NativeSelect
+      value={locale}
+      onChange={onChange}
+      disabled={isPending}
+      className={cn(className)}
+      aria-label="Select language"
+    >
+      {routing.locales.map((cur) => (
+        <NativeSelectOption key={cur} value={cur}>
+          {cur.toUpperCase()}
+        </NativeSelectOption>
+      ))}
+    </NativeSelect>
   );
 }
