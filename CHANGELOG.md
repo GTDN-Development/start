@@ -2,6 +2,7 @@
 
 ## 26-02-03
 
+- Update packages and add security patches
 - Introduced App Router route groups for marketing/auth/dev and mirrored component structure.
 - Added dev-only component + color playground pages with production guard.
 - Added login/sign-up pages, forms, and stub API routes.
