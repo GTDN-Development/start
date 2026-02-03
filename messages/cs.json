@@ -1,0 +1,78 @@
+{
+  "Error": {
+    "description": "<p>Bohužel jsme narazili na chybu.</p><p>Můžete zkusit <retry>znovu načíst stránku</retry>, kterou jste navštěvovali.</p>",
+    "title": "Něco se pokazilo!"
+  },
+  "IndexPage": {
+    "title": "Next.js Starter Template",
+    "description": "Moderní šablona webové aplikace postavená na Next.js 16, TypeScript, shadcn/ui a s mnoha vestavěnými funkcemi.",
+    "learnMore": "Zjistit více",
+    "shadcnDocs": "Shadcn ui docs"
+  },
+  "LocaleLayout": {
+    "title": "Next.js Starter Template",
+    "description": "Moderní šablona webové aplikace postavená na Next.js 16, TypeScript, shadcn/ui a s mnoha vestavěnými funkcemi."
+  },
+  "LocaleSwitcher": {
+    "label": "Změnit jazyk",
+    "locale": "{locale, select, de {Němčina} en {Angličtina} cs {Čeština} other {Neznámý}}"
+  },
+  "Manifest": {
+    "name": "GTDN"
+  },
+  "Navigation": {
+    "home": "Domů",
+    "pathnames": "Cesty"
+  },
+  "NotFoundPage": {
+    "code": "404",
+    "description": "Omlouváme se, nemohli jsme najít stránku, kterou hledáte. Mohla být přesunuta, smazána, nebo jste zadali špatnou URL.",
+    "goHome": "Přejít na hlavní stránku",
+    "title": "Stránka nenalezena"
+  },
+  "PageLayout": {
+    "links": {
+      "docs": {
+        "description": "Dozvěďte se více o next-intl v oficiální dokumentaci.",
+        "href": "https://next-intl.dev",
+        "title": "Dokumentace"
+      },
+      "source": {
+        "description": "Procházejte zdrojový kód tohoto příkladu na GitHubu.",
+        "href": "https://github.com/amannn/next-intl/tree/main/examples/example-app-router",
+        "title": "Zdrojový kód"
+      }
+    }
+  },
+  "PathnamesPage": {
+    "description": "<p>Cesty jsou také internacionalizované.</p><p>Pokud používáte výchozí jazyk angličtinu, uvidíte <code>/en/pathnames</code> v adresním řádku prohlížeče na této stránce.</p><p>Pokud změníte jazyk na němčinu, URL se odpovídajícím způsobem lokalizuje (<code>/de/pfadnamen</code>).</p>",
+    "title": "Cesty"
+  },
+  "GdprPage": {
+    "title": "Zásady ochrany osobních údajů",
+    "description": "Informace o zpracování osobních údajů v souladu s nařízením GDPR"
+  },
+  "CookiesPage": {
+    "title": "Zásady cookies",
+    "description": "Zjistěte, jak používáme soubory cookies na našem webu, jaké typy cookies používáme a jak můžete spravovat své preference týkající se cookies."
+  },
+  "ContactPage": {
+    "title": "Kontakt",
+    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    "formTitle": "Kontaktní formulář"
+  },
+  "LoginPage": {
+    "title": "Přihlásit se",
+    "description": "Přístup k vašemu účtu pro správu nastavení a preferencí.",
+    "welcomeBack": "Vítejte zpět",
+    "newHere": "Jste tu poprvé?",
+    "createAccount": "Vytvořit účet"
+  },
+  "SignUpPage": {
+    "title": "Registrace",
+    "description": "Vytvořte si nový účet a začněte používat platformu.",
+    "createYourAccount": "Vytvořte si účet",
+    "alreadyHaveAccount": "Již máte účet?",
+    "logIn": "Přihlásit se"
+  }
+}

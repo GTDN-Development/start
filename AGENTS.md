@@ -164,10 +164,10 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 ### 4. Frameworks
 
 1. **Next.js 16:** Use `layout.tsx`, `page.tsx`, `loading.tsx`. Co-locate data fetching in Server Components. Add `'use client'` for Client Components.
-   - **Turbopack** is now the default bundler
+   - **Turbopack** is now the default bundler (no `--turbopack` flag needed)
    - **Async params/searchParams:** Must use `await params`, `await searchParams` (no longer sync)
    - **Async cookies/headers/draftMode:** Must use `await cookies()`, `await headers()`, `await draftMode()`
-   - **Proxy instead of Middleware:** Use `proxy.ts` instead of `middleware.ts` for request interception
+   - **Proxy instead of Middleware:** Use `proxy.ts` instead of `middleware.ts` for request interception (edge runtime NOT supported in proxy)
    - **Cache Components:** Use `"use cache"` directive for opt-in caching (replaces old implicit caching)
    - **Custom Link Component:** Always use the custom `Link` component from `@/components/ui/link` instead of importing directly from `next/link`
 
@@ -175,6 +175,49 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
      import { Link } from "@/components/ui/link";
 
      <Link href="/about">About Us</Link>;
+     ```
+
+   - **Type Generation:** Run `npx next typegen` to generate global types for async APIs:
+     - `PageProps<'/path/[slug]'>` - for page components with typed params/searchParams
+     - `LayoutProps<'/path'>` - for layout components with typed params and children
+     - `RouteContext<'/api/path/[id]'>` - for route handlers with typed params
+
+     ```tsx
+     // Page component with typed async params
+     export default function Page({ params }: PageProps<"/[locale]">) {
+       const { locale } = use(params); // or await params in async component
+       return <div>Locale: {locale}</div>;
+     }
+
+     // Layout component
+     export default async function Layout({ children, params }: LayoutProps<"/[locale]">) {
+       const { locale } = await params;
+       return <html lang={locale}>{children}</html>;
+     }
+
+     // Async generateMetadata with typed props
+     export async function generateMetadata(
+       props: Omit<LayoutProps<"/[locale]">, "children">
+     ): Promise<Metadata> {
+       const { locale } = await props.params;
+       return { title: `Page - ${locale}` };
+     }
+     ```
+
+   - **Caching APIs (Server Actions):**
+     - `revalidateTag(tag, cacheLifeProfile)` - stale-while-revalidate semantics (requires cacheLife profile as 2nd arg)
+     - `updateTag(tag)` - read-your-writes semantics, expires and refreshes immediately
+     - `refresh()` - refresh uncached data only
+     - `cacheLife` and `cacheTag` - stable (no `unstable_` prefix)
+
+   - **Parallel Routes:** All parallel route slots now require explicit `default.js` files
+
+     ```tsx
+     // app/@modal/default.tsx
+     import { notFound } from "next/navigation";
+     export default function Default() {
+       notFound();
+     }
      ```
 
 2. **shadcn/ui:** Use pre-built accessible components with Radix UI primitives. Customize via CSS variables and class variants.
@@ -477,7 +520,21 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - Default `imageSizes` removed `16` (reduces srcset size)
    - Default `qualities` changed to `[75]` (was `[1..100]`)
    - Local images with query strings require `images.localPatterns` config
-4. **Remote:** Explicit `width`/`height`, configure `remotePatterns`
+   - Local IP optimization blocked by default (use `dangerouslyAllowLocalIP: true` for private networks)
+   - Maximum redirects default is 3 (was unlimited)
+   - `next/legacy/image` is deprecated - use `next/image`
+   - `images.domains` is deprecated - use `images.remotePatterns`
+4. **Remote:** Explicit `width`/`height`, configure `remotePatterns` (not `domains`)
+
+   ```ts
+   // next.config.ts
+   images: {
+     remotePatterns: [
+       { protocol: "https", hostname: "example.com" },
+     ],
+   }
+   ```
+
 5. **Responsive:** Use `fill` with relative positioning or `sizes`
    ```tsx
    <div className="relative h-64 w-full">

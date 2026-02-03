@@ -27,6 +27,7 @@ import { SocialMediaIcons } from "./social-media-icons";
 import { contact } from "@/config/contact";
 import { CopyButton } from "../ui/copy-button";
 import { cn } from "@/lib/utils";
+import { LocaleSelect } from "../ui/locale-select";
 
 // Type guard to check if an item is a dropdown
 function isDropdown(item: NavigationItem): item is NavigationDropdown {
@@ -179,6 +180,9 @@ export function Header({ navigation }: { navigation: NavigationItem[] }) {
           <div className="flex flex-1 items-center justify-end gap-4">
             {/* Call to action */}
             <ul className="ml-auto hidden gap-4 lg:flex">
+              <li>
+                <LocaleSelect />
+              </li>
               <li>
                 <Button asChild variant="secondary">
                   <CopyButton toCopy={contact.email} className="relative">

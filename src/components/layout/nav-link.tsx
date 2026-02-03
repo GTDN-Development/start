@@ -1,7 +1,7 @@
 "use client";
 
-import { Link, type LinkProps } from "../ui/link";
-import { usePathname } from "next/navigation";
+import { Link, type LinkProps } from "@/components/ui/link";
+import { useSelectedLayoutSegment } from "next/navigation";
 import { ArrowUpRightIcon } from "lucide-react";
 
 export type NavLinkProps = LinkProps & {
@@ -18,9 +18,11 @@ export function NavLink({
   matchNested = false,
   ...props
 }: NavLinkProps) {
-  const pathname = usePathname();
-  const isExternal = typeof href === "string" && href.startsWith("http");
+  const selectedLayoutSegment = useSelectedLayoutSegment();
+  const pathname = selectedLayoutSegment ? `/${selectedLayoutSegment}` : "/";
   const hrefString = typeof href === "string" ? href : (href.pathname ?? "");
+  const isExternal = hrefString.startsWith("http");
+
   const isCurrent = matchNested
     ? pathname === hrefString || pathname.startsWith(`${hrefString}/`)
     : pathname === hrefString;
