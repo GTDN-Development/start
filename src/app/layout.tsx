@@ -5,11 +5,11 @@ import { Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/layout/providers";
 import { LayoutCentered } from "@/components/layout/layout-centered";
-import { ThirdPartyScripts } from "@/components/cookies/third-party-scripts";
-import { DynamicScripts } from "@/components/cookies/dynamic-scripts";
-import { CookieConsentBanner } from "@/components/cookies/cookie-consent-banner";
-import { CookieSettingsDialog } from "@/components/cookies/cookie-settings-dialog";
-import { CookieErrorBoundary } from "@/components/cookies/cookie-error-boundary";
+import { ThirdPartyScripts } from "@/components/(shared)/cookies/third-party-scripts";
+import { DynamicScripts } from "@/components/(shared)/cookies/dynamic-scripts";
+import { CookieConsentBanner } from "@/components/(shared)/cookies/cookie-consent-banner";
+import { CookieSettingsDialog } from "@/components/(shared)/cookies/cookie-settings-dialog";
+import { CookieErrorBoundary } from "@/components/(shared)/cookies/cookie-error-boundary";
 
 import { site } from "@/config/site";
 

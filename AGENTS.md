@@ -78,17 +78,32 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    ```text
    src/
    ├── app/
+   │   ├── (marketing)/     # public site routes
+   │   ├── (auth)/          # login/sign-up routes
+   │   └── (dev)/           # dev-only playground routes
    ├── assets/{fonts,images,svgs}/
    ├── components/
-   │   ├── ui/          # shadcn/ui components
-   │   ├── layout/      # layout components (navbar, footer, etc.)
-   │   └── {page-specific/,shared}/
-   ├── config/          # single source of truth for app configuration
+   │   ├── (marketing)/
+   │   ├── (auth)/
+   │   ├── (dev)/
+   │   ├── (shared)/        # cross-domain UI (e.g. cookies, turnstile)
+   │   ├── ui/              # shadcn/ui components
+   │   └── layout/          # navbar, footer, wrappers
+   ├── config/              # single source of truth for app configuration
    ├── data/
-   ├── lib/{utils,cn,api}/
-   ├── styles/{globals,themes,prose}.css
+   ├── hooks/               # React hooks
+   ├── lib/
+   │   ├── api/             # service fetchers (e.g. wordpress)
+   │   └── utils.ts
+   ├── styles/{globals,prose}.css
    └── types/
+       └── api/             # backend/service types
    ```
+
+4. **Type Placement (Brief):**
+   - Component-only types stay in the component file.
+   - Config-only types stay in the config file.
+   - Shared/domain/service types go in `src/types` (service types in `src/types/api`).
 
 ### 3. Configuration Management
 

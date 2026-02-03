@@ -1,5 +1,12 @@
 # Changelog
 
+## 26-02-03
+
+- Introduced App Router route groups for marketing/auth/dev and mirrored component structure.
+- Added dev-only component + color playground pages with production guard.
+- Added login/sign-up pages, forms, and stub API routes.
+- Updated overall folder structure and reflect the changes inside `AGENTS.md`
+
 ## 26-01-12
 
 - Add `<CoppyButton />` component with `useClipboard` hook.

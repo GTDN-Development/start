@@ -8,11 +8,13 @@ import { SocialMediaIcons } from "./social-media-icons";
 import { type NavigationItem, type NavigationDropdown, navLinksArray } from "@/config/nav-links";
 import { Separator } from "../ui/separator";
 import { legalLinksArray } from "@/config/legal-links";
-import { CookieSettingsTrigger } from "../cookies/cookie-settings-trigger";
+import { CookieSettingsTrigger } from "@/components/(shared)/cookies/cookie-settings-trigger";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 import { chain, cn } from "@/lib/utils";
 import { site } from "@/config/site";
+
+const isProduction = process.env.NODE_ENV === "production";
 
 // Type guard to check if an item is a dropdown
 function isDropdown(item: NavigationItem): item is NavigationDropdown {
@@ -84,6 +86,29 @@ export function Footer(props: React.ComponentProps<"footer">) {
             <div className="flex flex-col items-start justify-start gap-7">
               <p className="text-sm font-semibold">Navigation</p>
               <FooterNavigation items={navLinksArray} />
+              {!isProduction && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-semibold">Dev</p>
+                  <ul className="flex flex-col gap-2">
+                    <li>
+                      <NavLink
+                        href="/components"
+                        className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                      >
+                        Components
+                      </NavLink>
+                    </li>
+                    <li>
+                      <NavLink
+                        href="/colors"
+                        className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                      >
+                        Colors
+                      </NavLink>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col items-start justify-start gap-7">

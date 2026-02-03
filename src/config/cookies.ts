@@ -1,4 +1,4 @@
-import type { Cookie } from "@/components/cookies/cookie-policy";
+import type { Cookie } from "@/types/cookies";
 
 export const cookies: Cookie[] = [
   // Essential Cookies
