@@ -44,10 +44,6 @@
       }
     }
   },
-  "PathnamesPage": {
-    "description": "<p>The pathnames are internationalized too.</p><p>If you're using the default language English, you'll see <code>/en/pathnames</code> in the browser address bar on this page.</p><p>If you change the locale to German, the URL is localized accordingly (<code>/de/pfadnamen</code>).</p>",
-    "title": "Pathnames"
-  },
   "GdprPage": {
     "title": "Privacy Policy",
     "description": "Information about the processing of personal data in accordance with the GDPR regulation"

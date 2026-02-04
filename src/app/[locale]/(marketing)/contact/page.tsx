@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { contact, formatPhoneNumber } from "@/config/contact";
 import { site } from "@/config/site";
 
-export async function generateMetadata(props: PageProps<"/[locale]">): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<"/[locale]/contact">): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
@@ -37,7 +37,7 @@ export async function generateMetadata(props: PageProps<"/[locale]">): Promise<M
   };
 }
 
-export default function Page({ params }: PageProps<"/[locale]">) {
+export default function Page({ params }: PageProps<"/[locale]/contact">) {
   const { locale } = use(params);
 
   // Enable static rendering

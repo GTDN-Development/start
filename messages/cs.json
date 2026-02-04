@@ -44,10 +44,6 @@
       }
     }
   },
-  "PathnamesPage": {
-    "description": "<p>Cesty jsou také internacionalizované.</p><p>Pokud používáte výchozí jazyk angličtinu, uvidíte <code>/en/pathnames</code> v adresním řádku prohlížeče na této stránce.</p><p>Pokud změníte jazyk na němčinu, URL se odpovídajícím způsobem lokalizuje (<code>/de/pfadnamen</code>).</p>",
-    "title": "Cesty"
-  },
   "GdprPage": {
     "title": "Zásady ochrany osobních údajů",
     "description": "Informace o zpracování osobních údajů v souladu s nařízením GDPR"

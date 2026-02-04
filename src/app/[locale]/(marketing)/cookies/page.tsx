@@ -9,7 +9,7 @@ import { legal } from "@/config/legal";
 import { cookies } from "@/config/cookies";
 import { site } from "@/config/site";
 
-export async function generateMetadata(props: PageProps<"/[locale]">): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<"/[locale]/cookies">): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
@@ -40,7 +40,7 @@ export async function generateMetadata(props: PageProps<"/[locale]">): Promise<M
   };
 }
 
-export default function Page({ params }: PageProps<"/[locale]">) {
+export default function Page({ params }: PageProps<"/[locale]/cookies">) {
   const { locale } = use(params);
 
   // Enable static rendering

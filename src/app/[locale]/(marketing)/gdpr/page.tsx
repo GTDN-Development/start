@@ -8,7 +8,7 @@ import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/h
 import { legal } from "@/config/legal";
 import { site } from "@/config/site";
 
-export async function generateMetadata(props: PageProps<"/[locale]">): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
@@ -39,7 +39,7 @@ export async function generateMetadata(props: PageProps<"/[locale]">): Promise<M
   };
 }
 
-export default function Page({ params }: PageProps<"/[locale]">) {
+export default function Page({ params }: PageProps<"/[locale]/gdpr">) {
   const { locale } = use(params);
 
   // Enable static rendering

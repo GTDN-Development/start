@@ -9,7 +9,7 @@ import { Link } from "@/components/ui/link";
 import { LoginForm } from "@/components/(auth)/login/login-form";
 import { site } from "@/config/site";
 
-export async function generateMetadata(props: PageProps<"/[locale]">): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<"/[locale]/login">): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
@@ -40,7 +40,7 @@ export async function generateMetadata(props: PageProps<"/[locale]">): Promise<M
   };
 }
 
-export default function Page({ params }: PageProps<"/[locale]">) {
+export default function Page({ params }: PageProps<"/[locale]/login">) {
   const { locale } = use(params);
 
   // Enable static rendering
