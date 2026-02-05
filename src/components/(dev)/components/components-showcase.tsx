@@ -45,21 +45,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  AlertTriangleIcon,
-  CheckCircleIcon,
-  ChevronRightIcon,
-  SettingsIcon,
-} from "lucide-react";
+import { AlertTriangleIcon, CheckCircleIcon, ChevronRightIcon, SettingsIcon } from "lucide-react";
 
-const buttonVariants = [
-  "default",
-  "secondary",
-  "outline",
-  "ghost",
-  "link",
-  "destructive",
-] as const;
+const buttonVariants = ["default", "secondary", "outline", "ghost", "link", "destructive"] as const;
 
 const buttonSizes = ["sm", "default", "lg", "icon", "icon-sm", "icon-lg"] as const;
 
@@ -68,11 +56,11 @@ export function ComponentsShowcase() {
     <div className="pb-24">
       <Container className="py-16">
         <div>
-          <p className="text-muted-foreground text-sm uppercase tracking-wide">Dev Playground</p>
+          <p className="text-muted-foreground text-sm tracking-wide uppercase">Dev Playground</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">UI Components</h1>
           <p className="text-muted-foreground mt-4 max-w-2xl">
-            A quick visual checklist for the shadcn/ui components in this project. Use it to
-            inspect variants, sizes, and accessibility states while building new screens.
+            A quick visual checklist for the shadcn/ui components in this project. Use it to inspect
+            variants, sizes, and accessibility states while building new screens.
           </p>
         </div>
 
@@ -202,14 +190,43 @@ export function ComponentsShowcase() {
               </DropdownMenu>
 
               <Dialog>
-                <DialogTrigger asChild>
+                <DialogTrigger>
                   <Button>Simple dialog</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Share the update</DialogTitle>
                     <DialogDescription>
-                      Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
+                      Send a quick note to the team about what changed. Send a quick note to the
+                      team about what changed. Send a quick note to the team about what changed.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="flex flex-col gap-2">
