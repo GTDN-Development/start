@@ -1,13 +1,12 @@
 "use client";
 
+// This alert-dialog has implemented scroll behavior in y axis in case there is overflowing content
+
 import * as React from "react";
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-
-// This dialog has implemented scroll  behavior in y axis in case there is overflowing content
-// -> default shadcn dialog does not have this implemented
 
 function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
@@ -26,7 +25,7 @@ function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdr
     <AlertDialogPrimitive.Backdrop
       data-slot="alert-dialog-overlay"
       className={cn(
-        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 grid grid-rows-[1fr_auto_3fr] place-items-center overflow-y-auto bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs",
+        "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs",
         className
       )}
       {...props}
@@ -43,17 +42,21 @@ function AlertDialogContent({
 }) {
   return (
     <AlertDialogPortal>
-      <AlertDialogOverlay>
+      <AlertDialogOverlay />
+      <AlertDialogPrimitive.Viewport
+        data-slot="alert-dialog-viewport"
+        className="fixed inset-0 z-50 grid grid-rows-[1fr_auto_3fr] place-items-center overflow-y-auto pt-10 pb-12"
+      >
         <AlertDialogPrimitive.Popup
           data-slot="alert-dialog-content"
           data-size={size}
           className={cn(
-            "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-background ring-foreground/10 group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl p-4 ring-1 duration-100 outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm",
+            "data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 bg-background ring-foreground/10 group/alert-dialog-content relative grid w-full gap-4 rounded-xl p-4 ring-1 duration-100 outline-none data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-sm",
             className
           )}
           {...props}
         />
-      </AlertDialogOverlay>
+      </AlertDialogPrimitive.Viewport>
     </AlertDialogPortal>
   );
 }
