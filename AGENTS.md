@@ -46,6 +46,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    }
    ```
 5. **ESLint config:** Flat config format with Next.js presets and TypeScript strict rules
+
    ```js
    import { defineConfig, globalIgnores } from "eslint/config";
    import nextVitals from "eslint-config-next/core-web-vitals";
@@ -75,6 +76,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - `@/` for project imports (`@/components/ui/button`)
    - Relative for same directory (`./icon`)
 3. **Layout:**
+
    ```text
    src/
    ├── app/
@@ -270,8 +272,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    );
 
    export interface ButtonProps
-     extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-       VariantProps<typeof buttonVariants> {}
+     extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
 
    export function Button({ className, variant, size, ...props }: ButtonProps) {
      return <button className={cn(buttonVariants({ variant, size, className }))} {...props} />;
@@ -398,6 +399,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - **`<Activity>`:** Render background activity while maintaining state
 5. **React 19.2 ESLint Patterns:**
    - **Deferred setState in Effects:** Avoid synchronous setState in useEffect - defer with `Promise.resolve()`
+
      ```tsx
      // ✅ Good - deferred state update
      useEffect(() => {
@@ -405,7 +407,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
          setMounted(true);
        });
      }, []);
-     
+
      // ❌ Bad - synchronous setState
      useEffect(() => {
        setMounted(true);
@@ -549,6 +551,15 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 3. **Animations:** Use tw-animate-css for CSS animations with Tailwind
 4. **Mobile:** Use Vaul for mobile-optimized drawers
 5. **Performance:** Enhanced routing with layout deduplication and incremental prefetching
+
+### 11. Internationalization (next-intl)
+
+1. **Single source for UI text:** All user-facing copy belongs in `messages/*.json`.
+2. **Config remains structural:** Keep `src/config/*` as source of routes/links/business data, not localized copy.
+3. **Navigation labels:** Keep navigation/menu labels in `src/config/*` and map directly from config arrays.
+4. **Dictionary architecture:** Keep 4-6 top-level sections. Current convention: `common`, `layout`, `pages`, `forms`, `legal`, `cookies`.
+5. **Namespace depth:** Nest page/form/legal domains under these sections (e.g. `pages.home`, `forms.contact`, `legal.cookiePolicy`).
+6. **Coverage:** Include labels, placeholders, validation messages, alerts, and metadata text in dictionaries.
 
 ## Scope
 

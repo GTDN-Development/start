@@ -5,6 +5,7 @@ import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export type ThemeSwitcherProps = {
   className?: string;
@@ -32,6 +33,7 @@ function ToggleButton({ value, label, isCurrent, children }: ToggleButtonProps) 
 
 export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
   const { theme, setTheme } = useTheme();
+  const t = useTranslations("layout.themeSwitcher");
   const [mounted, setMounted] = useState(false);
 
   function handleValueChange(value: string) {
@@ -58,13 +60,13 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
         className
       )}
     >
-      <ToggleButton value="light" label="Light theme" isCurrent={theme === "light"}>
+      <ToggleButton value="light" label={t("light")} isCurrent={theme === "light"}>
         <SunIcon aria-hidden="true" className="size-4" />
       </ToggleButton>
-      <ToggleButton value="system" label="System theme" isCurrent={theme === "system"}>
+      <ToggleButton value="system" label={t("system")} isCurrent={theme === "system"}>
         <MonitorIcon aria-hidden="true" className="size-4" />
       </ToggleButton>
-      <ToggleButton value="dark" label="Dark theme" isCurrent={theme === "dark"}>
+      <ToggleButton value="dark" label={t("dark")} isCurrent={theme === "dark"}>
         <MoonIcon aria-hidden="true" className="size-4" />
       </ToggleButton>
     </RadioGroup.Root>

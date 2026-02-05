@@ -14,7 +14,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/cookies">): P
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "CookiesPage",
+    namespace: "pages.cookies",
   });
 
   return {
@@ -46,7 +46,7 @@ export default function Page({ params }: PageProps<"/[locale]/cookies">) {
   // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("CookiesPage");
+  const t = useTranslations("pages.cookies");
 
   return (
     <>
@@ -70,8 +70,7 @@ export default function Page({ params }: PageProps<"/[locale]/cookies">) {
             phone: legal.contact.phone,
           }}
           cookies={cookies}
-          effectiveDate="1. January 2025"
-          locale={locale === "cs" ? "cs" : "en"}
+          effectiveDate={t("effectiveDate")}
         />
       </Container>
     </>

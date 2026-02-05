@@ -8,9 +8,11 @@ import { Header } from "./header";
 import { navLinksArray } from "@/config/nav-links";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
+import { useTranslations } from "next-intl";
 
 // Main Layout Component
 export function LayoutCentered({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
   return (
@@ -21,14 +23,14 @@ export function LayoutCentered({ children }: { children: React.ReactNode }) {
       )}
     >
       {/* Skip to content - A11y */}
-      <SkipToContent href={`#${contentId}`}>Skip to content</SkipToContent>
+      <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
       {/* Banner */}
       <Banner isDismissable={true}>
-        <BannerTitle>Lorem ipsum dolor sit amet</BannerTitle>
+        <BannerTitle>{t("banner.title")}</BannerTitle>
         <BannerDivider />
-        <BannerDescription>consectetur adipisicing elit ipsa laudantium</BannerDescription>
-        <BannerLink href="/">Call to action</BannerLink>
+        <BannerDescription>{t("banner.description")}</BannerDescription>
+        <BannerLink href="/">{t("banner.callToAction")}</BannerLink>
       </Banner>
 
       {/* Header */}

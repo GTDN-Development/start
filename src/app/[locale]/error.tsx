@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function Error({ error, reset }: Props) {
-  const t = useTranslations("Error");
+  const t = useTranslations("common.error");
 
   useEffect(() => {
     console.error(error);
@@ -17,6 +17,7 @@ export default function Error({ error, reset }: Props) {
 
   return (
     <div>
+      <h1 className="text-2xl font-semibold">{t("title")}</h1>
       {t.rich("description", {
         p: (chunks) => <p className="mt-4">{chunks}</p>,
         retry: (chunks) => (

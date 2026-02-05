@@ -14,7 +14,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/login">): Pro
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "LoginPage",
+    namespace: "pages.login",
   });
 
   return {
@@ -46,7 +46,7 @@ export default function Page({ params }: PageProps<"/[locale]/login">) {
   // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("LoginPage");
+  const t = useTranslations("pages.login");
 
   return (
     <div>

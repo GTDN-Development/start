@@ -10,7 +10,7 @@ import {
   MobileMenuTrigger,
 } from "./mobile-menu";
 import { FloatingBar } from "@/components/layout/floating-bar";
-import { Link } from "@/components/ui//link";
+import { Link } from "@/components/ui/link";
 import { Container } from "@/components/ui/container";
 import { MenuIcon, ChevronDownIcon, ChevronRightIcon, CheckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,8 @@ import { SocialMediaIcons } from "./social-media-icons";
 import { contact } from "@/config/contact";
 import { CopyButton } from "../ui/copy-button";
 import { cn } from "@/lib/utils";
-import { LocaleSelect } from "../ui/locale-select";
+import { LocaleSelect } from "./locale-select";
+import { useTranslations } from "next-intl";
 
 // Type guard to check if an item is a dropdown
 function isDropdown(item: NavigationItem): item is NavigationDropdown {
@@ -102,8 +103,8 @@ function MobileNavigation({ items }: { items: NavigationItem[] }) {
                       <MobileMenuTitle>{item.name}</MobileMenuTitle>
                     </MobileMenuHeader>
                     <ul className="divide-border flex flex-col divide-y">
-                      {item.items.map((subItem, index) => (
-                        <li key={index}>
+                      {item.items.map((subItem, subItemIndex) => (
+                        <li key={subItemIndex}>
                           <MobileMenuClose asChild>
                             <NavLink
                               key={subItem.href}
@@ -142,6 +143,8 @@ function MobileNavigation({ items }: { items: NavigationItem[] }) {
 }
 
 export function Header({ navigation }: { navigation: NavigationItem[] }) {
+  const t = useTranslations("layout.header");
+
   return (
     <FloatingBar
       asChild
@@ -164,7 +167,7 @@ export function Header({ navigation }: { navigation: NavigationItem[] }) {
         <Container className="flex h-full items-center justify-between gap-8">
           {/* Left side */}
           <div className="flex flex-1 items-center gap-4">
-            <Link href="/" aria-label="Home Page">
+            <Link href="/" aria-label={t("homeAriaLabel")}>
               <Logo aria-hidden="true" className="w-20" />
             </Link>
           </div>
@@ -198,7 +201,7 @@ export function Header({ navigation }: { navigation: NavigationItem[] }) {
                           )}
                         >
                           <CheckIcon aria-hidden="true" className="mr-1 size-[1em]" />
-                          Copied!
+                          {t("copied")}
                         </span>
                       </>
                     )}
@@ -211,13 +214,13 @@ export function Header({ navigation }: { navigation: NavigationItem[] }) {
             <div className="lg:hidden">
               <MobileMenu>
                 <MobileMenuTrigger asChild>
-                  <Button variant="secondary" size="icon" aria-label="open menu">
+                  <Button variant="secondary" size="icon" aria-label={t("menu.openAriaLabel")}>
                     <MenuIcon aria-hidden="true" />
                   </Button>
                 </MobileMenuTrigger>
                 <MobileMenuContent>
                   <MobileMenuHeader>
-                    <MobileMenuTitle>Menu</MobileMenuTitle>
+                    <MobileMenuTitle>{t("menu.title")}</MobileMenuTitle>
                   </MobileMenuHeader>
                   <div className="space-y-6">
                     <MobileNavigation items={navigation} />
@@ -225,7 +228,7 @@ export function Header({ navigation }: { navigation: NavigationItem[] }) {
                     <MobileMenuFooter>
                       <MobileMenuClose asChild>
                         <Button variant="secondary" size="lg" className="w-full">
-                          Close menu
+                          {t("menu.close")}
                         </Button>
                       </MobileMenuClose>
                     </MobileMenuFooter>

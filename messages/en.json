@@ -1,74 +1,571 @@
 {
-  "Error": {
-    "description": "<p>We've unfortunately encountered an error.</p><p>You can try to <retry>reload the page</retry> you were visiting.</p>",
-    "title": "Something went wrong!"
+  "common": {
+    "error": {
+      "title": "Something went wrong!",
+      "description": "<p>We've unfortunately encountered an error.</p><p>You can try to <retry>reload the page</retry> you were visiting.</p>"
+    },
+    "localeSwitcher": {
+      "label": "Change language",
+      "locale": "{locale, select, cs {Čeština} en {English} other {Unknown}}"
+    },
+    "notFound": {
+      "code": "404",
+      "title": "Page Not Found",
+      "description": "Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or you entered the wrong URL.",
+      "goHome": "Go to Home page"
+    },
+    "manifest": {
+      "name": "GTDN"
+    }
   },
-  "IndexPage": {
-    "title": "Next.js Starter Template",
-    "description": "Modern web application starter template built with Next.js 16, TypeScript, shadcn/ui and with a lot of built-in features.",
-    "learnMore": "Learn more",
-    "shadcnDocs": "Shadcn ui docs"
-  },
-  "LocaleLayout": {
-    "title": "Next.js Starter Template",
-    "description": "Modern web application starter template built with Next.js 16, TypeScript, shadcn/ui and with a lot of built-in features."
-  },
-  "LocaleSwitcher": {
-    "label": "Change language",
-    "locale": "{locale, select, cs {Čeština} en {English} other {Unknown}}"
-  },
-  "Manifest": {
-    "name": "GTDN"
-  },
-  "Navigation": {
-    "home": "Home",
-    "pathnames": "Pathnames"
-  },
-  "NotFoundPage": {
-    "code": "404",
-    "description": "Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or you entered the wrong URL.",
-    "goHome": "Go to Home page",
-    "title": "Page Not Found"
-  },
-  "PageLayout": {
-    "links": {
-      "docs": {
-        "description": "Learn more about next-intl in the official docs.",
-        "href": "https://next-intl.dev",
-        "title": "Docs"
+  "layout": {
+    "metadata": {
+      "title": "Next.js Starter Template",
+      "description": "Modern web application starter template built with Next.js 16, TypeScript, shadcn/ui and with a lot of built-in features."
+    },
+    "header": {
+      "homeAriaLabel": "Home page",
+      "copied": "Copied!",
+      "menu": {
+        "openAriaLabel": "Open menu",
+        "title": "Menu",
+        "close": "Close menu"
+      }
+    },
+    "footer": {
+      "homeAriaLabel": "Home page",
+      "description": "Modern web application starter template built with Next.js 16, TypeScript, shadcn/ui and with a lot of built-in features.",
+      "sections": {
+        "navigation": "Navigation",
+        "legal": "Legal",
+        "socialMedia": "Social media"
       },
-      "source": {
-        "description": "Browse the source code of this example on GitHub.",
-        "href": "https://github.com/amannn/next-intl/tree/main/examples/example-app-router",
-        "title": "Source code"
+      "cookieSettings": "Cookie settings",
+      "copyright": "Copyright © {year} {company}. All rights reserved.",
+      "scrollToTop": "Scroll to top",
+      "createdBy": "Created by"
+    },
+    "themeSwitcher": {
+      "light": "Light theme",
+      "system": "System theme",
+      "dark": "Dark theme"
+    },
+    "skipToContent": "Skip to content",
+    "banner": {
+      "title": "Lorem ipsum dolor sit amet",
+      "description": "Consectetur adipisicing elit ipsa laudantium",
+      "callToAction": "Call to action",
+      "close": "Close alert"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Next.js Starter Template",
+      "description": "Modern web application starter template built with Next.js 16, TypeScript, shadcn/ui and with a lot of built-in features.",
+      "learnMore": "Learn more",
+      "shadcnDocs": "Shadcn ui docs",
+      "features": {
+        "title": "Built-in features",
+        "items": {
+          "responsiveLayout": {
+            "title": "Responsive Layout System",
+            "description": "Advanced header with mobile-friendly drawer navigation using Vaul. Supports nested menu items with unified data source that powers both header and footer navigation.",
+            "points": [
+              "Mobile-first drawer navigation",
+              "Nested menu support",
+              "Unified navigation data"
+            ]
+          },
+          "unifiedConfiguration": {
+            "title": "Unified Configuration",
+            "description": "Centralized config folder serving as single source of truth for site metadata, navigation links, contact information, legal content, and business details. Eliminates hardcoded values across components.",
+            "points": ["Single source of truth", "Easy maintenance", "No hardcoded values"]
+          },
+          "seoFoundation": {
+            "title": "SEO-Optimized Foundation",
+            "description": "Comprehensive SEO setup with auto-generated OG images, sitemap, and robots.txt. Perfect default for most projects for optimal search engine visibility that requires almost zero maintenance.",
+            "points": ["Auto-generated OG images", "Dynamic sitemap", "Optimized robots.txt"]
+          },
+          "gdprConsent": {
+            "title": "GDPR Compliance System",
+            "description": "Customizable EU-compliant consent system with granular controls. Supports analytics, marketing, and functional tracking with user preferences and easy consent management.",
+            "points": [
+              "EU-compliant consent",
+              "Granular tracking controls",
+              "User preference storage"
+            ]
+          },
+          "privacyPolicy": {
+            "title": "Privacy Policy Ready",
+            "description": "Pre-built GDPR-compliant privacy policy page with configurable legal information. Includes data processing details, user rights, and cookie usage transparency.",
+            "points": [
+              "GDPR-compliant template",
+              "Configurable legal info",
+              "User rights documentation"
+            ]
+          },
+          "contactForm": {
+            "title": "Contact Form with Protection",
+            "description": "Production-ready contact form with Cloudflare Turnstile captcha integration. Features form validation, error handling, and API route submission with proper feedback mechanisms.",
+            "points": ["Turnstile captcha", "Form validation", "API route integration"]
+          },
+          "themeManagement": {
+            "title": "Advanced Theme Management",
+            "description": "Sophisticated theme switcher supporting light, dark, and system preferences. Uses next-themes for seamless transitions with persistent user preferences and proper SSR handling.",
+            "points": ["Light/dark/system modes", "Persistent preferences", "SSR-compatible"]
+          },
+          "heroSystem": {
+            "title": "Hero Component System",
+            "description": "Flexible hero section components with background patterns, content management, and responsive layouts. Includes grid backgrounds, action buttons, and customizable content structures.",
+            "points": ["Background patterns", "Action buttons", "Responsive layouts"]
+          }
+        }
+      },
+      "newsletterCta": {
+        "title": "Subscribe to our newsletter",
+        "description": "Stay up to date with the latest news, insights, and updates. Join our community of subscribers and never miss important announcements."
+      }
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Get in touch with us. We will get back to you as soon as possible.",
+      "formTitle": "Contact form"
+    },
+    "login": {
+      "title": "Log in",
+      "description": "Access your account to manage settings and preferences.",
+      "welcomeBack": "Welcome back",
+      "newHere": "New here?",
+      "createAccount": "Create an account"
+    },
+    "signUp": {
+      "title": "Sign up",
+      "description": "Create a new account to start using the platform.",
+      "createYourAccount": "Create your account",
+      "alreadyHaveAccount": "Already have an account?",
+      "logIn": "Log in"
+    },
+    "gdpr": {
+      "title": "Privacy Policy",
+      "description": "Information about the processing of personal data in accordance with the GDPR regulation",
+      "effectiveDate": "January 1, 2025"
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "description": "Learn about how we use cookies on our website, what types of cookies we use, and how you can manage your cookie preferences.",
+      "effectiveDate": "January 1, 2025"
+    }
+  },
+  "forms": {
+    "newsletter": {
+      "validation": {
+        "email": "Please enter a valid email address.",
+        "turnstile": "Please complete verification."
+      },
+      "fields": {
+        "email": {
+          "label": "Email address *",
+          "placeholder": "your-email@example.com"
+        }
+      },
+      "submit": {
+        "default": "Subscribe",
+        "pending": "Subscribing..."
+      },
+      "consent": "By clicking Subscribe you agree to receive our newsletter. You can unsubscribe at any time. Learn more in our <link>privacy policy</link>.",
+      "status": {
+        "success": {
+          "title": "Successfully subscribed!",
+          "message": "Successfully subscribed to newsletter!"
+        },
+        "error": {
+          "title": "Subscription failed",
+          "message": "An error occurred during subscription. Please try again later."
+        }
+      }
+    },
+    "contact": {
+      "validation": {
+        "nameMin": "Name must be at least 2 characters.",
+        "nameMax": "Name must not be longer than 50 characters.",
+        "surnameMin": "Surname must be at least 2 characters.",
+        "surnameMax": "Surname must not be longer than 50 characters.",
+        "email": "Please enter a valid email address.",
+        "phoneMin": "Phone number must be at least 9 characters.",
+        "phoneInvalid": "Please enter a valid phone number.",
+        "messageMin": "Message must be at least 10 characters.",
+        "messageMax": "Message must not be longer than 1000 characters.",
+        "gdprConsent": "You must agree to the processing of personal data.",
+        "turnstile": "Please complete the verification."
+      },
+      "fields": {
+        "name": {
+          "label": "Name *",
+          "placeholder": "Your name"
+        },
+        "surname": {
+          "label": "Surname *",
+          "placeholder": "Your surname"
+        },
+        "email": {
+          "label": "Email address *",
+          "placeholder": "your@email.com",
+          "description": "We will send our response to this address."
+        },
+        "phone": {
+          "label": "Phone number *",
+          "placeholder": "+420 123 456 789",
+          "description": "Phone number for potential clarification of your inquiry."
+        },
+        "message": {
+          "label": "Message *",
+          "placeholder": "Write your message or inquiry...",
+          "description": "Describe how we can help you."
+        },
+        "gdprConsent": {
+          "label": "I agree to the <link>processing of personal data</link> *"
+        }
+      },
+      "submit": {
+        "default": "Submit",
+        "pending": "Sending..."
+      },
+      "status": {
+        "success": {
+          "title": "Form submitted successfully!",
+          "message": "Message sent successfully!"
+        },
+        "error": {
+          "title": "Submission failed",
+          "message": "An error occurred while sending the message. Please try again later."
+        }
+      }
+    },
+    "login": {
+      "validation": {
+        "email": "Please enter a valid email address.",
+        "password": "Password must be at least 8 characters."
+      },
+      "fields": {
+        "email": {
+          "label": "Email address",
+          "placeholder": "you@email.com"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "••••••••"
+        },
+        "rememberMe": {
+          "label": "Remember me"
+        }
+      },
+      "submit": {
+        "default": "Sign in",
+        "pending": "Signing in..."
+      },
+      "status": {
+        "success": {
+          "title": "Signed in",
+          "message": "Signed in successfully!"
+        },
+        "error": {
+          "title": "Sign in failed",
+          "message": "Invalid credentials. Please try again."
+        }
+      }
+    },
+    "signUp": {
+      "validation": {
+        "firstNameMin": "First name must be at least 2 characters.",
+        "firstNameMax": "First name must not exceed 50 characters.",
+        "lastNameMin": "Last name must be at least 2 characters.",
+        "lastNameMax": "Last name must not exceed 50 characters.",
+        "email": "Please enter a valid email address.",
+        "passwordMin": "Password must be at least 8 characters.",
+        "passwordMax": "Password must not exceed 100 characters.",
+        "confirmPassword": "Please confirm your password.",
+        "termsAccepted": "You must accept the privacy policy.",
+        "passwordMismatch": "Passwords do not match."
+      },
+      "fields": {
+        "firstName": {
+          "label": "First name",
+          "placeholder": "Jane"
+        },
+        "lastName": {
+          "label": "Last name",
+          "placeholder": "Doe"
+        },
+        "email": {
+          "label": "Email address",
+          "placeholder": "you@email.com"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "Create a strong password",
+          "description": "Use at least 8 characters."
+        },
+        "confirmPassword": {
+          "label": "Confirm password",
+          "placeholder": "Repeat your password"
+        },
+        "termsAccepted": {
+          "label": "I agree to the <link>privacy policy</link>."
+        }
+      },
+      "submit": {
+        "default": "Create account",
+        "pending": "Creating account..."
+      },
+      "status": {
+        "success": {
+          "title": "Account created",
+          "message": "Account created successfully!"
+        },
+        "error": {
+          "title": "Sign up failed",
+          "message": "Unable to create the account. Please try again."
+        }
       }
     }
   },
-  "GdprPage": {
-    "title": "Privacy Policy",
-    "description": "Information about the processing of personal data in accordance with the GDPR regulation"
+  "legal": {
+    "cookiePolicy": {
+      "effectiveFrom": "Effective from:",
+      "lastUpdated": "Last updated:",
+      "introduction": {
+        "title": "1. Introduction",
+        "description": "This Cookie Policy explains what cookies are and how we use them on our website"
+      },
+      "whatAreCookies": {
+        "title": "2. What are cookies?",
+        "description": "Cookies are small text files that are stored on your device (computer, mobile phone) when you visit a website. In addition to cookies, we may also use localStorage and sessionStorage to store data directly in your browser. They help us ensure the website functions correctly, make it more secure, understand how it performs, and analyze what works and where it needs improvement."
+      },
+      "howWeUseCookies": {
+        "title": "3. How we use cookies",
+        "description": "Our website uses first-party and third-party cookies for several purposes. First-party cookies are mostly necessary for the website to function the right way, and they do not collect any of your personally identifiable data. The third-party cookies used on our website are mainly for understanding how the website performs, how you interact with our website, keeping our services secure, and providing better user experience."
+      },
+      "typesOfCookies": {
+        "title": "4. Types of cookies we use"
+      },
+      "table": {
+        "name": "Name",
+        "provider": "Provider",
+        "purpose": "Purpose",
+        "duration": "Duration",
+        "storageType": "Storage type"
+      },
+      "category": {
+        "essential": "Essential cookies",
+        "functional": "Functional storage",
+        "analytics": "Analytics cookies",
+        "marketing": "Marketing cookies"
+      },
+      "storageType": {
+        "cookie": "Cookie",
+        "localStorage": "Local storage",
+        "sessionStorage": "Session storage"
+      },
+      "management": {
+        "title": "5. How to manage your storage preferences",
+        "description": "You can manage your preferences at any time using the button below or through your browser settings. You can block or delete cookies, localStorage, and sessionStorage data. Restricting these technologies may impact the functionality of this website.",
+        "button": "Change cookie settings"
+      },
+      "contact": {
+        "title": "6. Contact us",
+        "description": "If you have any questions about this policy, you can contact us at:",
+        "phone": "or by phone:"
+      },
+      "cookieDetails": {
+        "cookieConsent": {
+          "provider": "Own",
+          "purpose": "Stores cookie consent preferences.",
+          "duration": "1 year"
+        },
+        "theme": {
+          "provider": "Own",
+          "purpose": "Stores theme preference (system/light/dark mode).",
+          "duration": "Persistent"
+        },
+        "consentChangeCheck": {
+          "provider": "Own",
+          "purpose": "Tracks consent changes to refresh scripts.",
+          "duration": "Session"
+        },
+        "ga": {
+          "provider": "Google Analytics",
+          "purpose": "Distinguishes users for analytics (with consent).",
+          "duration": "2 years"
+        },
+        "gaWildcard": {
+          "provider": "Google Analytics",
+          "purpose": "Persists GA4 session state (with consent).",
+          "duration": "2 years"
+        },
+        "gid": {
+          "provider": "Google Analytics",
+          "purpose": "Distinguishes users for 24 hours (with consent).",
+          "duration": "24 hours"
+        },
+        "gat": {
+          "provider": "Google Analytics",
+          "purpose": "Throttles GA request rate (with consent).",
+          "duration": "1 minute"
+        },
+        "gclAu": {
+          "provider": "Google Tag Manager",
+          "purpose": "AdSense efficiency experiments (with consent).",
+          "duration": "3 months"
+        }
+      },
+      "defaults": {
+        "cookies": [
+          {
+            "name": "_ga",
+            "provider": "Google Analytics",
+            "purpose": "Used to distinguish users for statistical purposes.",
+            "duration": "2 years",
+            "category": "analytics",
+            "storageType": "cookie"
+          }
+        ]
+      }
+    },
+    "gdprPolicy": {
+      "effectiveFrom": "Effective from:",
+      "principles": "This Personal Data Processing Policy (hereinafter referred to as the \"Policy\") describes how",
+      "companyId": "ID:",
+      "headquartered": "headquartered at",
+      "controller": "(hereinafter also referred to as the \"Controller\"), processes and protects personal data of its customers, partners, and other individuals (hereinafter referred to as \"data subjects\").",
+      "websiteInfo": "This Policy applies to the processing of personal data on the website",
+      "dataCollectedTitle": "1. Personal data collected",
+      "dataCollectedDescription": "The Controller, in accordance with applicable legislation, collects and processes the following personal data:",
+      "purposesTitle": "2. Purposes of personal data processing",
+      "purposesDescription": "Personal data is processed on a lawful basis (e.g., contract performance, consent, legal obligation), especially for these purposes:",
+      "retentionTitle": "3. Personal data retention period",
+      "retentionDescription": "We retain personal data for the period necessary to achieve the purpose of processing, but no longer than",
+      "additionalInfoTitle": "Additional information",
+      "rightsTitle": "Rights of data subjects",
+      "rightsDescription": "Data subjects have the following rights under the GDPR:",
+      "defaultRights": "In accordance with GDPR, data subjects have the right to access personal data, the right to rectification, erasure, restriction of processing, data portability, and the right to object to processing. They may also withdraw their consent at any time if processing is based on consent.",
+      "contactTitle": "Contact for exercising rights",
+      "contactDescription": "To exercise your rights and for further information regarding the processing of personal data, you can contact the Controller at:",
+      "contactPhone": "or by phone:",
+      "complaintDescription": "If you believe your rights are being violated, you also have the right to file a complaint with the supervisory authority in the Czech Republic:",
+      "supervisoryAuthority": "The Office for Personal Data Protection",
+      "website": "www.uoou.cz",
+      "thirdPartiesTitle": "4. Sharing personal data with third parties",
+      "thirdPartiesDescription": "Your personal data may be accessed by the following processors and third parties:",
+      "thirdPartyService": "Service provided:",
+      "thirdPartyCountry": "Country of operation:",
+      "defaults": {
+        "dataCollected": [
+          "First and last name",
+          "Email address",
+          "Phone number",
+          "IP address and device information",
+          "Communication history",
+          "Cookies and similar technologies",
+          "Website usage data"
+        ],
+        "dataPurposes": [
+          "Providing services and fulfilling contractual obligations",
+          "Responding to inquiries and communicating with prospective clients",
+          "Managing user accounts and customer support",
+          "Improving the quality of our services and developing new features",
+          "Marketing and promotion of our products and services (based on consent)",
+          "Compliance with legal and regulatory obligations",
+          "Fraud prevention, security, and abuse prevention",
+          "Analysis and statistical processing for internal purposes",
+          "Protecting our legitimate interests and legal claims"
+        ],
+        "dataRetention": "5 years from the end of the contractual relationship or withdrawal of consent, unless otherwise required by law",
+        "thirdParties": [
+          {
+            "name": "FBLS Tech s.r.o.",
+            "service": "Technical services and development",
+            "country": "Czech Republic"
+          },
+          {
+            "name": "GTDN dev s.r.o.",
+            "service": "Technical services and development",
+            "country": "Czech Republic"
+          },
+          {
+            "name": "Vercel",
+            "service": "Cloud hosting and deployment",
+            "country": "United States"
+          },
+          {
+            "name": "Amazon Web Services (AWS)",
+            "service": "Cloud hosting and storage",
+            "country": "United States"
+          },
+          {
+            "name": "Google Cloud Platform",
+            "service": "Analytics and cloud services",
+            "country": "United States"
+          },
+          {
+            "name": "SendGrid",
+            "service": "Email delivery services",
+            "country": "United States"
+          },
+          {
+            "name": "Mailchimp",
+            "service": "Email marketing services",
+            "country": "United States"
+          },
+          {
+            "name": "Stripe",
+            "service": "Payment processing",
+            "country": "United States"
+          }
+        ]
+      }
+    }
   },
-  "CookiesPage": {
-    "title": "Cookie Policy",
-    "description": "Learn about how we use cookies on our website, what types of cookies we use, and how you can manage your cookie preferences."
-  },
-  "ContactPage": {
-    "title": "Contact",
-    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    "formTitle": "Contact form"
-  },
-  "LoginPage": {
-    "title": "Log in",
-    "description": "Access your account to manage settings and preferences.",
-    "welcomeBack": "Welcome back",
-    "newHere": "New here?",
-    "createAccount": "Create an account"
-  },
-  "SignUpPage": {
-    "title": "Sign up",
-    "description": "Create a new account to start using the platform.",
-    "createYourAccount": "Create your account",
-    "alreadyHaveAccount": "Already have an account?",
-    "logIn": "Log in"
+  "cookies": {
+    "consent": {
+      "banner": {
+        "description": "We use cookies to enhance your browsing experience, analyze site traffic, and provide personalized content. You can choose to accept all cookies or customize your preferences.",
+        "deny": "Deny",
+        "acceptAll": "Accept all",
+        "settings": "Consent settings"
+      },
+      "dialog": {
+        "title": "Cookie Consent Settings",
+        "description": "Manage your cookie preferences. Blocking some cookies may impact your experience.",
+        "categories": {
+          "necessary": {
+            "label": "Necessary",
+            "ariaLabel": "Necessary cookies (always enabled)",
+            "description": "Essential for the website to function. Enable basic features like page navigation and secure areas."
+          },
+          "functional": {
+            "label": "Functional",
+            "ariaLabel": "Functional cookies",
+            "description": "Enable enhanced functionality and personalization, such as remembering your preferences and settings."
+          },
+          "analytics": {
+            "label": "Analytics",
+            "ariaLabel": "Analytics cookies",
+            "description": "Help us understand how visitors interact with our website to improve content and user experience."
+          },
+          "marketing": {
+            "label": "Marketing",
+            "ariaLabel": "Marketing cookies",
+            "description": "Used to deliver relevant advertisements and measure the effectiveness of advertising campaigns."
+          }
+        },
+        "moreInfo": "For more information about how we use cookies, please read our",
+        "cookiesPolicy": "cookies policy.",
+        "actions": {
+          "deny": "Deny",
+          "acceptAll": "Accept all",
+          "save": "Save"
+        }
+      }
+    }
   }
 }

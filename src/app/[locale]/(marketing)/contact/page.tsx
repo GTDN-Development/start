@@ -15,7 +15,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/contact">): P
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "ContactPage",
+    namespace: "pages.contact",
   });
 
   return {
@@ -43,7 +43,7 @@ export default function Page({ params }: PageProps<"/[locale]/contact">) {
   // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("ContactPage");
+  const t = useTranslations("pages.contact");
 
   return (
     <div>

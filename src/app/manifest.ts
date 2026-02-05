@@ -5,7 +5,7 @@ import { routing } from "@/i18n/routing";
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const t = await getTranslations({
     locale: routing.defaultLocale,
-    namespace: "Manifest",
+    namespace: "common.manifest",
   });
 
   return {

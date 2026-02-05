@@ -8,9 +8,11 @@ import { useParams } from "next/navigation";
 import { useTransition } from "react";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export function LocaleSelect({ className = "" }: { className?: string }) {
   const locale = useLocale();
+  const t = useTranslations("common.localeSwitcher");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const pathname = usePathname();
@@ -35,11 +37,11 @@ export function LocaleSelect({ className = "" }: { className?: string }) {
       onChange={onChange}
       disabled={isPending}
       className={cn(className)}
-      aria-label="Select language"
+      aria-label={t("label")}
     >
       {routing.locales.map((cur) => (
         <NativeSelectOption key={cur} value={cur}>
-          {cur.toUpperCase()}
+          {t("locale", { locale: cur })}
         </NativeSelectOption>
       ))}
     </NativeSelect>

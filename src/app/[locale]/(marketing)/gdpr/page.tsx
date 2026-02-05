@@ -13,7 +13,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Prom
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "GdprPage",
+    namespace: "pages.gdpr",
   });
 
   return {
@@ -45,7 +45,7 @@ export default function Page({ params }: PageProps<"/[locale]/gdpr">) {
   // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("GdprPage");
+  const t = useTranslations("pages.gdpr");
 
   return (
     <>
@@ -68,8 +68,7 @@ export default function Page({ params }: PageProps<"/[locale]/gdpr">) {
             email: legal.contact.email,
             phone: legal.contact.phone,
           }}
-          effectiveDate="1. January 2025"
-          locale={locale === "cs" ? "cs" : "en"}
+          effectiveDate={t("effectiveDate")}
         />
       </Container>
     </>

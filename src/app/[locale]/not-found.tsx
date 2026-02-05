@@ -8,12 +8,12 @@ import { Link } from "@/components/ui/link";
 import { useTranslations } from "next-intl";
 
 export default function NotFound() {
-  const t = useTranslations("NotFoundPage");
+  const t = useTranslations("common.notFound");
 
   return (
     <Hero>
       <HeroContent className="text-center">
-        <div className="text-primary font-medium">404</div>
+        <div className="text-primary font-medium">{t("code")}</div>
         <HeroTitle>{t("title")}</HeroTitle>
         <HeroDescription>{t("description")}</HeroDescription>
         <HeroActions>

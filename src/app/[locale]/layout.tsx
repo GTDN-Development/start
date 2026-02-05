@@ -37,6 +37,10 @@ export const viewport: Viewport = {
   ],
 };
 
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
 export async function generateMetadata(
   props: Omit<LayoutProps<"/[locale]">, "children">
 ): Promise<Metadata> {
@@ -44,7 +48,7 @@ export async function generateMetadata(
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "LocaleLayout",
+    namespace: "layout.metadata",
   });
 
   return {

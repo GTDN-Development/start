@@ -1,74 +1,571 @@
 {
-  "Error": {
-    "description": "<p>Bohužel jsme narazili na chybu.</p><p>Můžete zkusit <retry>znovu načíst stránku</retry>, kterou jste navštěvovali.</p>",
-    "title": "Něco se pokazilo!"
+  "common": {
+    "error": {
+      "title": "Něco se pokazilo!",
+      "description": "<p>Bohužel jsme narazili na chybu.</p><p>Můžete zkusit <retry>znovu načíst stránku</retry>, kterou jste navštěvovali.</p>"
+    },
+    "localeSwitcher": {
+      "label": "Změnit jazyk",
+      "locale": "{locale, select, cs {Čeština} en {English} other {Neznámý jazyk}}"
+    },
+    "notFound": {
+      "code": "404",
+      "title": "Stránka nenalezena",
+      "description": "Omlouváme se, nemohli jsme najít stránku, kterou hledáte. Mohla být přesunuta, smazána, nebo jste zadali špatnou URL.",
+      "goHome": "Přejít na domovskou stránku"
+    },
+    "manifest": {
+      "name": "GTDN"
+    }
   },
-  "IndexPage": {
-    "title": "Next.js Starter Template",
-    "description": "Moderní šablona webové aplikace postavená na Next.js 16, TypeScript, shadcn/ui a s mnoha vestavěnými funkcemi.",
-    "learnMore": "Zjistit více",
-    "shadcnDocs": "Shadcn ui docs"
-  },
-  "LocaleLayout": {
-    "title": "Next.js Starter Template",
-    "description": "Moderní šablona webové aplikace postavená na Next.js 16, TypeScript, shadcn/ui a s mnoha vestavěnými funkcemi."
-  },
-  "LocaleSwitcher": {
-    "label": "Změnit jazyk",
-    "locale": "{locale, select, de {Němčina} en {Angličtina} cs {Čeština} other {Neznámý}}"
-  },
-  "Manifest": {
-    "name": "GTDN"
-  },
-  "Navigation": {
-    "home": "Domů",
-    "pathnames": "Cesty"
-  },
-  "NotFoundPage": {
-    "code": "404",
-    "description": "Omlouváme se, nemohli jsme najít stránku, kterou hledáte. Mohla být přesunuta, smazána, nebo jste zadali špatnou URL.",
-    "goHome": "Přejít na hlavní stránku",
-    "title": "Stránka nenalezena"
-  },
-  "PageLayout": {
-    "links": {
-      "docs": {
-        "description": "Dozvěďte se více o next-intl v oficiální dokumentaci.",
-        "href": "https://next-intl.dev",
-        "title": "Dokumentace"
+  "layout": {
+    "metadata": {
+      "title": "Next.js Starter Template",
+      "description": "Moderní šablona webové aplikace postavená na Next.js 16, TypeScript, shadcn/ui a s mnoha vestavěnými funkcemi."
+    },
+    "header": {
+      "homeAriaLabel": "Domovská stránka",
+      "copied": "Zkopírováno!",
+      "menu": {
+        "openAriaLabel": "Otevřít menu",
+        "title": "Menu",
+        "close": "Zavřít menu"
+      }
+    },
+    "footer": {
+      "homeAriaLabel": "Domovská stránka",
+      "description": "Moderní šablona webové aplikace postavená na Next.js 16, TypeScript, shadcn/ui a s mnoha vestavěnými funkcemi.",
+      "sections": {
+        "navigation": "Navigace",
+        "legal": "Právní informace",
+        "socialMedia": "Sociální sítě"
       },
-      "source": {
-        "description": "Procházejte zdrojový kód tohoto příkladu na GitHubu.",
-        "href": "https://github.com/amannn/next-intl/tree/main/examples/example-app-router",
-        "title": "Zdrojový kód"
+      "cookieSettings": "Nastavení cookies",
+      "copyright": "Copyright © {year} {company}. Všechna práva vyhrazena.",
+      "scrollToTop": "Zpět nahoru",
+      "createdBy": "Vytvořeno"
+    },
+    "themeSwitcher": {
+      "light": "Světlé téma",
+      "system": "Systémové téma",
+      "dark": "Tmavé téma"
+    },
+    "skipToContent": "Přeskočit na obsah",
+    "banner": {
+      "title": "Lorem ipsum dolor sit amet",
+      "description": "Consectetur adipisicing elit ipsa laudantium",
+      "callToAction": "Akce",
+      "close": "Zavřít oznámení"
+    }
+  },
+  "pages": {
+    "home": {
+      "title": "Next.js Starter Template",
+      "description": "Moderní šablona webové aplikace postavená na Next.js 16, TypeScript, shadcn/ui a s mnoha vestavěnými funkcemi.",
+      "learnMore": "Zjistit více",
+      "shadcnDocs": "Shadcn ui docs",
+      "features": {
+        "title": "Vestavěné funkce",
+        "items": {
+          "responsiveLayout": {
+            "title": "Responzivní systém rozložení",
+            "description": "Pokročilý header s mobilní drawer navigací přes Vaul. Podporuje vnořené položky menu s jednotným zdrojem dat pro header i footer.",
+            "points": [
+              "Mobilní drawer navigace",
+              "Podpora vnořeného menu",
+              "Jednotná data navigace"
+            ]
+          },
+          "unifiedConfiguration": {
+            "title": "Jednotná konfigurace",
+            "description": "Centralizovaná složka config jako single source of truth pro metadata webu, navigaci, kontakty, právní obsah a firemní údaje. Eliminuje hardcoded hodnoty v komponentách.",
+            "points": ["Single source of truth", "Snadná údržba", "Bez hardcoded hodnot"]
+          },
+          "seoFoundation": {
+            "title": "SEO základ",
+            "description": "Komplexní SEO setup s automaticky generovanými OG obrázky, sitemapou a robots.txt. Výchozí řešení vhodné pro většinu projektů s minimální údržbou.",
+            "points": ["Automatické OG obrázky", "Dynamická sitemap", "Optimalizovaný robots.txt"]
+          },
+          "gdprConsent": {
+            "title": "GDPR consent systém",
+            "description": "Přizpůsobitelný EU-compliant consent systém s granularitou. Podporuje analytické, marketingové i funkční ukládání a správu preferencí uživatele.",
+            "points": ["EU-compliant consent", "Granulární kontrola", "Uložení preferencí"]
+          },
+          "privacyPolicy": {
+            "title": "Připravené zásady ochrany údajů",
+            "description": "Předpřipravená GDPR stránka se zásadami ochrany osobních údajů s konfigurovatelnými právními údaji. Obsahuje detaily zpracování dat, práva uživatelů i transparentnost cookies.",
+            "points": [
+              "GDPR šablona",
+              "Konfigurovatelné právní údaje",
+              "Dokumentace práv uživatelů"
+            ]
+          },
+          "contactForm": {
+            "title": "Kontaktní formulář s ochranou",
+            "description": "Produkční kontaktní formulář s integrací Cloudflare Turnstile captcha. Obsahuje validaci, error handling a odesílání přes API route s přehlednou zpětnou vazbou.",
+            "points": ["Turnstile captcha", "Validace formuláře", "Integrace API route"]
+          },
+          "themeManagement": {
+            "title": "Pokročilá správa motivů",
+            "description": "Theme switcher pro světlý, tmavý a systémový režim. Používá next-themes pro plynulé přepínání, perzistentní preference a správné SSR chování.",
+            "points": [
+              "Světlý/tmavý/systémový režim",
+              "Perzistentní preference",
+              "Kompatibilní se SSR"
+            ]
+          },
+          "heroSystem": {
+            "title": "Hero komponentový systém",
+            "description": "Flexibilní hero sekce s background patterny, správou obsahu a responzivním layoutem. Obsahuje grid pozadí, akční tlačítka a konfigurovatelné struktury obsahu.",
+            "points": ["Pattern pozadí", "Akční tlačítka", "Responzivní layout"]
+          }
+        }
+      },
+      "newsletterCta": {
+        "title": "Přihlaste se k newsletteru",
+        "description": "Buďte v obraze s nejnovějšími novinkami, poznatky a aktualizacemi. Připojte se k odběratelům a nepropásněte důležitá oznámení."
+      }
+    },
+    "contact": {
+      "title": "Kontakt",
+      "description": "Napište nám. Ozveme se vám co nejdříve.",
+      "formTitle": "Kontaktní formulář"
+    },
+    "login": {
+      "title": "Přihlášení",
+      "description": "Přihlaste se ke svému účtu a spravujte nastavení a preference.",
+      "welcomeBack": "Vítejte zpět",
+      "newHere": "Jste tu poprvé?",
+      "createAccount": "Vytvořit účet"
+    },
+    "signUp": {
+      "title": "Registrace",
+      "description": "Vytvořte si nový účet a začněte používat platformu.",
+      "createYourAccount": "Vytvořte si účet",
+      "alreadyHaveAccount": "Již máte účet?",
+      "logIn": "Přihlásit se"
+    },
+    "gdpr": {
+      "title": "Zásady ochrany osobních údajů",
+      "description": "Informace o zpracování osobních údajů v souladu s nařízením GDPR",
+      "effectiveDate": "1. ledna 2025"
+    },
+    "cookies": {
+      "title": "Zásady cookies",
+      "description": "Zjistěte, jak používáme soubory cookies na našem webu, jaké typy cookies používáme a jak můžete spravovat své preference týkající se cookies.",
+      "effectiveDate": "1. ledna 2025"
+    }
+  },
+  "forms": {
+    "newsletter": {
+      "validation": {
+        "email": "Zadejte prosím platnou e-mailovou adresu.",
+        "turnstile": "Dokončete prosím ověření."
+      },
+      "fields": {
+        "email": {
+          "label": "E-mailová adresa *",
+          "placeholder": "vas-email@example.com"
+        }
+      },
+      "submit": {
+        "default": "Přihlásit",
+        "pending": "Přihlašování..."
+      },
+      "consent": "Kliknutím na Přihlásit souhlasíte se zasíláním newsletteru. Odběr můžete kdykoliv zrušit. Více informací najdete v <link>zásadách ochrany osobních údajů</link>.",
+      "status": {
+        "success": {
+          "title": "Úspěšně přihlášeno!",
+          "message": "Úspěšně jste se přihlásili k newsletteru!"
+        },
+        "error": {
+          "title": "Přihlášení se nezdařilo",
+          "message": "Během přihlášení došlo k chybě. Zkuste to prosím později."
+        }
+      }
+    },
+    "contact": {
+      "validation": {
+        "nameMin": "Jméno musí mít alespoň 2 znaky.",
+        "nameMax": "Jméno nesmí být delší než 50 znaků.",
+        "surnameMin": "Příjmení musí mít alespoň 2 znaky.",
+        "surnameMax": "Příjmení nesmí být delší než 50 znaků.",
+        "email": "Zadejte prosím platnou e-mailovou adresu.",
+        "phoneMin": "Telefonní číslo musí mít alespoň 9 znaků.",
+        "phoneInvalid": "Zadejte prosím platné telefonní číslo.",
+        "messageMin": "Zpráva musí mít alespoň 10 znaků.",
+        "messageMax": "Zpráva nesmí být delší než 1000 znaků.",
+        "gdprConsent": "Musíte souhlasit se zpracováním osobních údajů.",
+        "turnstile": "Dokončete prosím ověření."
+      },
+      "fields": {
+        "name": {
+          "label": "Jméno *",
+          "placeholder": "Vaše jméno"
+        },
+        "surname": {
+          "label": "Příjmení *",
+          "placeholder": "Vaše příjmení"
+        },
+        "email": {
+          "label": "E-mailová adresa *",
+          "placeholder": "vas@email.com",
+          "description": "Na tuto adresu vám pošleme odpověď."
+        },
+        "phone": {
+          "label": "Telefonní číslo *",
+          "placeholder": "+420 123 456 789",
+          "description": "Telefonní číslo pro případné upřesnění vaší poptávky."
+        },
+        "message": {
+          "label": "Zpráva *",
+          "placeholder": "Napište svou zprávu nebo poptávku...",
+          "description": "Popište, jak vám můžeme pomoci."
+        },
+        "gdprConsent": {
+          "label": "Souhlasím se <link>zpracováním osobních údajů</link> *"
+        }
+      },
+      "submit": {
+        "default": "Odeslat",
+        "pending": "Odesílání..."
+      },
+      "status": {
+        "success": {
+          "title": "Formulář byl úspěšně odeslán!",
+          "message": "Zpráva byla úspěšně odeslána!"
+        },
+        "error": {
+          "title": "Odeslání selhalo",
+          "message": "Při odesílání zprávy došlo k chybě. Zkuste to prosím později."
+        }
+      }
+    },
+    "login": {
+      "validation": {
+        "email": "Zadejte prosím platnou e-mailovou adresu.",
+        "password": "Heslo musí mít alespoň 8 znaků."
+      },
+      "fields": {
+        "email": {
+          "label": "E-mailová adresa",
+          "placeholder": "vas@email.com"
+        },
+        "password": {
+          "label": "Heslo",
+          "placeholder": "••••••••"
+        },
+        "rememberMe": {
+          "label": "Zapamatovat si mě"
+        }
+      },
+      "submit": {
+        "default": "Přihlásit se",
+        "pending": "Přihlašování..."
+      },
+      "status": {
+        "success": {
+          "title": "Přihlášeno",
+          "message": "Přihlášení proběhlo úspěšně!"
+        },
+        "error": {
+          "title": "Přihlášení selhalo",
+          "message": "Neplatné přihlašovací údaje. Zkuste to prosím znovu."
+        }
+      }
+    },
+    "signUp": {
+      "validation": {
+        "firstNameMin": "Jméno musí mít alespoň 2 znaky.",
+        "firstNameMax": "Jméno nesmí být delší než 50 znaků.",
+        "lastNameMin": "Příjmení musí mít alespoň 2 znaky.",
+        "lastNameMax": "Příjmení nesmí být delší než 50 znaků.",
+        "email": "Zadejte prosím platnou e-mailovou adresu.",
+        "passwordMin": "Heslo musí mít alespoň 8 znaků.",
+        "passwordMax": "Heslo nesmí být delší než 100 znaků.",
+        "confirmPassword": "Potvrďte prosím své heslo.",
+        "termsAccepted": "Musíte přijmout zásady ochrany osobních údajů.",
+        "passwordMismatch": "Hesla se neshodují."
+      },
+      "fields": {
+        "firstName": {
+          "label": "Jméno",
+          "placeholder": "Jana"
+        },
+        "lastName": {
+          "label": "Příjmení",
+          "placeholder": "Nováková"
+        },
+        "email": {
+          "label": "E-mailová adresa",
+          "placeholder": "vas@email.com"
+        },
+        "password": {
+          "label": "Heslo",
+          "placeholder": "Vytvořte silné heslo",
+          "description": "Použijte alespoň 8 znaků."
+        },
+        "confirmPassword": {
+          "label": "Potvrzení hesla",
+          "placeholder": "Zopakujte své heslo"
+        },
+        "termsAccepted": {
+          "label": "Souhlasím se <link>zásadami ochrany osobních údajů</link>."
+        }
+      },
+      "submit": {
+        "default": "Vytvořit účet",
+        "pending": "Vytváření účtu..."
+      },
+      "status": {
+        "success": {
+          "title": "Účet vytvořen",
+          "message": "Účet byl úspěšně vytvořen!"
+        },
+        "error": {
+          "title": "Registrace selhala",
+          "message": "Účet se nepodařilo vytvořit. Zkuste to prosím znovu."
+        }
       }
     }
   },
-  "GdprPage": {
-    "title": "Zásady ochrany osobních údajů",
-    "description": "Informace o zpracování osobních údajů v souladu s nařízením GDPR"
+  "legal": {
+    "cookiePolicy": {
+      "effectiveFrom": "Účinné od:",
+      "lastUpdated": "Poslední aktualizace:",
+      "introduction": {
+        "title": "1. Úvod",
+        "description": "Tyto zásady cookies vysvětlují, co jsou cookies a jak je používáme na našem webu"
+      },
+      "whatAreCookies": {
+        "title": "2. Co jsou cookies?",
+        "description": "Cookies jsou malé textové soubory, které se ukládají do vašeho zařízení (počítače, mobilního telefonu) při návštěvě webové stránky. Kromě cookies můžeme používat i localStorage a sessionStorage pro ukládání dat přímo ve vašem prohlížeči. Pomáhají nám zajistit správné fungování webu, zvýšit jeho bezpečnost, pochopit jeho výkon a zlepšovat uživatelský zážitek."
+      },
+      "howWeUseCookies": {
+        "title": "3. Jak používáme cookies",
+        "description": "Náš web používá cookies první i třetí strany pro několik účelů. Cookies první strany jsou většinou nezbytné pro správné fungování webu a neshromažďují vaše osobní údaje. Cookies třetích stran používáme hlavně pro analýzu výkonu webu, interakce uživatelů, zabezpečení služeb a zlepšení uživatelského zážitku."
+      },
+      "typesOfCookies": {
+        "title": "4. Typy cookies, které používáme"
+      },
+      "table": {
+        "name": "Název",
+        "provider": "Poskytovatel",
+        "purpose": "Účel",
+        "duration": "Doba trvání",
+        "storageType": "Typ úložiště"
+      },
+      "category": {
+        "essential": "Nezbytné cookies",
+        "functional": "Funkční úložiště",
+        "analytics": "Analytické cookies",
+        "marketing": "Marketingové cookies"
+      },
+      "storageType": {
+        "cookie": "Cookie",
+        "localStorage": "Local storage",
+        "sessionStorage": "Session storage"
+      },
+      "management": {
+        "title": "5. Jak spravovat preference úložiště",
+        "description": "Své preference můžete kdykoli upravit pomocí tlačítka níže nebo v nastavení prohlížeče. Můžete blokovat nebo mazat cookies, localStorage i sessionStorage data. Omezení těchto technologií může ovlivnit funkčnost webu.",
+        "button": "Změnit nastavení cookies"
+      },
+      "contact": {
+        "title": "6. Kontaktujte nás",
+        "description": "Pokud máte jakékoli dotazy k těmto zásadám, můžete nás kontaktovat na:",
+        "phone": "nebo telefonicky:"
+      },
+      "cookieDetails": {
+        "cookieConsent": {
+          "provider": "Vlastní",
+          "purpose": "Ukládá preference souhlasu s cookies.",
+          "duration": "1 rok"
+        },
+        "theme": {
+          "provider": "Vlastní",
+          "purpose": "Ukládá preferenci motivu (systémový/světlý/tmavý režim).",
+          "duration": "Trvalé"
+        },
+        "consentChangeCheck": {
+          "provider": "Vlastní",
+          "purpose": "Sleduje změny souhlasu pro obnovení skriptů.",
+          "duration": "Relace"
+        },
+        "ga": {
+          "provider": "Google Analytics",
+          "purpose": "Rozlišuje uživatele pro analytiku (se souhlasem).",
+          "duration": "2 roky"
+        },
+        "gaWildcard": {
+          "provider": "Google Analytics",
+          "purpose": "Uchovává stav relace GA4 (se souhlasem).",
+          "duration": "2 roky"
+        },
+        "gid": {
+          "provider": "Google Analytics",
+          "purpose": "Rozlišuje uživatele po dobu 24 hodin (se souhlasem).",
+          "duration": "24 hodin"
+        },
+        "gat": {
+          "provider": "Google Analytics",
+          "purpose": "Omezuje četnost požadavků GA (se souhlasem).",
+          "duration": "1 minuta"
+        },
+        "gclAu": {
+          "provider": "Google Tag Manager",
+          "purpose": "Experimenty efektivity AdSense (se souhlasem).",
+          "duration": "3 měsíce"
+        }
+      },
+      "defaults": {
+        "cookies": [
+          {
+            "name": "_ga",
+            "provider": "Google Analytics",
+            "purpose": "Používá se k rozlišení uživatelů pro statistické účely.",
+            "duration": "2 roky",
+            "category": "analytics",
+            "storageType": "cookie"
+          }
+        ]
+      }
+    },
+    "gdprPolicy": {
+      "effectiveFrom": "Účinné od:",
+      "principles": "Tyto zásady zpracování osobních údajů (dále jen \"Zásady\") popisují, jak společnost",
+      "companyId": "IČO:",
+      "headquartered": "se sídlem",
+      "controller": "(dále jen \"Správce\") zpracovává a chrání osobní údaje svých zákazníků, partnerů a dalších osob (dále jen \"subjekty údajů\").",
+      "websiteInfo": "Tyto zásady se vztahují na zpracování osobních údajů na webové stránce",
+      "dataCollectedTitle": "1. Shromažďované osobní údaje",
+      "dataCollectedDescription": "Správce v souladu s platnou legislativou shromažďuje a zpracovává zejména následující osobní údaje:",
+      "purposesTitle": "2. Účely zpracování osobních údajů",
+      "purposesDescription": "Osobní údaje jsou zpracovávány na zákonném základě (např. plnění smlouvy, souhlas, zákonná povinnost), zejména pro tyto účely:",
+      "retentionTitle": "3. Doba uchování osobních údajů",
+      "retentionDescription": "Osobní údaje uchováváme po dobu nezbytně nutnou pro dosažení účelu zpracování, nejdéle však",
+      "additionalInfoTitle": "Další informace",
+      "rightsTitle": "Práva subjektů údajů",
+      "rightsDescription": "Subjekty údajů mají podle GDPR následující práva:",
+      "defaultRights": "Subjekty údajů mají v souladu s GDPR právo na přístup k osobním údajům, opravu, výmaz, omezení zpracování, přenositelnost a právo vznést námitku proti zpracování. Pokud je zpracování založeno na souhlasu, mohou jej kdykoli odvolat.",
+      "contactTitle": "Kontakt pro uplatnění práv",
+      "contactDescription": "Pro uplatnění vašich práv a další informace o zpracování osobních údajů můžete kontaktovat Správce na:",
+      "contactPhone": "nebo telefonicky:",
+      "complaintDescription": "Pokud se domníváte, že jsou vaše práva porušována, máte právo podat stížnost u dozorového úřadu v ČR:",
+      "supervisoryAuthority": "Úřad pro ochranu osobních údajů",
+      "website": "www.uoou.cz",
+      "thirdPartiesTitle": "4. Předávání osobních údajů třetím stranám",
+      "thirdPartiesDescription": "Vaše osobní údaje mohou být zpřístupněny následujícím zpracovatelům a třetím stranám:",
+      "thirdPartyService": "Poskytovaná služba:",
+      "thirdPartyCountry": "Země působení:",
+      "defaults": {
+        "dataCollected": [
+          "Jméno a příjmení",
+          "E-mailová adresa",
+          "Telefonní číslo",
+          "IP adresa a informace o zařízení",
+          "Historie vzájemné komunikace",
+          "Cookies a podobné technologie",
+          "Údaje o používání webových stránek"
+        ],
+        "dataPurposes": [
+          "Poskytování služeb a plnění smluvních závazků",
+          "Odpovědi na dotazy a komunikace se zájemci o služby",
+          "Správa uživatelských účtů a zákaznická podpora",
+          "Zlepšování kvality našich služeb a vývoj nových funkcí",
+          "Marketing a propagace našich produktů a služeb (na základě souhlasu)",
+          "Plnění zákonných a regulatorních povinností",
+          "Ochrana před podvody, zabezpečení a prevence zneužití",
+          "Analýza a statistické zpracování pro interní účely",
+          "Ochrana našich oprávněných zájmů a právních nároků"
+        ],
+        "dataRetention": "5 let od ukončení smluvního vztahu nebo odvolání souhlasu, není-li zákonem stanoveno jinak",
+        "thirdParties": [
+          {
+            "name": "FBLS Tech s.r.o.",
+            "service": "Technické služby a vývoj",
+            "country": "Česká republika"
+          },
+          {
+            "name": "GTDN dev s.r.o.",
+            "service": "Technické služby a vývoj",
+            "country": "Česká republika"
+          },
+          {
+            "name": "Vercel",
+            "service": "Cloud hosting a deployment",
+            "country": "Spojené státy americké"
+          },
+          {
+            "name": "Amazon Web Services (AWS)",
+            "service": "Cloud hosting a úložiště",
+            "country": "Spojené státy americké"
+          },
+          {
+            "name": "Google Cloud Platform",
+            "service": "Analytické a cloudové služby",
+            "country": "Spojené státy americké"
+          },
+          {
+            "name": "SendGrid",
+            "service": "Služby doručování e-mailů",
+            "country": "Spojené státy americké"
+          },
+          {
+            "name": "Mailchimp",
+            "service": "E-mailové marketingové služby",
+            "country": "Spojené státy americké"
+          },
+          {
+            "name": "Stripe",
+            "service": "Zpracování plateb",
+            "country": "Spojené státy americké"
+          }
+        ]
+      }
+    }
   },
-  "CookiesPage": {
-    "title": "Zásady cookies",
-    "description": "Zjistěte, jak používáme soubory cookies na našem webu, jaké typy cookies používáme a jak můžete spravovat své preference týkající se cookies."
-  },
-  "ContactPage": {
-    "title": "Kontakt",
-    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    "formTitle": "Kontaktní formulář"
-  },
-  "LoginPage": {
-    "title": "Přihlásit se",
-    "description": "Přístup k vašemu účtu pro správu nastavení a preferencí.",
-    "welcomeBack": "Vítejte zpět",
-    "newHere": "Jste tu poprvé?",
-    "createAccount": "Vytvořit účet"
-  },
-  "SignUpPage": {
-    "title": "Registrace",
-    "description": "Vytvořte si nový účet a začněte používat platformu.",
-    "createYourAccount": "Vytvořte si účet",
-    "alreadyHaveAccount": "Již máte účet?",
-    "logIn": "Přihlásit se"
+  "cookies": {
+    "consent": {
+      "banner": {
+        "description": "Používáme cookies ke zlepšení vašeho prohlížení, analýze návštěvnosti a poskytování personalizovaného obsahu. Můžete přijmout všechny cookies nebo upravit své preference.",
+        "deny": "Odmítnout",
+        "acceptAll": "Přijmout vše",
+        "settings": "Nastavení souhlasu"
+      },
+      "dialog": {
+        "title": "Nastavení souhlasu s cookies",
+        "description": "Spravujte své preference cookies. Blokování některých cookies může ovlivnit váš zážitek.",
+        "categories": {
+          "necessary": {
+            "label": "Nezbytné",
+            "ariaLabel": "Nezbytné cookies (vždy povolené)",
+            "description": "Nezbytné pro fungování webu. Umožňují základní funkce, jako je navigace a zabezpečené části webu."
+          },
+          "functional": {
+            "label": "Funkční",
+            "ariaLabel": "Funkční cookies",
+            "description": "Umožňují rozšířenou funkčnost a personalizaci, například zapamatování vašich preferencí a nastavení."
+          },
+          "analytics": {
+            "label": "Analytické",
+            "ariaLabel": "Analytické cookies",
+            "description": "Pomáhají nám pochopit, jak návštěvníci používají web, abychom mohli zlepšovat obsah a uživatelský zážitek."
+          },
+          "marketing": {
+            "label": "Marketingové",
+            "ariaLabel": "Marketingové cookies",
+            "description": "Používají se pro zobrazování relevantní reklamy a měření efektivity reklamních kampaní."
+          }
+        },
+        "moreInfo": "Více informací o používání cookies najdete v našich",
+        "cookiesPolicy": "zásadách cookies.",
+        "actions": {
+          "deny": "Odmítnout",
+          "acceptAll": "Přijmout vše",
+          "save": "Uložit"
+        }
+      }
+    }
   }
 }
