@@ -46,6 +46,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    }
    ```
 5. **ESLint config:** Flat config format with Next.js presets and TypeScript strict rules
+
    ```js
    import { defineConfig, globalIgnores } from "eslint/config";
    import nextVitals from "eslint-config-next/core-web-vitals";
@@ -75,6 +76,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - `@/` for project imports (`@/components/ui/button`)
    - Relative for same directory (`./icon`)
 3. **Layout:**
+
    ```text
    src/
    ├── app/
@@ -164,10 +166,10 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 ### 4. Frameworks
 
 1. **Next.js 16:** Use `layout.tsx`, `page.tsx`, `loading.tsx`. Co-locate data fetching in Server Components. Add `'use client'` for Client Components.
-   - **Turbopack** is now the default bundler
+   - **Turbopack** is now the default bundler (no `--turbopack` flag needed)
    - **Async params/searchParams:** Must use `await params`, `await searchParams` (no longer sync)
    - **Async cookies/headers/draftMode:** Must use `await cookies()`, `await headers()`, `await draftMode()`
-   - **Proxy instead of Middleware:** Use `proxy.ts` instead of `middleware.ts` for request interception
+   - **Proxy instead of Middleware:** Use `proxy.ts` instead of `middleware.ts` for request interception (edge runtime NOT supported in proxy)
    - **Cache Components:** Use `"use cache"` directive for opt-in caching (replaces old implicit caching)
    - **Custom Link Component:** Always use the custom `Link` component from `@/components/ui/link` instead of importing directly from `next/link`
 
@@ -175,6 +177,49 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
      import { Link } from "@/components/ui/link";
 
      <Link href="/about">About Us</Link>;
+     ```
+
+   - **Type Generation:** Run `npx next typegen` to generate global types for async APIs:
+     - `PageProps<'/path/[slug]'>` - for page components with typed params/searchParams
+     - `LayoutProps<'/path'>` - for layout components with typed params and children
+     - `RouteContext<'/api/path/[id]'>` - for route handlers with typed params
+
+     ```tsx
+     // Page component with typed async params
+     export default function Page({ params }: PageProps<"/[locale]">) {
+       const { locale } = use(params); // or await params in async component
+       return <div>Locale: {locale}</div>;
+     }
+
+     // Layout component
+     export default async function Layout({ children, params }: LayoutProps<"/[locale]">) {
+       const { locale } = await params;
+       return <html lang={locale}>{children}</html>;
+     }
+
+     // Async generateMetadata with typed props
+     export async function generateMetadata(
+       props: Omit<LayoutProps<"/[locale]">, "children">
+     ): Promise<Metadata> {
+       const { locale } = await props.params;
+       return { title: `Page - ${locale}` };
+     }
+     ```
+
+   - **Caching APIs (Server Actions):**
+     - `revalidateTag(tag, cacheLifeProfile)` - stale-while-revalidate semantics (requires cacheLife profile as 2nd arg)
+     - `updateTag(tag)` - read-your-writes semantics, expires and refreshes immediately
+     - `refresh()` - refresh uncached data only
+     - `cacheLife` and `cacheTag` - stable (no `unstable_` prefix)
+
+   - **Parallel Routes:** All parallel route slots now require explicit `default.js` files
+
+     ```tsx
+     // app/@modal/default.tsx
+     import { notFound } from "next/navigation";
+     export default function Default() {
+       notFound();
+     }
      ```
 
 2. **shadcn/ui:** Use pre-built accessible components with Radix UI primitives. Customize via CSS variables and class variants.
@@ -227,8 +272,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    );
 
    export interface ButtonProps
-     extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-       VariantProps<typeof buttonVariants> {}
+     extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
 
    export function Button({ className, variant, size, ...props }: ButtonProps) {
      return <button className={cn(buttonVariants({ variant, size, className }))} {...props} />;
@@ -355,6 +399,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - **`<Activity>`:** Render background activity while maintaining state
 5. **React 19.2 ESLint Patterns:**
    - **Deferred setState in Effects:** Avoid synchronous setState in useEffect - defer with `Promise.resolve()`
+
      ```tsx
      // ✅ Good - deferred state update
      useEffect(() => {
@@ -362,7 +407,7 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
          setMounted(true);
        });
      }, []);
-     
+
      // ❌ Bad - synchronous setState
      useEffect(() => {
        setMounted(true);
@@ -477,7 +522,21 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    - Default `imageSizes` removed `16` (reduces srcset size)
    - Default `qualities` changed to `[75]` (was `[1..100]`)
    - Local images with query strings require `images.localPatterns` config
-4. **Remote:** Explicit `width`/`height`, configure `remotePatterns`
+   - Local IP optimization blocked by default (use `dangerouslyAllowLocalIP: true` for private networks)
+   - Maximum redirects default is 3 (was unlimited)
+   - `next/legacy/image` is deprecated - use `next/image`
+   - `images.domains` is deprecated - use `images.remotePatterns`
+4. **Remote:** Explicit `width`/`height`, configure `remotePatterns` (not `domains`)
+
+   ```ts
+   // next.config.ts
+   images: {
+     remotePatterns: [
+       { protocol: "https", hostname: "example.com" },
+     ],
+   }
+   ```
+
 5. **Responsive:** Use `fill` with relative positioning or `sizes`
    ```tsx
    <div className="relative h-64 w-full">
@@ -492,6 +551,15 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 3. **Animations:** Use tw-animate-css for CSS animations with Tailwind
 4. **Mobile:** Use Vaul for mobile-optimized drawers
 5. **Performance:** Enhanced routing with layout deduplication and incremental prefetching
+
+### 11. Internationalization (next-intl)
+
+1. **Single source for UI text:** All user-facing copy belongs in `messages/*.json`.
+2. **Config remains structural:** Keep `src/config/*` as source of routes/links/business data, not localized copy.
+3. **Navigation labels:** Keep navigation/menu labels in `src/config/*` and map directly from config arrays.
+4. **Dictionary architecture:** Keep 4-6 top-level sections. Current convention: `common`, `layout`, `pages`, `forms`, `legal`, `cookies`.
+5. **Namespace depth:** Nest page/form/legal domains under these sections (e.g. `pages.home`, `forms.contact`, `legal.cookiePolicy`).
+6. **Coverage:** Include labels, placeholders, validation messages, alerts, and metadata text in dictionaries.
 
 ## Scope
 

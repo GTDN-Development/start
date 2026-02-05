@@ -1,3 +1,7 @@
+import type { Metadata } from "next";
+import { Locale, useTranslations } from "next-intl";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { use } from "react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import {
@@ -9,30 +13,46 @@ import {
   HeroTitle,
 } from "@/components/ui/hero";
 import CubeSvg from "@/assets/svgs/cube.svg";
-import type { Metadata } from "next";
-import { site } from "@/config/site";
 import { FeaturesBlock } from "@/components/(marketing)/home/features-block";
 import { NewsletterCta } from "@/components/(marketing)/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
+import { site } from "@/config/site";
 
-export const metadata: Metadata = {
-  title: site.defaultTitle,
-  description: site.defaultDescription,
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    title: site.defaultTitle,
-    description: site.defaultDescription,
-    url: site.url,
-  },
-  twitter: {
-    title: site.defaultTitle,
-    description: site.defaultDescription,
-  },
-};
+export async function generateMetadata(props: PageProps<"/[locale]">): Promise<Metadata> {
+  const { locale } = await props.params;
 
-export default function Page() {
+  const t = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.home",
+  });
+
+  return {
+    metadataBase: new URL(site.url),
+    title: t("title"),
+    description: t("description"),
+    alternates: {
+      canonical: "/",
+    },
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      url: site.url,
+    },
+    twitter: {
+      title: t("title"),
+      description: t("description"),
+    },
+  };
+}
+
+export default function Page({ params }: PageProps<"/[locale]">) {
+  const { locale } = use(params);
+
+  // Enable static rendering
+  setRequestLocale(locale as Locale);
+
+  const t = useTranslations("pages.home");
+
   return (
     <div>
       <Hero>
@@ -41,13 +61,13 @@ export default function Page() {
         </HeroBackground>
         <HeroContent>
           <CubeSvg className="mx-auto h-auto w-20 dark:invert" />
-          <HeroTitle>{site.defaultTitle}</HeroTitle>
-          <HeroDescription>{site.defaultDescription}</HeroDescription>
+          <HeroTitle>{t("title")}</HeroTitle>
+          <HeroDescription>{t("description")}</HeroDescription>
           <HeroActions>
-            <Button size="lg">Learn more</Button>
+            <Button size="lg">{t("learnMore")}</Button>
             <Button size="lg" variant="secondary" asChild>
               <a href="https://ui.shadcn.com/" target="_blank" rel="noopener noreferrer">
-                Shadcn ui docs
+                {t("shadcnDocs")}
               </a>
             </Button>
           </HeroActions>

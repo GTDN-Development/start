@@ -3,6 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,24 +16,28 @@ import { Turnstile, type TurnstileRef } from "@/components/(shared)/turnstile/tu
 
 import { cn } from "@/lib/utils";
 
-const newsletterFormSchema = z.object({
-  "newsletter-email": z.email({
-    message: "Please enter a valid email address.",
-  }),
-  turnstileToken: z.string().min(1, {
-    message: "Please complete verification.",
-  }),
-});
-
-type NewsletterFormValues = z.infer<typeof newsletterFormSchema>;
+type NewsletterFormValues = {
+  "newsletter-email": string;
+  turnstileToken: string;
+};
 
 export function NewsletterForm({ className, ...props }: React.ComponentProps<"div">) {
+  const t = useTranslations("forms.newsletter");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
   const turnstileRef = useRef<TurnstileRef>(null);
+
+  const newsletterFormSchema = z.object({
+    "newsletter-email": z.email({
+      message: t("validation.email"),
+    }),
+    turnstileToken: z.string().min(1, {
+      message: t("validation.turnstile"),
+    }),
+  });
 
   const form = useForm({
     defaultValues: {
@@ -58,25 +63,23 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
           }),
         });
 
-        const data = await response.json();
-
         if (response.ok) {
           setSubmitStatus({
             type: "success",
-            message: data.message || "Successfully subscribed to newsletter!",
+            message: t("status.success.message"),
           });
           form.reset();
           turnstileRef.current?.reset();
         } else {
           setSubmitStatus({
             type: "error",
-            message: data.error || "An error occurred while subscribing to newsletter.",
+            message: t("status.error.message"),
           });
         }
       } catch {
         setSubmitStatus({
           type: "error",
-          message: "An error occurred during subscription. Please try again later.",
+          message: t("status.error.message"),
         });
       } finally {
         setIsSubmitting(false);
@@ -99,7 +102,7 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid} className="w-full">
-                    <FieldLabel htmlFor={field.name}>Email address *</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>{t("fields.email.label")}</FieldLabel>
                     <Input
                       id={field.name}
                       name={field.name}
@@ -108,7 +111,7 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="your-email@example.com"
+                      placeholder={t("fields.email.placeholder")}
                     />
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
@@ -118,20 +121,22 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
 
             <Button type="submit" disabled={isSubmitting} className="hidden @sm:inline-flex">
               {isSubmitting && <Spinner />}
-              {isSubmitting ? "Subscribing..." : "Subscribe"}
+              {isSubmitting ? t("submit.pending") : t("submit.default")}
             </Button>
           </div>
 
           <p className="text-muted-foreground text-sm">
-            By clicking Subscribe you agree to receive our newsletter. You can unsubscribe at any
-            time. Learn more in our{" "}
-            <Link
-              href={legalLinks.gdpr.href}
-              target="_blank"
-              className="underline hover:no-underline"
-            >
-              privacy policy.
-            </Link>{" "}
+            {t.rich("consent", {
+              link: (chunks) => (
+                <Link
+                  href={legalLinks.gdpr.href}
+                  target="_blank"
+                  className="underline hover:no-underline"
+                >
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
 
           <form.Field name="turnstileToken">
@@ -153,7 +158,7 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
 
           <Button type="submit" disabled={isSubmitting} className="w-full @sm:hidden">
             {isSubmitting && <Spinner />}
-            {isSubmitting ? "Subscribing..." : "Subscribe"}
+            {isSubmitting ? t("submit.pending") : t("submit.default")}
           </Button>
 
           {submitStatus.type && (
@@ -165,8 +170,8 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
               )}
               <AlertTitle>
                 {submitStatus.type === "success"
-                  ? "Successfully subscribed!"
-                  : "Subscription failed"}
+                  ? t("status.success.title")
+                  : t("status.error.title")}
               </AlertTitle>
               <AlertDescription>{submitStatus.message}</AlertDescription>
             </Alert>

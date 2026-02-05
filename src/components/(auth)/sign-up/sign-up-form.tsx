@@ -3,6 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,44 +16,52 @@ import { legalLinks } from "@/config/legal-links";
 
 import { cn } from "@/lib/utils";
 
-const signUpFormSchema = z
-  .object({
-    firstName: z
-      .string()
-      .min(2, { message: "First name must be at least 2 characters." })
-      .max(50, { message: "First name must not exceed 50 characters." }),
-    lastName: z
-      .string()
-      .min(2, { message: "Last name must be at least 2 characters." })
-      .max(50, { message: "Last name must not exceed 50 characters." }),
-    email: z.email({ message: "Please enter a valid email address." }),
-    password: z
-      .string()
-      .min(8, { message: "Password must be at least 8 characters." })
-      .max(100, { message: "Password must not exceed 100 characters." }),
-    confirmPassword: z.string().min(8, { message: "Please confirm your password." }),
-    termsAccepted: z.boolean().refine((value) => value === true, {
-      message: "You must accept the privacy policy.",
-    }),
-  })
-  .superRefine((values, ctx) => {
-    if (values.password !== values.confirmPassword) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Passwords do not match.",
-        path: ["confirmPassword"],
-      });
-    }
-  });
-
-type SignUpFormValues = z.infer<typeof signUpFormSchema>;
+type SignUpFormValues = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  termsAccepted: boolean;
+};
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<"div">) {
+  const t = useTranslations("forms.signUp");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
+
+  const signUpFormSchema = z
+    .object({
+      firstName: z
+        .string()
+        .min(2, { message: t("validation.firstNameMin") })
+        .max(50, { message: t("validation.firstNameMax") }),
+      lastName: z
+        .string()
+        .min(2, { message: t("validation.lastNameMin") })
+        .max(50, { message: t("validation.lastNameMax") }),
+      email: z.email({ message: t("validation.email") }),
+      password: z
+        .string()
+        .min(8, { message: t("validation.passwordMin") })
+        .max(100, { message: t("validation.passwordMax") }),
+      confirmPassword: z.string().min(8, { message: t("validation.confirmPassword") }),
+      termsAccepted: z.boolean().refine((value) => value === true, {
+        message: t("validation.termsAccepted"),
+      }),
+    })
+    .superRefine((values, ctx) => {
+      if (values.password !== values.confirmPassword) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: t("validation.passwordMismatch"),
+          path: ["confirmPassword"],
+        });
+      }
+    });
 
   const form = useForm({
     defaultValues: {
@@ -79,24 +88,22 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
           body: JSON.stringify(value),
         });
 
-        const data = await response.json();
-
         if (response.ok) {
           setSubmitStatus({
             type: "success",
-            message: data.message || "Account created successfully!",
+            message: t("status.success.message"),
           });
           form.reset();
         } else {
           setSubmitStatus({
             type: "error",
-            message: data.error || "Unable to create the account. Please try again.",
+            message: t("status.error.message"),
           });
         }
       } catch {
         setSubmitStatus({
           type: "error",
-          message: "An unexpected error occurred. Please try again later.",
+          message: t("status.error.message"),
         });
       } finally {
         setIsSubmitting(false);
@@ -119,7 +126,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={`signup-${field.name}`}>First name</FieldLabel>
+                    <FieldLabel htmlFor={`signup-${field.name}`}>
+                      {t("fields.firstName.label")}
+                    </FieldLabel>
                     <Input
                       id={`signup-${field.name}`}
                       name={`signup-${field.name}`}
@@ -127,7 +136,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="Jane"
+                      placeholder={t("fields.firstName.placeholder")}
                     />
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
@@ -140,7 +149,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={`signup-${field.name}`}>Last name</FieldLabel>
+                    <FieldLabel htmlFor={`signup-${field.name}`}>
+                      {t("fields.lastName.label")}
+                    </FieldLabel>
                     <Input
                       id={`signup-${field.name}`}
                       name={`signup-${field.name}`}
@@ -148,7 +159,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="Doe"
+                      placeholder={t("fields.lastName.placeholder")}
                     />
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
@@ -162,7 +173,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={`signup-${field.name}`}>Email address</FieldLabel>
+                  <FieldLabel htmlFor={`signup-${field.name}`}>
+                    {t("fields.email.label")}
+                  </FieldLabel>
                   <Input
                     id={`signup-${field.name}`}
                     name={`signup-${field.name}`}
@@ -171,7 +184,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
-                    placeholder="you@email.com"
+                    placeholder={t("fields.email.placeholder")}
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
@@ -184,7 +197,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={`signup-${field.name}`}>Password</FieldLabel>
+                  <FieldLabel htmlFor={`signup-${field.name}`}>
+                    {t("fields.password.label")}
+                  </FieldLabel>
                   <Input
                     id={`signup-${field.name}`}
                     name={`signup-${field.name}`}
@@ -193,9 +208,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
-                    placeholder="Create a strong password"
+                    placeholder={t("fields.password.placeholder")}
                   />
-                  <FieldDescription>Use at least 8 characters.</FieldDescription>
+                  <FieldDescription>{t("fields.password.description")}</FieldDescription>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
@@ -207,7 +222,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={`signup-${field.name}`}>Confirm password</FieldLabel>
+                  <FieldLabel htmlFor={`signup-${field.name}`}>
+                    {t("fields.confirmPassword.label")}
+                  </FieldLabel>
                   <Input
                     id={`signup-${field.name}`}
                     name={`signup-${field.name}`}
@@ -216,7 +233,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
-                    placeholder="Repeat your password"
+                    placeholder={t("fields.confirmPassword.placeholder")}
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
@@ -238,14 +255,16 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                   />
                   <FieldLabel htmlFor={`signup-${field.name}`}>
                     <span>
-                      I agree to the{" "}
-                      <Link
-                        href={legalLinks.gdpr.href}
-                        className="underline hover:no-underline"
-                      >
-                        privacy policy
-                      </Link>
-                      .
+                      {t.rich("fields.termsAccepted.label", {
+                        link: (chunks) => (
+                          <Link
+                            href={legalLinks.gdpr.href}
+                            className="underline hover:no-underline"
+                          >
+                            {chunks}
+                          </Link>
+                        ),
+                      })}
                     </span>
                   </FieldLabel>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -256,7 +275,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
 
           <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
             {isSubmitting ? <Spinner /> : <UserPlusIcon aria-hidden="true" className="size-4" />}
-            {isSubmitting ? "Creating account..." : "Create account"}
+            {isSubmitting ? t("submit.pending") : t("submit.default")}
           </Button>
 
           {submitStatus.type && (
@@ -267,7 +286,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                 <AlertCircleIcon aria-hidden="true" className="size-4" />
               )}
               <AlertTitle>
-                {submitStatus.type === "success" ? "Account created" : "Sign up failed"}
+                {submitStatus.type === "success"
+                  ? t("status.success.title")
+                  : t("status.error.title")}
               </AlertTitle>
               <AlertDescription>{submitStatus.message}</AlertDescription>
             </Alert>

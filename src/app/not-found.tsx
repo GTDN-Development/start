@@ -1,48 +1,17 @@
-import { Button } from "@/components/ui/button";
-import { Hero, HeroContent, HeroTitle, HeroDescription, HeroActions } from "@/components/ui/hero";
-import { HomeIcon } from "lucide-react";
-import { Link } from "@/components/ui/link";
-import type { Metadata } from "next";
-import { site } from "@/config/site";
+"use client";
 
-const title = "Page Not Found";
-const description =
-  "Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or you entered the wrong URL.";
+import Error from "next/error";
 
-export const metadata: Metadata = {
-  title,
-  description,
-  openGraph: {
-    title: `${title} | ${site.name}`,
-    description,
-    url: site.url,
-  },
-  twitter: {
-    title: `${title} | ${site.name}`,
-    description,
-  },
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+// This page renders when a route like `/unknown.txt` is requested.
+// In this case, the layout at `app/[locale]/layout.tsx` receives
+// an invalid value as the `[locale]` param and calls `notFound()`.
 
-export default function NotFound() {
+export default function GlobalNotFound() {
   return (
-    <Hero>
-      <HeroContent className="text-center">
-        <div className="text-primary font-medium">404</div>
-        <HeroTitle>{title}</HeroTitle>
-        <HeroDescription>{description}</HeroDescription>
-        <HeroActions>
-          <Button asChild size="lg">
-            <Link href="/">
-              <HomeIcon aria-hidden="true" />
-              Go to Home page
-            </Link>
-          </Button>
-        </HeroActions>
-      </HeroContent>
-    </Hero>
+    <html lang="en">
+      <body>
+        <Error statusCode={404} />;
+      </body>
+    </html>
   );
 }

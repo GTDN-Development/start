@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, type LinkProps } from "@/components/ui/link";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export function Banner({
   children,
@@ -67,6 +68,8 @@ export function BannerCloseButton({
   className,
   ...props
 }: Omit<React.ComponentProps<typeof Button>, "children" | "variant" | "size">) {
+  const t = useTranslations("layout.banner");
+
   return (
     <Button
       {...props}
@@ -81,7 +84,7 @@ export function BannerCloseButton({
         className="absolute top-1/2 left-1/2 size-[max(100%,2.75rem)] -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
         aria-hidden="true"
       />
-      <span className="sr-only">Close alert</span>
+      <span className="sr-only">{t("close")}</span>
       <XIcon className="size-4" />
     </Button>
   );

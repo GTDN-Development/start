@@ -3,6 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,24 +14,29 @@ import { AlertCircleIcon, CheckCircleIcon, LogInIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const loginFormSchema = z.object({
-  email: z.email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-  rememberMe: z.boolean(),
-});
-
-type LoginFormValues = z.infer<typeof loginFormSchema>;
+type LoginFormValues = {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+};
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+  const t = useTranslations("forms.login");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
+
+  const loginFormSchema = z.object({
+    email: z.email({
+      message: t("validation.email"),
+    }),
+    password: z.string().min(8, {
+      message: t("validation.password"),
+    }),
+    rememberMe: z.boolean(),
+  });
 
   const form = useForm({
     defaultValues: {
@@ -54,24 +60,22 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
           body: JSON.stringify(value),
         });
 
-        const data = await response.json();
-
         if (response.ok) {
           setSubmitStatus({
             type: "success",
-            message: data.message || "Signed in successfully!",
+            message: t("status.success.message"),
           });
           form.reset();
         } else {
           setSubmitStatus({
             type: "error",
-            message: data.error || "Invalid credentials. Please try again.",
+            message: t("status.error.message"),
           });
         }
       } catch {
         setSubmitStatus({
           type: "error",
-          message: "An unexpected error occurred. Please try again later.",
+          message: t("status.error.message"),
         });
       } finally {
         setIsSubmitting(false);
@@ -93,7 +97,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={`login-${field.name}`}>Email address</FieldLabel>
+                  <FieldLabel htmlFor={`login-${field.name}`}>{t("fields.email.label")}</FieldLabel>
                   <Input
                     id={`login-${field.name}`}
                     name={`login-${field.name}`}
@@ -102,7 +106,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
-                    placeholder="you@email.com"
+                    placeholder={t("fields.email.placeholder")}
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
@@ -115,7 +119,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={`login-${field.name}`}>Password</FieldLabel>
+                  <FieldLabel htmlFor={`login-${field.name}`}>
+                    {t("fields.password.label")}
+                  </FieldLabel>
                   <Input
                     id={`login-${field.name}`}
                     name={`login-${field.name}`}
@@ -124,7 +130,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
-                    placeholder="••••••••"
+                    placeholder={t("fields.password.placeholder")}
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
@@ -144,7 +150,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                     onCheckedChange={(checked) => field.handleChange(checked === true)}
                     aria-invalid={isInvalid}
                   />
-                  <FieldLabel htmlFor={`login-${field.name}`}>Remember me</FieldLabel>
+                  <FieldLabel htmlFor={`login-${field.name}`}>
+                    {t("fields.rememberMe.label")}
+                  </FieldLabel>
                 </Field>
               );
             }}
@@ -152,7 +160,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
           <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
             {isSubmitting ? <Spinner /> : <LogInIcon aria-hidden="true" className="size-4" />}
-            {isSubmitting ? "Signing in..." : "Sign in"}
+            {isSubmitting ? t("submit.pending") : t("submit.default")}
           </Button>
 
           {submitStatus.type && (
@@ -163,7 +171,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 <AlertCircleIcon aria-hidden="true" className="size-4" />
               )}
               <AlertTitle>
-                {submitStatus.type === "success" ? "Signed in" : "Sign in failed"}
+                {submitStatus.type === "success"
+                  ? t("status.success.title")
+                  : t("status.error.title")}
               </AlertTitle>
               <AlertDescription>{submitStatus.message}</AlertDescription>
             </Alert>

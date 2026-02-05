@@ -1,12 +1,8 @@
-import NextLink from "next/link";
-import type { Route } from "next";
+import { Link as NextIntlLink } from "@/i18n/navigation";
+import { ComponentProps } from "react";
 
-type NextLinkProps = React.ComponentProps<typeof NextLink>;
+export type LinkProps = ComponentProps<typeof NextIntlLink>;
 
-export type LinkProps<T extends string = string> = Omit<NextLinkProps, "href"> & {
-  href: Route<T> | URL;
-};
-
-export function Link<T extends string = string>(props: LinkProps<T>) {
-  return <NextLink {...props} />;
+export function Link(props: LinkProps) {
+  return <NextIntlLink {...props} />;
 }

@@ -3,6 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,59 +18,68 @@ import { Spinner } from "@/components/ui/spinner";
 
 import { cn } from "@/lib/utils";
 
-const contactFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, {
-      message: "Name must be at least 2 characters.",
-    })
-    .max(50, {
-      message: "Name must not be longer than 50 characters.",
-    }),
-  surname: z
-    .string()
-    .min(2, {
-      message: "Surname must be at least 2 characters.",
-    })
-    .max(50, {
-      message: "Surname must not be longer than 50 characters.",
-    }),
-  email: z.email({
-    message: "Please enter a valid email address.",
-  }),
-  phone: z
-    .string()
-    .min(9, {
-      message: "Phone number must be at least 9 characters.",
-    })
-    .regex(/^[+]?[0-9\s\-()]+$/, {
-      message: "Please enter a valid phone number.",
-    }),
-  message: z
-    .string()
-    .min(10, {
-      message: "Message must be at least 10 characters.",
-    })
-    .max(1000, {
-      message: "Message must not be longer than 1000 characters.",
-    }),
-  gdprConsent: z.boolean().refine((value) => value === true, {
-    message: "You must agree to the processing of personal data.",
-  }),
-  turnstileToken: z.string().min(1, {
-    message: "Please complete the verification.",
-  }),
-});
-
-type ContactFormValues = z.infer<typeof contactFormSchema>;
+type ContactFormValues = {
+  name: string;
+  surname: string;
+  email: string;
+  phone: string;
+  message: string;
+  gdprConsent: boolean;
+  turnstileToken: string;
+};
 
 export function ContactForm({ className, ...props }: React.ComponentProps<"div">) {
+  const t = useTranslations("forms.contact");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
   const turnstileRef = useRef<TurnstileRef>(null);
+
+  const contactFormSchema = z.object({
+    name: z
+      .string()
+      .min(2, {
+        message: t("validation.nameMin"),
+      })
+      .max(50, {
+        message: t("validation.nameMax"),
+      }),
+    surname: z
+      .string()
+      .min(2, {
+        message: t("validation.surnameMin"),
+      })
+      .max(50, {
+        message: t("validation.surnameMax"),
+      }),
+    email: z.email({
+      message: t("validation.email"),
+    }),
+    phone: z
+      .string()
+      .min(9, {
+        message: t("validation.phoneMin"),
+      })
+      .regex(/^[+]?[0-9\s\-()]+$/, {
+        message: t("validation.phoneInvalid"),
+      }),
+    message: z
+      .string()
+      .min(10, {
+        message: t("validation.messageMin"),
+      })
+      .max(1000, {
+        message: t("validation.messageMax"),
+      }),
+    gdprConsent: z.boolean().refine((value) => value === true, {
+      message: t("validation.gdprConsent"),
+    }),
+    turnstileToken: z.string().min(1, {
+      message: t("validation.turnstile"),
+    }),
+  });
 
   const form = useForm({
     defaultValues: {
@@ -97,25 +107,23 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
           body: JSON.stringify(value),
         });
 
-        const data = await response.json();
-
         if (response.ok) {
           setSubmitStatus({
             type: "success",
-            message: data.message || "Message sent successfully!",
+            message: t("status.success.message"),
           });
           form.reset();
           turnstileRef.current?.reset();
         } else {
           setSubmitStatus({
             type: "error",
-            message: data.error || "An error occurred while sending the message.",
+            message: t("status.error.message"),
           });
         }
       } catch {
         setSubmitStatus({
           type: "error",
-          message: "An error occurred while sending the message. Please try again later.",
+          message: t("status.error.message"),
         });
       } finally {
         setIsSubmitting(false);
@@ -138,7 +146,9 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={`contact-${field.name}`}>Name *</FieldLabel>
+                    <FieldLabel htmlFor={`contact-${field.name}`}>
+                      {t("fields.name.label")}
+                    </FieldLabel>
                     <Input
                       id={`contact-${field.name}`}
                       name={`contact-${field.name}`}
@@ -146,7 +156,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="Your name"
+                      placeholder={t("fields.name.placeholder")}
                     />
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
@@ -159,7 +169,9 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={`contact-${field.name}`}>Surname *</FieldLabel>
+                    <FieldLabel htmlFor={`contact-${field.name}`}>
+                      {t("fields.surname.label")}
+                    </FieldLabel>
                     <Input
                       id={`contact-${field.name}`}
                       name={`contact-${field.name}`}
@@ -167,7 +179,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="Your surname"
+                      placeholder={t("fields.surname.placeholder")}
                     />
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
@@ -181,7 +193,9 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={`contact-${field.name}`}>Email Address *</FieldLabel>
+                  <FieldLabel htmlFor={`contact-${field.name}`}>
+                    {t("fields.email.label")}
+                  </FieldLabel>
                   <Input
                     id={`contact-${field.name}`}
                     name={`contact-${field.name}`}
@@ -190,9 +204,9 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
-                    placeholder="your@email.com"
+                    placeholder={t("fields.email.placeholder")}
                   />
-                  <FieldDescription>We will send our response to this address.</FieldDescription>
+                  <FieldDescription>{t("fields.email.description")}</FieldDescription>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
@@ -204,7 +218,9 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={`contact-${field.name}`}>Phone Number *</FieldLabel>
+                  <FieldLabel htmlFor={`contact-${field.name}`}>
+                    {t("fields.phone.label")}
+                  </FieldLabel>
                   <Input
                     id={`contact-${field.name}`}
                     name={`contact-${field.name}`}
@@ -213,11 +229,9 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
-                    placeholder="+420 123 456 789"
+                    placeholder={t("fields.phone.placeholder")}
                   />
-                  <FieldDescription>
-                    Phone number for potential clarification of your inquiry.
-                  </FieldDescription>
+                  <FieldDescription>{t("fields.phone.description")}</FieldDescription>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
@@ -229,7 +243,9 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
               const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
               return (
                 <Field data-invalid={isInvalid}>
-                  <FieldLabel htmlFor={`contact-${field.name}`}>Message *</FieldLabel>
+                  <FieldLabel htmlFor={`contact-${field.name}`}>
+                    {t("fields.message.label")}
+                  </FieldLabel>
                   <Textarea
                     id={`contact-${field.name}`}
                     name={`contact-${field.name}`}
@@ -237,10 +253,10 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                     aria-invalid={isInvalid}
-                    placeholder="Write your message or inquiry..."
+                    placeholder={t("fields.message.placeholder")}
                     rows={4}
                   />
-                  <FieldDescription>Describe how we can help you.</FieldDescription>
+                  <FieldDescription>{t("fields.message.description")}</FieldDescription>
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
@@ -262,11 +278,16 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                   <div className="space-y-1 leading-none">
                     <FieldLabel htmlFor={`contact-${field.name}`}>
                       <span>
-                        I agree to the{" "}
-                        <Link href={legalLinks.gdpr.href} className="underline hover:no-underline">
-                          processing of personal data
-                        </Link>{" "}
-                        *
+                        {t.rich("fields.gdprConsent.label", {
+                          link: (chunks) => (
+                            <Link
+                              href={legalLinks.gdpr.href}
+                              className="underline hover:no-underline"
+                            >
+                              {chunks}
+                            </Link>
+                          ),
+                        })}
                       </span>
                     </FieldLabel>
                     {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -295,7 +316,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
 
           <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
             {isSubmitting && <Spinner />}
-            {isSubmitting ? "Sending..." : "Submit"}
+            {isSubmitting ? t("submit.pending") : t("submit.default")}
           </Button>
 
           {submitStatus.type && (
@@ -307,8 +328,8 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
               )}
               <AlertTitle>
                 {submitStatus.type === "success"
-                  ? "Form submitted successfully!"
-                  : "Submission failed"}
+                  ? t("status.success.title")
+                  : t("status.error.title")}
               </AlertTitle>
               <AlertDescription>{submitStatus.message}</AlertDescription>
             </Alert>

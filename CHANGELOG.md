@@ -1,5 +1,9 @@
 # Changelog
 
+## 26-02-05
+
+- Implement `next-intl` and everything related to it
+
 ## 26-02-03
 
 - Update packages and add security patches

@@ -5,32 +5,37 @@ import { NavLink } from "@/components/layout/nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "./theme-switcher";
 import { SocialMediaIcons } from "./social-media-icons";
-import { type NavigationItem, type NavigationDropdown, navLinksArray } from "@/config/nav-links";
+import { getMenu, getMenuLinks, isNested, type MenuItem, type MenuLabelKey } from "@/config/menu";
 import { Separator } from "../ui/separator";
-import { legalLinksArray } from "@/config/legal-links";
 import { CookieSettingsTrigger } from "@/components/(shared)/cookies/cookie-settings-trigger";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 import { chain, cn } from "@/lib/utils";
 import { site } from "@/config/site";
+import { useTranslations } from "next-intl";
 
 const isProduction = process.env.NODE_ENV === "production";
+const footerNavigationItems = getMenu("footerNavigation");
+const footerLegalItems = getMenuLinks("footerLegal");
 
-// Type guard to check if an item is a dropdown
-function isDropdown(item: NavigationItem): item is NavigationDropdown {
-  return "items" in item;
-}
+type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 
-function FooterNavigation({ items }: { items: NavigationItem[] }) {
+function FooterNavigation({
+  items,
+  translate,
+}: {
+  items: MenuItem[];
+  translate: TranslateNavigationLabel;
+}) {
   return (
     <ul className="flex flex-col gap-2">
-      {items.map((item, index) => {
-        if (isDropdown(item)) {
+      {items.map((item) => {
+        if (isNested(item)) {
           return (
-            <li key={index}>
+            <li key={item.labelKey}>
               <Collapsible className="space-y-2">
                 <CollapsibleTrigger className="flex items-center justify-start gap-3 text-sm font-medium">
-                  {item.name}
+                  {translate(item.labelKey)}
                   <ChevronDownIcon aria-hidden="true" className="size-4" />
                 </CollapsibleTrigger>
                 <CollapsibleContent asChild>
@@ -41,7 +46,7 @@ function FooterNavigation({ items }: { items: NavigationItem[] }) {
                           href={subItem.href}
                           className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                         >
-                          {subItem.name}
+                          {translate(subItem.labelKey)}
                         </NavLink>
                       </li>
                     ))}
@@ -50,42 +55,45 @@ function FooterNavigation({ items }: { items: NavigationItem[] }) {
               </Collapsible>
             </li>
           );
-        } else {
-          return (
-            <li key={index}>
-              <NavLink
-                href={item.href}
-                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-              >
-                {item.name}
-              </NavLink>
-            </li>
-          );
         }
+
+        return (
+          <li key={item.href}>
+            <NavLink
+              href={item.href}
+              className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+            >
+              {translate(item.labelKey)}
+            </NavLink>
+          </li>
+        );
       })}
     </ul>
   );
 }
 
 export function Footer(props: React.ComponentProps<"footer">) {
+  const t = useTranslations("layout.footer");
+  const tNav = useTranslations("layout.navigation.items");
+
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
       <Container>
         <div className="grid gap-x-32 gap-y-16 py-16 lg:grid-cols-3 xl:gap-x-52">
           {/* Brand section */}
           <div className="flex flex-col items-start justify-start gap-7">
-            <Link href="/" aria-label="Home Page">
+            <Link href="/" aria-label={t("homeAriaLabel")}>
               <Logo aria-hidden="true" className="w-20" />
             </Link>
-            <p className="text-sm">{site.defaultTitle}</p>
+            <p className="text-sm">{t("description")}</p>
             <Separator />
             <ThemeSwitcher />
           </div>
 
           <div className="grid gap-y-16 sm:grid-cols-2 md:grid-cols-3 lg:col-span-2">
             <div className="flex flex-col items-start justify-start gap-7">
-              <p className="text-sm font-semibold">Navigation</p>
-              <FooterNavigation items={navLinksArray} />
+              <p className="text-sm font-semibold">{t("sections.navigation")}</p>
+              <FooterNavigation items={footerNavigationItems} translate={tNav} />
               {!isProduction && (
                 <div className="flex flex-col gap-2">
                   <p className="text-sm font-semibold">Dev</p>
@@ -112,28 +120,28 @@ export function Footer(props: React.ComponentProps<"footer">) {
             </div>
 
             <div className="flex flex-col items-start justify-start gap-7">
-              <p className="text-sm font-semibold">Legal</p>
+              <p className="text-sm font-semibold">{t("sections.legal")}</p>
               <ul className="flex flex-col gap-2">
-                {legalLinksArray.map((item, index) => (
-                  <li key={index}>
+                {footerLegalItems.map((item) => (
+                  <li key={item.href}>
                     <NavLink
                       href={item.href}
                       className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                     >
-                      {item.name}
+                      {tNav(item.labelKey)}
                     </NavLink>
                   </li>
                 ))}
                 <li>
                   <CookieSettingsTrigger className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                    Cookie settings
+                    {t("cookieSettings")}
                   </CookieSettingsTrigger>
                 </li>
               </ul>
             </div>
 
             <div className="flex flex-col items-start justify-start gap-6">
-              <p className="text-sm font-semibold">Social media</p>
+              <p className="text-sm font-semibold">{t("sections.socialMedia")}</p>
               <SocialMediaIcons />
             </div>
           </div>
@@ -162,14 +170,18 @@ function Copyright({
 }: Omit<React.ComponentProps<"p">, "children"> & {
   company?: string;
 }) {
+  const t = useTranslations("layout.footer");
+
   return (
     <p {...props} className={cn("text-text-subtle text-sm", props.className)}>
-      Copyright &copy;&nbsp;{new Date().getFullYear()}&nbsp;{company}. All rights reserved.
+      {t("copyright", { year: new Date().getFullYear(), company })}
     </p>
   );
 }
 
 function ScrollToTopButton(props: React.ComponentProps<"button">) {
+  const t = useTranslations("layout.footer");
+
   return (
     <button
       {...props}
@@ -179,15 +191,17 @@ function ScrollToTopButton(props: React.ComponentProps<"button">) {
         props.className
       )}
     >
-      Scroll to top <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
+      {t("scrollToTop")} <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
     </button>
   );
 }
 
 function AgencyCredit(props: React.ComponentProps<"p">) {
+  const t = useTranslations("layout.footer");
+
   return (
     <p {...props} className={cn("text-sm", props.className)}>
-      <span>Created by </span>
+      <span>{t("createdBy")} </span>
       <NavLink
         href="https://www.gtdn.online/"
         className="underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60"
