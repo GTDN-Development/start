@@ -32,6 +32,17 @@
         "close": "Zavřít menu"
       }
     },
+    "navigation": {
+      "items": {
+        "home": "Domů",
+        "contact": "Kontakt",
+        "account": "Účet",
+        "login": "Přihlášení",
+        "signUp": "Registrace",
+        "privacyPolicy": "Zásady ochrany osobních údajů",
+        "cookiePolicy": "Zásady cookies"
+      }
+    },
     "footer": {
       "homeAriaLabel": "Domovská stránka",
       "description": "Moderní šablona webové aplikace postavená na Next.js 16, TypeScript, shadcn/ui a s mnoha vestavěnými funkcemi.",
