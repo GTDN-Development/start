@@ -9,7 +9,6 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/layouts/providers";
-import { LayoutCentered } from "@/components/layouts/layout-centered";
 import { ThirdPartyScripts } from "@/components/(shared)/cookies/third-party-scripts";
 import { DynamicScripts } from "@/components/(shared)/cookies/dynamic-scripts";
 import { CookieConsentBanner } from "@/components/(shared)/cookies/cookie-consent-banner";
@@ -107,9 +106,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
       <body className="font-sans antialiased">
         <NextIntlClientProvider>
           <Providers>
-            <div className="relative isolate">
-              <LayoutCentered>{children}</LayoutCentered>
-            </div>
+            <div className="relative isolate">{children}</div>
             <CookieErrorBoundary>
               <CookieConsentBanner />
               <CookieSettingsDialog />

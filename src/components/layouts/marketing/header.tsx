@@ -8,14 +8,14 @@ import {
   MobileMenuNested,
   MobileMenuTitle,
   MobileMenuTrigger,
-} from "./mobile-menu";
-import { FloatingBar } from "./floating-bar";
+} from "../mobile-menu";
+import { FloatingBar } from "../floating-bar";
 import { Link } from "@/components/ui/link";
 import { Container } from "@/components/ui/container";
 import { ChevronDownIcon, ChevronRightIcon, MenuIcon, CheckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LogoGtdn } from "./logo-gtdn";
-import { NavLink } from "./nav-link";
+import { LogoGtdn } from "../logo-gtdn";
+import { NavLink } from "../nav-link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,11 +23,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getMenu, isNested, type MenuItem, type MenuLabelKey } from "@/config/menu";
-import { SocialMediaIcons } from "./social-media-icons";
+import { SocialMediaIcons } from "../social-media-icons";
 import { contact } from "@/config/contact";
-import { CopyButton } from "../ui/copy-button";
+import { CopyButton } from "@/components/ui/copy-button";
 import { cn } from "@/lib/utils";
-import { LocaleSelect } from "./locale-select";
+import { LocaleSelect } from "../locale-select";
 import { useTranslations } from "next-intl";
 
 const headerMenuItems = getMenu("header");

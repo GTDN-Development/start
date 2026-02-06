@@ -1,16 +1,16 @@
 "use client";
 
 import clsx from "clsx";
-import { Banner, BannerDescription, BannerDivider, BannerLink, BannerTitle } from "./banner";
+// import { Banner, BannerDescription, BannerDivider, BannerLink, BannerTitle } from "./banner";
 import { Link, type LinkProps } from "@/components/ui/link";
 import { Footer } from "./footer";
 import { Header } from "./header";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "../ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 
 // Main Layout Component
-export function LayoutCentered({ children }: { children: React.ReactNode }) {
+export function MarketingLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
@@ -25,12 +25,12 @@ export function LayoutCentered({ children }: { children: React.ReactNode }) {
       <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
       {/* Banner */}
-      <Banner isDismissable={true}>
+      {/*<Banner isDismissable={true}>
         <BannerTitle>{t("banner.title")}</BannerTitle>
         <BannerDivider />
         <BannerDescription>{t("banner.description")}</BannerDescription>
         <BannerLink href="/">{t("banner.callToAction")}</BannerLink>
-      </Banner>
+      </Banner>*/}
 
       {/* Header */}
       <Header />

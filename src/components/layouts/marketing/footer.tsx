@@ -1,14 +1,14 @@
 import { Link } from "@/components/ui/link";
-import { LogoGtdn } from "./logo-gtdn";
+import { LogoGtdn } from "../logo-gtdn";
 import { ArrowUpIcon, ChevronDownIcon } from "lucide-react";
-import { NavLink } from "./nav-link";
+import { NavLink } from "../nav-link";
 import { Container } from "@/components/ui/container";
-import { ThemeSwitcher } from "./theme-switcher";
-import { SocialMediaIcons } from "./social-media-icons";
+import { ThemeSwitcher } from "../theme-switcher";
+import { SocialMediaIcons } from "../social-media-icons";
 import { getMenu, getMenuLinks, isNested, type MenuItem, type MenuLabelKey } from "@/config/menu";
-import { Separator } from "../ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { CookieSettingsTrigger } from "@/components/(shared)/cookies/cookie-settings-trigger";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import { chain, cn } from "@/lib/utils";
 import { site } from "@/config/site";
