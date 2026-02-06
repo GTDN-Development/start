@@ -65,26 +65,24 @@ export default function Page({ params }: PageProps<"/[locale]">) {
           <HeroDescription>{t("description")}</HeroDescription>
           <HeroActions>
             <Button size="lg">{t("learnMore")}</Button>
-            <Button size="lg" variant="secondary" asChild>
-              <a href="https://ui.shadcn.com/" target="_blank" rel="noopener noreferrer">
-                {t("shadcnDocs")}
-              </a>
+            <Button
+              size="lg"
+              variant="secondary"
+              render={<a href="https://ui.shadcn.com/" target="_blank" rel="noopener noreferrer" />}
+            >
+              {t("shadcnDocs")}
             </Button>
           </HeroActions>
         </HeroContent>
       </Hero>
 
       <div className="space-y-16 pb-24 md:space-y-32">
-        <Container asChild>
-          <section>
-            <FeaturesBlock />
-          </section>
+        <Container render={<section />}>
+          <FeaturesBlock />
         </Container>
 
-        <Container asChild>
-          <section>
-            <NewsletterCta />
-          </section>
+        <Container render={<section />}>
+          <NewsletterCta />
         </Container>
       </div>
     </div>

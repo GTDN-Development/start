@@ -38,19 +38,17 @@ function FooterNavigation({
                   {translate(item.labelKey)}
                   <ChevronDownIcon aria-hidden="true" className="size-4" />
                 </CollapsibleTrigger>
-                <CollapsibleContent asChild>
-                  <ul className="space-y-2 pl-2">
-                    {item.items.map((subItem) => (
-                      <li key={subItem.href}>
-                        <NavLink
-                          href={subItem.href}
-                          className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                        >
-                          {translate(subItem.labelKey)}
-                        </NavLink>
-                      </li>
-                    ))}
-                  </ul>
+                <CollapsibleContent render={<ul className="space-y-2 pl-2" />}>
+                  {item.items.map((subItem) => (
+                    <li key={subItem.href}>
+                      <NavLink
+                        href={subItem.href}
+                        className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                      >
+                        {translate(subItem.labelKey)}
+                      </NavLink>
+                    </li>
+                  ))}
                 </CollapsibleContent>
               </Collapsible>
             </li>

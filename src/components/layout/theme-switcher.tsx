@@ -1,6 +1,7 @@
 "use client";
 
-import * as RadioGroup from "@radix-ui/react-radio-group";
+import { Radio } from "@base-ui/react/radio";
+import { RadioGroup } from "@base-ui/react/radio-group";
 import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -14,20 +15,18 @@ export type ThemeSwitcherProps = {
 type ToggleButtonProps = {
   value: string;
   label: string;
-  isCurrent: boolean;
   children: React.ReactNode;
 };
 
-function ToggleButton({ value, label, isCurrent, children }: ToggleButtonProps) {
+function ToggleButton({ value, label, children }: ToggleButtonProps) {
   return (
-    <RadioGroup.Item
+    <Radio.Root
       value={value}
       aria-label={label}
-      data-current={isCurrent ? "true" : undefined}
-      className="focus-visible:ring-ring data-current:text-foreground text-muted-foreground data-current:bg-muted relative flex size-8 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      className="focus-visible:ring-ring data-checked:text-foreground text-muted-foreground data-checked:bg-muted relative flex size-8 items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
     >
       {children}
-    </RadioGroup.Item>
+    </Radio.Root>
   );
 }
 
@@ -52,23 +51,23 @@ export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
   }
 
   return (
-    <RadioGroup.Root
+    <RadioGroup
       value={theme}
-      onValueChange={handleValueChange}
+      onValueChange={(value) => handleValueChange(value as string)}
       className={cn(
         "bg-background ring-border relative isolate flex h-10 rounded-full p-1 ring-1",
         className
       )}
     >
-      <ToggleButton value="light" label={t("light")} isCurrent={theme === "light"}>
+      <ToggleButton value="light" label={t("light")}>
         <SunIcon aria-hidden="true" className="size-4" />
       </ToggleButton>
-      <ToggleButton value="system" label={t("system")} isCurrent={theme === "system"}>
+      <ToggleButton value="system" label={t("system")}>
         <MonitorIcon aria-hidden="true" className="size-4" />
       </ToggleButton>
-      <ToggleButton value="dark" label={t("dark")} isCurrent={theme === "dark"}>
+      <ToggleButton value="dark" label={t("dark")}>
         <MoonIcon aria-hidden="true" className="size-4" />
       </ToggleButton>
-    </RadioGroup.Root>
+    </RadioGroup>
   );
 }

@@ -1,4 +1,4 @@
-import { Slot } from "@radix-ui/react-slot";
+import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -27,21 +27,21 @@ export const containerVariants = cva(
   }
 );
 
-export type ContainerProps<T extends React.ElementType = "div"> = React.ComponentProps<T> &
-  VariantProps<typeof containerVariants> & {
-    asChild?: boolean;
-  };
+export type ContainerProps = useRender.ComponentProps<"div"> &
+  VariantProps<typeof containerVariants>;
 
 export function Container({
   className,
   size,
-  asChild = false,
+  render,
   ...props
-}: React.ComponentProps<"div"> &
-  VariantProps<typeof containerVariants> & {
-    asChild?: boolean;
-  }) {
-  const Comp = asChild ? Slot : "div";
-
-  return <Comp className={cn(containerVariants({ size, className }))} {...props} />;
+}: ContainerProps) {
+  return useRender({
+    render,
+    defaultTagName: "div",
+    props: {
+      ...props,
+      className: cn(containerVariants({ size, className })),
+    },
+  });
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
+import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -25,14 +24,13 @@ function FloatingBar({
   autoHide,
   scrolledThreshold = 64,
   autoHideThreshold = 512,
-  asChild = false,
+  render,
   ...props
-}: React.ComponentProps<"div"> &
+}: useRender.ComponentProps<"div"> &
   VariantProps<typeof floatingBarVariants> & {
     autoHide?: boolean;
     scrolledThreshold?: number;
     autoHideThreshold?: number;
-    asChild?: boolean;
   }) {
   const [isHidden, setIsHidden] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -87,16 +85,16 @@ function FloatingBar({
     };
   }, [autoHide, isSticky, isFixed, autoHideThreshold, scrolledThreshold, isMounted]);
 
-  const Comp = asChild ? Slot : "div";
-
-  return (
-    <Comp
-      {...props}
-      data-scrolled={isMounted && isScrolled ? "true" : undefined}
-      data-hidden={isMounted && isHidden ? "true" : undefined}
-      className={cn(floatingBarVariants({ position, className }))}
-    />
-  );
+  return useRender({
+    render,
+    defaultTagName: "div",
+    props: {
+      ...props,
+      "data-scrolled": isMounted && isScrolled ? "true" : undefined,
+      "data-hidden": isMounted && isHidden ? "true" : undefined,
+      className: cn(floatingBarVariants({ position, className })),
+    },
+  });
 }
 
 export { FloatingBar, floatingBarVariants };

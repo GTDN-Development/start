@@ -1,12 +1,18 @@
 # Changelog
 
+## 26-02-06
+
+- Migrate UI library to `@base-ui/react` primitives and drop `radix-ui`.
+- Refactor components to use new `render` prop via `useRender` and drop old `asChild` prop.
+- Update imports and usage across whole app (Button, DropdownMenuTrigger, Nav).
+
 ## 26-02-05
 
-- Implement `next-intl` and everything related to it
+- Implement `next-intl` and everything related to it.
 
 ## 26-02-03
 
-- Update packages and add security patches
+- Update packages and add security patches.
 - Introduced App Router route groups for marketing/auth/dev and mirrored component structure.
 - Added dev-only component + color playground pages with production guard.
 - Added login/sign-up pages, forms, and stub API routes.

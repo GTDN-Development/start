@@ -10,11 +10,13 @@ export function SocialMediaIcons(props: React.ComponentProps<"ul">) {
     >
       {socialMediaLinksArray.map((item, index) => (
         <li key={index}>
-          <Button size="icon" variant="ghost" asChild>
-            <a href={item.href} target="_blank" rel="noopener noreferrer">
-              <span className="sr-only">{item.name}</span>
-              <item.icon aria-hidden="true" />
-            </a>
+          <Button
+            size="icon"
+            variant="ghost"
+            render={<a href={item.href} target="_blank" rel="noopener noreferrer" />}
+          >
+            <span className="sr-only">{item.name}</span>
+            <item.icon aria-hidden="true" />
           </Button>
         </li>
       ))}

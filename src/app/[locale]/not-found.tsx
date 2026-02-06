@@ -17,11 +17,9 @@ export default function NotFound() {
         <HeroTitle>{t("title")}</HeroTitle>
         <HeroDescription>{t("description")}</HeroDescription>
         <HeroActions>
-          <Button asChild size="lg">
-            <Link href="/">
-              <HomeIcon aria-hidden="true" />
-              {t("goHome")}
-            </Link>
+          <Button size="lg" render={<Link href="/" />}>
+            <HomeIcon aria-hidden="true" />
+            {t("goHome")}
           </Button>
         </HeroActions>
       </HeroContent>

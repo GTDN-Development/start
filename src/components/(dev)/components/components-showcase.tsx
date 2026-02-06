@@ -178,8 +178,8 @@ export function ComponentsShowcase() {
             </CardHeader>
             <CardContent className="flex flex-wrap gap-4">
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline">Open menu</Button>
+                <DropdownMenuTrigger render={<Button variant="outline" />}>
+                  Open menu
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem>Profile</DropdownMenuItem>
@@ -239,20 +239,14 @@ export function ComponentsShowcase() {
                     />
                   </div>
                   <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="outline">Cancel</Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                      <Button>Send update</Button>
-                    </DialogClose>
+                    <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+                    <DialogClose render={<Button />}>Send update</DialogClose>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
 
               <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline">Details dialog</Button>
-                </DialogTrigger>
+                <DialogTrigger render={<Button variant="outline" />}>Details dialog</DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Workspace settings</DialogTitle>
@@ -275,16 +269,14 @@ export function ComponentsShowcase() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="secondary">Save settings</Button>
-                    </DialogClose>
+                    <DialogClose render={<Button variant="secondary" />}>Save settings</DialogClose>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
 
               <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive">Destructive dialog</Button>
+                <AlertDialogTrigger render={<Button variant="destructive" />}>
+                  Destructive dialog
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
@@ -310,12 +302,10 @@ export function ComponentsShowcase() {
             </CardHeader>
             <CardContent className="flex flex-wrap gap-4">
               <Drawer>
-                <DrawerTrigger asChild>
-                  <Button variant="outline">
-                    <SettingsIcon aria-hidden="true" className="size-4" />
-                    Open drawer
-                  </Button>
-                </DrawerTrigger>
+                <Button variant="outline" render={<DrawerTrigger />}>
+                  <SettingsIcon aria-hidden="true" className="size-4" />
+                  Open drawer
+                </Button>
                 <DrawerContent>
                   <DrawerHeader>
                     <DrawerTitle>Quick settings</DrawerTitle>
@@ -335,9 +325,9 @@ export function ComponentsShowcase() {
                     </div>
                   </div>
                   <DrawerFooter>
-                    <DrawerClose asChild>
-                      <Button variant="outline">Close</Button>
-                    </DrawerClose>
+                    <Button variant="outline" render={<DrawerClose />}>
+                      Close
+                    </Button>
                     <Button>Save changes</Button>
                   </DrawerFooter>
                 </DrawerContent>

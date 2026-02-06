@@ -48,20 +48,25 @@ function Navigation({
         if (isNested(item)) {
           return (
             <DropdownMenu key={item.labelKey}>
-              <DropdownMenuTrigger asChild>
-                <li>
-                  <button className="text-muted-foreground hover:text-foreground data-[state=open]:text-foreground flex items-center gap-2 text-sm font-medium whitespace-nowrap transition-colors">
-                    {translate(item.labelKey)}
-                    <ChevronDownIcon aria-hidden="true" className="size-4" />
-                  </button>
-                </li>
-              </DropdownMenuTrigger>
+              <li>
+                <DropdownMenuTrigger
+                  render={
+                    <button className="text-muted-foreground hover:text-foreground data-[state=open]:text-foreground flex items-center gap-2 text-sm font-medium whitespace-nowrap transition-colors" />
+                  }
+                >
+                  {translate(item.labelKey)}
+                  <ChevronDownIcon aria-hidden="true" className="size-4" />
+                </DropdownMenuTrigger>
+              </li>
               <DropdownMenuContent align="start">
                 {item.items.map((subItem) => (
-                  <DropdownMenuItem key={subItem.href} asChild>
-                    <NavLink href={subItem.href} className="w-full cursor-pointer whitespace-nowrap">
-                      {translate(subItem.labelKey)}
-                    </NavLink>
+                  <DropdownMenuItem
+                    key={subItem.href}
+                    render={
+                      <NavLink href={subItem.href} className="w-full cursor-pointer whitespace-nowrap" />
+                    }
+                  >
+                    {translate(subItem.labelKey)}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -98,11 +103,9 @@ function MobileNavigation({
           return (
             <li key={item.labelKey}>
               <MobileMenuNested>
-                <MobileMenuTrigger asChild>
-                  <button className="text-foreground flex w-full items-center justify-between gap-3 py-3">
-                    {translate(item.labelKey)}
-                    <ChevronRightIcon aria-hidden="true" className="size-[1em]" />
-                  </button>
+                <MobileMenuTrigger className="text-foreground flex w-full items-center justify-between gap-3 py-3">
+                  {translate(item.labelKey)}
+                  <ChevronRightIcon aria-hidden="true" className="size-[1em]" />
                 </MobileMenuTrigger>
                 <MobileMenuContent>
                   <div className="mx-auto w-full max-w-xl">
@@ -112,10 +115,10 @@ function MobileNavigation({
                     <ul className="divide-border flex flex-col divide-y">
                       {item.items.map((subItem) => (
                         <li key={subItem.href}>
-                          <MobileMenuClose asChild>
-                            <NavLink href={subItem.href} className="text-foreground block w-full py-3">
-                              {translate(subItem.labelKey)}
-                            </NavLink>
+                          <MobileMenuClose
+                            render={<NavLink href={subItem.href} className="text-foreground block w-full py-3" />}
+                          >
+                            {translate(subItem.labelKey)}
                           </MobileMenuClose>
                         </li>
                       ))}
@@ -129,10 +132,10 @@ function MobileNavigation({
 
         return (
           <li key={item.href}>
-            <MobileMenuClose asChild>
-              <NavLink href={item.href} className="text-foreground block w-full py-3">
-                {translate(item.labelKey)}
-              </NavLink>
+            <MobileMenuClose
+              render={<NavLink href={item.href} className="text-foreground block w-full py-3" />}
+            >
+              {translate(item.labelKey)}
             </MobileMenuClose>
           </li>
         );
@@ -147,7 +150,7 @@ export function Header() {
 
   return (
     <FloatingBar
-      asChild
+      render={<header />}
       position={"sticky"}
       autoHide={true}
       className={clsx(
@@ -163,31 +166,32 @@ export function Header() {
         "data-hidden:data-scrolled:shadow-none data-hidden:motion-safe:-translate-y-full"
       )}
     >
-      <header>
-        <Container className="flex h-full items-center justify-between gap-8">
-          {/* Left side */}
-          <div className="flex flex-1 items-center gap-4">
-            <Link href="/" aria-label={t("homeAriaLabel")}>
-              <Logo aria-hidden="true" className="w-20" />
-            </Link>
-          </div>
+      <Container className="flex h-full items-center justify-between gap-8">
+        {/* Left side */}
+        <div className="flex flex-1 items-center gap-4">
+          <Link href="/" aria-label={t("homeAriaLabel")}>
+            <Logo aria-hidden="true" className="w-20" />
+          </Link>
+        </div>
 
-          {/* Center */}
-          <div className="flex flex-1 items-center justify-center gap-4">
-            <nav className="hidden lg:block">
-              <Navigation items={headerMenuItems} translate={tNav} />
-            </nav>
-          </div>
+        {/* Center */}
+        <div className="flex flex-1 items-center justify-center gap-4">
+          <nav className="hidden lg:block">
+            <Navigation items={headerMenuItems} translate={tNav} />
+          </nav>
+        </div>
 
-          {/* Right side */}
-          <div className="flex flex-1 items-center justify-end gap-4">
-            {/* Call to action */}
-            <ul className="ml-auto hidden gap-4 lg:flex">
-              <li>
-                <LocaleSelect />
-              </li>
-              <li>
-                <Button asChild variant="secondary">
+        {/* Right side */}
+        <div className="flex flex-1 items-center justify-end gap-4">
+          {/* Call to action */}
+          <ul className="ml-auto hidden gap-4 lg:flex">
+            <li>
+              <LocaleSelect />
+            </li>
+            <li>
+              <Button
+                variant="secondary"
+                render={
                   <CopyButton toCopy={contact.email} className="relative">
                     {({ isCopied }) => (
                       <>
@@ -206,39 +210,40 @@ export function Header() {
                       </>
                     )}
                   </CopyButton>
-                </Button>
-              </li>
-            </ul>
+                }
+              />
+            </li>
+          </ul>
 
-            {/* Mobile menu */}
-            <div className="lg:hidden">
-              <MobileMenu>
-                <MobileMenuTrigger asChild>
-                  <Button variant="secondary" size="icon" aria-label={t("menu.openAriaLabel")}>
-                    <MenuIcon aria-hidden="true" />
-                  </Button>
-                </MobileMenuTrigger>
-                <MobileMenuContent>
-                  <MobileMenuHeader>
-                    <MobileMenuTitle>{t("menu.title")}</MobileMenuTitle>
-                  </MobileMenuHeader>
-                  <div className="space-y-6">
-                    <MobileNavigation items={mobileMenuItems} translate={tNav} />
-                    <SocialMediaIcons />
-                    <MobileMenuFooter>
-                      <MobileMenuClose asChild>
-                        <Button variant="secondary" size="lg" className="w-full">
-                          {t("menu.close")}
-                        </Button>
-                      </MobileMenuClose>
-                    </MobileMenuFooter>
-                  </div>
-                </MobileMenuContent>
-              </MobileMenu>
-            </div>
+          {/* Mobile menu */}
+          <div className="lg:hidden">
+            <MobileMenu>
+              <Button
+                variant="secondary"
+                size="icon"
+                aria-label={t("menu.openAriaLabel")}
+                render={<MobileMenuTrigger />}
+              >
+                <MenuIcon aria-hidden="true" />
+              </Button>
+              <MobileMenuContent>
+                <MobileMenuHeader>
+                  <MobileMenuTitle>{t("menu.title")}</MobileMenuTitle>
+                </MobileMenuHeader>
+                <div className="space-y-6">
+                  <MobileNavigation items={mobileMenuItems} translate={tNav} />
+                  <SocialMediaIcons />
+                  <MobileMenuFooter>
+                    <Button variant="secondary" size="lg" className="w-full" render={<MobileMenuClose />}>
+                      {t("menu.close")}
+                    </Button>
+                  </MobileMenuFooter>
+                </div>
+              </MobileMenuContent>
+            </MobileMenu>
           </div>
-        </Container>
-      </header>
+        </div>
+      </Container>
     </FloatingBar>
   );
 }

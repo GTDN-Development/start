@@ -22,8 +22,26 @@ function MobileMenuPortal({ ...props }: React.ComponentProps<typeof DrawerPrimit
   return <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />;
 }
 
-function MobileMenuClose({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Close>) {
-  return <DrawerPrimitive.Close data-slot="drawer-close" {...props} />;
+function MobileMenuClose({
+  render,
+  children,
+  ...props
+}: React.ComponentProps<typeof DrawerPrimitive.Close> & {
+  render?: React.ReactElement;
+}) {
+  if (render) {
+    return (
+      <DrawerPrimitive.Close data-slot="drawer-close" asChild {...props}>
+        {React.cloneElement(render, undefined, children)}
+      </DrawerPrimitive.Close>
+    );
+  }
+
+  return (
+    <DrawerPrimitive.Close data-slot="drawer-close" {...props}>
+      {children}
+    </DrawerPrimitive.Close>
+  );
 }
 
 function MobileMenuOverlay({

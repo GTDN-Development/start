@@ -8,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
+import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import { useCookieContext } from "./cookie-context";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -140,19 +140,21 @@ export function CookieSettingsDialog() {
           </div>
         </div>
         <AlertDialogFooter className="mt-4">
-          <AlertDialogPrimitive.Action asChild>
-            <Button variant="secondary" onClick={handleDeny}>
-              {t("actions.deny")}
-            </Button>
-          </AlertDialogPrimitive.Action>
-          <AlertDialogPrimitive.Action asChild>
-            <Button variant="secondary" onClick={handleAcceptAll}>
-              {t("actions.acceptAll")}
-            </Button>
-          </AlertDialogPrimitive.Action>
-          <AlertDialogPrimitive.Action asChild>
-            <Button onClick={handleSave}>{t("actions.save")}</Button>
-          </AlertDialogPrimitive.Action>
+          <AlertDialogPrimitive.Close
+            render={<Button variant="secondary" />}
+            onClick={handleDeny}
+          >
+            {t("actions.deny")}
+          </AlertDialogPrimitive.Close>
+          <AlertDialogPrimitive.Close
+            render={<Button variant="secondary" />}
+            onClick={handleAcceptAll}
+          >
+            {t("actions.acceptAll")}
+          </AlertDialogPrimitive.Close>
+          <AlertDialogPrimitive.Close render={<Button />} onClick={handleSave}>
+            {t("actions.save")}
+          </AlertDialogPrimitive.Close>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
