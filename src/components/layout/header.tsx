@@ -14,7 +14,7 @@ import { Link } from "@/components/ui/link";
 import { Container } from "@/components/ui/container";
 import { ChevronDownIcon, ChevronRightIcon, MenuIcon, CheckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/ui/logo";
+import { LogoGtdn } from "./logo-gtdn";
 import { NavLink } from "@/components/layout/nav-link";
 import {
   DropdownMenu,
@@ -63,7 +63,10 @@ function Navigation({
                   <DropdownMenuItem
                     key={subItem.href}
                     render={
-                      <NavLink href={subItem.href} className="w-full cursor-pointer whitespace-nowrap" />
+                      <NavLink
+                        href={subItem.href}
+                        className="w-full cursor-pointer whitespace-nowrap"
+                      />
                     }
                   >
                     {translate(subItem.labelKey)}
@@ -116,7 +119,12 @@ function MobileNavigation({
                       {item.items.map((subItem) => (
                         <li key={subItem.href}>
                           <MobileMenuClose
-                            render={<NavLink href={subItem.href} className="text-foreground block w-full py-3" />}
+                            render={
+                              <NavLink
+                                href={subItem.href}
+                                className="text-foreground block w-full py-3"
+                              />
+                            }
                           >
                             {translate(subItem.labelKey)}
                           </MobileMenuClose>
@@ -170,7 +178,7 @@ export function Header() {
         {/* Left side */}
         <div className="flex flex-1 items-center gap-4">
           <Link href="/" aria-label={t("homeAriaLabel")}>
-            <Logo aria-hidden="true" className="w-20" />
+            <LogoGtdn aria-hidden="true" className="w-20" />
           </Link>
         </div>
 
@@ -234,7 +242,12 @@ export function Header() {
                   <MobileNavigation items={mobileMenuItems} translate={tNav} />
                   <SocialMediaIcons />
                   <MobileMenuFooter>
-                    <Button variant="secondary" size="lg" className="w-full" render={<MobileMenuClose />}>
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      className="w-full"
+                      render={<MobileMenuClose />}
+                    >
                       {t("menu.close")}
                     </Button>
                   </MobileMenuFooter>

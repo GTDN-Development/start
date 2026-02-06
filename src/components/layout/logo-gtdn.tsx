@@ -1,4 +1,4 @@
-export function Logo(props: React.ComponentProps<"svg">) {
+export function LogoGtdn(props: React.ComponentProps<"svg">) {
   return (
     <svg {...props} viewBox="0 0 489 101" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
