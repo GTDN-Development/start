@@ -9,13 +9,13 @@ import {
   MobileMenuTitle,
   MobileMenuTrigger,
 } from "./mobile-menu";
-import { FloatingBar } from "@/components/layout/floating-bar";
+import { FloatingBar } from "./floating-bar";
 import { Link } from "@/components/ui/link";
 import { Container } from "@/components/ui/container";
 import { ChevronDownIcon, ChevronRightIcon, MenuIcon, CheckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogoGtdn } from "./logo-gtdn";
-import { NavLink } from "@/components/layout/nav-link";
+import { NavLink } from "./nav-link";
 import {
   DropdownMenu,
   DropdownMenuContent,

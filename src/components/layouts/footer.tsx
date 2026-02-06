@@ -1,7 +1,7 @@
 import { Link } from "@/components/ui/link";
 import { LogoGtdn } from "./logo-gtdn";
 import { ArrowUpIcon, ChevronDownIcon } from "lucide-react";
-import { NavLink } from "@/components/layout/nav-link";
+import { NavLink } from "./nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "./theme-switcher";
 import { SocialMediaIcons } from "./social-media-icons";
