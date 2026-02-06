@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Container } from "@/components/ui/container";
 import {
   Dialog,
   DialogClose,
@@ -53,289 +52,277 @@ const buttonSizes = ["sm", "default", "lg", "icon", "icon-sm", "icon-lg"] as con
 
 export function ComponentsShowcase() {
   return (
-    <div className="pb-24">
-      <Container className="py-16">
-        <div>
-          <p className="text-muted-foreground text-sm tracking-wide uppercase">Dev Playground</p>
-          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">UI Components</h1>
-          <p className="text-muted-foreground mt-4 max-w-2xl">
-            A quick visual checklist for the shadcn/ui components in this project. Use it to inspect
-            variants, sizes, and accessibility states while building new screens.
-          </p>
-        </div>
+    <div className="space-y-12">
+      <section>
+        <Card>
+          <CardHeader>
+            <CardTitle>Buttons</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-6">
+            <div className="flex flex-wrap gap-3">
+              {buttonVariants.map((variant) => (
+                <Button key={variant} variant={variant}>
+                  {variant}
+                </Button>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              {buttonSizes.map((size) => (
+                <Button key={size} size={size} variant="outline">
+                  {size.includes("icon") ? (
+                    <ChevronRightIcon aria-hidden="true" className="size-4" />
+                  ) : (
+                    size
+                  )}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
-        <section className="mt-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Buttons</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-6">
-              <div className="flex flex-wrap gap-3">
-                {buttonVariants.map((variant) => (
-                  <Button key={variant} variant={variant}>
-                    {variant}
-                  </Button>
-                ))}
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                {buttonSizes.map((size) => (
-                  <Button key={size} size={size} variant="outline">
-                    {size.includes("icon") ? (
-                      <ChevronRightIcon aria-hidden="true" className="size-4" />
-                    ) : (
-                      size
-                    )}
-                  </Button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+      <section className="mt-12">
+        <Card>
+          <CardHeader>
+            <CardTitle>Inputs</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-6 md:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="dev-input-text">Text</Label>
+              <Input id="dev-input-text" name="dev-input-text" placeholder="Type something" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="dev-input-email">Email</Label>
+              <Input
+                id="dev-input-email"
+                name="dev-input-email"
+                type="email"
+                placeholder="you@email.com"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="dev-input-disabled">Disabled</Label>
+              <Input
+                id="dev-input-disabled"
+                name="dev-input-disabled"
+                placeholder="Disabled"
+                disabled
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="dev-textarea">Textarea</Label>
+              <Textarea
+                id="dev-textarea"
+                name="dev-textarea"
+                placeholder="Leave a note for the team..."
+                rows={4}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
-        <section className="mt-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Inputs</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-6 md:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="dev-input-text">Text</Label>
-                <Input id="dev-input-text" name="dev-input-text" placeholder="Type something" />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="dev-input-email">Email</Label>
-                <Input
-                  id="dev-input-email"
-                  name="dev-input-email"
-                  type="email"
-                  placeholder="you@email.com"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="dev-input-disabled">Disabled</Label>
-                <Input
-                  id="dev-input-disabled"
-                  name="dev-input-disabled"
-                  placeholder="Disabled"
-                  disabled
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="dev-textarea">Textarea</Label>
-                <Textarea
-                  id="dev-textarea"
-                  name="dev-textarea"
-                  placeholder="Leave a note for the team..."
-                  rows={4}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+      <section className="mt-12">
+        <Card>
+          <CardHeader>
+            <CardTitle>Checkboxes & Switches</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <Checkbox id="dev-checkbox" name="dev-checkbox" defaultChecked />
+              <Label htmlFor="dev-checkbox">Remember this device</Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch id="dev-switch" name="dev-switch" />
+              <Label htmlFor="dev-switch">Enable notifications</Label>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
 
-        <section className="mt-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Checkboxes & Switches</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <Checkbox id="dev-checkbox" name="dev-checkbox" defaultChecked />
-                <Label htmlFor="dev-checkbox">Remember this device</Label>
-              </div>
-              <div className="flex items-center gap-3">
-                <Switch id="dev-switch" name="dev-switch" />
-                <Label htmlFor="dev-switch">Enable notifications</Label>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+      <section className="mt-12">
+        <Card>
+          <CardHeader>
+            <CardTitle>Alerts</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <Alert>
+              <CheckCircleIcon aria-hidden="true" className="size-4" />
+              <AlertTitle>Success</AlertTitle>
+              <AlertDescription>Your changes were saved successfully.</AlertDescription>
+            </Alert>
+            <Alert variant="destructive">
+              <AlertTriangleIcon aria-hidden="true" className="size-4" />
+              <AlertTitle>Something went wrong</AlertTitle>
+              <AlertDescription>Double-check the form fields and try again.</AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+      </section>
 
-        <section className="mt-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Alerts</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <Alert>
-                <CheckCircleIcon aria-hidden="true" className="size-4" />
-                <AlertTitle>Success</AlertTitle>
-                <AlertDescription>Your changes were saved successfully.</AlertDescription>
-              </Alert>
-              <Alert variant="destructive">
-                <AlertTriangleIcon aria-hidden="true" className="size-4" />
-                <AlertTitle>Something went wrong</AlertTitle>
-                <AlertDescription>Double-check the form fields and try again.</AlertDescription>
-              </Alert>
-            </CardContent>
-          </Card>
-        </section>
+      <section className="mt-12">
+        <Card>
+          <CardHeader>
+            <CardTitle>Menus & Dialogs</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button variant="outline" />}>
+                Open menu
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive">Delete workspace</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-        <section className="mt-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Menus & Dialogs</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger render={<Button variant="outline" />}>
-                  Open menu
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem variant="destructive">Delete workspace</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+            <Dialog>
+              <DialogTrigger>
+                <Button>Simple dialog</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Share the update</DialogTitle>
+                  <DialogDescription>
+                    Send a quick note to the team about what changed. Send a quick note to the team
+                    about what changed. Send a quick note to the team about what changed. Send a
+                    quick note to the team about what changed. Send a quick note to the team about
+                    what changed. Send a quick note to the team about what changed. Send a quick
+                    note to the team about what changed. Send a quick note to the team about what
+                    changed. Send a quick note to the team about what changed. Send a quick note to
+                    the team about what changed. Send a quick note to the team about what changed.
+                    Send a quick note to the team about what changed. Send a quick note to the team
+                    about what changed. Send a quick note to the team about what changed. Send a
+                    quick note to the team about what changed. Send a quick note to the team about
+                    what changed. Send a quick note to the team about what changed. Send a quick
+                    note to the team about what changed. Send a quick note to the team about what
+                    changed. Send a quick note to the team about what changed. Send a quick note to
+                    the team about what changed. Send a quick note to the team about what changed.
+                    Send a quick note to the team about what changed. Send a quick note to the team
+                    about what changed. Send a quick note to the team about what changed. Send a
+                    quick note to the team about what changed. Send a quick note to the team about
+                    what changed. Send a quick note to the team about what changed. Send a quick
+                    note to the team about what changed. Send a quick note to the team about what
+                    changed. Send a quick note to the team about what changed. Send a quick note to
+                    the team about what changed. Send a quick note to the team about what changed.
+                    Send a quick note to the team about what changed. Send a quick note to the team
+                    about what changed. Send a quick note to the team about what changed. Send a
+                    quick note to the team about what changed. Send a quick note to the team about
+                    what changed. Send a quick note to the team about what changed. Send a quick
+                    note to the team about what changed. Send a quick note to the team about what
+                    changed. Send a quick note to the team about what changed. Send a quick note to
+                    the team about what changed. Send a quick note to the team about what changed.
+                    Send a quick note to the team about what changed.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="dev-dialog-message">Message</Label>
+                  <Textarea
+                    id="dev-dialog-message"
+                    name="dev-dialog-message"
+                    placeholder="Summarize the change..."
+                    rows={3}
+                  />
+                </div>
+                <DialogFooter>
+                  <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+                  <DialogClose render={<Button />}>Send update</DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-              <Dialog>
-                <DialogTrigger>
-                  <Button>Simple dialog</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Share the update</DialogTitle>
-                    <DialogDescription>
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                      Send a quick note to the team about what changed. Send a quick note to the
-                      team about what changed. Send a quick note to the team about what changed.
-                    </DialogDescription>
-                  </DialogHeader>
+            <Dialog>
+              <DialogTrigger render={<Button variant="outline" />}>Details dialog</DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Workspace settings</DialogTitle>
+                  <DialogDescription>
+                    Update the environment without leaving the current screen.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4">
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="dev-dialog-message">Message</Label>
-                    <Textarea
-                      id="dev-dialog-message"
-                      name="dev-dialog-message"
-                      placeholder="Summarize the change..."
-                      rows={3}
+                    <Label htmlFor="dev-dialog-name">Workspace name</Label>
+                    <Input
+                      id="dev-dialog-name"
+                      name="dev-dialog-name"
+                      defaultValue="Main workspace"
                     />
                   </div>
-                  <DialogFooter>
-                    <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
-                    <DialogClose render={<Button />}>Send update</DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              <Dialog>
-                <DialogTrigger render={<Button variant="outline" />}>Details dialog</DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Workspace settings</DialogTitle>
-                    <DialogDescription>
-                      Update the environment without leaving the current screen.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4">
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="dev-dialog-name">Workspace name</Label>
-                      <Input
-                        id="dev-dialog-name"
-                        name="dev-dialog-name"
-                        defaultValue="Main workspace"
-                      />
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Switch id="dev-dialog-lock" name="dev-dialog-lock" />
-                      <Label htmlFor="dev-dialog-lock">Lock settings</Label>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <Switch id="dev-dialog-lock" name="dev-dialog-lock" />
+                    <Label htmlFor="dev-dialog-lock">Lock settings</Label>
                   </div>
-                  <DialogFooter>
-                    <DialogClose render={<Button variant="secondary" />}>Save settings</DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+                </div>
+                <DialogFooter>
+                  <DialogClose render={<Button variant="secondary" />}>Save settings</DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-              <AlertDialog>
-                <AlertDialogTrigger render={<Button variant="destructive" />}>
-                  Destructive dialog
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete this environment?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. The environment will be removed immediately.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction>Delete</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </CardContent>
-          </Card>
-        </section>
+            <AlertDialog>
+              <AlertDialogTrigger render={<Button variant="destructive" />}>
+                Destructive dialog
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this environment?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. The environment will be removed immediately.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </CardContent>
+        </Card>
+      </section>
 
-        <section className="mt-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>Drawer</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-4">
-              <Drawer>
-                <Button variant="outline" render={<DrawerTrigger />}>
-                  <SettingsIcon aria-hidden="true" className="size-4" />
-                  Open drawer
-                </Button>
-                <DrawerContent>
-                  <DrawerHeader>
-                    <DrawerTitle>Quick settings</DrawerTitle>
-                    <DrawerDescription>
-                      Toggle environment settings without leaving the page.
-                    </DrawerDescription>
-                  </DrawerHeader>
-                  <div className="px-6">
-                    <div className="flex items-center justify-between rounded-md border px-4 py-3">
-                      <div>
-                        <p className="text-sm font-medium">Notifications</p>
-                        <p className="text-muted-foreground text-sm">
-                          Send updates to the workspace.
-                        </p>
-                      </div>
-                      <Switch id="dev-drawer-notify" name="dev-drawer-notify" />
+      <section className="mt-12">
+        <Card>
+          <CardHeader>
+            <CardTitle>Drawer</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-4">
+            <Drawer>
+              <Button variant="outline" render={<DrawerTrigger />}>
+                <SettingsIcon aria-hidden="true" className="size-4" />
+                Open drawer
+              </Button>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Quick settings</DrawerTitle>
+                  <DrawerDescription>
+                    Toggle environment settings without leaving the page.
+                  </DrawerDescription>
+                </DrawerHeader>
+                <div className="px-6">
+                  <div className="flex items-center justify-between rounded-md border px-4 py-3">
+                    <div>
+                      <p className="text-sm font-medium">Notifications</p>
+                      <p className="text-muted-foreground text-sm">
+                        Send updates to the workspace.
+                      </p>
                     </div>
+                    <Switch id="dev-drawer-notify" name="dev-drawer-notify" />
                   </div>
-                  <DrawerFooter>
-                    <Button variant="outline" render={<DrawerClose />}>
-                      Close
-                    </Button>
-                    <Button>Save changes</Button>
-                  </DrawerFooter>
-                </DrawerContent>
-              </Drawer>
-            </CardContent>
-          </Card>
-        </section>
-      </Container>
+                </div>
+                <DrawerFooter>
+                  <Button variant="outline" render={<DrawerClose />}>
+                    Close
+                  </Button>
+                  <Button>Save changes</Button>
+                </DrawerFooter>
+              </DrawerContent>
+            </Drawer>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

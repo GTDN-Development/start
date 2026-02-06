@@ -1,136 +1,142 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Container } from "@/components/ui/container";
 import { cn } from "@/lib/utils";
 
-type ColorToken = {
-  name: string;
-  description: string;
-  preview: React.ReactNode;
+type ColorPair = {
+  base: {
+    name: string;
+    description: string;
+    preview: React.ReactNode;
+  };
+  foreground?: {
+    name: string;
+    description: string;
+    preview: React.ReactNode;
+  };
 };
 
-const coreTokens: ColorToken[] = [
+const corePairs: ColorPair[] = [
   {
-    name: "background",
-    description: "Primary canvas for pages and large surfaces.",
-    preview: <ColorSwatch label="Background" className="bg-background text-foreground" />,
+    base: {
+      name: "background",
+      description: "Primary canvas for pages and large surfaces.",
+      preview: <ColorSwatch label="Background" className="bg-background text-foreground" />,
+    },
+    foreground: {
+      name: "foreground",
+      description: "Default text and icon color on the background.",
+      preview: <ColorSwatch label="Foreground" className="bg-foreground text-background" />,
+    },
   },
   {
-    name: "foreground",
-    description: "Default text and icon color on the background.",
-    preview: <ColorSwatch label="Foreground" className="bg-foreground text-background" />,
+    base: {
+      name: "card",
+      description: "Surface for contained content blocks like cards.",
+      preview: <ColorSwatch label="Card" className="bg-card text-card-foreground" />,
+    },
+    foreground: {
+      name: "card-foreground",
+      description: "Text and icon color used on card surfaces.",
+      preview: <ColorSwatch label="Card FG" className="bg-card-foreground text-card" />,
+    },
   },
   {
-    name: "card",
-    description: "Surface for contained content blocks like cards.",
-    preview: <ColorSwatch label="Card" className="bg-card text-card-foreground" />,
+    base: {
+      name: "popover",
+      description: "Surface for floating panels, dropdowns, and popovers.",
+      preview: <ColorSwatch label="Popover" className="bg-popover text-popover-foreground" />,
+    },
+    foreground: {
+      name: "popover-foreground",
+      description: "Text and icon color on popover surfaces.",
+      preview: <ColorSwatch label="Popover FG" className="bg-popover-foreground text-popover" />,
+    },
   },
   {
-    name: "card-foreground",
-    description: "Text and icon color used on card surfaces.",
-    preview: (
-      <ColorSwatch label="Card FG" className="bg-card-foreground text-card" />
-    ),
+    base: {
+      name: "primary",
+      description: "Primary brand color for main actions and emphasis.",
+      preview: <ColorSwatch label="Primary" className="bg-primary text-primary-foreground" />,
+    },
+    foreground: {
+      name: "primary-foreground",
+      description: "Text and icon color on primary surfaces.",
+      preview: <ColorSwatch label="Primary FG" className="bg-primary-foreground text-primary" />,
+    },
   },
   {
-    name: "popover",
-    description: "Surface for floating panels, dropdowns, and popovers.",
-    preview: <ColorSwatch label="Popover" className="bg-popover text-popover-foreground" />,
+    base: {
+      name: "secondary",
+      description: "Secondary surfaces for subtle emphasis.",
+      preview: <ColorSwatch label="Secondary" className="bg-secondary text-secondary-foreground" />,
+    },
+    foreground: {
+      name: "secondary-foreground",
+      description: "Text and icon color on secondary surfaces.",
+      preview: (
+        <ColorSwatch label="Secondary FG" className="bg-secondary-foreground text-secondary" />
+      ),
+    },
   },
   {
-    name: "popover-foreground",
-    description: "Text and icon color on popover surfaces.",
-    preview: (
-      <ColorSwatch label="Popover FG" className="bg-popover-foreground text-popover" />
-    ),
+    base: {
+      name: "muted",
+      description: "Low-contrast surfaces for muted regions.",
+      preview: <ColorSwatch label="Muted" className="bg-muted text-muted-foreground" />,
+    },
+    foreground: {
+      name: "muted-foreground",
+      description: "Secondary text color for muted surfaces.",
+      preview: <ColorSwatch label="Muted FG" className="bg-muted-foreground text-muted" />,
+    },
   },
   {
-    name: "primary",
-    description: "Primary brand color for main actions and emphasis.",
-    preview: <ColorSwatch label="Primary" className="bg-primary text-primary-foreground" />,
+    base: {
+      name: "accent",
+      description: "Accent surfaces for hover and highlights.",
+      preview: <ColorSwatch label="Accent" className="bg-accent text-accent-foreground" />,
+    },
+    foreground: {
+      name: "accent-foreground",
+      description: "Text and icon color on accent surfaces.",
+      preview: <ColorSwatch label="Accent FG" className="bg-accent-foreground text-accent" />,
+    },
   },
   {
-    name: "primary-foreground",
-    description: "Text and icon color on primary surfaces.",
-    preview: (
-      <ColorSwatch
-        label="Primary FG"
-        className="bg-primary-foreground text-primary"
-      />
-    ),
+    base: {
+      name: "destructive",
+      description: "Destructive actions, errors, and critical emphasis.",
+      preview: <ColorSwatch label="Destructive" className="bg-destructive text-white" />,
+    },
   },
   {
-    name: "secondary",
-    description: "Secondary surfaces for subtle emphasis.",
-    preview: (
-      <ColorSwatch label="Secondary" className="bg-secondary text-secondary-foreground" />
-    ),
+    base: {
+      name: "border",
+      description: "Default border and divider color.",
+      preview: (
+        <ColorSwatch
+          label="Border"
+          className="bg-background text-foreground border-border border-4"
+        />
+      ),
+    },
+    foreground: {
+      name: "input",
+      description: "Input background and subtle input accents.",
+      preview: <ColorSwatch label="Input" className="bg-input text-foreground border-border" />,
+    },
   },
   {
-    name: "secondary-foreground",
-    description: "Text and icon color on secondary surfaces.",
-    preview: (
-      <ColorSwatch
-        label="Secondary FG"
-        className="bg-secondary-foreground text-secondary"
-      />
-    ),
-  },
-  {
-    name: "muted",
-    description: "Low-contrast surfaces for muted regions.",
-    preview: <ColorSwatch label="Muted" className="bg-muted text-muted-foreground" />,
-  },
-  {
-    name: "muted-foreground",
-    description: "Secondary text color for muted surfaces.",
-    preview: (
-      <ColorSwatch label="Muted FG" className="bg-muted-foreground text-muted" />
-    ),
-  },
-  {
-    name: "accent",
-    description: "Accent surfaces for hover and highlights.",
-    preview: <ColorSwatch label="Accent" className="bg-accent text-accent-foreground" />,
-  },
-  {
-    name: "accent-foreground",
-    description: "Text and icon color on accent surfaces.",
-    preview: (
-      <ColorSwatch label="Accent FG" className="bg-accent-foreground text-accent" />
-    ),
-  },
-  {
-    name: "destructive",
-    description: "Destructive actions, errors, and critical emphasis.",
-    preview: <ColorSwatch label="Destructive" className="bg-destructive text-white" />,
-  },
-  {
-    name: "border",
-    description: "Default border and divider color.",
-    preview: (
-      <ColorSwatch
-        label="Border"
-        className="bg-background text-foreground border-4 border-border"
-      />
-    ),
-  },
-  {
-    name: "input",
-    description: "Input background and subtle input accents.",
-    preview: (
-      <ColorSwatch label="Input" className="bg-input text-foreground border-border" />
-    ),
-  },
-  {
-    name: "ring",
-    description: "Focus ring color for interactive elements.",
-    preview: (
-      <ColorSwatch label="Ring" className="bg-background text-foreground ring-2 ring-ring" />
-    ),
+    base: {
+      name: "ring",
+      description: "Focus ring color for interactive elements.",
+      preview: (
+        <ColorSwatch label="Ring" className="bg-background text-foreground ring-ring ring-2" />
+      ),
+    },
   },
 ];
 
-const chartTokens: ColorToken[] = [
+const chartTokens = [
   {
     name: "chart-1",
     description: "Data visualization series color 1.",
@@ -158,130 +164,155 @@ const chartTokens: ColorToken[] = [
   },
 ];
 
-const sidebarTokens: ColorToken[] = [
+const sidebarPairs: ColorPair[] = [
   {
-    name: "sidebar",
-    description: "Sidebar background surface.",
-    preview: <ColorSwatch label="Sidebar" className="bg-sidebar text-sidebar-foreground" />,
+    base: {
+      name: "sidebar",
+      description: "Sidebar background surface.",
+      preview: <ColorSwatch label="Sidebar" className="bg-sidebar text-sidebar-foreground" />,
+    },
+    foreground: {
+      name: "sidebar-foreground",
+      description: "Default text color inside the sidebar.",
+      preview: <ColorSwatch label="Sidebar FG" className="bg-sidebar-foreground text-sidebar" />,
+    },
   },
   {
-    name: "sidebar-foreground",
-    description: "Default text color inside the sidebar.",
-    preview: (
-      <ColorSwatch
-        label="Sidebar FG"
-        className="bg-sidebar-foreground text-sidebar"
-      />
-    ),
+    base: {
+      name: "sidebar-primary",
+      description: "Primary action color used in sidebars.",
+      preview: (
+        <ColorSwatch
+          label="Sidebar Primary"
+          className="bg-sidebar-primary text-sidebar-primary-foreground"
+        />
+      ),
+    },
+    foreground: {
+      name: "sidebar-primary-foreground",
+      description: "Text and icon color on sidebar primary surfaces.",
+      preview: (
+        <ColorSwatch
+          label="Sidebar Primary FG"
+          className="bg-sidebar-primary-foreground text-sidebar-primary"
+        />
+      ),
+    },
   },
   {
-    name: "sidebar-primary",
-    description: "Primary action color used in sidebars.",
-    preview: (
-      <ColorSwatch
-        label="Sidebar Primary"
-        className="bg-sidebar-primary text-sidebar-primary-foreground"
-      />
-    ),
+    base: {
+      name: "sidebar-accent",
+      description: "Accent or hover surfaces in sidebars.",
+      preview: (
+        <ColorSwatch
+          label="Sidebar Accent"
+          className="bg-sidebar-accent text-sidebar-accent-foreground"
+        />
+      ),
+    },
+    foreground: {
+      name: "sidebar-accent-foreground",
+      description: "Text and icon color on sidebar accent surfaces.",
+      preview: (
+        <ColorSwatch
+          label="Sidebar Accent FG"
+          className="bg-sidebar-accent-foreground text-sidebar-accent"
+        />
+      ),
+    },
   },
   {
-    name: "sidebar-primary-foreground",
-    description: "Text and icon color on sidebar primary surfaces.",
-    preview: (
-      <ColorSwatch
-        label="Sidebar Primary FG"
-        className="bg-sidebar-primary-foreground text-sidebar-primary"
-      />
-    ),
-  },
-  {
-    name: "sidebar-accent",
-    description: "Accent or hover surfaces in sidebars.",
-    preview: (
-      <ColorSwatch
-        label="Sidebar Accent"
-        className="bg-sidebar-accent text-sidebar-accent-foreground"
-      />
-    ),
-  },
-  {
-    name: "sidebar-accent-foreground",
-    description: "Text and icon color on sidebar accent surfaces.",
-    preview: (
-      <ColorSwatch
-        label="Sidebar Accent FG"
-        className="bg-sidebar-accent-foreground text-sidebar-accent"
-      />
-    ),
-  },
-  {
-    name: "sidebar-border",
-    description: "Divider and border color used in sidebars.",
-    preview: (
-      <ColorSwatch
-        label="Sidebar Border"
-        className="bg-sidebar text-sidebar-foreground border-4 border-sidebar-border"
-      />
-    ),
-  },
-  {
-    name: "sidebar-ring",
-    description: "Focus ring color for sidebar interactions.",
-    preview: (
-      <ColorSwatch
-        label="Sidebar Ring"
-        className="bg-sidebar text-sidebar-foreground ring-2 ring-sidebar-ring"
-      />
-    ),
+    base: {
+      name: "sidebar-border",
+      description: "Divider and border color used in sidebars.",
+      preview: (
+        <ColorSwatch
+          label="Sidebar Border"
+          className="bg-sidebar text-sidebar-foreground border-sidebar-border border-4"
+        />
+      ),
+    },
+    foreground: {
+      name: "sidebar-ring",
+      description: "Focus ring color for sidebar interactions.",
+      preview: (
+        <ColorSwatch
+          label="Sidebar Ring"
+          className="bg-sidebar text-sidebar-foreground ring-sidebar-ring ring-2"
+        />
+      ),
+    },
   },
 ];
 
 export function ColorsShowcase() {
   return (
-    <div className="pb-24">
-      <Container className="py-16">
-        <div>
-          <p className="text-muted-foreground text-sm uppercase tracking-wide">Dev Reference</p>
-          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">Theme Colors</h1>
-          <p className="text-muted-foreground mt-4 max-w-2xl">
-            These tokens come directly from `src/styles/globals.css` and mirror the shadcn/ui
-            theming model. Use the descriptions below as a quick reminder for where each color
-            belongs.
-          </p>
+    <div>
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold">Core Tokens</h2>
+        <div className="mt-6 grid gap-6">
+          {corePairs.map((pair) => (
+            <ColorPairRow key={pair.base.name} pair={pair} />
+          ))}
         </div>
+      </section>
 
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold">Core Tokens</h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {coreTokens.map((token) => (
-              <ColorCard key={token.name} {...token} />
-            ))}
-          </div>
-        </section>
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold">Chart Tokens</h2>
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {chartTokens.map((token) => (
+            <ColorCard
+              key={token.name}
+              name={token.name}
+              description={token.description}
+              preview={token.preview}
+            />
+          ))}
+        </div>
+      </section>
 
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold">Chart Tokens</h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {chartTokens.map((token) => (
-              <ColorCard key={token.name} {...token} />
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-12">
-          <h2 className="text-xl font-semibold">Sidebar Tokens</h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {sidebarTokens.map((token) => (
-              <ColorCard key={token.name} {...token} />
-            ))}
-          </div>
-        </section>
-      </Container>
+      <section className="mt-12">
+        <h2 className="text-xl font-semibold">Sidebar Tokens</h2>
+        <div className="mt-6 grid gap-6">
+          {sidebarPairs.map((pair) => (
+            <ColorPairRow key={pair.base.name} pair={pair} />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
 
-function ColorCard({ name, description, preview }: ColorToken) {
+function ColorPairRow({ pair }: { pair: ColorPair }) {
+  return (
+    <div className="grid gap-6 sm:grid-cols-2">
+      <ColorCard
+        name={pair.base.name}
+        description={pair.base.description}
+        preview={pair.base.preview}
+      />
+      {pair.foreground ? (
+        <ColorCard
+          name={pair.foreground.name}
+          description={pair.foreground.description}
+          preview={pair.foreground.preview}
+        />
+      ) : (
+        <div aria-hidden="true" />
+      )}
+    </div>
+  );
+}
+
+function ColorCard({
+  name,
+  description,
+  preview,
+}: {
+  name: string;
+  description: string;
+  preview: React.ReactNode;
+}) {
   return (
     <Card className="h-full">
       <CardHeader className="gap-2">
@@ -299,7 +330,7 @@ function ColorSwatch({ label, className }: { label: string; className?: string }
   return (
     <div
       className={cn(
-        "flex h-16 items-center justify-center rounded-md border border-border text-xs font-semibold uppercase tracking-wide",
+        "border-border flex h-16 items-center justify-center rounded-md border text-xs font-semibold tracking-wide uppercase",
         className
       )}
     >

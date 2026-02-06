@@ -3,26 +3,18 @@ import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@/lib/utils";
 import { containerVariants, type ContainerProps } from "./container";
 
-function Hero({
-  className,
-  render,
-  ...props
-}: useRender.ComponentProps<"header">) {
+function Hero({ className, render, ...props }: useRender.ComponentProps<"section">) {
   return useRender({
     render,
-    defaultTagName: "header",
+    defaultTagName: "section",
     props: {
       ...props,
-      className: cn("bg-background text-foreground relative isolate overflow-hidden", className),
+      className: cn("relative isolate overflow-hidden", className),
     },
   });
 }
 
-function HeroBackground({
-  className,
-  render,
-  ...props
-}: useRender.ComponentProps<"div">) {
+function HeroBackground({ className, render, ...props }: useRender.ComponentProps<"div">) {
   return useRender({
     render,
     defaultTagName: "div",
@@ -44,11 +36,7 @@ function HeroContent({ className, size, render, ...props }: ContainerProps) {
   });
 }
 
-function HeroTitle({
-  className,
-  render,
-  ...props
-}: useRender.ComponentProps<"h1">) {
+function HeroTitle({ className, render, ...props }: useRender.ComponentProps<"h1">) {
   return useRender({
     render,
     defaultTagName: "h1",
@@ -62,11 +50,7 @@ function HeroTitle({
   });
 }
 
-function HeroDescription({
-  className,
-  render,
-  ...props
-}: useRender.ComponentProps<"p">) {
+function HeroDescription({ className, render, ...props }: useRender.ComponentProps<"p">) {
   return useRender({
     render,
     defaultTagName: "p",
@@ -80,11 +64,7 @@ function HeroDescription({
   });
 }
 
-function HeroActions({
-  className,
-  render,
-  ...props
-}: useRender.ComponentProps<"div">) {
+function HeroActions({ className, render, ...props }: useRender.ComponentProps<"div">) {
   return useRender({
     render,
     defaultTagName: "div",
