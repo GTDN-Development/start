@@ -165,6 +165,10 @@
       "title": "Zásady cookies",
       "description": "Zjistěte, jak používáme soubory cookies na našem webu, jaké typy cookies používáme a jak můžete spravovat své preference týkající se cookies.",
       "effectiveDate": "1. ledna 2025"
+    },
+    "dashboard": {
+      "title": "Nástěnka",
+      "description": "Vítejte ve svém osobním přehledu. Spravujte svůj účet a sledujte svou aktivitu."
     }
   },
   "forms": {

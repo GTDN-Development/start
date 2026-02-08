@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/layouts/providers";
+import { TailwindScreen } from "@/components/layouts/tailwind-screen";
 import { ThirdPartyScripts } from "@/components/(shared)/cookies/third-party-scripts";
 import { DynamicScripts } from "@/components/(shared)/cookies/dynamic-scripts";
 import { CookieConsentBanner } from "@/components/(shared)/cookies/cookie-consent-banner";
@@ -123,20 +124,5 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
         </Suspense>
       </body>
     </html>
-  );
-}
-
-function TailwindScreen() {
-  if (process.env.NODE_ENV === "production") return null;
-
-  return (
-    <div className="fixed bottom-16 left-5 z-99999 flex size-9 items-center justify-center rounded-full bg-[#282828] text-xs font-bold text-white uppercase inset-ring-1 inset-ring-current/15 dark:bg-black">
-      <div className="sm:hidden">-</div>
-      <div className="hidden sm:block md:hidden">sm</div>
-      <div className="hidden md:block lg:hidden">md</div>
-      <div className="hidden lg:block xl:hidden">lg</div>
-      <div className="hidden xl:block 2xl:hidden">xl</div>
-      <div className="hidden 2xl:block">2xl</div>
-    </div>
   );
 }

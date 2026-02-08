@@ -165,6 +165,10 @@
       "title": "Cookie Policy",
       "description": "Learn about how we use cookies on our website, what types of cookies we use, and how you can manage your cookie preferences.",
       "effectiveDate": "January 1, 2025"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "Welcome to your dashboard. Manage your account, view analytics, and access all your tools in one place."
     }
   },
   "forms": {

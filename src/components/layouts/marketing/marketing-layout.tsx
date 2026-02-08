@@ -2,11 +2,9 @@
 
 import clsx from "clsx";
 // import { Banner, BannerDescription, BannerDivider, BannerLink, BannerTitle } from "./banner";
-import { Link, type LinkProps } from "@/components/ui/link";
 import { Footer } from "./footer";
 import { Header } from "./header";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { SkipToContent } from "../skip-to-content";
 import { useTranslations } from "next-intl";
 
 // Main Layout Component
@@ -43,20 +41,5 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
       {/* Footer */}
       <Footer />
     </div>
-  );
-}
-
-function SkipToContent({ children, className, ...props }: LinkProps) {
-  return (
-    <Link
-      {...props}
-      className={cn(
-        buttonVariants({ variant: "default" }),
-        "fixed top-6 left-6 z-1000 hidden -translate-y-[1000%] focus-visible:translate-y-0 pointer-fine:block",
-        className
-      )}
-    >
-      {children}
-    </Link>
   );
 }
