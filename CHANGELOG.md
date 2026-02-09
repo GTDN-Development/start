@@ -1,5 +1,9 @@
 # Changelog
 
+## 26-02-09
+
+- Switch package manager from `npm` to `Bun` — replace `package-lock.json` with `bun.lock`.
+
 ## 26-02-06
 
 - Migrate UI library to `@base-ui/react` primitives and drop `radix-ui`.
