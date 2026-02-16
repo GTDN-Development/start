@@ -75,63 +75,6 @@
       "description": "Moderní šablona webové aplikace postavená na Next.js 16, TypeScript, shadcn/ui a s mnoha vestavěnými funkcemi.",
       "learnMore": "Zjistit více",
       "shadcnDocs": "Shadcn ui docs",
-      "features": {
-        "title": "Vestavěné funkce",
-        "items": {
-          "responsiveLayout": {
-            "title": "Responzivní systém rozložení",
-            "description": "Pokročilý header s mobilní drawer navigací přes Vaul. Podporuje vnořené položky menu s jednotným zdrojem dat pro header i footer.",
-            "points": [
-              "Mobilní drawer navigace",
-              "Podpora vnořeného menu",
-              "Jednotná data navigace"
-            ]
-          },
-          "unifiedConfiguration": {
-            "title": "Jednotná konfigurace",
-            "description": "Centralizovaná složka config jako single source of truth pro metadata webu, navigaci, kontakty, právní obsah a firemní údaje. Eliminuje hardcoded hodnoty v komponentách.",
-            "points": ["Single source of truth", "Snadná údržba", "Bez hardcoded hodnot"]
-          },
-          "seoFoundation": {
-            "title": "SEO základ",
-            "description": "Komplexní SEO setup s automaticky generovanými OG obrázky, sitemapou a robots.txt. Výchozí řešení vhodné pro většinu projektů s minimální údržbou.",
-            "points": ["Automatické OG obrázky", "Dynamická sitemap", "Optimalizovaný robots.txt"]
-          },
-          "gdprConsent": {
-            "title": "GDPR consent systém",
-            "description": "Přizpůsobitelný EU-compliant consent systém s granularitou. Podporuje analytické, marketingové i funkční ukládání a správu preferencí uživatele.",
-            "points": ["EU-compliant consent", "Granulární kontrola", "Uložení preferencí"]
-          },
-          "privacyPolicy": {
-            "title": "Připravené zásady ochrany údajů",
-            "description": "Předpřipravená GDPR stránka se zásadami ochrany osobních údajů s konfigurovatelnými právními údaji. Obsahuje detaily zpracování dat, práva uživatelů i transparentnost cookies.",
-            "points": [
-              "GDPR šablona",
-              "Konfigurovatelné právní údaje",
-              "Dokumentace práv uživatelů"
-            ]
-          },
-          "contactForm": {
-            "title": "Kontaktní formulář s ochranou",
-            "description": "Produkční kontaktní formulář s integrací Cloudflare Turnstile captcha. Obsahuje validaci, error handling a odesílání přes API route s přehlednou zpětnou vazbou.",
-            "points": ["Turnstile captcha", "Validace formuláře", "Integrace API route"]
-          },
-          "themeManagement": {
-            "title": "Pokročilá správa motivů",
-            "description": "Theme switcher pro světlý, tmavý a systémový režim. Používá next-themes pro plynulé přepínání, perzistentní preference a správné SSR chování.",
-            "points": [
-              "Světlý/tmavý/systémový režim",
-              "Perzistentní preference",
-              "Kompatibilní se SSR"
-            ]
-          },
-          "heroSystem": {
-            "title": "Hero komponentový systém",
-            "description": "Flexibilní hero sekce s background patterny, správou obsahu a responzivním layoutem. Obsahuje grid pozadí, akční tlačítka a konfigurovatelné struktury obsahu.",
-            "points": ["Pattern pozadí", "Akční tlačítka", "Responzivní layout"]
-          }
-        }
-      },
       "newsletterCta": {
         "title": "Přihlaste se k newsletteru",
         "description": "Buďte v obraze s nejnovějšími novinkami, poznatky a aktualizacemi. Připojte se k odběratelům a nepropásněte důležitá oznámení."

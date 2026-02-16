@@ -75,63 +75,6 @@
       "description": "Modern web application starter template built with Next.js 16, TypeScript, shadcn/ui and with a lot of built-in features.",
       "learnMore": "Learn more",
       "shadcnDocs": "Shadcn ui docs",
-      "features": {
-        "title": "Built-in features",
-        "items": {
-          "responsiveLayout": {
-            "title": "Responsive Layout System",
-            "description": "Advanced header with mobile-friendly drawer navigation using Vaul. Supports nested menu items with unified data source that powers both header and footer navigation.",
-            "points": [
-              "Mobile-first drawer navigation",
-              "Nested menu support",
-              "Unified navigation data"
-            ]
-          },
-          "unifiedConfiguration": {
-            "title": "Unified Configuration",
-            "description": "Centralized config folder serving as single source of truth for site metadata, navigation links, contact information, legal content, and business details. Eliminates hardcoded values across components.",
-            "points": ["Single source of truth", "Easy maintenance", "No hardcoded values"]
-          },
-          "seoFoundation": {
-            "title": "SEO-Optimized Foundation",
-            "description": "Comprehensive SEO setup with auto-generated OG images, sitemap, and robots.txt. Perfect default for most projects for optimal search engine visibility that requires almost zero maintenance.",
-            "points": ["Auto-generated OG images", "Dynamic sitemap", "Optimized robots.txt"]
-          },
-          "gdprConsent": {
-            "title": "GDPR Compliance System",
-            "description": "Customizable EU-compliant consent system with granular controls. Supports analytics, marketing, and functional tracking with user preferences and easy consent management.",
-            "points": [
-              "EU-compliant consent",
-              "Granular tracking controls",
-              "User preference storage"
-            ]
-          },
-          "privacyPolicy": {
-            "title": "Privacy Policy Ready",
-            "description": "Pre-built GDPR-compliant privacy policy page with configurable legal information. Includes data processing details, user rights, and cookie usage transparency.",
-            "points": [
-              "GDPR-compliant template",
-              "Configurable legal info",
-              "User rights documentation"
-            ]
-          },
-          "contactForm": {
-            "title": "Contact Form with Protection",
-            "description": "Production-ready contact form with Cloudflare Turnstile captcha integration. Features form validation, error handling, and API route submission with proper feedback mechanisms.",
-            "points": ["Turnstile captcha", "Form validation", "API route integration"]
-          },
-          "themeManagement": {
-            "title": "Advanced Theme Management",
-            "description": "Sophisticated theme switcher supporting light, dark, and system preferences. Uses next-themes for seamless transitions with persistent user preferences and proper SSR handling.",
-            "points": ["Light/dark/system modes", "Persistent preferences", "SSR-compatible"]
-          },
-          "heroSystem": {
-            "title": "Hero Component System",
-            "description": "Flexible hero section components with background patterns, content management, and responsive layouts. Includes grid backgrounds, action buttons, and customizable content structures.",
-            "points": ["Background patterns", "Action buttons", "Responsive layouts"]
-          }
-        }
-      },
       "newsletterCta": {
         "title": "Subscribe to our newsletter",
         "description": "Stay up to date with the latest news, insights, and updates. Join our community of subscribers and never miss important announcements."

@@ -13,7 +13,6 @@ import {
   HeroTitle,
 } from "@/components/ui/hero";
 import AppIconSvg from "@/assets/svgs/start-app-icon.svg";
-import { FeaturesBlock } from "@/components/(marketing)/home/features-block";
 import { NewsletterCta } from "@/components/(marketing)/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
 import { site } from "@/config/site";
@@ -78,10 +77,6 @@ export default function Page({ params }: PageProps<"/[locale]">) {
       </Hero>
 
       <div className="space-y-16 pb-24 md:space-y-32">
-        <Container render={<section />}>
-          <FeaturesBlock />
-        </Container>
-
         <Container render={<section />}>
           <NewsletterCta />
         </Container>

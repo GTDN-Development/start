@@ -96,7 +96,7 @@ export function Footer(props: React.ComponentProps<"footer">) {
               <LogoStart aria-hidden="true" className="w-18" />
             </Link>
             <p className="text-sm">{t("description")}</p>
-            <Separator />
+            <Separator className="h-px w-full" />
             <ThemeSwitcher />
           </div>
 

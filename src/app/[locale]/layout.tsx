@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 import { Suspense } from "react";
 import { Locale, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -18,8 +18,8 @@ import { CookieErrorBoundary } from "@/components/(shared)/cookies/cookie-error-
 
 import { site } from "@/config/site";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -102,7 +102,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`scroll-pt-16 scroll-smooth ${geistSans.variable} ${geistMono.variable}`}
+      className={`scroll-pt-16 scroll-smooth ${inter.variable} ${geistMono.variable}`}
     >
       <body className="font-sans antialiased">
         <NextIntlClientProvider>
