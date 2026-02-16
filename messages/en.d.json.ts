@@ -39,9 +39,17 @@ declare const messages: {
       "items": {
         "home": "Home",
         "contact": "Contact",
+        "pricing": "Pricing",
+        "blog": "Blog",
+        "aboutApp": "About app",
+        "story": "Story",
+        "roadmap": "Roadmap",
         "account": "Account",
         "login": "Log in",
         "signUp": "Sign up",
+        "dashboard": "Dashboard",
+        "projects": "Projects",
+        "settings": "Settings",
         "privacyPolicy": "Privacy Policy",
         "cookiePolicy": "Cookie Policy"
       }

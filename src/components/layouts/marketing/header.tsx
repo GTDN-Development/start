@@ -12,7 +12,7 @@ import {
 import { FloatingBar } from "../floating-bar";
 import { Link } from "@/components/ui/link";
 import { Container } from "@/components/ui/container";
-import { ChevronDownIcon, ChevronRightIcon, MenuIcon, CheckIcon } from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogoStart } from "../logo-start";
 import { NavLink } from "../nav-link";
@@ -22,16 +22,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getMenu, isNested, type MenuItem, type MenuLabelKey } from "@/config/menu";
+import { isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/menu";
 import { SocialMediaIcons } from "../social-media-icons";
-import { contact } from "@/config/contact";
-import { CopyButton } from "@/components/ui/copy-button";
-import { cn } from "@/lib/utils";
-import { LocaleSelect } from "../locale-select";
 import { useTranslations } from "next-intl";
 
-const headerMenuItems = getMenu("header");
-const mobileMenuItems = getMenu("mobile");
+const headerMenuItems = marketingMenu;
+const mobileMenuItems = marketingMenu;
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 
@@ -192,34 +188,21 @@ export function Header() {
         {/* Right side */}
         <div className="flex flex-1 items-center justify-end gap-4">
           {/* Call to action */}
-          <ul className="ml-auto hidden gap-4 lg:flex">
-            <li>
-              <LocaleSelect />
-            </li>
+          <ul className="ml-auto hidden items-center gap-2 lg:flex">
             <li>
               <Button
-                variant="secondary"
-                render={
-                  <CopyButton toCopy={contact.email} className="relative">
-                    {({ isCopied }) => (
-                      <>
-                        <span className={cn(!isCopied ? "visible" : "invisible")}>
-                          {contact.email}
-                        </span>
-                        <span
-                          className={cn(
-                            "absolute inset-0 flex items-center justify-center",
-                            isCopied ? "visible" : "invisible"
-                          )}
-                        >
-                          <CheckIcon aria-hidden="true" className="mr-1 size-[1em]" />
-                          {t("copied")}
-                        </span>
-                      </>
-                    )}
-                  </CopyButton>
-                }
-              />
+                variant="ghost"
+                size="lg"
+                nativeButton={false}
+                render={<Link href="/login" />}
+              >
+                {tNav("login")}
+              </Button>
+            </li>
+            <li>
+              <Button size="lg" nativeButton={false} render={<Link href="/sign-up" />}>
+                {tNav("signUp")}
+              </Button>
             </li>
           </ul>
 
@@ -242,6 +225,31 @@ export function Header() {
                   <MobileNavigation items={mobileMenuItems} translate={tNav} />
                   <SocialMediaIcons />
                   <MobileMenuFooter>
+                    <MobileMenuClose
+                      render={
+                        <Button
+                          size="lg"
+                          className="w-full"
+                          nativeButton={false}
+                          render={<Link href="/sign-up" />}
+                        />
+                      }
+                    >
+                      {tNav("signUp")}
+                    </MobileMenuClose>
+                    <MobileMenuClose
+                      render={
+                        <Button
+                          variant="secondary"
+                          size="lg"
+                          className="w-full"
+                          nativeButton={false}
+                          render={<Link href="/login" />}
+                        />
+                      }
+                    >
+                      {tNav("login")}
+                    </MobileMenuClose>
                     <Button
                       variant="secondary"
                       size="lg"

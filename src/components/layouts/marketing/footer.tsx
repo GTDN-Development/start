@@ -5,7 +5,14 @@ import { NavLink } from "../nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "../theme-switcher";
 import { SocialMediaIcons } from "../social-media-icons";
-import { getMenu, getMenuLinks, isNested, type MenuItem, type MenuLabelKey } from "@/config/menu";
+import {
+  flattenMenuItems,
+  isNested,
+  legalItems,
+  marketingMenu,
+  type MenuItem,
+  type MenuLabelKey,
+} from "@/config/menu";
 import { Separator } from "@/components/ui/separator";
 import { CookieSettingsTrigger } from "@/components/(shared)/cookies/cookie-settings-trigger";
 import {
@@ -20,8 +27,8 @@ import { site } from "@/config/site";
 import { useTranslations } from "next-intl";
 
 const isProduction = process.env.NODE_ENV === "production";
-const footerNavigationItems = getMenu("footerNavigation");
-const footerLegalItems = getMenuLinks("footerLegal");
+const footerNavigationItems = marketingMenu;
+const footerLegalItems = flattenMenuItems(legalItems);
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 

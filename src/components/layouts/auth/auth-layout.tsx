@@ -30,7 +30,7 @@ export function AuthLayout({ children, className, ...props }: React.ComponentPro
       {/* Main content */}
       <main
         data-slot="main"
-        className="flex min-h-[calc(100dvh-var(--navbar-height))] min-w-0 items-center justify-center py-10"
+        className="flex min-h-[calc(100dvh-var(--navbar-height))] min-w-0 items-start justify-center py-12"
       >
         <Container size="sm" className="grid place-items-center">
           <div className="mx-auto w-full max-w-md">{children}</div>

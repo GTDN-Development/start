@@ -36,9 +36,17 @@
       "items": {
         "home": "Domů",
         "contact": "Kontakt",
+        "pricing": "Ceník",
+        "blog": "Blog",
+        "aboutApp": "O aplikaci",
+        "story": "Příběh",
+        "roadmap": "Plán vývoje",
         "account": "Účet",
         "login": "Přihlášení",
         "signUp": "Registrace",
+        "dashboard": "Nástěnka",
+        "projects": "Projekty",
+        "settings": "Nastavení",
         "privacyPolicy": "Zásady ochrany osobních údajů",
         "cookiePolicy": "Zásady cookies"
       }

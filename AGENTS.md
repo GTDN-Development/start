@@ -163,6 +163,23 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
    }
    ```
 
+3. **Menu configuration (`src/config/menu.ts`):**
+   - Keep menu structure explicit in `src/config/menu.ts`; consume exported arrays directly in layout components.
+   - Current menu exports and responsibilities:
+     - `marketingMenu: MenuItem[]` - primary public navigation (header desktop, header mobile, footer navigation).
+     - `platformMenu: MenuItem[]` - navigation for authenticated platform pages.
+     - `legalItems: MenuItem[]` - legal links for footer legal section.
+     - `flattenMenuItems(items)` - helper for places that require a flat `MenuLink[]`.
+   - Keep the menu model simple:
+     - Do not reintroduce preset/group resolver patterns (`getMenu`, `getMenuLinks`, menu groups, or multi-step mapping layers).
+     - Prefer direct arrays with `MenuLink` and `MenuNested` items.
+   - Auth CTAs are handled outside menu config:
+     - Login/Sign-up buttons in marketing header are component-level actions, not part of `marketingMenu`.
+   - Internationalization rule for menu labels:
+     - Every new `labelKey` added to `src/config/menu.ts` must be added to `messages/en.json` and `messages/cs.json` under `layout.navigation.items`.
+   - Route rule for menu links:
+     - Use internal path-only href values (e.g. `"/pricing"`, `"/about/roadmap"`).
+
 ### 4. Frameworks
 
 1. **Next.js 16:** Use `layout.tsx`, `page.tsx`, `loading.tsx`. Co-locate data fetching in Server Components. Add `'use client'` for Client Components.
@@ -551,6 +568,19 @@ Expert full-stack developer specializing in modern, accessible web apps using Ty
 3. **Animations:** Use tw-animate-css for CSS animations with Tailwind
 4. **Mobile:** Use Vaul for mobile-optimized drawers
 5. **Performance:** Enhanced routing with layout deduplication and incremental prefetching
+6. **Base UI Button composition (`render` + `nativeButton`):**
+   - When `Button` uses `render` with a non-`<button>` element (`<a>`, custom `Link`, `div`, etc.), always set `nativeButton={false}`.
+   - When `render` resolves to a native `<button>` (for example trigger/close primitives that render buttons), keep default `nativeButton` (`true`) and do not set it to `false`.
+
+   ```tsx
+   // Non-button render target -> must set nativeButton={false}
+   <Button nativeButton={false} render={<a href="/docs" />}>
+     Docs
+   </Button>
+
+   // Button render target -> keep nativeButton default (true)
+   <Button render={<DrawerTrigger />}>Open</Button>
+   ```
 
 ### 11. Internationalization (next-intl)
 

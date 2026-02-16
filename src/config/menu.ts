@@ -1,21 +1,28 @@
 import type { LinkProps } from "@/components/ui/link";
 import { legalLinks } from "./legal-links";
 
+type MenuHref = Extract<LinkProps["href"], string>;
+
 export type MenuLinkLabelKey =
   | "home"
   | "contact"
-  | "login"
-  | "signUp"
+  | "pricing"
+  | "blog"
+  | "story"
+  | "roadmap"
+  | "dashboard"
+  | "projects"
+  | "settings"
   | "privacyPolicy"
   | "cookiePolicy";
 
-export type MenuNestedLabelKey = "account";
+export type MenuNestedLabelKey = "aboutApp";
 
 export type MenuLabelKey = MenuLinkLabelKey | MenuNestedLabelKey;
 
 export type MenuLink = {
   labelKey: MenuLinkLabelKey;
-  href: Extract<LinkProps["href"], string>;
+  href: MenuHref;
 };
 
 export type MenuNested = {
@@ -25,48 +32,35 @@ export type MenuNested = {
 
 export type MenuItem = MenuLink | MenuNested;
 
-export type MenuPreset = "header" | "mobile" | "footerNavigation" | "footerLegal";
+export const marketingMenu: MenuItem[] = [
+  { labelKey: "home", href: "/" },
+  {
+    labelKey: "aboutApp",
+    items: [
+      { labelKey: "story", href: "/about/story" },
+      { labelKey: "roadmap", href: "/about/roadmap" },
+    ],
+  },
+  { labelKey: "pricing", href: "/pricing" },
+  { labelKey: "blog", href: "/blog" },
+  { labelKey: "contact", href: "/contact" },
+];
 
-type MenuPresetEntry =
-  | MenuLinkLabelKey
-  | {
-      labelKey: MenuNestedLabelKey;
-      items: readonly MenuLinkLabelKey[];
-    };
+export const platformMenu: MenuItem[] = [
+  { labelKey: "dashboard", href: "/dashboard" },
+  { labelKey: "projects", href: "/projects" },
+  { labelKey: "settings", href: "/settings" },
+];
 
-export const menuLinks = {
-  home: { labelKey: "home", href: "/" },
-  contact: { labelKey: "contact", href: "/contact" },
-  login: { labelKey: "login", href: "/login" },
-  signUp: { labelKey: "signUp", href: "/sign-up" },
-  privacyPolicy: { labelKey: legalLinks.gdpr.label, href: legalLinks.gdpr.href },
-  cookiePolicy: { labelKey: legalLinks.cookies.label, href: legalLinks.cookies.href },
-} as const satisfies Record<MenuLinkLabelKey, MenuLink>;
-
-export const menuPresets = {
-  header: ["home", "contact", { labelKey: "account", items: ["login", "signUp"] }],
-  mobile: ["home", "contact", { labelKey: "account", items: ["login", "signUp"] }],
-  footerNavigation: ["home", "contact", { labelKey: "account", items: ["login", "signUp"] }],
-  footerLegal: ["privacyPolicy", "cookiePolicy"],
-} as const satisfies Record<MenuPreset, readonly MenuPresetEntry[]>;
+export const legalItems: MenuItem[] = [
+  { labelKey: legalLinks.gdpr.label, href: legalLinks.gdpr.href },
+  { labelKey: legalLinks.cookies.label, href: legalLinks.cookies.href },
+];
 
 export function isNested(item: MenuItem): item is MenuNested {
   return "items" in item;
 }
 
-export function getMenu(preset: MenuPreset): MenuItem[] {
-  return menuPresets[preset].map((entry) => {
-    if (typeof entry === "string") {
-      return menuLinks[entry];
-    }
-
-    return {
-      labelKey: entry.labelKey,
-      items: entry.items.map((label) => menuLinks[label]),
-    };
-  });
-}
-
-export function getMenuLinks(preset: MenuPreset): MenuLink[] {
-  return getMenu(preset).flatMap((item) => (isNested(item) ? item.items : item));
+export function flattenMenuItems(items: MenuItem[]): MenuLink[] {
+  return items.flatMap((item) => (isNested(item) ? item.items : item));
 }
