@@ -8,7 +8,12 @@ import { SocialMediaIcons } from "../social-media-icons";
 import { getMenu, getMenuLinks, isNested, type MenuItem, type MenuLabelKey } from "@/config/menu";
 import { Separator } from "@/components/ui/separator";
 import { CookieSettingsTrigger } from "@/components/(shared)/cookies/cookie-settings-trigger";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { chain, cn } from "@/lib/utils";
 import { site } from "@/config/site";
@@ -32,26 +37,33 @@ function FooterNavigation({
       {items.map((item) => {
         if (isNested(item)) {
           return (
-            <li key={item.labelKey}>
-              <Collapsible className="space-y-2">
-                <CollapsibleTrigger className="flex items-center justify-start gap-3 text-sm font-medium">
+            <DropdownMenu key={item.labelKey}>
+              <li>
+                <DropdownMenuTrigger
+                  render={
+                    <button className="text-muted-foreground hover:text-foreground data-[state=open]:text-foreground flex items-center justify-start gap-3 text-sm font-medium transition-colors" />
+                  }
+                >
                   {translate(item.labelKey)}
                   <ChevronDownIcon aria-hidden="true" className="size-4" />
-                </CollapsibleTrigger>
-                <CollapsibleContent render={<ul className="space-y-2 pl-2" />}>
-                  {item.items.map((subItem) => (
-                    <li key={subItem.href}>
+                </DropdownMenuTrigger>
+              </li>
+              <DropdownMenuContent align="start">
+                {item.items.map((subItem) => (
+                  <DropdownMenuItem
+                    key={subItem.href}
+                    render={
                       <NavLink
                         href={subItem.href}
-                        className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                      >
-                        {translate(subItem.labelKey)}
-                      </NavLink>
-                    </li>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
-            </li>
+                        className="w-full cursor-pointer whitespace-nowrap"
+                      />
+                    }
+                  >
+                    {translate(subItem.labelKey)}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           );
         }
 

@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { Container } from "@/components/ui/container";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Link } from "@/components/ui/link";
 import { SignUpForm } from "@/components/(auth)/sign-up/sign-up-form";
 import { site } from "@/config/site";
@@ -50,30 +48,24 @@ export default function Page({ params }: PageProps<"/[locale]/sign-up">) {
 
   return (
     <div>
-      <Hero>
-        <HeroContent size="sm">
-          <HeroTitle>{t("title")}</HeroTitle>
-          <HeroDescription>{t("description")}</HeroDescription>
-        </HeroContent>
-      </Hero>
+      <h1>{t("title")}</h1>
+      <p>{t("description")}</p>
 
-      <Container size="sm" className="pb-24">
-        <Card>
-          <CardHeader>
-            <h2 className="text-2xl font-bold">{t("createYourAccount")}</h2>
-          </CardHeader>
-          <CardContent>
-            <SignUpForm />
-            <p className="mt-6 text-sm">
-              {t("alreadyHaveAccount")}{" "}
-              <Link href="/login" className="underline hover:no-underline">
-                {t("logIn")}
-              </Link>
-              .
-            </p>
-          </CardContent>
-        </Card>
-      </Container>
+      <Card>
+        <CardHeader>
+          <h2 className="text-2xl font-bold">{t("createYourAccount")}</h2>
+        </CardHeader>
+        <CardContent>
+          <SignUpForm />
+          <p className="mt-6 text-sm">
+            {t("alreadyHaveAccount")}{" "}
+            <Link href="/login" className="underline hover:no-underline">
+              {t("logIn")}
+            </Link>
+            .
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
