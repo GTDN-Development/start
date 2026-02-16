@@ -12,7 +12,7 @@ import {
   HeroDescription,
   HeroTitle,
 } from "@/components/ui/hero";
-import CubeSvg from "@/assets/svgs/cube.svg";
+import AppIconSvg from "@/assets/svgs/start-app-icon.svg";
 import { FeaturesBlock } from "@/components/(marketing)/home/features-block";
 import { NewsletterCta } from "@/components/(marketing)/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
@@ -60,7 +60,7 @@ export default function Page({ params }: PageProps<"/[locale]">) {
           <PatternGrid className="absolute inset-0 -z-10 size-full" />
         </HeroBackground>
         <HeroContent>
-          <CubeSvg className="mx-auto h-auto w-20 dark:invert" />
+          <AppIconSvg className="mx-auto h-auto w-20 drop-shadow-lg dark:drop-shadow-none" />
           <HeroTitle>{t("title")}</HeroTitle>
           <HeroDescription>{t("description")}</HeroDescription>
           <HeroActions>
@@ -68,6 +68,7 @@ export default function Page({ params }: PageProps<"/[locale]">) {
             <Button
               size="lg"
               variant="secondary"
+              nativeButton={false}
               render={<a href="https://ui.shadcn.com/" target="_blank" rel="noopener noreferrer" />}
             >
               {t("shadcnDocs")}

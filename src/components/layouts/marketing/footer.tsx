@@ -1,5 +1,5 @@
 import { Link } from "@/components/ui/link";
-import { LogoGtdn } from "../logo-gtdn";
+import { LogoStart } from "../logo-start";
 import { ArrowUpIcon, ChevronDownIcon } from "lucide-react";
 import { NavLink } from "../nav-link";
 import { Container } from "@/components/ui/container";
@@ -81,7 +81,7 @@ export function Footer(props: React.ComponentProps<"footer">) {
           {/* Brand section */}
           <div className="flex flex-col items-start justify-start gap-7">
             <Link href="/" aria-label={t("homeAriaLabel")}>
-              <LogoGtdn aria-hidden="true" className="w-20" />
+              <LogoStart aria-hidden="true" className="w-18" />
             </Link>
             <p className="text-sm">{t("description")}</p>
             <Separator />

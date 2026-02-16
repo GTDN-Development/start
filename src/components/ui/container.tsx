@@ -18,7 +18,7 @@ export const containerVariants = cva(
         xl: "[--container-max-width:var(--breakpoint-xl)]", // 80rem (1280px)
         "2xl": "[--container-max-width:var(--breakpoint-2xl)]", // 96rem (1536px)
         prose: "[--container-max-width:65ch]", // ~65 characters
-        default: "[--container-max-width:var(--breakpoint-2xl)]", // Default: --breakpoint-2xl -> 96rem (1536px)
+        default: "[--container-max-width:var(--breakpoint-xl)]", // Default: --breakpoint-xl -> 80rem (1280px)
       },
     },
     defaultVariants: {
@@ -30,12 +30,7 @@ export const containerVariants = cva(
 export type ContainerProps = useRender.ComponentProps<"div"> &
   VariantProps<typeof containerVariants>;
 
-export function Container({
-  className,
-  size,
-  render,
-  ...props
-}: ContainerProps) {
+export function Container({ className, size, render, ...props }: ContainerProps) {
   return useRender({
     render,
     defaultTagName: "div",

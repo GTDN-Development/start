@@ -52,12 +52,13 @@ export default function Page({ params }: PageProps<"/[locale]/contact">) {
           <HeroTitle>{t("title")}</HeroTitle>
           <HeroDescription>{t("description")}</HeroDescription>
           <HeroActions>
-            <Button size="lg" render={<a href={`mailto:${contact.email}`} />}>
+            <Button size="lg" nativeButton={false} render={<a href={`mailto:${contact.email}`} />}>
               {contact.email}
             </Button>
             <Button
               size="lg"
               variant="secondary"
+              nativeButton={false}
               render={<a href={`tel:${contact.phone}`} />}
             >
               {formatPhoneNumber(contact.phone)}

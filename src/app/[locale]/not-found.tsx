@@ -17,7 +17,7 @@ export default function NotFound() {
         <HeroTitle>{t("title")}</HeroTitle>
         <HeroDescription>{t("description")}</HeroDescription>
         <HeroActions>
-          <Button size="lg" render={<Link href="/" />}>
+          <Button size="lg" nativeButton={false} render={<Link href="/" />}>
             <HomeIcon aria-hidden="true" />
             {t("goHome")}
           </Button>

@@ -13,6 +13,7 @@ export function SocialMediaIcons(props: React.ComponentProps<"ul">) {
           <Button
             size="icon"
             variant="ghost"
+            nativeButton={false}
             render={<a href={item.href} target="_blank" rel="noopener noreferrer" />}
           >
             <span className="sr-only">{item.name}</span>

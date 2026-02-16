@@ -1,5 +1,15 @@
 # Changelog
 
+## 26-02-16
+
+- Update branding of the app with a new logo
+
+## 26-02-13
+
+- Make `npm` canonical again and add back `package-lock.json`.
+- Keep `bun` as optional runtime for script execution only.
+- Remove `bun.lock` to avoid dual lockfile drift.
+
 ## 26-02-09
 
 - Switch package manager from `npm` to `Bun` — replace `package-lock.json` with `bun.lock`.

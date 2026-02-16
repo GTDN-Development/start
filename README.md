@@ -2,34 +2,22 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-This project uses **[Bun](https://bun.sh)** as the JavaScript runtime and package manager.
-
-First, run the development server:
-
-```bash
-bun dev
-```
-
-
-## Prerequisites
-
-Install Bun if you haven't already:
-```bash
-# macOS/Linux
-curl -fsSL https://bun.sh/install | bash
-
-# Windows
-powershell -c "irm bun.sh/install.ps1 | iex"
-```
+This project uses **npm** as the canonical package manager.
+You can run scripts with **[Bun](https://bun.sh)** as an optional runtime.
 
 ### Installation
 ```bash
-bun install
+npm install
 ```
 
 ### Development
 
 Run the development server:
+```bash
+npm run dev
+```
+
+Optional Bun runtime:
 ```bash
 bun dev
 ```
@@ -40,15 +28,36 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 ### Build
 ```bash
+npm run build
+```
+
+Optional Bun runtime:
+```bash
 bun run build
 ```
 
 ### Production
 ```bash
+npm run start
+```
+
+Optional Bun runtime:
+```bash
 bun start
 ```
 
+### Bun (Optional)
 
+Install Bun only if you want to run scripts via Bun:
+```bash
+# macOS/Linux
+curl -fsSL https://bun.sh/install | bash
+
+# Windows
+powershell -c "irm bun.sh/install.ps1 | iex"
+```
+
+Use `npm install` for dependency installation so `package-lock.json` remains the canonical lockfile.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
