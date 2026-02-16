@@ -2,7 +2,7 @@
 
 ## 26-02-16
 
-- Update branding of the app with a new logo
+- Update branding and design of the app (new logo, fonts, layout, pages etc...).
 
 ## 26-02-13
 
