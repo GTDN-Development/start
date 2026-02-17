@@ -1,6 +1,6 @@
 import { Link } from "@/components/ui/link";
 import { LogoStart } from "../logo-start";
-import { ArrowUpIcon, ChevronDownIcon } from "lucide-react";
+import { ArrowUpIcon, CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
 import { NavLink } from "../nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "../theme-switcher";
@@ -26,6 +26,10 @@ import {
 import { cn } from "@/lib/utils";
 import { site } from "@/config/site";
 import { useTranslations } from "next-intl";
+import { CopyButton } from "@/components/ui/copy-button";
+import { contact, formatPhoneNumber } from "@/config/contact";
+import { toast } from "sonner";
+import { LocaleSelect } from "../locale-select";
 
 const isProduction = process.env.NODE_ENV === "production";
 const footerNavigationItems = marketingMenu;
@@ -49,7 +53,7 @@ function FooterNavigation({
               <li>
                 <DropdownMenuTrigger
                   render={
-                    <button className="text-muted-foreground hover:text-foreground data-[state=open]:text-foreground flex items-center justify-start gap-3 text-sm font-medium transition-colors" />
+                    <button className="text-muted-foreground hover:text-foreground flex items-center justify-start gap-3 text-sm font-medium transition-colors" />
                   }
                 >
                   {translate(item.labelKey)}
@@ -93,6 +97,7 @@ function FooterNavigation({
 export function Footer(props: React.ComponentProps<"footer">) {
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
+  const copiedToClipboardMessage = t("copiedToClipboard");
 
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
@@ -106,6 +111,7 @@ export function Footer(props: React.ComponentProps<"footer">) {
             <p className="text-sm">{t("description")}</p>
             <Separator className="h-px w-full" />
             <ThemeSwitcher />
+            <LocaleSelect />
           </div>
 
           <div className="grid gap-y-16 sm:grid-cols-2 md:grid-cols-3 lg:col-span-2">
@@ -160,6 +166,26 @@ export function Footer(props: React.ComponentProps<"footer">) {
 
             <div className="flex flex-col items-start justify-start gap-6">
               <p className="text-sm font-semibold">{t("sections.socialMedia")}</p>
+              <ul className="flex flex-col gap-3">
+                <li>
+                  <FooterItemToCopy
+                    toCopy={contact.email}
+                    copyToastTitle={copiedToClipboardMessage}
+                    className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+                  >
+                    {contact.email}
+                  </FooterItemToCopy>
+                </li>
+                <li>
+                  <FooterItemToCopy
+                    toCopy={contact.phone}
+                    copyToastTitle={copiedToClipboardMessage}
+                    className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+                  >
+                    {formatPhoneNumber(contact.phone)}
+                  </FooterItemToCopy>
+                </li>
+              </ul>
               <SocialMediaIcons />
             </div>
           </div>
@@ -175,7 +201,8 @@ export function Footer(props: React.ComponentProps<"footer">) {
           </div>
           <div className="flex flex-1 items-center sm:justify-end">
             <ScrollToTopButton className="mt-auto cursor-pointer text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
-              {t("scrollToTop")} <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
+              {t("scrollToTop")}{" "}
+              <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
             </ScrollToTopButton>
           </div>
         </div>
@@ -213,5 +240,36 @@ function AgencyCredit(props: React.ComponentProps<"p">) {
         gtdn.online
       </NavLink>
     </p>
+  );
+}
+
+function FooterItemToCopy({
+  children,
+  toCopy,
+  copyToastTitle,
+  className,
+}: {
+  children: React.ReactNode;
+  toCopy: string;
+  copyToastTitle: string;
+  className?: string;
+}) {
+  return (
+    <CopyButton
+      toCopy={toCopy}
+      onCopy={() => toast(copyToastTitle, { description: toCopy, position: "bottom-center" })}
+      className={cn("relative", className)}
+    >
+      {({ isCopied }) => (
+        <>
+          {children}
+          {isCopied ? (
+            <CheckIcon aria-hidden="true" className="ml-2 inline size-[1em] opacity-60" />
+          ) : (
+            <CopyIcon aria-hidden="true" className="ml-2 inline size-[1em] opacity-60" />
+          )}
+        </>
+      )}
+    </CopyButton>
   );
 }

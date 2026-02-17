@@ -60,8 +60,9 @@
         "socialMedia": "Sociální sítě"
       },
       "cookieSettings": "Nastavení cookies",
+      "copiedToClipboard": "Zkopírováno do schránky",
       "copyright": "Copyright © {year} {company}. Všechna práva vyhrazena.",
-      "scrollToTop": "Zpět nahoru",
+      "scrollToTop": "Posunout nahoru",
       "createdBy": "Vytvořeno"
     },
     "themeSwitcher": {

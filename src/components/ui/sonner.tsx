@@ -10,6 +10,7 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
+/* eslint-disable func-style */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
 

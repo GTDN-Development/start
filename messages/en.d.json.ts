@@ -63,6 +63,7 @@ declare const messages: {
         "socialMedia": "Social media"
       },
       "cookieSettings": "Cookie settings",
+      "copiedToClipboard": "Copied to clipboard",
       "copyright": "Copyright © {year} {company}. All rights reserved.",
       "scrollToTop": "Scroll to top",
       "createdBy": "Created by"
