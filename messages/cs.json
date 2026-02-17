@@ -39,7 +39,8 @@
         "pricing": "Ceník",
         "blog": "Blog",
         "aboutApp": "O aplikaci",
-        "story": "Příběh",
+        "features": "Funkce",
+        "integrations": "Integrace",
         "roadmap": "Plán vývoje",
         "account": "Účet",
         "login": "Přihlášení",
@@ -108,6 +109,36 @@
       "createYourAccount": "Vytvořte si účet",
       "alreadyHaveAccount": "Již máte účet?",
       "logIn": "Přihlásit se"
+    },
+    "aboutFeatures": {
+      "title": "Funkce",
+      "description": "Prozkoumejte klíčové možnosti, které týmům pomáhají rychleji spouštět a škálovat produkt.",
+      "contentTitle": "Obsah",
+      "contentDescription": "Použijte tuto sekci pro přehled funkcí, screenshoty produktu a detailní rozpis schopností."
+    },
+    "aboutIntegrations": {
+      "title": "Integrace",
+      "description": "Propojte aplikaci s nástroji, které váš tým používá každý den.",
+      "contentTitle": "Obsah",
+      "contentDescription": "Použijte tuto sekci pro loga integrací, kategorie, návody nastavení a API informace."
+    },
+    "aboutRoadmap": {
+      "title": "Roadmapa",
+      "description": "Podívejte se, co je v plánu a jak se produkt bude dál vyvíjet.",
+      "contentTitle": "Obsah",
+      "contentDescription": "Použijte tuto sekci pro aktuální priority, plánované milníky a přehled vydaných novinek."
+    },
+    "pricing": {
+      "title": "Ceník",
+      "description": "Vyberte si plán podle velikosti týmu, způsobu práce a fáze růstu.",
+      "contentTitle": "Obsah",
+      "contentDescription": "Použijte tuto sekci pro cenové tarify, porovnání funkcí a FAQ."
+    },
+    "blog": {
+      "title": "Blog",
+      "description": "Postřehy, produktové novinky a praktické návody pro moderní týmy.",
+      "contentTitle": "Obsah",
+      "contentDescription": "Použijte tuto sekci pro výběr článků, kategorie a přihlášení k newsletteru."
     },
     "gdpr": {
       "title": "Zásady ochrany osobních údajů",

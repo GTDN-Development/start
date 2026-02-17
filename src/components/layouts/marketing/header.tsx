@@ -44,7 +44,7 @@ function Navigation({
               <li>
                 <DropdownMenuTrigger
                   render={
-                    <button className="text-muted-foreground hover:text-foreground data-[state=open]:text-foreground flex items-center gap-2 text-sm font-medium whitespace-nowrap transition-colors" />
+                    <button className="text-muted-foreground hover:text-foreground data-[state=open]:text-foreground flex items-center gap-2 text-sm whitespace-nowrap transition-colors" />
                   }
                 >
                   {translate(item.labelKey)}
@@ -74,7 +74,7 @@ function Navigation({
           <li key={item.href}>
             <NavLink
               href={item.href}
-              className="text-muted-foreground hover:text-foreground data-current:text-foreground inline-flex items-center justify-center rounded-md text-sm font-medium whitespace-nowrap underline-offset-2 transition-colors data-current:underline"
+              className="text-muted-foreground hover:text-foreground data-current:text-foreground inline-flex items-center justify-center rounded-md text-sm whitespace-nowrap underline-offset-2 transition-colors data-current:underline"
             >
               {translate(item.labelKey)}
             </NavLink>

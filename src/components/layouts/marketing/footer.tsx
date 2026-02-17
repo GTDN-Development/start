@@ -58,7 +58,7 @@ function FooterNavigation({
               <li>
                 <DropdownMenuTrigger
                   render={
-                    <button className="text-muted-foreground hover:text-foreground flex items-center justify-start gap-3 text-sm font-medium transition-colors" />
+                    <button className="text-muted-foreground hover:text-foreground flex items-center justify-start gap-3 text-sm transition-colors" />
                   }
                 >
                   {translate(item.labelKey)}
@@ -107,70 +107,26 @@ export function Footer(props: React.ComponentProps<"footer">) {
 
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
-      <Container>
-        <div className="grid gap-x-10 gap-y-16 py-16 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
-          {/* Brand section */}
-          <div className="flex flex-col items-start justify-start gap-7 sm:col-span-2 md:col-span-4 lg:col-span-1">
-            <Link href="/" aria-label={t("homeAriaLabel")}>
-              <LogoStart aria-hidden="true" className="w-18" />
-            </Link>
-          </div>
+      {/* First row - Logo & socials */}
+      <Container className="flex flex-col justify-between pt-16 sm:flex-row">
+        <div className="flex flex-col items-start justify-start gap-7 min-[24rem]:col-span-2 md:col-span-4 lg:col-span-1">
+          <Link href="/" aria-label={t("homeAriaLabel")}>
+            <LogoStart aria-hidden="true" className="w-18" />
+          </Link>
+        </div>
 
-          <div className="flex flex-col items-start justify-start gap-7">
-            <p className="text-sm font-semibold">{t("sections.navigation")}</p>
-            <FooterNavigation items={marketingMenu} translate={tNav} />
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-semibold">{tNav("account")}</p>
-              <ul className="flex flex-col gap-2">
-                {authMenu.map((item) => (
-                  <li key={item.href}>
-                    <NavLink
-                      href={item.href}
-                      className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                    >
-                      {tNav(item.labelKey)}
-                    </NavLink>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+        <SocialMediaIcons />
+      </Container>
 
-          <div className="flex flex-col items-start justify-start gap-6">
-            <p className="text-sm font-semibold">{t("sections.contactDetails")}</p>
-            <ul className="flex flex-col gap-3">
-              {primaryLegalDetails.map((item) => (
-                <li key={item} className="text-muted-foreground text-sm leading-relaxed">
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <ul className="flex flex-col gap-3">
-              <li>
-                <FooterItemToCopy
-                  toCopy={contact.email}
-                  copyToastTitle={copiedToClipboardMessage}
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                >
-                  {contact.email}
-                </FooterItemToCopy>
-              </li>
-              <li>
-                <FooterItemToCopy
-                  toCopy={contact.phone}
-                  copyToastTitle={copiedToClipboardMessage}
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                >
-                  {formatPhoneNumber(contact.phone)}
-                </FooterItemToCopy>
-              </li>
-            </ul>
-          </div>
-
-          <div className="flex flex-col items-start justify-start gap-7">
-            <p className="text-sm font-semibold">{t("sections.legal")}</p>
+      {/* Second row - Grid columns with main footer content */}
+      <Container className="grid gap-x-10 gap-y-16 py-16 min-[24rem]:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
+        <div className="flex flex-col items-start justify-start gap-7">
+          <p className="text-sm font-semibold">{t("sections.navigation")}</p>
+          <FooterNavigation items={marketingMenu} translate={tNav} />
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-semibold">{tNav("account")}</p>
             <ul className="flex flex-col gap-2">
-              {flattenMenuItems(legalItems).map((item) => (
+              {authMenu.map((item) => (
                 <li key={item.href}>
                   <NavLink
                     href={item.href}
@@ -180,49 +136,91 @@ export function Footer(props: React.ComponentProps<"footer">) {
                   </NavLink>
                 </li>
               ))}
-              <li>
-                <CookieSettingsTrigger className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                  {t("cookieSettings")}
-                </CookieSettingsTrigger>
-              </li>
             </ul>
-            <AgencyCredit />
-          </div>
-
-          <div className="flex flex-col items-start justify-start gap-6">
-            <p className="text-sm font-semibold">{t("sections.socialMedia")}</p>
-            <SocialMediaIcons />
           </div>
         </div>
 
-        {/*<div className="flex min-w-0 flex-row flex-wrap items-center justify-between gap-6 pb-4 sm:items-center">
-          <ThemeSwitcher />
-          <LocaleSwitcher />
-        </div>*/}
+        <div className="flex flex-col items-start justify-start gap-6">
+          <p className="text-sm font-semibold">{t("sections.contactDetails")}</p>
+          <ul className="flex flex-col gap-3">
+            {primaryLegalDetails.map((item) => (
+              <li key={item} className="text-muted-foreground text-sm leading-relaxed">
+                {item}
+              </li>
+            ))}
+          </ul>
+          <ul className="flex flex-col gap-3">
+            <li>
+              <FooterItemToCopy
+                toCopy={contact.email}
+                copyToastTitle={copiedToClipboardMessage}
+                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+              >
+                {contact.email}
+              </FooterItemToCopy>
+            </li>
+            <li>
+              <FooterItemToCopy
+                toCopy={contact.phone}
+                copyToastTitle={copiedToClipboardMessage}
+                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+              >
+                {formatPhoneNumber(contact.phone)}
+              </FooterItemToCopy>
+            </li>
+          </ul>
+        </div>
 
-        {/* Metadata footer section */}
-        <div className="border-t-border flex min-w-0 flex-col flex-wrap items-start justify-between gap-6 border-t py-10 sm:flex-row sm:items-center">
-          <div className="flex flex-1 items-center">
-            <ThemeSwitcher />
-          </div>
-          <div className="flex flex-1 items-center sm:justify-center">
-            {/*<AgencyCredit />*/}
-            <Copyright company={site.name} />
-          </div>
-          <div className="flex flex-1 items-center sm:justify-end">
-            {/*<ScrollToTopButton className="mt-auto cursor-pointer text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
+        <div className="flex flex-col items-start justify-start gap-7">
+          <p className="text-sm font-semibold">{t("sections.legal")}</p>
+          <ul className="flex flex-col gap-2">
+            {flattenMenuItems(legalItems).map((item) => (
+              <li key={item.href}>
+                <NavLink
+                  href={item.href}
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  {tNav(item.labelKey)}
+                </NavLink>
+              </li>
+            ))}
+            <li>
+              <CookieSettingsTrigger className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                {t("cookieSettings")}
+              </CookieSettingsTrigger>
+            </li>
+          </ul>
+          <AgencyCredit />
+        </div>
+
+        <div className="flex flex-col items-start justify-start gap-6">
+          <p className="text-sm font-semibold">{t("sections.socialMedia")}</p>
+          <SocialMediaIcons />
+        </div>
+      </Container>
+
+      {/* Third row - Footer meta with basic app settings */}
+      <Container className="border-t-border flex min-w-0 flex-col flex-wrap items-center justify-between gap-6 border-t py-8 md:flex-row">
+        <div className="flex flex-1 items-center justify-center md:justify-start">
+          <Copyright company={site.name} />
+        </div>
+        <div className="flex flex-1 items-center justify-center">
+          <AgencyCredit />
+        </div>
+        <div className="flex flex-1 items-center justify-center gap-4 md:justify-end">
+          {/*<ScrollToTopButton className="mt-auto cursor-pointer text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
               {t("scrollToTop")}{" "}
               <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
             </ScrollToTopButton>*/}
 
-            <LocaleSwitcher />
-          </div>
+          <ThemeSwitcher />
+          <LocaleSwitcher />
         </div>
       </Container>
 
-      {/* Dev only section */}
+      {/* Fourth row - Dev only section */}
       {!isProduction && (
-        <div className="bg-destructive/10 border-t-destructive/50 border-t py-4">
+        <div className="bg-destructive/10 border-t-destructive/50 border-t py-2">
           <Container className="flex flex-col justify-between gap-2 md:flex-row">
             <p className="text-sm font-semibold">DEV only part of the footer</p>
             <ul className="flex flex-col gap-2 md:flex-row md:gap-5">

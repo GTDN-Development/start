@@ -46,11 +46,11 @@ export function LocaleSwitcher({ className = "" }: { className?: string }) {
         className={cn("min-w-32 rounded-full data-[size=default]:h-10", className)}
         aria-label={t("label")}
       >
-        <GlobeIcon aria-hidden="true" className="text-muted-foreground size-4" />
+        <GlobeIcon aria-hidden="true" className="text-muted-foreground size-[1em]" />
         <SelectValue>{(value) => (value ? t("locale", { locale: value }) : "")}</SelectValue>
       </SelectTrigger>
 
-      <SelectContent>
+      <SelectContent alignItemWithTrigger={false}>
         <SelectGroup>
           {routing.locales.map((cur) => (
             <SelectItem key={cur} value={cur}>

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Link } from "@/components/ui/link";
+import { AuthPageShell } from "@/components/(auth)/auth-page-shell";
 import { LoginForm } from "@/components/(auth)/login/login-form";
 import { site } from "@/config/site";
 
@@ -47,25 +47,24 @@ export default function Page({ params }: PageProps<"/[locale]/login">) {
   const t = useTranslations("pages.login");
 
   return (
-    <div>
-      <h1>{t("title")}</h1>
-      <p>{t("description")}</p>
-
-      <Card>
-        <CardHeader>
-          <h2 className="text-2xl font-bold">{t("welcomeBack")}</h2>
-        </CardHeader>
-        <CardContent>
-          <LoginForm />
-          <p className="mt-6 text-sm">
-            {t("newHere")}{" "}
-            <Link href="/sign-up" className="underline hover:no-underline">
-              {t("createAccount")}
-            </Link>
-            .
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+    <AuthPageShell
+      title={t("title")}
+      description={t("description")}
+      heading={t("welcomeBack")}
+      footer={
+        <>
+          {t("newHere")}{" "}
+          <Link
+            href="/sign-up"
+            className="underline decoration-current/30 hover:decoration-current"
+          >
+            {t("createAccount")}
+          </Link>
+          .
+        </>
+      }
+    >
+      <LoginForm />
+    </AuthPageShell>
   );
 }

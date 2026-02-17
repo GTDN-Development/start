@@ -8,7 +8,8 @@ export type MenuLinkLabelKey =
   | "contact"
   | "pricing"
   | "blog"
-  | "story"
+  | "features"
+  | "integrations"
   | "roadmap"
   | "login"
   | "signUp"
@@ -39,7 +40,8 @@ export const marketingMenu: MenuItem[] = [
   {
     labelKey: "aboutApp",
     items: [
-      { labelKey: "story", href: "/about/story" },
+      { labelKey: "features", href: "/about/features" },
+      { labelKey: "integrations", href: "/about/integrations" },
       { labelKey: "roadmap", href: "/about/roadmap" },
     ],
   },

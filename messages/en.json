@@ -39,7 +39,8 @@
         "pricing": "Pricing",
         "blog": "Blog",
         "aboutApp": "About app",
-        "story": "Story",
+        "features": "Features",
+        "integrations": "Integrations",
         "roadmap": "Roadmap",
         "account": "Account",
         "login": "Log in",
@@ -108,6 +109,36 @@
       "createYourAccount": "Create your account",
       "alreadyHaveAccount": "Already have an account?",
       "logIn": "Log in"
+    },
+    "aboutFeatures": {
+      "title": "Features",
+      "description": "Explore the core capabilities that help teams launch and scale faster.",
+      "contentTitle": "Content",
+      "contentDescription": "Use this section for feature highlights, product screenshots, and capability breakdowns."
+    },
+    "aboutIntegrations": {
+      "title": "Integrations",
+      "description": "Connect your stack with the tools your team already uses every day.",
+      "contentTitle": "Content",
+      "contentDescription": "Use this section for integration logos, categories, setup guides, and API details."
+    },
+    "aboutRoadmap": {
+      "title": "Roadmap",
+      "description": "See what is planned next and how the product is evolving.",
+      "contentTitle": "Content",
+      "contentDescription": "Use this section for current priorities, upcoming milestones, and released updates."
+    },
+    "pricing": {
+      "title": "Pricing",
+      "description": "Choose a plan that matches your team size, workflow, and growth stage.",
+      "contentTitle": "Content",
+      "contentDescription": "Use this section for pricing tiers, feature comparison tables, and FAQ."
+    },
+    "blog": {
+      "title": "Blog",
+      "description": "Insights, product updates, and practical guides for modern teams.",
+      "contentTitle": "Content",
+      "contentDescription": "Use this section for featured posts, categories, and newsletter signup."
     },
     "gdpr": {
       "title": "Privacy Policy",
