@@ -5,6 +5,7 @@ import { NavLink } from "../nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "../theme-switcher";
 import { SocialMediaIcons } from "../social-media-icons";
+import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import {
   flattenMenuItems,
   isNested,
@@ -22,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { chain, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { site } from "@/config/site";
 import { useTranslations } from "next-intl";
 
@@ -173,7 +174,9 @@ export function Footer(props: React.ComponentProps<"footer">) {
             <AgencyCredit />
           </div>
           <div className="flex flex-1 items-center sm:justify-end">
-            <ScrollToTopButton className="mt-auto" />
+            <ScrollToTopButton className="mt-auto cursor-pointer text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
+              {t("scrollToTop")} <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
+            </ScrollToTopButton>
           </div>
         </div>
       </Container>
@@ -193,23 +196,6 @@ function Copyright({
     <p {...props} className={cn("text-text-subtle text-sm", props.className)}>
       {t("copyright", { year: new Date().getFullYear(), company })}
     </p>
-  );
-}
-
-function ScrollToTopButton(props: React.ComponentProps<"button">) {
-  const t = useTranslations("layout.footer");
-
-  return (
-    <button
-      {...props}
-      onClick={chain(props.onClick, () => window.scrollTo({ top: 0, behavior: "smooth" }))}
-      className={cn(
-        "cursor-pointer text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60",
-        props.className
-      )}
-    >
-      {t("scrollToTop")} <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
-    </button>
   );
 }
 
