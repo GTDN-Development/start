@@ -4,7 +4,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { GdprPolicy } from "@/components/(marketing)/legal/gdpr-policy";
 import { Container } from "@/components/ui/container";
-import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { legal } from "@/config/legal";
 import { site } from "@/config/site";
 
@@ -48,29 +47,20 @@ export default function Page({ params }: PageProps<"/[locale]/gdpr">) {
   const t = useTranslations("pages.gdpr");
 
   return (
-    <>
-      <Hero>
-        <HeroContent size="md">
-          <HeroTitle>{t("title")}</HeroTitle>
-          <HeroDescription>{t("description")}</HeroDescription>
-        </HeroContent>
-      </Hero>
-
-      <Container size="md" className="prose pb-24">
-        <GdprPolicy
-          company={{
-            name: legal.legalName,
-            address: legal.address,
-            id: legal.id,
-            domain: legal.domain,
-          }}
-          contact={{
-            email: legal.contact.email,
-            phone: legal.contact.phone,
-          }}
-          effectiveDate={t("effectiveDate")}
-        />
-      </Container>
-    </>
+    <Container size="sm" className="prose py-16">
+      <GdprPolicy
+        company={{
+          name: legal.legalName,
+          address: legal.address,
+          id: legal.id,
+          domain: legal.domain,
+        }}
+        contact={{
+          email: legal.contact.email,
+          phone: legal.contact.phone,
+        }}
+        effectiveDate={t("effectiveDate")}
+      />
+    </Container>
   );
 }

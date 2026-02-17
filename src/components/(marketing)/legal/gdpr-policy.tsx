@@ -96,9 +96,11 @@ export function GdprPolicy({
 
   return (
     <div {...props}>
+      <h1>{t("title")}</h1>
+
       {effectiveDate && (
-        <p className="text-sm opacity-60">
-          {t("effectiveFrom")} {effectiveDate}
+        <p>
+          <strong>{t("effectiveFrom")}</strong> {effectiveDate}
         </p>
       )}
 

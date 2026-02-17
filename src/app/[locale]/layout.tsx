@@ -102,7 +102,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`scroll-pt-16 scroll-smooth ${inter.variable} ${geistMono.variable}`}
+      className={`scroll-pt-16 ${inter.variable} ${geistMono.variable}`}
     >
       <body className="font-sans antialiased">
         <NextIntlClientProvider>

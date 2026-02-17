@@ -300,6 +300,7 @@ declare const messages: {
   },
   "legal": {
     "cookiePolicy": {
+      "title": "Cookie Policy",
       "effectiveFrom": "Effective from:",
       "lastUpdated": "Last updated:",
       "introduction": {
@@ -401,6 +402,7 @@ declare const messages: {
       }
     },
     "gdprPolicy": {
+      "title": "Privacy policy",
       "effectiveFrom": "Effective from:",
       "principles": "This Personal Data Processing Policy (hereinafter referred to as the \"Policy\") describes how",
       "companyId": "ID:",

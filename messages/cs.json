@@ -297,6 +297,7 @@
   },
   "legal": {
     "cookiePolicy": {
+      "title": "Zásady cookies",
       "effectiveFrom": "Účinné od:",
       "lastUpdated": "Poslední aktualizace:",
       "introduction": {
@@ -398,6 +399,7 @@
       }
     },
     "gdprPolicy": {
+      "title": "Zásady ochrany osobních údajů",
       "effectiveFrom": "Účinné od:",
       "principles": "Tyto zásady zpracování osobních údajů (dále jen \"Zásady\") popisují, jak společnost",
       "companyId": "IČO:",
