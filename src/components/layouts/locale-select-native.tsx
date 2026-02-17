@@ -10,7 +10,7 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-export function LocaleSelect({ className = "" }: { className?: string }) {
+export function LocaleSelectNative({ className = "" }: { className?: string }) {
   const locale = useLocale();
   const t = useTranslations("common.localeSwitcher");
   const router = useRouter();

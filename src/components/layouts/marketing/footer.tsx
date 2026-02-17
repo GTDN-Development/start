@@ -1,11 +1,16 @@
 import { Link } from "@/components/ui/link";
 import { LogoStart } from "../logo-start";
-import { ArrowUpIcon, CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
+import {
+  // ArrowUpIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  CopyIcon,
+} from "lucide-react";
 import { NavLink } from "../nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "../theme-switcher";
 import { SocialMediaIcons } from "../social-media-icons";
-import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
+// import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import {
   authMenu,
   flattenMenuItems,
@@ -30,7 +35,8 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { contact, formatPhoneNumber } from "@/config/contact";
 import { legal } from "@/config/legal";
 import { toast } from "sonner";
-import { LocaleSelect } from "../locale-select";
+// import { LocaleSelectNative } from "../locale-select-native";
+import { LocaleSwitcher } from "../locale-switcher";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -102,39 +108,21 @@ export function Footer(props: React.ComponentProps<"footer">) {
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
       <Container>
-        <div className="grid gap-x-24 gap-y-16 py-16 lg:grid-cols-4">
+        <div className="grid gap-x-10 gap-y-16 py-16 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
           {/* Brand section */}
-          <div className="flex flex-col items-start justify-start gap-7">
+          <div className="flex flex-col items-start justify-start gap-7 sm:col-span-2 md:col-span-4 lg:col-span-1">
             <Link href="/" aria-label={t("homeAriaLabel")}>
               <LogoStart aria-hidden="true" className="w-18" />
             </Link>
           </div>
 
-          <div className="grid gap-x-10 gap-y-16 sm:grid-cols-2 md:grid-cols-4 lg:col-span-3">
-            <div className="flex flex-col items-start justify-start gap-7">
-              <p className="text-sm font-semibold">{t("sections.navigation")}</p>
-              <FooterNavigation items={marketingMenu} translate={tNav} />
-              <div className="flex flex-col gap-2">
-                <p className="text-sm font-semibold">{tNav("account")}</p>
-                <ul className="flex flex-col gap-2">
-                  {authMenu.map((item) => (
-                    <li key={item.href}>
-                      <NavLink
-                        href={item.href}
-                        className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                      >
-                        {tNav(item.labelKey)}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-start justify-start gap-7">
-              <p className="text-sm font-semibold">{t("sections.legal")}</p>
+          <div className="flex flex-col items-start justify-start gap-7">
+            <p className="text-sm font-semibold">{t("sections.navigation")}</p>
+            <FooterNavigation items={marketingMenu} translate={tNav} />
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-semibold">{tNav("account")}</p>
               <ul className="flex flex-col gap-2">
-                {flattenMenuItems(legalItems).map((item) => (
+                {authMenu.map((item) => (
                   <li key={item.href}>
                     <NavLink
                       href={item.href}
@@ -144,70 +132,90 @@ export function Footer(props: React.ComponentProps<"footer">) {
                     </NavLink>
                   </li>
                 ))}
-                <li>
-                  <CookieSettingsTrigger className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                    {t("cookieSettings")}
-                  </CookieSettingsTrigger>
-                </li>
               </ul>
             </div>
+          </div>
 
-            <div className="flex flex-col items-start justify-start gap-6">
-              <p className="text-sm font-semibold">{t("sections.contactDetails")}</p>
-              <ul className="flex flex-col gap-3">
-                {primaryLegalDetails.map((item) => (
-                  <li key={item} className="text-muted-foreground text-sm leading-relaxed">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <ul className="flex flex-col gap-3">
-                <li>
-                  <FooterItemToCopy
-                    toCopy={contact.email}
-                    copyToastTitle={copiedToClipboardMessage}
-                    className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-                  >
-                    {contact.email}
-                  </FooterItemToCopy>
+          <div className="flex flex-col items-start justify-start gap-6">
+            <p className="text-sm font-semibold">{t("sections.contactDetails")}</p>
+            <ul className="flex flex-col gap-3">
+              {primaryLegalDetails.map((item) => (
+                <li key={item} className="text-muted-foreground text-sm leading-relaxed">
+                  {item}
                 </li>
-                <li>
-                  <FooterItemToCopy
-                    toCopy={contact.phone}
-                    copyToastTitle={copiedToClipboardMessage}
-                    className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-                  >
-                    {formatPhoneNumber(contact.phone)}
-                  </FooterItemToCopy>
-                </li>
-              </ul>
-            </div>
+              ))}
+            </ul>
+            <ul className="flex flex-col gap-3">
+              <li>
+                <FooterItemToCopy
+                  toCopy={contact.email}
+                  copyToastTitle={copiedToClipboardMessage}
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  {contact.email}
+                </FooterItemToCopy>
+              </li>
+              <li>
+                <FooterItemToCopy
+                  toCopy={contact.phone}
+                  copyToastTitle={copiedToClipboardMessage}
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  {formatPhoneNumber(contact.phone)}
+                </FooterItemToCopy>
+              </li>
+            </ul>
+          </div>
 
-            <div className="flex flex-col items-start justify-start gap-6">
-              <p className="text-sm font-semibold">{t("sections.socialMedia")}</p>
-              <SocialMediaIcons />
-            </div>
+          <div className="flex flex-col items-start justify-start gap-7">
+            <p className="text-sm font-semibold">{t("sections.legal")}</p>
+            <ul className="flex flex-col gap-2">
+              {flattenMenuItems(legalItems).map((item) => (
+                <li key={item.href}>
+                  <NavLink
+                    href={item.href}
+                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                  >
+                    {tNav(item.labelKey)}
+                  </NavLink>
+                </li>
+              ))}
+              <li>
+                <CookieSettingsTrigger className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                  {t("cookieSettings")}
+                </CookieSettingsTrigger>
+              </li>
+            </ul>
+            <AgencyCredit />
+          </div>
+
+          <div className="flex flex-col items-start justify-start gap-6">
+            <p className="text-sm font-semibold">{t("sections.socialMedia")}</p>
+            <SocialMediaIcons />
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-row flex-wrap items-center justify-between gap-6 pb-4 sm:items-center">
+        {/*<div className="flex min-w-0 flex-row flex-wrap items-center justify-between gap-6 pb-4 sm:items-center">
           <ThemeSwitcher />
-          <LocaleSelect />
-        </div>
+          <LocaleSwitcher />
+        </div>*/}
 
         {/* Metadata footer section */}
         <div className="border-t-border flex min-w-0 flex-col flex-wrap items-start justify-between gap-6 border-t py-10 sm:flex-row sm:items-center">
           <div className="flex flex-1 items-center">
-            <Copyright company={site.name} />
+            <ThemeSwitcher />
           </div>
           <div className="flex flex-1 items-center sm:justify-center">
-            <AgencyCredit />
+            {/*<AgencyCredit />*/}
+            <Copyright company={site.name} />
           </div>
           <div className="flex flex-1 items-center sm:justify-end">
-            <ScrollToTopButton className="mt-auto cursor-pointer text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
+            {/*<ScrollToTopButton className="mt-auto cursor-pointer text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
               {t("scrollToTop")}{" "}
               <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
-            </ScrollToTopButton>
+            </ScrollToTopButton>*/}
+
+            <LocaleSwitcher />
           </div>
         </div>
       </Container>
@@ -223,7 +231,7 @@ export function Footer(props: React.ComponentProps<"footer">) {
                   href="/components"
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
-                  Components
+                  Components page
                 </NavLink>
               </li>
               <li>
@@ -231,7 +239,7 @@ export function Footer(props: React.ComponentProps<"footer">) {
                   href="/colors"
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
-                  Colors
+                  Colors page
                 </NavLink>
               </li>
             </ul>
