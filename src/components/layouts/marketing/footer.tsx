@@ -15,7 +15,6 @@ import {
   type MenuItem,
   type MenuLabelKey,
 } from "@/config/menu";
-import { Separator } from "@/components/ui/separator";
 import { CookieSettingsTrigger } from "@/components/(shared)/cookies/cookie-settings-trigger";
 import {
   DropdownMenu,
@@ -29,6 +28,7 @@ import { site } from "@/config/site";
 import { useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
 import { contact, formatPhoneNumber } from "@/config/contact";
+import { legal } from "@/config/legal";
 import { toast } from "sonner";
 import { LocaleSelect } from "../locale-select";
 
@@ -97,23 +97,20 @@ export function Footer(props: React.ComponentProps<"footer">) {
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
   const copiedToClipboardMessage = t("copiedToClipboard");
+  const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
 
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
       <Container>
-        <div className="grid gap-x-32 gap-y-16 py-16 lg:grid-cols-3 xl:gap-x-52">
+        <div className="grid gap-x-24 gap-y-16 py-16 lg:grid-cols-4">
           {/* Brand section */}
           <div className="flex flex-col items-start justify-start gap-7">
             <Link href="/" aria-label={t("homeAriaLabel")}>
               <LogoStart aria-hidden="true" className="w-18" />
             </Link>
-            <p className="text-sm">{t("description")}</p>
-            <Separator className="h-px w-full" />
-            <ThemeSwitcher />
-            <LocaleSelect />
           </div>
 
-          <div className="grid gap-y-16 sm:grid-cols-2 md:grid-cols-3 lg:col-span-2">
+          <div className="grid gap-x-10 gap-y-16 sm:grid-cols-2 md:grid-cols-4 lg:col-span-3">
             <div className="flex flex-col items-start justify-start gap-7">
               <p className="text-sm font-semibold">{t("sections.navigation")}</p>
               <FooterNavigation items={marketingMenu} translate={tNav} />
@@ -156,7 +153,14 @@ export function Footer(props: React.ComponentProps<"footer">) {
             </div>
 
             <div className="flex flex-col items-start justify-start gap-6">
-              <p className="text-sm font-semibold">{t("sections.socialMedia")}</p>
+              <p className="text-sm font-semibold">{t("sections.contactDetails")}</p>
+              <ul className="flex flex-col gap-3">
+                {primaryLegalDetails.map((item) => (
+                  <li key={item} className="text-muted-foreground text-sm leading-relaxed">
+                    {item}
+                  </li>
+                ))}
+              </ul>
               <ul className="flex flex-col gap-3">
                 <li>
                   <FooterItemToCopy
@@ -177,9 +181,18 @@ export function Footer(props: React.ComponentProps<"footer">) {
                   </FooterItemToCopy>
                 </li>
               </ul>
+            </div>
+
+            <div className="flex flex-col items-start justify-start gap-6">
+              <p className="text-sm font-semibold">{t("sections.socialMedia")}</p>
               <SocialMediaIcons />
             </div>
           </div>
+        </div>
+
+        <div className="flex min-w-0 flex-row flex-wrap items-center justify-between gap-6 pb-4 sm:items-center">
+          <ThemeSwitcher />
+          <LocaleSelect />
         </div>
 
         {/* Metadata footer section */}

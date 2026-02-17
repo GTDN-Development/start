@@ -60,6 +60,7 @@ declare const messages: {
       "sections": {
         "navigation": "Navigation",
         "legal": "Legal",
+        "contactDetails": "Contact details",
         "socialMedia": "Social media"
       },
       "cookieSettings": "Cookie settings",
