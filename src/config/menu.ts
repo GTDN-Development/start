@@ -10,6 +10,8 @@ export type MenuLinkLabelKey =
   | "blog"
   | "story"
   | "roadmap"
+  | "login"
+  | "signUp"
   | "dashboard"
   | "projects"
   | "settings"
@@ -50,6 +52,11 @@ export const platformMenu: MenuItem[] = [
   { labelKey: "dashboard", href: "/dashboard" },
   { labelKey: "projects", href: "/projects" },
   { labelKey: "settings", href: "/settings" },
+];
+
+export const authMenu: MenuLink[] = [
+  { labelKey: "login", href: "/login" },
+  { labelKey: "signUp", href: "/sign-up" },
 ];
 
 export const legalItems: MenuItem[] = [

@@ -22,12 +22,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/menu";
+import { authMenu, isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/menu";
 import { SocialMediaIcons } from "../social-media-icons";
 import { useTranslations } from "next-intl";
-
-const headerMenuItems = marketingMenu;
-const mobileMenuItems = marketingMenu;
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 
@@ -151,6 +148,8 @@ function MobileNavigation({
 export function Header() {
   const t = useTranslations("layout.header");
   const tNav = useTranslations("layout.navigation.items");
+  const loginMenuItem = authMenu.find((item) => item.labelKey === "login");
+  const signUpMenuItem = authMenu.find((item) => item.labelKey === "signUp");
 
   return (
     <FloatingBar
@@ -181,7 +180,7 @@ export function Header() {
         {/* Center */}
         <div className="flex flex-1 items-center justify-center gap-4">
           <nav className="hidden lg:block">
-            <Navigation items={headerMenuItems} translate={tNav} />
+            <Navigation items={marketingMenu} translate={tNav} />
           </nav>
         </div>
 
@@ -189,21 +188,25 @@ export function Header() {
         <div className="flex flex-1 items-center justify-end gap-4">
           {/* Call to action */}
           <ul className="ml-auto hidden items-center gap-2 lg:flex">
-            <li>
-              <Button
-                variant="ghost"
-                size="lg"
-                nativeButton={false}
-                render={<Link href="/login" />}
-              >
-                {tNav("login")}
-              </Button>
-            </li>
-            <li>
-              <Button size="lg" nativeButton={false} render={<Link href="/sign-up" />}>
-                {tNav("signUp")}
-              </Button>
-            </li>
+            {loginMenuItem && (
+              <li>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  nativeButton={false}
+                  render={<Link href={loginMenuItem.href} />}
+                >
+                  {tNav(loginMenuItem.labelKey)}
+                </Button>
+              </li>
+            )}
+            {signUpMenuItem && (
+              <li>
+                <Button size="lg" nativeButton={false} render={<Link href={signUpMenuItem.href} />}>
+                  {tNav(signUpMenuItem.labelKey)}
+                </Button>
+              </li>
+            )}
           </ul>
 
           {/* Mobile menu */}
@@ -222,34 +225,39 @@ export function Header() {
                   <MobileMenuTitle>{t("menu.title")}</MobileMenuTitle>
                 </MobileMenuHeader>
                 <div className="space-y-6">
-                  <MobileNavigation items={mobileMenuItems} translate={tNav} />
+                  <MobileNavigation items={marketingMenu} translate={tNav} />
                   <SocialMediaIcons />
                   <MobileMenuFooter>
-                    <MobileMenuClose
-                      render={
-                        <Button
-                          size="lg"
-                          className="w-full"
-                          nativeButton={false}
-                          render={<Link href="/sign-up" />}
-                        />
-                      }
-                    >
-                      {tNav("signUp")}
-                    </MobileMenuClose>
-                    <MobileMenuClose
-                      render={
-                        <Button
-                          variant="secondary"
-                          size="lg"
-                          className="w-full"
-                          nativeButton={false}
-                          render={<Link href="/login" />}
-                        />
-                      }
-                    >
-                      {tNav("login")}
-                    </MobileMenuClose>
+                    {signUpMenuItem && (
+                      <MobileMenuClose
+                        render={
+                          <Button
+                            variant="default"
+                            size="lg"
+                            className="w-full"
+                            nativeButton={false}
+                            render={<Link href={signUpMenuItem.href} />}
+                          />
+                        }
+                      >
+                        {tNav(signUpMenuItem.labelKey)}
+                      </MobileMenuClose>
+                    )}
+                    {loginMenuItem && (
+                      <MobileMenuClose
+                        render={
+                          <Button
+                            variant="secondary"
+                            size="lg"
+                            className="w-full"
+                            nativeButton={false}
+                            render={<Link href={loginMenuItem.href} />}
+                          />
+                        }
+                      >
+                        {tNav(loginMenuItem.labelKey)}
+                      </MobileMenuClose>
+                    )}
                     <Button
                       variant="secondary"
                       size="lg"

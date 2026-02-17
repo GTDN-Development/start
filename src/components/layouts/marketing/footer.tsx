@@ -7,6 +7,7 @@ import { ThemeSwitcher } from "../theme-switcher";
 import { SocialMediaIcons } from "../social-media-icons";
 import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import {
+  authMenu,
   flattenMenuItems,
   isNested,
   legalItems,
@@ -32,8 +33,6 @@ import { toast } from "sonner";
 import { LocaleSelect } from "../locale-select";
 
 const isProduction = process.env.NODE_ENV === "production";
-const footerNavigationItems = marketingMenu;
-const footerLegalItems = flattenMenuItems(legalItems);
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 
@@ -117,36 +116,28 @@ export function Footer(props: React.ComponentProps<"footer">) {
           <div className="grid gap-y-16 sm:grid-cols-2 md:grid-cols-3 lg:col-span-2">
             <div className="flex flex-col items-start justify-start gap-7">
               <p className="text-sm font-semibold">{t("sections.navigation")}</p>
-              <FooterNavigation items={footerNavigationItems} translate={tNav} />
-              {!isProduction && (
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm font-semibold">Dev</p>
-                  <ul className="flex flex-col gap-2">
-                    <li>
+              <FooterNavigation items={marketingMenu} translate={tNav} />
+              <div className="flex flex-col gap-2">
+                <p className="text-sm font-semibold">{tNav("account")}</p>
+                <ul className="flex flex-col gap-2">
+                  {authMenu.map((item) => (
+                    <li key={item.href}>
                       <NavLink
-                        href="/components"
+                        href={item.href}
                         className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                       >
-                        Components
+                        {tNav(item.labelKey)}
                       </NavLink>
                     </li>
-                    <li>
-                      <NavLink
-                        href="/colors"
-                        className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                      >
-                        Colors
-                      </NavLink>
-                    </li>
-                  </ul>
-                </div>
-              )}
+                  ))}
+                </ul>
+              </div>
             </div>
 
             <div className="flex flex-col items-start justify-start gap-7">
               <p className="text-sm font-semibold">{t("sections.legal")}</p>
               <ul className="flex flex-col gap-2">
-                {footerLegalItems.map((item) => (
+                {flattenMenuItems(legalItems).map((item) => (
                   <li key={item.href}>
                     <NavLink
                       href={item.href}
@@ -207,6 +198,33 @@ export function Footer(props: React.ComponentProps<"footer">) {
           </div>
         </div>
       </Container>
+
+      {/* Dev only section */}
+      {!isProduction && (
+        <div className="bg-destructive/10 border-t-destructive/50 border-t py-4">
+          <Container className="flex flex-col justify-between gap-2 md:flex-row">
+            <p className="text-sm font-semibold">DEV only part of the footer</p>
+            <ul className="flex flex-col gap-2 md:flex-row md:gap-5">
+              <li>
+                <NavLink
+                  href="/components"
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  Components
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  href="/colors"
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  Colors
+                </NavLink>
+              </li>
+            </ul>
+          </Container>
+        </div>
+      )}
     </footer>
   );
 }
