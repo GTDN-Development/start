@@ -1,16 +1,10 @@
 import { Link } from "@/components/ui/link";
 import { LogoStart } from "../logo-start";
-import {
-  // ArrowUpIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  CopyIcon,
-} from "lucide-react";
+import { CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
 import { NavLink } from "../nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "../theme-switcher";
 import { SocialMediaIcons } from "../social-media-icons";
-// import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import {
   authMenu,
   flattenMenuItems,
@@ -27,18 +21,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { cn } from "@/lib/utils";
 import { site } from "@/config/site";
 import { useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
 import { contact, formatPhoneNumber } from "@/config/contact";
 import { legal } from "@/config/legal";
 import { toast } from "sonner";
-// import { LocaleSelectNative } from "../locale-select-native";
-import { LocaleSwitcher } from "../locale-switcher";
-
-const isProduction = process.env.NODE_ENV === "production";
+import { LocaleSwitcher } from "@/components/layouts/locale-switcher";
+import { cn } from "@/lib/utils";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 
@@ -108,14 +98,14 @@ export function Footer(props: React.ComponentProps<"footer">) {
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
       {/* First row - Logo & socials */}
-      <Container className="flex flex-col justify-between pt-16 sm:flex-row">
+      <Container className="flex flex-wrap items-center justify-between gap-8 pt-16">
         <div className="flex flex-col items-start justify-start gap-7 min-[24rem]:col-span-2 md:col-span-4 lg:col-span-1">
           <Link href="/" aria-label={t("homeAriaLabel")}>
             <LogoStart aria-hidden="true" className="w-18" />
           </Link>
         </div>
 
-        <SocialMediaIcons />
+        <SocialMediaIcons className="" />
       </Container>
 
       {/* Second row - Grid columns with main footer content */}
@@ -123,21 +113,22 @@ export function Footer(props: React.ComponentProps<"footer">) {
         <div className="flex flex-col items-start justify-start gap-7">
           <p className="text-sm font-semibold">{t("sections.navigation")}</p>
           <FooterNavigation items={marketingMenu} translate={tNav} />
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-semibold">{tNav("account")}</p>
-            <ul className="flex flex-col gap-2">
-              {authMenu.map((item) => (
-                <li key={item.href}>
-                  <NavLink
-                    href={item.href}
-                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                  >
-                    {tNav(item.labelKey)}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </div>
+        </div>
+
+        <div className="flex flex-col items-start justify-start gap-7">
+          <p className="text-sm font-semibold">{tNav("account")}</p>
+          <ul className="flex flex-col gap-2">
+            {authMenu.map((item) => (
+              <li key={item.href}>
+                <NavLink
+                  href={item.href}
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  {tNav(item.labelKey)}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="flex flex-col items-start justify-start gap-6">
@@ -190,36 +181,29 @@ export function Footer(props: React.ComponentProps<"footer">) {
               </CookieSettingsTrigger>
             </li>
           </ul>
-          <AgencyCredit />
-        </div>
-
-        <div className="flex flex-col items-start justify-start gap-6">
-          <p className="text-sm font-semibold">{t("sections.socialMedia")}</p>
-          <SocialMediaIcons />
         </div>
       </Container>
 
       {/* Third row - Footer meta with basic app settings */}
-      <Container className="border-t-border flex min-w-0 flex-col flex-wrap items-center justify-between gap-6 border-t py-8 md:flex-row">
+      <Container className="border-t-border flex min-w-0 flex-col flex-wrap items-center justify-between gap-6 border-t py-10 md:flex-row">
         <div className="flex flex-1 items-center justify-center md:justify-start">
           <Copyright company={site.name} />
         </div>
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center gap-4">
           <AgencyCredit />
+
+          {/*<ScrollToTopButton className="text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
+            {t("scrollToTop")} <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
+          </ScrollToTopButton>*/}
         </div>
         <div className="flex flex-1 items-center justify-center gap-4 md:justify-end">
-          {/*<ScrollToTopButton className="mt-auto cursor-pointer text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
-              {t("scrollToTop")}{" "}
-              <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
-            </ScrollToTopButton>*/}
-
           <ThemeSwitcher />
           <LocaleSwitcher />
         </div>
       </Container>
 
       {/* Fourth row - Dev only section */}
-      {!isProduction && (
+      {/*{!isProduction && (
         <div className="bg-destructive/10 border-t-destructive/50 border-t py-2">
           <Container className="flex flex-col justify-between gap-2 md:flex-row">
             <p className="text-sm font-semibold">DEV only part of the footer</p>
@@ -243,7 +227,7 @@ export function Footer(props: React.ComponentProps<"footer">) {
             </ul>
           </Container>
         </div>
-      )}
+      )}*/}
     </footer>
   );
 }

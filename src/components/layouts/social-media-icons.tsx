@@ -1,17 +1,14 @@
 import { socialMediaLinksArray } from "@/config/social-media-links";
 import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 export function SocialMediaIcons(props: React.ComponentProps<"ul">) {
   return (
-    <ul
-      {...props}
-      className={cn("flex flex-wrap items-center justify-between gap-2", props.className)}
-    >
+    <ul {...props} className={cn("flex flex-wrap gap-3", props.className)}>
       {socialMediaLinksArray.map((item, index) => (
         <li key={index}>
           <Button
-            size="icon"
+            size="icon-lg"
             variant="ghost"
             nativeButton={false}
             render={<a href={item.href} target="_blank" rel="noopener noreferrer" />}

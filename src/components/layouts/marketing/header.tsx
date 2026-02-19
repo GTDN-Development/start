@@ -214,7 +214,7 @@ export function Header() {
             <MobileMenu>
               <Button
                 variant="secondary"
-                size="icon"
+                size="icon-lg"
                 aria-label={t("menu.openAriaLabel")}
                 render={<MobileMenuTrigger />}
               >
@@ -226,7 +226,11 @@ export function Header() {
                 </MobileMenuHeader>
                 <div className="space-y-6">
                   <MobileNavigation items={marketingMenu} translate={tNav} />
-                  <SocialMediaIcons />
+
+                  <div className="flex w-full items-center justify-center">
+                    <SocialMediaIcons />
+                  </div>
+
                   <MobileMenuFooter>
                     {signUpMenuItem && (
                       <MobileMenuClose
