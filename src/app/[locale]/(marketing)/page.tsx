@@ -27,21 +27,24 @@ export async function generateMetadata(props: PageProps<"/[locale]">): Promise<M
     locale: locale as Locale,
     namespace: "pages.home",
   });
+  const metadataTitle = t.markup("title", {
+    break: () => " ",
+  });
 
   return {
     metadataBase: new URL(site.url),
-    title: t("title"),
+    title: metadataTitle,
     description: t("description"),
     alternates: {
       canonical: "/",
     },
     openGraph: {
-      title: t("title"),
+      title: metadataTitle,
       description: t("description"),
       url: site.url,
     },
     twitter: {
-      title: t("title"),
+      title: metadataTitle,
       description: t("description"),
     },
   };
@@ -63,7 +66,11 @@ export default function Page({ params }: PageProps<"/[locale]">) {
         </HeroBackground>
         <HeroContent>
           <AppIconSvg className="h-auto w-16 drop-shadow-lg dark:drop-shadow-none" />
-          <HeroTitle className="mt-6 text-left">{t("title")}</HeroTitle>
+          <HeroTitle className="mt-6 text-left">
+            {t.rich("title", {
+              break: () => <br />,
+            })}
+          </HeroTitle>
           <HeroDescription className="mx-0 text-left">{t("description")}</HeroDescription>
           <HeroActions className="sm:justify-start">
             <Button size="lg">{t("learnMore")}</Button>

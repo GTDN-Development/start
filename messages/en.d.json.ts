@@ -23,8 +23,8 @@ declare const messages: {
   },
   "layout": {
     "metadata": {
-      "title": "Next.js Starter Template",
-      "description": "Modern web application starter template built with Next.js 16, TypeScript, shadcn/ui and with a lot of built-in features."
+      "title": "Production-Ready SaaS Starter Template",
+      "description": "Fully featured SaaS template built with Next.js 16, TypeScript, shadcn/ui, and modern production-ready foundations."
     },
     "header": {
       "homeAriaLabel": "Home page",
@@ -57,7 +57,7 @@ declare const messages: {
     },
     "footer": {
       "homeAriaLabel": "Home page",
-      "description": "Modern web application starter template built with Next.js 16, TypeScript, shadcn/ui and with a lot of built-in features.",
+      "description": "Fully featured SaaS template built with Next.js 16, TypeScript, shadcn/ui, and modern production-ready foundations.",
       "sections": {
         "navigation": "Menu",
         "legal": "Other links",
@@ -85,8 +85,8 @@ declare const messages: {
   },
   "pages": {
     "home": {
-      "title": "Next.js Starter Template",
-      "description": "Modern web application starter template built with Next.js 16, TypeScript, shadcn/ui and with a lot of built-in features.",
+      "title": "Production-Ready<break></break>SaaS Starter Template",
+      "description": "Fully featured SaaS template built with Next.js 16, TypeScript, shadcn/ui, and modern production-ready foundations.",
       "learnMore": "Learn more",
       "shadcnDocs": "Shadcn ui docs",
       "newsletterCta": {
@@ -102,7 +102,6 @@ declare const messages: {
     "login": {
       "title": "Log in",
       "description": "Access your account to manage settings and preferences.",
-      "welcomeBack": "Welcome back",
       "newHere": "New here?",
       "createAccount": "Create an account"
     },
