@@ -3,6 +3,7 @@ import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { CookiePolicy } from "@/components/(marketing)/legal/cookie-policy";
+import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
 import { Container } from "@/components/ui/container";
 import { legal } from "@/config/legal";
 import { cookies } from "@/config/cookies";
@@ -48,21 +49,23 @@ export default function Page({ params }: PageProps<"/[locale]/cookies">) {
   const t = useTranslations("pages.cookies");
 
   return (
-    <Container size="sm" className="prose py-16">
-      <CookiePolicy
-        company={{
-          name: legal.legalName,
-          address: legal.address,
-          id: legal.id,
-          domain: legal.domain,
-        }}
-        contact={{
-          email: legal.contact.email,
-          phone: legal.contact.phone,
-        }}
-        cookies={cookies}
-        effectiveDate={t("effectiveDate")}
-      />
-    </Container>
+    <MarketingPage>
+      <Container size="sm" className="prose py-16">
+        <CookiePolicy
+          company={{
+            name: legal.legalName,
+            address: legal.address,
+            id: legal.id,
+            domain: legal.domain,
+          }}
+          contact={{
+            email: legal.contact.email,
+            phone: legal.contact.phone,
+          }}
+          cookies={cookies}
+          effectiveDate={t("effectiveDate")}
+        />
+      </Container>
+    </MarketingPage>
   );
 }

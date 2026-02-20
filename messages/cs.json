@@ -208,7 +208,7 @@
         },
         "email": {
           "label": "E-mailová adresa *",
-          "placeholder": "vas@email.com",
+          "placeholder": "jmeno@email.cz",
           "description": "Na tuto adresu vám pošleme odpověď."
         },
         "phone": {
@@ -248,7 +248,7 @@
       "fields": {
         "email": {
           "label": "E-mailová adresa",
-          "placeholder": "vas@email.com"
+          "placeholder": "jmeno@email.cz"
         },
         "password": {
           "label": "Heslo",
@@ -297,7 +297,7 @@
         },
         "email": {
           "label": "E-mailová adresa",
-          "placeholder": "vas@email.com"
+          "placeholder": "jmeno@email.cz"
         },
         "password": {
           "label": "Heslo",

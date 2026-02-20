@@ -14,8 +14,11 @@ import {
 } from "@/components/ui/hero";
 import AppIconSvg from "@/assets/svgs/start-app-icon.svg";
 import { NewsletterCta } from "@/components/(marketing)/home/newsletter-cta";
+import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
 import { PatternGrid } from "@/components/ui/patterns";
 import { site } from "@/config/site";
+import { MarqueeCompanies } from "@/components/(marketing)/home/marquee-companies";
+import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -53,16 +56,16 @@ export default function Page({ params }: PageProps<"/[locale]">) {
   const t = useTranslations("pages.home");
 
   return (
-    <div>
-      <Hero>
+    <MarketingPage>
+      <Hero className="from-muted/50 bg-linear-0">
         <HeroBackground>
           <PatternGrid className="absolute inset-0 -z-10 size-full" />
         </HeroBackground>
         <HeroContent>
-          <AppIconSvg className="mx-auto h-auto w-20 drop-shadow-lg dark:drop-shadow-none" />
-          <HeroTitle>{t("title")}</HeroTitle>
-          <HeroDescription>{t("description")}</HeroDescription>
-          <HeroActions>
+          <AppIconSvg className="h-auto w-16 drop-shadow-lg dark:drop-shadow-none" />
+          <HeroTitle className="mt-6 text-left">{t("title")}</HeroTitle>
+          <HeroDescription className="mx-0 text-left">{t("description")}</HeroDescription>
+          <HeroActions className="sm:justify-start">
             <Button size="lg">{t("learnMore")}</Button>
             <Button
               size="lg"
@@ -73,14 +76,26 @@ export default function Page({ params }: PageProps<"/[locale]">) {
               {t("shadcnDocs")}
             </Button>
           </HeroActions>
+
+          <div className="bg-muted mt-20 aspect-video w-full rounded-3xl"></div>
         </HeroContent>
       </Hero>
 
-      <div className="space-y-16 pb-24 md:space-y-32">
+      <div className="space-y-16 pt-16 pb-24 md:space-y-32">
+        <Container render={<section />}>
+          <MarqueeCompanies />
+        </Container>
+
         <Container render={<section />}>
           <NewsletterCta />
         </Container>
+
+        <Container render={<section />}>
+          <Placeholder>
+            <PlaceholderTitle>Content</PlaceholderTitle>
+          </Placeholder>
+        </Container>
       </div>
-    </div>
+    </MarketingPage>
   );
 }
