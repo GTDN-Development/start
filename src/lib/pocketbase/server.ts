@@ -3,7 +3,13 @@ import type { SerializeOptions } from "pocketbase";
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
 
-const POCKETBASE_AUTH_COOKIE_NAME = "pb_auth";
+export const POCKETBASE_AUTH_COOKIE_NAME = "pb_auth";
+
+type PocketBaseAuthCookieClient = {
+  authStore: {
+    exportToCookie(options?: SerializeOptions, key?: string): string;
+  };
+};
 
 export function createPocketBaseClient() {
   return new PocketBase(getPocketBaseUrl());
@@ -27,25 +33,14 @@ export function setPocketBaseAuthCookie(
   pb: PocketBase,
   options: { rememberMe?: boolean } = {}
 ) {
-  response.headers.append(
-    "set-cookie",
-    pb.authStore.exportToCookie(
-      getPocketBaseAuthCookieOptions(options.rememberMe ?? false),
-      POCKETBASE_AUTH_COOKIE_NAME
-    )
-  );
+  response.headers.append("set-cookie", exportPocketBaseAuthCookie(pb, options));
 }
 
 export function clearPocketBaseAuthCookie(response: NextResponse) {
-  response.headers.append(
-    "set-cookie",
-    `${POCKETBASE_AUTH_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${
-      process.env.NODE_ENV === "production" ? "; Secure" : ""
-    }`
-  );
+  response.headers.append("set-cookie", getClearedPocketBaseAuthCookie());
 }
 
-function getPocketBaseUrl() {
+export function getPocketBaseUrl() {
   const url = process.env.NEXT_PUBLIC_POCKETBASE_URL ?? process.env.NEXT_PUBLIC_PB_URL;
 
   if (!url) {
@@ -57,7 +52,23 @@ function getPocketBaseUrl() {
   return url;
 }
 
-function getPocketBaseAuthCookieOptions(rememberMe: boolean): SerializeOptions {
+export function exportPocketBaseAuthCookie(
+  pb: PocketBaseAuthCookieClient,
+  options: { rememberMe?: boolean } = {}
+) {
+  return pb.authStore.exportToCookie(
+    getPocketBaseAuthCookieOptions(options.rememberMe ?? false),
+    POCKETBASE_AUTH_COOKIE_NAME
+  );
+}
+
+export function getClearedPocketBaseAuthCookie() {
+  return `${POCKETBASE_AUTH_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${
+    process.env.NODE_ENV === "production" ? "; Secure" : ""
+  }`;
+}
+
+export function getPocketBaseAuthCookieOptions(rememberMe: boolean): SerializeOptions {
   if (rememberMe) {
     return {
       path: "/",

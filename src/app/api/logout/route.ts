@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { clearPocketBaseAuthCookie } from "@/lib/pocketbase/server";
 
 export async function POST(request: NextRequest) {
+  if (!isSameOriginLogoutRequest(request)) {
+    return NextResponse.json({ ok: false, errorCode: "FORBIDDEN" }, { status: 403 });
+  }
+
   const redirectPath = await getRedirectPath(request);
   const response = NextResponse.redirect(new URL(redirectPath, request.url), { status: 303 });
 
@@ -31,4 +35,29 @@ function sanitizeRedirectPath(value: FormDataEntryValue | null) {
   }
 
   return value;
+}
+
+function isSameOriginLogoutRequest(request: NextRequest) {
+  const expectedOrigin = new URL(request.url).origin;
+  const origin = request.headers.get("origin");
+
+  if (origin) {
+    return isSameOriginUrl(origin, expectedOrigin);
+  }
+
+  const referer = request.headers.get("referer");
+
+  if (referer) {
+    return isSameOriginUrl(referer, expectedOrigin);
+  }
+
+  return false;
+}
+
+function isSameOriginUrl(value: string, expectedOrigin: string) {
+  try {
+    return new URL(value).origin === expectedOrigin;
+  } catch {
+    return false;
+  }
 }

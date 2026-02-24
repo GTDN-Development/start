@@ -34,6 +34,25 @@ Why this approach:
 - Works well with Next.js App Router server layouts
 - Keeps auth checks and redirects on the server
 
+## 1b. `proxy.ts` responsibility (i18n only)
+
+`/Users/fanda/Dev/start/src/proxy.ts` is intentionally kept focused on `next-intl` request routing.
+
+- `proxy.ts` preserves the existing `next-intl` middleware behavior
+- It does not perform PocketBase auth refresh/clear logic
+- Auth/session checks remain in server layouts and route handlers
+
+Why this hybrid approach:
+
+- Keeps `proxy.ts` minimal and easier to reason about
+- Avoids cross-cutting auth cookie rewrite logic on every page request
+- Keeps the security boundary explicit in layouts and route handlers
+
+Security boundaries remain:
+
+- Server layouts/route handlers enforce auth redirects/denials
+- PocketBase rules enforce authorization for data access
+
 ## 2. Route-group auth model
 
 The app is split by experience/layout, not only by auth status:
@@ -62,6 +81,15 @@ Pattern used:
 This is the correct approach for Next.js App Router with secure cookies.
 
 ## Implemented Core Files
+
+## Proxy / i18n Routing
+
+- `/Users/fanda/Dev/start/src/proxy.ts`
+
+Provides:
+
+- `next-intl` route handling
+- No PocketBase auth/session mutation logic in proxy
 
 ## PocketBase Server Helpers
 
@@ -102,6 +130,7 @@ Provides:
 
 `POST /api/logout`
 
+- Requires same-origin `Origin`/`Referer` (simple CSRF/origin guard)
 - Clears `pb_auth` cookie
 - Redirects with safe internal `redirectTo` only
 
@@ -117,8 +146,8 @@ Provides:
 `POST /api/verify-email`
 
 - Confirms verification token via PocketBase
-- If user is currently logged in, re-exports auth cookie to refresh auth store record
-- Redirect target is `/dashboard` (logged in) or `/login` (logged out)
+- Does not mutate the current auth session/cookie
+- Redirect target is `/login`
 
 ## App Route Structure (Current)
 
@@ -273,6 +302,7 @@ Throughout the session (after major changes), the following checks were run succ
 
 ## Current Auth/Route Behavior (Final State)
 
+- `proxy.ts` handles `next-intl` routing only (no PocketBase session refresh/clear logic)
 - `(marketing)` routes are public and auth-aware
 - `(platform)` routes require auth
 - `(auth)/(guest)` routes redirect authenticated users to dashboard
@@ -286,5 +316,7 @@ Throughout the session (after major changes), the following checks were run succ
 - Dedicated profile page (currently `Dashboard` + `Settings` links exist)
 - Resend verification email UI/action
 - More advanced auth hardening (rate limiting, abuse protection, audit logging, etc.)
+- Proxy-based session refresh/auto-extension (intentionally omitted for simplicity)
+- CSRF/origin checks on other auth-related POST routes beyond logout (if needed)
 
 The current implementation is intentionally simple and working, with a clean structure for future expansion.
