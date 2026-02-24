@@ -2,6 +2,7 @@
 
 Next.js 16 starter app for marketing, auth, and platform pages.
 
+
 ## Stack
 
 - Next.js 16 (App Router)
