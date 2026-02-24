@@ -50,7 +50,7 @@ export function getValidChildren(children: React.ReactNode) {
   return React.Children.toArray(children).filter(React.isValidElement);
 }
 
-/** Shuffles array items using Fisher-Yates algorithm */
+/** Shuffles array items using Fisher-Yates algorithm **/
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
