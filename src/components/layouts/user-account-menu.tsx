@@ -12,8 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "@/components/ui/link";
-import { cn } from "@/lib/utils";
-import { ChevronDownIcon, LayoutDashboardIcon, LogOutIcon, SettingsIcon } from "lucide-react";
+import { LogOutIcon } from "lucide-react";
 import { Button } from "../ui/button";
 
 export type UserAccountMenuViewer = {
@@ -24,6 +23,7 @@ export type UserAccountMenuViewer = {
 
 export type UserAccountMenuLabels = {
   account: string;
+  home: string;
   dashboard: string;
   emailNotVerified: string;
   emailVerified: string;
@@ -39,13 +39,7 @@ type UserAccountMenuProps = {
   className?: string;
 };
 
-export function UserAccountMenu({
-  viewer,
-  locale,
-  labels,
-  trigger = "default",
-  className,
-}: UserAccountMenuProps) {
+export function UserAccountMenu({ viewer, locale, labels, className }: UserAccountMenuProps) {
   const logoutFormId = React.useId();
   const displayName = getUserDisplayName(viewer);
   const initials = getUserInitials(displayName ?? viewer.email);
@@ -55,66 +49,45 @@ export function UserAccountMenu({
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button
-              type="button"
-              variant="ghost"
-              size="lg"
-              className={className}
-              aria-label={labels.account}
-            />
+            <Button variant="ghost" size="icon-lg" className="rounded-full">
+              <Avatar className={className}>
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+            </Button>
           }
-        >
-          {trigger === "default" ? (
-            <>
-              <span className="max-w-32 truncate font-medium">{displayName ?? viewer.email}</span>
-              <ChevronDownIcon aria-hidden="true" className="size-4 opacity-70" />
-            </>
-          ) : (
-            <Avatar size="sm">
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-          )}
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 min-w-56">
+        />
+        <DropdownMenuContent align="end" className="min-w-48">
           <DropdownMenuGroup>
-            <DropdownMenuLabel>
-              <p className="truncate text-sm font-medium">{displayName ?? viewer.email}</p>
-              {displayName ? (
-                <p className="text-muted-foreground truncate text-xs">{viewer.email}</p>
-              ) : null}
-              <p
-                className={cn(
-                  "mt-1 truncate text-xs",
-                  viewer.verified ? "text-emerald-600" : "text-amber-600"
-                )}
-              >
-                {viewer.verified ? labels.emailVerified : labels.emailNotVerified}
+            <DropdownMenuLabel className="space-y-1">
+              <p className="text-foreground truncate text-sm font-medium">
+                {displayName ?? viewer.email}
               </p>
+              {displayName && (
+                <p className="text-muted-foreground truncate text-xs">{viewer.email}</p>
+              )}
+              {!viewer.verified && (
+                <p className="mt-1 truncate text-xs text-amber-600">{labels.emailNotVerified}</p>
+              )}
             </DropdownMenuLabel>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
+          <DropdownMenuItem render={<Link href="/" className="w-full cursor-pointer" />}>
+            {labels.home}
+          </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/dashboard" className="w-full cursor-pointer" />}>
-            <LayoutDashboardIcon aria-hidden="true" className="size-4" />
             {labels.dashboard}
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/settings" className="w-full cursor-pointer" />}>
-            <SettingsIcon aria-hidden="true" className="size-4" />
             {labels.settings}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            variant="destructive"
+            className="flex w-full cursor-pointer justify-between text-left"
             nativeButton={true}
-            render={
-              <button
-                type="submit"
-                form={logoutFormId}
-                className="w-full cursor-pointer text-left"
-              />
-            }
+            render={<button type="submit" form={logoutFormId} />}
           >
-            <LogOutIcon aria-hidden="true" className="size-4" />
             {labels.logout}
+            <LogOutIcon aria-hidden="true" className="size-4" />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

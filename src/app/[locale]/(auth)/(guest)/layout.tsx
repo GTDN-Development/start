@@ -13,7 +13,7 @@ export default async function Layout({ children, params }: AuthGuestLayoutProps)
   const pb = await createServerPocketBaseClient();
 
   if (pb.authStore.isValid && pb.authStore.record) {
-    redirect(`/${locale}/dashboard`);
+    redirect(`/${locale}/dashboard` as never);
   }
 
   return children;

@@ -16,13 +16,13 @@ export default async function Layout({ children, params }: PlatformRouteLayoutPr
   const pb = await createServerPocketBaseClient();
 
   if (!pb.authStore.isValid || !pb.authStore.record) {
-    redirect(`/${locale}/login`);
+    redirect(`/${locale}/login` as never);
   }
 
   const user = getPlatformUser(pb.authStore.record);
 
   if (!user.email) {
-    redirect(`/${locale}/login`);
+    redirect(`/${locale}/login` as never);
   }
 
   const tPlatform = await getTranslations({
@@ -42,6 +42,7 @@ export default async function Layout({ children, params }: PlatformRouteLayoutPr
         dashboard: tNavigation("dashboard"),
         userMenu: {
           account: tNavigation("account"),
+          home: tNavigation("home"),
           dashboard: tNavigation("dashboard"),
           emailNotVerified: tPlatform("emailNotVerified"),
           emailVerified: tPlatform("emailVerified"),

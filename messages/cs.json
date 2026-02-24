@@ -124,6 +124,11 @@
       "description": "Potvrďte svou e-mailovou adresu a dokončete nastavení účtu.",
       "backToLogin": "Zpět na přihlášení"
     },
+    "confirmEmailChange": {
+      "title": "Potvrzení změny e-mailu",
+      "description": "Pro potvrzení nové e-mailové adresy zadejte své aktuální heslo.",
+      "backToLogin": "Zpět na přihlášení"
+    },
     "signUp": {
       "title": "Registrace",
       "description": "Vytvořte si nový účet a začněte používat platformu.",
@@ -164,6 +169,28 @@
     "dashboard": {
       "title": "Nástěnka",
       "description": "Vítejte ve svém osobním přehledu. Spravujte svůj účet a sledujte svou aktivitu."
+    },
+    "settings": {
+      "title": "Nastavení",
+      "description": "Zkontrolujte údaje o účtu a základní bezpečnostní flow dostupné v aplikaci.",
+      "account": {
+        "title": "Přehled účtu",
+        "description": "Základní informace o účtu načtené z aktuální přihlášené relace.",
+        "nameLabel": "Jméno",
+        "emailLabel": "E-mail",
+        "verificationLabel": "Ověření e-mailu",
+        "notSet": "Není nastaveno"
+      },
+      "security": {
+        "title": "Zabezpečení a account flow",
+        "description": "Základní účtové flow, které jsou aktuálně ve starteru implementované.",
+        "passwordResetTitle": "Obnova hesla",
+        "passwordResetDescription": "Obnova hesla probíhá přes e-mailový flow pro reset hesla.",
+        "emailChangeTitle": "Potvrzení změny e-mailu",
+        "emailChangeDescription": "Potvrzovací odkazy na změnu e-mailu z PocketBase nyní otevírají Next.js route v této aplikaci.",
+        "sessionTitle": "Správa relace",
+        "sessionDescription": "Autentizace je uložena v HttpOnly PocketBase cookie a vynucena serverovými layouty."
+      }
     }
   },
   "forms": {
@@ -409,6 +436,34 @@
           "title": "Ověření selhalo",
           "message": "E-mailovou adresu se nepodařilo ověřit. Zkuste to prosím znovu.",
           "invalidOrExpiredToken": "Tento ověřovací odkaz je neplatný nebo vypršel."
+        }
+      }
+    },
+    "confirmEmailChange": {
+      "validation": {
+        "passwordRequired": "Zadejte prosím své aktuální heslo."
+      },
+      "description": "Potvrďte změnu e-mailu zadáním svého aktuálního hesla.",
+      "fields": {
+        "password": {
+          "label": "Aktuální heslo",
+          "placeholder": "Zadejte své aktuální heslo",
+          "description": "PocketBase vyžaduje pro potvrzení změny e-mailu vaše aktuální heslo."
+        }
+      },
+      "submit": {
+        "default": "Potvrdit změnu e-mailu",
+        "pending": "Potvrzování..."
+      },
+      "status": {
+        "success": {
+          "title": "Změna e-mailu potvrzena",
+          "message": "Vaše nová e-mailová adresa byla úspěšně potvrzena."
+        },
+        "error": {
+          "title": "Potvrzení selhalo",
+          "message": "Změnu e-mailu se nepodařilo potvrdit. Zkuste to prosím znovu.",
+          "invalidOrExpiredTokenOrPassword": "Tento potvrzovací odkaz je neplatný, vypršel, nebo je heslo nesprávné."
         }
       }
     }

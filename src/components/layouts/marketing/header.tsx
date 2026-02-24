@@ -12,11 +12,7 @@ import {
 import { FloatingBar } from "../floating-bar";
 import { Link } from "@/components/ui/link";
 import { Container } from "@/components/ui/container";
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  MenuIcon,
-} from "lucide-react";
+import { ChevronDownIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogoStart } from "../logo-start";
 import { NavLink } from "../nav-link";
@@ -165,6 +161,7 @@ export function Header({ viewer }: { viewer: HeaderViewer }) {
   const viewerDisplayName = getViewerDisplayName(viewer);
   const userMenuLabels: UserAccountMenuLabels = {
     account: tNav("account"),
+    home: tNav("home"),
     dashboard: tNav("dashboard"),
     emailNotVerified: tPlatform("emailNotVerified"),
     emailVerified: tPlatform("emailVerified"),
@@ -244,14 +241,7 @@ export function Header({ viewer }: { viewer: HeaderViewer }) {
 
           {/* Mobile menu */}
           <div className="flex items-center gap-2 lg:hidden">
-            {viewer ? (
-              <UserAccountMenu
-                viewer={viewer}
-                locale={locale}
-                labels={userMenuLabels}
-                trigger="avatar"
-              />
-            ) : null}
+            {viewer && <UserAccountMenu viewer={viewer} locale={locale} labels={userMenuLabels} />}
             <MobileMenu>
               <Button
                 variant="secondary"

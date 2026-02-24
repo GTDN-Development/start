@@ -127,6 +127,11 @@ declare const messages: {
       "description": "Confirm your email address to finish setting up your account.",
       "backToLogin": "Back to login"
     },
+    "confirmEmailChange": {
+      "title": "Confirm email change",
+      "description": "Enter your current password to confirm the new email address for your account.",
+      "backToLogin": "Back to login"
+    },
     "signUp": {
       "title": "Sign up",
       "description": "Create a new account to start using the platform.",
@@ -167,6 +172,28 @@ declare const messages: {
     "dashboard": {
       "title": "Dashboard",
       "description": "Welcome to your dashboard. Manage your account, view analytics, and access all your tools in one place."
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Review your account details and the basic security flows available in the app.",
+      "account": {
+        "title": "Account overview",
+        "description": "Basic account information read from your current signed-in session.",
+        "nameLabel": "Name",
+        "emailLabel": "Email",
+        "verificationLabel": "Email verification",
+        "notSet": "Not set"
+      },
+      "security": {
+        "title": "Security & account flows",
+        "description": "Core account-related flows currently implemented in the starter.",
+        "passwordResetTitle": "Password reset",
+        "passwordResetDescription": "Password reset is handled through the password reset email flow.",
+        "emailChangeTitle": "Email change confirmation",
+        "emailChangeDescription": "Email change confirmation links from PocketBase now open the Next.js route in this app.",
+        "sessionTitle": "Session handling",
+        "sessionDescription": "Authentication is stored in an HttpOnly PocketBase cookie and enforced by server layouts."
+      }
     }
   },
   "forms": {
@@ -412,6 +439,34 @@ declare const messages: {
           "title": "Verification failed",
           "message": "Unable to verify the email address. Please try again.",
           "invalidOrExpiredToken": "This verification link is invalid or expired."
+        }
+      }
+    },
+    "confirmEmailChange": {
+      "validation": {
+        "passwordRequired": "Please enter your current password."
+      },
+      "description": "Confirm the email change by entering your current password.",
+      "fields": {
+        "password": {
+          "label": "Current password",
+          "placeholder": "Enter your current password",
+          "description": "PocketBase requires your current password to confirm the email change."
+        }
+      },
+      "submit": {
+        "default": "Confirm email change",
+        "pending": "Confirming..."
+      },
+      "status": {
+        "success": {
+          "title": "Email change confirmed",
+          "message": "Your new email address has been confirmed successfully."
+        },
+        "error": {
+          "title": "Confirmation failed",
+          "message": "Unable to confirm the email change. Please try again.",
+          "invalidOrExpiredTokenOrPassword": "This confirmation link is invalid, expired, or the password is incorrect."
         }
       }
     }

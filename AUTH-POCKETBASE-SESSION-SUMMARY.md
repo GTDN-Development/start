@@ -11,6 +11,7 @@ This session implemented a KISS authentication foundation for PocketBase + Next.
 - Guest-only auth pages (`login`, `sign-up`, `forgot-password`)
 - Password reset flow (request + token confirm)
 - Email verification flow (token confirm)
+- Email change confirmation flow (token + current password)
 - Auth-aware marketing navbar/footer
 - Shared avatar account dropdown (marketing + platform)
 - Email verification status display in the account dropdown
@@ -64,7 +65,7 @@ The app is split by experience/layout, not only by auth status:
 Inside `(auth)` we now use nested route groups:
 
 - `(auth)/(guest)` = guest-only pages (`login`, `sign-up`, `forgot-password`)
-- `(auth)/(flow)` = token/action pages that should work for both logged-out and logged-in users (`reset-password`, `verify-email`)
+- `(auth)/(flow)` = token/action pages that should work for both logged-out and logged-in users (`reset-password`, `verify-email`, `confirm-email-change`)
 
 This avoids brittle page-specific exceptions in one layout and keeps auth-related routes grouped cleanly.
 
@@ -110,6 +111,7 @@ Provides:
 - `/Users/fanda/Dev/start/src/app/api/forgot-password/route.ts`
 - `/Users/fanda/Dev/start/src/app/api/reset-password/route.ts`
 - `/Users/fanda/Dev/start/src/app/api/verify-email/route.ts`
+- `/Users/fanda/Dev/start/src/app/api/confirm-email-change/route.ts`
 
 ### Behavior summary
 
@@ -142,12 +144,18 @@ Provides:
 `POST /api/reset-password`
 
 - Confirms reset token + updates password via PocketBase
+- Clears `pb_auth` cookie on success and redirects to `/login` (KISS re-auth policy)
 
 `POST /api/verify-email`
 
 - Confirms verification token via PocketBase
-- Does not mutate the current auth session/cookie
-- Redirect target is `/login`
+- Clears `pb_auth` cookie on success and redirects to `/login` (KISS re-auth policy)
+
+`POST /api/confirm-email-change`
+
+- Confirms PocketBase email change token via `confirmEmailChange(token, password)`
+- Requires the user's current password
+- Clears `pb_auth` cookie on success and redirects to `/login` (KISS re-auth policy)
 
 ## App Route Structure (Current)
 
@@ -160,12 +168,13 @@ Auth:
 - `/Users/fanda/Dev/start/src/app/[locale]/(auth)/(guest)/forgot-password/page.tsx`
 - `/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/reset-password/page.tsx`
 - `/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/verify-email/page.tsx`
+- `/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/confirm-email-change/page.tsx`
 
 Platform:
 
 - `/Users/fanda/Dev/start/src/app/[locale]/(platform)/layout.tsx` (server auth guard)
 - `/Users/fanda/Dev/start/src/app/[locale]/(platform)/dashboard/page.tsx`
-- `/Users/fanda/Dev/start/src/app/[locale]/(platform)/settings/page.tsx` (minimal page so menu link works)
+- `/Users/fanda/Dev/start/src/app/[locale]/(platform)/settings/page.tsx` (account overview + security flow summary)
 
 Marketing:
 
@@ -202,11 +211,12 @@ Used in:
 
 Features:
 
+- Home link
 - Dashboard link
 - Settings link
 - Logout action
 - User name + email
-- Email verification status (`verified` from PocketBase auth record)
+- Email verification notice for unverified accounts (`verified` from PocketBase auth record)
 - Two trigger modes:
   - default (avatar + name)
   - avatar-only (mobile)
@@ -242,12 +252,14 @@ Implemented KISS client forms/pages for:
 - Forgot password (request reset email)
 - Reset password (token confirm)
 - Verify email (token confirm)
+- Confirm email change (token + current password)
 
 Related components:
 
 - `/Users/fanda/Dev/start/src/components/(auth)/forgot-password/forgot-password-form.tsx`
 - `/Users/fanda/Dev/start/src/components/(auth)/reset-password/reset-password-form.tsx`
 - `/Users/fanda/Dev/start/src/components/(auth)/verify-email/verify-email-form.tsx`
+- `/Users/fanda/Dev/start/src/components/(auth)/confirm-email-change/confirm-email-change-form.tsx`
 
 These use the existing API route pattern and localized messages.
 
@@ -262,7 +274,8 @@ Notable additions:
 
 - platform account dropdown labels
 - email verification status labels (`emailVerified`, `emailNotVerified`)
-- forgot/reset/verify auth page and form copy
+- forgot/reset/verify/confirm-email-change auth page and form copy
+- settings page copy (`pages.settings`)
 - duplicate email and auth error messaging updates
 
 ## PocketBase Email / SMTP Notes
@@ -272,9 +285,11 @@ SMTP was configured in PocketBase before implementing reset/verify flows (recomm
 Important for testing:
 
 - PocketBase email templates must link to your Next.js routes with `?token=...`
-- Example routes:
-  - `/{locale}/reset-password?token={{.Token}}`
-  - `/{locale}/verify-email?token={{.Token}}`
+- Default PocketBase `/_#/auth/...` hash links are not compatible with this Next.js route structure and will lead to 404s
+- Prefer direct Next.js routes (example with fixed `cs` locale):
+  - `/cs/reset-password?token={TOKEN}`
+  - `/cs/verify-email?token={TOKEN}`
+  - `/cs/confirm-email-change?token={TOKEN}`
 
 ## Base UI Notes / Gotchas Fixed
 
@@ -308,13 +323,16 @@ Throughout the session (after major changes), the following checks were run succ
 - `(auth)/(guest)` routes redirect authenticated users to dashboard
 - `(auth)/(flow)` routes are available regardless of auth state (for token-based actions)
 - Shared account dropdown is reused across marketing and platform navbars
-- Dropdown shows email verification state from PocketBase `verified`
+- Dropdown shows an unverified-email notice based on PocketBase `verified` (hidden when verified)
+- Token-based account/security actions (`verify-email`, `confirm-email-change`, `reset-password`) clear `pb_auth` on success and require re-login
+- `settings` page shows server-read account overview (name/email/verification) and a summary of implemented account/security flows
 
 ## What Is Intentionally Not Implemented Yet
 
 - Password reset resend/polish beyond the core flow
 - Dedicated profile page (currently `Dashboard` + `Settings` links exist)
 - Resend verification email UI/action
+- In-app "request email change" form (`requestEmailChange`) in settings
 - More advanced auth hardening (rate limiting, abuse protection, audit logging, etc.)
 - Proxy-based session refresh/auto-extension (intentionally omitted for simplicity)
 - CSRF/origin checks on other auth-related POST routes beyond logout (if needed)

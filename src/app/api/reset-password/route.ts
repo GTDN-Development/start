@@ -1,6 +1,6 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest, NextResponse } from "next/server";
-import { createPocketBaseClient } from "@/lib/pocketbase/server";
+import { clearPocketBaseAuthCookie, createPocketBaseClient } from "@/lib/pocketbase/server";
 
 type ResetPasswordPayload = {
   token?: string;
@@ -31,7 +31,10 @@ export async function POST(request: NextRequest) {
 
     await pb.collection("users").confirmPasswordReset(token, password, confirmPassword);
 
-    return NextResponse.json({ ok: true, redirectTo: "/login" }, { status: 200 });
+    const response = NextResponse.json({ ok: true, redirectTo: "/login" }, { status: 200 });
+    clearPocketBaseAuthCookie(response);
+
+    return response;
   } catch (error) {
     if (error instanceof ClientResponseError && error.status >= 400 && error.status < 500) {
       return NextResponse.json({ ok: false, errorCode: "INVALID_OR_EXPIRED_TOKEN" }, { status: 400 });
