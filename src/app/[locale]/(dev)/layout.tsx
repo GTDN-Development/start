@@ -6,5 +6,5 @@ export default function DevLayout({ children }: { children: React.ReactNode }) {
     notFound();
   }
 
-  return <MarketingLayout>{children}</MarketingLayout>;
+  return <MarketingLayout viewer={null}>{children}</MarketingLayout>;
 }

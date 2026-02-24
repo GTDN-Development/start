@@ -7,8 +7,20 @@ import { Header } from "./header";
 import { SkipToContent } from "../skip-to-content";
 import { useTranslations } from "next-intl";
 
+type MarketingLayoutViewer = {
+  email: string;
+  name: string | null;
+  verified: boolean;
+} | null;
+
 // Main Layout Component
-export function MarketingLayout({ children }: { children: React.ReactNode }) {
+export function MarketingLayout({
+  children,
+  viewer,
+}: {
+  children: React.ReactNode;
+  viewer: MarketingLayoutViewer;
+}) {
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
@@ -31,7 +43,7 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
       </Banner>*/}
 
       {/* Header */}
-      <Header />
+      <Header viewer={viewer} />
 
       {/* Main content */}
       <main id={contentId} data-slot="main" className="min-w-0">
@@ -39,7 +51,7 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer viewer={viewer} />
     </div>
   );
 }

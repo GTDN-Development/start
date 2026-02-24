@@ -11,6 +11,7 @@ import {
   isNested,
   legalItems,
   marketingMenu,
+  platformMenu,
   type MenuItem,
   type MenuLabelKey,
 } from "@/config/menu";
@@ -22,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { site } from "@/config/site";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
 import { contact, formatPhoneNumber } from "@/config/contact";
 import { legal } from "@/config/legal";
@@ -31,6 +32,10 @@ import { LocaleSwitcher } from "@/components/layouts/locale-switcher";
 import { cn } from "@/lib/utils";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
+type FooterViewer = {
+  email: string;
+  name: string | null;
+} | null;
 
 function FooterNavigation({
   items,
@@ -89,11 +94,24 @@ function FooterNavigation({
   );
 }
 
-export function Footer(props: React.ComponentProps<"footer">) {
+export function Footer({
+  viewer,
+  ...props
+}: React.ComponentProps<"footer"> & {
+  viewer: FooterViewer;
+}) {
+  const locale = useLocale();
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
+  const tPlatform = useTranslations("layout.platform");
   const copiedToClipboardMessage = t("copiedToClipboard");
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
+  const accountLinks = viewer
+    ? flattenMenuItems(platformMenu).filter(
+        (item) => item.labelKey === "dashboard" || item.labelKey === "settings"
+      )
+    : authMenu;
+  const viewerName = viewer?.name?.trim() || null;
 
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
@@ -117,8 +135,17 @@ export function Footer(props: React.ComponentProps<"footer">) {
 
         <div className="flex flex-col items-start justify-start gap-7">
           <p className="text-sm font-semibold">{tNav("account")}</p>
+          {viewer && (
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-xs">{tPlatform("signedInAs")}</p>
+              <p className="max-w-full truncate text-sm font-medium">{viewerName ?? viewer.email}</p>
+              {viewerName ? (
+                <p className="text-muted-foreground max-w-full truncate text-xs">{viewer.email}</p>
+              ) : null}
+            </div>
+          )}
           <ul className="flex flex-col gap-2">
-            {authMenu.map((item) => (
+            {accountLinks.map((item) => (
               <li key={item.href}>
                 <NavLink
                   href={item.href}
@@ -128,6 +155,19 @@ export function Footer(props: React.ComponentProps<"footer">) {
                 </NavLink>
               </li>
             ))}
+            {viewer && (
+              <li>
+                <form action="/api/logout" method="post">
+                  <input type="hidden" name="redirectTo" value={`/${locale}/login`} />
+                  <button
+                    type="submit"
+                    className="text-muted-foreground hover:text-foreground text-left text-sm transition-colors"
+                  >
+                    {tPlatform("logout")}
+                  </button>
+                </form>
+              </li>
+            )}
           </ul>
         </div>
 

@@ -1,15 +1,62 @@
-import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
+import {
+  UserAccountMenu,
+  type UserAccountMenuLabels,
+  type UserAccountMenuViewer,
+} from "@/components/layouts/user-account-menu";
+import { cn } from "@/lib/utils";
+type PlatformLayoutUser = UserAccountMenuViewer;
 
-// This is just temp copy of the auth layout that needs to be reworked
+type PlatformLayoutLabels = {
+  dashboard: string;
+  userMenu: UserAccountMenuLabels;
+};
 
-export function PlatformLayout({ children, className, ...props }: React.ComponentProps<"main">) {
+type PlatformLayoutProps = React.ComponentProps<"main"> & {
+  user: PlatformLayoutUser;
+  locale: string;
+  labels: PlatformLayoutLabels;
+};
+
+export function PlatformLayout({
+  children,
+  className,
+  user,
+  locale,
+  labels,
+  ...props
+}: PlatformLayoutProps) {
   return (
-    <main
-      {...props}
-      className={cn("relative isolate flex min-h-dvh w-full flex-col justify-center", className)}
-    >
-      <Container className="grid min-w-0 shrink grow place-items-center py-6 sm:py-10">
+    <main {...props} className={cn("relative isolate min-h-dvh w-full", className)}>
+      <header className="border-border/80 bg-background/95 sticky top-0 z-30 border-b backdrop-blur">
+        <Container className="flex min-h-16 items-center justify-between gap-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="text-foreground hover:text-primary truncate text-sm font-semibold"
+            >
+              {labels.dashboard}
+            </Link>
+          </div>
+
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="hidden sm:block">
+              <UserAccountMenu viewer={user} locale={locale} labels={labels.userMenu} />
+            </div>
+            <div className="sm:hidden">
+              <UserAccountMenu
+                viewer={user}
+                locale={locale}
+                labels={labels.userMenu}
+                trigger="avatar"
+              />
+            </div>
+          </div>
+        </Container>
+      </header>
+
+      <Container className="py-6 sm:py-10">
         <div className="w-full">{children}</div>
       </Container>
     </main>

@@ -81,6 +81,12 @@ declare const messages: {
       "description": "Consectetur adipisicing elit ipsa laudantium",
       "callToAction": "Call to action",
       "close": "Close alert"
+    },
+    "platform": {
+      "signedInAs": "Signed in as",
+      "emailVerified": "Email verified",
+      "emailNotVerified": "Email not verified",
+      "logout": "Log out"
     }
   },
   "pages": {
@@ -102,8 +108,24 @@ declare const messages: {
     "login": {
       "title": "Log in",
       "description": "Access your account to manage settings and preferences.",
+      "forgotPassword": "Forgot your password",
       "newHere": "New here?",
       "createAccount": "Create an account"
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "description": "Enter your email and we will send you a password reset link.",
+      "backToLogin": "Back to login"
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "description": "Choose a new password for your account.",
+      "backToLogin": "Back to login"
+    },
+    "verifyEmail": {
+      "title": "Verify your email",
+      "description": "Confirm your email address to finish setting up your account.",
+      "backToLogin": "Back to login"
     },
     "signUp": {
       "title": "Sign up",
@@ -315,7 +337,81 @@ declare const messages: {
         },
         "error": {
           "title": "Sign up failed",
-          "message": "Unable to create the account. Please try again."
+          "message": "Unable to create the account. Please try again.",
+          "emailAlreadyInUse": "This email address is already in use."
+        }
+      }
+    },
+    "forgotPassword": {
+      "fields": {
+        "email": {
+          "label": "Email address",
+          "placeholder": "you@email.com",
+          "description": "We will send a password reset link to this address."
+        }
+      },
+      "submit": {
+        "default": "Send reset link",
+        "pending": "Sending..."
+      },
+      "status": {
+        "success": {
+          "title": "Check your email",
+          "message": "If an account exists for this email, a reset link has been sent."
+        },
+        "error": {
+          "title": "Request failed",
+          "message": "Unable to send the reset link right now. Please try again later."
+        }
+      }
+    },
+    "resetPassword": {
+      "validation": {
+        "password": "Password must be at least 8 characters.",
+        "passwordMismatch": "Passwords do not match."
+      },
+      "fields": {
+        "password": {
+          "label": "New password",
+          "placeholder": "Create a new password",
+          "description": "Use at least 8 characters."
+        },
+        "confirmPassword": {
+          "label": "Confirm new password",
+          "placeholder": "Repeat your new password"
+        }
+      },
+      "submit": {
+        "default": "Reset password",
+        "pending": "Resetting..."
+      },
+      "status": {
+        "success": {
+          "title": "Password updated",
+          "message": "Your password has been updated successfully."
+        },
+        "error": {
+          "title": "Reset failed",
+          "message": "Unable to reset the password. Please try again.",
+          "invalidOrExpiredToken": "This reset link is invalid or expired."
+        }
+      }
+    },
+    "verifyEmail": {
+      "description": "Use the button below to confirm your email address.",
+      "submit": {
+        "default": "Verify email",
+        "pending": "Verifying..."
+      },
+      "status": {
+        "success": {
+          "title": "Email verified",
+          "message": "Your email address has been verified successfully."
+        },
+        "error": {
+          "title": "Verification failed",
+          "message": "Unable to verify the email address. Please try again.",
+          "invalidOrExpiredToken": "This verification link is invalid or expired."
         }
       }
     }

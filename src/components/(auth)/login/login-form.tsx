@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,8 +21,15 @@ type LoginFormValues = {
   rememberMe: boolean;
 };
 
+type AuthApiResponse = {
+  ok?: boolean;
+  errorCode?: string;
+  redirectTo?: string;
+};
+
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.login");
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
@@ -60,16 +68,18 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
           body: JSON.stringify(value),
         });
 
+        const result = await readAuthApiResponse(response);
+
         if (response.ok) {
           setSubmitStatus({
             type: "success",
             message: t("status.success.message"),
           });
-          form.reset();
+          router.replace(result?.redirectTo ?? "/dashboard");
         } else {
           setSubmitStatus({
             type: "error",
-            message: t("status.error.message"),
+            message: getLoginErrorMessage(t, result?.errorCode),
           });
         }
       } catch {
@@ -182,4 +192,29 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       </form>
     </div>
   );
+}
+
+function getLoginErrorMessage(
+  t: (key: string) => string,
+  errorCode?: string
+) {
+  if (errorCode === "INVALID_CREDENTIALS") {
+    return t("status.error.message");
+  }
+
+  return t("status.error.message");
+}
+
+async function readAuthApiResponse(response: Response): Promise<AuthApiResponse | null> {
+  try {
+    const data = (await response.json()) as unknown;
+
+    if (typeof data !== "object" || data === null) {
+      return null;
+    }
+
+    return data as AuthApiResponse;
+  } catch {
+    return null;
+  }
 }

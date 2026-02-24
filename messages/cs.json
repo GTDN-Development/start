@@ -78,6 +78,12 @@
       "description": "Consectetur adipisicing elit ipsa laudantium",
       "callToAction": "Akce",
       "close": "Zavřít oznámení"
+    },
+    "platform": {
+      "signedInAs": "Přihlášen jako",
+      "emailVerified": "E-mail ověřen",
+      "emailNotVerified": "E-mail není ověřen",
+      "logout": "Odhlásit se"
     }
   },
   "pages": {
@@ -99,8 +105,24 @@
     "login": {
       "title": "Přihlášení",
       "description": "Přihlaste se ke svému účtu a spravujte nastavení a preference.",
+      "forgotPassword": "Zapomenuté heslo",
       "newHere": "Jste tu poprvé?",
       "createAccount": "Vytvořit účet"
+    },
+    "forgotPassword": {
+      "title": "Zapomenuté heslo",
+      "description": "Zadejte svůj e-mail a pošleme vám odkaz pro obnovu hesla.",
+      "backToLogin": "Zpět na přihlášení"
+    },
+    "resetPassword": {
+      "title": "Nastavit nové heslo",
+      "description": "Zvolte nové heslo ke svému účtu.",
+      "backToLogin": "Zpět na přihlášení"
+    },
+    "verifyEmail": {
+      "title": "Ověření e-mailu",
+      "description": "Potvrďte svou e-mailovou adresu a dokončete nastavení účtu.",
+      "backToLogin": "Zpět na přihlášení"
     },
     "signUp": {
       "title": "Registrace",
@@ -312,7 +334,81 @@
         },
         "error": {
           "title": "Registrace selhala",
-          "message": "Účet se nepodařilo vytvořit. Zkuste to prosím znovu."
+          "message": "Účet se nepodařilo vytvořit. Zkuste to prosím znovu.",
+          "emailAlreadyInUse": "Tato e-mailová adresa je již používaná."
+        }
+      }
+    },
+    "forgotPassword": {
+      "fields": {
+        "email": {
+          "label": "E-mailová adresa",
+          "placeholder": "jmeno@email.cz",
+          "description": "Na tuto adresu pošleme odkaz pro obnovu hesla."
+        }
+      },
+      "submit": {
+        "default": "Poslat odkaz pro obnovu",
+        "pending": "Odesílání..."
+      },
+      "status": {
+        "success": {
+          "title": "Zkontrolujte e-mail",
+          "message": "Pokud účet s tímto e-mailem existuje, poslali jsme odkaz pro obnovu hesla."
+        },
+        "error": {
+          "title": "Požadavek selhal",
+          "message": "Odkaz pro obnovu se teď nepodařilo odeslat. Zkuste to prosím později."
+        }
+      }
+    },
+    "resetPassword": {
+      "validation": {
+        "password": "Heslo musí mít alespoň 8 znaků.",
+        "passwordMismatch": "Hesla se neshodují."
+      },
+      "fields": {
+        "password": {
+          "label": "Nové heslo",
+          "placeholder": "Vytvořte nové heslo",
+          "description": "Použijte alespoň 8 znaků."
+        },
+        "confirmPassword": {
+          "label": "Potvrzení nového hesla",
+          "placeholder": "Zopakujte nové heslo"
+        }
+      },
+      "submit": {
+        "default": "Obnovit heslo",
+        "pending": "Obnovování..."
+      },
+      "status": {
+        "success": {
+          "title": "Heslo změněno",
+          "message": "Vaše heslo bylo úspěšně změněno."
+        },
+        "error": {
+          "title": "Obnova selhala",
+          "message": "Heslo se nepodařilo obnovit. Zkuste to prosím znovu.",
+          "invalidOrExpiredToken": "Tento odkaz pro obnovu je neplatný nebo vypršel."
+        }
+      }
+    },
+    "verifyEmail": {
+      "description": "Pomocí tlačítka níže potvrďte svou e-mailovou adresu.",
+      "submit": {
+        "default": "Ověřit e-mail",
+        "pending": "Ověřování..."
+      },
+      "status": {
+        "success": {
+          "title": "E-mail ověřen",
+          "message": "Vaše e-mailová adresa byla úspěšně ověřena."
+        },
+        "error": {
+          "title": "Ověření selhalo",
+          "message": "E-mailovou adresu se nepodařilo ověřit. Zkuste to prosím znovu.",
+          "invalidOrExpiredToken": "Tento ověřovací odkaz je neplatný nebo vypršel."
         }
       }
     }

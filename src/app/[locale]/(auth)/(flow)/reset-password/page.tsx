@@ -3,16 +3,18 @@ import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { Link } from "@/components/ui/link";
-import { LoginForm } from "@/components/(auth)/login/login-form";
+import { ResetPasswordForm } from "@/components/(auth)/reset-password/reset-password-form";
 import { AuthPage } from "@/components/layouts/auth/auth-page";
 import { site } from "@/config/site";
 
-export async function generateMetadata(props: PageProps<"/[locale]/login">): Promise<Metadata> {
+export async function generateMetadata(
+  props: PageProps<"/[locale]/reset-password">
+): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.login",
+    namespace: "pages.resetPassword",
   });
 
   return {
@@ -20,12 +22,12 @@ export async function generateMetadata(props: PageProps<"/[locale]/login">): Pro
     title: t("title"),
     description: t("description"),
     alternates: {
-      canonical: "/login",
+      canonical: "/reset-password",
     },
     openGraph: {
       title: t("title"),
       description: t("description"),
-      url: `${site.url}/login`,
+      url: `${site.url}/reset-password`,
     },
     twitter: {
       title: t("title"),
@@ -38,13 +40,17 @@ export async function generateMetadata(props: PageProps<"/[locale]/login">): Pro
   };
 }
 
-export default function Page({ params }: PageProps<"/[locale]/login">) {
+export default function Page({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/reset-password">) {
   const { locale } = use(params);
+  const query = use(searchParams);
 
-  // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("pages.login");
+  const t = useTranslations("pages.resetPassword");
+  const token = getTokenFromSearchParams(query.token);
 
   return (
     <AuthPage>
@@ -59,14 +65,13 @@ export default function Page({ params }: PageProps<"/[locale]/login">) {
         </header>
 
         <div className="pt-6">
-          <LoginForm />
+          <ResetPasswordForm token={token} />
           <p className="text-muted-foreground mt-6 text-sm">
-            {t("newHere")}{" "}
             <Link
-              href="/sign-up"
+              href="/login"
               className="underline decoration-current/30 hover:decoration-current"
             >
-              {t("createAccount")}
+              {t("backToLogin")}
             </Link>
             .
           </p>
@@ -74,4 +79,16 @@ export default function Page({ params }: PageProps<"/[locale]/login">) {
       </section>
     </AuthPage>
   );
+}
+
+function getTokenFromSearchParams(value: string | string[] | undefined) {
+  if (typeof value === "string") {
+    return value.trim() || null;
+  }
+
+  if (Array.isArray(value) && typeof value[0] === "string") {
+    return value[0].trim() || null;
+  }
+
+  return null;
 }

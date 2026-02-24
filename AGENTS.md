@@ -30,6 +30,7 @@
 - Local images: use `StaticImage` from `@/components/ui/static-image` — **never** raw `<img>`
 - Remote images: use `remotePatterns` in `next.config.ts` — **never** `images.domains`
 - `Button` with a non-`<button>` render target (`<a>`, `Link`, etc.) must set `nativeButton={false}`
+- Base UI components with `render={<button ... />}` (e.g. menu items) must set `nativeButton={true}`; if `nativeButton={false}`, the render target must be non-`<button>`
 - For form feedback use `Alert` component — **not** toast
 
 ## Forms

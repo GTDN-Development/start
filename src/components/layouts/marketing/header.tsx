@@ -12,7 +12,11 @@ import {
 import { FloatingBar } from "../floating-bar";
 import { Link } from "@/components/ui/link";
 import { Container } from "@/components/ui/container";
-import { ChevronDownIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  MenuIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LogoStart } from "../logo-start";
 import { NavLink } from "../nav-link";
@@ -24,9 +28,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { authMenu, isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/menu";
 import { SocialMediaIcons } from "../social-media-icons";
-import { useTranslations } from "next-intl";
+import {
+  UserAccountMenu,
+  type UserAccountMenuLabels,
+  type UserAccountMenuViewer,
+} from "@/components/layouts/user-account-menu";
+import { useLocale, useTranslations } from "next-intl";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
+type HeaderViewer = UserAccountMenuViewer | null;
 
 function Navigation({
   items,
@@ -145,11 +155,22 @@ function MobileNavigation({
   );
 }
 
-export function Header() {
+export function Header({ viewer }: { viewer: HeaderViewer }) {
+  const locale = useLocale();
   const t = useTranslations("layout.header");
   const tNav = useTranslations("layout.navigation.items");
+  const tPlatform = useTranslations("layout.platform");
   const loginMenuItem = authMenu.find((item) => item.labelKey === "login");
   const signUpMenuItem = authMenu.find((item) => item.labelKey === "signUp");
+  const viewerDisplayName = getViewerDisplayName(viewer);
+  const userMenuLabels: UserAccountMenuLabels = {
+    account: tNav("account"),
+    dashboard: tNav("dashboard"),
+    emailNotVerified: tPlatform("emailNotVerified"),
+    emailVerified: tPlatform("emailVerified"),
+    settings: tNav("settings"),
+    logout: tPlatform("logout"),
+  };
 
   return (
     <FloatingBar
@@ -188,29 +209,49 @@ export function Header() {
         <div className="flex flex-1 items-center justify-end gap-4">
           {/* Call to action */}
           <ul className="ml-auto hidden items-center gap-2 lg:flex">
-            {loginMenuItem && (
+            {viewer ? (
               <li>
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  nativeButton={false}
-                  render={<Link href={loginMenuItem.href} />}
-                >
-                  {tNav(loginMenuItem.labelKey)}
-                </Button>
+                <UserAccountMenu viewer={viewer} locale={locale} labels={userMenuLabels} />
               </li>
-            )}
-            {signUpMenuItem && (
-              <li>
-                <Button size="lg" nativeButton={false} render={<Link href={signUpMenuItem.href} />}>
-                  {tNav(signUpMenuItem.labelKey)}
-                </Button>
-              </li>
+            ) : (
+              <>
+                {loginMenuItem && (
+                  <li>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      nativeButton={false}
+                      render={<Link href={loginMenuItem.href} />}
+                    >
+                      {tNav(loginMenuItem.labelKey)}
+                    </Button>
+                  </li>
+                )}
+                {signUpMenuItem && (
+                  <li>
+                    <Button
+                      size="lg"
+                      nativeButton={false}
+                      render={<Link href={signUpMenuItem.href} />}
+                    >
+                      {tNav(signUpMenuItem.labelKey)}
+                    </Button>
+                  </li>
+                )}
+              </>
             )}
           </ul>
 
           {/* Mobile menu */}
-          <div className="lg:hidden">
+          <div className="flex items-center gap-2 lg:hidden">
+            {viewer ? (
+              <UserAccountMenu
+                viewer={viewer}
+                locale={locale}
+                labels={userMenuLabels}
+                trigger="avatar"
+              />
+            ) : null}
             <MobileMenu>
               <Button
                 variant="secondary"
@@ -227,41 +268,59 @@ export function Header() {
                 <div className="space-y-6">
                   <MobileNavigation items={marketingMenu} translate={tNav} />
 
+                  {viewer && (
+                    <div className="border-border rounded-xl border p-4">
+                      <p className="text-muted-foreground text-xs">{tPlatform("signedInAs")}</p>
+                      <p className="mt-1 truncate text-sm font-medium">
+                        {viewerDisplayName ?? viewer.email}
+                      </p>
+                      {viewerDisplayName ? (
+                        <p className="text-muted-foreground mt-1 truncate text-xs">
+                          {viewer.email}
+                        </p>
+                      ) : null}
+                    </div>
+                  )}
+
                   <div className="flex w-full items-center justify-center">
                     <SocialMediaIcons />
                   </div>
 
                   <MobileMenuFooter>
-                    {signUpMenuItem && (
-                      <MobileMenuClose
-                        render={
-                          <Button
-                            variant="default"
-                            size="lg"
-                            className="w-full"
-                            nativeButton={false}
-                            render={<Link href={signUpMenuItem.href} />}
-                          />
-                        }
-                      >
-                        {tNav(signUpMenuItem.labelKey)}
-                      </MobileMenuClose>
-                    )}
-                    {loginMenuItem && (
-                      <MobileMenuClose
-                        render={
-                          <Button
-                            variant="secondary"
-                            size="lg"
-                            className="w-full"
-                            nativeButton={false}
-                            render={<Link href={loginMenuItem.href} />}
-                          />
-                        }
-                      >
-                        {tNav(loginMenuItem.labelKey)}
-                      </MobileMenuClose>
-                    )}
+                    {!viewer ? (
+                      <>
+                        {signUpMenuItem && (
+                          <MobileMenuClose
+                            render={
+                              <Button
+                                variant="default"
+                                size="lg"
+                                className="w-full"
+                                nativeButton={false}
+                                render={<Link href={signUpMenuItem.href} />}
+                              />
+                            }
+                          >
+                            {tNav(signUpMenuItem.labelKey)}
+                          </MobileMenuClose>
+                        )}
+                        {loginMenuItem && (
+                          <MobileMenuClose
+                            render={
+                              <Button
+                                variant="secondary"
+                                size="lg"
+                                className="w-full"
+                                nativeButton={false}
+                                render={<Link href={loginMenuItem.href} />}
+                              />
+                            }
+                          >
+                            {tNav(loginMenuItem.labelKey)}
+                          </MobileMenuClose>
+                        )}
+                      </>
+                    ) : null}
                     <Button
                       variant="secondary"
                       size="lg"
@@ -279,4 +338,14 @@ export function Header() {
       </Container>
     </FloatingBar>
   );
+}
+
+function getViewerDisplayName(viewer: HeaderViewer) {
+  if (!viewer) {
+    return null;
+  }
+
+  const name = viewer.name?.trim();
+
+  return name || null;
 }
