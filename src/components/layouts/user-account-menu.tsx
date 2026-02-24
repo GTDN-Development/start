@@ -14,6 +14,7 @@ import {
 import { Link } from "@/components/ui/link";
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon, LayoutDashboardIcon, LogOutIcon, SettingsIcon } from "lucide-react";
+import { Button } from "../ui/button";
 
 export type UserAccountMenuViewer = {
   email: string;
@@ -54,26 +55,25 @@ export function UserAccountMenu({
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <button
+            <Button
               type="button"
-              className={cn(
-                "hover:bg-muted focus-visible:border-ring focus-visible:ring-ring/50 inline-flex items-center gap-2 rounded-lg text-sm transition-colors outline-none focus-visible:ring-3",
-                trigger === "avatar" ? "size-9 justify-center p-0" : "px-2 py-1.5",
-                className
-              )}
+              variant="ghost"
+              size="lg"
+              className={className}
               aria-label={labels.account}
             />
           }
         >
-          <Avatar size="sm">
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
           {trigger === "default" ? (
             <>
               <span className="max-w-32 truncate font-medium">{displayName ?? viewer.email}</span>
               <ChevronDownIcon aria-hidden="true" className="size-4 opacity-70" />
             </>
-          ) : null}
+          ) : (
+            <Avatar size="sm">
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+          )}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 min-w-56">
           <DropdownMenuGroup>
