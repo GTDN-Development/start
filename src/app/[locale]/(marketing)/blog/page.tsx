@@ -4,15 +4,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
 import { Container } from "@/components/ui/container";
-import {
-  Hero,
-  HeroBackground,
-  HeroContent,
-  HeroDescription,
-  HeroTitle,
-} from "@/components/ui/hero";
-import { PatternGrid } from "@/components/ui/patterns";
+import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { site } from "@/config/site";
+import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/blog">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -51,24 +45,24 @@ export default function Page({ params }: PageProps<"/[locale]/blog">) {
 
   return (
     <MarketingPage>
-      <div>
-        <Hero>
-          <HeroBackground>
-            <PatternGrid className="absolute inset-0 -z-10 size-full opacity-55" />
-          </HeroBackground>
-          <HeroContent size="md">
-            <HeroTitle>{t("title")}</HeroTitle>
-            <HeroDescription>{t("description")}</HeroDescription>
-          </HeroContent>
-        </Hero>
+      <Hero>
+        <HeroContent size="md">
+          <HeroTitle>{t("title")}</HeroTitle>
+          <HeroDescription>{t("description")}</HeroDescription>
+        </HeroContent>
+      </Hero>
 
-        <Container size="md" className="pb-24">
-          <section className="border-border bg-card/60 rounded-2xl border border-dashed p-8 text-center">
-            <h2 className="text-xl font-semibold tracking-tight">{t("contentTitle")}</h2>
-            <p className="text-muted-foreground mt-3 text-sm text-pretty sm:text-base">
-              {t("contentDescription")}
-            </p>
-          </section>
+      <div className="space-y-16 pb-24">
+        <Container render={<section />}>
+          <Placeholder>
+            <PlaceholderTitle>Content</PlaceholderTitle>
+          </Placeholder>
+        </Container>
+
+        <Container render={<section />}>
+          <Placeholder>
+            <PlaceholderTitle>Content</PlaceholderTitle>
+          </Placeholder>
         </Container>
       </div>
     </MarketingPage>

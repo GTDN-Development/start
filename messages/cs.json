@@ -111,33 +111,23 @@
     },
     "aboutFeatures": {
       "title": "Funkce",
-      "description": "Prozkoumejte klíčové možnosti, které týmům pomáhají rychleji spouštět a škálovat produkt.",
-      "contentTitle": "Obsah",
-      "contentDescription": "Použijte tuto sekci pro přehled funkcí, screenshoty produktu a detailní rozpis schopností."
+      "description": "Prozkoumejte klíčové možnosti, které týmům pomáhají rychleji spouštět a škálovat produkt."
     },
     "aboutIntegrations": {
       "title": "Integrace",
-      "description": "Propojte aplikaci s nástroji, které váš tým používá každý den.",
-      "contentTitle": "Obsah",
-      "contentDescription": "Použijte tuto sekci pro loga integrací, kategorie, návody nastavení a API informace."
+      "description": "Propojte aplikaci s nástroji, které váš tým používá každý den."
     },
     "aboutRoadmap": {
       "title": "Roadmapa",
-      "description": "Podívejte se, co je v plánu a jak se produkt bude dál vyvíjet.",
-      "contentTitle": "Obsah",
-      "contentDescription": "Použijte tuto sekci pro aktuální priority, plánované milníky a přehled vydaných novinek."
+      "description": "Podívejte se, co je v plánu a jak se produkt bude dál vyvíjet."
     },
     "pricing": {
       "title": "Ceník",
-      "description": "Vyberte si plán podle velikosti týmu, způsobu práce a fáze růstu.",
-      "contentTitle": "Obsah",
-      "contentDescription": "Použijte tuto sekci pro cenové tarify, porovnání funkcí a FAQ."
+      "description": "Vyberte si plán podle velikosti týmu, způsobu práce a fáze růstu."
     },
     "blog": {
       "title": "Blog",
-      "description": "Postřehy, produktové novinky a praktické návody pro moderní týmy.",
-      "contentTitle": "Obsah",
-      "contentDescription": "Použijte tuto sekci pro výběr článků, kategorie a přihlášení k newsletteru."
+      "description": "Postřehy, produktové novinky a praktické návody pro moderní týmy."
     },
     "gdpr": {
       "title": "Zásady ochrany osobních údajů",

@@ -4,11 +4,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { ContactForm } from "@/components/(marketing)/contact/contact-form";
 import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
-import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { Hero, HeroActions, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
+import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { contact, formatPhoneNumber } from "@/config/contact";
 import { site } from "@/config/site";
 
 export async function generateMetadata(props: PageProps<"/[locale]/contact">): Promise<Metadata> {
@@ -48,38 +46,23 @@ export default function Page({ params }: PageProps<"/[locale]/contact">) {
 
   return (
     <MarketingPage>
-      <div>
-        <Hero>
-          <HeroContent size="md">
-            <HeroTitle>{t("title")}</HeroTitle>
-            <HeroDescription>{t("description")}</HeroDescription>
-            <HeroActions>
-              <Button size="lg" nativeButton={false} render={<a href={`mailto:${contact.email}`} />}>
-                {contact.email}
-              </Button>
-              <Button
-                size="lg"
-                variant="secondary"
-                nativeButton={false}
-                render={<a href={`tel:${contact.phone}`} />}
-              >
-                {formatPhoneNumber(contact.phone)}
-              </Button>
-            </HeroActions>
-          </HeroContent>
-        </Hero>
+      <Hero>
+        <HeroContent size="md">
+          <HeroTitle>{t("title")}</HeroTitle>
+          <HeroDescription>{t("description")}</HeroDescription>
+        </HeroContent>
+      </Hero>
 
-        <Container size="md" className="pb-24">
-          <Card>
-            <CardHeader>
-              <h2 className="text-2xl font-bold">{t("formTitle")}</h2>
-            </CardHeader>
-            <CardContent>
-              <ContactForm />
-            </CardContent>
-          </Card>
-        </Container>
-      </div>
+      <Container size="md" className="pb-24">
+        <Card>
+          <CardHeader>
+            <h2 className="text-2xl font-bold">{t("formTitle")}</h2>
+          </CardHeader>
+          <CardContent>
+            <ContactForm />
+          </CardContent>
+        </Card>
+      </Container>
     </MarketingPage>
   );
 }

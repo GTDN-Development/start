@@ -111,33 +111,23 @@
     },
     "aboutFeatures": {
       "title": "Features",
-      "description": "Explore the core capabilities that help teams launch and scale faster.",
-      "contentTitle": "Content",
-      "contentDescription": "Use this section for feature highlights, product screenshots, and capability breakdowns."
+      "description": "Explore the core capabilities that help teams launch and scale faster."
     },
     "aboutIntegrations": {
       "title": "Integrations",
-      "description": "Connect your stack with the tools your team already uses every day.",
-      "contentTitle": "Content",
-      "contentDescription": "Use this section for integration logos, categories, setup guides, and API details."
+      "description": "Connect your stack with the tools your team already uses every day."
     },
     "aboutRoadmap": {
       "title": "Roadmap",
-      "description": "See what is planned next and how the product is evolving.",
-      "contentTitle": "Content",
-      "contentDescription": "Use this section for current priorities, upcoming milestones, and released updates."
+      "description": "See what is planned next and how the product is evolving."
     },
     "pricing": {
       "title": "Pricing",
-      "description": "Choose a plan that matches your team size, workflow, and growth stage.",
-      "contentTitle": "Content",
-      "contentDescription": "Use this section for pricing tiers, feature comparison tables, and FAQ."
+      "description": "Choose a plan that matches your team size, workflow, and growth stage."
     },
     "blog": {
       "title": "Blog",
-      "description": "Insights, product updates, and practical guides for modern teams.",
-      "contentTitle": "Content",
-      "contentDescription": "Use this section for featured posts, categories, and newsletter signup."
+      "description": "Insights, product updates, and practical guides for modern teams."
     },
     "gdpr": {
       "title": "Privacy Policy",
