@@ -1,77 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Start
 
-## Getting Started
+Next.js 16 starter app for marketing, auth, and platform pages.
 
-This project uses **npm** as the canonical package manager.
-You can run scripts with **[Bun](https://bun.sh)** as an optional runtime.
+## Stack
 
-### Installation
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS v4
+- shadcn/base-ui components
+- next-intl (EN/CS)
+- Cloudflare Turnstile
+- PocketBase (integration in progress)
+
+## Commands
+
 ```bash
 npm install
-```
-
-### Development
-
-Run the development server:
-```bash
 npm run dev
-```
-
-Optional Bun runtime:
-```bash
-bun dev
-```
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-
-### Build
-```bash
+npm run lint
 npm run build
+npm run format
+npm run pocketbase:typegen
 ```
 
-Optional Bun runtime:
-```bash
-bun run build
-```
+## Env
 
-### Production
-```bash
-npm run start
-```
+Use `.env.example` as the template.
 
-Optional Bun runtime:
-```bash
-bun start
-```
+PocketBase typegen requires:
 
-### Bun (Optional)
+- `NEXT_PUBLIC_POCKETBASE_URL`
+- `PB_TYPEGEN_SUPERUSER_EMAIL`
+- `PB_TYPEGEN_SUPERUSER_PASSWORD`
 
-Install Bun only if you want to run scripts via Bun:
-```bash
-# macOS/Linux
-curl -fsSL https://bun.sh/install | bash
+## PocketBase Typegen
 
-# Windows
-powershell -c "irm bun.sh/install.ps1 | iex"
-```
+- Command: `npm run pocketbase:typegen`
+- Output: `src/types/pocketbase.ts`
+- Source: live PocketBase collection schema
+- Do not edit generated types manually
 
-Use `npm install` for dependency installation so `package-lock.json` remains the canonical lockfile.
+## Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Inter](https://fonts.google.com/specimen/Inter).
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/app` - routes, layouts, API handlers
+- `src/components` - UI and feature components
+- `src/config` - structural config (menus, links, site data)
+- `src/i18n` + `messages` - routing and translations
+- `src/lib` - shared utilities
+- `src/types` - shared types + generated PocketBase types
+- `scripts/pocketbase-typegen.mjs` - PocketBase type generator
+- `POCKETBASE-INTEGRATION.md` - PocketBase SSR/auth notes

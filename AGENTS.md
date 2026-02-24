@@ -53,3 +53,10 @@
 - All user-facing copy goes in `messages/*.json` — **never** hardcode UI strings in components or config files except of placeholders with titles like `"Content"`
 - `src/config/*` holds structural data (routes, links, business info) — **not** localized copy
 - Top-level message sections: `common`, `layout`, `pages`, `forms`, `legal`, `cookies`
+
+## PocketBase / Typegen
+
+- Generate PocketBase schema types with `npm run pocketbase:typegen`
+- Required env vars for typegen: `NEXT_PUBLIC_POCKETBASE_URL`, `PB_TYPEGEN_SUPERUSER_EMAIL`, `PB_TYPEGEN_SUPERUSER_PASSWORD`
+- Generated file is `src/types/pocketbase.ts` — do not edit manually
+- Re-run typegen after PocketBase schema changes before writing/adjusting PocketBase integration code
