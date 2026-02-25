@@ -5,7 +5,7 @@ import { use } from "react";
 import { Link } from "@/components/ui/link";
 import { SignUpForm } from "@/components/(auth)/sign-up/sign-up-form";
 import { AuthPage } from "@/components/layouts/auth/auth-page";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/sign-up">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -15,27 +15,11 @@ export async function generateMetadata(props: PageProps<"/[locale]/sign-up">): P
     namespace: "pages.signUp",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/sign-up",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/sign-up`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
-    robots: {
-      index: false,
-      follow: false,
-    },
-  };
+    pathname: "/sign-up",
+  });
 }
 
 export default function Page({ params }: PageProps<"/[locale]/sign-up">) {

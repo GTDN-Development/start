@@ -16,9 +16,9 @@ import AppIconSvg from "@/assets/svgs/start-app-icon.svg";
 import { NewsletterCta } from "@/components/(marketing)/home/newsletter-cta";
 import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
 import { PatternGrid } from "@/components/ui/patterns";
-import { site } from "@/config/site";
 import { MarqueeCompanies } from "@/components/(marketing)/home/marquee-companies";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
+import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -31,23 +31,11 @@ export async function generateMetadata(props: PageProps<"/[locale]">): Promise<M
     break: () => " ",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: metadataTitle,
     description: t("description"),
-    alternates: {
-      canonical: "/",
-    },
-    openGraph: {
-      title: metadataTitle,
-      description: t("description"),
-      url: site.url,
-    },
-    twitter: {
-      title: metadataTitle,
-      description: t("description"),
-    },
-  };
+    pathname: "/",
+  });
 }
 
 export default function Page({ params }: PageProps<"/[locale]">) {

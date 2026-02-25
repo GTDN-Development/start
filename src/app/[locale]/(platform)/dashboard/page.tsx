@@ -5,7 +5,7 @@ import { use } from "react";
 import { PlatformPage } from "@/components/layouts/platform/platform-page";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/dashboard">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -15,27 +15,11 @@ export async function generateMetadata(props: PageProps<"/[locale]/dashboard">):
     namespace: "pages.dashboard",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/dashboard",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/dashboard`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
-    robots: {
-      index: false,
-      follow: false,
-    },
-  };
+    pathname: "/dashboard",
+  });
 }
 
 export default function Page({ params }: PageProps<"/[locale]/dashboard">) {

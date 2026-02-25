@@ -15,8 +15,8 @@ import { DynamicScripts } from "@/components/(shared)/cookies/dynamic-scripts";
 import { CookieConsentBanner } from "@/components/(shared)/cookies/cookie-consent-banner";
 import { CookieSettingsDialog } from "@/components/(shared)/cookies/cookie-settings-dialog";
 import { CookieErrorBoundary } from "@/components/(shared)/cookies/cookie-error-boundary";
-
 import { site } from "@/config/site";
+import { defaultSocialPreviewImage } from "@/lib/metadata";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -66,11 +66,13 @@ export async function generateMetadata(
       siteName: site.name,
       title: t("title"),
       description: t("description"),
+      images: [defaultSocialPreviewImage],
     },
     twitter: {
       card: "summary_large_image",
       title: t("title"),
       description: t("description"),
+      images: [defaultSocialPreviewImage.url],
     },
     robots: {
       index: true,

@@ -5,7 +5,7 @@ import { PlatformPage } from "@/components/layouts/platform/platform-page";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 import { createServerPocketBaseClient } from "@/lib/pocketbase/server";
 
 type SettingsUser = {
@@ -22,27 +22,11 @@ export async function generateMetadata(props: PageProps<"/[locale]/settings">): 
     namespace: "pages.settings",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/settings",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/settings`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
-    robots: {
-      index: false,
-      follow: false,
-    },
-  };
+    pathname: "/settings",
+  });
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/settings">) {

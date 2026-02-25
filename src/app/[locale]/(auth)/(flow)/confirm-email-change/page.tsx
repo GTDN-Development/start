@@ -5,7 +5,7 @@ import { use } from "react";
 import { ConfirmEmailChangeForm } from "@/components/(auth)/confirm-email-change/confirm-email-change-form";
 import { Link } from "@/components/ui/link";
 import { AuthPage } from "@/components/layouts/auth/auth-page";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 
 type ConfirmEmailChangePageProps = {
   params: Promise<{
@@ -24,27 +24,11 @@ export async function generateMetadata(props: ConfirmEmailChangePageProps): Prom
     namespace: "pages.confirmEmailChange",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/confirm-email-change",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/confirm-email-change`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
-    robots: {
-      index: false,
-      follow: false,
-    },
-  };
+    pathname: "/confirm-email-change",
+  });
 }
 
 export default function Page({ params, searchParams }: ConfirmEmailChangePageProps) {

@@ -5,7 +5,7 @@ import { use } from "react";
 import { Link } from "@/components/ui/link";
 import { VerifyEmailForm } from "@/components/(auth)/verify-email/verify-email-form";
 import { AuthPage } from "@/components/layouts/auth/auth-page";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/verify-email">
@@ -17,27 +17,11 @@ export async function generateMetadata(
     namespace: "pages.verifyEmail",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/verify-email",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/verify-email`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
-    robots: {
-      index: false,
-      follow: false,
-    },
-  };
+    pathname: "/verify-email",
+  });
 }
 
 export default function Page({

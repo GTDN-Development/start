@@ -7,7 +7,7 @@ import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
 import { Container } from "@/components/ui/container";
 import { legal } from "@/config/legal";
 import { cookies } from "@/config/cookies";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/cookies">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -17,27 +17,15 @@ export async function generateMetadata(props: PageProps<"/[locale]/cookies">): P
     namespace: "pages.cookies",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/cookies",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/cookies`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
+    pathname: "/cookies",
     robots: {
       index: false,
       follow: true,
     },
-  };
+  });
 }
 
 export default function Page({ params }: PageProps<"/[locale]/cookies">) {

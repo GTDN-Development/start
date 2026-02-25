@@ -5,7 +5,7 @@ import { use } from "react";
 import { Link } from "@/components/ui/link";
 import { ForgotPasswordForm } from "@/components/(auth)/forgot-password/forgot-password-form";
 import { AuthPage } from "@/components/layouts/auth/auth-page";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/forgot-password">
@@ -17,27 +17,11 @@ export async function generateMetadata(
     namespace: "pages.forgotPassword",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/forgot-password",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/forgot-password`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
-    robots: {
-      index: false,
-      follow: false,
-    },
-  };
+    pathname: "/forgot-password",
+  });
 }
 
 export default function Page({ params }: PageProps<"/[locale]/forgot-password">) {

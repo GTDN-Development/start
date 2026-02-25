@@ -5,7 +5,7 @@ import { use } from "react";
 import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/blog">): Promise<Metadata> {
@@ -16,23 +16,11 @@ export async function generateMetadata(props: PageProps<"/[locale]/blog">): Prom
     namespace: "pages.blog",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/blog",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/blog`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
-  };
+    pathname: "/blog",
+  });
 }
 
 export default function Page({ params }: PageProps<"/[locale]/blog">) {

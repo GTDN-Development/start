@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
@@ -9,6 +10,13 @@ type PlatformRouteLayoutProps = {
   params: Promise<{
     locale: string;
   }>;
+};
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function Layout({ children, params }: PlatformRouteLayoutProps) {

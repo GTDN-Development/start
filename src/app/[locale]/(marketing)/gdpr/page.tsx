@@ -6,7 +6,7 @@ import { GdprPolicy } from "@/components/(marketing)/legal/gdpr-policy";
 import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
 import { Container } from "@/components/ui/container";
 import { legal } from "@/config/legal";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -16,27 +16,15 @@ export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Prom
     namespace: "pages.gdpr",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/gdpr",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/gdpr`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
+    pathname: "/gdpr",
     robots: {
       index: false,
       follow: true,
     },
-  };
+  });
 }
 
 export default function Page({ params }: PageProps<"/[locale]/gdpr">) {

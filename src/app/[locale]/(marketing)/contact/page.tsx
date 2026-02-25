@@ -7,7 +7,7 @@ import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { site } from "@/config/site";
+import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/contact">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -17,23 +17,11 @@ export async function generateMetadata(props: PageProps<"/[locale]/contact">): P
     namespace: "pages.contact",
   });
 
-  return {
-    metadataBase: new URL(site.url),
+  return createPageMetadata({
     title: t("title"),
     description: t("description"),
-    alternates: {
-      canonical: "/contact",
-    },
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: `${site.url}/contact`,
-    },
-    twitter: {
-      title: t("title"),
-      description: t("description"),
-    },
-  };
+    pathname: "/contact",
+  });
 }
 
 export default function Page({ params }: PageProps<"/[locale]/contact">) {
