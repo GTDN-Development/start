@@ -2,8 +2,8 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { ClientResponseError } from "pocketbase";
 import { z } from "zod";
-import { createPocketBaseClient } from "@/lib/pocketbase/server";
-import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
+import { createPocketBaseClient } from "@/server/pocketbase/server";
+import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
 import type { CookieConsentEventsRecord } from "@/types/pocketbase";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,

@@ -1,4 +1,4 @@
-import { parseAuthRedirectPath, type AuthRedirectPath } from "@/lib/auth-redirects";
+import { parseAuthRedirectPath, type AuthRedirectPath } from "@/features/auth/auth-redirects";
 
 export type AuthFormApiResponse = {
   ok?: boolean;

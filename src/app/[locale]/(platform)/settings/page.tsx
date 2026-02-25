@@ -5,7 +5,7 @@ import { Container } from "@/components/ui/container";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPageMetadata } from "@/lib/metadata";
-import { createServerPocketBaseClient } from "@/lib/pocketbase/server";
+import { createServerPocketBaseClient } from "@/server/pocketbase/server";
 
 type SettingsUser = {
   email: string;

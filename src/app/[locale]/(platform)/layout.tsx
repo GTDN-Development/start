@@ -3,7 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { PlatformLayout } from "@/components/layouts/platform/platform-layout";
-import { createServerPocketBaseClient } from "@/lib/pocketbase/server";
+import { createServerPocketBaseClient } from "@/server/pocketbase/server";
 
 type PlatformRouteLayoutProps = {
   children: React.ReactNode;

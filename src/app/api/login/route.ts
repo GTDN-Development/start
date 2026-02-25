@@ -1,9 +1,9 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { createPocketBaseClient, setPocketBaseAuthCookie } from "@/lib/pocketbase/server";
-import { authRedirectPaths } from "@/lib/auth-redirects";
-import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
+import { createPocketBaseClient, setPocketBaseAuthCookie } from "@/server/pocketbase/server";
+import { authRedirectPaths } from "@/features/auth/auth-redirects";
+import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
 
 const loginPayloadSchema = z.object({
   email: z.string().trim().min(1).transform((value) => value.toLowerCase()),

@@ -1,5 +1,5 @@
 import { MarketingLayout } from "@/components/layouts/marketing/marketing-layout";
-import { createServerPocketBaseClient } from "@/lib/pocketbase/server";
+import { createServerPocketBaseClient } from "@/server/pocketbase/server";
 
 type MarketingRouteLayoutProps = {
   children: React.ReactNode;

@@ -15,8 +15,8 @@ import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/legal-links";
 
-import { authRedirectPaths } from "@/lib/auth-redirects";
-import { readAuthFormApiResponse } from "@/lib/auth-form-api";
+import { authRedirectPaths } from "@/features/auth/auth-redirects";
+import { readAuthFormApiResponse } from "@/features/auth/auth-form-api";
 import { cn } from "@/lib/utils";
 
 type SignUpFormValues = {

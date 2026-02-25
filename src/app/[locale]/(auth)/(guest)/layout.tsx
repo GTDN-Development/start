@@ -1,6 +1,6 @@
 import { Locale } from "next-intl";
 import { redirect } from "@/i18n/navigation";
-import { createServerPocketBaseClient } from "@/lib/pocketbase/server";
+import { createServerPocketBaseClient } from "@/server/pocketbase/server";
 
 type AuthGuestLayoutProps = {
   children: React.ReactNode;

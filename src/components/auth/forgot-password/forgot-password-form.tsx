@@ -8,7 +8,7 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircleIcon, MailIcon } from "lucide-react";
-import { readAuthFormApiResponse } from "@/lib/auth-form-api";
+import { readAuthFormApiResponse } from "@/features/auth/auth-form-api";
 import { cn } from "@/lib/utils";
 
 export function ForgotPasswordForm({ className, ...props }: React.ComponentProps<"div">) {

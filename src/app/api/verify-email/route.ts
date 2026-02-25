@@ -5,9 +5,9 @@ import {
   POCKETBASE_AUTH_COOKIE_NAME,
   createPocketBaseClient,
   setPocketBaseAuthCookie,
-} from "@/lib/pocketbase/server";
-import { authRedirectPaths } from "@/lib/auth-redirects";
-import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
+} from "@/server/pocketbase/server";
+import { authRedirectPaths } from "@/features/auth/auth-redirects";
+import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
 
 const verifyEmailPayloadSchema = z.object({
   token: z.string().trim().min(1),

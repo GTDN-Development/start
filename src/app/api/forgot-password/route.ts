@@ -1,8 +1,8 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { createPocketBaseClient } from "@/lib/pocketbase/server";
-import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
+import { createPocketBaseClient } from "@/server/pocketbase/server";
+import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
 
 const forgotPasswordPayloadSchema = z.object({
   email: z.string().trim().min(1).transform((value) => value.toLowerCase()),

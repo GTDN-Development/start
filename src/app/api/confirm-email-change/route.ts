@@ -1,9 +1,9 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { clearPocketBaseAuthCookie, createPocketBaseClient } from "@/lib/pocketbase/server";
-import { authRedirectPaths } from "@/lib/auth-redirects";
-import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
+import { clearPocketBaseAuthCookie, createPocketBaseClient } from "@/server/pocketbase/server";
+import { authRedirectPaths } from "@/features/auth/auth-redirects";
+import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
 
 const confirmEmailChangePayloadSchema = z.object({
   token: z.string().trim().min(1),

@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
-import { authRedirectPaths } from "@/lib/auth-redirects";
-import { readAuthFormApiResponse } from "@/lib/auth-form-api";
+import { authRedirectPaths } from "@/features/auth/auth-redirects";
+import { readAuthFormApiResponse } from "@/features/auth/auth-form-api";
 import { cn } from "@/lib/utils";
 
 export function VerifyEmailForm({

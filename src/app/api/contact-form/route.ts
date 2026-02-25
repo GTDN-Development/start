@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
-import { escapeHtml, sendFormEmail } from "@/lib/form-email";
-import { verifyTurnstileToken, getClientIP } from "@/lib/turnstile";
+import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
+import { escapeHtml, sendFormEmail } from "@/server/email/send-form-email";
+import { verifyTurnstileToken, getClientIP } from "@/server/captcha/turnstile";
 import { formatEmailTimestamp } from "@/lib/utils";
 
 const contactFormPayloadSchema = z.object({

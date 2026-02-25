@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { clearPocketBaseAuthCookie } from "@/lib/pocketbase/server";
-import { authRedirectPaths } from "@/lib/auth-redirects";
+import { clearPocketBaseAuthCookie } from "@/server/pocketbase/server";
+import { authRedirectPaths } from "@/features/auth/auth-redirects";
 
 export async function POST(request: NextRequest) {
   if (!isSameOriginLogoutRequest(request)) {
