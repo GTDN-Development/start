@@ -1,6 +1,10 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest, NextResponse } from "next/server";
-import { clearPocketBaseAuthCookie, createPocketBaseClient } from "@/lib/pocketbase/server";
+import {
+  POCKETBASE_AUTH_COOKIE_NAME,
+  createPocketBaseClient,
+  setPocketBaseAuthCookie,
+} from "@/lib/pocketbase/server";
 
 type VerifyEmailPayload = {
   token?: string;
@@ -19,8 +23,15 @@ export async function POST(request: NextRequest) {
 
     await pb.collection("users").confirmVerification(token);
 
-    const response = NextResponse.json({ ok: true, redirectTo: "/login" }, { status: 200 });
-    clearPocketBaseAuthCookie(response);
+    const hasRefreshedSession = await refreshSessionAfterVerification(pb, request);
+    const response = NextResponse.json(
+      { ok: true, redirectTo: hasRefreshedSession ? "/dashboard" : "/login" },
+      { status: 200 }
+    );
+
+    if (hasRefreshedSession) {
+      setPocketBaseAuthCookie(response, pb);
+    }
 
     return response;
   } catch (error) {
@@ -31,5 +42,32 @@ export async function POST(request: NextRequest) {
     console.error("Verify email API error:", error);
 
     return NextResponse.json({ ok: false, errorCode: "INTERNAL_ERROR" }, { status: 500 });
+  }
+}
+
+async function refreshSessionAfterVerification(
+  pb: ReturnType<typeof createPocketBaseClient>,
+  request: NextRequest
+) {
+  const cookieHeader = request.headers.get("cookie") ?? "";
+
+  if (!cookieHeader) {
+    return false;
+  }
+
+  pb.authStore.loadFromCookie(cookieHeader, POCKETBASE_AUTH_COOKIE_NAME);
+
+  if (!pb.authStore.isValid) {
+    pb.authStore.clear();
+    return false;
+  }
+
+  try {
+    await pb.collection("users").authRefresh();
+    return true;
+  } catch (error) {
+    console.error("Verify email auth refresh skipped:", error);
+    pb.authStore.clear();
+    return false;
   }
 }
