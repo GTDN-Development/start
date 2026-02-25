@@ -506,6 +506,27 @@
         "localStorage": "Local storage",
         "sessionStorage": "Session storage"
       },
+      "duration": {
+        "session": "Relace",
+        "persistent": "Trvalé",
+        "relative": {
+          "minute": "{count, plural, one {# minuta} few {# minuty} other {# minut}}",
+          "hour": "{count, plural, one {# hodina} few {# hodiny} other {# hodin}}",
+          "day": "{count, plural, one {# den} few {# dny} other {# dní}}",
+          "month": "{count, plural, one {# měsíc} few {# měsíce} other {# měsíců}}",
+          "year": "{count, plural, one {# rok} few {# roky} other {# let}}"
+        }
+      },
+      "purposes": {
+        "cookieConsent": "Ukládá preference souhlasu s cookies.",
+        "cookieConsentSubject": "Ukládá pseudonymní klíč pro evidenci historie udělených souhlasů.",
+        "theme": "Ukládá preferenci motivu (systémový/světlý/tmavý režim).",
+        "ga": "Rozlišuje uživatele pro analytiku (se souhlasem).",
+        "gaWildcard": "Uchovává stav relace GA4 (se souhlasem).",
+        "gid": "Rozlišuje uživatele po dobu 24 hodin (se souhlasem).",
+        "gat": "Omezuje četnost požadavků GA (se souhlasem).",
+        "gclAu": "Experimenty efektivity AdSense (se souhlasem)."
+      },
       "management": {
         "title": "5. Jak spravovat preference úložiště",
         "description": "Své preference můžete kdykoli upravit pomocí tlačítka níže nebo v nastavení prohlížeče. Můžete blokovat nebo mazat cookies, localStorage i sessionStorage data. Omezení těchto technologií může ovlivnit funkčnost webu.",
@@ -515,60 +536,6 @@
         "title": "6. Kontaktujte nás",
         "description": "Pokud máte jakékoli dotazy k těmto zásadám, můžete nás kontaktovat na:",
         "phone": "nebo telefonicky:"
-      },
-      "cookieDetails": {
-        "cookieConsent": {
-          "provider": "Vlastní",
-          "purpose": "Ukládá preference souhlasu s cookies.",
-          "duration": "1 rok"
-        },
-        "theme": {
-          "provider": "Vlastní",
-          "purpose": "Ukládá preferenci motivu (systémový/světlý/tmavý režim).",
-          "duration": "Trvalé"
-        },
-        "consentChangeCheck": {
-          "provider": "Vlastní",
-          "purpose": "Sleduje změny souhlasu pro obnovení skriptů.",
-          "duration": "Relace"
-        },
-        "ga": {
-          "provider": "Google Analytics",
-          "purpose": "Rozlišuje uživatele pro analytiku (se souhlasem).",
-          "duration": "2 roky"
-        },
-        "gaWildcard": {
-          "provider": "Google Analytics",
-          "purpose": "Uchovává stav relace GA4 (se souhlasem).",
-          "duration": "2 roky"
-        },
-        "gid": {
-          "provider": "Google Analytics",
-          "purpose": "Rozlišuje uživatele po dobu 24 hodin (se souhlasem).",
-          "duration": "24 hodin"
-        },
-        "gat": {
-          "provider": "Google Analytics",
-          "purpose": "Omezuje četnost požadavků GA (se souhlasem).",
-          "duration": "1 minuta"
-        },
-        "gclAu": {
-          "provider": "Google Tag Manager",
-          "purpose": "Experimenty efektivity AdSense (se souhlasem).",
-          "duration": "3 měsíce"
-        }
-      },
-      "defaults": {
-        "cookies": [
-          {
-            "name": "_ga",
-            "provider": "Google Analytics",
-            "purpose": "Používá se k rozlišení uživatelů pro statistické účely.",
-            "duration": "2 roky",
-            "category": "analytics",
-            "storageType": "cookie"
-          }
-        ]
       }
     },
     "gdprPolicy": {

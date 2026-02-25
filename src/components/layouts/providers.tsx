@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { usePathname } from "next/navigation";
 import { createContext, useState } from "react";
 import { CookieContextProvider } from "@/components/(shared)/cookies/cookie-context";
+import type { ConsentState } from "@/components/(shared)/cookies/consent";
 
 export const AppContext = createContext<{ previousPathname?: string }>({});
 
@@ -19,13 +20,26 @@ function usePrevious<T>(value: T): T | undefined {
   return previous;
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+type ProvidersProps = {
+  children: React.ReactNode;
+  initialCookieConsent: ConsentState;
+  initialCookieConsentInteracted: boolean;
+};
+
+export function Providers({
+  children,
+  initialCookieConsent,
+  initialCookieConsentInteracted,
+}: ProvidersProps) {
   const pathname = usePathname();
   const previousPathname = usePrevious(pathname);
 
   return (
     <AppContext.Provider value={{ previousPathname: previousPathname ?? undefined }}>
-      <CookieContextProvider>
+      <CookieContextProvider
+        initialConsent={initialCookieConsent}
+        initialHasInteracted={initialCookieConsentInteracted}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

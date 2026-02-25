@@ -506,6 +506,27 @@
         "localStorage": "Local storage",
         "sessionStorage": "Session storage"
       },
+      "duration": {
+        "session": "Session",
+        "persistent": "Persistent",
+        "relative": {
+          "minute": "{count, plural, one {# minute} other {# minutes}}",
+          "hour": "{count, plural, one {# hour} other {# hours}}",
+          "day": "{count, plural, one {# day} other {# days}}",
+          "month": "{count, plural, one {# month} other {# months}}",
+          "year": "{count, plural, one {# year} other {# years}}"
+        }
+      },
+      "purposes": {
+        "cookieConsent": "Stores cookie consent preferences.",
+        "cookieConsentSubject": "Stores a pseudonymous key used to record consent history events.",
+        "theme": "Stores theme preference (system/light/dark mode).",
+        "ga": "Distinguishes users for analytics (with consent).",
+        "gaWildcard": "Persists GA4 session state (with consent).",
+        "gid": "Distinguishes users for 24 hours (with consent).",
+        "gat": "Throttles GA request rate (with consent).",
+        "gclAu": "AdSense efficiency experiments (with consent)."
+      },
       "management": {
         "title": "5. How to manage your storage preferences",
         "description": "You can manage your preferences at any time using the button below or through your browser settings. You can block or delete cookies, localStorage, and sessionStorage data. Restricting these technologies may impact the functionality of this website.",
@@ -515,60 +536,6 @@
         "title": "6. Contact us",
         "description": "If you have any questions about this policy, you can contact us at:",
         "phone": "or by phone:"
-      },
-      "cookieDetails": {
-        "cookieConsent": {
-          "provider": "Own",
-          "purpose": "Stores cookie consent preferences.",
-          "duration": "1 year"
-        },
-        "theme": {
-          "provider": "Own",
-          "purpose": "Stores theme preference (system/light/dark mode).",
-          "duration": "Persistent"
-        },
-        "consentChangeCheck": {
-          "provider": "Own",
-          "purpose": "Tracks consent changes to refresh scripts.",
-          "duration": "Session"
-        },
-        "ga": {
-          "provider": "Google Analytics",
-          "purpose": "Distinguishes users for analytics (with consent).",
-          "duration": "2 years"
-        },
-        "gaWildcard": {
-          "provider": "Google Analytics",
-          "purpose": "Persists GA4 session state (with consent).",
-          "duration": "2 years"
-        },
-        "gid": {
-          "provider": "Google Analytics",
-          "purpose": "Distinguishes users for 24 hours (with consent).",
-          "duration": "24 hours"
-        },
-        "gat": {
-          "provider": "Google Analytics",
-          "purpose": "Throttles GA request rate (with consent).",
-          "duration": "1 minute"
-        },
-        "gclAu": {
-          "provider": "Google Tag Manager",
-          "purpose": "AdSense efficiency experiments (with consent).",
-          "duration": "3 months"
-        }
-      },
-      "defaults": {
-        "cookies": [
-          {
-            "name": "_ga",
-            "provider": "Google Analytics",
-            "purpose": "Used to distinguish users for statistical purposes.",
-            "duration": "2 years",
-            "category": "analytics",
-            "storageType": "cookie"
-          }
-        ]
       }
     },
     "gdprPolicy": {

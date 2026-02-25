@@ -19,36 +19,39 @@ import { useTranslations } from "next-intl";
 
 export function CookieSettingsDialog() {
   const t = useTranslations("cookies.consent.dialog");
-  const { consent, updateConsent, saveConsent, isSettingsOpen, closeSettingsDialog } =
-    useCookieContext();
+  const {
+    consent,
+    updateConsent,
+    acceptAll,
+    rejectAll,
+    savePreferences,
+    isSettingsOpen,
+    closeSettingsDialog,
+  } = useCookieContext();
 
   function handleDeny() {
-    saveConsent({
-      necessary: true,
-      functional: false,
-      analytics: false,
-      marketing: false,
-    });
+    rejectAll();
     closeSettingsDialog();
   }
 
   function handleAcceptAll() {
-    saveConsent({
-      necessary: true,
-      functional: true,
-      analytics: true,
-      marketing: true,
-    });
+    acceptAll();
     closeSettingsDialog();
   }
 
   function handleSave() {
-    saveConsent();
+    savePreferences();
     closeSettingsDialog();
   }
 
+  function handleOpenChange(nextOpen: boolean) {
+    if (!nextOpen) {
+      closeSettingsDialog();
+    }
+  }
+
   return (
-    <AlertDialog open={isSettingsOpen} onOpenChange={closeSettingsDialog}>
+    <AlertDialog open={isSettingsOpen} onOpenChange={handleOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{t("title")}</AlertDialogTitle>
@@ -140,10 +143,7 @@ export function CookieSettingsDialog() {
           </div>
         </div>
         <AlertDialogFooter className="mt-4">
-          <AlertDialogPrimitive.Close
-            render={<Button variant="secondary" />}
-            onClick={handleDeny}
-          >
+          <AlertDialogPrimitive.Close render={<Button variant="secondary" />} onClick={handleDeny}>
             {t("actions.deny")}
           </AlertDialogPrimitive.Close>
           <AlertDialogPrimitive.Close

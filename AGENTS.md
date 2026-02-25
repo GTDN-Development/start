@@ -58,6 +58,6 @@
 ## PocketBase / Typegen
 
 - Generate PocketBase schema types with `npm run pocketbase:typegen`
-- Required env vars for typegen: `NEXT_PUBLIC_POCKETBASE_URL`, `PB_TYPEGEN_SUPERUSER_EMAIL`, `PB_TYPEGEN_SUPERUSER_PASSWORD`
+- Required env vars for typegen: `NEXT_PUBLIC_PB_URL`, `PB_SUPERUSER_EMAIL`, `PB_SUPERUSER_PASSWORD`
 - Generated file is `src/types/pocketbase.ts` — do not edit manually
 - Re-run typegen after PocketBase schema changes before writing/adjusting PocketBase integration code

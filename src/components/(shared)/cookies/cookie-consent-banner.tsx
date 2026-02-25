@@ -6,28 +6,10 @@ import { useTranslations } from "next-intl";
 
 export function CookieConsentBanner() {
   const t = useTranslations("cookies.consent.banner");
-  const { hasInteracted, isMounted, saveConsent, openSettingsDialog } = useCookieContext();
+  const { hasInteracted, acceptAll, rejectAll, openSettingsDialog } = useCookieContext();
 
-  if (!isMounted || hasInteracted) {
+  if (hasInteracted) {
     return null;
-  }
-
-  function handleDeny() {
-    saveConsent({
-      necessary: true,
-      functional: false,
-      analytics: false,
-      marketing: false,
-    });
-  }
-
-  function handleAcceptAll() {
-    saveConsent({
-      necessary: true,
-      functional: true,
-      analytics: true,
-      marketing: true,
-    });
   }
 
   return (
@@ -37,10 +19,10 @@ export function CookieConsentBanner() {
           <p>{t("description")}</p>
         </div>
         <div className="flex flex-wrap items-center justify-start gap-3">
-          <Button variant="secondary" size="sm" onClick={handleDeny}>
+          <Button variant="secondary" size="sm" onClick={rejectAll}>
             {t("deny")}
           </Button>
-          <Button variant="secondary" size="sm" onClick={handleAcceptAll}>
+          <Button variant="secondary" size="sm" onClick={acceptAll}>
             {t("acceptAll")}
           </Button>
           <Button size="sm" className="sm:ml-auto sm:justify-self-end" onClick={openSettingsDialog}>

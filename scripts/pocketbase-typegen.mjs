@@ -12,9 +12,9 @@ const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 async function main() {
   await loadEnvironmentFiles(process.cwd(), ENV_FILES);
 
-  const pocketBaseUrl = getRequiredEnv(["NEXT_PUBLIC_POCKETBASE_URL", "NEXT_PUBLIC_PB_URL"]);
-  const superuserEmail = getRequiredEnv(["PB_TYPEGEN_SUPERUSER_EMAIL"]);
-  const superuserPassword = getRequiredEnv(["PB_TYPEGEN_SUPERUSER_PASSWORD"]);
+  const pocketBaseUrl = getRequiredEnv(["NEXT_PUBLIC_PB_URL"]);
+  const superuserEmail = getRequiredEnv(["PB_SUPERUSER_EMAIL"]);
+  const superuserPassword = getRequiredEnv(["PB_SUPERUSER_PASSWORD"]);
   const includeSystemCollections = getBooleanEnv("PB_TYPEGEN_INCLUDE_SYSTEM", false);
   const outputPath = path.resolve(
     process.cwd(),
@@ -150,17 +150,7 @@ function getBooleanEnv(name, defaultValue) {
 }
 
 async function authenticateSuperuser(pb, email, password) {
-  try {
-    await pb.collection("_superusers").authWithPassword(email, password);
-    return;
-  } catch (primaryError) {
-    try {
-      await pb.admins.authWithPassword(email, password);
-      return;
-    } catch {
-      throw primaryError;
-    }
-  }
+  await pb.collection("_superusers").authWithPassword(email, password);
 }
 
 function renderPocketBaseTypesFile(collections) {

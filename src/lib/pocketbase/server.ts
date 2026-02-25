@@ -41,12 +41,10 @@ export function clearPocketBaseAuthCookie(response: NextResponse) {
 }
 
 export function getPocketBaseUrl() {
-  const url = process.env.NEXT_PUBLIC_POCKETBASE_URL ?? process.env.NEXT_PUBLIC_PB_URL;
+  const url = process.env.NEXT_PUBLIC_PB_URL;
 
   if (!url) {
-    throw new Error(
-      "Missing PocketBase URL. Set NEXT_PUBLIC_POCKETBASE_URL (or NEXT_PUBLIC_PB_URL)."
-    );
+    throw new Error("Missing PocketBase URL. Set NEXT_PUBLIC_PB_URL.");
   }
 
   return url;

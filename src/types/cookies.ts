@@ -1,10 +1,34 @@
 export type CookieCategory = "essential" | "functional" | "analytics" | "marketing";
+export type CookieStorageType = "cookie" | "localStorage" | "sessionStorage";
+
+export type CookiePurposeKey =
+  | "cookieConsent"
+  | "cookieConsentSubject"
+  | "theme"
+  | "ga"
+  | "gaWildcard"
+  | "gid"
+  | "gat"
+  | "gclAu";
+
+export type CookieDuration =
+  | {
+      kind: "session";
+    }
+  | {
+      kind: "persistent";
+    }
+  | {
+      kind: "relative";
+      value: number;
+      unit: "minute" | "hour" | "day" | "month" | "year";
+    };
 
 export type Cookie = {
   name: string;
   provider: string;
-  purpose: string;
-  duration: string;
+  purposeKey: CookiePurposeKey;
+  duration: CookieDuration;
   category: CookieCategory;
-  storageType?: "cookie" | "localStorage" | "sessionStorage";
+  storageType?: CookieStorageType;
 };

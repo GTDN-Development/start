@@ -9,6 +9,18 @@ export interface PocketBaseSystemFields {
   updated: string;
 }
 
+export interface CookieConsentEventsRecord extends PocketBaseSystemFields {
+  subject_key: string;
+  event_type: "accept_all" | "reject_all" | "save_preferences" | "withdraw";
+  preferences?: boolean;
+  analytics?: boolean;
+  marketing?: boolean;
+  consent_version: string;
+  consent_snapshot: unknown;
+  locale: string;
+  idempotency_key: string;
+}
+
 export interface PostsRecord extends PocketBaseSystemFields {
   title: string;
   slug: string;
@@ -31,6 +43,7 @@ export interface UsersRecord extends PocketBaseSystemFields {
 }
 
 export interface PocketBaseCollections {
+  cookie_consent_events: CookieConsentEventsRecord;
   posts: PostsRecord;
   users: UsersRecord;
 }

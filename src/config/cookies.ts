@@ -1,12 +1,21 @@
 import type { Cookie } from "@/types/cookies";
+import { site } from "./site";
 
 export const cookies: Cookie[] = [
   // Essential Cookies
   {
     name: "cookie_consent",
-    provider: "Own",
-    purpose: "Stores cookie consent preferences.",
-    duration: "1 year",
+    provider: site.domain,
+    purposeKey: "cookieConsent",
+    duration: { kind: "relative", value: 1, unit: "year" },
+    category: "essential",
+    storageType: "cookie",
+  },
+  {
+    name: "cookie_consent_subject",
+    provider: site.domain,
+    purposeKey: "cookieConsentSubject",
+    duration: { kind: "relative", value: 1, unit: "year" },
     category: "essential",
     storageType: "cookie",
   },
@@ -14,51 +23,43 @@ export const cookies: Cookie[] = [
   // Functional Storage
   {
     name: "theme",
-    provider: "Own",
-    purpose: "Stores theme preference (system/light/dark mode).",
-    duration: "Persistent",
+    provider: site.domain,
+    purposeKey: "theme",
+    duration: { kind: "persistent" },
     category: "functional",
     storageType: "localStorage",
-  },
-  {
-    name: "consent_change_check",
-    provider: "Own",
-    purpose: "Tracks consent changes to refresh scripts.",
-    duration: "Session",
-    category: "functional",
-    storageType: "sessionStorage",
   },
 
   // Analytics Cookies (Google Analytics - only loaded when analytics consent is given)
   {
     name: "_ga",
     provider: "Google Analytics",
-    purpose: "Distinguishes users for analytics (with consent).",
-    duration: "2 years",
+    purposeKey: "ga",
+    duration: { kind: "relative", value: 2, unit: "year" },
     category: "analytics",
     storageType: "cookie",
   },
   {
     name: "_ga_*",
     provider: "Google Analytics",
-    purpose: "Persists GA4 session state (with consent).",
-    duration: "2 years",
+    purposeKey: "gaWildcard",
+    duration: { kind: "relative", value: 2, unit: "year" },
     category: "analytics",
     storageType: "cookie",
   },
   {
     name: "_gid",
     provider: "Google Analytics",
-    purpose: "Distinguishes users for 24 hours (with consent).",
-    duration: "24 hours",
+    purposeKey: "gid",
+    duration: { kind: "relative", value: 24, unit: "hour" },
     category: "analytics",
     storageType: "cookie",
   },
   {
     name: "_gat",
     provider: "Google Analytics",
-    purpose: "Throttles GA request rate (with consent).",
-    duration: "1 minute",
+    purposeKey: "gat",
+    duration: { kind: "relative", value: 1, unit: "minute" },
     category: "analytics",
     storageType: "cookie",
   },
@@ -67,8 +68,8 @@ export const cookies: Cookie[] = [
   {
     name: "_gcl_au",
     provider: "Google Tag Manager",
-    purpose: "AdSense efficiency experiments (with consent).",
-    duration: "3 months",
+    purposeKey: "gclAu",
+    duration: { kind: "relative", value: 3, unit: "month" },
     category: "analytics",
     storageType: "cookie",
   },

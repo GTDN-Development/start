@@ -11,10 +11,13 @@ import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/layouts/providers";
 import { TailwindScreen } from "@/components/layouts/tailwind-screen";
 import { ThirdPartyScripts } from "@/components/(shared)/cookies/third-party-scripts";
-import { DynamicScripts } from "@/components/(shared)/cookies/dynamic-scripts";
 import { CookieConsentBanner } from "@/components/(shared)/cookies/cookie-consent-banner";
 import { CookieSettingsDialog } from "@/components/(shared)/cookies/cookie-settings-dialog";
 import { CookieErrorBoundary } from "@/components/(shared)/cookies/cookie-error-boundary";
+import {
+  getConsent,
+  hasInteracted as getCookieConsentHasInteracted,
+} from "@/components/(shared)/cookies/server-utils";
 import { site } from "@/config/site";
 import { defaultSocialPreviewImage } from "@/lib/metadata";
 
@@ -100,6 +103,11 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
   // Enable static rendering
   setRequestLocale(locale);
 
+  const [initialCookieConsent, initialCookieConsentInteracted] = await Promise.all([
+    getConsent(),
+    getCookieConsentHasInteracted(),
+  ]);
+
   return (
     <html
       lang={locale}
@@ -108,12 +116,14 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
     >
       <body className="font-sans antialiased">
         <NextIntlClientProvider>
-          <Providers>
+          <Providers
+            initialCookieConsent={initialCookieConsent}
+            initialCookieConsentInteracted={initialCookieConsentInteracted}
+          >
             <div className="relative isolate">{children}</div>
             <CookieErrorBoundary>
               <CookieConsentBanner />
               <CookieSettingsDialog />
-              <DynamicScripts />
             </CookieErrorBoundary>
             <TailwindScreen />
             <Toaster />

@@ -9,7 +9,6 @@ src/components/(shared)/cookies/
 ├── cookie-context.tsx              # Client state + React Context hook
 ├── server-utils.ts                 # Server-side consent reading
 ├── third-party-scripts.tsx         # Add your GA/GTM scripts here
-├── dynamic-scripts.tsx             # Auto-refresh on consent change
 ├── cookie-consent-banner.tsx       # Initial consent banner UI
 ├── cookie-settings-dialog.tsx      # Detailed preferences - dialog with settings UI
 ├── cookie-settings-trigger.tsx     # Reusable unstyled button, that will trigger the settings dialog to open state
@@ -42,8 +41,6 @@ src/app/(marketing)/cookies/
 - Server Component that conditionally loads GA/GTM
 - Only renders scripts if user consented
 
-**`dynamic-scripts.tsx`** - Refreshes page when consent changes
-
 ## Setup (3 Steps)
 
 ### 1. Root Layout
@@ -54,7 +51,6 @@ import { Suspense } from "react";
 import { CookieConsentBanner } from "@/components/(shared)/cookies/cookie-consent-banner";
 import { CookieSettingsDialog } from "@/components/(shared)/cookies/cookie-settings-dialog";
 import { CookieErrorBoundary } from "@/components/(shared)/cookies/cookie-error-boundary";
-import { DynamicScripts } from "@/components/(shared)/cookies/dynamic-scripts";
 import { ThirdPartyScripts } from "@/components/(shared)/cookies/third-party-scripts";
 
 export default function RootLayout({ children }) {
@@ -67,7 +63,6 @@ export default function RootLayout({ children }) {
           <CookieErrorBoundary>
             <CookieConsentBanner />
             <CookieSettingsDialog />
-            <DynamicScripts />
           </CookieErrorBoundary>
         </Providers>
 
@@ -225,4 +220,4 @@ const DEBUG_MODE = true;
 
 **Scripts not loading?** Check env vars and consent in DevTools → Application → Cookies
 
-**Hydration errors?** Check `isMounted` before rendering consent-dependent content
+**Hydration errors?** Make sure the provider receives the same initial consent state from the server that the client uses after hydration.

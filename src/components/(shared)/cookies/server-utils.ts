@@ -1,20 +1,5 @@
 import { cookies } from "next/headers";
-
-export const COOKIE_NAME = "cookie_consent";
-
-export type ConsentState = {
-  necessary: boolean;
-  functional: boolean;
-  analytics: boolean;
-  marketing: boolean;
-};
-
-const defaultConsent: ConsentState = {
-  necessary: true,
-  functional: false,
-  analytics: false,
-  marketing: false,
-};
+import { COOKIE_NAME, defaultConsent, parseConsentCookieValue, type ConsentState } from "./consent";
 
 /**
  * Get cookie consent from server-side cookies
@@ -28,18 +13,13 @@ export async function getConsent(): Promise<ConsentState> {
     return defaultConsent;
   }
 
-  try {
-    const parsed = JSON.parse(decodeURIComponent(consentCookie.value));
-    return {
-      necessary: parsed.necessary ?? true,
-      functional: parsed.functional ?? false,
-      analytics: parsed.analytics ?? false,
-      marketing: parsed.marketing ?? false,
-    };
-  } catch (error) {
-    console.error("Error parsing consent cookie:", error);
-    return defaultConsent;
+  const parsedConsent = parseConsentCookieValue(consentCookie.value);
+
+  if (parsedConsent) {
+    return parsedConsent;
   }
+
+  return defaultConsent;
 }
 
 /**

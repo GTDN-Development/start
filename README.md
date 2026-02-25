@@ -2,7 +2,6 @@
 
 Next.js 16 starter app for marketing, auth, and platform pages.
 
-
 ## Stack
 
 - Next.js 16 (App Router)
@@ -30,9 +29,9 @@ Use `.env.example` as the template.
 
 PocketBase typegen requires:
 
-- `NEXT_PUBLIC_POCKETBASE_URL`
-- `PB_TYPEGEN_SUPERUSER_EMAIL`
-- `PB_TYPEGEN_SUPERUSER_PASSWORD`
+- `NEXT_PUBLIC_PB_URL`
+- `PB_SUPERUSER_EMAIL`
+- `PB_SUPERUSER_PASSWORD`
 
 ## PocketBase Typegen
 
