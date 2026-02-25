@@ -244,32 +244,6 @@ export function Footer({
         </div>
       </Container>
 
-      {/* Fourth row - Dev only section */}
-      {/*{!isProduction && (
-        <div className="bg-destructive/10 border-t-destructive/50 border-t py-2">
-          <Container className="flex flex-col justify-between gap-2 md:flex-row">
-            <p className="text-sm font-semibold">DEV only part of the footer</p>
-            <ul className="flex flex-col gap-2 md:flex-row md:gap-5">
-              <li>
-                <NavLink
-                  href="/components"
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                >
-                  Components page
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  href="/colors"
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                >
-                  Colors page
-                </NavLink>
-              </li>
-            </ul>
-          </Container>
-        </div>
-      )}*/}
     </footer>
   );
 }

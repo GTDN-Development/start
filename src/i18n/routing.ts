@@ -20,12 +20,6 @@ export const routing = defineRouting({
     "/blog": {
       cs: "/blog",
     },
-    "/colors": {
-      cs: "/barvy",
-    },
-    "/components": {
-      cs: "/komponenty",
-    },
     "/confirm-email-change": {
       cs: "/potvrdit-zmenu-emailu",
     },
