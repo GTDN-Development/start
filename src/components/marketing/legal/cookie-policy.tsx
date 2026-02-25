@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { CookieSettingsTrigger } from "@/components/(shared)/cookies/cookie-settings-trigger";
+import { CookieSettingsTrigger } from "@/components/shared/cookies/cookie-settings-trigger";
 import type { Cookie, CookieCategory } from "@/types/cookies";
 
 type CookiePolicyProps = React.ComponentProps<"div"> & {

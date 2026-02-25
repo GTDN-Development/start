@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { ContactForm } from "@/components/(marketing)/contact/contact-form";
-import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
+import { ContactForm } from "@/components/marketing/contact/contact-form";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -34,7 +33,7 @@ export default function Page({ params }: PageProps<"/[locale]/contact">) {
   const t = useTranslations("pages.contact");
 
   return (
-    <MarketingPage>
+    <div className="relative">
       <Hero>
         <HeroContent size="md">
           <HeroTitle>{t("title")}</HeroTitle>
@@ -52,6 +51,6 @@ export default function Page({ params }: PageProps<"/[locale]/contact">) {
           </CardContent>
         </Card>
       </Container>
-    </MarketingPage>
+    </div>
   );
 }

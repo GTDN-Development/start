@@ -3,8 +3,7 @@ import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { Link } from "@/components/ui/link";
-import { SignUpForm } from "@/components/(auth)/sign-up/sign-up-form";
-import { AuthPage } from "@/components/layouts/auth/auth-page";
+import { SignUpForm } from "@/components/auth/sign-up/sign-up-form";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/sign-up">): Promise<Metadata> {
@@ -32,7 +31,7 @@ export default function Page({ params }: PageProps<"/[locale]/sign-up">) {
   const t = useTranslations("pages.signUp");
 
   return (
-    <AuthPage>
+    <div className="relative">
       <section className="space-y-6">
         <header className="space-y-3 text-center">
           <h1 className="text-3xl/[1.1] font-semibold tracking-tight text-pretty sm:text-4xl/[1.1]">
@@ -57,6 +56,6 @@ export default function Page({ params }: PageProps<"/[locale]/sign-up">) {
           </p>
         </div>
       </section>
-    </AuthPage>
+    </div>
   );
 }

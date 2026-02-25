@@ -11,7 +11,7 @@ import {
   COOKIE_SUBJECT_KEY_NAME,
   type CookieConsentEventRequest,
   normalizeConsent,
-} from "@/components/(shared)/cookies/consent";
+} from "@/components/shared/cookies/consent";
 
 const cookieConsentEventRequestSchema = z.object({
   consent: z

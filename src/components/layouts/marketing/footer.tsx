@@ -14,7 +14,7 @@ import {
   type MenuItem,
   type MenuLabelKey,
 } from "@/config/menu";
-import { CookieSettingsTrigger } from "@/components/(shared)/cookies/cookie-settings-trigger";
+import { CookieSettingsTrigger } from "@/components/shared/cookies/cookie-settings-trigger";
 import {
   DropdownMenu,
   DropdownMenuContent,

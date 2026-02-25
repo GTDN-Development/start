@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { PlatformPage } from "@/components/layouts/platform/platform-page";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
@@ -50,7 +49,7 @@ export default async function Page({ params }: PageProps<"/[locale]/settings">) 
   const verificationStatus = user.verified ? tPlatform("emailVerified") : tPlatform("emailNotVerified");
 
   return (
-    <PlatformPage>
+    <div className="relative">
       <div>
         <Hero>
           <HeroContent size="md">
@@ -121,7 +120,7 @@ export default async function Page({ params }: PageProps<"/[locale]/settings">) 
           </div>
         </Container>
       </div>
-    </PlatformPage>
+    </div>
   );
 }
 

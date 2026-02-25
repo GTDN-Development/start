@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPageMetadata } from "@/lib/metadata";
@@ -35,7 +34,7 @@ export default function Page({ params }: PageProps<"/[locale]/about/integrations
   const t = useTranslations("pages.aboutIntegrations");
 
   return (
-    <MarketingPage>
+    <div className="relative">
       <Hero>
         <HeroContent size="md">
           <HeroTitle>{t("title")}</HeroTitle>
@@ -56,6 +55,6 @@ export default function Page({ params }: PageProps<"/[locale]/about/integrations
           </Placeholder>
         </Container>
       </div>
-    </MarketingPage>
+    </div>
   );
 }

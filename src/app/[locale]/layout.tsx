@@ -11,14 +11,14 @@ import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/layouts/providers";
 import { TailwindScreen } from "@/components/layouts/tailwind-screen";
-import { ThirdPartyScripts } from "@/components/(shared)/cookies/third-party-scripts";
-import { CookieConsentBanner } from "@/components/(shared)/cookies/cookie-consent-banner";
-import { CookieSettingsDialog } from "@/components/(shared)/cookies/cookie-settings-dialog";
-import { CookieErrorBoundary } from "@/components/(shared)/cookies/cookie-error-boundary";
+import { ThirdPartyScripts } from "@/components/shared/cookies/third-party-scripts";
+import { CookieConsentBanner } from "@/components/shared/cookies/cookie-consent-banner";
+import { CookieSettingsDialog } from "@/components/shared/cookies/cookie-settings-dialog";
+import { CookieErrorBoundary } from "@/components/shared/cookies/cookie-error-boundary";
 import {
   getConsent,
   hasInteracted as getCookieConsentHasInteracted,
-} from "@/components/(shared)/cookies/server-utils";
+} from "@/components/shared/cookies/server-utils";
 import { site } from "@/config/site";
 import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
 

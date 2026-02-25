@@ -3,8 +3,7 @@ import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { Link } from "@/components/ui/link";
-import { VerifyEmailForm } from "@/components/(auth)/verify-email/verify-email-form";
-import { AuthPage } from "@/components/layouts/auth/auth-page";
+import { VerifyEmailForm } from "@/components/auth/verify-email/verify-email-form";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
@@ -38,7 +37,7 @@ export default function Page({
   const token = getTokenFromSearchParams(query.token);
 
   return (
-    <AuthPage>
+    <div className="relative">
       <section className="space-y-6">
         <header className="space-y-3 text-center">
           <h1 className="text-3xl/[1.1] font-semibold tracking-tight text-pretty sm:text-4xl/[1.1]">
@@ -62,7 +61,7 @@ export default function Page({
           </p>
         </div>
       </section>
-    </AuthPage>
+    </div>
   );
 }
 

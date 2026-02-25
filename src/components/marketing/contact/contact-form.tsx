@@ -13,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { legalLinks } from "@/config/legal-links";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
-import { Turnstile, type TurnstileRef } from "@/components/(shared)/turnstile/turnstile";
+import { Turnstile, type TurnstileRef } from "@/components/shared/turnstile/turnstile";
 import { Spinner } from "@/components/ui/spinner";
 
 import { cn } from "@/lib/utils";

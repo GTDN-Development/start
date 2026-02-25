@@ -13,10 +13,9 @@ import {
   HeroTitle,
 } from "@/components/ui/hero";
 import AppIconSvg from "@/assets/svgs/start-app-icon.svg";
-import { NewsletterCta } from "@/components/(marketing)/home/newsletter-cta";
-import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
+import { NewsletterCta } from "@/components/shared/newsletter/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
-import { MarqueeCompanies } from "@/components/(marketing)/home/marquee-companies";
+import { MarqueeCompanies } from "@/components/marketing/home/marquee-companies";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -48,7 +47,7 @@ export default function Page({ params }: PageProps<"/[locale]">) {
   const t = useTranslations("pages.home");
 
   return (
-    <MarketingPage>
+    <div className="relative">
       <Hero className="from-muted/50 bg-linear-0">
         <HeroBackground>
           <PatternGrid className="absolute inset-0 -z-10 size-full" />
@@ -92,6 +91,6 @@ export default function Page({ params }: PageProps<"/[locale]">) {
           </Placeholder>
         </Container>
       </div>
-    </MarketingPage>
+    </div>
   );
 }

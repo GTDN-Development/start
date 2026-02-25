@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { PlatformPage } from "@/components/layouts/platform/platform-page";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPageMetadata } from "@/lib/metadata";
@@ -32,7 +31,7 @@ export default function Page({ params }: PageProps<"/[locale]/dashboard">) {
   const t = useTranslations("pages.dashboard");
 
   return (
-    <PlatformPage>
+    <div className="relative">
       <div>
         <Hero>
           <HeroContent size="md">
@@ -45,6 +44,6 @@ export default function Page({ params }: PageProps<"/[locale]/dashboard">) {
           {/* Dashboard content goes here */}
         </Container>
       </div>
-    </PlatformPage>
+    </div>
   );
 }

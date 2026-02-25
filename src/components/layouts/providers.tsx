@@ -3,8 +3,8 @@
 import { ThemeProvider } from "next-themes";
 import { usePathname } from "next/navigation";
 import { createContext, useState } from "react";
-import { CookieContextProvider } from "@/components/(shared)/cookies/cookie-context";
-import type { ConsentState } from "@/components/(shared)/cookies/consent";
+import { CookieContextProvider } from "@/components/shared/cookies/cookie-context";
+import type { ConsentState } from "@/components/shared/cookies/consent";
 
 export const AppContext = createContext<{ previousPathname?: string }>({});
 

@@ -1,92 +1,66 @@
-import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { NextRequest } from "next/server";
+import { z } from "zod";
+import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
+import { escapeHtml, sendFormEmail } from "@/lib/form-email";
 import { verifyTurnstileToken, getClientIP } from "@/lib/turnstile";
 import { formatEmailTimestamp } from "@/lib/utils";
 
-type ContactFormData = {
-  name: string;
-  surname: string;
-  email: string;
-  phone: string;
-  message: string;
-  gdprConsent: boolean;
-  turnstileToken: string;
-};
+const contactFormPayloadSchema = z.object({
+  name: z.string().trim().min(1),
+  surname: z.string().trim().min(1),
+  email: z.email().transform((value) => value.trim()),
+  phone: z.string().trim().min(1),
+  message: z.string().trim().min(1),
+  gdprConsent: z.literal(true),
+  turnstileToken: z.string().min(1),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body: ContactFormData = await request.json();
-    const { name, surname, email, phone, message, gdprConsent, turnstileToken } = body;
+    const body = await parseJsonBody(request, contactFormPayloadSchema);
 
-    if (!name || !surname || !email || !phone || !message || !gdprConsent || !turnstileToken) {
-      return NextResponse.json(
-        { error: "All fields are required and you must agree to the processing of personal data." },
-        { status: 400 }
-      );
+    if (!body) {
+      return jsonError("BAD_REQUEST", 400);
     }
 
-    // Verify Turnstile token
     const clientIP = getClientIP(request);
-    const turnstileResult = await verifyTurnstileToken(turnstileToken, clientIP);
+    const turnstileResult = await verifyTurnstileToken(body.turnstileToken, clientIP);
 
     if (!turnstileResult.success) {
-      return NextResponse.json(
-        { error: turnstileResult.error || "Verification failed. Please try again." },
-        { status: 400 }
-      );
+      return jsonError("TURNSTILE_VERIFICATION_FAILED", 400);
     }
 
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
-    }
+    const timestamp = formatEmailTimestamp();
+    const messageHtml = escapeHtml(body.message).replace(/\n/g, "<br>");
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
-      port: parseInt(process.env.MAIL_PORT || "587"),
-      secure: process.env.MAIL_PORT === "465",
-      auth: {
-        user: process.env.MAIL_USERNAME,
-        pass: process.env.MAIL_PASSWORD,
-      },
-    });
-
-    const mailOptions = {
-      from: `${process.env.MAIL_FROM_NAME} <${process.env.MAIL_FROM_ADDRESS}>`,
-      to: process.env.FORM_RECIPIENT_EMAIL,
-      subject: `New contact form message from ${name} ${surname}`,
+    await sendFormEmail({
+      subject: `New contact form message from ${body.name} ${body.surname}`,
       html: `
         <h2>New contact form message</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Surname:</strong> ${surname}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Name:</strong> ${escapeHtml(body.name)}</p>
+        <p><strong>Surname:</strong> ${escapeHtml(body.surname)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(body.email)}</p>
+        <p><strong>Phone:</strong> ${escapeHtml(body.phone)}</p>
         <p><strong>Message:</strong></p>
-        <p>${message.replace(/\n/g, "<br>")}</p>
-        <p><em>Sent: ${formatEmailTimestamp()}</em></p>
+        <p>${messageHtml}</p>
+        <p><em>Sent: ${timestamp}</em></p>
       `,
       text: `
           New contact form message
 
-          Name: ${name}
-          Surname: ${surname}
-          Email: ${email}
-          Phone: ${phone}
-          Message: ${message}
+          Name: ${body.name}
+          Surname: ${body.surname}
+          Email: ${body.email}
+          Phone: ${body.phone}
+          Message: ${body.message}
 
-          Sent: ${formatEmailTimestamp()}
+          Sent: ${timestamp}
       `,
-    };
+    });
 
-    // Send email
-    await transporter.sendMail(mailOptions);
-
-    return NextResponse.json({ message: "Message sent successfully!" }, { status: 200 });
+    return jsonOk({ message: "Message sent successfully!" }, 200);
   } catch (error) {
-    console.error("Error sending email:", error);
-    return NextResponse.json(
-      { error: "An error occurred while sending the message. Please try again later." },
-      { status: 500 }
-    );
+    console.error("Contact form API error:", error);
+    return jsonError("INTERNAL_ERROR", 500);
   }
 }

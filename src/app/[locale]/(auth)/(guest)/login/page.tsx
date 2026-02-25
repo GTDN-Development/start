@@ -3,8 +3,7 @@ import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { Link } from "@/components/ui/link";
-import { LoginForm } from "@/components/(auth)/login/login-form";
-import { AuthPage } from "@/components/layouts/auth/auth-page";
+import { LoginForm } from "@/components/auth/login/login-form";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/login">): Promise<Metadata> {
@@ -32,7 +31,7 @@ export default function Page({ params }: PageProps<"/[locale]/login">) {
   const t = useTranslations("pages.login");
 
   return (
-    <AuthPage>
+    <div className="relative">
       <section className="space-y-6">
         <header className="space-y-3 text-center">
           <h1 className="text-3xl/[1.1] font-semibold tracking-tight text-pretty sm:text-4xl/[1.1]">
@@ -66,6 +65,6 @@ export default function Page({ params }: PageProps<"/[locale]/login">) {
           </p>
         </div>
       </section>
-    </AuthPage>
+    </div>
   );
 }

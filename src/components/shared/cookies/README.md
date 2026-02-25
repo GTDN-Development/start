@@ -48,10 +48,10 @@ src/app/(marketing)/cookies/
 ```tsx
 // app/layout.tsx
 import { Suspense } from "react";
-import { CookieConsentBanner } from "@/components/(shared)/cookies/cookie-consent-banner";
-import { CookieSettingsDialog } from "@/components/(shared)/cookies/cookie-settings-dialog";
-import { CookieErrorBoundary } from "@/components/(shared)/cookies/cookie-error-boundary";
-import { ThirdPartyScripts } from "@/components/(shared)/cookies/third-party-scripts";
+import { CookieConsentBanner } from "@/components/shared/cookies/cookie-consent-banner";
+import { CookieSettingsDialog } from "@/components/shared/cookies/cookie-settings-dialog";
+import { CookieErrorBoundary } from "@/components/shared/cookies/cookie-error-boundary";
+import { ThirdPartyScripts } from "@/components/shared/cookies/third-party-scripts";
 
 export default function RootLayout({ children }) {
   return (
@@ -79,7 +79,7 @@ export default function RootLayout({ children }) {
 
 ```tsx
 // components/layout/providers.tsx
-import { CookieContextProvider } from "@/components/(shared)/cookies/cookie-context";
+import { CookieContextProvider } from "@/components/shared/cookies/cookie-context";
 
 export function Providers({ children }) {
   return <CookieContextProvider>{children}</CookieContextProvider>;
@@ -99,7 +99,7 @@ NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
 
 ```tsx
 "use client";
-import { useCookieContext } from "@/components/(shared)/cookies/cookie-context";
+import { useCookieContext } from "@/components/shared/cookies/cookie-context";
 
 function MyComponent() {
   const { hasConsentedTo, openSettingsDialog } = useCookieContext();
@@ -115,7 +115,7 @@ function MyComponent() {
 ### Server Components
 
 ```tsx
-import { getConsent, hasConsentedTo } from "@/components/(shared)/cookies/server-utils";
+import { getConsent, hasConsentedTo } from "@/components/shared/cookies/server-utils";
 
 async function MyPage() {
   const consent = await getConsent();
@@ -128,7 +128,7 @@ async function MyPage() {
 ### Settings Button (Footer)
 
 ```tsx
-import { CookieSettingsTrigger } from "@/components/(shared)/cookies/cookie-settings-trigger";
+import { CookieSettingsTrigger } from "@/components/shared/cookies/cookie-settings-trigger";
 
 <CookieSettingsTrigger>
   <button>Manage Cookies</button>
@@ -173,7 +173,7 @@ The cookie policy page (`app/cookies/page.tsx`) displays a comprehensive overvie
 
 ```tsx
 // app/cookies/page.tsx
-import { CookiePolicy } from "@/components/(marketing)/legal/cookie-policy";
+import { CookiePolicy } from "@/components/marketing/legal/cookie-policy";
 import { cookies } from "@/config/cookies";
 
 export default function Page() {

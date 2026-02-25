@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { CookiePolicy } from "@/components/(marketing)/legal/cookie-policy";
-import { MarketingPage } from "@/components/layouts/marketing/marketing-page";
+import { CookiePolicy } from "@/components/marketing/legal/cookie-policy";
 import { Container } from "@/components/ui/container";
 import { legal } from "@/config/legal";
 import { cookies } from "@/config/cookies";
@@ -38,7 +37,7 @@ export default function Page({ params }: PageProps<"/[locale]/cookies">) {
   const t = useTranslations("pages.cookies");
 
   return (
-    <MarketingPage>
+    <div className="relative">
       <Container size="sm" className="prose py-16">
         <CookiePolicy
           company={{
@@ -55,6 +54,6 @@ export default function Page({ params }: PageProps<"/[locale]/cookies">) {
           effectiveDate={t("effectiveDate")}
         />
       </Container>
-    </MarketingPage>
+    </div>
   );
 }
