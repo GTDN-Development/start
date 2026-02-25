@@ -25,6 +25,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/settings">): 
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale: locale as Locale,
     pathname: "/settings",
   });
 }

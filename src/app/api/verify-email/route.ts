@@ -5,6 +5,7 @@ import {
   createPocketBaseClient,
   setPocketBaseAuthCookie,
 } from "@/lib/pocketbase/server";
+import { authRedirectPaths } from "@/lib/auth-redirects";
 
 type VerifyEmailPayload = {
   token?: string;
@@ -25,7 +26,10 @@ export async function POST(request: NextRequest) {
 
     const hasRefreshedSession = await refreshSessionAfterVerification(pb, request);
     const response = NextResponse.json(
-      { ok: true, redirectTo: hasRefreshedSession ? "/dashboard" : "/login" },
+      {
+        ok: true,
+        redirectTo: hasRefreshedSession ? authRedirectPaths.dashboard : authRedirectPaths.login,
+      },
       { status: 200 }
     );
 

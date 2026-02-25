@@ -27,6 +27,7 @@ export async function generateMetadata(props: ConfirmEmailChangePageProps): Prom
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale: locale as Locale,
     pathname: "/confirm-email-change",
   });
 }

@@ -4,12 +4,66 @@ export const routing = defineRouting({
   locales: ["cs", "en"],
   defaultLocale: "cs",
   localePrefix: {
-    mode: "always", // "as-needed" option is an alternative and should be enabled for apps with a single language
+    mode: "always", // "as-needed" option hides default locale prefix inside the URL
   },
-  // pathnames: {
-  //   "/": "/",
-  //   "/login": {
-  //     cs: "/prihlasit-se",
-  //   },
-  // },
+  pathnames: {
+    "/": "/",
+    "/about/features": {
+      cs: "/o-aplikaci/funkce",
+    },
+    "/about/integrations": {
+      cs: "/o-aplikaci/integrace",
+    },
+    "/about/roadmap": {
+      cs: "/o-aplikaci/roadmapa",
+    },
+    "/blog": {
+      cs: "/blog",
+    },
+    "/colors": {
+      cs: "/barvy",
+    },
+    "/components": {
+      cs: "/komponenty",
+    },
+    "/confirm-email-change": {
+      cs: "/potvrdit-zmenu-emailu",
+    },
+    "/contact": {
+      cs: "/kontakt",
+    },
+    "/cookies": {
+      cs: "/cookies",
+    },
+    "/dashboard": {
+      cs: "/prehled",
+    },
+    "/forgot-password": {
+      cs: "/zapomenute-heslo",
+    },
+    "/gdpr": {
+      cs: "/gdpr",
+    },
+    "/login": {
+      cs: "/prihlasit-se",
+    },
+    "/pricing": {
+      cs: "/cenik",
+    },
+    "/projects": {
+      cs: "/projekty",
+    },
+    "/reset-password": {
+      cs: "/obnovit-heslo",
+    },
+    "/settings": {
+      cs: "/nastaveni",
+    },
+    "/sign-up": {
+      cs: "/registrace",
+    },
+    "/verify-email": {
+      cs: "/overit-email",
+    },
+  },
 });

@@ -19,6 +19,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Prom
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale: locale as Locale,
     pathname: "/gdpr",
     robots: {
       index: false,

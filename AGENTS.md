@@ -54,6 +54,11 @@
 - All user-facing copy goes in `messages/*.json` — **never** hardcode UI strings in components or config files except of placeholders with titles like `"Content"`
 - `src/config/*` holds structural data (routes, links, business info) — **not** localized copy
 - Top-level message sections: `common`, `layout`, `pages`, `forms`, `legal`, `cookies`
+- Internal app routes stay in English (e.g. `"/login"`); Czech pathname aliases live only in `src/i18n/routing.ts` `pathnames`
+- For internal navigation use `@/i18n/navigation` (`Link`, `useRouter`, `redirect`, `getPathname`) — avoid `next/navigation` for localized redirects/push/replace
+- **Never** build localized app URLs manually with `/${locale}/...` for redirects, hidden form inputs, metadata, or links — use `redirect({href, locale})` / `getPathname({href, locale})`
+- API `redirectTo` values must be internal path-only route keys (English), preferably typed/allowlisted
+- PocketBase auth email templates should link to `/api/pocketbase/email-link` (single-template bridge), not directly to locale-specific auth pages
 
 ## PocketBase / Typegen
 

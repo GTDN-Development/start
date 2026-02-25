@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { PlatformLayout } from "@/components/layouts/platform/platform-layout";
 import { createServerPocketBaseClient } from "@/lib/pocketbase/server";
 
@@ -24,13 +24,13 @@ export default async function Layout({ children, params }: PlatformRouteLayoutPr
   const pb = await createServerPocketBaseClient({ refreshAuth: true });
 
   if (!pb.authStore.isValid || !pb.authStore.record) {
-    redirect(`/${locale}/login` as never);
+    redirect({ href: "/login", locale: locale as Locale });
   }
 
   const user = getPlatformUser(pb.authStore.record);
 
   if (!user.email) {
-    redirect(`/${locale}/login` as never);
+    redirect({ href: "/login", locale: locale as Locale });
   }
 
   const tPlatform = await getTranslations({

@@ -20,6 +20,7 @@ export async function generateMetadata(
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale: locale as Locale,
     pathname: "/reset-password",
   });
 }

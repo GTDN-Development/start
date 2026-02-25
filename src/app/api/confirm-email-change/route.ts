@@ -1,6 +1,7 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest, NextResponse } from "next/server";
 import { clearPocketBaseAuthCookie, createPocketBaseClient } from "@/lib/pocketbase/server";
+import { authRedirectPaths } from "@/lib/auth-redirects";
 
 type ConfirmEmailChangePayload = {
   token?: string;
@@ -21,7 +22,10 @@ export async function POST(request: NextRequest) {
 
     await pb.collection("users").confirmEmailChange(token, password);
 
-    const response = NextResponse.json({ ok: true, redirectTo: "/login" }, { status: 200 });
+    const response = NextResponse.json(
+      { ok: true, redirectTo: authRedirectPaths.login },
+      { status: 200 }
+    );
     clearPocketBaseAuthCookie(response);
 
     return response;

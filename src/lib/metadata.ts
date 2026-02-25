@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import type { Locale } from "next-intl";
 import defaultOgImage from "@/assets/images/og-image.jpg";
 import { site } from "@/config/site";
+import { getPathname, type AppPathname } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 
 type SocialPreviewImage = {
   url: string;
@@ -10,9 +13,10 @@ type SocialPreviewImage = {
 };
 
 type CreatePageMetadataInput = {
+  locale: Locale;
   title: string;
   description: string;
-  pathname: string;
+  pathname: AppPathname;
   robots?: Metadata["robots"];
   // For route-specific generated OG images, add `opengraph-image.tsx` in that route segment.
   // This field is for static per-page overrides when needed.
@@ -27,24 +31,25 @@ export const defaultSocialPreviewImage = {
 };
 
 export function createPageMetadata({
+  locale,
   title,
   description,
   pathname,
   robots,
   socialImage = defaultSocialPreviewImage,
 }: CreatePageMetadataInput): Metadata {
+  const localizedPathname = getPathname({ href: pathname, locale });
+
   return {
     title,
     description,
-    alternates: {
-      canonical: pathname,
-    },
+    alternates: getLocalizedAlternates(pathname, locale),
     openGraph: {
       type: "website",
       siteName: site.name,
       title,
       description,
-      url: pathname,
+      url: localizedPathname,
       images: [socialImage],
     },
     twitter: {
@@ -54,5 +59,16 @@ export function createPageMetadata({
       images: [socialImage.url],
     },
     ...(robots ? { robots } : {}),
+  };
+}
+
+export function getLocalizedAlternates(pathname: AppPathname, locale: Locale): Metadata["alternates"] {
+  const languages = Object.fromEntries(
+    routing.locales.map((item) => [item, getPathname({ href: pathname, locale: item })])
+  );
+
+  return {
+    canonical: getPathname({ href: pathname, locale }),
+    languages,
   };
 }

@@ -6,6 +6,7 @@ import { Locale, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
+import { getPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/layouts/providers";
@@ -19,7 +20,7 @@ import {
   hasInteracted as getCookieConsentHasInteracted,
 } from "@/components/(shared)/cookies/server-utils";
 import { site } from "@/config/site";
-import { defaultSocialPreviewImage } from "@/lib/metadata";
+import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -48,9 +49,10 @@ export async function generateMetadata(
   props: Omit<LayoutProps<"/[locale]">, "children">
 ): Promise<Metadata> {
   const { locale } = await props.params;
+  const currentLocale = locale as Locale;
 
   const t = await getTranslations({
-    locale: locale as Locale,
+    locale: currentLocale,
     namespace: "layout.metadata",
   });
 
@@ -61,14 +63,13 @@ export async function generateMetadata(
     },
     description: t("description"),
     metadataBase: new URL(site.url),
-    alternates: {
-      canonical: "/",
-    },
+    alternates: getLocalizedAlternates("/", currentLocale),
     openGraph: {
       type: "website",
       siteName: site.name,
       title: t("title"),
       description: t("description"),
+      url: getPathname({ href: "/", locale: currentLocale }),
       images: [defaultSocialPreviewImage],
     },
     twitter: {

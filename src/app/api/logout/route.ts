@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clearPocketBaseAuthCookie } from "@/lib/pocketbase/server";
+import { authRedirectPaths } from "@/lib/auth-redirects";
 
 export async function POST(request: NextRequest) {
   if (!isSameOriginLogoutRequest(request)) {
@@ -27,11 +28,11 @@ async function getRedirectPath(request: NextRequest) {
 
 function sanitizeRedirectPath(value: FormDataEntryValue | null) {
   if (typeof value !== "string") {
-    return "/login";
+    return authRedirectPaths.login;
   }
 
   if (!value.startsWith("/") || value.startsWith("//")) {
-    return "/login";
+    return authRedirectPaths.login;
   }
 
   return value;

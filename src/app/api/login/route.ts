@@ -1,6 +1,7 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest, NextResponse } from "next/server";
 import { createPocketBaseClient, setPocketBaseAuthCookie } from "@/lib/pocketbase/server";
+import { authRedirectPaths } from "@/lib/auth-redirects";
 
 type LoginPayload = {
   email?: string;
@@ -23,7 +24,10 @@ export async function POST(request: NextRequest) {
 
     await pb.collection("users").authWithPassword(email, password);
 
-    const response = NextResponse.json({ ok: true, redirectTo: "/dashboard" }, { status: 200 });
+    const response = NextResponse.json(
+      { ok: true, redirectTo: authRedirectPaths.dashboard },
+      { status: 200 }
+    );
     setPocketBaseAuthCookie(response, pb, { rememberMe });
 
     return response;

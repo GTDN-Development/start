@@ -20,6 +20,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/contact">): P
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale: locale as Locale,
     pathname: "/contact",
   });
 }
