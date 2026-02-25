@@ -277,6 +277,8 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                                 <Link
                                   href={legalLinks.gdpr.href}
                                   className="underline hover:no-underline"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
                                 >
                                   {chunks}
                                 </Link>
