@@ -34,27 +34,27 @@ export async function POST(request: NextRequest) {
     const messageHtml = escapeHtml(body.message).replace(/\n/g, "<br>");
 
     await sendFormEmail({
-      subject: `New contact form message from ${body.name} ${body.surname}`,
+      subject: `Nová zpráva z kontaktního formuláře - ${body.name} ${body.surname}`,
       html: `
-        <h2>New contact form message</h2>
-        <p><strong>Name:</strong> ${escapeHtml(body.name)}</p>
-        <p><strong>Surname:</strong> ${escapeHtml(body.surname)}</p>
+        <h2>Nová zpráva z kontaktního formuláře</h2>
+        <p><strong>Jméno:</strong> ${escapeHtml(body.name)}</p>
+        <p><strong>Příjmení:</strong> ${escapeHtml(body.surname)}</p>
         <p><strong>Email:</strong> ${escapeHtml(body.email)}</p>
-        <p><strong>Phone:</strong> ${escapeHtml(body.phone)}</p>
-        <p><strong>Message:</strong></p>
+        <p><strong>Telefon:</strong> ${escapeHtml(body.phone)}</p>
+        <p><strong>Zpráva:</strong></p>
         <p>${messageHtml}</p>
-        <p><em>Sent: ${timestamp}</em></p>
+        <p><em>Odesláno: ${timestamp}</em></p>
       `,
       text: `
-          New contact form message
+          Nová zpráva z kontaktního formuláře
 
-          Name: ${body.name}
-          Surname: ${body.surname}
+          Jméno: ${body.name}
+          Příjmení: ${body.surname}
           Email: ${body.email}
-          Phone: ${body.phone}
-          Message: ${body.message}
+          Telefon: ${body.phone}
+          Zpráva: ${body.message}
 
-          Sent: ${timestamp}
+          Odesláno: ${timestamp}
       `,
     });
 

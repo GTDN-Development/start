@@ -28,18 +28,18 @@ export async function POST(request: NextRequest) {
     const timestamp = formatEmailTimestamp();
 
     await sendFormEmail({
-      subject: `New newsletter subscription - ${body.email}`,
+      subject: `Nové přihlášení k newsletteru - ${body.email}`,
       html: `
-        <h2>New newsletter subscription</h2>
+        <h2>Nové přihlášení k newsletteru</h2>
         <p><strong>Email:</strong> ${escapeHtml(body.email)}</p>
-        <p><em>Subscribed: ${timestamp}</em></p>
+        <p><em>Přihlášeno: ${timestamp}</em></p>
       `,
       text: `
-          New newsletter subscription
+          Nové přihlášení k newsletteru
 
           Email: ${body.email}
 
-          Subscribed: ${timestamp}
+          Přihlášeno: ${timestamp}
       `,
     });
 
