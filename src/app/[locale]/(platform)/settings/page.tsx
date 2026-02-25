@@ -3,9 +3,14 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPageMetadata } from "@/lib/metadata";
 import { createServerPocketBaseClient } from "@/server/pocketbase/server";
+import {
+  PlatformHero,
+  PlatformHeroContent,
+  PlatformHeroDescription,
+  PlatformHeroTitle,
+} from "@/components/platform/platform-hero";
 
 type SettingsUser = {
   email: string;
@@ -44,82 +49,87 @@ export default async function Page({ params }: PageProps<"/[locale]/settings">) 
       namespace: "layout.platform",
     }),
   ]);
+
   const pb = await createServerPocketBaseClient();
   const user = getSettingsUser(pb.authStore.record);
-  const verificationStatus = user.verified ? tPlatform("emailVerified") : tPlatform("emailNotVerified");
+  const verificationStatus = user.verified
+    ? tPlatform("emailVerified")
+    : tPlatform("emailNotVerified");
 
   return (
     <div className="relative">
-      <div>
-        <Hero>
-          <HeroContent size="md">
-            <HeroTitle>{tSettings("title")}</HeroTitle>
-            <HeroDescription>{tSettings("description")}</HeroDescription>
-          </HeroContent>
-        </Hero>
+      <PlatformHero>
+        <PlatformHeroContent>
+          <PlatformHeroTitle>{tSettings("title")}</PlatformHeroTitle>
+          <PlatformHeroDescription>{tSettings("description")}</PlatformHeroDescription>
+        </PlatformHeroContent>
+      </PlatformHero>
 
-        <Container size="xl" className="pb-24">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>{tSettings("account.title")}</CardTitle>
-                <CardDescription>{tSettings("account.description")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <dl className="grid gap-4">
-                  <div className="grid gap-1">
-                    <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                      {tSettings("account.nameLabel")}
-                    </dt>
-                    <dd className="text-sm font-medium">{user.name ?? tSettings("account.notSet")}</dd>
-                  </div>
-                  <div className="grid gap-1">
-                    <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                      {tSettings("account.emailLabel")}
-                    </dt>
-                    <dd className="text-sm font-medium">{user.email || tSettings("account.notSet")}</dd>
-                  </div>
-                  <div className="grid gap-1">
-                    <dt className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
-                      {tSettings("account.verificationLabel")}
-                    </dt>
-                    <dd className="text-sm font-medium">{verificationStatus}</dd>
-                  </div>
-                </dl>
-              </CardContent>
-            </Card>
+      <Container className="pb-24">
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>{tSettings("account.title")}</CardTitle>
+              <CardDescription>{tSettings("account.description")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <dl className="grid gap-4">
+                <div className="grid gap-1">
+                  <dt className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                    {tSettings("account.nameLabel")}
+                  </dt>
+                  <dd className="text-sm font-medium">
+                    {user.name ?? tSettings("account.notSet")}
+                  </dd>
+                </div>
+                <div className="grid gap-1">
+                  <dt className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                    {tSettings("account.emailLabel")}
+                  </dt>
+                  <dd className="text-sm font-medium">
+                    {user.email || tSettings("account.notSet")}
+                  </dd>
+                </div>
+                <div className="grid gap-1">
+                  <dt className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                    {tSettings("account.verificationLabel")}
+                  </dt>
+                  <dd className="text-sm font-medium">{verificationStatus}</dd>
+                </div>
+              </dl>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{tSettings("security.title")}</CardTitle>
-                <CardDescription>{tSettings("security.description")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="grid gap-4">
-                  <li className="grid gap-1">
-                    <p className="text-sm font-medium">{tSettings("security.passwordResetTitle")}</p>
-                    <p className="text-muted-foreground text-sm">
-                      {tSettings("security.passwordResetDescription")}
-                    </p>
-                  </li>
-                  <li className="grid gap-1">
-                    <p className="text-sm font-medium">{tSettings("security.emailChangeTitle")}</p>
-                    <p className="text-muted-foreground text-sm">
-                      {tSettings("security.emailChangeDescription")}
-                    </p>
-                  </li>
-                  <li className="grid gap-1">
-                    <p className="text-sm font-medium">{tSettings("security.sessionTitle")}</p>
-                    <p className="text-muted-foreground text-sm">
-                      {tSettings("security.sessionDescription")}
-                    </p>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </Container>
-      </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>{tSettings("security.title")}</CardTitle>
+              <CardDescription>{tSettings("security.description")}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="grid gap-4">
+                <li className="grid gap-1">
+                  <p className="text-sm font-medium">{tSettings("security.passwordResetTitle")}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {tSettings("security.passwordResetDescription")}
+                  </p>
+                </li>
+                <li className="grid gap-1">
+                  <p className="text-sm font-medium">{tSettings("security.emailChangeTitle")}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {tSettings("security.emailChangeDescription")}
+                  </p>
+                </li>
+                <li className="grid gap-1">
+                  <p className="text-sm font-medium">{tSettings("security.sessionTitle")}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {tSettings("security.sessionDescription")}
+                  </p>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+      </Container>
     </div>
   );
 }

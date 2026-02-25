@@ -56,9 +56,7 @@ export function PlatformLayout({
         </Container>
       </header>
 
-      <Container className="py-6 sm:py-10">
-        <div className="w-full">{children}</div>
-      </Container>
+      <div className="relative isolate w-full min-w-0">{children}</div>
     </main>
   );
 }

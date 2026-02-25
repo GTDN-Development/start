@@ -3,8 +3,14 @@ import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { Container } from "@/components/ui/container";
-import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPageMetadata } from "@/lib/metadata";
+import {
+  PlatformHero,
+  PlatformHeroContent,
+  PlatformHeroDescription,
+  PlatformHeroTitle,
+} from "@/components/platform/platform-hero";
+import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/dashboard">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -32,18 +38,23 @@ export default function Page({ params }: PageProps<"/[locale]/dashboard">) {
 
   return (
     <div className="relative">
-      <div>
-        <Hero>
-          <HeroContent size="md">
-            <HeroTitle>{t("title")}</HeroTitle>
-            <HeroDescription>{t("description")}</HeroDescription>
-          </HeroContent>
-        </Hero>
+      <PlatformHero>
+        <PlatformHeroContent>
+          <PlatformHeroTitle>{t("title")}</PlatformHeroTitle>
+          <PlatformHeroDescription>{t("description")}</PlatformHeroDescription>
+        </PlatformHeroContent>
+      </PlatformHero>
 
-        <Container size="xl" className="pb-24">
-          {/* Dashboard content goes here */}
-        </Container>
-      </div>
+      <Container size="xl" className="space-y-16 pb-24">
+        {/* Dashboard content goes here */}
+        <Placeholder>
+          <PlaceholderTitle>Dashboard Content</PlaceholderTitle>
+        </Placeholder>
+
+        <Placeholder>
+          <PlaceholderTitle>Dashboard Content</PlaceholderTitle>
+        </Placeholder>
+      </Container>
     </div>
   );
 }
