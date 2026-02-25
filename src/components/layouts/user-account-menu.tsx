@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Locale } from "next-intl";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -12,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "@/components/ui/link";
+import { getPathname } from "@/i18n/navigation";
 import { LogOutIcon } from "lucide-react";
 import { Button } from "../ui/button";
 
@@ -41,6 +43,10 @@ type UserAccountMenuProps = {
 
 export function UserAccountMenu({ viewer, locale, labels, className }: UserAccountMenuProps) {
   const logoutFormId = React.useId();
+  const logoutRedirectTo = getPathname({
+    href: "/login",
+    locale: locale as Locale,
+  });
   const displayName = getUserDisplayName(viewer);
   const initials = getUserInitials(displayName ?? viewer.email);
 
@@ -92,7 +98,7 @@ export function UserAccountMenu({ viewer, locale, labels, className }: UserAccou
         </DropdownMenuContent>
       </DropdownMenu>
       <form id={logoutFormId} action="/api/logout" method="post" className="hidden">
-        <input type="hidden" name="redirectTo" value={`/${locale}/login`} />
+        <input type="hidden" name="redirectTo" value={logoutRedirectTo} />
       </form>
     </>
   );

@@ -34,6 +34,7 @@ export async function generateMetadata(props: PageProps<"/[locale]">): Promise<M
   return createPageMetadata({
     title: metadataTitle,
     description: t("description"),
+    locale: locale as Locale,
     pathname: "/",
   });
 }

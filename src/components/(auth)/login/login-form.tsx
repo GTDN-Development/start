@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircleIcon, LogInIcon } from "lucide-react";
 
+import { authRedirectPaths, parseAuthRedirectPath, type AuthRedirectPath } from "@/lib/auth-redirects";
 import { cn } from "@/lib/utils";
 
 type LoginFormValues = {
@@ -24,7 +25,7 @@ type LoginFormValues = {
 type AuthApiResponse = {
   ok?: boolean;
   errorCode?: string;
-  redirectTo?: string;
+  redirectTo?: AuthRedirectPath;
 };
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -75,7 +76,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             type: "success",
             message: t("status.success.message"),
           });
-          router.replace(result?.redirectTo ?? "/dashboard");
+          router.replace(result?.redirectTo ?? authRedirectPaths.dashboard);
         } else {
           setSubmitStatus({
             type: "error",
@@ -213,7 +214,13 @@ async function readAuthApiResponse(response: Response): Promise<AuthApiResponse 
       return null;
     }
 
-    return data as AuthApiResponse;
+    const result = data as Record<string, unknown>;
+
+    return {
+      ok: result.ok === true ? true : undefined,
+      errorCode: typeof result.errorCode === "string" ? result.errorCode : undefined,
+      redirectTo: parseAuthRedirectPath(result.redirectTo),
+    };
   } catch {
     return null;
   }

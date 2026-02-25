@@ -15,6 +15,7 @@ import { AlertCircleIcon, CheckCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/legal-links";
 
+import { authRedirectPaths, parseAuthRedirectPath, type AuthRedirectPath } from "@/lib/auth-redirects";
 import { cn } from "@/lib/utils";
 
 type SignUpFormValues = {
@@ -29,7 +30,7 @@ type SignUpFormValues = {
 type AuthApiResponse = {
   ok?: boolean;
   errorCode?: string;
-  redirectTo?: string;
+  redirectTo?: AuthRedirectPath;
 };
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -103,7 +104,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
             type: "success",
             message: t("status.success.message"),
           });
-          router.replace(result?.redirectTo ?? "/dashboard");
+          router.replace(result?.redirectTo ?? authRedirectPaths.dashboard);
         } else {
           setSubmitStatus({
             type: "error",
@@ -328,7 +329,13 @@ async function readAuthApiResponse(response: Response): Promise<AuthApiResponse 
       return null;
     }
 
-    return data as AuthApiResponse;
+    const result = data as Record<string, unknown>;
+
+    return {
+      ok: result.ok === true ? true : undefined,
+      errorCode: typeof result.errorCode === "string" ? result.errorCode : undefined,
+      redirectTo: parseAuthRedirectPath(result.redirectTo),
+    };
   } catch {
     return null;
   }

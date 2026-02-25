@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { site } from "@/config/site";
+import { getPathname } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
 import { contact, formatPhoneNumber } from "@/config/contact";
@@ -101,6 +102,7 @@ export function Footer({
   viewer: FooterViewer;
 }) {
   const locale = useLocale();
+  const logoutRedirectTo = getPathname({ href: "/login", locale });
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
   const tPlatform = useTranslations("layout.platform");
@@ -158,7 +160,7 @@ export function Footer({
             {viewer && (
               <li>
                 <form action="/api/logout" method="post">
-                  <input type="hidden" name="redirectTo" value={`/${locale}/login`} />
+                  <input type="hidden" name="redirectTo" value={logoutRedirectTo} />
                   <button
                     type="submit"
                     className="text-muted-foreground hover:text-foreground text-left text-sm transition-colors"

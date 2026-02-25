@@ -50,3 +50,55 @@ PocketBase typegen requires:
 - `src/types` - shared types + generated PocketBase types
 - `scripts/pocketbase-typegen.mjs` - PocketBase type generator
 - `POCKETBASE-INTEGRATION.md` - PocketBase SSR/auth notes
+
+## i18n Routing (EN keys + CS aliases)
+
+- Default locale is `cs`
+- Internal route keys stay in English (e.g. `"/login"`, `"/dashboard"`)
+- Public Czech pathname aliases are configured in `src/i18n/routing.ts` via `pathnames`
+
+Examples:
+
+- Internal key: `"/login"`
+- EN URL: `/en/login`
+- CS URL alias: `/cs/prihlasit-se`
+
+### Important navigation rules
+
+- For internal app links use `@/components/ui/link` (wraps `@/i18n/navigation`)
+- For localized redirects/path building use `@/i18n/navigation`
+  - `redirect({href: "/login", locale})`
+  - `getPathname({href: "/login", locale})`
+- Do not build localized URLs manually with `/${locale}/...`
+  - This breaks when pathname aliases are enabled
+  - It also affects hidden form redirects, server redirects and metadata canonicals
+
+### Server redirects (localized)
+
+Use `redirect` from `@/i18n/navigation` for route redirects in server components/layouts.
+
+```ts
+import { redirect } from "@/i18n/navigation";
+import { Locale } from "next-intl";
+
+redirect({ href: "/login", locale: locale as Locale });
+```
+
+### Metadata canonicals / alternates
+
+- Route metadata uses localized path generation for canonical URLs and language alternates
+- `createPageMetadata(...)` now expects `locale` and an internal pathname key
+
+## PocketBase Email Links (single template)
+
+PocketBase templates cannot be localized per user in our setup, so auth emails should use the bridge route:
+
+- Verify email: `{APP_URL}/api/pocketbase/email-link?action=verify-email&token={TOKEN}`
+- Reset password: `{APP_URL}/api/pocketbase/email-link?action=reset-password&token={TOKEN}`
+- Confirm email change: `{APP_URL}/api/pocketbase/email-link?action=confirm-email-change&token={TOKEN}`
+
+Bridge behavior:
+
+- Preserves token/query params
+- Resolves locale by `?locale=...` -> `NEXT_LOCALE` cookie -> `Accept-Language` -> default `cs`
+- Redirects to the localized auth page (including Czech aliases)

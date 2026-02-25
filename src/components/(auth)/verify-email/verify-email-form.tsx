@@ -8,12 +8,13 @@ import { Button } from "@/components/ui/button";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircleIcon, MailCheckIcon } from "lucide-react";
+import { authRedirectPaths, parseAuthRedirectPath, type AuthRedirectPath } from "@/lib/auth-redirects";
 import { cn } from "@/lib/utils";
 
 type VerifyEmailApiResponse = {
   ok?: boolean;
   errorCode?: string;
-  redirectTo?: string;
+  redirectTo?: AuthRedirectPath;
 };
 
 export function VerifyEmailForm({
@@ -63,7 +64,7 @@ export function VerifyEmailForm({
           type: "success",
           message: t("status.success.message"),
         });
-        router.replace(result.redirectTo ?? "/login");
+        router.replace(result.redirectTo ?? authRedirectPaths.login);
       } else {
         setSubmitStatus({
           type: "error",
@@ -136,7 +137,13 @@ async function readApiResponse(response: Response): Promise<VerifyEmailApiRespon
       return null;
     }
 
-    return data as VerifyEmailApiResponse;
+    const result = data as Record<string, unknown>;
+
+    return {
+      ok: result.ok === true ? true : undefined,
+      errorCode: typeof result.errorCode === "string" ? result.errorCode : undefined,
+      redirectTo: parseAuthRedirectPath(result.redirectTo),
+    };
   } catch {
     return null;
   }

@@ -9,12 +9,13 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircleIcon, KeyRoundIcon } from "lucide-react";
+import { authRedirectPaths, parseAuthRedirectPath, type AuthRedirectPath } from "@/lib/auth-redirects";
 import { cn } from "@/lib/utils";
 
 type ResetPasswordApiResponse = {
   ok?: boolean;
   errorCode?: string;
-  redirectTo?: string;
+  redirectTo?: AuthRedirectPath;
 };
 
 export function ResetPasswordForm({
@@ -84,7 +85,7 @@ export function ResetPasswordForm({
           type: "success",
           message: t("status.success.message"),
         });
-        router.replace(result.redirectTo ?? "/login");
+        router.replace(result.redirectTo ?? authRedirectPaths.login);
       } else {
         setSubmitStatus({
           type: "error",
@@ -192,7 +193,13 @@ async function readApiResponse(response: Response): Promise<ResetPasswordApiResp
       return null;
     }
 
-    return data as ResetPasswordApiResponse;
+    const result = data as Record<string, unknown>;
+
+    return {
+      ok: result.ok === true ? true : undefined,
+      errorCode: typeof result.errorCode === "string" ? result.errorCode : undefined,
+      redirectTo: parseAuthRedirectPath(result.redirectTo),
+    };
   } catch {
     return null;
   }

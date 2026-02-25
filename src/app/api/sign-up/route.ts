@@ -1,6 +1,7 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest, NextResponse } from "next/server";
 import { createPocketBaseClient, setPocketBaseAuthCookie } from "@/lib/pocketbase/server";
+import { authRedirectPaths } from "@/lib/auth-redirects";
 
 type SignUpPayload = {
   firstName?: string;
@@ -51,14 +52,17 @@ export async function POST(request: NextRequest) {
     try {
       await pb.collection("users").authWithPassword(email, password);
 
-      const response = NextResponse.json({ ok: true, redirectTo: "/dashboard" }, { status: 201 });
+      const response = NextResponse.json(
+        { ok: true, redirectTo: authRedirectPaths.dashboard },
+        { status: 201 }
+      );
       setPocketBaseAuthCookie(response, pb);
 
       return response;
     } catch (error) {
       console.error("Sign-up auto-login skipped:", error);
 
-      return NextResponse.json({ ok: true, redirectTo: "/login" }, { status: 201 });
+      return NextResponse.json({ ok: true, redirectTo: authRedirectPaths.login }, { status: 201 });
     }
   } catch (error) {
     if (isEmailAlreadyInUseError(error)) {

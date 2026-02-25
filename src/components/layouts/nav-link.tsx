@@ -1,6 +1,7 @@
 "use client";
 
-import { Link, type LinkProps } from "@/components/ui/link";
+import { Link, type LinkHref, type LinkProps } from "@/components/ui/link";
+import { ComponentPropsWithoutRef } from "react";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { ArrowUpRightIcon } from "lucide-react";
 
@@ -21,26 +22,47 @@ export function NavLink({
   const selectedLayoutSegment = useSelectedLayoutSegment();
   const pathname = selectedLayoutSegment ? `/${selectedLayoutSegment}` : "/";
   const hrefString = typeof href === "string" ? href : (href.pathname ?? "");
-  const isExternal = hrefString.startsWith("http");
 
   const isCurrent = matchNested
     ? pathname === hrefString || pathname.startsWith(`${hrefString}/`)
     : pathname === hrefString;
 
+  if (typeof href === "string" && isExternalHref(href)) {
+    const externalProps = props as Omit<ComponentPropsWithoutRef<"a">, "href">;
+
+    return (
+      <a
+        {...externalProps}
+        href={href}
+        aria-current={isCurrent ? "page" : undefined}
+        data-current={isCurrent ? "true" : undefined}
+        data-external="true"
+        target={target || "_blank"}
+        rel={rel || "noopener noreferrer"}
+      >
+        {children}
+        {showExternalIcon && (
+          <ArrowUpRightIcon aria-hidden="true" className="ml-1 inline size-[1em] opacity-50" />
+        )}
+      </a>
+    );
+  }
+
   return (
     <Link
       {...props}
-      href={href}
+      href={href as LinkHref}
       aria-current={isCurrent ? "page" : undefined}
       data-current={isCurrent ? "true" : undefined}
-      data-external={isExternal ? "true" : undefined}
-      target={isExternal ? target || "_blank" : target}
-      rel={isExternal ? rel || "noopener noreferrer" : rel}
+      data-external={undefined}
+      target={target}
+      rel={rel}
     >
       {children}
-      {isExternal && showExternalIcon && (
-        <ArrowUpRightIcon aria-hidden="true" className="ml-1 inline size-[1em] opacity-50" />
-      )}
     </Link>
   );
+}
+
+function isExternalHref(href: string) {
+  return href.startsWith("http://") || href.startsWith("https://");
 }

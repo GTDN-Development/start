@@ -1,4 +1,5 @@
-import { redirect } from "next/navigation";
+import { Locale } from "next-intl";
+import { redirect } from "@/i18n/navigation";
 import { createServerPocketBaseClient } from "@/lib/pocketbase/server";
 
 type AuthGuestLayoutProps = {
@@ -13,7 +14,7 @@ export default async function Layout({ children, params }: AuthGuestLayoutProps)
   const pb = await createServerPocketBaseClient({ refreshAuth: true });
 
   if (pb.authStore.isValid && pb.authStore.record) {
-    redirect(`/${locale}/dashboard` as never);
+    redirect({ href: "/dashboard", locale: locale as Locale });
   }
 
   return children;

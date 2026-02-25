@@ -18,6 +18,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/sign-up">): P
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
+    locale: locale as Locale,
     pathname: "/sign-up",
   });
 }

@@ -1,7 +1,7 @@
-import type { LinkProps } from "@/components/ui/link";
+import type { AppPathname } from "@/i18n/navigation";
 import { legalLinks } from "./legal-links";
 
-type MenuHref = Extract<LinkProps["href"], string>;
+type MenuHref = AppPathname;
 
 export type MenuLinkLabelKey =
   | "home"
