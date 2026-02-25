@@ -6,7 +6,7 @@ type MarketingRouteLayoutProps = {
 };
 
 export default async function Layout({ children }: MarketingRouteLayoutProps) {
-  const pb = await createServerPocketBaseClient();
+  const pb = await createServerPocketBaseClient({ refreshAuth: true });
   const viewer = getMarketingViewer(pb.authStore.record);
 
   return <MarketingLayout viewer={viewer}>{children}</MarketingLayout>;

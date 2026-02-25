@@ -44,7 +44,7 @@ export default async function Page({ params }: PageProps<"/[locale]/settings">) 
       namespace: "layout.platform",
     }),
   ]);
-  const pb = await createServerPocketBaseClient();
+  const pb = await createServerPocketBaseClient({ refreshAuth: true });
   const user = getSettingsUser(pb.authStore.record);
   const verificationStatus = user.verified ? tPlatform("emailVerified") : tPlatform("emailNotVerified");
 

@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default async function Layout({ children, params }: PlatformRouteLayoutProps) {
   const { locale } = await params;
-  const pb = await createServerPocketBaseClient();
+  const pb = await createServerPocketBaseClient({ refreshAuth: true });
 
   if (!pb.authStore.isValid || !pb.authStore.record) {
     redirect(`/${locale}/login` as never);

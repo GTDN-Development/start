@@ -11,11 +11,17 @@ type PocketBaseAuthCookieClient = {
   };
 };
 
+type CreateServerPocketBaseClientOptions = {
+  refreshAuth?: boolean;
+};
+
 export function createPocketBaseClient() {
   return new PocketBase(getPocketBaseUrl());
 }
 
-export async function createServerPocketBaseClient() {
+export async function createServerPocketBaseClient(
+  options: CreateServerPocketBaseClientOptions = {}
+) {
   const pb = createPocketBaseClient();
   const cookieStore = await cookies();
 
@@ -23,6 +29,16 @@ export async function createServerPocketBaseClient() {
 
   if (!pb.authStore.isValid) {
     pb.authStore.clear();
+    return pb;
+  }
+
+  if (options.refreshAuth) {
+    try {
+      await pb.collection("users").authRefresh();
+    } catch (error) {
+      console.error("PocketBase auth refresh failed:", error);
+      pb.authStore.clear();
+    }
   }
 
   return pb;
