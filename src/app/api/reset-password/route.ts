@@ -1,51 +1,43 @@
 import { ClientResponseError } from "pocketbase";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { z } from "zod";
 import { clearPocketBaseAuthCookie, createPocketBaseClient } from "@/lib/pocketbase/server";
 import { authRedirectPaths } from "@/lib/auth-redirects";
+import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
 
-type ResetPasswordPayload = {
-  token?: string;
-  password?: string;
-  confirmPassword?: string;
-};
+const resetPasswordPayloadSchema = z.object({
+  token: z.string().trim().min(1),
+  password: z.string().min(8),
+  confirmPassword: z.string().min(8),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as ResetPasswordPayload;
-    const token = typeof body.token === "string" ? body.token.trim() : "";
-    const password = typeof body.password === "string" ? body.password : "";
-    const confirmPassword = typeof body.confirmPassword === "string" ? body.confirmPassword : "";
+    const body = await parseJsonBody(request, resetPasswordPayloadSchema);
 
-    if (!token || !password || !confirmPassword) {
-      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
+    if (!body) {
+      return jsonError("BAD_REQUEST", 400);
     }
 
-    if (password.length < 8 || confirmPassword.length < 8) {
-      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
-    }
-
-    if (password !== confirmPassword) {
-      return NextResponse.json({ ok: false, errorCode: "PASSWORD_MISMATCH" }, { status: 400 });
+    if (body.password !== body.confirmPassword) {
+      return jsonError("PASSWORD_MISMATCH", 400);
     }
 
     const pb = createPocketBaseClient();
 
-    await pb.collection("users").confirmPasswordReset(token, password, confirmPassword);
+    await pb.collection("users").confirmPasswordReset(body.token, body.password, body.confirmPassword);
 
-    const response = NextResponse.json(
-      { ok: true, redirectTo: authRedirectPaths.login },
-      { status: 200 }
-    );
+    const response = jsonOk({ redirectTo: authRedirectPaths.login }, 200);
     clearPocketBaseAuthCookie(response);
 
     return response;
   } catch (error) {
     if (error instanceof ClientResponseError && error.status >= 400 && error.status < 500) {
-      return NextResponse.json({ ok: false, errorCode: "INVALID_OR_EXPIRED_TOKEN" }, { status: 400 });
+      return jsonError("INVALID_OR_EXPIRED_TOKEN", 400);
     }
 
     console.error("Reset password API error:", error);
 
-    return NextResponse.json({ ok: false, errorCode: "INTERNAL_ERROR" }, { status: 500 });
+    return jsonError("INTERNAL_ERROR", 500);
   }
 }

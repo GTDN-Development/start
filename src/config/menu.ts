@@ -50,7 +50,7 @@ export const marketingMenu: MenuItem[] = [
   { labelKey: "contact", href: "/contact" },
 ];
 
-export const platformMenu: MenuItem[] = [
+export const platformMenu: MenuLink[] = [
   { labelKey: "dashboard", href: "/dashboard" },
   { labelKey: "projects", href: "/projects" },
   { labelKey: "settings", href: "/settings" },
@@ -61,15 +61,11 @@ export const authMenu: MenuLink[] = [
   { labelKey: "signUp", href: "/sign-up" },
 ];
 
-export const legalItems: MenuItem[] = [
+export const legalItems: MenuLink[] = [
   { labelKey: legalLinks.gdpr.label, href: legalLinks.gdpr.href },
   { labelKey: legalLinks.cookies.label, href: legalLinks.cookies.href },
 ];
 
 export function isNested(item: MenuItem): item is MenuNested {
   return "items" in item;
-}
-
-export function flattenMenuItems(items: MenuItem[]): MenuLink[] {
-  return items.flatMap((item) => (isNested(item) ? item.items : item));
 }

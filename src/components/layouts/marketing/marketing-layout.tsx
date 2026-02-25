@@ -1,7 +1,6 @@
 "use client";
 
 import clsx from "clsx";
-// import { Banner, BannerDescription, BannerDivider, BannerLink, BannerTitle } from "./banner";
 import { Footer } from "./footer";
 import { Header } from "./header";
 import { SkipToContent } from "../skip-to-content";
@@ -33,14 +32,6 @@ export function MarketingLayout({
     >
       {/* Skip to content - A11y */}
       <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
-
-      {/* Banner */}
-      {/*<Banner isDismissable={true}>
-        <BannerTitle>{t("banner.title")}</BannerTitle>
-        <BannerDivider />
-        <BannerDescription>{t("banner.description")}</BannerDescription>
-        <BannerLink href="/">{t("banner.callToAction")}</BannerLink>
-      </Banner>*/}
 
       {/* Header */}
       <Header viewer={viewer} />

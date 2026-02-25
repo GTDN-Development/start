@@ -11,5 +11,3 @@ export const legalLinks = {
   gdpr: { label: "privacyPolicy", href: "/gdpr" },
   cookies: { label: "cookiePolicy", href: "/cookies" },
 } as const satisfies Record<string, LegalLink>;
-
-export const legalLinksArray: LegalLink[] = Object.values(legalLinks);

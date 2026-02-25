@@ -1,36 +1,36 @@
 import { ClientResponseError } from "pocketbase";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { z } from "zod";
 import {
   POCKETBASE_AUTH_COOKIE_NAME,
   createPocketBaseClient,
   setPocketBaseAuthCookie,
 } from "@/lib/pocketbase/server";
 import { authRedirectPaths } from "@/lib/auth-redirects";
+import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
 
-type VerifyEmailPayload = {
-  token?: string;
-};
+const verifyEmailPayloadSchema = z.object({
+  token: z.string().trim().min(1),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as VerifyEmailPayload;
-    const token = typeof body.token === "string" ? body.token.trim() : "";
+    const body = await parseJsonBody(request, verifyEmailPayloadSchema);
 
-    if (!token) {
-      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
+    if (!body) {
+      return jsonError("BAD_REQUEST", 400);
     }
 
     const pb = createPocketBaseClient();
 
-    await pb.collection("users").confirmVerification(token);
+    await pb.collection("users").confirmVerification(body.token);
 
     const hasRefreshedSession = await refreshSessionAfterVerification(pb, request);
-    const response = NextResponse.json(
+    const response = jsonOk(
       {
-        ok: true,
         redirectTo: hasRefreshedSession ? authRedirectPaths.dashboard : authRedirectPaths.login,
       },
-      { status: 200 }
+      200
     );
 
     if (hasRefreshedSession) {
@@ -40,12 +40,12 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     if (error instanceof ClientResponseError && error.status >= 400 && error.status < 500) {
-      return NextResponse.json({ ok: false, errorCode: "INVALID_OR_EXPIRED_TOKEN" }, { status: 400 });
+      return jsonError("INVALID_OR_EXPIRED_TOKEN", 400);
     }
 
     console.error("Verify email API error:", error);
 
-    return NextResponse.json({ ok: false, errorCode: "INTERNAL_ERROR" }, { status: 500 });
+    return jsonError("INTERNAL_ERROR", 500);
   }
 }
 

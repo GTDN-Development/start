@@ -1,24 +1,38 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import PocketBase, { ClientResponseError } from "pocketbase";
+import { ClientResponseError } from "pocketbase";
+import { z } from "zod";
 import { createPocketBaseClient } from "@/lib/pocketbase/server";
+import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
 import type { CookieConsentEventsRecord } from "@/types/pocketbase";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
   COOKIE_CONSENT_VERSION,
   COOKIE_SUBJECT_KEY_NAME,
-  type ConsentState,
   type CookieConsentEventRequest,
-  type CookieConsentEventType,
   normalizeConsent,
 } from "@/components/(shared)/cookies/consent";
 
+const cookieConsentEventRequestSchema = z.object({
+  consent: z
+    .object({
+      necessary: z.literal(true),
+      functional: z.boolean(),
+      analytics: z.boolean(),
+      marketing: z.boolean(),
+    })
+    .transform((value) => normalizeConsent(value)),
+  eventType: z.enum(["accept_all", "reject_all", "save_preferences", "withdraw"]),
+  locale: z.string().trim().min(2).max(20),
+  idempotencyKey: z.string().trim().min(8).max(128),
+});
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await parseRequestBody(request);
+    const body = await parseJsonBody(request, cookieConsentEventRequestSchema);
 
     if (!body) {
-      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
+      return jsonError("BAD_REQUEST", 400);
     }
 
     const cookieStore = await cookies();
@@ -30,119 +44,19 @@ export async function POST(request: NextRequest) {
 
     await pb.collection("cookie_consent_events").create(recordData);
 
-    const response = NextResponse.json({ ok: true }, { status: 201 });
+    const response = jsonOk(201);
     setSubjectKeyCookie(response, subjectKeyCookie, subjectKey);
 
     return response;
   } catch (error) {
     if (isDuplicateIdempotencyKeyError(error)) {
-      return NextResponse.json({ ok: true, duplicate: true }, { status: 200 });
+      return jsonOk({ duplicate: true }, 200);
     }
 
     console.error("Cookie consent API error:", error);
 
-    return NextResponse.json({ ok: false, errorCode: "INTERNAL_ERROR" }, { status: 500 });
+    return jsonError("INTERNAL_ERROR", 500);
   }
-}
-
-async function parseRequestBody(request: NextRequest): Promise<CookieConsentEventRequest | null> {
-  let rawBody: unknown;
-
-  try {
-    rawBody = (await request.json()) as unknown;
-  } catch {
-    return null;
-  }
-
-  if (!isRecord(rawBody)) {
-    return null;
-  }
-
-  const eventType = parseEventType(rawBody.eventType);
-  const locale = parseLocale(rawBody.locale);
-  const idempotencyKey = parseIdempotencyKey(rawBody.idempotencyKey);
-
-  if (!eventType || !locale || !idempotencyKey) {
-    return null;
-  }
-
-  const consent = parseConsent(rawBody.consent);
-
-  if (!consent) {
-    return null;
-  }
-
-  return {
-    consent,
-    eventType,
-    locale,
-    idempotencyKey,
-  };
-}
-
-function parseConsent(value: unknown): ConsentState | null {
-  if (!isRecord(value)) {
-    return null;
-  }
-
-  if (value.necessary !== true) {
-    return null;
-  }
-
-  if (typeof value.functional !== "boolean") {
-    return null;
-  }
-
-  if (typeof value.analytics !== "boolean") {
-    return null;
-  }
-
-  if (typeof value.marketing !== "boolean") {
-    return null;
-  }
-
-  return normalizeConsent(value);
-}
-
-function parseEventType(value: unknown): CookieConsentEventType | null {
-  if (
-    value === "accept_all" ||
-    value === "reject_all" ||
-    value === "save_preferences" ||
-    value === "withdraw"
-  ) {
-    return value;
-  }
-
-  return null;
-}
-
-function parseLocale(value: unknown): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const normalized = value.trim();
-
-  if (!normalized || normalized.length < 2 || normalized.length > 20) {
-    return null;
-  }
-
-  return normalized;
-}
-
-function parseIdempotencyKey(value: unknown): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const normalized = value.trim();
-
-  if (!normalized || normalized.length < 8 || normalized.length > 128) {
-    return null;
-  }
-
-  return normalized;
 }
 
 function createRecordData(body: CookieConsentEventRequest, subjectKey: string) {
@@ -195,7 +109,7 @@ async function createCookieConsentWriterClient() {
   const email = getRequiredWriterEnv("PB_SUPERUSER_EMAIL");
   const password = getRequiredWriterEnv("PB_SUPERUSER_PASSWORD");
 
-  await authenticateSuperuser(pb, email, password);
+  await pb.collection("_superusers").authWithPassword(email, password);
 
   return pb;
 }
@@ -208,10 +122,6 @@ function getRequiredWriterEnv(name: "PB_SUPERUSER_EMAIL" | "PB_SUPERUSER_PASSWOR
   }
 
   throw new Error(`Missing PocketBase cookie consent writer credential: ${name}`);
-}
-
-async function authenticateSuperuser(pb: PocketBase, email: string, password: string) {
-  await pb.collection("_superusers").authWithPassword(email, password);
 }
 
 function createSubjectKey() {
@@ -236,8 +146,4 @@ function getObjectRecord(value: unknown): Record<string, unknown> {
   }
 
   return {};
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
 }

@@ -8,11 +8,8 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircleIcon, MailIcon } from "lucide-react";
+import { readAuthFormApiResponse } from "@/lib/auth-form-api";
 import { cn } from "@/lib/utils";
-
-type ForgotPasswordFormResponse = {
-  ok?: boolean;
-};
 
 export function ForgotPasswordForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.forgotPassword");
@@ -40,7 +37,7 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
         }),
       });
 
-      const result = await readApiResponse(response);
+      const result = await readAuthFormApiResponse(response);
 
       if (response.ok && result?.ok) {
         setSubmitStatus({
@@ -106,18 +103,4 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
       </form>
     </div>
   );
-}
-
-async function readApiResponse(response: Response): Promise<ForgotPasswordFormResponse | null> {
-  try {
-    const data = (await response.json()) as unknown;
-
-    if (typeof data !== "object" || data === null) {
-      return null;
-    }
-
-    return data as ForgotPasswordFormResponse;
-  } catch {
-    return null;
-  }
 }

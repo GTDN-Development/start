@@ -9,14 +9,9 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircleIcon, KeyRoundIcon } from "lucide-react";
-import { authRedirectPaths, parseAuthRedirectPath, type AuthRedirectPath } from "@/lib/auth-redirects";
+import { authRedirectPaths } from "@/lib/auth-redirects";
+import { readAuthFormApiResponse } from "@/lib/auth-form-api";
 import { cn } from "@/lib/utils";
-
-type ResetPasswordApiResponse = {
-  ok?: boolean;
-  errorCode?: string;
-  redirectTo?: AuthRedirectPath;
-};
 
 export function ResetPasswordForm({
   token,
@@ -78,7 +73,7 @@ export function ResetPasswordForm({
         }),
       });
 
-      const result = await readApiResponse(response);
+      const result = await readAuthFormApiResponse(response);
 
       if (response.ok && result?.ok) {
         setSubmitStatus({
@@ -183,24 +178,4 @@ function getErrorMessage(t: (key: string) => string, errorCode?: string) {
   }
 
   return t("status.error.message");
-}
-
-async function readApiResponse(response: Response): Promise<ResetPasswordApiResponse | null> {
-  try {
-    const data = (await response.json()) as unknown;
-
-    if (typeof data !== "object" || data === null) {
-      return null;
-    }
-
-    const result = data as Record<string, unknown>;
-
-    return {
-      ok: result.ok === true ? true : undefined,
-      errorCode: typeof result.errorCode === "string" ? result.errorCode : undefined,
-      redirectTo: parseAuthRedirectPath(result.redirectTo),
-    };
-  } catch {
-    return null;
-  }
 }

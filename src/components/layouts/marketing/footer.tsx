@@ -7,7 +7,6 @@ import { ThemeSwitcher } from "../theme-switcher";
 import { SocialMediaIcons } from "../social-media-icons";
 import {
   authMenu,
-  flattenMenuItems,
   isNested,
   legalItems,
   marketingMenu,
@@ -109,9 +108,7 @@ export function Footer({
   const copiedToClipboardMessage = t("copiedToClipboard");
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
   const accountLinks = viewer
-    ? flattenMenuItems(platformMenu).filter(
-        (item) => item.labelKey === "dashboard" || item.labelKey === "settings"
-      )
+    ? platformMenu.filter((item) => item.labelKey === "dashboard" || item.labelKey === "settings")
     : authMenu;
   const viewerName = viewer?.name?.trim() || null;
 
@@ -125,7 +122,7 @@ export function Footer({
           </Link>
         </div>
 
-        <SocialMediaIcons className="" />
+        <SocialMediaIcons />
       </Container>
 
       {/* Second row - Grid columns with main footer content */}
@@ -207,7 +204,7 @@ export function Footer({
         <div className="flex flex-col items-start justify-start gap-7">
           <p className="text-sm font-semibold">{t("sections.legal")}</p>
           <ul className="flex flex-col gap-2">
-            {flattenMenuItems(legalItems).map((item) => (
+            {legalItems.map((item) => (
               <li key={item.href}>
                 <NavLink
                   href={item.href}

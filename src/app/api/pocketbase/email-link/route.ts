@@ -16,7 +16,11 @@ type PocketBaseEmailAction = keyof typeof pocketBaseEmailActionPathnames;
 
 export function GET(request: NextRequest) {
   const locale = resolveLocale(request);
-  const action = parseAction(request.nextUrl.searchParams.get("action"));
+  const actionParam = request.nextUrl.searchParams.get("action");
+  const action =
+    actionParam && actionParam in pocketBaseEmailActionPathnames
+      ? (actionParam as PocketBaseEmailAction)
+      : null;
 
   if (!action) {
     const fallbackUrl = new URL(getPathname({ href: "/", locale }), request.url);
@@ -42,19 +46,6 @@ export function GET(request: NextRequest) {
 
   return NextResponse.redirect(destination, { status: 307 });
 }
-
-function parseAction(value: string | null): PocketBaseEmailAction | null {
-  if (!value) {
-    return null;
-  }
-
-  if (value === "verify-email" || value === "reset-password" || value === "confirm-email-change") {
-    return value;
-  }
-
-  return null;
-}
-
 function resolveLocale(request: NextRequest): Locale {
   const explicitLocale = normalizeLocale(request.nextUrl.searchParams.get("locale"));
 

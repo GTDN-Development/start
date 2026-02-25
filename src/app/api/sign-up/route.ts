@@ -1,81 +1,74 @@
 import { ClientResponseError } from "pocketbase";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { z } from "zod";
 import { createPocketBaseClient, setPocketBaseAuthCookie } from "@/lib/pocketbase/server";
 import { authRedirectPaths } from "@/lib/auth-redirects";
+import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
 
-type SignUpPayload = {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  termsAccepted?: boolean;
-};
+const signUpPayloadSchema = z.object({
+  firstName: z.string().trim().min(1),
+  lastName: z.string().trim().min(1),
+  email: z.string().trim().min(1).transform((value) => value.toLowerCase()),
+  password: z.string(),
+  confirmPassword: z.string(),
+  termsAccepted: z.boolean(),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as SignUpPayload;
-    const firstName = typeof body.firstName === "string" ? body.firstName.trim() : "";
-    const lastName = typeof body.lastName === "string" ? body.lastName.trim() : "";
-    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
-    const password = typeof body.password === "string" ? body.password : "";
-    const confirmPassword = typeof body.confirmPassword === "string" ? body.confirmPassword : "";
-    const termsAccepted = body.termsAccepted === true;
+    const body = await parseJsonBody(request, signUpPayloadSchema);
 
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
+    if (!body) {
+      return jsonError("BAD_REQUEST", 400);
     }
 
-    if (password.length < 8 || confirmPassword.length < 8) {
-      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
+    if (body.password.length < 8 || body.confirmPassword.length < 8) {
+      return jsonError("BAD_REQUEST", 400);
     }
 
-    if (password !== confirmPassword) {
-      return NextResponse.json({ ok: false, errorCode: "PASSWORD_MISMATCH" }, { status: 400 });
+    if (body.password !== body.confirmPassword) {
+      return jsonError("PASSWORD_MISMATCH", 400);
     }
 
-    if (!termsAccepted) {
-      return NextResponse.json({ ok: false, errorCode: "TERMS_NOT_ACCEPTED" }, { status: 400 });
+    if (!body.termsAccepted) {
+      return jsonError("TERMS_NOT_ACCEPTED", 400);
     }
 
     const pb = createPocketBaseClient();
 
     await pb.collection("users").create({
-      email,
-      password,
-      passwordConfirm: confirmPassword,
-      name: `${firstName} ${lastName}`.trim(),
+      email: body.email,
+      password: body.password,
+      passwordConfirm: body.confirmPassword,
+      name: `${body.firstName} ${body.lastName}`.trim(),
     });
 
-    await requestVerificationEmail(pb, email);
+    await requestVerificationEmail(pb, body.email);
 
     try {
-      await pb.collection("users").authWithPassword(email, password);
+      await pb.collection("users").authWithPassword(body.email, body.password);
 
-      const response = NextResponse.json(
-        { ok: true, redirectTo: authRedirectPaths.dashboard },
-        { status: 201 }
-      );
+      const response = jsonOk({ redirectTo: authRedirectPaths.dashboard }, 201);
       setPocketBaseAuthCookie(response, pb);
 
       return response;
     } catch (error) {
       console.error("Sign-up auto-login skipped:", error);
 
-      return NextResponse.json({ ok: true, redirectTo: authRedirectPaths.login }, { status: 201 });
+      return jsonOk({ redirectTo: authRedirectPaths.login }, 201);
     }
   } catch (error) {
     if (isEmailAlreadyInUseError(error)) {
-      return NextResponse.json({ ok: false, errorCode: "EMAIL_ALREADY_IN_USE" }, { status: 409 });
+      return jsonError("EMAIL_ALREADY_IN_USE", 409);
     }
 
     if (error instanceof ClientResponseError && error.status >= 400 && error.status < 500) {
-      return NextResponse.json({ ok: false, errorCode: "VALIDATION_ERROR" }, { status: 400 });
+      return jsonError("VALIDATION_ERROR", 400);
     }
 
     console.error("Sign-up API error:", error);
 
-    return NextResponse.json({ ok: false, errorCode: "INTERNAL_ERROR" }, { status: 500 });
+    return jsonError("INTERNAL_ERROR", 500);
   }
 }
 

@@ -1,44 +1,38 @@
 import { ClientResponseError } from "pocketbase";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { z } from "zod";
 import { clearPocketBaseAuthCookie, createPocketBaseClient } from "@/lib/pocketbase/server";
 import { authRedirectPaths } from "@/lib/auth-redirects";
+import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
 
-type ConfirmEmailChangePayload = {
-  token?: string;
-  password?: string;
-};
+const confirmEmailChangePayloadSchema = z.object({
+  token: z.string().trim().min(1),
+  password: z.string().min(1),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as ConfirmEmailChangePayload;
-    const token = typeof body.token === "string" ? body.token.trim() : "";
-    const password = typeof body.password === "string" ? body.password : "";
+    const body = await parseJsonBody(request, confirmEmailChangePayloadSchema);
 
-    if (!token || !password) {
-      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
+    if (!body) {
+      return jsonError("BAD_REQUEST", 400);
     }
 
     const pb = createPocketBaseClient();
 
-    await pb.collection("users").confirmEmailChange(token, password);
+    await pb.collection("users").confirmEmailChange(body.token, body.password);
 
-    const response = NextResponse.json(
-      { ok: true, redirectTo: authRedirectPaths.login },
-      { status: 200 }
-    );
+    const response = jsonOk({ redirectTo: authRedirectPaths.login }, 200);
     clearPocketBaseAuthCookie(response);
 
     return response;
   } catch (error) {
     if (error instanceof ClientResponseError && error.status >= 400 && error.status < 500) {
-      return NextResponse.json(
-        { ok: false, errorCode: "INVALID_OR_EXPIRED_TOKEN_OR_PASSWORD" },
-        { status: 400 }
-      );
+      return jsonError("INVALID_OR_EXPIRED_TOKEN_OR_PASSWORD", 400);
     }
 
     console.error("Confirm email change API error:", error);
 
-    return NextResponse.json({ ok: false, errorCode: "INTERNAL_ERROR" }, { status: 500 });
+    return jsonError("INTERNAL_ERROR", 500);
   }
 }

@@ -15,7 +15,8 @@ import { AlertCircleIcon, CheckCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/legal-links";
 
-import { authRedirectPaths, parseAuthRedirectPath, type AuthRedirectPath } from "@/lib/auth-redirects";
+import { authRedirectPaths } from "@/lib/auth-redirects";
+import { readAuthFormApiResponse } from "@/lib/auth-form-api";
 import { cn } from "@/lib/utils";
 
 type SignUpFormValues = {
@@ -25,12 +26,6 @@ type SignUpFormValues = {
   password: string;
   confirmPassword: string;
   termsAccepted: boolean;
-};
-
-type AuthApiResponse = {
-  ok?: boolean;
-  errorCode?: string;
-  redirectTo?: AuthRedirectPath;
 };
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -97,7 +92,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
           body: JSON.stringify(value),
         });
 
-        const result = await readAuthApiResponse(response);
+        const result = await readAuthFormApiResponse(response);
 
         if (response.ok) {
           setSubmitStatus({
@@ -319,24 +314,4 @@ function getSignUpErrorMessage(
   }
 
   return t("status.error.message");
-}
-
-async function readAuthApiResponse(response: Response): Promise<AuthApiResponse | null> {
-  try {
-    const data = (await response.json()) as unknown;
-
-    if (typeof data !== "object" || data === null) {
-      return null;
-    }
-
-    const result = data as Record<string, unknown>;
-
-    return {
-      ok: result.ok === true ? true : undefined,
-      errorCode: typeof result.errorCode === "string" ? result.errorCode : undefined,
-      redirectTo: parseAuthRedirectPath(result.redirectTo),
-    };
-  } catch {
-    return null;
-  }
 }

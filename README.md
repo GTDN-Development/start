@@ -65,7 +65,8 @@ Examples:
 
 ### Important navigation rules
 
-- For internal app links use `@/components/ui/link` (wraps `@/i18n/navigation`)
+- For internal localized app links use `@/components/ui/link` (re-exports `@/i18n/navigation` `Link`)
+- For external URLs and hash/mailto/tel links use a native `<a>`
 - For localized redirects/path building use `@/i18n/navigation`
   - `redirect({href: "/login", locale})`
   - `getPathname({href: "/login", locale})`

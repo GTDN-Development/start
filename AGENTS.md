@@ -9,7 +9,8 @@
 
 ## Next.js
 
-- **Never** import from `next/link` directly — always use `@/components/ui/link`
+- **Never** import from `next/link` directly — use `@/components/ui/link` for internal localized links
+- For external URLs and hash/mailto/tel links use a native `<a>` (do not force `@/components/ui/link`)
 - **Never** use `middleware.ts` — use `proxy.ts` for request interception (no edge runtime)
 - `params` and `searchParams` must be awaited — they are async in Next.js 16
 - `cookies()`, `headers()`, `draftMode()` must be awaited
@@ -44,7 +45,8 @@
 
 ## Configuration & Menus (`src/config/menu.ts`)
 
-- **Never** reintroduce `getMenu`, `getMenuLinks`, group resolvers, or multi-step mapping layers — use direct exported arrays
+- **Never** reintroduce `getMenu`, `getMenuLinks`, `flattenMenuItems`, group resolvers, or multi-step mapping layers — use direct exported arrays
+- Keep already-flat menus (`authMenu`, `platformMenu`, `legalItems`) flat; only `marketingMenu` is nested
 - Every new `labelKey` in `menu.ts` must be added to both `messages/en.json` and `messages/cs.json` under `layout.navigation.items`
 - Auth CTAs (login/sign-up) are component-level — **not** part of `marketingMenu`
 - Menu `href` values must be internal path-only strings (e.g. `"/pricing"`)

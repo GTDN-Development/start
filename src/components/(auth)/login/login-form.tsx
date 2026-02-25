@@ -13,19 +13,14 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircleIcon, LogInIcon } from "lucide-react";
 
-import { authRedirectPaths, parseAuthRedirectPath, type AuthRedirectPath } from "@/lib/auth-redirects";
+import { authRedirectPaths } from "@/lib/auth-redirects";
+import { readAuthFormApiResponse } from "@/lib/auth-form-api";
 import { cn } from "@/lib/utils";
 
 type LoginFormValues = {
   email: string;
   password: string;
   rememberMe: boolean;
-};
-
-type AuthApiResponse = {
-  ok?: boolean;
-  errorCode?: string;
-  redirectTo?: AuthRedirectPath;
 };
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -69,7 +64,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
           body: JSON.stringify(value),
         });
 
-        const result = await readAuthApiResponse(response);
+        const result = await readAuthFormApiResponse(response);
 
         if (response.ok) {
           setSubmitStatus({
@@ -80,7 +75,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         } else {
           setSubmitStatus({
             type: "error",
-            message: getLoginErrorMessage(t, result?.errorCode),
+            message: t("status.error.message"),
           });
         }
       } catch {
@@ -193,35 +188,4 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       </form>
     </div>
   );
-}
-
-function getLoginErrorMessage(
-  t: (key: string) => string,
-  errorCode?: string
-) {
-  if (errorCode === "INVALID_CREDENTIALS") {
-    return t("status.error.message");
-  }
-
-  return t("status.error.message");
-}
-
-async function readAuthApiResponse(response: Response): Promise<AuthApiResponse | null> {
-  try {
-    const data = (await response.json()) as unknown;
-
-    if (typeof data !== "object" || data === null) {
-      return null;
-    }
-
-    const result = data as Record<string, unknown>;
-
-    return {
-      ok: result.ok === true ? true : undefined,
-      errorCode: typeof result.errorCode === "string" ? result.errorCode : undefined,
-      redirectTo: parseAuthRedirectPath(result.redirectTo),
-    };
-  } catch {
-    return null;
-  }
 }

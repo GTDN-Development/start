@@ -1,18 +1,17 @@
-import { Link, type LinkProps } from "@/components/ui/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
-export function SkipToContent({ children, className, ...props }: LinkProps) {
+export function SkipToContent({ children, className, ...props }: React.ComponentProps<"a">) {
   return (
-    <Link
+    <a
       {...props}
       className={cn(
-        buttonVariants({ variant: "default" }),
+        buttonVariants({ variant: "default", size: "lg" }),
         "fixed top-6 left-6 z-1000 hidden -translate-y-[1000%] focus-visible:translate-y-0 pointer-fine:block",
         className
       )}
     >
       {children}
-    </Link>
+    </a>
   );
 }

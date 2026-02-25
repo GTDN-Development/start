@@ -1,24 +1,25 @@
 import { ClientResponseError } from "pocketbase";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { z } from "zod";
 import { createPocketBaseClient } from "@/lib/pocketbase/server";
+import { jsonError, jsonOk, parseJsonBody } from "@/lib/api-route";
 
-type ForgotPasswordPayload = {
-  email?: string;
-};
+const forgotPasswordPayloadSchema = z.object({
+  email: z.string().trim().min(1).transform((value) => value.toLowerCase()),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as ForgotPasswordPayload;
-    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const body = await parseJsonBody(request, forgotPasswordPayloadSchema);
 
-    if (!email) {
-      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
+    if (!body) {
+      return jsonError("BAD_REQUEST", 400);
     }
 
     const pb = createPocketBaseClient();
 
     try {
-      await pb.collection("users").requestPasswordReset(email);
+      await pb.collection("users").requestPasswordReset(body.email);
     } catch (error) {
       if (!(error instanceof ClientResponseError) || error.status >= 500) {
         throw error;
@@ -26,10 +27,10 @@ export async function POST(request: NextRequest) {
       // Return generic success for invalid/non-existing emails to avoid account enumeration.
     }
 
-    return NextResponse.json({ ok: true }, { status: 200 });
+    return jsonOk(200);
   } catch (error) {
     console.error("Forgot password API error:", error);
 
-    return NextResponse.json({ ok: false, errorCode: "INTERNAL_ERROR" }, { status: 500 });
+    return jsonError("INTERNAL_ERROR", 500);
   }
 }
