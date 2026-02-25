@@ -6,7 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, KeyRoundIcon } from "lucide-react";
 import { authRedirectPaths } from "@/features/auth/auth-redirects";
@@ -81,16 +81,17 @@ export function ResetPasswordForm({
         <FieldGroup>
           <Field>
             <FieldLabel htmlFor="reset-password-password">{t("fields.password.label")}</FieldLabel>
-            <Input
+            <PasswordInput
               id="reset-password-password"
               name="reset-password-password"
-              type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder={t("fields.password.placeholder")}
               required
               minLength={8}
               autoComplete="new-password"
+              showPasswordLabel={t("passwordVisibility.show")}
+              hidePasswordLabel={t("passwordVisibility.hide")}
             />
             <FieldDescription>{t("fields.password.description")}</FieldDescription>
           </Field>
@@ -99,16 +100,17 @@ export function ResetPasswordForm({
             <FieldLabel htmlFor="reset-password-confirm-password">
               {t("fields.confirmPassword.label")}
             </FieldLabel>
-            <Input
+            <PasswordInput
               id="reset-password-confirm-password"
               name="reset-password-confirm-password"
-              type="password"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder={t("fields.confirmPassword.placeholder")}
               required
               minLength={8}
               autoComplete="new-password"
+              showPasswordLabel={t("passwordVisibility.show")}
+              hidePasswordLabel={t("passwordVisibility.hide")}
             />
           </Field>
 

@@ -283,6 +283,10 @@
         "email": "Zadejte prosím platnou e-mailovou adresu.",
         "password": "Heslo musí mít alespoň 8 znaků."
       },
+      "passwordVisibility": {
+        "show": "Zobrazit heslo",
+        "hide": "Skrýt heslo"
+      },
       "fields": {
         "email": {
           "label": "E-mailová adresa",
@@ -323,6 +327,10 @@
         "confirmPassword": "Potvrďte prosím své heslo.",
         "termsAccepted": "Musíte přijmout zásady ochrany osobních údajů.",
         "passwordMismatch": "Hesla se neshodují."
+      },
+      "passwordVisibility": {
+        "show": "Zobrazit heslo",
+        "hide": "Skrýt heslo"
       },
       "fields": {
         "firstName": {
@@ -394,6 +402,10 @@
         "password": "Heslo musí mít alespoň 8 znaků.",
         "passwordMismatch": "Hesla se neshodují."
       },
+      "passwordVisibility": {
+        "show": "Zobrazit heslo",
+        "hide": "Skrýt heslo"
+      },
       "fields": {
         "password": {
           "label": "Nové heslo",
@@ -442,6 +454,10 @@
     "confirmEmailChange": {
       "validation": {
         "passwordRequired": "Zadejte prosím své aktuální heslo."
+      },
+      "passwordVisibility": {
+        "show": "Zobrazit heslo",
+        "hide": "Skrýt heslo"
       },
       "description": "Potvrďte změnu e-mailu zadáním svého aktuálního hesla.",
       "fields": {

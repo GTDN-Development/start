@@ -283,6 +283,10 @@
         "email": "Please enter a valid email address.",
         "password": "Password must be at least 8 characters."
       },
+      "passwordVisibility": {
+        "show": "Show password",
+        "hide": "Hide password"
+      },
       "fields": {
         "email": {
           "label": "Email address",
@@ -323,6 +327,10 @@
         "confirmPassword": "Please confirm your password.",
         "termsAccepted": "You must accept the privacy policy.",
         "passwordMismatch": "Passwords do not match."
+      },
+      "passwordVisibility": {
+        "show": "Show password",
+        "hide": "Hide password"
       },
       "fields": {
         "firstName": {
@@ -394,6 +402,10 @@
         "password": "Password must be at least 8 characters.",
         "passwordMismatch": "Passwords do not match."
       },
+      "passwordVisibility": {
+        "show": "Show password",
+        "hide": "Hide password"
+      },
       "fields": {
         "password": {
           "label": "New password",
@@ -442,6 +454,10 @@
     "confirmEmailChange": {
       "validation": {
         "passwordRequired": "Please enter your current password."
+      },
+      "passwordVisibility": {
+        "show": "Show password",
+        "hide": "Hide password"
       },
       "description": "Confirm the email change by entering your current password.",
       "fields": {

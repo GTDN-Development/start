@@ -6,7 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { authRedirectPaths } from "@/features/auth/auth-redirects";
@@ -78,16 +78,17 @@ export function ConfirmEmailChangeForm({
             <FieldLabel htmlFor="confirm-email-change-password">
               {t("fields.password.label")}
             </FieldLabel>
-            <Input
+            <PasswordInput
               id="confirm-email-change-password"
               name="confirm-email-change-password"
-              type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder={t("fields.password.placeholder")}
               aria-invalid={Boolean(submitErrorMessage && !password.trim())}
               autoComplete="current-password"
               required
+              showPasswordLabel={t("passwordVisibility.show")}
+              hidePasswordLabel={t("passwordVisibility.hide")}
             />
             <FieldDescription>{t("fields.password.description")}</FieldDescription>
           </Field>

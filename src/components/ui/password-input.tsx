@@ -13,9 +13,17 @@ import {
 
 type PasswordInputProps = Omit<React.ComponentProps<"input">, "type"> & {
   groupClassName?: string;
+  showPasswordLabel: string;
+  hidePasswordLabel: string;
 };
 
-function PasswordInput({ className, groupClassName, ...props }: PasswordInputProps) {
+function PasswordInput({
+  className,
+  groupClassName,
+  hidePasswordLabel,
+  showPasswordLabel,
+  ...props
+}: PasswordInputProps) {
   const [visible, setVisible] = React.useState(false);
 
   function toggleVisibility() {
@@ -34,7 +42,7 @@ function PasswordInput({ className, groupClassName, ...props }: PasswordInputPro
           size="icon-xs"
           variant="ghost"
           type="button"
-          aria-label={visible ? "Hide password" : "Show password"}
+          aria-label={visible ? hidePasswordLabel : showPasswordLabel}
           aria-pressed={visible}
           onClick={toggleVisibility}
         >

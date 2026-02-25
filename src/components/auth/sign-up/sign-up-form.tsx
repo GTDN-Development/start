@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
@@ -207,16 +208,17 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                       <FieldLabel htmlFor={`signup-${field.name}`}>
                         {t("fields.password.label")}
                       </FieldLabel>
-                      <Input
+                      <PasswordInput
                         id={`signup-${field.name}`}
                         name={`signup-${field.name}`}
-                        type="password"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         autoComplete="new-password"
                         placeholder={t("fields.password.placeholder")}
+                        showPasswordLabel={t("passwordVisibility.show")}
+                        hidePasswordLabel={t("passwordVisibility.hide")}
                       />
                       <FieldDescription>{t("fields.password.description")}</FieldDescription>
                       {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -235,16 +237,17 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                       <FieldLabel htmlFor={`signup-${field.name}`}>
                         {t("fields.confirmPassword.label")}
                       </FieldLabel>
-                      <Input
+                      <PasswordInput
                         id={`signup-${field.name}`}
                         name={`signup-${field.name}`}
-                        type="password"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         autoComplete="new-password"
                         placeholder={t("fields.confirmPassword.placeholder")}
+                        showPasswordLabel={t("passwordVisibility.show")}
+                        hidePasswordLabel={t("passwordVisibility.hide")}
                       />
                       {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>
@@ -258,30 +261,32 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                     (field.state.meta.isTouched || submissionAttempts > 0) &&
                     !field.state.meta.isValid;
                   return (
-                    <Field orientation="horizontal" data-invalid={isInvalid}>
-                      <Checkbox
-                        id={`signup-${field.name}`}
-                        name={`signup-${field.name}`}
-                        checked={field.state.value}
-                        onCheckedChange={(checked) => field.handleChange(checked === true)}
-                        aria-invalid={isInvalid}
-                      />
-                      <FieldLabel htmlFor={`signup-${field.name}`}>
-                        <span>
-                          {t.rich("fields.termsAccepted.label", {
-                            link: (chunks) => (
-                              <Link
-                                href={legalLinks.gdpr.href}
-                                className="underline hover:no-underline"
-                              >
-                                {chunks}
-                              </Link>
-                            ),
-                          })}
-                        </span>
-                      </FieldLabel>
+                    <div className="flex flex-col gap-y-2">
+                      <Field orientation="horizontal" data-invalid={isInvalid}>
+                        <Checkbox
+                          id={`signup-${field.name}`}
+                          name={`signup-${field.name}`}
+                          checked={field.state.value}
+                          onCheckedChange={(checked) => field.handleChange(checked === true)}
+                          aria-invalid={isInvalid}
+                        />
+                        <FieldLabel htmlFor={`signup-${field.name}`}>
+                          <span>
+                            {t.rich("fields.termsAccepted.label", {
+                              link: (chunks) => (
+                                <Link
+                                  href={legalLinks.gdpr.href}
+                                  className="underline hover:no-underline"
+                                >
+                                  {chunks}
+                                </Link>
+                              ),
+                            })}
+                          </span>
+                        </FieldLabel>
+                      </Field>
                       {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                    </Field>
+                    </div>
                   );
                 }}
               </form.Field>

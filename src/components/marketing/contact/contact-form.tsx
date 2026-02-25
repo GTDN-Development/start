@@ -286,32 +286,34 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                     (field.state.meta.isTouched || submissionAttempts > 0) &&
                     !field.state.meta.isValid;
                   return (
-                    <Field orientation="horizontal" data-invalid={isInvalid}>
-                      <Checkbox
-                        id={`contact-${field.name}`}
-                        name={`contact-${field.name}`}
-                        checked={field.state.value}
-                        onCheckedChange={(checked) => field.handleChange(checked === true)}
-                        aria-invalid={isInvalid}
-                      />
-                      <div className="space-y-1 leading-none">
-                        <FieldLabel htmlFor={`contact-${field.name}`}>
-                          <span>
-                            {t.rich("fields.gdprConsent.label", {
-                              link: (chunks) => (
-                                <Link
-                                  href={legalLinks.gdpr.href}
-                                  className="underline hover:no-underline"
-                                >
-                                  {chunks}
-                                </Link>
-                              ),
-                            })}
-                          </span>
-                        </FieldLabel>
-                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                      </div>
-                    </Field>
+                    <div className="flex flex-col gap-y-2">
+                      <Field orientation="horizontal" data-invalid={isInvalid}>
+                        <Checkbox
+                          id={`contact-${field.name}`}
+                          name={`contact-${field.name}`}
+                          checked={field.state.value}
+                          onCheckedChange={(checked) => field.handleChange(checked === true)}
+                          aria-invalid={isInvalid}
+                        />
+                        <div className="leading-none">
+                          <FieldLabel htmlFor={`contact-${field.name}`}>
+                            <span>
+                              {t.rich("fields.gdprConsent.label", {
+                                link: (chunks) => (
+                                  <Link
+                                    href={legalLinks.gdpr.href}
+                                    className="underline hover:no-underline"
+                                  >
+                                    {chunks}
+                                  </Link>
+                                ),
+                              })}
+                            </span>
+                          </FieldLabel>
+                        </div>
+                      </Field>
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </div>
                   );
                 }}
               </form.Field>

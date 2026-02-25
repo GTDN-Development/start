@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, LogInIcon } from "lucide-react";
 
@@ -125,16 +126,17 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                       <FieldLabel htmlFor={`login-${field.name}`}>
                         {t("fields.password.label")}
                       </FieldLabel>
-                      <Input
+                      <PasswordInput
                         id={`login-${field.name}`}
                         name={`login-${field.name}`}
-                        type="password"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         autoComplete="current-password"
                         placeholder={t("fields.password.placeholder")}
+                        showPasswordLabel={t("passwordVisibility.show")}
+                        hidePasswordLabel={t("passwordVisibility.hide")}
                       />
                       {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>
