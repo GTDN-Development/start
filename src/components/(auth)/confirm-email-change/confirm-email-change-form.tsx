@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { AlertCircleIcon, CheckCircleIcon, MailCheckIcon } from "lucide-react";
+import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { authRedirectPaths } from "@/lib/auth-redirects";
 import { readAuthFormApiResponse } from "@/lib/auth-form-api";
 import { cn } from "@/lib/utils";
@@ -24,32 +24,23 @@ export function ConfirmEmailChangeForm({
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<{
-    type: "success" | "error" | null;
-    message: string;
-  }>({ type: null, message: "" });
+  const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!token) {
-      setSubmitStatus({
-        type: "error",
-        message: t("status.error.invalidOrExpiredTokenOrPassword"),
-      });
+      setSubmitErrorMessage(t("status.error.invalidOrExpiredTokenOrPassword"));
       return;
     }
 
     if (!password.trim()) {
-      setSubmitStatus({
-        type: "error",
-        message: t("validation.passwordRequired"),
-      });
+      setSubmitErrorMessage(t("validation.passwordRequired"));
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitStatus({ type: null, message: "" });
+    setSubmitErrorMessage(null);
 
     try {
       const response = await fetch("/api/confirm-email-change", {
@@ -66,22 +57,12 @@ export function ConfirmEmailChangeForm({
       const result = await readAuthFormApiResponse(response);
 
       if (response.ok && result?.ok) {
-        setSubmitStatus({
-          type: "success",
-          message: t("status.success.message"),
-        });
         router.replace(result.redirectTo ?? authRedirectPaths.login);
       } else {
-        setSubmitStatus({
-          type: "error",
-          message: getErrorMessage(t, result?.errorCode),
-        });
+        setSubmitErrorMessage(getErrorMessage(t, result?.errorCode));
       }
     } catch {
-      setSubmitStatus({
-        type: "error",
-        message: t("status.error.message"),
-      });
+      setSubmitErrorMessage(t("status.error.message"));
     } finally {
       setIsSubmitting(false);
     }
@@ -93,8 +74,10 @@ export function ConfirmEmailChangeForm({
         <FieldGroup>
           <FieldDescription>{t("description")}</FieldDescription>
 
-          <Field data-invalid={submitStatus.type === "error" && !password.trim()}>
-            <FieldLabel htmlFor="confirm-email-change-password">{t("fields.password.label")}</FieldLabel>
+          <Field data-invalid={Boolean(submitErrorMessage && !password.trim())}>
+            <FieldLabel htmlFor="confirm-email-change-password">
+              {t("fields.password.label")}
+            </FieldLabel>
             <Input
               id="confirm-email-change-password"
               name="confirm-email-change-password"
@@ -102,7 +85,7 @@ export function ConfirmEmailChangeForm({
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder={t("fields.password.placeholder")}
-              aria-invalid={submitStatus.type === "error" && !password.trim()}
+              aria-invalid={Boolean(submitErrorMessage && !password.trim())}
               autoComplete="current-password"
               required
             />
@@ -118,23 +101,17 @@ export function ConfirmEmailChangeForm({
             <Alert variant="destructive">
               <AlertCircleIcon aria-hidden="true" className="size-4" />
               <AlertTitle>{t("status.error.title")}</AlertTitle>
-              <AlertDescription>{t("status.error.invalidOrExpiredTokenOrPassword")}</AlertDescription>
+              <AlertDescription>
+                {t("status.error.invalidOrExpiredTokenOrPassword")}
+              </AlertDescription>
             </Alert>
           )}
 
-          {submitStatus.type && (
-            <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
-              {submitStatus.type === "success" ? (
-                <CheckCircleIcon aria-hidden="true" className="size-4" />
-              ) : (
-                <AlertCircleIcon aria-hidden="true" className="size-4" />
-              )}
-              <AlertTitle>
-                {submitStatus.type === "success"
-                  ? t("status.success.title")
-                  : t("status.error.title")}
-              </AlertTitle>
-              <AlertDescription>{submitStatus.message}</AlertDescription>
+          {submitErrorMessage && (
+            <Alert variant="destructive">
+              <AlertCircleIcon aria-hidden="true" className="size-4" />
+              <AlertTitle>{t("status.error.title")}</AlertTitle>
+              <AlertDescription>{submitErrorMessage}</AlertDescription>
             </Alert>
           )}
         </FieldGroup>

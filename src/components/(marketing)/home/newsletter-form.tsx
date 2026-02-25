@@ -23,7 +23,6 @@ type NewsletterFormValues = {
 
 export function NewsletterForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.newsletter");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
@@ -48,7 +47,6 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
       onSubmit: newsletterFormSchema,
     },
     onSubmit: async ({ value }: { value: NewsletterFormValues }) => {
-      setIsSubmitting(true);
       setSubmitStatus({ type: null, message: "" });
 
       try {
@@ -81,8 +79,6 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
           type: "error",
           message: t("status.error.message"),
         });
-      } finally {
-        setIsSubmitting(false);
       }
     },
   });
@@ -95,88 +91,102 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
           form.handleSubmit();
         }}
       >
-        <FieldGroup>
-          <div className="flex items-end gap-3">
-            <form.Field name="newsletter-email">
-              {(field) => {
-                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid} className="w-full">
-                    <FieldLabel htmlFor={field.name}>{t("fields.email.label")}</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      type="email"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      placeholder={t("fields.email.placeholder")}
-                    />
-                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                  </Field>
-                );
-              }}
-            </form.Field>
+        <form.Subscribe
+          selector={(state) => ({
+            isSubmitting: state.isSubmitting,
+            submissionAttempts: state.submissionAttempts,
+          })}
+        >
+          {({ isSubmitting, submissionAttempts }) => (
+            <FieldGroup>
+              <div className="flex items-end gap-3">
+                <form.Field name="newsletter-email">
+                  {(field) => {
+                    const isInvalid =
+                      (field.state.meta.isTouched || submissionAttempts > 0) &&
+                      !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="w-full">
+                        <FieldLabel htmlFor={field.name}>{t("fields.email.label")}</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="email"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          autoComplete="email"
+                          placeholder={t("fields.email.placeholder")}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
 
-            <Button type="submit" disabled={isSubmitting} className="hidden @sm:inline-flex">
-              {isSubmitting && <Spinner />}
-              {isSubmitting ? t("submit.pending") : t("submit.default")}
-            </Button>
-          </div>
+                <Button type="submit" disabled={isSubmitting} className="hidden @sm:inline-flex">
+                  {isSubmitting && <Spinner />}
+                  {isSubmitting ? t("submit.pending") : t("submit.default")}
+                </Button>
+              </div>
 
-          <p className="text-muted-foreground text-sm">
-            {t.rich("consent", {
-              link: (chunks) => (
-                <Link
-                  href={legalLinks.gdpr.href}
-                  target="_blank"
-                  className="underline hover:no-underline"
-                >
-                  {chunks}
-                </Link>
-              ),
-            })}
-          </p>
+              <p className="text-muted-foreground text-sm">
+                {t.rich("consent", {
+                  link: (chunks) => (
+                    <Link
+                      href={legalLinks.gdpr.href}
+                      target="_blank"
+                      className="underline hover:no-underline"
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                })}
+              </p>
 
-          <form.Field name="turnstileToken">
-            {(field) => {
-              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-              return (
-                <Field data-invalid={isInvalid}>
-                  <Turnstile
-                    ref={turnstileRef}
-                    onSuccess={(token: string) => field.handleChange(token)}
-                    onError={() => field.handleChange("")}
-                    onExpire={() => field.handleChange("")}
-                  />
-                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                </Field>
-              );
-            }}
-          </form.Field>
+              <form.Field name="turnstileToken">
+                {(field) => {
+                  const isInvalid =
+                    (field.state.meta.isTouched || submissionAttempts > 0) &&
+                    !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <Turnstile
+                        ref={turnstileRef}
+                        onSuccess={(token: string) => field.handleChange(token)}
+                        onError={() => field.handleChange("")}
+                        onExpire={() => field.handleChange("")}
+                      />
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  );
+                }}
+              </form.Field>
 
-          <Button type="submit" disabled={isSubmitting} className="w-full @sm:hidden">
-            {isSubmitting && <Spinner />}
-            {isSubmitting ? t("submit.pending") : t("submit.default")}
-          </Button>
+              <Button type="submit" disabled={isSubmitting} className="w-full @sm:hidden">
+                {isSubmitting && <Spinner />}
+                {isSubmitting ? t("submit.pending") : t("submit.default")}
+              </Button>
 
-          {submitStatus.type && (
-            <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
-              {submitStatus.type === "success" ? (
-                <CheckCircleIcon aria-hidden="true" className="size-4" />
-              ) : (
-                <AlertCircleIcon aria-hidden="true" className="size-4" />
+              {submitStatus.type && (
+                <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
+                  {submitStatus.type === "success" ? (
+                    <CheckCircleIcon aria-hidden="true" className="size-4" />
+                  ) : (
+                    <AlertCircleIcon aria-hidden="true" className="size-4" />
+                  )}
+                  <AlertTitle>
+                    {submitStatus.type === "success"
+                      ? t("status.success.title")
+                      : t("status.error.title")}
+                  </AlertTitle>
+                  <AlertDescription>{submitStatus.message}</AlertDescription>
+                </Alert>
               )}
-              <AlertTitle>
-                {submitStatus.type === "success"
-                  ? t("status.success.title")
-                  : t("status.error.title")}
-              </AlertTitle>
-              <AlertDescription>{submitStatus.message}</AlertDescription>
-            </Alert>
+            </FieldGroup>
           )}
-        </FieldGroup>
+        </form.Subscribe>
       </form>
     </div>
   );

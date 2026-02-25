@@ -7,7 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
-import { AlertCircleIcon, CheckCircleIcon, MailCheckIcon } from "lucide-react";
+import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { authRedirectPaths } from "@/lib/auth-redirects";
 import { readAuthFormApiResponse } from "@/lib/auth-form-api";
 import { cn } from "@/lib/utils";
@@ -22,24 +22,18 @@ export function VerifyEmailForm({
   const t = useTranslations("forms.verifyEmail");
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<{
-    type: "success" | "error" | null;
-    message: string;
-  }>({ type: null, message: "" });
+  const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!token) {
-      setSubmitStatus({
-        type: "error",
-        message: t("status.error.invalidOrExpiredToken"),
-      });
+      setSubmitErrorMessage(t("status.error.invalidOrExpiredToken"));
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitStatus({ type: null, message: "" });
+    setSubmitErrorMessage(null);
 
     try {
       const response = await fetch("/api/verify-email", {
@@ -55,22 +49,12 @@ export function VerifyEmailForm({
       const result = await readAuthFormApiResponse(response);
 
       if (response.ok && result?.ok) {
-        setSubmitStatus({
-          type: "success",
-          message: t("status.success.message"),
-        });
         router.replace(result.redirectTo ?? authRedirectPaths.login);
       } else {
-        setSubmitStatus({
-          type: "error",
-          message: getErrorMessage(t, result?.errorCode),
-        });
+        setSubmitErrorMessage(getErrorMessage(t, result?.errorCode));
       }
     } catch {
-      setSubmitStatus({
-        type: "error",
-        message: t("status.error.message"),
-      });
+      setSubmitErrorMessage(t("status.error.message"));
     } finally {
       setIsSubmitting(false);
     }
@@ -95,19 +79,11 @@ export function VerifyEmailForm({
             </Alert>
           )}
 
-          {submitStatus.type && (
-            <Alert variant={submitStatus.type === "error" ? "destructive" : "default"}>
-              {submitStatus.type === "success" ? (
-                <CheckCircleIcon aria-hidden="true" className="size-4" />
-              ) : (
-                <AlertCircleIcon aria-hidden="true" className="size-4" />
-              )}
-              <AlertTitle>
-                {submitStatus.type === "success"
-                  ? t("status.success.title")
-                  : t("status.error.title")}
-              </AlertTitle>
-              <AlertDescription>{submitStatus.message}</AlertDescription>
+          {submitErrorMessage && (
+            <Alert variant="destructive">
+              <AlertCircleIcon aria-hidden="true" className="size-4" />
+              <AlertTitle>{t("status.error.title")}</AlertTitle>
+              <AlertDescription>{submitErrorMessage}</AlertDescription>
             </Alert>
           )}
         </FieldGroup>
