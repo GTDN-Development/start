@@ -47,7 +47,6 @@
         "signUp": "Sign up",
         "dashboard": "Dashboard",
         "projects": "Projects",
-        "settings": "Settings",
         "privacyPolicy": "Privacy Policy",
         "cookiePolicy": "Cookie Policy"
       }
@@ -170,9 +169,12 @@
       "title": "Dashboard",
       "description": "Welcome to your dashboard. Manage your account, view analytics, and access all your tools in one place."
     },
-    "settings": {
+    "account": {
       "title": "Account settings",
       "description": "Manage your avatar, profile details, and email change flow in one place.",
+      "nav": {
+        "settings": "Settings"
+      },
       "common": {
         "successTitle": "Done",
         "errorTitle": "Something went wrong",

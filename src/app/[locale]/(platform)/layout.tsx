@@ -51,11 +51,11 @@ export default async function Layout({ children, params }: PlatformRouteLayoutPr
         dashboard: tNavigation("dashboard"),
         userMenu: {
           account: tNavigation("account"),
+          accountPage: tNavigation("account"),
           home: tNavigation("home"),
           dashboard: tNavigation("dashboard"),
           emailNotVerified: tPlatform("emailNotVerified"),
           emailVerified: tPlatform("emailVerified"),
-          settings: tNavigation("settings"),
           logout: tPlatform("logout"),
         },
       }}

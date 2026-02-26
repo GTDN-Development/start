@@ -26,11 +26,11 @@ export type UserAccountMenuViewer = Omit<AccountProfileSnapshot, "avatarUrl"> & 
 
 export type UserAccountMenuLabels = {
   account: string;
+  accountPage: string;
   home: string;
   dashboard: string;
   emailNotVerified: string;
   emailVerified: string;
-  settings: string;
   logout: string;
 };
 
@@ -110,8 +110,8 @@ export function UserAccountMenu({ viewer, locale, labels, className }: UserAccou
           <DropdownMenuItem render={<Link href="/dashboard" className="w-full cursor-pointer" />}>
             {labels.dashboard}
           </DropdownMenuItem>
-          <DropdownMenuItem render={<Link href="/settings" className="w-full cursor-pointer" />}>
-            {labels.settings}
+          <DropdownMenuItem render={<Link href="/account" className="w-full cursor-pointer" />}>
+            {labels.accountPage}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

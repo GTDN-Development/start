@@ -47,7 +47,6 @@
         "signUp": "Registrace",
         "dashboard": "Nástěnka",
         "projects": "Projekty",
-        "settings": "Nastavení",
         "privacyPolicy": "Zásady ochrany osobních údajů",
         "cookiePolicy": "Zásady cookies"
       }
@@ -170,9 +169,12 @@
       "title": "Nástěnka",
       "description": "Vítejte ve svém osobním přehledu. Spravujte svůj účet a sledujte svou aktivitu."
     },
-    "settings": {
+    "account": {
       "title": "Nastavení účtu",
       "description": "Spravujte avatar, profilové údaje a změnu e-mailu na jednom místě.",
+      "nav": {
+        "settings": "Nastavení"
+      },
       "common": {
         "successTitle": "Hotovo",
         "errorTitle": "Něco se nepovedlo",

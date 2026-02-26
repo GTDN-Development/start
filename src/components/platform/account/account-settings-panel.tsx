@@ -47,7 +47,7 @@ type AccountSettingsApiResponse = {
 type SettingsTranslationFn = (key: string, values?: Record<string, string>) => string;
 
 export function AccountSettingsPanel() {
-  const t = useTranslations("pages.settings");
+  const t = useTranslations("pages.account");
   const { profile, patchProfile, isAvatarUpdating, setIsAvatarUpdating } = useAccountProfile();
   const avatarToastId = React.useId();
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);

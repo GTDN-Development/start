@@ -50,8 +50,8 @@ export const routing = defineRouting({
     "/reset-password": {
       cs: "/obnovit-heslo",
     },
-    "/settings": {
-      cs: "/nastaveni",
+    "/account": {
+      cs: "/ucet",
     },
     "/sign-up": {
       cs: "/registrace",

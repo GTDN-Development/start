@@ -161,11 +161,11 @@ export function Header({ viewer }: { viewer: HeaderViewer }) {
   const viewerDisplayName = getViewerDisplayName(viewer);
   const userMenuLabels: UserAccountMenuLabels = {
     account: tNav("account"),
+    accountPage: tNav("account"),
     home: tNav("home"),
     dashboard: tNav("dashboard"),
     emailNotVerified: tPlatform("emailNotVerified"),
     emailVerified: tPlatform("emailVerified"),
-    settings: tNav("settings"),
     logout: tPlatform("logout"),
   };
 
