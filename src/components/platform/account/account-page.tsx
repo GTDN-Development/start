@@ -11,8 +11,8 @@ export function AccountPage({
   description?: string;
 }) {
   return (
-    <div {...props} className={cn("", className)}>
-      {title && (
+    <div {...props} className={cn(className)}>
+      {(title || description) && (
         <section className="pb-6">
           {title && (
             <h2 className="text-xl/[1.1] font-semibold tracking-tight text-pretty sm:text-2xl/[1.1]">

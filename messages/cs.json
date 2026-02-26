@@ -246,7 +246,7 @@
           "description": "Na novou adresu vám pošleme potvrzovací odkaz.",
           "field": {
             "label": "Nová e-mailová adresa",
-            "placeholder": "vy@example.com"
+            "placeholder": "jmeno@email.cz"
           },
           "confirmation": {
             "label": "Rozumím, že tento e-mail bude mít přístup k mému účtu."

@@ -57,7 +57,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     .superRefine((values, ctx) => {
       if (values.password !== values.confirmPassword) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: t("validation.passwordMismatch"),
           path: ["confirmPassword"],
         });

@@ -6,6 +6,8 @@
 - Double quotes, semicolons, 2-space indent, trailing commas (es5), printWidth 100
 - Never use `any`. Never leave unused variables (prefix unused args with `_`)
 - Use `size-*` utility when width and height are equal — **never** `w-* h-*` together
+- In JSX, prefer `condition && <Element />` over `condition ? <Element /> : null` when there is no else branch
+- Prefer named React hook imports (e.g. `import { useState } from "react"`) over `React.useState`
 
 ## Next.js
 

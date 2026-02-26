@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
+import { AlertCircleIcon } from "lucide-react";
 
 const MAX_PROFILE_NAME_LENGTH = 32;
 
@@ -133,23 +133,13 @@ export function AccountDisplayNameSettingsItem() {
                 {nameFieldError && <FieldError>{nameFieldError}</FieldError>}
               </Field>
 
-              {nameStatus && (
-                <>
-                  {nameStatus.kind === "success" ? (
-                    <Alert className="py-2">
-                      <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-500" />
-                      <AlertTitle>{t("common.successTitle")}</AlertTitle>
-                      <AlertDescription>{nameStatus.message}</AlertDescription>
-                    </Alert>
-                  ) : (
-                    <Alert variant="destructive" className="py-2">
-                      <AlertCircleIcon aria-hidden="true" className="size-4" />
-                      <AlertTitle>{t("common.errorTitle")}</AlertTitle>
-                      <AlertDescription>{nameStatus.message}</AlertDescription>
-                    </Alert>
-                  )}
-                </>
-              )}
+              {nameStatus?.kind === "error" ? (
+                <Alert variant="destructive" className="py-2">
+                  <AlertCircleIcon aria-hidden="true" className="size-4" />
+                  <AlertTitle>{t("common.errorTitle")}</AlertTitle>
+                  <AlertDescription>{nameStatus.message}</AlertDescription>
+                </Alert>
+              ) : null}
             </div>
           </AccountItemContentBody>
         </AccountItemContent>

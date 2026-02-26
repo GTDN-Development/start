@@ -1,5 +1,6 @@
 "use client";
 
+import { useForm } from "@tanstack/react-form";
 import * as React from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
@@ -36,123 +37,91 @@ import {
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
+type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;
+type EmailChangeFormValues = {
+  newEmail: string;
+  confirmed: boolean;
+};
 
 export function AccountEmailSettingsItem() {
   const t = useTranslations("pages.account");
   const { profile } = useAccountProfile();
   const [isEmailDialogOpen, setIsEmailDialogOpen] = React.useState(false);
-  const [newEmailValue, setNewEmailValue] = React.useState("");
-  const [emailFieldError, setEmailFieldError] = React.useState<string | null>(null);
-  const [emailConfirmationError, setEmailConfirmationError] = React.useState<string | null>(null);
   const [emailDialogStatus, setEmailDialogStatus] = React.useState<InlineStatus>(null);
-  const [isEmailChangeConfirmed, setIsEmailChangeConfirmed] = React.useState(false);
-  const [isSendingEmailChange, setIsSendingEmailChange] = React.useState(false);
+  const normalizedCurrentEmail = profile.email.trim().toLowerCase();
+  const emailChangeFormSchema = getEmailChangeFormSchema(t, normalizedCurrentEmail);
+  const form = useForm({
+    defaultValues: {
+      newEmail: "",
+      confirmed: false,
+    },
+    validators: {
+      onSubmit: emailChangeFormSchema,
+    },
+    onSubmit: async ({ value }: { value: EmailChangeFormValues }) => {
+      setEmailDialogStatus(null);
+
+      const parsedValue = emailChangeFormSchema.safeParse(value);
+
+      if (!parsedValue.success) {
+        return;
+      }
+
+      const parsedEmail = emailChangeValueSchema.safeParse(value.newEmail);
+
+      if (!parsedEmail.success) {
+        return;
+      }
+
+      const normalizedNewEmail = parsedEmail.data;
+
+      try {
+        const response = await fetch("/api/account/email-change", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            newEmail: normalizedNewEmail,
+          }),
+        });
+        const result = await readAccountSettingsApiResponse(response);
+
+        if (!response.ok || !result?.ok) {
+          setEmailDialogStatus({
+            kind: "error",
+            message: getEmailChangeErrorMessage(t, result?.errorCode),
+          });
+          return;
+        }
+
+        setEmailDialogStatus({
+          kind: "success",
+          message: t("email.dialog.status.sentMessage", {
+            email: result.targetEmail ?? normalizedNewEmail,
+          }),
+        });
+      } catch {
+        setEmailDialogStatus({
+          kind: "error",
+          message: t("email.dialog.status.errorMessage"),
+        });
+      }
+    },
+  });
+
+  function clearEmailDialogStatus() {
+    if (emailDialogStatus) {
+      setEmailDialogStatus(null);
+    }
+  }
 
   function handleEmailDialogOpenChange(open: boolean) {
     setIsEmailDialogOpen(open);
 
     if (open) {
-      setNewEmailValue("");
-      setEmailFieldError(null);
-      setEmailConfirmationError(null);
+      form.reset();
       setEmailDialogStatus(null);
-      setIsEmailChangeConfirmed(false);
-    }
-  }
-
-  function handleEmailInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setNewEmailValue(event.target.value);
-
-    if (emailFieldError) {
-      setEmailFieldError(null);
-    }
-
-    if (emailDialogStatus) {
-      setEmailDialogStatus(null);
-    }
-  }
-
-  function handleEmailConfirmationChange(checked: boolean | "indeterminate") {
-    setIsEmailChangeConfirmed(checked === true);
-
-    if (emailConfirmationError) {
-      setEmailConfirmationError(null);
-    }
-
-    if (emailDialogStatus) {
-      setEmailDialogStatus(null);
-    }
-  }
-
-  async function handleEmailChangeSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const normalizedCurrentEmail = profile.email.trim().toLowerCase();
-    const parsedNewEmail = emailChangeValueSchema.safeParse(newEmailValue);
-    let nextEmailFieldError: string | null = null;
-    let nextEmailConfirmationError: string | null = null;
-
-    if (!parsedNewEmail.success) {
-      nextEmailFieldError = t("email.dialog.errors.invalidOrUnavailable");
-    } else if (parsedNewEmail.data === normalizedCurrentEmail) {
-      nextEmailFieldError = t("email.dialog.errors.sameAsCurrent");
-    }
-
-    if (!isEmailChangeConfirmed) {
-      nextEmailConfirmationError = t("email.dialog.errors.confirmationRequired");
-    }
-
-    if (nextEmailFieldError || nextEmailConfirmationError) {
-      setEmailFieldError(nextEmailFieldError);
-      setEmailConfirmationError(nextEmailConfirmationError);
-      setEmailDialogStatus(null);
-      return;
-    }
-
-    if (!parsedNewEmail.success) {
-      return;
-    }
-
-    const normalizedNewEmail = parsedNewEmail.data;
-
-    setIsSendingEmailChange(true);
-    setEmailFieldError(null);
-    setEmailConfirmationError(null);
-    setEmailDialogStatus(null);
-
-    try {
-      const response = await fetch("/api/account/email-change", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          newEmail: normalizedNewEmail,
-        }),
-      });
-      const result = await readAccountSettingsApiResponse(response);
-
-      if (!response.ok || !result?.ok) {
-        setEmailDialogStatus({
-          kind: "error",
-          message: getEmailChangeErrorMessage(t, result?.errorCode),
-        });
-        return;
-      }
-
-      setEmailDialogStatus({
-        kind: "success",
-        message: t("email.dialog.status.sentMessage", {
-          email: result.targetEmail ?? normalizedNewEmail,
-        }),
-      });
-    } catch {
-      setEmailDialogStatus({
-        kind: "error",
-        message: t("email.dialog.status.errorMessage"),
-      });
-    } finally {
-      setIsSendingEmailChange(false);
     }
   }
 
@@ -196,89 +165,129 @@ export function AccountEmailSettingsItem() {
             }
           />
           <DialogContent
-            className={"sm:max-w-lg"}
-            render={<form onSubmit={handleEmailChangeSubmit} />}
+            className="sm:max-w-lg"
+            render={
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  form.handleSubmit();
+                }}
+              />
+            }
           >
             <DialogHeader>
               <DialogTitle>{t("email.dialog.title")}</DialogTitle>
               <DialogDescription>{t("email.dialog.description")}</DialogDescription>
             </DialogHeader>
 
-            <div className="mt-6 grid gap-4">
-              <Field data-invalid={Boolean(emailFieldError)} className="grid gap-2">
-                <FieldLabel htmlFor="account-email-change-new-email">
-                  {t("email.dialog.field.label")}
-                </FieldLabel>
-                <Input
-                  id="account-email-change-new-email"
-                  name="account-email-change-new-email"
-                  type="email"
-                  autoComplete="email"
-                  value={newEmailValue}
-                  onChange={handleEmailInputChange}
-                  placeholder={t("email.dialog.field.placeholder")}
-                  aria-invalid={Boolean(emailFieldError)}
-                  required
-                />
-                {emailFieldError && <FieldError>{emailFieldError}</FieldError>}
-              </Field>
+            <form.Subscribe
+              selector={(state) => ({
+                isSubmitting: state.isSubmitting,
+                submissionAttempts: state.submissionAttempts,
+              })}
+            >
+              {({ isSubmitting, submissionAttempts }) => (
+                <>
+                  <div className="mt-6 grid gap-4">
+                    <form.Field name="newEmail">
+                      {(field) => {
+                        const isInvalid =
+                          (field.state.meta.isTouched || submissionAttempts > 0) &&
+                          !field.state.meta.isValid;
 
-              <div className="flex flex-col gap-y-2">
-                <Field orientation="horizontal" data-invalid={Boolean(emailConfirmationError)}>
-                  <Checkbox
-                    id="account-email-change-confirmed"
-                    name="account-email-change-confirmed"
-                    checked={isEmailChangeConfirmed}
-                    onCheckedChange={handleEmailConfirmationChange}
-                    aria-invalid={Boolean(emailConfirmationError)}
-                    required
-                  />
-                  <FieldLabel htmlFor="account-email-change-confirmed">
-                    {t("email.dialog.confirmation.label")}
-                  </FieldLabel>
-                </Field>
-                {emailConfirmationError && <FieldError>{emailConfirmationError}</FieldError>}
-              </div>
+                        return (
+                          <Field data-invalid={isInvalid} className="grid gap-2">
+                            <FieldLabel htmlFor={`account-email-change-${field.name}`}>
+                              {t("email.dialog.field.label")}
+                            </FieldLabel>
+                            <Input
+                              id={`account-email-change-${field.name}`}
+                              name={`account-email-change-${field.name}`}
+                              type="email"
+                              autoComplete="email"
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(event) => {
+                                clearEmailDialogStatus();
+                                field.handleChange(event.target.value);
+                              }}
+                              placeholder={t("email.dialog.field.placeholder")}
+                              aria-invalid={isInvalid}
+                            />
+                            {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                          </Field>
+                        );
+                      }}
+                    </form.Field>
 
-              {emailDialogStatus ? (
-                emailDialogStatus.kind === "success" ? (
-                  <Alert className="py-2">
-                    <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-500" />
-                    <AlertTitle>{t("email.dialog.status.sentTitle")}</AlertTitle>
-                    <AlertDescription>{emailDialogStatus.message}</AlertDescription>
-                  </Alert>
-                ) : (
-                  <Alert variant="destructive" className="py-2">
-                    <AlertCircleIcon aria-hidden="true" className="size-4" />
-                    <AlertTitle>{t("common.errorTitle")}</AlertTitle>
-                    <AlertDescription>{emailDialogStatus.message}</AlertDescription>
-                  </Alert>
-                )
-              ) : null}
-            </div>
+                    <form.Field name="confirmed">
+                      {(field) => {
+                        const isInvalid =
+                          (field.state.meta.isTouched || submissionAttempts > 0) &&
+                          !field.state.meta.isValid;
 
-            <DialogFooter>
-              <div className="flex flex-col-reverse gap-2 sm:flex-row">
-                <DialogClose
-                  nativeButton={true}
-                  render={
-                    <Button type="button" variant="outline" size={"lg"}>
-                      {t("common.cancel")}
-                    </Button>
-                  }
-                />
-                <Button type="submit" disabled={isSendingEmailChange} size={"lg"}>
-                  {isSendingEmailChange ? (
-                    <Spinner />
-                  ) : (
-                    <MailIcon aria-hidden="true" className="size-4" />
-                  )}
-                  {isSendingEmailChange
-                    ? t("email.dialog.submit.pending")
-                    : t("email.dialog.submit.default")}
-                </Button>
-              </div>
-            </DialogFooter>
+                        return (
+                          <div className="flex flex-col gap-y-2">
+                            <Field orientation="horizontal" data-invalid={isInvalid}>
+                              <Checkbox
+                                id={`account-email-change-${field.name}`}
+                                name={`account-email-change-${field.name}`}
+                                checked={field.state.value}
+                                onBlur={field.handleBlur}
+                                onCheckedChange={(checked) => {
+                                  clearEmailDialogStatus();
+                                  field.handleChange(checked === true);
+                                }}
+                                aria-invalid={isInvalid}
+                              />
+                              <FieldLabel htmlFor={`account-email-change-${field.name}`}>
+                                {t("email.dialog.confirmation.label")}
+                              </FieldLabel>
+                            </Field>
+                            {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                          </div>
+                        );
+                      }}
+                    </form.Field>
+
+                    {emailDialogStatus ? (
+                      emailDialogStatus.kind === "success" ? (
+                        <Alert className="py-2">
+                          <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-500" />
+                          <AlertTitle>{t("email.dialog.status.sentTitle")}</AlertTitle>
+                          <AlertDescription>{emailDialogStatus.message}</AlertDescription>
+                        </Alert>
+                      ) : (
+                        <Alert variant="destructive" className="py-2">
+                          <AlertCircleIcon aria-hidden="true" className="size-4" />
+                          <AlertTitle>{t("common.errorTitle")}</AlertTitle>
+                          <AlertDescription>{emailDialogStatus.message}</AlertDescription>
+                        </Alert>
+                      )
+                    ) : null}
+                  </div>
+
+                  <DialogFooter>
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row">
+                      <DialogClose
+                        nativeButton={true}
+                        render={
+                          <Button type="button" variant="outline" size="lg">
+                            {t("common.cancel")}
+                          </Button>
+                        }
+                      />
+                      <Button type="submit" disabled={isSubmitting} size="lg">
+                        {isSubmitting ? <Spinner /> : <MailIcon aria-hidden="true" className="size-4" />}
+                        {isSubmitting
+                          ? t("email.dialog.submit.pending")
+                          : t("email.dialog.submit.default")}
+                      </Button>
+                    </div>
+                  </DialogFooter>
+                </>
+              )}
+            </form.Subscribe>
           </DialogContent>
         </Dialog>
       </AccountItemFooter>
@@ -287,7 +296,7 @@ export function AccountEmailSettingsItem() {
 }
 
 function getEmailChangeErrorMessage(
-  t: (key: string, values?: Record<string, string>) => string,
+  t: AccountTranslationFn,
   errorCode?: string
 ) {
   if (errorCode === "EMAIL_UNCHANGED") {
@@ -303,4 +312,37 @@ function getEmailChangeErrorMessage(
   }
 
   return t("email.dialog.status.errorMessage");
+}
+
+function getEmailChangeFormSchema(t: AccountTranslationFn, normalizedCurrentEmail: string) {
+  return z
+    .object({
+      newEmail: z.string(),
+      confirmed: z.boolean(),
+    })
+    .superRefine((value, context) => {
+      const parsedNewEmail = emailChangeValueSchema.safeParse(value.newEmail);
+
+      if (!parsedNewEmail.success) {
+        context.addIssue({
+          code: "custom",
+          path: ["newEmail"],
+          message: t("email.dialog.errors.invalidOrUnavailable"),
+        });
+      } else if (parsedNewEmail.data === normalizedCurrentEmail) {
+        context.addIssue({
+          code: "custom",
+          path: ["newEmail"],
+          message: t("email.dialog.errors.sameAsCurrent"),
+        });
+      }
+
+      if (!value.confirmed) {
+        context.addIssue({
+          code: "custom",
+          path: ["confirmed"],
+          message: t("email.dialog.errors.confirmationRequired"),
+        });
+      }
+    });
 }
