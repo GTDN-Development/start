@@ -9,7 +9,7 @@ import {
   setAuthenticatedUserApiCookie,
 } from "@/server/pocketbase/authenticated-user-api";
 
-const MAX_AVATAR_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
 
 export async function POST(request: NextRequest) {
   try {

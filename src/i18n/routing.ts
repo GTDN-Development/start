@@ -53,6 +53,9 @@ export const routing = defineRouting({
     "/account": {
       cs: "/ucet",
     },
+    "/account/security": {
+      cs: "/ucet/zabezpeceni",
+    },
     "/sign-up": {
       cs: "/registrace",
     },

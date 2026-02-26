@@ -171,91 +171,157 @@
     },
     "account": {
       "title": "Nastavení účtu",
-      "description": "Spravujte avatar, profilové údaje a změnu e-mailu na jednom místě.",
+      "description": "Spravujte profil, e-mail a zabezpečení svého účtu.",
       "nav": {
-        "settings": "Nastavení"
+        "general": "Obecné",
+        "security": "Zabezpečení"
+      },
+      "generalPage": {
+        "title": "Obecné",
+        "description": "Upravte profilové údaje, avatar, e-mailovou adresu a základní nastavení účtu."
+      },
+      "securityPage": {
+        "title": "Zabezpečení",
+        "description": "Změňte heslo a posilte zabezpečení svého účtu."
       },
       "common": {
         "successTitle": "Hotovo",
         "errorTitle": "Něco se nepovedlo",
         "cancel": "Zrušit"
       },
-      "accountCard": {
-        "title": "Profil účtu",
-        "description": "Udržujte údaje účtu aktuální. Změna avatara se projeví hned a změna e-mailu běží přes ověřovací flow PocketBase."
-      },
       "avatar": {
-        "title": "Profilová fotka",
-        "description": "Zobrazuje se v menu účtu a napříč aplikací.",
-        "buttonLabel": "Upravit profilovou fotku",
+        "title": "Avatar",
+        "description": "Nahrajte profilový obrázek, nebo jej odeberte a používejte iniciály.",
+        "buttonLabel": "Otevřít možnosti avatara",
         "menu": {
-          "change": "Změnit profilovou fotku",
-          "remove": "Odstranit"
+          "change": "Změnit avatar",
+          "remove": "Odebrat avatar"
         },
-        "hint": "Pro nejlepší výsledek použijte čtvercový obrázek. Změny se ukládají ihned.",
+        "hint": "Podporovány jsou pouze obrázky. Maximální velikost souboru je 1 MB.",
         "status": {
-          "updated": "Profilová fotka byla aktualizována.",
-          "removed": "Profilová fotka byla odstraněna.",
-          "error": "Profilovou fotku se nepodařilo upravit. Zkuste to prosím znovu.",
-          "invalidFileType": "Vyberte prosím soubor s obrázkem.",
-          "fileTooLarge": "Vybraný obrázek je příliš velký. Použijte soubor do 5 MB.",
-          "unauthorized": "Platnost relace vypršela. Přihlaste se prosím znovu."
-        }
-      },
-      "email": {
-        "title": "E-mail",
-        "description": "Přihlašovací e-mail. Změna spustí ověřovací flow.",
-        "verification": {
-          "verified": "Ověřený",
-          "unverified": "Neověřený"
-        },
-        "changeButton": "Změnit e-mail",
-        "dialog": {
-          "title": "Změna e-mailu",
-          "description": "Zadejte nový e-mail pro spuštění bezpečného PocketBase flow změny e-mailu.",
-          "flowSummary": "Na novou adresu pošleme ověřovací odkaz. Aktuální e-mail zůstane aktivní, dokud změnu nepotvrdíte.",
-          "field": {
-            "label": "Nová e-mailová adresa",
-            "placeholder": "jmeno@example.com",
-            "description": "Pokud je adresa neplatná nebo už obsazená, požádáme vás o jinou."
-          },
-          "footerNote": "Po otevření odkazu vás potvrzovací stránka požádá o heslo.",
-          "submit": {
-            "default": "Poslat ověřovací odkaz",
-            "pending": "Odesílání..."
-          },
-          "status": {
-            "sentTitle": "Ověřovací odkaz odeslán",
-            "sentMessage": "Ověřovací odkaz jsme poslali na {email}.",
-            "errorMessage": "Nepodařilo se spustit flow změny e-mailu. Zkuste to prosím znovu."
-          },
-          "errors": {
-            "invalidOrUnavailable": "Použijte jiný e-mail. Tato adresa je neplatná nebo už se používá.",
-            "sameAsCurrent": "Zadejte prosím jinou adresu než aktuální e-mail.",
-            "unauthorized": "Platnost relace vypršela. Přihlaste se prosím znovu."
-          }
+          "updated": "Avatar byl úspěšně aktualizován.",
+          "removed": "Avatar byl úspěšně odebrán.",
+          "error": "Avatar se teď nepodařilo upravit. Zkuste to prosím znovu.",
+          "invalidFileType": "Vyberte prosím platný obrázek.",
+          "fileTooLarge": "Avatar musí mít maximálně 1 MB.",
+          "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
         }
       },
       "profile": {
-        "title": "Jméno",
-        "description": "Toto jméno se zobrazuje v menu účtu a v souvisejících profilových částech rozhraní.",
+        "title": "Zobrazované jméno",
+        "description": "Nastavte, jak se vaše jméno zobrazuje v aplikaci.",
         "fields": {
           "name": {
-            "label": "Celé jméno",
-            "placeholder": "Vaše jméno",
-            "description": "Pole můžete nechat prázdné a jako popisek účtu se použije e-mail."
+            "label": "Zobrazované jméno",
+            "placeholder": "Vaše celé jméno",
+            "description": "Toto jméno se zobrazuje v účtu a v navigaci.",
+            "errors": {
+              "max": "Zobrazované jméno může mít maximálně {max} znaků."
+            }
           }
         },
-        "footerHint": "Ukládá se samostatně, aby šlo později přidat další profilová pole bez zásahu do flow e-mailu nebo avatara.",
+        "footerHint": "Maximální délka je 32 znaků.",
         "submit": {
-          "default": "Uložit",
+          "default": "Uložit změny",
           "pending": "Ukládání..."
         },
         "status": {
-          "savedMessage": "Profilové údaje byly uloženy.",
-          "errorMessage": "Profilové údaje se nepodařilo uložit. Zkuste to prosím znovu.",
-          "unauthorizedMessage": "Platnost relace vypršela. Přihlaste se prosím znovu.",
-          "invalidInputMessage": "Zkontrolujte prosím pole se jménem a zkuste to znovu."
+          "savedMessage": "Zobrazované jméno bylo aktualizováno.",
+          "errorMessage": "Zobrazované jméno se nepodařilo uložit. Zkuste to prosím znovu.",
+          "unauthorizedMessage": "Vaše relace vypršela. Přihlaste se prosím znovu.",
+          "invalidInputMessage": "Zadejte prosím platné zobrazované jméno."
+        }
+      },
+      "email": {
+        "title": "E-mailová adresa",
+        "description": "Tato e-mailová adresa slouží k přihlášení a k zasílání důležitých oznámení.",
+        "verification": {
+          "verified": "Ověřeno",
+          "unverified": "Neověřeno"
+        },
+        "footerHint": "Změna e-mailu vyžaduje ověření, než se nová adresa aktivuje.",
+        "changeButton": "Změnit e-mail",
+        "dialog": {
+          "title": "Změna e-mailové adresy",
+          "description": "Na novou adresu vám pošleme potvrzovací odkaz.",
+          "flowSummary": "Vaše současná e-mailová adresa zůstane aktivní, dokud změnu nepotvrdíte přes odkaz z e-mailu.",
+          "field": {
+            "label": "Nová e-mailová adresa",
+            "placeholder": "vy@example.com",
+            "description": "Použijte adresu, ke které máte právě přístup."
+          },
+          "errors": {
+            "invalidOrUnavailable": "Zadejte platnou e-mailovou adresu, která není už používaná.",
+            "sameAsCurrent": "Nová e-mailová adresa se musí lišit od aktuální.",
+            "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
+          },
+          "status": {
+            "sentTitle": "Ověřovací e-mail odeslán",
+            "sentMessage": "Na adresu {email} jsme poslali potvrzovací odkaz.",
+            "errorMessage": "Nepodařilo se spustit změnu e-mailu. Zkuste to prosím znovu."
+          },
+          "footerNote": "Potřebujete pomoc? Nechte toto okno otevřené, dokud e-mail nedorazí.",
+          "submit": {
+            "default": "Odeslat potvrzovací odkaz",
+            "pending": "Odesílání..."
+          }
+        }
+      },
+      "deleteAccount": {
+        "title": "Smazání účtu",
+        "description": "Trvale smažte svůj účet a všechna související data. Tuto akci nelze vrátit zpět.",
+        "trigger": "Trvale smazat účet",
+        "dialog": {
+          "title": "Trvale smazat účet",
+          "description": "Tímto trvale odstraníte účet i související data. Tuto akci nelze vrátit zpět.",
+          "confirm": "Smazat trvale",
+          "confirmPending": "Mazání..."
+        },
+        "status": {
+          "success": "Účet byl smazán.",
+          "error": "Účet se teď nepodařilo smazat. Zkuste to prosím znovu.",
+          "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu.",
+          "deleteNotAllowed": "Mazání účtů zatím není na backendu povolené."
+        }
+      },
+      "security": {
+        "password": {
+          "title": "Heslo",
+          "description": "Změňte heslo ke svému účtu. Pro potvrzení změny budete potřebovat aktuální heslo.",
+          "footerHint": "Použijte silné heslo o délce alespoň 8 znaků.",
+          "submit": {
+            "default": "Aktualizovat heslo",
+            "pending": "Aktualizace..."
+          },
+          "status": {
+            "saved": "Heslo bylo aktualizováno.",
+            "savedAndRelogin": "Heslo bylo změněno. Přihlaste se prosím znovu.",
+            "error": "Heslo se nepodařilo aktualizovat. Zkuste to prosím znovu.",
+            "invalidInput": "Zkontrolujte aktuální heslo a ověřte, že nové heslo splňuje požadavky.",
+            "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
+          },
+          "fields": {
+            "currentPassword": {
+              "label": "Aktuální heslo",
+              "errors": {
+                "required": "Zadejte aktuální heslo."
+              }
+            },
+            "newPassword": {
+              "label": "Nové heslo",
+              "errors": {
+                "min": "Nové heslo musí mít alespoň {min} znaků.",
+                "sameAsCurrent": "Nové heslo se musí lišit od aktuálního hesla."
+              }
+            },
+            "confirmPassword": {
+              "label": "Potvrzení nového hesla",
+              "errors": {
+                "required": "Potvrďte nové heslo.",
+                "mismatch": "Hesla se neshodují."
+              }
+            }
+          }
         }
       }
     }

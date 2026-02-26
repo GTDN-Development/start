@@ -11,6 +11,7 @@
 
 - **Never** import from `next/link` directly — use `@/components/ui/link` for internal localized links
 - For external URLs and hash/mailto/tel links use a native `<a>` (do not force `@/components/ui/link`)
+- Mirror route-specific component folders to the actual app route/route-group structure when practical (e.g. `src/components/.../account/security/*` for `/account/security`)
 - **Never** use `middleware.ts` — use `proxy.ts` for request interception (no edge runtime)
 - `params` and `searchParams` must be awaited — they are async in Next.js 16
 - `cookies()`, `headers()`, `draftMode()` must be awaited

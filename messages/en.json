@@ -171,91 +171,157 @@
     },
     "account": {
       "title": "Account settings",
-      "description": "Manage your avatar, profile details, and email change flow in one place.",
+      "description": "Manage your account profile, email, and security settings.",
       "nav": {
-        "settings": "Settings"
+        "general": "General",
+        "security": "Security"
+      },
+      "generalPage": {
+        "title": "General",
+        "description": "Update your profile details, avatar, email address, and account preferences."
+      },
+      "securityPage": {
+        "title": "Security",
+        "description": "Change your password and keep your account secure."
       },
       "common": {
         "successTitle": "Done",
         "errorTitle": "Something went wrong",
         "cancel": "Cancel"
       },
-      "accountCard": {
-        "title": "Account profile",
-        "description": "Keep your account details up to date. Avatar changes apply immediately, and email changes follow the PocketBase verification flow."
-      },
       "avatar": {
-        "title": "Profile photo",
-        "description": "Shown in your account menu and across the app.",
-        "buttonLabel": "Edit profile photo",
+        "title": "Avatar",
+        "description": "Upload a profile image or remove it to use your initials instead.",
+        "buttonLabel": "Open avatar options",
         "menu": {
-          "change": "Change profile photo",
-          "remove": "Remove"
+          "change": "Change avatar",
+          "remove": "Remove avatar"
         },
-        "hint": "Use a square image for the best result. Changes are saved immediately.",
+        "hint": "Supported image formats only. Maximum file size is 1 MB.",
         "status": {
-          "updated": "Your profile photo was updated.",
-          "removed": "Your profile photo was removed.",
-          "error": "We could not update your profile photo. Please try again.",
-          "invalidFileType": "Please choose an image file.",
-          "fileTooLarge": "The selected image is too large. Use a file up to 5 MB.",
-          "unauthorized": "Your session has expired. Please sign in again."
+          "updated": "Avatar updated successfully.",
+          "removed": "Avatar removed successfully.",
+          "error": "We couldn't update your avatar right now. Please try again.",
+          "invalidFileType": "Please choose a valid image file.",
+          "fileTooLarge": "Avatar image must be 1 MB or smaller.",
+          "unauthorized": "Your session expired. Please sign in again."
+        }
+      },
+      "profile": {
+        "title": "Display name",
+        "description": "Choose how your name appears across the app.",
+        "fields": {
+          "name": {
+            "label": "Display name",
+            "placeholder": "Your full name",
+            "description": "This name is visible in your account and navigation.",
+            "errors": {
+              "max": "Display name must be at most {max} characters."
+            }
+          }
+        },
+        "footerHint": "Maximum length is 32 characters.",
+        "submit": {
+          "default": "Save changes",
+          "pending": "Saving..."
+        },
+        "status": {
+          "savedMessage": "Your display name has been updated.",
+          "errorMessage": "We couldn't save your display name. Please try again.",
+          "unauthorizedMessage": "Your session expired. Please sign in again.",
+          "invalidInputMessage": "Please enter a valid display name."
         }
       },
       "email": {
-        "title": "Email",
-        "description": "Your sign-in email. Changing it starts a verification flow.",
+        "title": "Email address",
+        "description": "This email is used for sign in and account-related notifications.",
         "verification": {
           "verified": "Verified",
           "unverified": "Not verified"
         },
+        "footerHint": "Email changes require verification before the new address becomes active.",
         "changeButton": "Change email",
         "dialog": {
-          "title": "Change email",
-          "description": "Enter a new email address to start the secure PocketBase email-change flow.",
-          "flowSummary": "We'll send a verification link to the new address. Your current email remains active until the change is confirmed.",
+          "title": "Change email address",
+          "description": "We'll send a confirmation link to your new email address.",
+          "flowSummary": "Your current email stays active until you confirm the change from the link we send.",
           "field": {
             "label": "New email address",
-            "placeholder": "name@example.com",
-            "description": "If the address is unavailable or invalid, we'll ask you to use a different one."
-          },
-          "footerNote": "After opening the link, the confirmation page will ask for your password.",
-          "submit": {
-            "default": "Send verification link",
-            "pending": "Sending..."
-          },
-          "status": {
-            "sentTitle": "Verification link sent",
-            "sentMessage": "We sent a verification link to {email}.",
-            "errorMessage": "We could not start the email change flow. Please try again."
+            "placeholder": "you@example.com",
+            "description": "Use an email address you can access right now."
           },
           "errors": {
-            "invalidOrUnavailable": "Use a different email address. This one is invalid or already in use.",
-            "sameAsCurrent": "Please enter a different email address than the current one.",
-            "unauthorized": "Your session has expired. Please sign in again."
+            "invalidOrUnavailable": "Enter a valid email address that isn't already in use.",
+            "sameAsCurrent": "The new email address must be different from your current one.",
+            "unauthorized": "Your session expired. Please sign in again."
+          },
+          "status": {
+            "sentTitle": "Verification email sent",
+            "sentMessage": "We sent a confirmation link to {email}.",
+            "errorMessage": "We couldn't start the email change process. Please try again."
+          },
+          "footerNote": "Need help? Keep this window open until the email arrives.",
+          "submit": {
+            "default": "Send confirmation link",
+            "pending": "Sending..."
           }
         }
       },
-      "profile": {
-        "title": "Full name",
-        "description": "This name is shown in your account menu and profile-related UI.",
-        "fields": {
-          "name": {
-            "label": "Full name",
-            "placeholder": "Your name",
-            "description": "You can leave it empty and use your email as the display label."
-          }
-        },
-        "footerHint": "Saved separately so future profile fields can be added without affecting email or avatar flow.",
-        "submit": {
-          "default": "Save",
-          "pending": "Saving..."
+      "deleteAccount": {
+        "title": "Delete account",
+        "description": "Permanently delete your account and all associated data. This action cannot be undone.",
+        "trigger": "Delete account permanently",
+        "dialog": {
+          "title": "Delete account permanently",
+          "description": "This will permanently remove your account and related data. This action cannot be undone.",
+          "confirm": "Delete permanently",
+          "confirmPending": "Deleting..."
         },
         "status": {
-          "savedMessage": "Profile details were saved.",
-          "errorMessage": "We could not save your profile details. Please try again.",
-          "unauthorizedMessage": "Your session has expired. Please sign in again.",
-          "invalidInputMessage": "Please check the name field and try again."
+          "success": "Your account has been deleted.",
+          "error": "We couldn't delete your account right now. Please try again.",
+          "unauthorized": "Your session expired. Please sign in again.",
+          "deleteNotAllowed": "Account deletion is not enabled in the backend yet."
+        }
+      },
+      "security": {
+        "password": {
+          "title": "Password",
+          "description": "Change your account password. You'll need your current password to confirm the change.",
+          "footerHint": "Use a strong password with at least 8 characters.",
+          "submit": {
+            "default": "Update password",
+            "pending": "Updating..."
+          },
+          "status": {
+            "saved": "Your password has been updated.",
+            "savedAndRelogin": "Password updated. Please sign in again.",
+            "error": "We couldn't update your password. Please try again.",
+            "invalidInput": "Check your current password and make sure the new password meets requirements.",
+            "unauthorized": "Your session expired. Please sign in again."
+          },
+          "fields": {
+            "currentPassword": {
+              "label": "Current password",
+              "errors": {
+                "required": "Enter your current password."
+              }
+            },
+            "newPassword": {
+              "label": "New password",
+              "errors": {
+                "min": "New password must be at least {min} characters.",
+                "sameAsCurrent": "New password must be different from your current password."
+              }
+            },
+            "confirmPassword": {
+              "label": "Confirm new password",
+              "errors": {
+                "required": "Confirm your new password.",
+                "mismatch": "Passwords do not match."
+              }
+            }
+          }
         }
       }
     }

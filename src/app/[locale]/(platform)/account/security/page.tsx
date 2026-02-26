@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountPage } from "@/components/platform/account/account-page";
-import { AccountGeneralSettings } from "@/components/platform/account/general/account-general-settings";
+import { AccountSecuritySettings } from "@/components/platform/account/security/account-security-settings";
 import { createPageMetadata } from "@/lib/metadata";
 
-export async function generateMetadata(props: PageProps<"/[locale]/account">): Promise<Metadata> {
+export async function generateMetadata(
+  props: PageProps<"/[locale]/account/security">
+): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
@@ -14,14 +16,14 @@ export async function generateMetadata(props: PageProps<"/[locale]/account">): P
   });
 
   return createPageMetadata({
-    title: t("generalPage.title"),
-    description: t("generalPage.description"),
+    title: t("securityPage.title"),
+    description: t("securityPage.description"),
     locale: locale as Locale,
-    pathname: "/account",
+    pathname: "/account/security",
   });
 }
 
-export default async function Page({ params }: PageProps<"/[locale]/account">) {
+export default async function Page({ params }: PageProps<"/[locale]/account/security">) {
   const { locale } = await params;
 
   setRequestLocale(locale as Locale);
@@ -32,8 +34,8 @@ export default async function Page({ params }: PageProps<"/[locale]/account">) {
   });
 
   return (
-    <AccountPage title={t("generalPage.title")} description={t("generalPage.description")}>
-      <AccountGeneralSettings />
+    <AccountPage title={t("securityPage.title")} description={t("securityPage.description")}>
+      <AccountSecuritySettings />
     </AccountPage>
   );
 }

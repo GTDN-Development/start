@@ -108,7 +108,7 @@ export function Footer({
   const copiedToClipboardMessage = t("copiedToClipboard");
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
   const accountLinks = viewer
-    ? platformMenu.filter((item) => item.labelKey === "dashboard" || item.labelKey === "settings")
+    ? platformMenu.filter((item) => item.labelKey === "dashboard" || item.labelKey === "account")
     : authMenu;
   const viewerName = viewer?.name?.trim() || null;
 
@@ -137,7 +137,9 @@ export function Footer({
           {viewer && (
             <div className="space-y-1">
               <p className="text-muted-foreground text-xs">{tPlatform("signedInAs")}</p>
-              <p className="max-w-full truncate text-sm font-medium">{viewerName ?? viewer.email}</p>
+              <p className="max-w-full truncate text-sm font-medium">
+                {viewerName ?? viewer.email}
+              </p>
               {viewerName ? (
                 <p className="text-muted-foreground max-w-full truncate text-xs">{viewer.email}</p>
               ) : null}
@@ -240,7 +242,6 @@ export function Footer({
           <LocaleSwitcher />
         </div>
       </Container>
-
     </footer>
   );
 }
