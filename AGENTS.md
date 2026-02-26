@@ -38,6 +38,7 @@
 
 - Use unique ID prefixes per form (e.g. `contact-${field.name}`) to avoid conflicts with multiple forms on one page
 - `aria-invalid={isInvalid}` on controls, `data-invalid={isInvalid}` on `<Field>` wrapper
+- Zod e-mail validation: use `z.email()` (or `.pipe(z.email())`) — **never** deprecated `z.string().email()`
 
 ## State
 

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
-import { PlatformLayout } from "@/components/layouts/platform/platform-layout";
+import { PlatformLayout } from "@/components/platform/platform-layout";
+import { getAccountProfileSnapshot } from "@/features/account/account-profile";
 import { createServerPocketBaseClient } from "@/server/pocketbase/server";
 
 type PlatformRouteLayoutProps = {
@@ -27,7 +28,7 @@ export default async function Layout({ children, params }: PlatformRouteLayoutPr
     redirect({ href: "/login", locale: locale as Locale });
   }
 
-  const user = getPlatformUser(pb.authStore.record);
+  const user = getAccountProfileSnapshot(pb.authStore.record);
 
   if (!user.email) {
     redirect({ href: "/login", locale: locale as Locale });
@@ -62,25 +63,4 @@ export default async function Layout({ children, params }: PlatformRouteLayoutPr
       {children}
     </PlatformLayout>
   );
-}
-
-function getPlatformUser(record: unknown) {
-  if (typeof record !== "object" || record === null) {
-    return {
-      email: "",
-      name: null,
-      verified: false,
-    };
-  }
-
-  const recordData = record as Record<string, unknown>;
-  const email = typeof recordData.email === "string" ? recordData.email : "";
-  const name = typeof recordData.name === "string" ? recordData.name : null;
-  const verified = typeof recordData.verified === "boolean" ? recordData.verified : false;
-
-  return {
-    email,
-    name,
-    verified,
-  };
 }

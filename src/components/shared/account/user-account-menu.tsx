@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { Locale } from "next-intl";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useOptionalAccountProfile } from "@/components/shared/account/account-profile-context";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,14 +14,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "@/components/ui/link";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 import { getPathname } from "@/i18n/navigation";
 import { LogOutIcon } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
-export type UserAccountMenuViewer = {
-  email: string;
-  name: string | null;
-  verified: boolean;
+export type UserAccountMenuViewer = Omit<AccountProfileSnapshot, "avatarUrl"> & {
+  avatarUrl?: string | null;
 };
 
 export type UserAccountMenuLabels = {
@@ -37,28 +38,54 @@ type UserAccountMenuProps = {
   viewer: UserAccountMenuViewer;
   locale: string;
   labels: UserAccountMenuLabels;
-  trigger?: "default" | "avatar";
   className?: string;
 };
 
 export function UserAccountMenu({ viewer, locale, labels, className }: UserAccountMenuProps) {
+  const accountProfile = useOptionalAccountProfile();
   const logoutFormId = React.useId();
   const logoutRedirectTo = getPathname({
     href: "/login",
     locale: locale as Locale,
   });
-  const displayName = getUserDisplayName(viewer);
-  const initials = getUserInitials(displayName ?? viewer.email);
+  const [failedAvatarUrl, setFailedAvatarUrl] = React.useState<string | null>(null);
+  const currentViewer = accountProfile?.profile ?? viewer;
+  const isAvatarUpdating = accountProfile?.isAvatarUpdating ?? false;
+  const displayName = getUserDisplayName(currentViewer);
+  const initials = getUserInitials(displayName ?? currentViewer.email);
+  const avatarUrl =
+    currentViewer.avatarUrl && currentViewer.avatarUrl !== failedAvatarUrl
+      ? currentViewer.avatarUrl
+      : null;
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button variant="ghost" size="icon-lg" className="rounded-full">
-              <Avatar className={className}>
-                <AvatarFallback>{initials}</AvatarFallback>
-              </Avatar>
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              className="rounded-full"
+              aria-label={labels.account}
+            >
+              {isAvatarUpdating ? (
+                <span className="inline-flex size-8 items-center justify-center">
+                  <Skeleton className="size-8 rounded-full" />
+                </span>
+              ) : (
+                <Avatar className={className}>
+                  {avatarUrl ? (
+                    <AvatarImage
+                      src={avatarUrl}
+                      alt=""
+                      onError={() => setFailedAvatarUrl(avatarUrl)}
+                    />
+                  ) : (
+                    <AvatarFallback>{initials}</AvatarFallback>
+                  )}
+                </Avatar>
+              )}
             </Button>
           }
         />
@@ -66,12 +93,12 @@ export function UserAccountMenu({ viewer, locale, labels, className }: UserAccou
           <DropdownMenuGroup>
             <DropdownMenuLabel className="space-y-1">
               <p className="text-foreground truncate text-sm font-medium">
-                {displayName ?? viewer.email}
+                {displayName ?? currentViewer.email}
               </p>
               {displayName && (
-                <p className="text-muted-foreground truncate text-xs">{viewer.email}</p>
+                <p className="text-muted-foreground truncate text-xs">{currentViewer.email}</p>
               )}
-              {!viewer.verified && (
+              {!currentViewer.verified && (
                 <p className="mt-1 truncate text-xs text-amber-600">{labels.emailNotVerified}</p>
               )}
             </DropdownMenuLabel>

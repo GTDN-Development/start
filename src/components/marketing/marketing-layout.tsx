@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import { Footer } from "./footer";
 import { Header } from "./header";
-import { SkipToContent } from "../skip-to-content";
+import { SkipToContent } from "@/components/shared/layout/skip-to-content";
 import { useTranslations } from "next-intl";
 
 type MarketingLayoutViewer = {

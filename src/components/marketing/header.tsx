@@ -8,14 +8,14 @@ import {
   MobileMenuNested,
   MobileMenuTitle,
   MobileMenuTrigger,
-} from "../mobile-menu";
-import { FloatingBar } from "../floating-bar";
+} from "@/components/ui/mobile-menu";
+import { FloatingBar } from "@/components/shared/layout/floating-bar";
 import { Link } from "@/components/ui/link";
 import { Container } from "@/components/ui/container";
 import { ChevronDownIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LogoStart } from "../logo-start";
-import { NavLink } from "../nav-link";
+import { LogoStart } from "@/components/shared/brand/logo-start";
+import { NavLink } from "@/components/shared/layout/nav-link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,12 +23,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authMenu, isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/menu";
-import { SocialMediaIcons } from "../social-media-icons";
+import { SocialMediaIcons } from "@/components/shared/brand/social-media-icons";
 import {
   UserAccountMenu,
   type UserAccountMenuLabels,
   type UserAccountMenuViewer,
-} from "@/components/layouts/user-account-menu";
+} from "@/components/shared/account/user-account-menu";
 import { useLocale, useTranslations } from "next-intl";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;

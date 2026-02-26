@@ -1,10 +1,10 @@
 import { Link } from "@/components/ui/link";
-import { LogoStart } from "../logo-start";
+import { LogoStart } from "@/components/shared/brand/logo-start";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
-import { NavLink } from "../nav-link";
+import { NavLink } from "@/components/shared/layout/nav-link";
 import { Container } from "@/components/ui/container";
-import { ThemeSwitcher } from "../theme-switcher";
-import { SocialMediaIcons } from "../social-media-icons";
+import { ThemeSwitcher } from "@/components/shared/layout/theme-switcher";
+import { SocialMediaIcons } from "@/components/shared/brand/social-media-icons";
 import {
   authMenu,
   isNested,
@@ -28,7 +28,7 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { contact, formatPhoneNumber } from "@/config/contact";
 import { legal } from "@/config/legal";
 import { toast } from "sonner";
-import { LocaleSwitcher } from "@/components/layouts/locale-switcher";
+import { LocaleSwitcher } from "@/components/shared/layout/locale-switcher";
 import { cn } from "@/lib/utils";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;

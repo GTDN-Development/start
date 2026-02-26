@@ -1,4 +1,4 @@
-import { MarketingLayout } from "@/components/layouts/marketing/marketing-layout";
+import { MarketingLayout } from "@/components/marketing/marketing-layout";
 import { createServerPocketBaseClient } from "@/server/pocketbase/server";
 
 type MarketingRouteLayoutProps = {

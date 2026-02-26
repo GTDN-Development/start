@@ -171,25 +171,90 @@
       "description": "Welcome to your dashboard. Manage your account, view analytics, and access all your tools in one place."
     },
     "settings": {
-      "title": "Settings",
-      "description": "Review your account details and the basic security flows available in the app.",
-      "account": {
-        "title": "Account overview",
-        "description": "Basic account information read from your current signed-in session.",
-        "nameLabel": "Name",
-        "emailLabel": "Email",
-        "verificationLabel": "Email verification",
-        "notSet": "Not set"
+      "title": "Account settings",
+      "description": "Manage your avatar, profile details, and email change flow in one place.",
+      "common": {
+        "successTitle": "Done",
+        "errorTitle": "Something went wrong",
+        "cancel": "Cancel"
       },
-      "security": {
-        "title": "Security & account flows",
-        "description": "Core account-related flows currently implemented in the starter.",
-        "passwordResetTitle": "Password reset",
-        "passwordResetDescription": "Password reset is handled through the password reset email flow.",
-        "emailChangeTitle": "Email change confirmation",
-        "emailChangeDescription": "Email change confirmation links from PocketBase now open the Next.js route in this app.",
-        "sessionTitle": "Session handling",
-        "sessionDescription": "Authentication is stored in an HttpOnly PocketBase cookie and enforced by server layouts."
+      "accountCard": {
+        "title": "Account profile",
+        "description": "Keep your account details up to date. Avatar changes apply immediately, and email changes follow the PocketBase verification flow."
+      },
+      "avatar": {
+        "title": "Profile photo",
+        "description": "Shown in your account menu and across the app.",
+        "buttonLabel": "Edit profile photo",
+        "menu": {
+          "change": "Change profile photo",
+          "remove": "Remove"
+        },
+        "hint": "Use a square image for the best result. Changes are saved immediately.",
+        "status": {
+          "updated": "Your profile photo was updated.",
+          "removed": "Your profile photo was removed.",
+          "error": "We could not update your profile photo. Please try again.",
+          "invalidFileType": "Please choose an image file.",
+          "fileTooLarge": "The selected image is too large. Use a file up to 5 MB.",
+          "unauthorized": "Your session has expired. Please sign in again."
+        }
+      },
+      "email": {
+        "title": "Email",
+        "description": "Your sign-in email. Changing it starts a verification flow.",
+        "verification": {
+          "verified": "Verified",
+          "unverified": "Not verified"
+        },
+        "changeButton": "Change email",
+        "dialog": {
+          "title": "Change email",
+          "description": "Enter a new email address to start the secure PocketBase email-change flow.",
+          "flowSummary": "We'll send a verification link to the new address. Your current email remains active until the change is confirmed.",
+          "field": {
+            "label": "New email address",
+            "placeholder": "name@example.com",
+            "description": "If the address is unavailable or invalid, we'll ask you to use a different one."
+          },
+          "footerNote": "After opening the link, the confirmation page will ask for your password.",
+          "submit": {
+            "default": "Send verification link",
+            "pending": "Sending..."
+          },
+          "status": {
+            "sentTitle": "Verification link sent",
+            "sentMessage": "We sent a verification link to {email}.",
+            "errorMessage": "We could not start the email change flow. Please try again."
+          },
+          "errors": {
+            "invalidOrUnavailable": "Use a different email address. This one is invalid or already in use.",
+            "sameAsCurrent": "Please enter a different email address than the current one.",
+            "unauthorized": "Your session has expired. Please sign in again."
+          }
+        }
+      },
+      "profile": {
+        "title": "Full name",
+        "description": "This name is shown in your account menu and profile-related UI.",
+        "fields": {
+          "name": {
+            "label": "Full name",
+            "placeholder": "Your name",
+            "description": "You can leave it empty and use your email as the display label."
+          }
+        },
+        "footerHint": "Saved separately so future profile fields can be added without affecting email or avatar flow.",
+        "submit": {
+          "default": "Save",
+          "pending": "Saving..."
+        },
+        "status": {
+          "savedMessage": "Profile details were saved.",
+          "errorMessage": "We could not save your profile details. Please try again.",
+          "unauthorizedMessage": "Your session has expired. Please sign in again.",
+          "invalidInputMessage": "Please check the name field and try again."
+        }
       }
     }
   },

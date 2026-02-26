@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
-import { LogoStart } from "../logo-start";
+import { LogoStart } from "@/components/shared/brand/logo-start";
 import { useTranslations } from "next-intl";
 
 export function AuthLayout({ children, className, ...props }: React.ComponentProps<"div">) {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AuthLayout } from "@/components/layouts/auth/auth-layout";
+import { AuthLayout } from "@/components/auth/auth-layout";
 
 export const metadata: Metadata = {
   robots: {

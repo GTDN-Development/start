@@ -171,25 +171,90 @@
       "description": "Vítejte ve svém osobním přehledu. Spravujte svůj účet a sledujte svou aktivitu."
     },
     "settings": {
-      "title": "Nastavení",
-      "description": "Zkontrolujte údaje o účtu a základní bezpečnostní flow dostupné v aplikaci.",
-      "account": {
-        "title": "Přehled účtu",
-        "description": "Základní informace o účtu načtené z aktuální přihlášené relace.",
-        "nameLabel": "Jméno",
-        "emailLabel": "E-mail",
-        "verificationLabel": "Ověření e-mailu",
-        "notSet": "Není nastaveno"
+      "title": "Nastavení účtu",
+      "description": "Spravujte avatar, profilové údaje a změnu e-mailu na jednom místě.",
+      "common": {
+        "successTitle": "Hotovo",
+        "errorTitle": "Něco se nepovedlo",
+        "cancel": "Zrušit"
       },
-      "security": {
-        "title": "Zabezpečení a account flow",
-        "description": "Základní účtové flow, které jsou aktuálně ve starteru implementované.",
-        "passwordResetTitle": "Obnova hesla",
-        "passwordResetDescription": "Obnova hesla probíhá přes e-mailový flow pro reset hesla.",
-        "emailChangeTitle": "Potvrzení změny e-mailu",
-        "emailChangeDescription": "Potvrzovací odkazy na změnu e-mailu z PocketBase nyní otevírají Next.js route v této aplikaci.",
-        "sessionTitle": "Správa relace",
-        "sessionDescription": "Autentizace je uložena v HttpOnly PocketBase cookie a vynucena serverovými layouty."
+      "accountCard": {
+        "title": "Profil účtu",
+        "description": "Udržujte údaje účtu aktuální. Změna avatara se projeví hned a změna e-mailu běží přes ověřovací flow PocketBase."
+      },
+      "avatar": {
+        "title": "Profilová fotka",
+        "description": "Zobrazuje se v menu účtu a napříč aplikací.",
+        "buttonLabel": "Upravit profilovou fotku",
+        "menu": {
+          "change": "Změnit profilovou fotku",
+          "remove": "Odstranit"
+        },
+        "hint": "Pro nejlepší výsledek použijte čtvercový obrázek. Změny se ukládají ihned.",
+        "status": {
+          "updated": "Profilová fotka byla aktualizována.",
+          "removed": "Profilová fotka byla odstraněna.",
+          "error": "Profilovou fotku se nepodařilo upravit. Zkuste to prosím znovu.",
+          "invalidFileType": "Vyberte prosím soubor s obrázkem.",
+          "fileTooLarge": "Vybraný obrázek je příliš velký. Použijte soubor do 5 MB.",
+          "unauthorized": "Platnost relace vypršela. Přihlaste se prosím znovu."
+        }
+      },
+      "email": {
+        "title": "E-mail",
+        "description": "Přihlašovací e-mail. Změna spustí ověřovací flow.",
+        "verification": {
+          "verified": "Ověřený",
+          "unverified": "Neověřený"
+        },
+        "changeButton": "Změnit e-mail",
+        "dialog": {
+          "title": "Změna e-mailu",
+          "description": "Zadejte nový e-mail pro spuštění bezpečného PocketBase flow změny e-mailu.",
+          "flowSummary": "Na novou adresu pošleme ověřovací odkaz. Aktuální e-mail zůstane aktivní, dokud změnu nepotvrdíte.",
+          "field": {
+            "label": "Nová e-mailová adresa",
+            "placeholder": "jmeno@example.com",
+            "description": "Pokud je adresa neplatná nebo už obsazená, požádáme vás o jinou."
+          },
+          "footerNote": "Po otevření odkazu vás potvrzovací stránka požádá o heslo.",
+          "submit": {
+            "default": "Poslat ověřovací odkaz",
+            "pending": "Odesílání..."
+          },
+          "status": {
+            "sentTitle": "Ověřovací odkaz odeslán",
+            "sentMessage": "Ověřovací odkaz jsme poslali na {email}.",
+            "errorMessage": "Nepodařilo se spustit flow změny e-mailu. Zkuste to prosím znovu."
+          },
+          "errors": {
+            "invalidOrUnavailable": "Použijte jiný e-mail. Tato adresa je neplatná nebo už se používá.",
+            "sameAsCurrent": "Zadejte prosím jinou adresu než aktuální e-mail.",
+            "unauthorized": "Platnost relace vypršela. Přihlaste se prosím znovu."
+          }
+        }
+      },
+      "profile": {
+        "title": "Jméno",
+        "description": "Toto jméno se zobrazuje v menu účtu a v souvisejících profilových částech rozhraní.",
+        "fields": {
+          "name": {
+            "label": "Celé jméno",
+            "placeholder": "Vaše jméno",
+            "description": "Pole můžete nechat prázdné a jako popisek účtu se použije e-mail."
+          }
+        },
+        "footerHint": "Ukládá se samostatně, aby šlo později přidat další profilová pole bez zásahu do flow e-mailu nebo avatara.",
+        "submit": {
+          "default": "Uložit",
+          "pending": "Ukládání..."
+        },
+        "status": {
+          "savedMessage": "Profilové údaje byly uloženy.",
+          "errorMessage": "Profilové údaje se nepodařilo uložit. Zkuste to prosím znovu.",
+          "unauthorizedMessage": "Platnost relace vypršela. Přihlaste se prosím znovu.",
+          "invalidInputMessage": "Zkontrolujte prosím pole se jménem a zkuste to znovu."
+        }
       }
     }
   },
