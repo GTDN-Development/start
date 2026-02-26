@@ -75,7 +75,7 @@ function AccountItemFooter({ children, className, ...props }: React.ComponentPro
     <div
       {...props}
       className={cn(
-        "group-data-[variant=destructive]/account-item:bg-destructive/15 bg-background group-data-[variant=destructive]/account-item:border-t-destructive/30 flex flex-col items-center justify-center gap-2 border-t px-4 py-2.5 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:px-6 sm:py-3 sm:text-left",
+        "group-data-[variant=destructive]/account-item:bg-destructive/12.5 bg-background group-data-[variant=destructive]/account-item:border-t-destructive/30 flex flex-col items-center justify-center gap-2 border-t px-4 py-2.5 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:px-6 sm:py-3 sm:text-left",
         className
       )}
     >

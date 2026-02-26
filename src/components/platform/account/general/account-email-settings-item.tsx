@@ -15,6 +15,7 @@ import {
 import { useAccountProfile } from "@/components/shared/account/account-profile-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogClose,
@@ -25,7 +26,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -42,7 +43,9 @@ export function AccountEmailSettingsItem() {
   const [isEmailDialogOpen, setIsEmailDialogOpen] = React.useState(false);
   const [newEmailValue, setNewEmailValue] = React.useState("");
   const [emailFieldError, setEmailFieldError] = React.useState<string | null>(null);
+  const [emailConfirmationError, setEmailConfirmationError] = React.useState<string | null>(null);
   const [emailDialogStatus, setEmailDialogStatus] = React.useState<InlineStatus>(null);
+  const [isEmailChangeConfirmed, setIsEmailChangeConfirmed] = React.useState(false);
   const [isSendingEmailChange, setIsSendingEmailChange] = React.useState(false);
 
   function handleEmailDialogOpenChange(open: boolean) {
@@ -51,7 +54,9 @@ export function AccountEmailSettingsItem() {
     if (open) {
       setNewEmailValue("");
       setEmailFieldError(null);
+      setEmailConfirmationError(null);
       setEmailDialogStatus(null);
+      setIsEmailChangeConfirmed(false);
     }
   }
 
@@ -67,28 +72,52 @@ export function AccountEmailSettingsItem() {
     }
   }
 
+  function handleEmailConfirmationChange(checked: boolean | "indeterminate") {
+    setIsEmailChangeConfirmed(checked === true);
+
+    if (emailConfirmationError) {
+      setEmailConfirmationError(null);
+    }
+
+    if (emailDialogStatus) {
+      setEmailDialogStatus(null);
+    }
+  }
+
   async function handleEmailChangeSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const normalizedCurrentEmail = profile.email.trim().toLowerCase();
     const parsedNewEmail = emailChangeValueSchema.safeParse(newEmailValue);
+    let nextEmailFieldError: string | null = null;
+    let nextEmailConfirmationError: string | null = null;
 
     if (!parsedNewEmail.success) {
-      setEmailFieldError(t("email.dialog.errors.invalidOrUnavailable"));
+      nextEmailFieldError = t("email.dialog.errors.invalidOrUnavailable");
+    } else if (parsedNewEmail.data === normalizedCurrentEmail) {
+      nextEmailFieldError = t("email.dialog.errors.sameAsCurrent");
+    }
+
+    if (!isEmailChangeConfirmed) {
+      nextEmailConfirmationError = t("email.dialog.errors.confirmationRequired");
+    }
+
+    if (nextEmailFieldError || nextEmailConfirmationError) {
+      setEmailFieldError(nextEmailFieldError);
+      setEmailConfirmationError(nextEmailConfirmationError);
       setEmailDialogStatus(null);
+      return;
+    }
+
+    if (!parsedNewEmail.success) {
       return;
     }
 
     const normalizedNewEmail = parsedNewEmail.data;
 
-    if (normalizedNewEmail === normalizedCurrentEmail) {
-      setEmailFieldError(t("email.dialog.errors.sameAsCurrent"));
-      setEmailDialogStatus(null);
-      return;
-    }
-
     setIsSendingEmailChange(true);
     setEmailFieldError(null);
+    setEmailConfirmationError(null);
     setEmailDialogStatus(null);
 
     try {
@@ -161,83 +190,95 @@ export function AccountEmailSettingsItem() {
           <DialogTrigger
             nativeButton={true}
             render={
-              <Button type="button" size="lg" variant="outline">
+              <Button type="button" size="lg">
                 {t("email.changeButton")}
               </Button>
             }
           />
-          <DialogContent className="gap-0 p-0 sm:max-w-xl">
-            <DialogHeader className="border-b px-5 py-4">
+          <DialogContent
+            className={"sm:max-w-lg"}
+            render={<form onSubmit={handleEmailChangeSubmit} />}
+          >
+            <DialogHeader>
               <DialogTitle>{t("email.dialog.title")}</DialogTitle>
               <DialogDescription>{t("email.dialog.description")}</DialogDescription>
             </DialogHeader>
 
-            <form onSubmit={handleEmailChangeSubmit}>
-              <div className="grid gap-4 px-5 py-5">
-                <p className="text-muted-foreground text-sm">{t("email.dialog.flowSummary")}</p>
+            <div className="mt-6 grid gap-4">
+              <Field data-invalid={Boolean(emailFieldError)} className="grid gap-2">
+                <FieldLabel htmlFor="account-email-change-new-email">
+                  {t("email.dialog.field.label")}
+                </FieldLabel>
+                <Input
+                  id="account-email-change-new-email"
+                  name="account-email-change-new-email"
+                  type="email"
+                  autoComplete="email"
+                  value={newEmailValue}
+                  onChange={handleEmailInputChange}
+                  placeholder={t("email.dialog.field.placeholder")}
+                  aria-invalid={Boolean(emailFieldError)}
+                  required
+                />
+                {emailFieldError && <FieldError>{emailFieldError}</FieldError>}
+              </Field>
 
-                <Field data-invalid={Boolean(emailFieldError)} className="grid gap-2">
-                  <FieldLabel htmlFor="account-email-change-new-email">
-                    {t("email.dialog.field.label")}
-                  </FieldLabel>
-                  <Input
-                    id="account-email-change-new-email"
-                    name="account-email-change-new-email"
-                    type="email"
-                    autoComplete="email"
-                    value={newEmailValue}
-                    onChange={handleEmailInputChange}
-                    placeholder={t("email.dialog.field.placeholder")}
-                    aria-invalid={Boolean(emailFieldError)}
+              <div className="flex flex-col gap-y-2">
+                <Field orientation="horizontal" data-invalid={Boolean(emailConfirmationError)}>
+                  <Checkbox
+                    id="account-email-change-confirmed"
+                    name="account-email-change-confirmed"
+                    checked={isEmailChangeConfirmed}
+                    onCheckedChange={handleEmailConfirmationChange}
+                    aria-invalid={Boolean(emailConfirmationError)}
                     required
                   />
-                  <FieldDescription>{t("email.dialog.field.description")}</FieldDescription>
-                  {emailFieldError && <FieldError>{emailFieldError}</FieldError>}
+                  <FieldLabel htmlFor="account-email-change-confirmed">
+                    {t("email.dialog.confirmation.label")}
+                  </FieldLabel>
                 </Field>
-
-                {emailDialogStatus ? (
-                  emailDialogStatus.kind === "success" ? (
-                    <Alert className="py-2">
-                      <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-500" />
-                      <AlertTitle>{t("email.dialog.status.sentTitle")}</AlertTitle>
-                      <AlertDescription>{emailDialogStatus.message}</AlertDescription>
-                    </Alert>
-                  ) : (
-                    <Alert variant="destructive" className="py-2">
-                      <AlertCircleIcon aria-hidden="true" className="size-4" />
-                      <AlertTitle>{t("common.errorTitle")}</AlertTitle>
-                      <AlertDescription>{emailDialogStatus.message}</AlertDescription>
-                    </Alert>
-                  )
-                ) : null}
+                {emailConfirmationError && <FieldError>{emailConfirmationError}</FieldError>}
               </div>
 
-              <DialogFooter className="sm:justify-between">
-                <p className="text-muted-foreground hidden text-xs sm:block">
-                  {t("email.dialog.footerNote")}
-                </p>
-                <div className="flex flex-col-reverse gap-2 sm:flex-row">
-                  <DialogClose
-                    nativeButton={true}
-                    render={
-                      <Button type="button" variant="outline">
-                        {t("common.cancel")}
-                      </Button>
-                    }
-                  />
-                  <Button type="submit" disabled={isSendingEmailChange}>
-                    {isSendingEmailChange ? (
-                      <Spinner />
-                    ) : (
-                      <MailIcon aria-hidden="true" className="size-4" />
-                    )}
-                    {isSendingEmailChange
-                      ? t("email.dialog.submit.pending")
-                      : t("email.dialog.submit.default")}
-                  </Button>
-                </div>
-              </DialogFooter>
-            </form>
+              {emailDialogStatus ? (
+                emailDialogStatus.kind === "success" ? (
+                  <Alert className="py-2">
+                    <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-500" />
+                    <AlertTitle>{t("email.dialog.status.sentTitle")}</AlertTitle>
+                    <AlertDescription>{emailDialogStatus.message}</AlertDescription>
+                  </Alert>
+                ) : (
+                  <Alert variant="destructive" className="py-2">
+                    <AlertCircleIcon aria-hidden="true" className="size-4" />
+                    <AlertTitle>{t("common.errorTitle")}</AlertTitle>
+                    <AlertDescription>{emailDialogStatus.message}</AlertDescription>
+                  </Alert>
+                )
+              ) : null}
+            </div>
+
+            <DialogFooter>
+              <div className="flex flex-col-reverse gap-2 sm:flex-row">
+                <DialogClose
+                  nativeButton={true}
+                  render={
+                    <Button type="button" variant="outline" size={"lg"}>
+                      {t("common.cancel")}
+                    </Button>
+                  }
+                />
+                <Button type="submit" disabled={isSendingEmailChange} size={"lg"}>
+                  {isSendingEmailChange ? (
+                    <Spinner />
+                  ) : (
+                    <MailIcon aria-hidden="true" className="size-4" />
+                  )}
+                  {isSendingEmailChange
+                    ? t("email.dialog.submit.pending")
+                    : t("email.dialog.submit.default")}
+                </Button>
+              </div>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </AccountItemFooter>

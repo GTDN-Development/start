@@ -244,15 +244,17 @@
         "dialog": {
           "title": "Change email address",
           "description": "We'll send a confirmation link to your new email address.",
-          "flowSummary": "Your current email stays active until you confirm the change from the link we send.",
           "field": {
             "label": "New email address",
-            "placeholder": "you@example.com",
-            "description": "Use an email address you can access right now."
+            "placeholder": "you@example.com"
+          },
+          "confirmation": {
+            "label": "I understand that this email will have access to my account."
           },
           "errors": {
             "invalidOrUnavailable": "Enter a valid email address that isn't already in use.",
             "sameAsCurrent": "The new email address must be different from your current one.",
+            "confirmationRequired": "Please confirm that the new email will have access to your account.",
             "unauthorized": "Your session expired. Please sign in again."
           },
           "status": {
@@ -260,7 +262,6 @@
             "sentMessage": "We sent a confirmation link to {email}.",
             "errorMessage": "We couldn't start the email change process. Please try again."
           },
-          "footerNote": "Need help? Keep this window open until the email arrives.",
           "submit": {
             "default": "Send confirmation link",
             "pending": "Sending..."

@@ -22,8 +22,8 @@ export function AccountLayout({ children }: AccountLayoutProps) {
 
   return (
     <div className="grid gap-12 md:grid-cols-[auto_1fr]">
-      <nav className="w-64">
-        <ul className="flex flex-col gap-1">
+      <nav className="relative w-64">
+        <ul className="sticky top-28 flex flex-col gap-1">
           {accountNavItems.map((item) => {
             return (
               <li key={item.href}>

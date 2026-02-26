@@ -191,8 +191,12 @@ export function AccountAvatarSettingsItem() {
                   </Button>
                 }
               />
-              <DropdownMenuContent align="end" className="w-auto min-w-56">
-                <DropdownMenuItem onClick={handleAvatarChangeMenuClick} disabled={isAvatarUpdating}>
+              <DropdownMenuContent align="end" className="w-auto min-w-44">
+                <DropdownMenuItem
+                  onClick={handleAvatarChangeMenuClick}
+                  disabled={isAvatarUpdating}
+                  className="whitespace-nowrap"
+                >
                   <PencilIcon aria-hidden="true" className="size-4" />
                   {t("avatar.menu.change")}
                 </DropdownMenuItem>
@@ -200,6 +204,7 @@ export function AccountAvatarSettingsItem() {
                   onClick={handleAvatarRemoveClick}
                   disabled={isAvatarUpdating || !profile.avatarUrl}
                   variant="destructive"
+                  className="whitespace-nowrap"
                 >
                   <Trash2Icon aria-hidden="true" className="size-4" />
                   {t("avatar.menu.remove")}
