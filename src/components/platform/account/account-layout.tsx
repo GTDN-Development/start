@@ -88,7 +88,7 @@ export function AccountLayout({ children }: AccountLayoutProps) {
       <AccountMobileNav className="md:hidden" />
 
       <nav className="relative hidden w-64 md:block">
-        <ul className="sticky top-28 flex flex-col gap-1">
+        <ul className="sticky top-[calc(var(--navbar-height,96px)+2rem)] flex flex-col gap-1">
           {accountNavItems.map((item) => {
             return (
               <li key={item.href}>

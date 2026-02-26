@@ -30,20 +30,16 @@ export function MarketingLayout({
         "relative isolate flex min-h-dvh w-full flex-col justify-between *:shrink-0 *:grow-0 *:data-[slot=main]:shrink *:data-[slot=main]:grow"
       )}
     >
-      {/* Skip to content - A11y */}
       <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-      {/* Potential banner goes here */}
+      {/* Banner should go here */}
 
-      {/* Header */}
       <Header viewer={viewer} />
 
-      {/* Main content */}
       <main id={contentId} data-slot="main" className="min-w-0">
         {children}
       </main>
 
-      {/* Footer */}
       <Footer viewer={viewer} />
     </div>
   );

@@ -1,12 +1,13 @@
-import { Container } from "@/components/ui/container";
 import { AccountProfileProvider } from "@/components/shared/account/account-profile-context";
-import { Link } from "@/components/ui/link";
-import {
-  UserAccountMenu,
-  type UserAccountMenuLabels,
-} from "@/components/shared/account/user-account-menu";
+import { PlatformHeader } from "@/components/platform/platform-header";
+import { PlatformFooter } from "@/components/platform/platform-footer";
+import { type UserAccountMenuLabels } from "@/components/shared/account/user-account-menu";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
+import { SkipToContent } from "@/components/shared/layout/skip-to-content";
 import { cn } from "@/lib/utils";
+import clsx from "clsx";
+import { useTranslations } from "next-intl";
+
 type PlatformLayoutUser = AccountProfileSnapshot;
 
 type PlatformLayoutLabels = {
@@ -29,31 +30,34 @@ export function PlatformLayout({
   ...props
 }: PlatformLayoutProps) {
   const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
+  const t = useTranslations("layout");
+  const contentId = "gtdn-app-content";
 
   return (
     <AccountProfileProvider key={profileProviderKey} initialProfile={user}>
-      <main {...props} className={cn("relative isolate min-h-dvh w-full", className)}>
-        <header className="border-border/80 bg-background/95 sticky top-0 z-30 border-b backdrop-blur">
-          <Container className="flex min-h-16 items-center justify-between gap-4 py-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <Link
-                href="/dashboard"
-                className="text-foreground hover:text-primary truncate text-sm font-semibold"
-              >
-                {labels.dashboard}
-              </Link>
-            </div>
+      <div
+        className={clsx(
+          "[--navbar-height:--spacing(16)]",
+          "relative isolate flex min-h-dvh w-full flex-col justify-between *:shrink-0 *:grow-0 *:data-[slot=main]:shrink *:data-[slot=main]:grow"
+        )}
+      >
+        <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-            <div className="flex min-w-0 items-center gap-2">
-              <div>
-                <UserAccountMenu viewer={user} locale={locale} labels={labels.userMenu} />
-              </div>
-            </div>
-          </Container>
-        </header>
+        {/* Banner should go here */}
 
-        <div className="relative isolate w-full min-w-0">{children}</div>
-      </main>
+        <PlatformHeader user={user} locale={locale} labels={labels} />
+
+        <main
+          {...props}
+          id={contentId}
+          data-slot="main"
+          className={cn("relative isolate w-full min-w-0", className)}
+        >
+          {children}
+        </main>
+
+        <PlatformFooter />
+      </div>
     </AccountProfileProvider>
   );
 }

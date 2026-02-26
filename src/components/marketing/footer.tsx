@@ -226,7 +226,7 @@ export function Footer({
       </Container>
 
       {/* Third row - Footer meta with basic app settings */}
-      <Container className="border-t-border flex min-w-0 flex-col flex-wrap items-center justify-between gap-6 border-t py-10 md:flex-row">
+      <Container className="border-t-border flex min-w-0 flex-col flex-wrap items-center justify-between gap-6 border-t py-8 md:flex-row">
         <div className="flex flex-1 items-center justify-center md:justify-start">
           <Copyright company={site.name} />
         </div>

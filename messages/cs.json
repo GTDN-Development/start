@@ -469,11 +469,11 @@
       "fields": {
         "firstName": {
           "label": "Jméno",
-          "placeholder": "Jana"
+          "placeholder": "Jiří"
         },
         "lastName": {
           "label": "Příjmení",
-          "placeholder": "Nováková"
+          "placeholder": "Novák"
         },
         "email": {
           "label": "E-mailová adresa",

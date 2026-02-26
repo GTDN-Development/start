@@ -1,5 +1,7 @@
-import { cn } from "@/lib/utils";
+"use client";
+
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function SkipToContent({ children, className, ...props }: React.ComponentProps<"a">) {
   return (
