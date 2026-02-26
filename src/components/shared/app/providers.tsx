@@ -3,6 +3,7 @@
 import { ThemeProvider } from "next-themes";
 import { usePathname } from "next/navigation";
 import { createContext, useState } from "react";
+import { AuthSessionSync } from "@/components/shared/app/auth-session-sync";
 import { CookieContextProvider } from "@/components/shared/cookies/cookie-context";
 import type { ConsentState } from "@/components/shared/cookies/consent";
 
@@ -40,6 +41,7 @@ export function Providers({
         initialConsent={initialCookieConsent}
         initialHasInteracted={initialCookieConsentInteracted}
       >
+        <AuthSessionSync />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

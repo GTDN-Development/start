@@ -11,7 +11,7 @@ type AuthGuestLayoutProps = {
 
 export default async function Layout({ children, params }: AuthGuestLayoutProps) {
   const { locale } = await params;
-  const pb = await createServerPocketBaseClient();
+  const pb = await createServerPocketBaseClient({ refreshAuth: true });
 
   if (pb.authStore.isValid && pb.authStore.record) {
     redirect({ href: "/dashboard", locale: locale as Locale });
