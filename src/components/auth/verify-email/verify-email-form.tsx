@@ -50,6 +50,7 @@ export function VerifyEmailForm({
 
       if (response.ok && result?.ok) {
         router.replace(result.redirectTo ?? authRedirectPaths.login);
+        router.refresh();
       } else {
         setSubmitErrorMessage(getErrorMessage(t, result?.errorCode));
       }

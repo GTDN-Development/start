@@ -19,16 +19,34 @@ export function createPocketBaseClient() {
   return new PocketBase(getPocketBaseUrl());
 }
 
+export function loadPocketBaseAuthFromCookieHeader(
+  pb: PocketBase,
+  cookieHeader: string | null | undefined
+) {
+  const headerValue = typeof cookieHeader === "string" ? cookieHeader : "";
+
+  if (!headerValue) {
+    pb.authStore.clear();
+    return false;
+  }
+
+  pb.authStore.loadFromCookie(headerValue, POCKETBASE_AUTH_COOKIE_NAME);
+
+  if (!pb.authStore.isValid) {
+    pb.authStore.clear();
+    return false;
+  }
+
+  return true;
+}
+
 export async function createServerPocketBaseClient(
   options: CreateServerPocketBaseClientOptions = {}
 ) {
   const pb = createPocketBaseClient();
   const cookieStore = await cookies();
 
-  pb.authStore.loadFromCookie(cookieStore.toString(), POCKETBASE_AUTH_COOKIE_NAME);
-
-  if (!pb.authStore.isValid) {
-    pb.authStore.clear();
+  if (!loadPocketBaseAuthFromCookieHeader(pb, cookieStore.toString())) {
     return pb;
   }
 

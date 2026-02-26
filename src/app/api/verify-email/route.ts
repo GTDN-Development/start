@@ -2,8 +2,8 @@ import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import {
-  POCKETBASE_AUTH_COOKIE_NAME,
   createPocketBaseClient,
+  loadPocketBaseAuthFromCookieHeader,
   setPocketBaseAuthCookie,
 } from "@/server/pocketbase/server";
 import { authRedirectPaths } from "@/features/auth/auth-redirects";
@@ -59,10 +59,7 @@ async function refreshSessionAfterVerification(
     return false;
   }
 
-  pb.authStore.loadFromCookie(cookieHeader, POCKETBASE_AUTH_COOKIE_NAME);
-
-  if (!pb.authStore.isValid) {
-    pb.authStore.clear();
+  if (!loadPocketBaseAuthFromCookieHeader(pb, cookieHeader)) {
     return false;
   }
 

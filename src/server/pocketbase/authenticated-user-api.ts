@@ -1,7 +1,7 @@
 import type { NextRequest, NextResponse } from "next/server";
 import {
-  POCKETBASE_AUTH_COOKIE_NAME,
   createPocketBaseClient,
+  loadPocketBaseAuthFromCookieHeader,
   setPocketBaseAuthCookie,
 } from "@/server/pocketbase/server";
 
@@ -21,10 +21,8 @@ export function getAuthenticatedUserApiContext(
   }
 
   const pb = createPocketBaseClient();
-  pb.authStore.loadFromCookie(cookieHeader, POCKETBASE_AUTH_COOKIE_NAME);
 
-  if (!pb.authStore.isValid || !pb.authStore.record) {
-    pb.authStore.clear();
+  if (!loadPocketBaseAuthFromCookieHeader(pb, cookieHeader) || !pb.authStore.record) {
     return null;
   }
 
