@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 import { getPathname } from "@/i18n/navigation";
 import { getUserInitials } from "@/lib/utils";
-import { LogOutIcon } from "lucide-react";
+import { HomeIcon, LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type UserAccountMenuViewer = Omit<AccountProfileSnapshot, "avatarUrl"> & {
@@ -105,9 +105,6 @@ export function UserAccountMenu({ viewer, locale, labels, className }: UserAccou
             </DropdownMenuLabel>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem render={<Link href="/" className="w-full cursor-pointer" />}>
-            {labels.home}
-          </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/dashboard" className="w-full cursor-pointer" />}>
             {labels.dashboard}
           </DropdownMenuItem>
@@ -115,6 +112,14 @@ export function UserAccountMenu({ viewer, locale, labels, className }: UserAccou
             {labels.accountPage}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          <DropdownMenuItem
+            render={
+              <Link href="/" className="flex w-full cursor-pointer justify-between text-left" />
+            }
+          >
+            {labels.home}
+            <HomeIcon aria-hidden="true" className="size-4" />
+          </DropdownMenuItem>
           <DropdownMenuItem
             className="flex w-full cursor-pointer justify-between text-left"
             nativeButton={true}
