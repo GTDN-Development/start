@@ -1,8 +1,6 @@
 "use client";
 
-import { usePathname } from "@/i18n/navigation";
-import { Link } from "@/components/ui/link";
-import { cn } from "@/lib/utils";
+import { NavLink } from "@/components/shared/layout/nav-link";
 import { useTranslations } from "next-intl";
 
 type AccountNavItem = {
@@ -20,7 +18,6 @@ type AccountLayoutProps = {
 };
 
 export function AccountLayout({ children }: AccountLayoutProps) {
-  const pathname = usePathname();
   const t = useTranslations("pages.account.nav");
 
   return (
@@ -28,23 +25,17 @@ export function AccountLayout({ children }: AccountLayoutProps) {
       <nav className="w-64">
         <ul className="flex flex-col gap-1">
           {accountNavItems.map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== "/account" && pathname.startsWith(`${item.href}/`));
-
             return (
               <li key={item.href}>
-                <Link
+                <NavLink
                   href={item.href}
-                  className={cn(
-                    "flex rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-                  )}
+                  matchNested={item.href !== "/account"}
+                  className={
+                    "text-muted-foreground hover:bg-accent/50 hover:text-foreground data-current:bg-accent data-current:text-accent-foreground flex rounded-md px-3 py-2 text-sm font-medium transition-colors"
+                  }
                 >
                   {t(item.labelKey)}
-                </Link>
+                </NavLink>
               </li>
             );
           })}
