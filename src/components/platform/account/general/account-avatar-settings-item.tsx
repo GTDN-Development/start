@@ -159,15 +159,15 @@ export function AccountAvatarSettingsItem() {
                     type="button"
                     variant="ghost"
                     size="icon-lg"
-                    className="group relative size-20 rounded-full"
+                    className="group relative size-14 rounded-full sm:size-20"
                     aria-label={t("avatar.buttonLabel")}
                     disabled={isAvatarUpdating}
                   >
                     {isAvatarUpdating ? (
-                      <Skeleton className="size-20 rounded-full" />
+                      <Skeleton className="size-14 rounded-full sm:size-20" />
                     ) : (
                       <>
-                        <Avatar className="size-20">
+                        <Avatar className="size-14 sm:size-20">
                           {avatarUrl ? (
                             <AvatarImage
                               src={avatarUrl}
