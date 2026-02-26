@@ -13,10 +13,12 @@ import {
   AccountItemFooter,
   AccountItemTitle,
 } from "@/components/platform/account/account-item";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
+import { AlertCircleIcon } from "lucide-react";
 
 type PasswordApiResponse = {
   ok?: boolean;
@@ -34,7 +36,7 @@ type SecurityTranslationFn = (key: string, values?: Record<string, string>) => s
 
 const MIN_PASSWORD_LENGTH = 8;
 
-export function AccountSecuritySettings() {
+export function AccountChangePasswordItem() {
   const t = useTranslations("pages.account");
   const tPasswordVisibility = useTranslations("forms.login.passwordVisibility");
   const router = useRouter();
@@ -44,10 +46,15 @@ export function AccountSecuritySettings() {
   const [newPasswordValue, setNewPasswordValue] = React.useState("");
   const [confirmPasswordValue, setConfirmPasswordValue] = React.useState("");
   const [fieldErrors, setFieldErrors] = React.useState<PasswordFieldErrors>({});
+  const [submitErrorMessage, setSubmitErrorMessage] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   function handleCurrentPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
     setCurrentPasswordValue(event.target.value);
+
+    if (submitErrorMessage) {
+      setSubmitErrorMessage(null);
+    }
 
     if (fieldErrors.currentPassword) {
       setFieldErrors((current) => ({
@@ -59,6 +66,10 @@ export function AccountSecuritySettings() {
 
   function handleNewPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
     setNewPasswordValue(event.target.value);
+
+    if (submitErrorMessage) {
+      setSubmitErrorMessage(null);
+    }
 
     if (fieldErrors.newPassword || fieldErrors.confirmPassword) {
       setFieldErrors((current) => ({
@@ -72,6 +83,10 @@ export function AccountSecuritySettings() {
   function handleConfirmPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
     setConfirmPasswordValue(event.target.value);
 
+    if (submitErrorMessage) {
+      setSubmitErrorMessage(null);
+    }
+
     if (fieldErrors.confirmPassword) {
       setFieldErrors((current) => ({
         ...current,
@@ -82,6 +97,7 @@ export function AccountSecuritySettings() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSubmitErrorMessage(null);
 
     const nextFieldErrors = getPasswordFieldErrors({
       currentPassword: currentPasswordValue,
@@ -113,10 +129,7 @@ export function AccountSecuritySettings() {
       const result = await readPasswordApiResponse(response);
 
       if (!response.ok || !result?.ok) {
-        toast.error(t("common.errorTitle"), {
-          id: passwordToastId,
-          description: getPasswordUpdateErrorMessage(t, result?.errorCode),
-        });
+        setSubmitErrorMessage(getPasswordUpdateErrorMessage(t, result?.errorCode));
         return;
       }
 
@@ -140,97 +153,100 @@ export function AccountSecuritySettings() {
         description: t("security.password.status.saved"),
       });
     } catch {
-      toast.error(t("common.errorTitle"), {
-        id: passwordToastId,
-        description: t("security.password.status.error"),
-      });
+      setSubmitErrorMessage(t("security.password.status.error"));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="grid gap-8">
-      <AccountItem>
-        <form onSubmit={handleSubmit}>
-          <AccountItemContent className="flex flex-col gap-6">
-            <AccountItemContentHeader>
-              <AccountItemTitle>{t("security.password.title")}</AccountItemTitle>
-              <AccountItemDescription>{t("security.password.description")}</AccountItemDescription>
-            </AccountItemContentHeader>
+    <AccountItem>
+      <form onSubmit={handleSubmit}>
+        <AccountItemContent className="flex flex-col gap-6">
+          <AccountItemContentHeader>
+            <AccountItemTitle>{t("security.password.title")}</AccountItemTitle>
+            <AccountItemDescription>{t("security.password.description")}</AccountItemDescription>
+          </AccountItemContentHeader>
 
-            <AccountItemContentBody>
-              <div className="grid max-w-xl gap-4">
-                <Field data-invalid={Boolean(fieldErrors.currentPassword)} className="grid gap-2">
-                  <FieldLabel htmlFor="account-security-current-password">
-                    {t("security.password.fields.currentPassword.label")}
-                  </FieldLabel>
-                  <PasswordInput
-                    id="account-security-current-password"
-                    name="account-security-current-password"
-                    autoComplete="current-password"
-                    value={currentPasswordValue}
-                    onChange={handleCurrentPasswordChange}
-                    aria-invalid={Boolean(fieldErrors.currentPassword)}
-                    showPasswordLabel={tPasswordVisibility("show")}
-                    hidePasswordLabel={tPasswordVisibility("hide")}
-                  />
-                  {fieldErrors.currentPassword && (
-                    <FieldError>{fieldErrors.currentPassword}</FieldError>
-                  )}
-                </Field>
+          <AccountItemContentBody>
+            <div className="grid max-w-xl gap-4">
+              <Field data-invalid={Boolean(fieldErrors.currentPassword)} className="grid gap-2">
+                <FieldLabel htmlFor="account-security-current-password">
+                  {t("security.password.fields.currentPassword.label")}
+                </FieldLabel>
+                <PasswordInput
+                  id="account-security-current-password"
+                  name="account-security-current-password"
+                  autoComplete="current-password"
+                  value={currentPasswordValue}
+                  onChange={handleCurrentPasswordChange}
+                  aria-invalid={Boolean(fieldErrors.currentPassword)}
+                  showPasswordLabel={tPasswordVisibility("show")}
+                  hidePasswordLabel={tPasswordVisibility("hide")}
+                />
+                {fieldErrors.currentPassword && (
+                  <FieldError>{fieldErrors.currentPassword}</FieldError>
+                )}
+              </Field>
 
-                <Field data-invalid={Boolean(fieldErrors.newPassword)} className="grid gap-2">
-                  <FieldLabel htmlFor="account-security-new-password">
-                    {t("security.password.fields.newPassword.label")}
-                  </FieldLabel>
-                  <PasswordInput
-                    id="account-security-new-password"
-                    name="account-security-new-password"
-                    autoComplete="new-password"
-                    value={newPasswordValue}
-                    onChange={handleNewPasswordChange}
-                    aria-invalid={Boolean(fieldErrors.newPassword)}
-                    showPasswordLabel={tPasswordVisibility("show")}
-                    hidePasswordLabel={tPasswordVisibility("hide")}
-                  />
-                  {fieldErrors.newPassword && <FieldError>{fieldErrors.newPassword}</FieldError>}
-                </Field>
+              <Field data-invalid={Boolean(fieldErrors.newPassword)} className="mt-6 grid gap-2">
+                <FieldLabel htmlFor="account-security-new-password">
+                  {t("security.password.fields.newPassword.label")}
+                </FieldLabel>
+                <PasswordInput
+                  id="account-security-new-password"
+                  name="account-security-new-password"
+                  autoComplete="new-password"
+                  value={newPasswordValue}
+                  onChange={handleNewPasswordChange}
+                  aria-invalid={Boolean(fieldErrors.newPassword)}
+                  showPasswordLabel={tPasswordVisibility("show")}
+                  hidePasswordLabel={tPasswordVisibility("hide")}
+                />
+                {fieldErrors.newPassword && <FieldError>{fieldErrors.newPassword}</FieldError>}
+              </Field>
 
-                <Field data-invalid={Boolean(fieldErrors.confirmPassword)} className="grid gap-2">
-                  <FieldLabel htmlFor="account-security-confirm-password">
-                    {t("security.password.fields.confirmPassword.label")}
-                  </FieldLabel>
-                  <PasswordInput
-                    id="account-security-confirm-password"
-                    name="account-security-confirm-password"
-                    autoComplete="new-password"
-                    value={confirmPasswordValue}
-                    onChange={handleConfirmPasswordChange}
-                    aria-invalid={Boolean(fieldErrors.confirmPassword)}
-                    showPasswordLabel={tPasswordVisibility("show")}
-                    hidePasswordLabel={tPasswordVisibility("hide")}
-                  />
-                  {fieldErrors.confirmPassword && (
-                    <FieldError>{fieldErrors.confirmPassword}</FieldError>
-                  )}
-                </Field>
-              </div>
-            </AccountItemContentBody>
-          </AccountItemContent>
+              <Field data-invalid={Boolean(fieldErrors.confirmPassword)} className="grid gap-2">
+                <FieldLabel htmlFor="account-security-confirm-password">
+                  {t("security.password.fields.confirmPassword.label")}
+                </FieldLabel>
+                <PasswordInput
+                  id="account-security-confirm-password"
+                  name="account-security-confirm-password"
+                  autoComplete="new-password"
+                  value={confirmPasswordValue}
+                  onChange={handleConfirmPasswordChange}
+                  aria-invalid={Boolean(fieldErrors.confirmPassword)}
+                  showPasswordLabel={tPasswordVisibility("show")}
+                  hidePasswordLabel={tPasswordVisibility("hide")}
+                />
+                {fieldErrors.confirmPassword && (
+                  <FieldError>{fieldErrors.confirmPassword}</FieldError>
+                )}
+              </Field>
 
-          <AccountItemFooter>
-            <AccountItemDescription>{t("security.password.footerHint")}</AccountItemDescription>
-            <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
-              {isSubmitting ? <Spinner /> : null}
-              {isSubmitting
-                ? t("security.password.submit.pending")
-                : t("security.password.submit.default")}
-            </Button>
-          </AccountItemFooter>
-        </form>
-      </AccountItem>
-    </div>
+              {submitErrorMessage && (
+                <Alert variant="destructive" className="py-2">
+                  <AlertCircleIcon aria-hidden="true" className="size-4" />
+                  <AlertTitle>{t("common.errorTitle")}</AlertTitle>
+                  <AlertDescription>{submitErrorMessage}</AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </AccountItemContentBody>
+        </AccountItemContent>
+
+        <AccountItemFooter>
+          <AccountItemDescription>{t("security.password.footerHint")}</AccountItemDescription>
+          <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
+            {isSubmitting ? <Spinner /> : null}
+            {isSubmitting
+              ? t("security.password.submit.pending")
+              : t("security.password.submit.default")}
+          </Button>
+        </AccountItemFooter>
+      </form>
+    </AccountItem>
   );
 }
 

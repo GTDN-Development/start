@@ -26,10 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  readAccountSettingsApiResponse,
-  type SettingsTranslationFn,
-} from "@/components/platform/account/general/account-general-settings.shared";
+import { readAccountSettingsApiResponse } from "@/components/platform/account/general/account-settings-utils";
 import { Trash2Icon } from "lucide-react";
 
 export function AccountDeleteAccountSettingsItem() {
@@ -135,7 +132,10 @@ export function AccountDeleteAccountSettingsItem() {
   );
 }
 
-function getDeleteAccountErrorMessage(t: SettingsTranslationFn, errorCode?: string) {
+function getDeleteAccountErrorMessage(
+  t: (key: string, values?: Record<string, string>) => string,
+  errorCode?: string
+) {
   if (errorCode === "DELETE_NOT_ALLOWED") {
     return t("deleteAccount.status.deleteNotAllowed");
   }

@@ -22,11 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  getUserInitials,
-  readAccountSettingsApiResponse,
-  type SettingsTranslationFn,
-} from "@/components/platform/account/general/account-general-settings.shared";
+import { readAccountSettingsApiResponse } from "@/components/platform/account/general/account-settings-utils";
+import { getUserInitials } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
 const MAX_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
@@ -230,7 +227,10 @@ export function AccountAvatarSettingsItem() {
   );
 }
 
-function getAvatarErrorMessage(t: SettingsTranslationFn, errorCode?: string) {
+function getAvatarErrorMessage(
+  t: (key: string, values?: Record<string, string>) => string,
+  errorCode?: string
+) {
   if (errorCode === "INVALID_FILE_TYPE") {
     return t("avatar.status.invalidFileType");
   }

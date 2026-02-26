@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountPage } from "@/components/platform/account/account-page";
-import { AccountSecuritySettings } from "@/components/platform/account/security/account-security-settings";
+import { AccountChangePasswordItem } from "@/components/platform/account/security/account-change-password-item";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
@@ -35,7 +35,9 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
 
   return (
     <AccountPage title={t("securityPage.title")} description={t("securityPage.description")}>
-      <AccountSecuritySettings />
+      <div className="grid gap-8">
+        <AccountChangePasswordItem />
+      </div>
     </AccountPage>
   );
 }

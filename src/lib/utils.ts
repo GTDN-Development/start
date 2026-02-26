@@ -50,6 +50,22 @@ export function getValidChildren(children: React.ReactNode) {
   return React.Children.toArray(children).filter(React.isValidElement);
 }
 
+export function getUserInitials(value: string) {
+  const normalized = value.trim();
+
+  if (!normalized) {
+    return "?";
+  }
+
+  const words = normalized.split(/\s+/).filter(Boolean);
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
+}
+
 /** Shuffles array items using Fisher-Yates algorithm */
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];

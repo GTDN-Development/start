@@ -17,6 +17,7 @@ import { Link } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 import { getPathname } from "@/i18n/navigation";
+import { getUserInitials } from "@/lib/utils";
 import { LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -135,20 +136,4 @@ function getUserDisplayName(viewer: UserAccountMenuViewer) {
   const name = viewer.name?.trim();
 
   return name || null;
-}
-
-function getUserInitials(value: string) {
-  const normalized = value.trim();
-
-  if (!normalized) {
-    return "?";
-  }
-
-  const words = normalized.split(/\s+/).filter(Boolean);
-
-  if (words.length === 1) {
-    return words[0].slice(0, 2).toUpperCase();
-  }
-
-  return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
 }

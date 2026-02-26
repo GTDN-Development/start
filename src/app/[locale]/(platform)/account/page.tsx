@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountPage } from "@/components/platform/account/account-page";
-import { AccountGeneralSettings } from "@/components/platform/account/general/account-general-settings";
+import { AccountAvatarSettingsItem } from "@/components/platform/account/general/account-avatar-settings-item";
+import { AccountDeleteAccountSettingsItem } from "@/components/platform/account/general/account-delete-account-settings-item";
+import { AccountDisplayNameSettingsItem } from "@/components/platform/account/general/account-display-name-settings-item";
+import { AccountEmailSettingsItem } from "@/components/platform/account/general/account-email-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/account">): Promise<Metadata> {
@@ -33,7 +36,12 @@ export default async function Page({ params }: PageProps<"/[locale]/account">) {
 
   return (
     <AccountPage title={t("generalPage.title")} description={t("generalPage.description")}>
-      <AccountGeneralSettings />
+      <div className="grid gap-8">
+        <AccountAvatarSettingsItem />
+        <AccountDisplayNameSettingsItem />
+        <AccountEmailSettingsItem />
+        <AccountDeleteAccountSettingsItem />
+      </div>
     </AccountPage>
   );
 }

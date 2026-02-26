@@ -13,16 +13,16 @@ import {
   AccountItemFooter,
   AccountItemTitle,
 } from "@/components/platform/account/account-item";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   readAccountSettingsApiResponse,
-  StatusAlert,
   type InlineStatus,
-  type SettingsTranslationFn,
-} from "@/components/platform/account/general/account-general-settings.shared";
+} from "@/components/platform/account/general/account-settings-utils";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
 
 const MAX_PROFILE_NAME_LENGTH = 32;
 
@@ -32,15 +32,17 @@ export function AccountDisplayNameSettingsItem() {
   const nameToastId = React.useId();
   const [nameValue, setNameValue] = React.useState(profile.name ?? "");
   const [nameStatus, setNameStatus] = React.useState<InlineStatus>(null);
+  const [showNameFieldValidation, setShowNameFieldValidation] = React.useState(false);
   const [isSavingName, setIsSavingName] = React.useState(false);
 
   const trimmedNameValue = nameValue.trim();
   const isNameTooLong = trimmedNameValue.length > MAX_PROFILE_NAME_LENGTH;
-  const nameFieldError = isNameTooLong
-    ? t("profile.fields.name.errors.max", {
-        max: String(MAX_PROFILE_NAME_LENGTH),
-      })
-    : null;
+  const nameFieldError =
+    showNameFieldValidation && isNameTooLong
+      ? t("profile.fields.name.errors.max", {
+          max: String(MAX_PROFILE_NAME_LENGTH),
+        })
+      : null;
 
   function handleNameInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     setNameValue(event.target.value);
@@ -52,6 +54,7 @@ export function AccountDisplayNameSettingsItem() {
 
   async function handleNameSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setShowNameFieldValidation(true);
 
     if (isNameTooLong) {
       setNameStatus(null);
@@ -121,6 +124,7 @@ export function AccountDisplayNameSettingsItem() {
                   name="account-profile-name"
                   value={nameValue}
                   onChange={handleNameInputChange}
+                  onBlur={() => setShowNameFieldValidation(true)}
                   placeholder={t("profile.fields.name.placeholder")}
                   autoComplete="name"
                   aria-invalid={Boolean(nameFieldError) || nameStatus?.kind === "error"}
@@ -130,11 +134,21 @@ export function AccountDisplayNameSettingsItem() {
               </Field>
 
               {nameStatus && (
-                <StatusAlert
-                  status={nameStatus}
-                  successTitle={t("common.successTitle")}
-                  errorTitle={t("common.errorTitle")}
-                />
+                <>
+                  {nameStatus.kind === "success" ? (
+                    <Alert className="py-2">
+                      <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-500" />
+                      <AlertTitle>{t("common.successTitle")}</AlertTitle>
+                      <AlertDescription>{nameStatus.message}</AlertDescription>
+                    </Alert>
+                  ) : (
+                    <Alert variant="destructive" className="py-2">
+                      <AlertCircleIcon aria-hidden="true" className="size-4" />
+                      <AlertTitle>{t("common.errorTitle")}</AlertTitle>
+                      <AlertDescription>{nameStatus.message}</AlertDescription>
+                    </Alert>
+                  )}
+                </>
               )}
             </div>
           </AccountItemContentBody>
@@ -152,7 +166,10 @@ export function AccountDisplayNameSettingsItem() {
   );
 }
 
-function getProfileSaveErrorMessage(t: SettingsTranslationFn, errorCode?: string) {
+function getProfileSaveErrorMessage(
+  t: (key: string, values?: Record<string, string>) => string,
+  errorCode?: string
+) {
   if (errorCode === "UNAUTHORIZED") {
     return t("profile.status.unauthorizedMessage");
   }

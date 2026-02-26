@@ -13,6 +13,7 @@ import {
   AccountItemTitle,
 } from "@/components/platform/account/account-item";
 import { useAccountProfile } from "@/components/shared/account/account-profile-context";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,11 +30,9 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import {
   readAccountSettingsApiResponse,
-  StatusAlert,
   type InlineStatus,
-  type SettingsTranslationFn,
-} from "@/components/platform/account/general/account-general-settings.shared";
-import { MailIcon } from "lucide-react";
+} from "@/components/platform/account/general/account-settings-utils";
+import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
 
@@ -196,11 +195,21 @@ export function AccountEmailSettingsItem() {
                   {emailFieldError && <FieldError>{emailFieldError}</FieldError>}
                 </Field>
 
-                <StatusAlert
-                  status={emailDialogStatus}
-                  successTitle={t("email.dialog.status.sentTitle")}
-                  errorTitle={t("common.errorTitle")}
-                />
+                {emailDialogStatus ? (
+                  emailDialogStatus.kind === "success" ? (
+                    <Alert className="py-2">
+                      <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-500" />
+                      <AlertTitle>{t("email.dialog.status.sentTitle")}</AlertTitle>
+                      <AlertDescription>{emailDialogStatus.message}</AlertDescription>
+                    </Alert>
+                  ) : (
+                    <Alert variant="destructive" className="py-2">
+                      <AlertCircleIcon aria-hidden="true" className="size-4" />
+                      <AlertTitle>{t("common.errorTitle")}</AlertTitle>
+                      <AlertDescription>{emailDialogStatus.message}</AlertDescription>
+                    </Alert>
+                  )
+                ) : null}
               </div>
 
               <DialogFooter className="sm:justify-between">
@@ -236,7 +245,10 @@ export function AccountEmailSettingsItem() {
   );
 }
 
-function getEmailChangeErrorMessage(t: SettingsTranslationFn, errorCode?: string) {
+function getEmailChangeErrorMessage(
+  t: (key: string, values?: Record<string, string>) => string,
+  errorCode?: string
+) {
   if (errorCode === "EMAIL_UNCHANGED") {
     return t("email.dialog.errors.sameAsCurrent");
   }
