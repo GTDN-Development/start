@@ -33,6 +33,8 @@ export function MarketingLayout({
       {/* Skip to content - A11y */}
       <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
+      {/* Potential banner goes here */}
+
       {/* Header */}
       <Header viewer={viewer} />
 
