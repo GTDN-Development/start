@@ -106,14 +106,14 @@ function setSubjectKeyCookie(
 
 async function createCookieConsentWriterClient() {
   const pb = createPocketBaseClient();
-  const email = process.env.PB_SUPERUSER_EMAIL?.trim();
-  const password = process.env.PB_SUPERUSER_PASSWORD?.trim();
+  const email = process.env.PB_CONSENT_WRITER_EMAIL?.trim();
+  const password = process.env.PB_CONSENT_WRITER_PASSWORD?.trim();
 
   if (!email || !password) {
-    throw new Error("Missing PocketBase cookie consent writer credentials.");
+    throw new Error("Missing PocketBase consent writer credentials.");
   }
 
-  await pb.collection("_superusers").authWithPassword(email, password);
+  await pb.collection("users").authWithPassword(email, password);
 
   return pb;
 }
