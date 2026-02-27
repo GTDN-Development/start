@@ -25,6 +25,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
+import { resolveErrorMessage } from "@/lib/utils";
 
 type SecurityTranslationFn = (key: string, values?: Record<string, string>) => string;
 type PasswordFormValues = {
@@ -73,7 +74,10 @@ export function AccountChangePasswordItem() {
         if (!response.ok || !result?.ok) {
           setSubmitStatus({
             kind: "error",
-            message: getPasswordUpdateErrorMessage(t, result?.errorCode),
+            message: resolveErrorMessage(result?.errorCode, t("security.password.status.error"), {
+              INVALID_PASSWORD_INPUT: t("security.password.status.invalidInput"),
+              UNAUTHORIZED: t("security.password.status.unauthorized"),
+            }),
           });
           return;
         }
@@ -260,18 +264,6 @@ export function AccountChangePasswordItem() {
       </form>
     </AccountItem>
   );
-}
-
-function getPasswordUpdateErrorMessage(t: SecurityTranslationFn, errorCode?: string) {
-  if (errorCode === "INVALID_PASSWORD_INPUT") {
-    return t("security.password.status.invalidInput");
-  }
-
-  if (errorCode === "UNAUTHORIZED") {
-    return t("security.password.status.unauthorized");
-  }
-
-  return t("security.password.status.error");
 }
 
 function getPasswordFormSchema(t: SecurityTranslationFn) {

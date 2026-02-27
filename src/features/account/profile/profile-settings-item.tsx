@@ -23,6 +23,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon } from "lucide-react";
+import { resolveErrorMessage } from "@/lib/utils";
 
 const MAX_PROFILE_NAME_LENGTH = 32;
 
@@ -79,7 +80,10 @@ export function AccountDisplayNameSettingsItem() {
       if (!response.ok || !result?.ok || !result.profile) {
         setNameStatus({
           kind: "error",
-          message: getProfileSaveErrorMessage(t, result?.errorCode),
+          message: resolveErrorMessage(result?.errorCode, t("profile.status.errorMessage"), {
+            UNAUTHORIZED: t("profile.status.unauthorizedMessage"),
+            INVALID_PROFILE_INPUT: t("profile.status.invalidInputMessage"),
+          }),
         });
         return;
       }
@@ -154,19 +158,4 @@ export function AccountDisplayNameSettingsItem() {
       </form>
     </AccountItem>
   );
-}
-
-function getProfileSaveErrorMessage(
-  t: (key: string, values?: Record<string, string>) => string,
-  errorCode?: string
-) {
-  if (errorCode === "UNAUTHORIZED") {
-    return t("profile.status.unauthorizedMessage");
-  }
-
-  if (errorCode === "INVALID_PROFILE_INPUT") {
-    return t("profile.status.invalidInputMessage");
-  }
-
-  return t("profile.status.errorMessage");
 }

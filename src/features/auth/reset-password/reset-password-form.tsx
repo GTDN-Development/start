@@ -11,7 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, KeyRoundIcon } from "lucide-react";
 import { authRedirectPaths } from "@/features/auth/auth-redirects";
 import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { cn } from "@/lib/utils";
+import { cn, resolveErrorMessage } from "@/lib/utils";
 
 export function ResetPasswordForm({
   token,
@@ -66,7 +66,12 @@ export function ResetPasswordForm({
       if (response.ok && result?.ok) {
         router.replace(result.redirectTo ?? authRedirectPaths.login);
       } else {
-        setSubmitErrorMessage(getErrorMessage(t, result?.errorCode));
+        setSubmitErrorMessage(
+          resolveErrorMessage(result?.errorCode, t("status.error.message"), {
+            INVALID_OR_EXPIRED_TOKEN: t("status.error.invalidOrExpiredToken"),
+            PASSWORD_MISMATCH: t("validation.passwordMismatch"),
+          })
+        );
       }
     } catch {
       setSubmitErrorMessage(t("status.error.message"));
@@ -138,16 +143,4 @@ export function ResetPasswordForm({
       </form>
     </div>
   );
-}
-
-function getErrorMessage(t: (key: string) => string, errorCode?: string) {
-  if (errorCode === "INVALID_OR_EXPIRED_TOKEN") {
-    return t("status.error.invalidOrExpiredToken");
-  }
-
-  if (errorCode === "PASSWORD_MISMATCH") {
-    return t("validation.passwordMismatch");
-  }
-
-  return t("status.error.message");
 }

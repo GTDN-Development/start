@@ -11,7 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { authRedirectPaths } from "@/features/auth/auth-redirects";
 import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { cn } from "@/lib/utils";
+import { cn, resolveErrorMessage } from "@/lib/utils";
 
 export function ConfirmEmailChangeForm({
   token,
@@ -59,7 +59,11 @@ export function ConfirmEmailChangeForm({
       if (response.ok && result?.ok) {
         router.replace(result.redirectTo ?? authRedirectPaths.login);
       } else {
-        setSubmitErrorMessage(getErrorMessage(t, result?.errorCode));
+        setSubmitErrorMessage(
+          resolveErrorMessage(result?.errorCode, t("status.error.message"), {
+            INVALID_OR_EXPIRED_TOKEN_OR_PASSWORD: t("status.error.invalidOrExpiredTokenOrPassword"),
+          })
+        );
       }
     } catch {
       setSubmitErrorMessage(t("status.error.message"));
@@ -119,12 +123,4 @@ export function ConfirmEmailChangeForm({
       </form>
     </div>
   );
-}
-
-function getErrorMessage(t: (key: string) => string, errorCode?: string) {
-  if (errorCode === "INVALID_OR_EXPIRED_TOKEN_OR_PASSWORD") {
-    return t("status.error.invalidOrExpiredTokenOrPassword");
-  }
-
-  return t("status.error.message");
 }

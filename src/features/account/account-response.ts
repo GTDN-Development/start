@@ -1,5 +1,6 @@
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 import type { InlineStatus } from "@/features/account/account-types";
+import { isRecord } from "@/lib/utils";
 
 export type { InlineStatus };
 
@@ -55,8 +56,4 @@ function parseAccountProfileSnapshot(value: unknown): AccountProfileSnapshot | u
     verified,
     avatarUrl,
   };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
 }

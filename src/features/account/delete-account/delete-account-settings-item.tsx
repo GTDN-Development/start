@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { readAccountSettingsApiResponse } from "@/features/account/account-response";
 import { Trash2Icon } from "lucide-react";
+import { resolveErrorMessage } from "@/lib/utils";
 
 export function AccountDeleteAccountSettingsItem() {
   const t = useTranslations("pages.account");
@@ -52,7 +53,10 @@ export function AccountDeleteAccountSettingsItem() {
       if (!response.ok || !result?.ok) {
         toast.error(t("common.errorTitle"), {
           id: deleteAccountToastId,
-          description: getDeleteAccountErrorMessage(t, result?.errorCode),
+          description: resolveErrorMessage(result?.errorCode, t("deleteAccount.status.error"), {
+            DELETE_NOT_ALLOWED: t("deleteAccount.status.deleteNotAllowed"),
+            UNAUTHORIZED: t("deleteAccount.status.unauthorized"),
+          }),
         });
         return;
       }
@@ -130,19 +134,4 @@ export function AccountDeleteAccountSettingsItem() {
       </AccountItemFooter>
     </AccountItem>
   );
-}
-
-function getDeleteAccountErrorMessage(
-  t: (key: string, values?: Record<string, string>) => string,
-  errorCode?: string
-) {
-  if (errorCode === "DELETE_NOT_ALLOWED") {
-    return t("deleteAccount.status.deleteNotAllowed");
-  }
-
-  if (errorCode === "UNAUTHORIZED") {
-    return t("deleteAccount.status.unauthorized");
-  }
-
-  return t("deleteAccount.status.error");
 }

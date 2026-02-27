@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { readAccountSettingsApiResponse } from "@/features/account/account-response";
-import { getUserInitials } from "@/lib/utils";
+import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
 const MAX_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
@@ -55,7 +55,11 @@ export function AccountAvatarSettingsItem() {
     if (avatarValidationErrorCode) {
       toast.error(t("common.errorTitle"), {
         id: avatarToastId,
-        description: getAvatarErrorMessage(t, avatarValidationErrorCode),
+        description: resolveErrorMessage(avatarValidationErrorCode, t("avatar.status.error"), {
+          INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
+          FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
+          UNAUTHORIZED: t("avatar.status.unauthorized"),
+        }),
       });
       return;
     }
@@ -75,7 +79,11 @@ export function AccountAvatarSettingsItem() {
       if (!response.ok || !result?.ok || !result.profile) {
         toast.error(t("common.errorTitle"), {
           id: avatarToastId,
-          description: getAvatarErrorMessage(t, result?.errorCode),
+          description: resolveErrorMessage(result?.errorCode, t("avatar.status.error"), {
+            INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
+            FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
+            UNAUTHORIZED: t("avatar.status.unauthorized"),
+          }),
         });
         return;
       }
@@ -112,7 +120,11 @@ export function AccountAvatarSettingsItem() {
       if (!response.ok || !result?.ok || !result.profile) {
         toast.error(t("common.errorTitle"), {
           id: avatarToastId,
-          description: getAvatarErrorMessage(t, result?.errorCode),
+          description: resolveErrorMessage(result?.errorCode, t("avatar.status.error"), {
+            INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
+            FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
+            UNAUTHORIZED: t("avatar.status.unauthorized"),
+          }),
         });
         return;
       }
@@ -230,25 +242,6 @@ export function AccountAvatarSettingsItem() {
       </AccountItemFooter>
     </AccountItem>
   );
-}
-
-function getAvatarErrorMessage(
-  t: (key: string, values?: Record<string, string>) => string,
-  errorCode?: string
-) {
-  if (errorCode === "INVALID_FILE_TYPE") {
-    return t("avatar.status.invalidFileType");
-  }
-
-  if (errorCode === "FILE_TOO_LARGE") {
-    return t("avatar.status.fileTooLarge");
-  }
-
-  if (errorCode === "UNAUTHORIZED") {
-    return t("avatar.status.unauthorized");
-  }
-
-  return t("avatar.status.error");
 }
 
 function validateAvatarFile(file: File): string | null {

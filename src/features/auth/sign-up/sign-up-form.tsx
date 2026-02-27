@@ -18,7 +18,7 @@ import { legalLinks } from "@/config/legal-links";
 
 import { authRedirectPaths } from "@/features/auth/auth-redirects";
 import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { cn } from "@/lib/utils";
+import { cn, resolveErrorMessage } from "@/lib/utils";
 
 type SignUpFormValues = {
   firstName: string;
@@ -93,7 +93,11 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
         if (response.ok) {
           router.replace(result?.redirectTo ?? authRedirectPaths.dashboard);
         } else {
-          setSubmitErrorMessage(getSignUpErrorMessage(t, result?.errorCode));
+          setSubmitErrorMessage(
+            resolveErrorMessage(result?.errorCode, t("status.error.message"), {
+              EMAIL_ALREADY_IN_USE: t("status.error.emailAlreadyInUse"),
+            })
+          );
         }
       } catch {
         setSubmitErrorMessage(t("status.error.message"));
@@ -315,12 +319,4 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       </form>
     </div>
   );
-}
-
-function getSignUpErrorMessage(t: (key: string) => string, errorCode?: string) {
-  if (errorCode === "EMAIL_ALREADY_IN_USE") {
-    return t("status.error.emailAlreadyInUse");
-  }
-
-  return t("status.error.message");
 }

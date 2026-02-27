@@ -44,9 +44,6 @@ export const routing = defineRouting({
     "/pricing": {
       cs: "/cenik",
     },
-    "/projects": {
-      cs: "/projekty",
-    },
     "/reset-password": {
       cs: "/obnovit-heslo",
     },

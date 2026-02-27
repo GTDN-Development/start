@@ -35,6 +35,7 @@ import {
   type InlineStatus,
 } from "@/features/account/account-response";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
+import { resolveErrorMessage } from "@/lib/utils";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
 type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;
@@ -90,7 +91,11 @@ export function AccountEmailSettingsItem() {
         if (!response.ok || !result?.ok) {
           setEmailDialogStatus({
             kind: "error",
-            message: getEmailChangeErrorMessage(t, result?.errorCode),
+            message: resolveErrorMessage(result?.errorCode, t("email.dialog.status.errorMessage"), {
+              EMAIL_UNCHANGED: t("email.dialog.errors.sameAsCurrent"),
+              INVALID_OR_UNAVAILABLE_EMAIL: t("email.dialog.errors.invalidOrUnavailable"),
+              UNAUTHORIZED: t("email.dialog.errors.unauthorized"),
+            }),
           });
           return;
         }
@@ -293,25 +298,6 @@ export function AccountEmailSettingsItem() {
       </AccountItemFooter>
     </AccountItem>
   );
-}
-
-function getEmailChangeErrorMessage(
-  t: AccountTranslationFn,
-  errorCode?: string
-) {
-  if (errorCode === "EMAIL_UNCHANGED") {
-    return t("email.dialog.errors.sameAsCurrent");
-  }
-
-  if (errorCode === "INVALID_OR_UNAVAILABLE_EMAIL") {
-    return t("email.dialog.errors.invalidOrUnavailable");
-  }
-
-  if (errorCode === "UNAUTHORIZED") {
-    return t("email.dialog.errors.unauthorized");
-  }
-
-  return t("email.dialog.status.errorMessage");
 }
 
 function getEmailChangeFormSchema(t: AccountTranslationFn, normalizedCurrentEmail: string) {

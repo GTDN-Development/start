@@ -10,6 +10,7 @@ import {
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
+import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
@@ -37,7 +38,7 @@ export default function Page({ params, searchParams }: PageProps<"/[locale]/rese
   setRequestLocale(locale as Locale);
 
   const t = useTranslations("pages.resetPassword");
-  const token = getTokenFromSearchParams(query.token);
+  const token = parseAuthFlowToken(query.token);
 
   return (
     <div className="relative">
@@ -59,16 +60,4 @@ export default function Page({ params, searchParams }: PageProps<"/[locale]/rese
       </div>
     </div>
   );
-}
-
-function getTokenFromSearchParams(value: string | string[] | undefined) {
-  if (typeof value === "string") {
-    return value.trim() || null;
-  }
-
-  if (Array.isArray(value) && typeof value[0] === "string") {
-    return value[0].trim() || null;
-  }
-
-  return null;
 }

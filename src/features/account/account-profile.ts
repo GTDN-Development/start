@@ -1,3 +1,5 @@
+import { isRecord } from "@/lib/utils";
+
 export type AccountProfileSnapshot = {
   email: string;
   name: string | null;
@@ -81,8 +83,4 @@ function getPocketBaseBaseUrl() {
 
 function getString(value: unknown) {
   return typeof value === "string" ? value : "";
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
 }

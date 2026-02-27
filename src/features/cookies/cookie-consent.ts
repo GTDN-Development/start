@@ -1,3 +1,5 @@
+import { isRecord } from "@/lib/utils";
+
 export const COOKIE_NAME = "cookie_consent";
 export const COOKIE_SUBJECT_KEY_NAME = "cookie_consent_subject";
 export const COOKIE_CONSENT_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
@@ -61,8 +63,4 @@ export function parseConsentCookieValue(value: string): ConsentState | null {
 
 export function serializeConsentCookieValue(consent: ConsentState) {
   return encodeURIComponent(JSON.stringify(normalizeConsent(consent)));
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
 }

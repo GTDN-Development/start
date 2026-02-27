@@ -2,6 +2,7 @@ import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
 import { clearPocketBaseAuthCookie } from "@/server/pocketbase/pb-client";
 import { jsonError, jsonOk } from "@/server/http/json";
+import { isSameOriginRequest } from "@/server/http/origin";
 import { getAuthenticatedUserApiContext } from "@/server/pocketbase/pb-authenticated-context";
 
 export async function DELETE(request: NextRequest) {
@@ -40,30 +41,5 @@ export async function DELETE(request: NextRequest) {
     console.error("Delete account API error:", error);
 
     return jsonError("INTERNAL_ERROR", 500);
-  }
-}
-
-function isSameOriginRequest(request: NextRequest) {
-  const expectedOrigin = new URL(request.url).origin;
-  const origin = request.headers.get("origin");
-
-  if (origin) {
-    return isSameOriginUrl(origin, expectedOrigin);
-  }
-
-  const referer = request.headers.get("referer");
-
-  if (referer) {
-    return isSameOriginUrl(referer, expectedOrigin);
-  }
-
-  return false;
-}
-
-function isSameOriginUrl(value: string, expectedOrigin: string) {
-  try {
-    return new URL(value).origin === expectedOrigin;
-  } catch {
-    return false;
   }
 }

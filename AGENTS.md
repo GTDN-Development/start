@@ -32,6 +32,7 @@
 - **Never** add `shared/` folders inside features; place feature-wide types/helpers at feature root
 - Keep `src/components/ui` shadcn-compatible (safe target for shadcn CLI generated components)
 - Keep shared utility helpers centralized in `src/lib/utils.ts`; avoid splitting into many micro utility files
+- Before adding a new helper/utility, check whether an existing one already exists in `src/lib/utils.ts`, the relevant feature root, or `src/server/*`, and reuse/extend it when practical
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
 - API route groups:
   - auth: `src/app/api/auth/*`
@@ -53,7 +54,6 @@
 - Remote images: use `remotePatterns` in `next.config.ts` — **never** `images.domains`
 - `Button` with a non-`<button>` render target (`<a>`, `Link`, etc.) must set `nativeButton={false}`
 - Base UI components with `render={<button ... />}` (e.g. menu items) must set `nativeButton={true}`; if `nativeButton={false}`, the render target must be non-`<button>`
-- For form feedback use `Alert` component — **not** toast
 
 ## Forms
 

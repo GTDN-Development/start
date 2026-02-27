@@ -1,5 +1,6 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
+import { isRecord } from "@/lib/utils";
 import { jsonError, jsonOk } from "@/server/http/json";
 import {
   POCKETBASE_AUTH_COOKIE_NAME,
@@ -135,8 +136,4 @@ function getOptionalString(value: unknown) {
   const trimmedValue = value.trim();
 
   return trimmedValue || null;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
 }
