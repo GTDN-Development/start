@@ -24,7 +24,7 @@ No password reset "resend"/extra polishing flows were added beyond the working b
 
 Auth is handled server-side using the PocketBase `pb_auth` cookie (`HttpOnly`), not client-side local state.
 
-- Server helper: `/Users/fanda/Dev/start/src/lib/pocketbase/server.ts`
+- Server helper: `/Users/fanda/Dev/start/src/server/pocketbase/pb-client.ts`
 - A new PocketBase client is created per request (no shared singleton on the server)
 - Auth cookie is loaded from `next/headers` cookies via `await cookies()`
 - Helpers exist to set and clear the `pb_auth` cookie
@@ -94,7 +94,7 @@ Provides:
 
 ## PocketBase Server Helpers
 
-- `/Users/fanda/Dev/start/src/lib/pocketbase/server.ts`
+- `/Users/fanda/Dev/start/src/server/pocketbase/pb-client.ts`
 
 Provides:
 
@@ -105,24 +105,24 @@ Provides:
 
 ## API Routes (Auth)
 
-- `/Users/fanda/Dev/start/src/app/api/login/route.ts`
-- `/Users/fanda/Dev/start/src/app/api/sign-up/route.ts`
-- `/Users/fanda/Dev/start/src/app/api/logout/route.ts`
-- `/Users/fanda/Dev/start/src/app/api/forgot-password/route.ts`
-- `/Users/fanda/Dev/start/src/app/api/reset-password/route.ts`
-- `/Users/fanda/Dev/start/src/app/api/verify-email/route.ts`
-- `/Users/fanda/Dev/start/src/app/api/confirm-email-change/route.ts`
+- `/Users/fanda/Dev/start/src/app/api/auth/login/route.ts`
+- `/Users/fanda/Dev/start/src/app/api/auth/sign-up/route.ts`
+- `/Users/fanda/Dev/start/src/app/api/auth/logout/route.ts`
+- `/Users/fanda/Dev/start/src/app/api/auth/forgot-password/route.ts`
+- `/Users/fanda/Dev/start/src/app/api/auth/reset-password/route.ts`
+- `/Users/fanda/Dev/start/src/app/api/auth/verify-email/route.ts`
+- `/Users/fanda/Dev/start/src/app/api/auth/confirm-email-change/route.ts`
 
 ### Behavior summary
 
-`POST /api/login`
+`POST /api/auth/login`
 
 - Validates payload
 - Authenticates via `users.authWithPassword(...)`
 - Sets `pb_auth` cookie
 - Supports `rememberMe`
 
-`POST /api/sign-up`
+`POST /api/auth/sign-up`
 
 - Validates fields, password match, terms
 - Creates PocketBase auth user
@@ -130,28 +130,28 @@ Provides:
 - Attempts auto-login
 - If auto-login is blocked (e.g. verification required), still returns success and redirects to `/login`
 
-`POST /api/logout`
+`POST /api/auth/logout`
 
 - Requires same-origin `Origin`/`Referer` (simple CSRF/origin guard)
 - Clears `pb_auth` cookie
 - Redirects with safe internal `redirectTo` only
 
-`POST /api/forgot-password`
+`POST /api/auth/forgot-password`
 
 - Calls `requestPasswordReset(email)`
 - Returns generic success for non-existing/invalid user cases (prevents email enumeration)
 
-`POST /api/reset-password`
+`POST /api/auth/reset-password`
 
 - Confirms reset token + updates password via PocketBase
 - Clears `pb_auth` cookie on success and redirects to `/login` (KISS re-auth policy)
 
-`POST /api/verify-email`
+`POST /api/auth/verify-email`
 
 - Confirms verification token via PocketBase
 - Clears `pb_auth` cookie on success and redirects to `/login` (KISS re-auth policy)
 
-`POST /api/confirm-email-change`
+`POST /api/auth/confirm-email-change`
 
 - Confirms PocketBase email change token via `confirmEmailChange(token, password)`
 - Requires the user's current password

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { CookiePolicy } from "@/components/marketing/legal/cookie-policy";
+import { CookiePolicy } from "@/features/marketing/legal/cookie-policy";
 import { Container } from "@/components/ui/container";
 import { legal } from "@/config/legal";
 import { cookies } from "@/config/cookies";

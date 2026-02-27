@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { AccountPage } from "@/components/platform/account/account-page";
-import { AccountChangePasswordItem } from "@/components/platform/account/security/account-change-password-item";
+import { AccountPage } from "@/features/account/account-page";
+import { AccountChangePasswordItem } from "@/features/account/password/password-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(

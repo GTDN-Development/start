@@ -2,7 +2,7 @@ import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
-import { getAuthenticatedUserApiContext } from "@/server/pocketbase/authenticated-user-api";
+import { getAuthenticatedUserApiContext } from "@/server/pocketbase/pb-authenticated-context";
 
 const requestEmailChangePayloadSchema = z.object({
   newEmail: z

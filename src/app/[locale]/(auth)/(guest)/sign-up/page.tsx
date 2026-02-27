@@ -8,8 +8,8 @@ import {
   AuthHeroContent,
   AuthHeroDescription,
   AuthHeroTitle,
-} from "@/components/auth/auth-hero";
-import { SignUpForm } from "@/components/auth/sign-up/sign-up-form";
+} from "@/features/auth/auth-page-shell";
+import { SignUpForm } from "@/features/auth/sign-up/sign-up-form";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/sign-up">): Promise<Metadata> {

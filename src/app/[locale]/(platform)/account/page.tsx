@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { AccountPage } from "@/components/platform/account/account-page";
-import { AccountAvatarSettingsItem } from "@/components/platform/account/general/account-avatar-settings-item";
-import { AccountDeleteAccountSettingsItem } from "@/components/platform/account/general/account-delete-account-settings-item";
-import { AccountDisplayNameSettingsItem } from "@/components/platform/account/general/account-display-name-settings-item";
-import { AccountEmailSettingsItem } from "@/components/platform/account/general/account-email-settings-item";
+import { AccountPage } from "@/features/account/account-page";
+import { AccountAvatarSettingsItem } from "@/features/account/avatar/avatar-settings-item";
+import { AccountDeleteAccountSettingsItem } from "@/features/account/delete-account/delete-account-settings-item";
+import { AccountDisplayNameSettingsItem } from "@/features/account/profile/profile-settings-item";
+import { AccountEmailSettingsItem } from "@/features/account/email-change/email-change-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/account">): Promise<Metadata> {

@@ -1,5 +1,6 @@
-import { MarketingLayout } from "@/components/marketing/marketing-layout";
-import { createServerPocketBaseClient } from "@/server/pocketbase/server";
+import { MarketingLayout } from "@/features/marketing/marketing-layout";
+import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
+import { createServerPocketBaseClient } from "@/server/pocketbase/pb-client";
 
 type MarketingRouteLayoutProps = {
   children: React.ReactNode;
@@ -12,7 +13,7 @@ export default async function Layout({ children }: MarketingRouteLayoutProps) {
   return <MarketingLayout viewer={viewer}>{children}</MarketingLayout>;
 }
 
-function getMarketingViewer(record: unknown) {
+function getMarketingViewer(record: unknown): UserAccountMenuViewer | null {
   if (typeof record !== "object" || record === null) {
     return null;
   }

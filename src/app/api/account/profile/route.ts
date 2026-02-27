@@ -7,7 +7,7 @@ import {
   getAuthenticatedUserApiContext,
   refreshAuthenticatedUserApiSession,
   setAuthenticatedUserApiCookie,
-} from "@/server/pocketbase/authenticated-user-api";
+} from "@/server/pocketbase/pb-authenticated-context";
 
 const updateProfilePayloadSchema = z.object({
   name: z.string().trim().max(32),

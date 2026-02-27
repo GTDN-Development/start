@@ -2,12 +2,12 @@ import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
-import { clearPocketBaseAuthCookie } from "@/server/pocketbase/server";
+import { clearPocketBaseAuthCookie } from "@/server/pocketbase/pb-client";
 import {
   getAuthenticatedUserApiContext,
   refreshAuthenticatedUserApiSession,
   setAuthenticatedUserApiCookie,
-} from "@/server/pocketbase/authenticated-user-api";
+} from "@/server/pocketbase/pb-authenticated-context";
 
 const updatePasswordPayloadSchema = z
   .object({

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { GdprPolicy } from "@/components/marketing/legal/gdpr-policy";
+import { GdprPolicy } from "@/features/marketing/legal/gdpr-policy";
 import { Container } from "@/components/ui/container";
 import { legal } from "@/config/legal";
 import { createPageMetadata } from "@/lib/metadata";

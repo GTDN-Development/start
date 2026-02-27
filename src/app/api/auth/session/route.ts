@@ -6,7 +6,7 @@ import {
   clearPocketBaseAuthCookie,
   createPocketBaseClient,
   loadPocketBaseAuthFromCookieHeader,
-} from "@/server/pocketbase/server";
+} from "@/server/pocketbase/pb-client";
 
 type SessionSnapshot = {
   id: string | null;

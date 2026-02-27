@@ -13,13 +13,31 @@
 
 - **Never** import from `next/link` directly — use `@/components/ui/link` for internal localized links
 - For external URLs and hash/mailto/tel links use a native `<a>` (do not force `@/components/ui/link`)
-- Mirror route-specific component folders to the actual app route/route-group structure when practical (e.g. `src/components/.../account/security/*` for `/account/security`)
+- Mirror route-specific feature folders to the actual app route/route-group structure when practical (e.g. `src/features/.../account/security/*` for `/account/security`)
 - **Never** use `middleware.ts` — use `proxy.ts` for request interception (no edge runtime)
 - `params` and `searchParams` must be awaited — they are async in Next.js 16
 - `cookies()`, `headers()`, `draftMode()` must be awaited
 - Use `"use cache"` directive for caching — not the old `fetch` cache options
 - `revalidateTag(tag, cacheLifeProfile)` requires a cacheLife profile as the 2nd argument
 - Parallel route slots require explicit `default.tsx` files
+
+## Architecture
+
+- Primary app/domain code lives in `src/features/*`
+- `src/components/*` is for shared cross-feature UI infrastructure only (`ui`, `layout`, `brand`, `providers`, `dev`)
+- Keep platform shell/composition in `src/features/platform`; keep account domain in `src/features/account`
+- Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
+- Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
+- **Never** introduce barrel files (`index.ts` / `index.tsx`) in features
+- **Never** add `shared/` folders inside features; place feature-wide types/helpers at feature root
+- Keep `src/components/ui` shadcn-compatible (safe target for shadcn CLI generated components)
+- Keep shared utility helpers centralized in `src/lib/utils.ts`; avoid splitting into many micro utility files
+- Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
+- API route groups:
+  - auth: `src/app/api/auth/*`
+  - account: `src/app/api/account/*`
+  - marketing: `src/app/api/marketing/*`
+  - cookies: `src/app/api/cookies/consent/route.ts`
 
 ## Tailwind CSS v4
 

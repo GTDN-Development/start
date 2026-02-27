@@ -9,7 +9,7 @@ import {
   PlatformHeroContent,
   PlatformHeroDescription,
   PlatformHeroTitle,
-} from "@/components/platform/platform-hero";
+} from "@/features/platform/dashboard/platform-hero";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/dashboard">): Promise<Metadata> {

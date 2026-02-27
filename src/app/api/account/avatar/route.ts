@@ -7,7 +7,7 @@ import {
   getAuthenticatedUserApiContext,
   refreshAuthenticatedUserApiSession,
   setAuthenticatedUserApiCookie,
-} from "@/server/pocketbase/authenticated-user-api";
+} from "@/server/pocketbase/pb-authenticated-context";
 
 const MAX_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
 

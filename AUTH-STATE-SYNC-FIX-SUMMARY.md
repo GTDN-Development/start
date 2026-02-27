@@ -20,7 +20,7 @@
   - runs `authRefresh()`
   - clears `pb_auth` if invalid
   - returns `changed` when auth/profile snapshot changed
-- Added `/Users/fanda/Dev/start/src/components/shared/app/auth-session-sync.tsx` (mounted in `/Users/fanda/Dev/start/src/components/shared/app/providers.tsx`):
+- Added `/Users/fanda/Dev/start/src/features/auth/auth-session-sync.tsx` (mounted in `/Users/fanda/Dev/start/src/components/providers/app-providers.tsx`):
   - calls `/api/auth/session` on `focus` / `visibilitychange`
   - throttled (15s)
   - calls `router.refresh()` only when changed

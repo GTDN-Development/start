@@ -1,8 +1,8 @@
 import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
-import { clearPocketBaseAuthCookie } from "@/server/pocketbase/server";
+import { clearPocketBaseAuthCookie } from "@/server/pocketbase/pb-client";
 import { jsonError, jsonOk } from "@/server/http/json";
-import { getAuthenticatedUserApiContext } from "@/server/pocketbase/authenticated-user-api";
+import { getAuthenticatedUserApiContext } from "@/server/pocketbase/pb-authenticated-context";
 
 export async function DELETE(request: NextRequest) {
   if (!isSameOriginRequest(request)) {

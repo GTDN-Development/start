@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
-import { PlatformLayout } from "@/components/platform/platform-layout";
+import { PlatformLayout } from "@/features/platform/platform-layout";
 import { getAccountProfileSnapshot } from "@/features/account/account-profile";
-import { createServerPocketBaseClient } from "@/server/pocketbase/server";
+import { createServerPocketBaseClient } from "@/server/pocketbase/pb-client";
 
 type PlatformRouteLayoutProps = {
   children: React.ReactNode;

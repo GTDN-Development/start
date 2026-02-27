@@ -10,7 +10,7 @@ Next.js 16 starter app for marketing, auth, and platform pages.
 - shadcn/base-ui components
 - next-intl (EN/CS)
 - Cloudflare Turnstile
-- PocketBase (integration in progress)
+- PocketBase (SSR auth + route handlers)
 
 ## Commands
 
@@ -42,14 +42,33 @@ PocketBase typegen requires:
 
 ## Structure
 
-- `src/app` - routes, layouts, API handlers
-- `src/components` - UI and feature components
+- `src/app` - routes, layouts, metadata, API route adapters
+- `src/features` - feature-first modules (`auth`, `account`, `marketing`, `cookies`, `platform`)
+- `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `providers`, `dev`)
+- `src/server` - server-only infrastructure (`pocketbase`, `http`, `captcha`, `email`)
 - `src/config` - structural config (menus, links, site data)
 - `src/i18n` + `messages` - routing and translations
 - `src/lib` - shared utilities
 - `src/types` - shared types + generated PocketBase types
 - `scripts/pocketbase-typegen.mjs` - PocketBase type generator
 - `POCKETBASE-INTEGRATION.md` - PocketBase SSR/auth notes
+
+## Architecture Conventions
+
+- Feature-first source of truth lives in `src/features/*`
+- No barrel exports (`index.ts` / `index.tsx`) in feature modules
+- No `shared/` folders inside features; feature-wide types/helpers live at feature root
+- Keep `src/components/ui` as the shadcn CLI target
+- Platform shell/composition belongs to `src/features/platform`; account domain stays in `src/features/account`
+- Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
+- Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
+- Keep common helpers centralized in `src/lib/utils.ts`; avoid splitting utility helpers into many micro files
+- Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
+- API groups are path-based:
+  - Auth: `/api/auth/*`
+  - Account: `/api/account/*`
+  - Marketing: `/api/marketing/*`
+  - Cookies: `/api/cookies/consent`
 
 ## i18n Routing (EN keys + CS aliases)
 

@@ -3,13 +3,13 @@ import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
 import { Link } from "@/components/ui/link";
-import { ForgotPasswordForm } from "@/components/auth/forgot-password/forgot-password-form";
+import { ForgotPasswordForm } from "@/features/auth/forgot-password/forgot-password-form";
 import {
   AuthHero,
   AuthHeroContent,
   AuthHeroDescription,
   AuthHeroTitle,
-} from "@/components/auth/auth-hero";
+} from "@/features/auth/auth-page-shell";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(

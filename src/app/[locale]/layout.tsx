@@ -9,16 +9,16 @@ import { notFound } from "next/navigation";
 import { getPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
-import { Providers } from "@/components/shared/app/providers";
-import { TailwindScreen } from "@/components/shared/dev/tailwind-screen";
-import { ThirdPartyScripts } from "@/components/shared/cookies/third-party-scripts";
-import { CookieConsentBanner } from "@/components/shared/cookies/cookie-consent-banner";
-import { CookieSettingsDialog } from "@/components/shared/cookies/cookie-settings-dialog";
-import { CookieErrorBoundary } from "@/components/shared/cookies/cookie-error-boundary";
+import { AppProviders } from "@/components/providers/app-providers";
+import { TailwindScreen } from "@/components/dev/tailwind-screen";
+import { ThirdPartyScripts } from "@/features/cookies/third-party-scripts";
+import { CookieConsentBanner } from "@/features/cookies/cookie-consent-banner";
+import { CookieSettingsDialog } from "@/features/cookies/cookie-settings-dialog";
+import { CookieErrorBoundary } from "@/features/cookies/cookie-error-boundary";
 import {
   getConsent,
   hasInteracted as getCookieConsentHasInteracted,
-} from "@/components/shared/cookies/server-utils";
+} from "@/features/cookies/cookie-server-utils";
 import { site } from "@/config/site";
 import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
 
@@ -117,7 +117,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
     >
       <body className="font-sans antialiased">
         <NextIntlClientProvider>
-          <Providers
+          <AppProviders
             initialCookieConsent={initialCookieConsent}
             initialCookieConsentInteracted={initialCookieConsentInteracted}
           >
@@ -128,7 +128,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
             </CookieErrorBoundary>
             <TailwindScreen />
             <Toaster />
-          </Providers>
+          </AppProviders>
         </NextIntlClientProvider>
 
         {/* Load scripts that are controlled by our cookie consent settings. */}

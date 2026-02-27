@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { ContactForm } from "@/components/marketing/contact/contact-form";
+import { ContactForm } from "@/features/marketing/contact/contact-form";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";

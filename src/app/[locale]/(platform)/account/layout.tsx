@@ -1,13 +1,13 @@
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { AccountLayout } from "@/components/platform/account/account-layout";
+import { AccountLayout } from "@/features/account/account-layout";
 import { Container } from "@/components/ui/container";
 import {
   PlatformHero,
   PlatformHeroContent,
   PlatformHeroDescription,
   PlatformHeroTitle,
-} from "@/components/platform/platform-hero";
+} from "@/features/platform/dashboard/platform-hero";
 
 type AccountRouteLayoutProps = {
   children: React.ReactNode;

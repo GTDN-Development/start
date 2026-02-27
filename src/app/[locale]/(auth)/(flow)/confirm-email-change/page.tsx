@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { Locale, useTranslations } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { use } from "react";
-import { ConfirmEmailChangeForm } from "@/components/auth/confirm-email-change/confirm-email-change-form";
+import { ConfirmEmailChangeForm } from "@/features/auth/confirm-email-change/confirm-email-change-form";
 import {
   AuthHero,
   AuthHeroContent,
   AuthHeroDescription,
   AuthHeroTitle,
-} from "@/components/auth/auth-hero";
+} from "@/features/auth/auth-page-shell";
 import { Link } from "@/components/ui/link";
 import { createPageMetadata } from "@/lib/metadata";
 

@@ -13,9 +13,9 @@ import {
   HeroTitle,
 } from "@/components/ui/hero";
 import AppIconSvg from "@/assets/svgs/start-app-icon.svg";
-import { NewsletterCta } from "@/components/shared/newsletter/newsletter-cta";
+import { NewsletterCta } from "@/features/marketing/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
-import { MarqueeCompanies } from "@/components/marketing/home/marquee-companies";
+import { MarqueeCompanies } from "@/features/marketing/home/marquee-companies";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { createPageMetadata } from "@/lib/metadata";
 
