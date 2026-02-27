@@ -2,11 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "@/i18n/navigation";
+import { subscribeToAuthSyncEvents } from "@/features/auth/auth-sync-events";
 
-const MIN_SYNC_INTERVAL_MS = 15_000;
+const MIN_SYNC_INTERVAL_MS = 5 * 60 * 1000;
 
 type AuthSessionRefreshResponse = {
   ok: boolean;
+  authenticated?: boolean;
   changed?: boolean;
 };
 
@@ -14,8 +16,16 @@ export function AuthSessionSync() {
   const router = useRouter();
   const isRefreshingRef = useRef(false);
   const lastRefreshAtRef = useRef(0);
+  const shouldSyncRef = useRef(true);
 
   useEffect(() => {
+    function handleLocalAuthSyncEvent() {
+      shouldSyncRef.current = true;
+      router.refresh();
+    }
+
+    const unsubscribeFromAuthSync = subscribeToAuthSyncEvents(handleLocalAuthSyncEvent);
+
     async function refreshSessionIfNeeded() {
       if (document.visibilityState !== "visible") {
         return;
@@ -24,6 +34,10 @@ export function AuthSessionSync() {
       const now = Date.now();
 
       if (isRefreshingRef.current || now - lastRefreshAtRef.current < MIN_SYNC_INTERVAL_MS) {
+        return;
+      }
+
+      if (!shouldSyncRef.current) {
         return;
       }
 
@@ -45,6 +59,12 @@ export function AuthSessionSync() {
 
         if (!isAuthSessionRefreshResponse(payload) || !payload.ok) {
           return;
+        }
+
+        if (payload.authenticated === false) {
+          shouldSyncRef.current = false;
+        } else if (payload.authenticated === true) {
+          shouldSyncRef.current = true;
         }
 
         if (payload.changed === true) {
@@ -71,6 +91,7 @@ export function AuthSessionSync() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
+      unsubscribeFromAuthSync();
       window.removeEventListener("focus", handleWindowFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
@@ -87,6 +108,10 @@ function isAuthSessionRefreshResponse(value: unknown): value is AuthSessionRefre
   const record = value as Record<string, unknown>;
 
   if (typeof record.ok !== "boolean") {
+    return false;
+  }
+
+  if ("authenticated" in record && typeof record.authenticated !== "boolean") {
     return false;
   }
 

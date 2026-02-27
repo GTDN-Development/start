@@ -11,6 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { authRedirectPaths } from "@/features/auth/auth-redirects";
 import { readAuthFormApiResponse } from "@/features/auth/auth-response";
+import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { cn, resolveErrorMessage } from "@/lib/utils";
 
 export function ConfirmEmailChangeForm({
@@ -57,6 +58,7 @@ export function ConfirmEmailChangeForm({
       const result = await readAuthFormApiResponse(response);
 
       if (response.ok && result?.ok) {
+        notifyAuthSync("auth");
         router.replace(result.redirectTo ?? authRedirectPaths.login);
       } else {
         setSubmitErrorMessage(

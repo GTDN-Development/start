@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Locale, useTranslations } from "next-intl";
+import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { use } from "react";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPageMetadata } from "@/lib/metadata";
@@ -23,13 +22,16 @@ export async function generateMetadata(props: PageProps<"/[locale]/pricing">): P
   });
 }
 
-export default function Page({ params }: PageProps<"/[locale]/pricing">) {
-  const { locale } = use(params);
+export default async function Page({ params }: PageProps<"/[locale]/pricing">) {
+  const { locale } = await params;
 
   // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("pages.pricing");
+  const t = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.pricing",
+  });
 
   return (
     <div className="relative">

@@ -19,19 +19,40 @@ export function escapeHtml(value: string) {
 }
 
 export async function sendFormEmail(message: FormEmailMessage) {
+  const transporter = getOrCreateMailTransporter();
+  const fromName = process.env.MAIL_FROM_NAME ?? "";
+  const fromAddress = process.env.MAIL_FROM_ADDRESS ?? "";
+  const recipientEmail = process.env.FORM_RECIPIENT_EMAIL ?? "";
+
+  await transporter.sendMail({
+    from: `${fromName} <${fromAddress}>`,
+    to: recipientEmail,
+    ...message,
+  });
+}
+
+function getOrCreateMailTransporter() {
+  if (globalThis.__startMailTransporter) {
+    return globalThis.__startMailTransporter;
+  }
+
+  const port = Number.parseInt(process.env.MAIL_PORT || "587", 10);
+
   const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
-    port: Number.parseInt(process.env.MAIL_PORT || "587", 10),
-    secure: process.env.MAIL_PORT === "465",
+    port,
+    secure: port === 465,
     auth: {
       user: process.env.MAIL_USERNAME,
       pass: process.env.MAIL_PASSWORD,
     },
   });
 
-  await transporter.sendMail({
-    from: `${process.env.MAIL_FROM_NAME} <${process.env.MAIL_FROM_ADDRESS}>`,
-    to: process.env.FORM_RECIPIENT_EMAIL,
-    ...message,
-  });
+  globalThis.__startMailTransporter = transporter;
+
+  return transporter;
+}
+
+declare global {
+  var __startMailTransporter: nodemailer.Transporter | undefined;
 }

@@ -25,6 +25,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
+import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { resolveErrorMessage } from "@/lib/utils";
 
 type SecurityTranslationFn = (key: string, values?: Record<string, string>) => string;
@@ -85,6 +86,7 @@ export function AccountChangePasswordItem() {
         form.reset();
 
         if (result.sessionExpired) {
+          notifyAuthSync("auth");
           toast.success(t("common.successTitle"), {
             id: passwordToastId,
             description: t("security.password.status.savedAndRelogin"),

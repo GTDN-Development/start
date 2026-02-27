@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Locale, useTranslations } from "next-intl";
+import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { use } from "react";
 import { ConfirmEmailChangeForm } from "@/features/auth/confirm-email-change/confirm-email-change-form";
 import {
   AuthHero,
@@ -38,13 +37,16 @@ export async function generateMetadata(props: ConfirmEmailChangePageProps): Prom
   });
 }
 
-export default function Page({ params, searchParams }: ConfirmEmailChangePageProps) {
-  const { locale } = use(params);
-  const query = use(searchParams);
+export default async function Page({ params, searchParams }: ConfirmEmailChangePageProps) {
+  const { locale } = await params;
+  const query = await searchParams;
 
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("pages.confirmEmailChange");
+  const t = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.confirmEmailChange",
+  });
   const token = parseAuthFlowToken(query.token);
 
   return (

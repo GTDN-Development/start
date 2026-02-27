@@ -20,6 +20,7 @@ import { getPathname } from "@/i18n/navigation";
 import { getUserInitials } from "@/lib/utils";
 import { HomeIcon, LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 
 export type UserAccountMenuViewer = Omit<AccountProfileSnapshot, "avatarUrl"> & {
   avatarUrl?: string | null;
@@ -58,6 +59,10 @@ export function UserAccountMenu({ viewer, locale, labels, className }: UserAccou
     currentViewer.avatarUrl && currentViewer.avatarUrl !== failedAvatarUrl
       ? currentViewer.avatarUrl
       : null;
+
+  function handleLogoutFormSubmit() {
+    notifyAuthSync("auth");
+  }
 
   return (
     <>
@@ -130,7 +135,13 @@ export function UserAccountMenu({ viewer, locale, labels, className }: UserAccou
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <form id={logoutFormId} action="/api/auth/logout" method="post" className="hidden">
+      <form
+        id={logoutFormId}
+        action="/api/auth/logout"
+        method="post"
+        className="hidden"
+        onSubmit={handleLogoutFormSubmit}
+      >
         <input type="hidden" name="redirectTo" value={logoutRedirectTo} />
       </form>
     </>

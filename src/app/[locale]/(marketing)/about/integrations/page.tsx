@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Locale, useTranslations } from "next-intl";
+import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { use } from "react";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPageMetadata } from "@/lib/metadata";
@@ -25,13 +24,16 @@ export async function generateMetadata(
   });
 }
 
-export default function Page({ params }: PageProps<"/[locale]/about/integrations">) {
-  const { locale } = use(params);
+export default async function Page({ params }: PageProps<"/[locale]/about/integrations">) {
+  const { locale } = await params;
 
   // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("pages.aboutIntegrations");
+  const t = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.aboutIntegrations",
+  });
 
   return (
     <div className="relative">

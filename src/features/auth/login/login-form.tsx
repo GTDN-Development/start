@@ -16,6 +16,7 @@ import { AlertCircleIcon, LogInIcon } from "lucide-react";
 
 import { authRedirectPaths } from "@/features/auth/auth-redirects";
 import { readAuthFormApiResponse } from "@/features/auth/auth-response";
+import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { cn } from "@/lib/utils";
 
 type LoginFormValues = {
@@ -63,6 +64,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         const result = await readAuthFormApiResponse(response);
 
         if (response.ok) {
+          notifyAuthSync("auth");
           router.replace(result?.redirectTo ?? authRedirectPaths.dashboard);
         } else {
           setSubmitErrorMessage(t("status.error.message"));

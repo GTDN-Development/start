@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Locale, useTranslations } from "next-intl";
+import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { use } from "react";
 import { Link } from "@/components/ui/link";
 import { ResetPasswordForm } from "@/features/auth/reset-password/reset-password-form";
 import {
@@ -31,13 +30,16 @@ export async function generateMetadata(
   });
 }
 
-export default function Page({ params, searchParams }: PageProps<"/[locale]/reset-password">) {
-  const { locale } = use(params);
-  const query = use(searchParams);
+export default async function Page({ params, searchParams }: PageProps<"/[locale]/reset-password">) {
+  const { locale } = await params;
+  const query = await searchParams;
 
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("pages.resetPassword");
+  const t = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.resetPassword",
+  });
   const token = parseAuthFlowToken(query.token);
 
   return (

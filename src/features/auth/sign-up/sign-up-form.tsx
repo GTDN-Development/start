@@ -18,6 +18,7 @@ import { legalLinks } from "@/config/legal-links";
 
 import { authRedirectPaths } from "@/features/auth/auth-redirects";
 import { readAuthFormApiResponse } from "@/features/auth/auth-response";
+import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { cn, resolveErrorMessage } from "@/lib/utils";
 
 type SignUpFormValues = {
@@ -91,7 +92,13 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
         const result = await readAuthFormApiResponse(response);
 
         if (response.ok) {
-          router.replace(result?.redirectTo ?? authRedirectPaths.dashboard);
+          const redirectTo = result?.redirectTo ?? authRedirectPaths.dashboard;
+
+          if (redirectTo === authRedirectPaths.dashboard) {
+            notifyAuthSync("auth");
+          }
+
+          router.replace(redirectTo);
         } else {
           setSubmitErrorMessage(
             resolveErrorMessage(result?.errorCode, t("status.error.message"), {

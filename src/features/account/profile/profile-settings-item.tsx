@@ -18,6 +18,7 @@ import {
   readAccountSettingsApiResponse,
   type InlineStatus,
 } from "@/features/account/account-response";
+import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -89,6 +90,7 @@ export function AccountDisplayNameSettingsItem() {
       }
 
       patchProfile(result.profile);
+      notifyAuthSync("profile");
       setNameValue(result.profile.name ?? "");
       setNameStatus(null);
       toast.success(t("common.successTitle"), {

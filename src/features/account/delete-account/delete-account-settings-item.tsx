@@ -27,6 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { readAccountSettingsApiResponse } from "@/features/account/account-response";
+import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { Trash2Icon } from "lucide-react";
 import { resolveErrorMessage } from "@/lib/utils";
 
@@ -66,6 +67,7 @@ export function AccountDeleteAccountSettingsItem() {
         description: t("deleteAccount.status.success"),
       });
 
+      notifyAuthSync("auth");
       setIsDeleteDialogOpen(false);
       router.replace("/login");
       router.refresh();

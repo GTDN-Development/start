@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Locale, useTranslations } from "next-intl";
+import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { use } from "react";
 import { Container } from "@/components/ui/container";
 import { createPageMetadata } from "@/lib/metadata";
 import {
@@ -28,13 +27,16 @@ export async function generateMetadata(props: PageProps<"/[locale]/dashboard">):
   });
 }
 
-export default function Page({ params }: PageProps<"/[locale]/dashboard">) {
-  const { locale } = use(params);
+export default async function Page({ params }: PageProps<"/[locale]/dashboard">) {
+  const { locale } = await params;
 
   // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("pages.dashboard");
+  const t = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.dashboard",
+  });
 
   return (
     <div className="relative">

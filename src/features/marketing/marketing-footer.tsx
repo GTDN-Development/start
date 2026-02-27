@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { cn } from "@/lib/utils";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
+import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 type FooterViewer = UserAccountMenuViewer | null;
@@ -110,6 +111,10 @@ export function MarketingFooter({
     : authMenu;
   const viewerName = viewer?.name?.trim() || null;
 
+  function handleLogoutSubmit() {
+    notifyAuthSync("auth");
+  }
+
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
       {/* First row - Logo & socials */}
@@ -156,7 +161,7 @@ export function MarketingFooter({
             ))}
             {viewer && (
               <li>
-                <form action="/api/auth/logout" method="post">
+                <form action="/api/auth/logout" method="post" onSubmit={handleLogoutSubmit}>
                   <input type="hidden" name="redirectTo" value={logoutRedirectTo} />
                   <button
                     type="submit"

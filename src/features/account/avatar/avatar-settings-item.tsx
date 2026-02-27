@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { readAccountSettingsApiResponse } from "@/features/account/account-response";
+import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
@@ -89,6 +90,7 @@ export function AccountAvatarSettingsItem() {
       }
 
       patchProfile(result.profile);
+      notifyAuthSync("profile");
       setFailedAvatarUrl(null);
       toast.success(t("common.successTitle"), {
         id: avatarToastId,
@@ -130,6 +132,7 @@ export function AccountAvatarSettingsItem() {
       }
 
       patchProfile(result.profile);
+      notifyAuthSync("profile");
       setFailedAvatarUrl(null);
       toast.success(t("common.successTitle"), {
         id: avatarToastId,

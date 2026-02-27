@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Locale, useTranslations } from "next-intl";
+import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { use } from "react";
 import { Link } from "@/components/ui/link";
 import { ForgotPasswordForm } from "@/features/auth/forgot-password/forgot-password-form";
 import {
@@ -30,12 +29,15 @@ export async function generateMetadata(
   });
 }
 
-export default function Page({ params }: PageProps<"/[locale]/forgot-password">) {
-  const { locale } = use(params);
+export default async function Page({ params }: PageProps<"/[locale]/forgot-password">) {
+  const { locale } = await params;
 
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("pages.forgotPassword");
+  const t = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.forgotPassword",
+  });
 
   return (
     <div className="relative">

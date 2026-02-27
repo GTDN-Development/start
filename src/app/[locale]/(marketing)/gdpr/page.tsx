@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Locale, useTranslations } from "next-intl";
+import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { use } from "react";
 import { GdprPolicy } from "@/features/marketing/legal/gdpr-policy";
 import { Container } from "@/components/ui/container";
 import { legal } from "@/config/legal";
@@ -27,13 +26,16 @@ export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Prom
   });
 }
 
-export default function Page({ params }: PageProps<"/[locale]/gdpr">) {
-  const { locale } = use(params);
+export default async function Page({ params }: PageProps<"/[locale]/gdpr">) {
+  const { locale } = await params;
 
   // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = useTranslations("pages.gdpr");
+  const t = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.gdpr",
+  });
 
   return (
     <div className="relative">
