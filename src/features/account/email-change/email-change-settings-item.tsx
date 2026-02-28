@@ -36,6 +36,7 @@ import {
 } from "@/features/account/account-response";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 import { resolveErrorMessage } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
 type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;
@@ -141,13 +142,9 @@ export function AccountEmailSettingsItem() {
 
           <div className="shrink-0 basis-auto self-start">
             {profile.verified ? (
-              <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                {t("email.verification.verified")}
-              </span>
+              <Badge variant={"secondary"}>{t("email.verification.verified")}</Badge>
             ) : (
-              <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400">
-                {t("email.verification.unverified")}
-              </span>
+              <Badge variant={"destructive"}>{t("email.verification.unverified")}</Badge>
             )}
           </div>
         </div>
@@ -258,7 +255,10 @@ export function AccountEmailSettingsItem() {
                     {emailDialogStatus ? (
                       emailDialogStatus.kind === "success" ? (
                         <Alert className="py-2">
-                          <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-500" />
+                          <CheckCircle2Icon
+                            aria-hidden="true"
+                            className="size-4 text-emerald-500"
+                          />
                           <AlertTitle>{t("email.dialog.status.sentTitle")}</AlertTitle>
                           <AlertDescription>{emailDialogStatus.message}</AlertDescription>
                         </Alert>
@@ -283,7 +283,11 @@ export function AccountEmailSettingsItem() {
                         }
                       />
                       <Button type="submit" disabled={isSubmitting} size="lg">
-                        {isSubmitting ? <Spinner /> : <MailIcon aria-hidden="true" className="size-4" />}
+                        {isSubmitting ? (
+                          <Spinner />
+                        ) : (
+                          <MailIcon aria-hidden="true" className="size-4" />
+                        )}
                         {isSubmitting
                           ? t("email.dialog.submit.pending")
                           : t("email.dialog.submit.default")}

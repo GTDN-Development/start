@@ -4,6 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountPage } from "@/features/account/account-page";
 import { AccountChangePasswordItem } from "@/features/account/password/password-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
+import { YourDevicesSettingsItem } from "@/features/account/your-devices/your-devices-settings-item";
+import { TwoFactorAuthSettingsItem } from "@/features/account/two-factor-auth/two-factor-auth-settings-item";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/account/security">
@@ -37,6 +39,8 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
     <AccountPage title={t("securityPage.title")} description={t("securityPage.description")}>
       <div className="grid gap-8">
         <AccountChangePasswordItem />
+        <YourDevicesSettingsItem />
+        <TwoFactorAuthSettingsItem />
       </div>
     </AccountPage>
   );

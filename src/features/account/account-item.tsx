@@ -56,7 +56,7 @@ function AccountItemContent({ children, className, ...props }: React.ComponentPr
 
 function AccountItemContentHeader({ children, className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div {...props} className={cn("flex flex-col gap-4.5", className)}>
+    <div {...props} className={cn("flex flex-col gap-4", className)}>
       {children}
     </div>
   );
