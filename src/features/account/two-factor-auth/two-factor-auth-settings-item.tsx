@@ -28,7 +28,7 @@ export function TwoFactorAuthSettingsItem() {
           </div>
         </div>
         <AccountItemContentBody>
-          <ul className="bg-background divide-y rounded-lg border">
+          <ul className="bg-background @container divide-y rounded-lg border">
             <AuthSettingsItem />
           </ul>
         </AccountItemContentBody>
@@ -39,7 +39,12 @@ export function TwoFactorAuthSettingsItem() {
 
 function AuthSettingsItem({ ...props }: {} & React.ComponentProps<"li">) {
   return (
-    <li className={cn("flex items-center justify-between gap-5 px-4 py-5", props.className)}>
+    <li
+      className={cn(
+        "flex flex-col items-center justify-start gap-5 px-4 py-5 text-center @xs:flex-row @xs:text-left",
+        props.className
+      )}
+    >
       <div className="mr-auto flex flex-col gap-1">
         <h4 className="text-sm font-semibold">One time password</h4>
         <p className="text-muted-foreground text-sm">
@@ -47,7 +52,7 @@ function AuthSettingsItem({ ...props }: {} & React.ComponentProps<"li">) {
         </p>
       </div>
 
-      <div>
+      <div className="@xs:ml-auto">
         <Button>Enable</Button>
       </div>
     </li>

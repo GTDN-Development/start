@@ -98,7 +98,7 @@ export function YourDevicesSettingsItem() {
           </AccountItemDescription>
         </AccountItemContentHeader>
         <AccountItemContentBody>
-          <ul className="bg-background divide-y rounded-lg border">
+          <ul className="bg-background @container divide-y rounded-lg border">
             {MOCK_DEVICES.map((device) => (
               <DeviceItem key={device.id} {...device} />
             ))}
@@ -149,13 +149,18 @@ function DeviceItem({
   ...props
 }: DeviceItemProps & React.ComponentProps<"li">) {
   return (
-    <li className={cn("flex items-center justify-between gap-5 px-4 py-5", props.className)}>
+    <li
+      className={cn(
+        "flex flex-col items-center justify-start gap-5 px-4 py-5 text-center @xs:flex-row @xs:text-left",
+        props.className
+      )}
+    >
       <div className="flex items-center justify-center">
         <DeviceIcon device={device} userAgent={userAgent} />
       </div>
 
-      <div className="mr-auto flex flex-col gap-1">
-        <div className="flex gap-3">
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-col-reverse items-center justify-center gap-3 @xs:flex-row @xs:items-start @xs:justify-start">
           <h4 className="text-sm font-semibold">
             {device} - {browser}
           </h4>
@@ -166,7 +171,7 @@ function DeviceItem({
         </p>
       </div>
 
-      <div>
+      <div className="@xs:ml-auto">
         <Button variant={isCurrentDevice ? "destructive" : "secondary"}>Log out</Button>
       </div>
     </li>
