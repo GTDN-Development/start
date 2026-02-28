@@ -39,6 +39,9 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
     <AccountPage title={t("securityPage.title")} description={t("securityPage.description")}>
       <div className="grid gap-8">
         <AccountChangePasswordItem />
+        <p className="text-destructive text-sm">
+          Currently static mocks for devices and two-factor authentication
+        </p>
         <YourDevicesSettingsItem />
         <TwoFactorAuthSettingsItem />
       </div>
