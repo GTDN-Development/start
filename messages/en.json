@@ -274,6 +274,21 @@
         "dialog": {
           "title": "Delete account permanently",
           "description": "This will permanently remove your account and related data. This action cannot be undone.",
+          "fields": {
+            "password": {
+              "label": "Current password",
+              "placeholder": "Enter your current password",
+              "errors": {
+                "required": "Enter your current password."
+              }
+            },
+            "acknowledgement": {
+              "label": "I understand this action permanently deletes my account and all associated data.",
+              "errors": {
+                "required": "Confirm that you understand this action is permanent."
+              }
+            }
+          },
           "confirm": "Delete permanently",
           "confirmPending": "Deleting..."
         },
@@ -281,7 +296,8 @@
           "success": "Your account has been deleted.",
           "error": "We couldn't delete your account right now. Please try again.",
           "unauthorized": "Your session expired. Please sign in again.",
-          "deleteNotAllowed": "Account deletion is not enabled in the backend yet."
+          "deleteNotAllowed": "Account deletion is not enabled in the backend yet.",
+          "invalidCredentials": "Current password is incorrect."
         }
       },
       "security": {

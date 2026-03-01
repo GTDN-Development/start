@@ -12,13 +12,13 @@ import {
 import { detectDeviceType } from "@/lib/platform";
 import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import {
-  AccountSettingsActions,
-  AccountSettingsContent,
-  AccountSettingsDescription,
-  AccountSettingsIconWrapper,
+  AccountSettingsListAction,
+  AccountSettingsListContent,
+  AccountSettingsListDescription,
+  AccountSettingsListMedia,
   AccountSettingsList,
   AccountSettingsListItem,
-  AccountSettingsTitle,
+  AccountSettingsListTitle,
 } from "../account-settings-list";
 import {
   AlertDialog,
@@ -164,6 +164,7 @@ type DeviceItemProps = {
   created: string;
   updated: string;
   isCurrentDevice?: boolean;
+  className?: string;
 };
 
 function DeviceIcon({ device, userAgent }: Pick<DeviceItemProps, "device" | "userAgent">) {
@@ -182,30 +183,29 @@ function DeviceItem({
   lastSeenAt,
   isCurrentDevice,
   className,
-  ...props
-}: DeviceItemProps & React.ComponentProps<typeof AccountSettingsListItem>) {
+}: DeviceItemProps) {
   return (
-    <AccountSettingsListItem {...props} className={className}>
-      <AccountSettingsIconWrapper>
+    <AccountSettingsListItem className={className}>
+      <AccountSettingsListMedia>
         <DeviceIcon device={device} userAgent={userAgent} />
-      </AccountSettingsIconWrapper>
+      </AccountSettingsListMedia>
 
-      <AccountSettingsContent>
+      <AccountSettingsListContent>
         <div className="flex flex-col-reverse items-center justify-center gap-3 @xs:flex-row @xs:items-start @xs:justify-start">
-          <AccountSettingsTitle>
+          <AccountSettingsListTitle>
             {device} - {browser}
-          </AccountSettingsTitle>
+          </AccountSettingsListTitle>
           {isCurrentDevice && <Badge variant={"secondary"}>This device</Badge>}
         </div>
-        <AccountSettingsDescription>
+        <AccountSettingsListDescription>
           {place} - {lastSeenAt}
-        </AccountSettingsDescription>
-      </AccountSettingsContent>
+        </AccountSettingsListDescription>
+      </AccountSettingsListContent>
 
       {!isCurrentDevice && (
-        <AccountSettingsActions>
+        <AccountSettingsListAction>
           <Button variant="secondary">Log out</Button>
-        </AccountSettingsActions>
+        </AccountSettingsListAction>
       )}
     </AccountSettingsListItem>
   );

@@ -9,12 +9,12 @@ import {
   AccountItemTitle,
 } from "@/features/account/account-item";
 import {
-  AccountSettingsActions,
-  AccountSettingsContent,
-  AccountSettingsDescription,
+  AccountSettingsListAction,
+  AccountSettingsListContent,
+  AccountSettingsListDescription,
   AccountSettingsList,
   AccountSettingsListItem,
-  AccountSettingsTitle,
+  AccountSettingsListTitle,
 } from "../account-settings-list";
 
 export function TwoFactorAuthSettingsItem() {
@@ -50,16 +50,16 @@ function AuthSettingsItem({
 }: {} & React.ComponentProps<typeof AccountSettingsListItem>) {
   return (
     <AccountSettingsListItem {...props} className={className}>
-      <AccountSettingsContent>
-        <AccountSettingsTitle>One time password</AccountSettingsTitle>
-        <AccountSettingsDescription>
+      <AccountSettingsListContent>
+        <AccountSettingsListTitle>One time password</AccountSettingsListTitle>
+        <AccountSettingsListDescription>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi, vero?
-        </AccountSettingsDescription>
-      </AccountSettingsContent>
+        </AccountSettingsListDescription>
+      </AccountSettingsListContent>
 
-      <AccountSettingsActions>
+      <AccountSettingsListAction>
         <Button>Enable</Button>
-      </AccountSettingsActions>
+      </AccountSettingsListAction>
     </AccountSettingsListItem>
   );
 }

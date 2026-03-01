@@ -26,16 +26,12 @@ function AccountSettingsListItem({ children, className, ...props }: React.Compon
   );
 }
 
-function AccountSettingsIconWrapper({
-  children,
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+function AccountSettingsListMedia({ children, className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       {...props}
       className={cn(
-        "flex items-center justify-center [&_svg:not([class*='size-'])]:size-5",
+        "relative flex items-center justify-center [&_svg:not([class*='size-'])]:size-5",
         className
       )}
     >
@@ -44,7 +40,7 @@ function AccountSettingsIconWrapper({
   );
 }
 
-function AccountSettingsTitle({ className, render, ...props }: useRender.ComponentProps<"h3">) {
+function AccountSettingsListTitle({ className, render, ...props }: useRender.ComponentProps<"h3">) {
   return useRender({
     render,
     defaultTagName: "h3",
@@ -55,7 +51,7 @@ function AccountSettingsTitle({ className, render, ...props }: useRender.Compone
   });
 }
 
-function AccountSettingsDescription({
+function AccountSettingsListDescription({
   className,
   render,
   ...props
@@ -70,7 +66,11 @@ function AccountSettingsDescription({
   });
 }
 
-function AccountSettingsContent({ children, className, ...props }: React.ComponentProps<"div">) {
+function AccountSettingsListContent({
+  children,
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   return (
     <div {...props} className={cn("flex flex-col gap-1", className)}>
       {children}
@@ -78,7 +78,7 @@ function AccountSettingsContent({ children, className, ...props }: React.Compone
   );
 }
 
-function AccountSettingsActions({ children, className, ...props }: React.ComponentProps<"div">) {
+function AccountSettingsListAction({ children, className, ...props }: React.ComponentProps<"div">) {
   return (
     <div {...props} className={cn("@xs:ml-auto", className)}>
       {children}
@@ -89,9 +89,9 @@ function AccountSettingsActions({ children, className, ...props }: React.Compone
 export {
   AccountSettingsList,
   AccountSettingsListItem,
-  AccountSettingsIconWrapper,
-  AccountSettingsTitle,
-  AccountSettingsDescription,
-  AccountSettingsContent,
-  AccountSettingsActions,
+  AccountSettingsListMedia,
+  AccountSettingsListTitle,
+  AccountSettingsListDescription,
+  AccountSettingsListContent,
+  AccountSettingsListAction,
 };

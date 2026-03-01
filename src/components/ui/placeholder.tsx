@@ -7,7 +7,7 @@ function Placeholder({ className, ...props }: React.ComponentProps<"section">) {
     <section
       data-slot="placeholder"
       className={cn(
-        "border-border bg-card/60 text-card-foreground rounded-2xl border border-dashed px-4 py-16 text-center sm:px-6",
+        "border-border bg-card/60 text-card-foreground rounded-2xl border border-dashed px-4 py-32 text-center sm:px-6",
         className
       )}
       {...props}

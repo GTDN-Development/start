@@ -167,7 +167,6 @@ export function AccountEmailSettingsItem() {
             }
           />
           <DialogContent
-            className="sm:max-w-lg"
             render={
               <form
                 onSubmit={(event) => {
