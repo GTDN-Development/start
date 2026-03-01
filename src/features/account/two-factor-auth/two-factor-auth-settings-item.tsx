@@ -8,7 +8,14 @@ import {
   AccountItemDescription,
   AccountItemTitle,
 } from "@/features/account/account-item";
-import { cn } from "@/lib/utils";
+import {
+  AccountSettingsActions,
+  AccountSettingsContent,
+  AccountSettingsDescription,
+  AccountSettingsList,
+  AccountSettingsListItem,
+  AccountSettingsTitle,
+} from "../account-settings-list";
 
 export function TwoFactorAuthSettingsItem() {
   return (
@@ -28,33 +35,31 @@ export function TwoFactorAuthSettingsItem() {
           </div>
         </div>
         <AccountItemContentBody>
-          <ul className="bg-background @container divide-y rounded-lg border">
+          <AccountSettingsList>
             <AuthSettingsItem />
-          </ul>
+          </AccountSettingsList>
         </AccountItemContentBody>
       </AccountItemContent>
     </AccountItem>
   );
 }
 
-function AuthSettingsItem({ ...props }: {} & React.ComponentProps<"li">) {
+function AuthSettingsItem({
+  className,
+  ...props
+}: {} & React.ComponentProps<typeof AccountSettingsListItem>) {
   return (
-    <li
-      className={cn(
-        "flex flex-col items-center justify-start gap-5 px-4 py-5 text-center @xs:flex-row @xs:text-left",
-        props.className
-      )}
-    >
-      <div className="mr-auto flex flex-col gap-1">
-        <h4 className="text-sm font-semibold">One time password</h4>
-        <p className="text-muted-foreground text-sm">
+    <AccountSettingsListItem {...props} className={className}>
+      <AccountSettingsContent>
+        <AccountSettingsTitle>One time password</AccountSettingsTitle>
+        <AccountSettingsDescription>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi, vero?
-        </p>
-      </div>
+        </AccountSettingsDescription>
+      </AccountSettingsContent>
 
-      <div className="@xs:ml-auto">
+      <AccountSettingsActions>
         <Button>Enable</Button>
-      </div>
-    </li>
+      </AccountSettingsActions>
+    </AccountSettingsListItem>
   );
 }

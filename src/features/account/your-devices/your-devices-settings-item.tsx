@@ -9,9 +9,28 @@ import {
   AccountItemFooter,
   AccountItemTitle,
 } from "@/features/account/account-item";
-import { cn } from "@/lib/utils";
 import { detectDeviceType } from "@/lib/platform";
 import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
+import {
+  AccountSettingsActions,
+  AccountSettingsContent,
+  AccountSettingsDescription,
+  AccountSettingsIconWrapper,
+  AccountSettingsList,
+  AccountSettingsListItem,
+  AccountSettingsTitle,
+} from "../account-settings-list";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const MOCK_DEVICES: DeviceItemProps[] = [
   {
@@ -98,18 +117,34 @@ export function YourDevicesSettingsItem() {
           </AccountItemDescription>
         </AccountItemContentHeader>
         <AccountItemContentBody>
-          <ul className="bg-background @container divide-y rounded-lg border">
+          <AccountSettingsList>
             {MOCK_DEVICES.map((device) => (
               <DeviceItem key={device.id} {...device} />
             ))}
-          </ul>
+          </AccountSettingsList>
         </AccountItemContentBody>
       </AccountItemContent>
       <AccountItemFooter className="justify-end">
         <AccountItemDescription>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          Log out of all other devices except this one.
         </AccountItemDescription>
-        <Button size="lg">Log out from all devices</Button>
+
+        <AlertDialog>
+          <AlertDialogTrigger render={<Button size="lg">Log out from all devices</Button>} />
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Log out of all other devices?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will end your active sessions on all other browsers and devices. You will
+                remain logged in on this current device.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction>Log out all</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </AccountItemFooter>
     </AccountItem>
   );
@@ -134,9 +169,9 @@ type DeviceItemProps = {
 function DeviceIcon({ device, userAgent }: Pick<DeviceItemProps, "device" | "userAgent">) {
   const deviceType = detectDeviceType(device, userAgent);
 
-  if (deviceType === "tablet") return <TabletIcon aria-hidden="true" className="size-5" />;
-  if (deviceType === "phone") return <SmartphoneIcon aria-hidden="true" className="size-5" />;
-  return <LaptopIcon aria-hidden="true" className="size-5" />;
+  if (deviceType === "tablet") return <TabletIcon aria-hidden="true" />;
+  if (deviceType === "phone") return <SmartphoneIcon aria-hidden="true" />;
+  return <LaptopIcon aria-hidden="true" />;
 }
 
 function DeviceItem({
@@ -146,34 +181,32 @@ function DeviceItem({
   place,
   lastSeenAt,
   isCurrentDevice,
+  className,
   ...props
-}: DeviceItemProps & React.ComponentProps<"li">) {
+}: DeviceItemProps & React.ComponentProps<typeof AccountSettingsListItem>) {
   return (
-    <li
-      className={cn(
-        "flex flex-col items-center justify-start gap-5 px-4 py-5 text-center @xs:flex-row @xs:text-left",
-        props.className
-      )}
-    >
-      <div className="flex items-center justify-center">
+    <AccountSettingsListItem {...props} className={className}>
+      <AccountSettingsIconWrapper>
         <DeviceIcon device={device} userAgent={userAgent} />
-      </div>
+      </AccountSettingsIconWrapper>
 
-      <div className="flex flex-col gap-1">
+      <AccountSettingsContent>
         <div className="flex flex-col-reverse items-center justify-center gap-3 @xs:flex-row @xs:items-start @xs:justify-start">
-          <h4 className="text-sm font-semibold">
+          <AccountSettingsTitle>
             {device} - {browser}
-          </h4>
+          </AccountSettingsTitle>
           {isCurrentDevice && <Badge variant={"secondary"}>This device</Badge>}
         </div>
-        <p className="text-muted-foreground text-sm">
+        <AccountSettingsDescription>
           {place} - {lastSeenAt}
-        </p>
-      </div>
+        </AccountSettingsDescription>
+      </AccountSettingsContent>
 
-      <div className="@xs:ml-auto">
-        <Button variant={isCurrentDevice ? "destructive" : "secondary"}>Log out</Button>
-      </div>
-    </li>
+      {!isCurrentDevice && (
+        <AccountSettingsActions>
+          <Button variant="secondary">Log out</Button>
+        </AccountSettingsActions>
+      )}
+    </AccountSettingsListItem>
   );
 }
