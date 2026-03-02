@@ -31,6 +31,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!hasValidOrigin(request)) {
+    return createErrorResponse("BAD_REQUEST");
+  }
+
   const action = getActionFromRequest(request);
 
   if (!action) {
@@ -156,6 +160,22 @@ function getStatusCode<TData>(response: AuthResponse<TData>) {
       return 500;
     default:
       return 500;
+  }
+}
+
+function hasValidOrigin(request: NextRequest): boolean {
+  const origin = request.headers.get("origin");
+
+  if (!origin) {
+    return false;
+  }
+
+  try {
+    const originHost = new URL(origin).host;
+
+    return originHost === request.nextUrl.host;
+  } catch {
+    return false;
   }
 }
 

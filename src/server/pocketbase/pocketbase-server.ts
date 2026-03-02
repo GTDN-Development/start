@@ -41,7 +41,7 @@ export async function createPocketBaseServerClient(): Promise<CreatePocketBaseSe
     pb,
     hasAuthCookie,
     hadInvalidAuthCookie,
-    shouldPersistSession: persistSessionCookieValue !== "0",
+    shouldPersistSession: persistSessionCookieValue === "1",
   };
 }
 

@@ -55,9 +55,15 @@ export async function signInWithPassword(
       }),
     };
   } catch (error) {
+    const errorCode = mapSignInErrorCode(error);
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logAuthServiceError("signInWithPassword", error);
+    }
+
     return {
       ok: false,
-      errorCode: mapSignInErrorCode(error),
+      errorCode,
       ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
     };
   }
@@ -99,9 +105,15 @@ export async function signUpWithPassword(
       }),
     };
   } catch (error) {
+    const errorCode = mapSignUpErrorCode(error);
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logAuthServiceError("signUpWithPassword", error);
+    }
+
     return {
       ok: false,
-      errorCode: mapSignUpErrorCode(error),
+      errorCode,
     };
   }
 }
@@ -158,7 +170,9 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
         session,
       },
     };
-  } catch {
+  } catch (error) {
+    logAuthServiceError("getServerAuthSession", error);
+
     return {
       ok: true,
       data: {
@@ -225,7 +239,9 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
         sessionOnly: !shouldPersistSession,
       }),
     };
-  } catch {
+  } catch (error) {
+    logAuthServiceError("getApiAuthSession", error);
+
     return {
       ok: true,
       data: {
@@ -345,6 +361,33 @@ function getFieldError(data: unknown, field: string): { code?: string } | null {
   }
 
   return fieldValue as { code?: string };
+}
+
+function logAuthServiceError(context: string, error: unknown) {
+  console.error(`[auth-service] ${context}`, formatAuthServiceError(error));
+}
+
+function formatAuthServiceError(error: unknown) {
+  if (error instanceof ClientResponseError) {
+    return {
+      type: "ClientResponseError",
+      status: error.status,
+      url: error.url,
+      message: error.message,
+    };
+  }
+
+  if (error instanceof Error) {
+    return {
+      type: error.name,
+      message: error.message,
+    };
+  }
+
+  return {
+    type: "UnknownError",
+    message: "Non-error value thrown",
+  };
 }
 
 export function toAuthApiResponse<TData>(response: ServerAuthResponse<TData>): AuthResponse<TData> {

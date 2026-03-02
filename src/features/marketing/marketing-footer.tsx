@@ -1,7 +1,6 @@
 import { Link } from "@/components/ui/link";
 import { LogoStart } from "@/components/brand/logo-start";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
-import { useState } from "react";
 import { NavLink } from "@/components/layout/nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
@@ -31,8 +30,7 @@ import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { cn } from "@/lib/utils";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
-import { signOut } from "@/features/auth/auth-client";
-import { useRouter } from "@/i18n/navigation";
+import { useSignOut } from "@/features/auth/use-sign-out";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 type FooterViewer = UserAccountMenuViewer | null;
@@ -100,8 +98,7 @@ export function MarketingFooter({
 }: React.ComponentProps<"footer"> & {
   viewer: FooterViewer;
 }) {
-  const router = useRouter();
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const { handleSignOut, isPending: isSignOutPending } = useSignOut();
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
   const tPlatform = useTranslations("layout.platform");
@@ -111,23 +108,6 @@ export function MarketingFooter({
     ? platformMenu.filter((item) => item.labelKey === "dashboard" || item.labelKey === "account")
     : authMenu;
   const viewerName = viewer?.name?.trim() || null;
-
-  async function handleSignOut() {
-    if (isSigningOut) {
-      return;
-    }
-
-    setIsSigningOut(true);
-
-    const response = await signOut();
-
-    if (response.ok) {
-      router.replace("/login");
-      return;
-    }
-
-    setIsSigningOut(false);
-  }
 
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
@@ -177,7 +157,7 @@ export function MarketingFooter({
               <li>
                 <button
                   type="button"
-                  disabled={isSigningOut}
+                  disabled={isSignOutPending}
                   onClick={handleSignOut}
                   className="text-muted-foreground hover:text-foreground cursor-pointer appearance-none bg-transparent p-0 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 >

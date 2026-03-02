@@ -50,14 +50,7 @@ export async function signIn(input: SignInInput): Promise<SignInResponse> {
       status: response.data.session ? "authenticated" : "unauthenticated",
       session: response.data.session,
     });
-
-    return response;
   }
-
-  setSessionState({
-    status: "unauthenticated",
-    session: null,
-  });
 
   return response;
 }
@@ -93,11 +86,7 @@ export async function signOut(): Promise<SignOutResponse> {
       status: "unauthenticated",
       session: null,
     });
-
-    return response;
   }
-
-  await refreshSession();
 
   return response;
 }
@@ -241,7 +230,11 @@ async function requestAuthEndpoint<TData>(
     if (isAuthResponse<TData>(rawPayload)) {
       return rawPayload;
     }
-  } catch {
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[auth-client]", path, error);
+    }
+
     return {
       ok: false,
       errorCode: "UNKNOWN_ERROR",
