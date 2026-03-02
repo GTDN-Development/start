@@ -14,14 +14,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Link } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { AccountProfileSnapshot } from "@/features/account/account-profile";
+import type { AuthUser } from "@/features/auth/auth-contract";
+import { signOut } from "@/features/auth/auth-client";
+import { useRouter } from "@/i18n/navigation";
 import { getUserInitials } from "@/lib/utils";
 import { HomeIcon, LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export type UserAccountMenuViewer = Omit<AccountProfileSnapshot, "avatarUrl"> & {
-  avatarUrl?: string | null;
-};
+export type UserAccountMenuViewer = Pick<AuthUser, "email" | "name" | "verified" | "avatarUrl">;
 
 export type UserAccountMenuLabels = {
   account: string;
@@ -47,7 +47,9 @@ export function UserAccountMenu({
   className,
 }: UserAccountMenuProps) {
   const accountProfile = useOptionalAccountProfile();
+  const router = useRouter();
   const [failedAvatarUrl, setFailedAvatarUrl] = React.useState<string | null>(null);
+  const [isSigningOut, setIsSigningOut] = React.useState(false);
   const currentViewer = accountProfile?.profile ?? viewer;
   const isAvatarUpdating = accountProfile?.isAvatarUpdating ?? false;
   const displayName = getUserDisplayName(currentViewer);
@@ -56,6 +58,23 @@ export function UserAccountMenu({
     currentViewer.avatarUrl && currentViewer.avatarUrl !== failedAvatarUrl
       ? currentViewer.avatarUrl
       : null;
+
+  async function handleSignOut() {
+    if (isSigningOut) {
+      return;
+    }
+
+    setIsSigningOut(true);
+
+    const response = await signOut();
+
+    if (response.ok) {
+      router.replace("/login");
+      return;
+    }
+
+    setIsSigningOut(false);
+  }
 
   return (
     <DropdownMenu>
@@ -118,9 +137,9 @@ export function UserAccountMenu({
           <HomeIcon aria-hidden="true" className="size-4" />
         </DropdownMenuItem>
         <DropdownMenuItem
-          render={
-            <Link href="/login" className="flex w-full cursor-pointer justify-between text-left" />
-          }
+          disabled={isSigningOut}
+          className="justify-between"
+          onClick={handleSignOut}
         >
           {labels.logout}
           <LogOutIcon aria-hidden="true" className="size-4" />

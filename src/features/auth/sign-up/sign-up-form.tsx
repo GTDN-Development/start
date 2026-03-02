@@ -1,7 +1,6 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -15,51 +14,27 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/legal-links";
+import { signUp } from "@/features/auth/auth-client";
+import { createSignUpFormSchema, type SignUpInput } from "@/features/auth/auth-schemas";
 import { cn } from "@/lib/utils";
-
-type SignUpFormValues = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  termsAccepted: boolean;
-};
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.signUp");
   const router = useRouter();
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
 
-  const signUpFormSchema = z
-    .object({
-      firstName: z
-        .string()
-        .min(2, { message: t("validation.firstNameMin") })
-        .max(50, { message: t("validation.firstNameMax") }),
-      lastName: z
-        .string()
-        .min(2, { message: t("validation.lastNameMin") })
-        .max(50, { message: t("validation.lastNameMax") }),
-      email: z.email({ message: t("validation.email") }),
-      password: z
-        .string()
-        .min(8, { message: t("validation.passwordMin") })
-        .max(100, { message: t("validation.passwordMax") }),
-      confirmPassword: z.string().min(8, { message: t("validation.confirmPassword") }),
-      termsAccepted: z.boolean().refine((value) => value === true, {
-        message: t("validation.termsAccepted"),
-      }),
-    })
-    .superRefine((values, ctx) => {
-      if (values.password !== values.confirmPassword) {
-        ctx.addIssue({
-          code: "custom",
-          message: t("validation.passwordMismatch"),
-          path: ["confirmPassword"],
-        });
-      }
-    });
+  const signUpFormSchema = createSignUpFormSchema({
+    firstNameMin: t("validation.firstNameMin"),
+    firstNameMax: t("validation.firstNameMax"),
+    lastNameMin: t("validation.lastNameMin"),
+    lastNameMax: t("validation.lastNameMax"),
+    email: t("validation.email"),
+    passwordMin: t("validation.passwordMin"),
+    passwordMax: t("validation.passwordMax"),
+    confirmPassword: t("validation.confirmPassword"),
+    termsAccepted: t("validation.termsAccepted"),
+    passwordMismatch: t("validation.passwordMismatch"),
+  });
 
   const form = useForm({
     defaultValues: {
@@ -73,15 +48,27 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     validators: {
       onSubmit: signUpFormSchema,
     },
-    onSubmit: async ({ value: _value }: { value: SignUpFormValues }) => {
+    onSubmit: async ({ value }: { value: SignUpInput }) => {
       setSubmitErrorMessage(null);
 
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+      const response = await signUp(value);
+
+      if (response.ok) {
         router.replace("/dashboard");
-      } catch {
-        setSubmitErrorMessage(t("status.error.message"));
+        return;
       }
+
+      if (response.errorCode === "EMAIL_ALREADY_IN_USE") {
+        setSubmitErrorMessage(t("status.error.emailAlreadyInUse"));
+        return;
+      }
+
+      if (response.errorCode === "WEAK_PASSWORD") {
+        setSubmitErrorMessage(t("status.error.message"));
+        return;
+      }
+
+      setSubmitErrorMessage(t("status.error.message"));
     },
   });
 

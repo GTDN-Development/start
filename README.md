@@ -10,7 +10,7 @@ Next.js 16 starter app for marketing, auth, and platform pages.
 - shadcn/base-ui components
 - next-intl (EN/CS)
 - Cloudflare Turnstile
-- PocketBase (schema typegen only)
+- PocketBase (typegen + auth integration)
 
 ## Commands
 
@@ -108,6 +108,11 @@ redirect({ href: "/login", locale: locale as Locale });
 
 ## Auth/Account Status
 
-- Auth and account pages are currently static UI implementations.
-- Form submissions are mocked client-side (validation + UI states only).
-- No `/api/auth/*` or `/api/account/*` backend route handlers are active.
+- Auth uses PocketBase via SSR-safe per-request server clients.
+- Auth API is available via catch-all route `src/app/api/auth/[...all]/route.ts`.
+- Implemented actions: `sign-in`, `sign-up`, `sign-out`, `session`.
+- Client DX API is exposed via `src/features/auth/auth-client.ts`:
+  - `signIn`, `signUp`, `useSession`, `signOut`
+- Platform routes are protected by:
+  - `src/proxy.ts` cookie-presence redirect guard
+  - server-layout fallback session validation in `src/app/[locale]/(platform)/layout.tsx`

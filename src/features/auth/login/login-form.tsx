@@ -1,7 +1,6 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -13,27 +12,18 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, LogInIcon } from "lucide-react";
+import { signIn } from "@/features/auth/auth-client";
+import { createSignInFormSchema, type SignInInput } from "@/features/auth/auth-schemas";
 import { cn } from "@/lib/utils";
-
-type LoginFormValues = {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-};
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.login");
   const router = useRouter();
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
 
-  const loginFormSchema = z.object({
-    email: z.email({
-      message: t("validation.email"),
-    }),
-    password: z.string().min(8, {
-      message: t("validation.password"),
-    }),
-    rememberMe: z.boolean(),
+  const loginFormSchema = createSignInFormSchema({
+    email: t("validation.email"),
+    password: t("validation.password"),
   });
 
   const form = useForm({
@@ -45,15 +35,22 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     validators: {
       onSubmit: loginFormSchema,
     },
-    onSubmit: async ({ value: _value }: { value: LoginFormValues }) => {
+    onSubmit: async ({ value }: { value: SignInInput }) => {
       setSubmitErrorMessage(null);
 
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+      const response = await signIn(value);
+
+      if (response.ok) {
         router.replace("/dashboard");
-      } catch {
-        setSubmitErrorMessage(t("status.error.message"));
+        return;
       }
+
+      if (response.errorCode === "INVALID_CREDENTIALS") {
+        setSubmitErrorMessage(t("status.error.message"));
+        return;
+      }
+
+      setSubmitErrorMessage(t("status.error.message"));
     },
   });
 
