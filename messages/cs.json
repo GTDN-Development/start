@@ -430,7 +430,8 @@
     "login": {
       "validation": {
         "email": "Zadejte prosím platnou e-mailovou adresu.",
-        "password": "Heslo musí mít alespoň 8 znaků."
+        "passwordMin": "Heslo musí mít alespoň 8 znaků.",
+        "passwordMax": "Heslo nesmí být delší než 100 znaků."
       },
       "passwordVisibility": {
         "show": "Zobrazit heslo",

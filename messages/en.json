@@ -430,7 +430,8 @@
     "login": {
       "validation": {
         "email": "Please enter a valid email address.",
-        "password": "Password must be at least 8 characters."
+        "passwordMin": "Password must be at least 8 characters.",
+        "passwordMax": "Password must not exceed 100 characters."
       },
       "passwordVisibility": {
         "show": "Show password",

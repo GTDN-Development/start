@@ -110,8 +110,10 @@ function createAuthResponse<TData>(response: ServerAuthResponse<TData>) {
     status,
   });
 
-  if (response.setCookie) {
-    nextResponse.headers.set("set-cookie", response.setCookie);
+  if (response.setCookie?.length) {
+    for (const cookieValue of response.setCookie) {
+      nextResponse.headers.append("set-cookie", cookieValue);
+    }
   }
 
   return nextResponse;

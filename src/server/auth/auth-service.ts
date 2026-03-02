@@ -9,21 +9,21 @@ import type {
 } from "@/features/auth/auth-contract";
 import type { SignInInput, SignUpInput } from "@/features/auth/auth-schemas";
 import {
-  createClearedPocketBaseAuthCookie,
+  createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,
-  exportPocketBaseAuthCookie,
+  exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
 
 export type ServerAuthResponse<TData> =
   | {
       ok: true;
       data: TData;
-      setCookie?: string;
+      setCookie?: string[];
     }
   | {
       ok: false;
       errorCode: AuthErrorCode;
-      setCookie?: string;
+      setCookie?: string[];
     };
 
 export async function signInWithPassword(
@@ -50,7 +50,7 @@ export async function signInWithPassword(
       data: {
         session,
       },
-      setCookie: exportPocketBaseAuthCookie(pb, {
+      setCookie: exportPocketBaseAuthCookies(pb, {
         sessionOnly: !input.rememberMe,
       }),
     };
@@ -58,7 +58,7 @@ export async function signInWithPassword(
     return {
       ok: false,
       errorCode: mapSignInErrorCode(error),
-      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookie() } : {}),
+      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
     };
   }
 }
@@ -94,7 +94,9 @@ export async function signUpWithPassword(
       data: {
         session,
       },
-      setCookie: exportPocketBaseAuthCookie(pb),
+      setCookie: exportPocketBaseAuthCookies(pb, {
+        sessionOnly: false,
+      }),
     };
   } catch (error) {
     return {
@@ -112,7 +114,7 @@ export async function signOutServerSession(): Promise<ServerAuthResponse<AuthSig
     data: {
       signedOut: true,
     },
-    setCookie: createClearedPocketBaseAuthCookie(),
+    setCookie: createClearedPocketBaseAuthCookies(),
   };
 }
 
@@ -167,7 +169,8 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
 }
 
 export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessionPayload>> {
-  const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+  const { pb, hasAuthCookie, hadInvalidAuthCookie, shouldPersistSession } =
+    await createPocketBaseServerClient();
 
   if (hadInvalidAuthCookie) {
     return {
@@ -175,7 +178,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       data: {
         session: null,
       },
-      setCookie: createClearedPocketBaseAuthCookie(),
+      setCookie: createClearedPocketBaseAuthCookies(),
     };
   }
 
@@ -185,7 +188,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       data: {
         session: null,
       },
-      ...(hasAuthCookie ? { setCookie: createClearedPocketBaseAuthCookie() } : {}),
+      ...(hasAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
     };
   }
 
@@ -195,7 +198,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       data: {
         session: null,
       },
-      setCookie: createClearedPocketBaseAuthCookie(),
+      setCookie: createClearedPocketBaseAuthCookies(),
     };
   }
 
@@ -209,7 +212,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
         data: {
           session: null,
         },
-        setCookie: createClearedPocketBaseAuthCookie(),
+        setCookie: createClearedPocketBaseAuthCookies(),
       };
     }
 
@@ -218,7 +221,9 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       data: {
         session,
       },
-      setCookie: exportPocketBaseAuthCookie(pb),
+      setCookie: exportPocketBaseAuthCookies(pb, {
+        sessionOnly: !shouldPersistSession,
+      }),
     };
   } catch {
     return {
@@ -226,7 +231,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       data: {
         session: null,
       },
-      setCookie: createClearedPocketBaseAuthCookie(),
+      setCookie: createClearedPocketBaseAuthCookies(),
     };
   }
 }

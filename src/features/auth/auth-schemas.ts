@@ -7,9 +7,15 @@ export const AUTH_LAST_NAME_MAX_LENGTH = 50;
 export const AUTH_PASSWORD_MIN_LENGTH = 8;
 export const AUTH_PASSWORD_MAX_LENGTH = 100;
 
+export type AuthPasswordValidationMessages = {
+  min?: string;
+  max?: string;
+};
+
 export type SignInValidationMessages = {
   email: string;
-  password: string;
+  passwordMin: string;
+  passwordMax: string;
 };
 
 export type SignUpValidationMessages = {
@@ -27,7 +33,7 @@ export type SignUpValidationMessages = {
 
 export const signInInputSchema = z.object({
   email: z.email(),
-  password: z.string().min(AUTH_PASSWORD_MIN_LENGTH),
+  password: createAuthPasswordSchema(),
   rememberMe: z.boolean(),
 });
 
@@ -36,13 +42,25 @@ export const signUpInputSchema = createSignUpSchema();
 export type SignInInput = z.infer<typeof signInInputSchema>;
 export type SignUpInput = z.infer<typeof signUpInputSchema>;
 
+export function createAuthPasswordSchema(messages?: AuthPasswordValidationMessages) {
+  return z
+    .string()
+    .min(AUTH_PASSWORD_MIN_LENGTH, {
+      message: messages?.min,
+    })
+    .max(AUTH_PASSWORD_MAX_LENGTH, {
+      message: messages?.max,
+    });
+}
+
 export function createSignInFormSchema(messages: SignInValidationMessages) {
   return z.object({
     email: z.email({
       message: messages.email,
     }),
-    password: z.string().min(AUTH_PASSWORD_MIN_LENGTH, {
-      message: messages.password,
+    password: createAuthPasswordSchema({
+      min: messages.passwordMin,
+      max: messages.passwordMax,
     }),
     rememberMe: z.boolean(),
   });
@@ -74,16 +92,13 @@ function createSignUpSchema(messages?: SignUpValidationMessages) {
       email: z.email({
         message: messages?.email,
       }),
-      password: z
-        .string()
-        .min(AUTH_PASSWORD_MIN_LENGTH, {
-          message: messages?.passwordMin,
-        })
-        .max(AUTH_PASSWORD_MAX_LENGTH, {
-          message: messages?.passwordMax,
-        }),
-      confirmPassword: z.string().min(AUTH_PASSWORD_MIN_LENGTH, {
-        message: messages?.confirmPassword,
+      password: createAuthPasswordSchema({
+        min: messages?.passwordMin,
+        max: messages?.passwordMax,
+      }),
+      confirmPassword: createAuthPasswordSchema({
+        min: messages?.confirmPassword,
+        max: messages?.passwordMax,
       }),
       termsAccepted: z.boolean().refine((value) => value === true, {
         message: messages?.termsAccepted,

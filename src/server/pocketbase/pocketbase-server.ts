@@ -1,11 +1,14 @@
-import PocketBase, { type SendOptions, type SerializeOptions } from "pocketbase";
+import PocketBase, { cookieSerialize, type SendOptions, type SerializeOptions } from "pocketbase";
 import { cookies } from "next/headers";
-import { PB_AUTH_COOKIE_NAME } from "@/features/auth/auth-cookie";
+import { PB_AUTH_COOKIE_NAME, PB_AUTH_PERSIST_COOKIE_NAME } from "@/features/auth/auth-cookie";
+
+const AUTH_PERSIST_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 export type CreatePocketBaseServerClientResult = {
   pb: PocketBase;
   hasAuthCookie: boolean;
   hadInvalidAuthCookie: boolean;
+  shouldPersistSession: boolean;
 };
 
 type ExportPocketBaseAuthCookieOptions = {
@@ -20,6 +23,8 @@ export async function createPocketBaseServerClient(): Promise<CreatePocketBaseSe
 
   const cookieStore = await cookies();
   const pbAuthCookieValue = cookieStore.get(PB_AUTH_COOKIE_NAME)?.value ?? "";
+  const persistSessionCookieValue = cookieStore.get(PB_AUTH_PERSIST_COOKIE_NAME)?.value ?? "";
+
   const hasAuthCookie = pbAuthCookieValue.length > 0;
 
   if (hasAuthCookie) {
@@ -36,21 +41,36 @@ export async function createPocketBaseServerClient(): Promise<CreatePocketBaseSe
     pb,
     hasAuthCookie,
     hadInvalidAuthCookie,
+    shouldPersistSession: persistSessionCookieValue !== "0",
   };
 }
 
-export function exportPocketBaseAuthCookie(
+export function exportPocketBaseAuthCookies(
   pb: PocketBase,
   options: ExportPocketBaseAuthCookieOptions = {}
-): string {
-  return pb.authStore.exportToCookie(getPocketBaseAuthCookieOptions(options), PB_AUTH_COOKIE_NAME);
+): string[] {
+  const sessionOnly = options.sessionOnly === true;
+
+  return [
+    pb.authStore.exportToCookie(
+      getPocketBaseAuthCookieOptions({ sessionOnly }),
+      PB_AUTH_COOKIE_NAME
+    ),
+    createPersistSessionCookie({ sessionOnly }),
+  ];
 }
 
-export function createClearedPocketBaseAuthCookie(): string {
+export function createClearedPocketBaseAuthCookies(): string[] {
   const pb = new PocketBase(getPocketBaseUrl());
   pb.authStore.clear();
 
-  return exportPocketBaseAuthCookie(pb);
+  return [
+    pb.authStore.exportToCookie(
+      getPocketBaseAuthCookieOptions({ sessionOnly: false }),
+      PB_AUTH_COOKIE_NAME
+    ),
+    createClearedPersistSessionCookie(),
+  ];
 }
 
 function withNoStoreFetch(url: string, options: SendOptions) {
@@ -66,12 +86,7 @@ function withNoStoreFetch(url: string, options: SendOptions) {
 function getPocketBaseAuthCookieOptions(
   options: ExportPocketBaseAuthCookieOptions
 ): SerializeOptions {
-  const cookieOptions: SerializeOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-  };
+  const cookieOptions = getBaseCookieOptions();
 
   if (options.sessionOnly) {
     return {
@@ -82,6 +97,37 @@ function getPocketBaseAuthCookieOptions(
   }
 
   return cookieOptions;
+}
+
+function createPersistSessionCookie(options: { sessionOnly: boolean }) {
+  const cookieOptions = getBaseCookieOptions();
+
+  if (!options.sessionOnly) {
+    cookieOptions.maxAge = AUTH_PERSIST_COOKIE_MAX_AGE_SECONDS;
+  }
+
+  return cookieSerialize(
+    PB_AUTH_PERSIST_COOKIE_NAME,
+    options.sessionOnly ? "0" : "1",
+    cookieOptions
+  );
+}
+
+function createClearedPersistSessionCookie() {
+  return cookieSerialize(PB_AUTH_PERSIST_COOKIE_NAME, "", {
+    ...getBaseCookieOptions(),
+    maxAge: 0,
+    expires: new Date(0),
+  });
+}
+
+function getBaseCookieOptions(): SerializeOptions {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  };
 }
 
 function getPocketBaseUrl() {

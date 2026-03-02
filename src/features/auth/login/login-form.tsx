@@ -23,7 +23,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
 
   const loginFormSchema = createSignInFormSchema({
     email: t("validation.email"),
-    password: t("validation.password"),
+    passwordMin: t("validation.passwordMin"),
+    passwordMax: t("validation.passwordMax"),
   });
 
   const form = useForm({
