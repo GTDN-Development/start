@@ -10,7 +10,7 @@ Next.js 16 starter app for marketing, auth, and platform pages.
 - shadcn/base-ui components
 - next-intl (EN/CS)
 - Cloudflare Turnstile
-- PocketBase (SSR auth + route handlers)
+- PocketBase (cookie consent event storage + schema typegen)
 
 ## Commands
 
@@ -51,7 +51,7 @@ PocketBase typegen requires:
 - `src/lib` - shared utilities
 - `src/types` - shared types + generated PocketBase types
 - `scripts/pocketbase-typegen.mjs` - PocketBase type generator
-- `POCKETBASE-INTEGRATION.md` - PocketBase SSR/auth notes
+- `POCKETBASE-INTEGRATION.md` - PocketBase integration notes
 
 ## Architecture Conventions
 
@@ -65,8 +65,6 @@ PocketBase typegen requires:
 - Keep common helpers centralized in `src/lib/utils.ts`; avoid splitting utility helpers into many micro files
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
 - API groups are path-based:
-  - Auth: `/api/auth/*`
-  - Account: `/api/account/*`
   - Marketing: `/api/marketing/*`
   - Cookies: `/api/cookies/consent`
 
@@ -109,16 +107,8 @@ redirect({ href: "/login", locale: locale as Locale });
 - Route metadata uses localized path generation for canonical URLs and language alternates
 - `createPageMetadata(...)` now expects `locale` and an internal pathname key
 
-## PocketBase Email Links (single template)
+## Auth/Account Status
 
-PocketBase templates cannot be localized per user in our setup, so auth emails should use the bridge route:
-
-- Verify email: `{APP_URL}/api/pocketbase/email-link?action=verify-email&token={TOKEN}`
-- Reset password: `{APP_URL}/api/pocketbase/email-link?action=reset-password&token={TOKEN}`
-- Confirm email change: `{APP_URL}/api/pocketbase/email-link?action=confirm-email-change&token={TOKEN}`
-
-Bridge behavior:
-
-- Preserves token/query params
-- Resolves locale by `?locale=...` -> `NEXT_LOCALE` cookie -> `Accept-Language` -> default `cs`
-- Redirects to the localized auth page (including Czech aliases)
+- Auth and account pages are currently static UI implementations.
+- Form submissions are mocked client-side (validation + UI states only).
+- No `/api/auth/*` or `/api/account/*` backend route handlers are active.

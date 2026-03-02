@@ -613,7 +613,7 @@
         "password": {
           "label": "Current password",
           "placeholder": "Enter your current password",
-          "description": "PocketBase requires your current password to confirm the email change."
+          "description": "For security reasons, enter your current password to confirm this change."
         }
       },
       "submit": {

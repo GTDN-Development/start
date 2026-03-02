@@ -613,7 +613,7 @@
         "password": {
           "label": "Aktuální heslo",
           "placeholder": "Zadejte své aktuální heslo",
-          "description": "PocketBase vyžaduje pro potvrzení změny e-mailu vaše aktuální heslo."
+          "description": "Z bezpečnostních důvodů zadejte pro potvrzení této změny své aktuální heslo."
         }
       },
       "submit": {
