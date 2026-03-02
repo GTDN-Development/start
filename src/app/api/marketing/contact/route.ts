@@ -1,6 +1,5 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
 import { escapeHtml, sendFormEmail } from "@/server/email/send-form-email";
 import { verifyTurnstileToken, getClientIP } from "@/server/captcha/turnstile";
 import { formatEmailTimestamp } from "@/lib/utils";
@@ -17,17 +16,28 @@ const contactFormPayloadSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await parseJsonBody(request, contactFormPayloadSchema);
+    const rawBody = await parseRequestJson(request);
 
-    if (!body) {
-      return jsonError("BAD_REQUEST", 400);
+    if (rawBody === null) {
+      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
     }
+
+    const parsedBody = contactFormPayloadSchema.safeParse(rawBody);
+
+    if (!parsedBody.success) {
+      return NextResponse.json({ ok: false, errorCode: "BAD_REQUEST" }, { status: 400 });
+    }
+
+    const body = parsedBody.data;
 
     const clientIP = getClientIP(request);
     const turnstileResult = await verifyTurnstileToken(body.turnstileToken, clientIP);
 
     if (!turnstileResult.success) {
-      return jsonError("TURNSTILE_VERIFICATION_FAILED", 400);
+      return NextResponse.json(
+        { ok: false, errorCode: "TURNSTILE_VERIFICATION_FAILED" },
+        { status: 400 }
+      );
     }
 
     const timestamp = formatEmailTimestamp();
@@ -58,9 +68,17 @@ export async function POST(request: NextRequest) {
       `,
     });
 
-    return jsonOk({ message: "Message sent successfully!" }, 200);
+    return NextResponse.json({ ok: true, message: "Message sent successfully!" }, { status: 200 });
   } catch (error) {
     console.error("Contact form API error:", error);
-    return jsonError("INTERNAL_ERROR", 500);
+    return NextResponse.json({ ok: false, errorCode: "INTERNAL_ERROR" }, { status: 500 });
+  }
+}
+
+async function parseRequestJson(request: Request) {
+  try {
+    return (await request.json()) as unknown;
+  } catch {
+    return null;
   }
 }

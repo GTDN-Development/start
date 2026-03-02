@@ -684,7 +684,6 @@
       },
       "purposes": {
         "cookieConsent": "Stores cookie consent preferences.",
-        "cookieConsentSubject": "Stores a pseudonymous key used to record consent history events.",
         "theme": "Stores theme preference (system/light/dark mode).",
         "ga": "Distinguishes users for analytics (with consent).",
         "gaWildcard": "Persists GA4 session state (with consent).",

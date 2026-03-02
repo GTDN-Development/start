@@ -1,7 +1,6 @@
 import { isRecord } from "@/lib/utils";
 
 export const COOKIE_NAME = "cookie_consent";
-export const COOKIE_SUBJECT_KEY_NAME = "cookie_consent_subject";
 export const COOKIE_CONSENT_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
 export const COOKIE_CONSENT_VERSION = "1";
 
@@ -10,15 +9,6 @@ export type ConsentState = {
   functional: boolean;
   analytics: boolean;
   marketing: boolean;
-};
-
-export type CookieConsentEventType = "accept_all" | "reject_all" | "save_preferences" | "withdraw";
-
-export type CookieConsentEventRequest = {
-  consent: ConsentState;
-  eventType: CookieConsentEventType;
-  locale: string;
-  idempotencyKey: string;
 };
 
 export const defaultConsent: ConsentState = {

@@ -10,7 +10,7 @@ Next.js 16 starter app for marketing, auth, and platform pages.
 - shadcn/base-ui components
 - next-intl (EN/CS)
 - Cloudflare Turnstile
-- PocketBase (cookie consent event storage + schema typegen)
+- PocketBase (schema typegen only)
 
 ## Commands
 
@@ -45,7 +45,7 @@ PocketBase typegen requires:
 - `src/app` - routes, layouts, metadata, API route adapters
 - `src/features` - feature-first modules (`auth`, `account`, `marketing`, `cookies`, `platform`)
 - `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `providers`, `dev`)
-- `src/server` - server-only infrastructure (`pocketbase`, `http`, `captcha`, `email`)
+- `src/server` - server-only infrastructure (`captcha`, `email`)
 - `src/config` - structural config (menus, links, site data)
 - `src/i18n` + `messages` - routing and translations
 - `src/lib` - shared utilities
@@ -66,7 +66,6 @@ PocketBase typegen requires:
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
 - API groups are path-based:
   - Marketing: `/api/marketing/*`
-  - Cookies: `/api/cookies/consent`
 
 ## i18n Routing (EN keys + CS aliases)
 

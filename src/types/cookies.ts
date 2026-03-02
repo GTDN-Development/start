@@ -3,7 +3,6 @@ export type CookieStorageType = "cookie" | "localStorage" | "sessionStorage";
 
 export type CookiePurposeKey =
   | "cookieConsent"
-  | "cookieConsentSubject"
   | "theme"
   | "ga"
   | "gaWildcard"

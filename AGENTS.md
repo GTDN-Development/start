@@ -36,7 +36,6 @@
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
 - API route groups:
   - marketing: `src/app/api/marketing/*`
-  - cookies: `src/app/api/cookies/consent/route.ts`
 
 ## Tailwind CSS v4
 
