@@ -30,12 +30,8 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  readAccountSettingsApiResponse,
-  type InlineStatus,
-} from "@/features/account/account-response";
+import type { InlineStatus } from "@/features/account/account-types";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
-import { resolveErrorMessage } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
@@ -78,33 +74,12 @@ export function AccountEmailSettingsItem() {
       const normalizedNewEmail = parsedEmail.data;
 
       try {
-        const response = await fetch("/api/account/email-change", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            newEmail: normalizedNewEmail,
-          }),
-        });
-        const result = await readAccountSettingsApiResponse(response);
-
-        if (!response.ok || !result?.ok) {
-          setEmailDialogStatus({
-            kind: "error",
-            message: resolveErrorMessage(result?.errorCode, t("email.dialog.status.errorMessage"), {
-              EMAIL_UNCHANGED: t("email.dialog.errors.sameAsCurrent"),
-              INVALID_OR_UNAVAILABLE_EMAIL: t("email.dialog.errors.invalidOrUnavailable"),
-              UNAUTHORIZED: t("email.dialog.errors.unauthorized"),
-            }),
-          });
-          return;
-        }
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
         setEmailDialogStatus({
           kind: "success",
           message: t("email.dialog.status.sentMessage", {
-            email: result.targetEmail ?? normalizedNewEmail,
+            email: normalizedNewEmail,
           }),
         });
       } catch {

@@ -13,10 +13,6 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, LogInIcon } from "lucide-react";
-
-import { authRedirectPaths } from "@/features/auth/auth-redirects";
-import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { cn } from "@/lib/utils";
 
 type LoginFormValues = {
@@ -49,26 +45,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     validators: {
       onSubmit: loginFormSchema,
     },
-    onSubmit: async ({ value }: { value: LoginFormValues }) => {
+    onSubmit: async ({ value: _value }: { value: LoginFormValues }) => {
       setSubmitErrorMessage(null);
 
       try {
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(value),
-        });
-
-        const result = await readAuthFormApiResponse(response);
-
-        if (response.ok) {
-          notifyAuthSync("auth");
-          router.replace(result?.redirectTo ?? authRedirectPaths.dashboard);
-        } else {
-          setSubmitErrorMessage(t("status.error.message"));
-        }
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        router.replace("/dashboard");
       } catch {
         setSubmitErrorMessage(t("status.error.message"));
       }

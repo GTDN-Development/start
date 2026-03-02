@@ -14,17 +14,12 @@ import {
   AccountItemTitle,
 } from "@/features/account/account-item";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  readAccountSettingsApiResponse,
-  type InlineStatus,
-} from "@/features/account/account-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
+import type { InlineStatus } from "@/features/account/account-types";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon } from "lucide-react";
-import { resolveErrorMessage } from "@/lib/utils";
 
 const MAX_PROFILE_NAME_LENGTH = 32;
 
@@ -67,31 +62,10 @@ export function AccountDisplayNameSettingsItem() {
     setNameStatus(null);
 
     try {
-      const response = await fetch("/api/account/profile", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: nameValue,
-        }),
-      });
-      const result = await readAccountSettingsApiResponse(response);
-
-      if (!response.ok || !result?.ok || !result.profile) {
-        setNameStatus({
-          kind: "error",
-          message: resolveErrorMessage(result?.errorCode, t("profile.status.errorMessage"), {
-            UNAUTHORIZED: t("profile.status.unauthorizedMessage"),
-            INVALID_PROFILE_INPUT: t("profile.status.invalidInputMessage"),
-          }),
-        });
-        return;
-      }
-
-      patchProfile(result.profile);
-      notifyAuthSync("profile");
-      setNameValue(result.profile.name ?? "");
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const nextName = trimmedNameValue || null;
+      patchProfile({ name: nextName });
+      setNameValue(nextName ?? "");
       setNameStatus(null);
       toast.success(t("common.successTitle"), {
         id: nameToastId,

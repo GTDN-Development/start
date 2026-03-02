@@ -15,11 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/legal-links";
-
-import { authRedirectPaths } from "@/features/auth/auth-redirects";
-import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
-import { cn, resolveErrorMessage } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 type SignUpFormValues = {
   firstName: string;
@@ -77,35 +73,12 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     validators: {
       onSubmit: signUpFormSchema,
     },
-    onSubmit: async ({ value }: { value: SignUpFormValues }) => {
+    onSubmit: async ({ value: _value }: { value: SignUpFormValues }) => {
       setSubmitErrorMessage(null);
 
       try {
-        const response = await fetch("/api/auth/sign-up", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(value),
-        });
-
-        const result = await readAuthFormApiResponse(response);
-
-        if (response.ok) {
-          const redirectTo = result?.redirectTo ?? authRedirectPaths.dashboard;
-
-          if (redirectTo === authRedirectPaths.dashboard) {
-            notifyAuthSync("auth");
-          }
-
-          router.replace(redirectTo);
-        } else {
-          setSubmitErrorMessage(
-            resolveErrorMessage(result?.errorCode, t("status.error.message"), {
-              EMAIL_ALREADY_IN_USE: t("status.error.emailAlreadyInUse"),
-            })
-          );
-        }
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        router.replace("/dashboard");
       } catch {
         setSubmitErrorMessage(t("status.error.message"));
       }

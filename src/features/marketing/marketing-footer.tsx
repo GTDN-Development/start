@@ -22,8 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { site } from "@/config/site";
-import { getPathname } from "@/i18n/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
 import { contact, formatPhoneNumber } from "@/config/contact";
 import { legal } from "@/config/legal";
@@ -31,7 +30,6 @@ import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { cn } from "@/lib/utils";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 type FooterViewer = UserAccountMenuViewer | null;
@@ -99,8 +97,6 @@ export function MarketingFooter({
 }: React.ComponentProps<"footer"> & {
   viewer: FooterViewer;
 }) {
-  const locale = useLocale();
-  const logoutRedirectTo = getPathname({ href: "/login", locale });
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
   const tPlatform = useTranslations("layout.platform");
@@ -110,10 +106,6 @@ export function MarketingFooter({
     ? platformMenu.filter((item) => item.labelKey === "dashboard" || item.labelKey === "account")
     : authMenu;
   const viewerName = viewer?.name?.trim() || null;
-
-  function handleLogoutSubmit() {
-    notifyAuthSync("auth");
-  }
 
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
@@ -161,15 +153,12 @@ export function MarketingFooter({
             ))}
             {viewer && (
               <li>
-                <form action="/api/auth/logout" method="post" onSubmit={handleLogoutSubmit}>
-                  <input type="hidden" name="redirectTo" value={logoutRedirectTo} />
-                  <button
-                    type="submit"
-                    className="text-muted-foreground hover:text-foreground text-left text-sm transition-colors"
-                  >
-                    {tPlatform("logout")}
-                  </button>
-                </form>
+                <NavLink
+                  href="/login"
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  {tPlatform("logout")}
+                </NavLink>
               </li>
             )}
           </ul>

@@ -22,8 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { readAccountSettingsApiResponse } from "@/features/account/account-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
@@ -34,12 +32,21 @@ export function AccountAvatarSettingsItem() {
   const { profile, patchProfile, isAvatarUpdating, setIsAvatarUpdating } = useAccountProfile();
   const avatarToastId = React.useId();
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const localAvatarUrlRef = React.useRef<string | null>(null);
   const [failedAvatarUrl, setFailedAvatarUrl] = React.useState<string | null>(null);
 
   const displayName = profile.name?.trim() ? profile.name : null;
   const initials = getUserInitials(displayName ?? profile.email);
   const avatarUrl =
     profile.avatarUrl && profile.avatarUrl !== failedAvatarUrl ? profile.avatarUrl : null;
+
+  React.useEffect(() => {
+    return () => {
+      if (localAvatarUrlRef.current) {
+        URL.revokeObjectURL(localAvatarUrlRef.current);
+      }
+    };
+  }, []);
 
   async function handleAvatarInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
@@ -68,29 +75,15 @@ export function AccountAvatarSettingsItem() {
     setIsAvatarUpdating(true);
 
     try {
-      const formData = new FormData();
-      formData.append("avatar", avatarFile);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      const nextAvatarUrl = URL.createObjectURL(avatarFile);
 
-      const response = await fetch("/api/account/avatar", {
-        method: "POST",
-        body: formData,
-      });
-      const result = await readAccountSettingsApiResponse(response);
-
-      if (!response.ok || !result?.ok || !result.profile) {
-        toast.error(t("common.errorTitle"), {
-          id: avatarToastId,
-          description: resolveErrorMessage(result?.errorCode, t("avatar.status.error"), {
-            INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
-            FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
-            UNAUTHORIZED: t("avatar.status.unauthorized"),
-          }),
-        });
-        return;
+      if (localAvatarUrlRef.current) {
+        URL.revokeObjectURL(localAvatarUrlRef.current);
       }
 
-      patchProfile(result.profile);
-      notifyAuthSync("profile");
+      localAvatarUrlRef.current = nextAvatarUrl;
+      patchProfile({ avatarUrl: nextAvatarUrl });
       setFailedAvatarUrl(null);
       toast.success(t("common.successTitle"), {
         id: avatarToastId,
@@ -114,25 +107,14 @@ export function AccountAvatarSettingsItem() {
     setIsAvatarUpdating(true);
 
     try {
-      const response = await fetch("/api/account/avatar", {
-        method: "DELETE",
-      });
-      const result = await readAccountSettingsApiResponse(response);
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-      if (!response.ok || !result?.ok || !result.profile) {
-        toast.error(t("common.errorTitle"), {
-          id: avatarToastId,
-          description: resolveErrorMessage(result?.errorCode, t("avatar.status.error"), {
-            INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
-            FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
-            UNAUTHORIZED: t("avatar.status.unauthorized"),
-          }),
-        });
-        return;
+      if (localAvatarUrlRef.current) {
+        URL.revokeObjectURL(localAvatarUrlRef.current);
+        localAvatarUrlRef.current = null;
       }
 
-      patchProfile(result.profile);
-      notifyAuthSync("profile");
+      patchProfile({ avatarUrl: null });
       setFailedAvatarUrl(null);
       toast.success(t("common.successTitle"), {
         id: avatarToastId,

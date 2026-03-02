@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
 import { PlatformLayout } from "@/features/platform/platform-layout";
-import { getAccountProfileSnapshot } from "@/features/account/account-profile";
-import { createServerPocketBaseClient } from "@/server/pocketbase/pb-client";
+import { createStaticAccountProfileSnapshot } from "@/features/account/account-profile";
 
 type PlatformRouteLayoutProps = {
   children: React.ReactNode;
@@ -22,17 +20,7 @@ export const metadata: Metadata = {
 
 export default async function Layout({ children, params }: PlatformRouteLayoutProps) {
   const { locale } = await params;
-  const pb = await createServerPocketBaseClient({ refreshAuth: true });
-
-  if (!pb.authStore.isValid || !pb.authStore.record) {
-    redirect({ href: "/login", locale: locale as Locale });
-  }
-
-  const user = getAccountProfileSnapshot(pb.authStore.record);
-
-  if (!user.email) {
-    redirect({ href: "/login", locale: locale as Locale });
-  }
+  const user = createStaticAccountProfileSnapshot();
 
   const tPlatform = await getTranslations({
     locale: locale as Locale,

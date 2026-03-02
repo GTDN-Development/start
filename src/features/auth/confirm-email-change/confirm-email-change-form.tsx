@@ -9,10 +9,7 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
-import { authRedirectPaths } from "@/features/auth/auth-redirects";
-import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
-import { cn, resolveErrorMessage } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export function ConfirmEmailChangeForm({
   token,
@@ -44,29 +41,8 @@ export function ConfirmEmailChangeForm({
     setSubmitErrorMessage(null);
 
     try {
-      const response = await fetch("/api/auth/confirm-email-change", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token,
-          password,
-        }),
-      });
-
-      const result = await readAuthFormApiResponse(response);
-
-      if (response.ok && result?.ok) {
-        notifyAuthSync("auth");
-        router.replace(result.redirectTo ?? authRedirectPaths.login);
-      } else {
-        setSubmitErrorMessage(
-          resolveErrorMessage(result?.errorCode, t("status.error.message"), {
-            INVALID_OR_EXPIRED_TOKEN_OR_PASSWORD: t("status.error.invalidOrExpiredTokenOrPassword"),
-          })
-        );
-      }
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      router.replace("/login");
     } catch {
       setSubmitErrorMessage(t("status.error.message"));
     } finally {

@@ -9,9 +9,7 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, KeyRoundIcon } from "lucide-react";
-import { authRedirectPaths } from "@/features/auth/auth-redirects";
-import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { cn, resolveErrorMessage } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export function ResetPasswordForm({
   token,
@@ -49,30 +47,8 @@ export function ResetPasswordForm({
     setSubmitErrorMessage(null);
 
     try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token,
-          password,
-          confirmPassword,
-        }),
-      });
-
-      const result = await readAuthFormApiResponse(response);
-
-      if (response.ok && result?.ok) {
-        router.replace(result.redirectTo ?? authRedirectPaths.login);
-      } else {
-        setSubmitErrorMessage(
-          resolveErrorMessage(result?.errorCode, t("status.error.message"), {
-            INVALID_OR_EXPIRED_TOKEN: t("status.error.invalidOrExpiredToken"),
-            PASSWORD_MISMATCH: t("validation.passwordMismatch"),
-          })
-        );
-      }
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      router.replace("/login");
     } catch {
       setSubmitErrorMessage(t("status.error.message"));
     } finally {

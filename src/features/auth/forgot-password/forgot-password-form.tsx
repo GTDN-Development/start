@@ -8,7 +8,6 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircleIcon, MailIcon } from "lucide-react";
-import { readAuthFormApiResponse } from "@/features/auth/auth-response";
 import { cn } from "@/lib/utils";
 
 export function ForgotPasswordForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -27,29 +26,11 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
     setSubmitStatus({ type: null, message: "" });
 
     try {
-      const response = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-        }),
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setSubmitStatus({
+        type: "success",
+        message: t("status.success.message"),
       });
-
-      const result = await readAuthFormApiResponse(response);
-
-      if (response.ok && result?.ok) {
-        setSubmitStatus({
-          type: "success",
-          message: t("status.success.message"),
-        });
-      } else {
-        setSubmitStatus({
-          type: "error",
-          message: t("status.error.message"),
-        });
-      }
     } catch {
       setSubmitStatus({
         type: "error",
