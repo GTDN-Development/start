@@ -20,6 +20,9 @@ const SIGN_IN_ENDPOINT_PATH = "/api/auth/sign-in";
 const SIGN_UP_ENDPOINT_PATH = "/api/auth/sign-up";
 const SIGN_OUT_ENDPOINT_PATH = "/api/auth/sign-out";
 
+/** Min interval between refetches from cross-tab sync, tab focus, or online recovery. */
+const REFETCH_RATE_LIMIT_MS = 5_000;
+
 const sessionSubscribers = new Set<() => void>();
 
 let sessionState: AuthSessionSnapshot = {
@@ -28,6 +31,8 @@ let sessionState: AuthSessionSnapshot = {
 };
 
 let pendingSessionRequest: Promise<void> | null = null;
+let lastSessionRequestAt = 0;
+let syncChannel: BroadcastChannel | null = null;
 
 export const authClient: AuthClient = {
   signIn,
@@ -50,6 +55,7 @@ export async function signIn(input: SignInInput): Promise<SignInResponse> {
       status: response.data.session ? "authenticated" : "unauthenticated",
       session: response.data.session,
     });
+    broadcastSessionChanged();
   }
 
   return response;
@@ -69,8 +75,7 @@ export async function signUp(input: SignUpInput): Promise<SignUpResponse> {
       status: response.data.session ? "authenticated" : "unauthenticated",
       session: response.data.session,
     });
-
-    return response;
+    broadcastSessionChanged();
   }
 
   return response;
@@ -86,6 +91,7 @@ export async function signOut(): Promise<SignOutResponse> {
       status: "unauthenticated",
       session: null,
     });
+    broadcastSessionChanged();
   }
 
   return response;
@@ -131,6 +137,8 @@ export async function refreshSession(): Promise<SessionResponse> {
 }
 
 async function executeSessionRefresh() {
+  lastSessionRequestAt = Date.now();
+
   const response = await requestAuthEndpoint<AuthSessionPayload>(SESSION_ENDPOINT_PATH, {
     method: "GET",
     cache: "no-store",
@@ -213,6 +221,97 @@ function createSessionResponseFromSnapshot(snapshot: AuthSessionSnapshot): Sessi
       session: snapshot.session,
     },
   };
+}
+
+// Cross-tab sync: signal-based — each tab refetches from server independently.
+
+function initSessionSync() {
+  if (typeof BroadcastChannel === "undefined") {
+    return;
+  }
+
+  syncChannel = new BroadcastChannel("auth-sync");
+  syncChannel.onmessage = handleSyncMessage;
+}
+
+function handleSyncMessage(event: MessageEvent) {
+  if (!isSyncSignal(event.data)) {
+    return;
+  }
+
+  if (!isOnline() || !isRefetchAllowed()) {
+    return;
+  }
+
+  void refreshSession();
+}
+
+function broadcastSessionChanged() {
+  syncChannel?.postMessage("session-changed");
+}
+
+function isSyncSignal(value: unknown): value is string {
+  return value === "session-changed";
+}
+
+// Visibility & online refetch
+
+function isOnline() {
+  return typeof navigator === "undefined" || navigator.onLine;
+}
+
+function isRefetchAllowed() {
+  return Date.now() - lastSessionRequestAt >= REFETCH_RATE_LIMIT_MS;
+}
+
+function initVisibilityRefresh() {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+}
+
+function handleVisibilityChange() {
+  if (document.visibilityState !== "visible") {
+    return;
+  }
+
+  if (sessionState.status !== "authenticated") {
+    return;
+  }
+
+  if (!isOnline() || !isRefetchAllowed()) {
+    return;
+  }
+
+  void refreshSession();
+}
+
+function initOnlineRecovery() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.addEventListener("online", handleOnlineRecovery);
+}
+
+function handleOnlineRecovery() {
+  if (sessionState.status !== "authenticated") {
+    return;
+  }
+
+  if (!isRefetchAllowed()) {
+    return;
+  }
+
+  void refreshSession();
+}
+
+if (typeof window !== "undefined") {
+  initSessionSync();
+  initVisibilityRefresh();
+  initOnlineRecovery();
 }
 
 async function requestAuthEndpoint<TData>(

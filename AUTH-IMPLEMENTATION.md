@@ -71,6 +71,26 @@ const { signIn, signUp, useSession, signOut } = authClient;
 - `authenticated`
 - `unauthenticated`
 
+## Cross-tab sync & session freshness
+`auth-client.ts` obsahuje tři mechanismy pro udržení session konzistence napříč taby a síťovými podmínkami. Design je inspirovaný better-auth — signal-based přístup, kde server je vždy single source of truth. Oproti better-auth používáme nativní `BroadcastChannel` (ne `localStorage`).
+
+### 1. BroadcastChannel cross-tab sync (signal-based)
+- Při každé auth mutaci (`signIn`, `signUp`, `signOut`) se broadcastuje lightweight signál `"session-changed"` do ostatních tabů.
+- Ostatní taby reagují voláním `refreshSession()` — každý tab si sám validuje session proti serveru a dostane vlastní refreshnutý cookie přes `Set-Cookie` response.
+- Server je vždy source of truth: admin revokace, email verifikace z jiného zařízení, password reset — vše se odhalí při server validaci.
+- `BroadcastChannel.postMessage` nefiruje `onmessage` na sender instanci, takže smyčky jsou strukturálně nemožné.
+- Rate-limited na `REFETCH_RATE_LIMIT_MS` (5 s) — chrání server při rychlém přepínání tabů.
+- Fallback: pokud prohlížeč nepodporuje `BroadcastChannel` (< 3 % global), sync se tiše přeskočí; taby budou fungovat nezávisle.
+
+### 2. Visibility-based refetch
+- Když se tab stane viditelným (`visibilitychange → "visible"`), a uživatel je authenticated, provede se `refreshSession()`.
+- Rate-limited na `REFETCH_RATE_LIMIT_MS` (5 s) — rychlé přepínání tabů nezaplaví server. Odpovídá better-auth's `FOCUS_REFETCH_RATE_LIMIT_SECONDS`.
+- Přeskočí se, pokud je prohlížeč offline (`navigator.onLine === false`).
+
+### 3. Online recovery refetch
+- Při přechodu z offline → online (`window.online` event) se provede `refreshSession()` pro authenticated uživatele.
+- Sdílí stejný rate limit jako ostatní refetch triggery.
+
 ## Jak rozšiřovat
 1. Nové auth flow (např. reset/verify):
 - přidat schéma do `auth-schemas.ts`
@@ -88,3 +108,5 @@ const { signIn, signUp, useSession, signOut } = authClient;
 - `pb_auth` cookie se čistí při neplatné session/token situaci.
 - `signIn` už nemaže cookie při každé chybě (např. transient error).
 - Autorizace je fail-closed: při nevalidní server session je uživatel považován za odhlášeného.
+- Cross-tab sync, visibility refetch a online recovery se inicializují automaticky při loadu modulu na klientu (`if (typeof window !== "undefined")`). Listenery jsou lightweight a žijí po celou dobu app lifecycle — cleanup není potřeba (na rozdíl od better-auth, kde je vázán na nanostores `onMount`).
+- Cross-tab broadcast je signal-based (ne data-based) — každý tab si validuje session sám proti serveru. Důvod: PocketBase `authRefresh()` musí proběhnout per-tab, aby každý tab dostal vlastní refreshnutý JWT token v cookie.
