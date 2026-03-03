@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
 import { shouldShowEmailNotVerifiedBanner } from "@/features/auth/email-verification";
-import { EmailNotVerifiedBanner } from "@/features/auth/verify-email/email-not-verified-banner";
+import { EmailNotVerifiedBanner } from "@/features/auth/email-not-verified-banner";
 import { MarketingFooter } from "./marketing-footer";
 import { MarketingHeader } from "./marketing-header";
 

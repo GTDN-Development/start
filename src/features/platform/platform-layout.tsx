@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 import { shouldShowEmailNotVerifiedBanner } from "@/features/auth/email-verification";
-import { EmailNotVerifiedBanner } from "@/features/auth/verify-email/email-not-verified-banner";
+import { EmailNotVerifiedBanner } from "@/features/auth/email-not-verified-banner";
 import { PlatformFooter } from "@/features/platform/platform-footer";
 import { PlatformHeader } from "@/features/platform/platform-header";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
