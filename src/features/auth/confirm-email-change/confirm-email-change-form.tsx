@@ -1,18 +1,23 @@
 "use client";
 
+import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
+import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { confirmEmailChange } from "@/features/auth/auth-client";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type SubmitErrorCode = "password-required" | "invalid-token-or-password" | "generic" | null;
+type SubmitErrorCode = "invalid-token-or-password" | "generic" | null;
+type ConfirmEmailChangeFormValues = {
+  password: string;
+};
 
 export function ConfirmEmailChangeForm({
   token,
@@ -23,110 +28,141 @@ export function ConfirmEmailChangeForm({
 }) {
   const t = useTranslations("forms.confirmEmailChange");
   const router = useRouter();
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitErrorCode, setSubmitErrorCode] = useState<SubmitErrorCode>(null);
   const submitErrorMessage = getSubmitErrorMessage(submitErrorCode, t);
-  const isPasswordInvalid = submitErrorCode === "password-required";
+  const confirmEmailChangeFormSchema = z.object({
+    password: z.string().trim().min(1, {
+      message: t("validation.passwordRequired"),
+    }),
+  });
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!token) {
-      setSubmitErrorCode("invalid-token-or-password");
-      return;
-    }
-
-    if (!password.trim()) {
-      setSubmitErrorCode("password-required");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitErrorCode(null);
-
-    const response = await confirmEmailChange({
-      token,
-      password,
-    });
-
-    if (response.ok) {
-      if (response.data.session?.user.id) {
-        router.replace("/dashboard");
+  const form = useForm({
+    defaultValues: {
+      password: "",
+    },
+    validators: {
+      onSubmit: confirmEmailChangeFormSchema,
+    },
+    onSubmit: async ({ value }: { value: ConfirmEmailChangeFormValues }) => {
+      if (!token) {
+        setSubmitErrorCode("invalid-token-or-password");
         return;
       }
 
-      router.replace("/login");
-      return;
-    }
+      setSubmitErrorCode(null);
 
-    if (response.errorCode === "BAD_REQUEST") {
-      setSubmitErrorCode("invalid-token-or-password");
-    } else {
+      const response = await confirmEmailChange({
+        token,
+        password: value.password,
+      });
+
+      if (response.ok) {
+        if (response.data.session?.user.id) {
+          router.replace("/dashboard");
+          return;
+        }
+
+        router.replace("/login");
+        return;
+      }
+
+      if (response.errorCode === "BAD_REQUEST") {
+        setSubmitErrorCode("invalid-token-or-password");
+        return;
+      }
+
       setSubmitErrorCode("generic");
-    }
+    },
+  });
 
-    setIsSubmitting(false);
+  function clearSubmitErrorCode() {
+    if (submitErrorCode) {
+      setSubmitErrorCode(null);
+    }
   }
 
   return (
     <div {...props} className={cn("@container w-full", className)}>
-      <form onSubmit={handleSubmit}>
-        <FieldGroup>
-          <FieldDescription>{t("description")}</FieldDescription>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <form.Subscribe
+          selector={(state) => ({
+            isSubmitting: state.isSubmitting,
+            submissionAttempts: state.submissionAttempts,
+          })}
+        >
+          {({ isSubmitting, submissionAttempts }) => (
+            <FieldGroup>
+              <FieldDescription>{t("description")}</FieldDescription>
 
-          <Field data-invalid={isPasswordInvalid}>
-            <FieldLabel htmlFor="confirm-email-change-password">
-              {t("fields.password.label")}
-            </FieldLabel>
-            <PasswordInput
-              id="confirm-email-change-password"
-              name="confirm-email-change-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder={t("fields.password.placeholder")}
-              aria-invalid={isPasswordInvalid}
-              autoComplete="current-password"
-              required
-              showPasswordLabel={t("passwordVisibility.show")}
-              hidePasswordLabel={t("passwordVisibility.hide")}
-            />
-            <FieldDescription>{t("fields.password.description")}</FieldDescription>
-          </Field>
+              <form.Field name="password">
+                {(field) => {
+                  const isInvalid =
+                    (field.state.meta.isTouched || submissionAttempts > 0) &&
+                    !field.state.meta.isValid;
 
-          <Button type="submit" disabled={isSubmitting || !token} size="lg" className="w-full">
-            {isSubmitting ? <Spinner /> : <MailCheckIcon aria-hidden="true" className="size-4" />}
-            {isSubmitting ? t("submit.pending") : t("submit.default")}
-          </Button>
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={`confirm-email-change-${field.name}`}>
+                        {t("fields.password.label")}
+                      </FieldLabel>
+                      <PasswordInput
+                        id={`confirm-email-change-${field.name}`}
+                        name={`confirm-email-change-${field.name}`}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => {
+                          clearSubmitErrorCode();
+                          field.handleChange(event.target.value);
+                        }}
+                        placeholder={t("fields.password.placeholder")}
+                        aria-invalid={isInvalid}
+                        autoComplete="current-password"
+                        showPasswordLabel={t("passwordVisibility.show")}
+                        hidePasswordLabel={t("passwordVisibility.hide")}
+                      />
+                      <FieldDescription>{t("fields.password.description")}</FieldDescription>
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  );
+                }}
+              </form.Field>
 
-          {!token && (
-            <Alert variant="destructive">
-              <AlertCircleIcon aria-hidden="true" className="size-4" />
-              <AlertTitle>{t("status.error.title")}</AlertTitle>
-              <AlertDescription>
-                {t("status.error.invalidOrExpiredTokenOrPassword")}
-              </AlertDescription>
-            </Alert>
+              <Button type="submit" disabled={isSubmitting || !token} size="lg" className="w-full">
+                {isSubmitting ? <Spinner /> : <MailCheckIcon aria-hidden="true" className="size-4" />}
+                {isSubmitting ? t("submit.pending") : t("submit.default")}
+              </Button>
+
+              {!token && (
+                <Alert variant="destructive">
+                  <AlertCircleIcon aria-hidden="true" className="size-4" />
+                  <AlertTitle>{t("status.error.title")}</AlertTitle>
+                  <AlertDescription>
+                    {t("status.error.invalidOrExpiredTokenOrPassword")}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {submitErrorMessage && (
+                <Alert variant="destructive">
+                  <AlertCircleIcon aria-hidden="true" className="size-4" />
+                  <AlertTitle>{t("status.error.title")}</AlertTitle>
+                  <AlertDescription>{submitErrorMessage}</AlertDescription>
+                </Alert>
+              )}
+            </FieldGroup>
           )}
-
-          {submitErrorMessage && (
-            <Alert variant="destructive">
-              <AlertCircleIcon aria-hidden="true" className="size-4" />
-              <AlertTitle>{t("status.error.title")}</AlertTitle>
-              <AlertDescription>{submitErrorMessage}</AlertDescription>
-            </Alert>
-          )}
-        </FieldGroup>
+        </form.Subscribe>
       </form>
     </div>
   );
 }
 
 function getSubmitErrorMessage(errorCode: SubmitErrorCode, t: (key: string) => string) {
-  if (errorCode === "password-required") {
-    return t("validation.passwordRequired");
-  }
-
   if (errorCode === "invalid-token-or-password") {
     return t("status.error.invalidOrExpiredTokenOrPassword");
   }

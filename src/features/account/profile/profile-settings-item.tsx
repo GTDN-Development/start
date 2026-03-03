@@ -1,6 +1,8 @@
 "use client";
 
-import * as React from "react";
+import { useForm } from "@tanstack/react-form";
+import { useId, useState } from "react";
+import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useAccountProfile } from "@/features/account/account-profile-context";
@@ -23,126 +25,155 @@ import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon } from "lucide-react";
 
 const MAX_PROFILE_NAME_LENGTH = 32;
+type ProfileNameFormValues = {
+  name: string;
+};
 
 export function AccountDisplayNameSettingsItem() {
   const t = useTranslations("pages.account");
   const { profile, patchProfile } = useAccountProfile();
-  const nameToastId = React.useId();
-  const [nameValue, setNameValue] = React.useState(profile.name ?? "");
-  const [nameStatus, setNameStatus] = React.useState<InlineStatus>(null);
-  const [showNameFieldValidation, setShowNameFieldValidation] = React.useState(false);
-  const [isSavingName, setIsSavingName] = React.useState(false);
+  const nameToastId = useId();
+  const [nameStatus, setNameStatus] = useState<InlineStatus>(null);
+  const profileNameSchema = z.object({
+    name: z.string().trim().max(MAX_PROFILE_NAME_LENGTH, {
+      message: t("profile.fields.name.errors.max", {
+        max: String(MAX_PROFILE_NAME_LENGTH),
+      }),
+    }),
+  });
 
-  const trimmedNameValue = nameValue.trim();
-  const isNameTooLong = trimmedNameValue.length > MAX_PROFILE_NAME_LENGTH;
-  const nameFieldError =
-    showNameFieldValidation && isNameTooLong
-      ? t("profile.fields.name.errors.max", {
-          max: String(MAX_PROFILE_NAME_LENGTH),
-        })
-      : null;
+  const form = useForm({
+    defaultValues: {
+      name: profile.name ?? "",
+    },
+    validators: {
+      onSubmit: profileNameSchema,
+    },
+    onSubmit: async ({ value }: { value: ProfileNameFormValues }) => {
+      setNameStatus(null);
 
-  function handleNameInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setNameValue(event.target.value);
+      const response = await updateAccountProfile({
+        name: value.name.trim(),
+      });
 
+      if (response.ok) {
+        const nextName = response.data.profile.name ?? "";
+        patchProfile(response.data.profile);
+        form.reset();
+        form.setFieldValue("name", nextName);
+        toast.success(t("common.successTitle"), {
+          id: nameToastId,
+          description: t("profile.status.savedMessage"),
+        });
+        return;
+      }
+
+      if (response.errorCode === "UNAUTHORIZED") {
+        setNameStatus({
+          kind: "error",
+          message: t("profile.status.unauthorizedMessage"),
+        });
+        return;
+      }
+
+      if (response.errorCode === "BAD_REQUEST" || response.errorCode === "VALIDATION_ERROR") {
+        setNameStatus({
+          kind: "error",
+          message: t("profile.status.invalidInputMessage"),
+        });
+        return;
+      }
+
+      setNameStatus({
+        kind: "error",
+        message: t("profile.status.errorMessage"),
+      });
+    },
+  });
+
+  function clearNameStatus() {
     if (nameStatus) {
       setNameStatus(null);
     }
   }
 
-  async function handleNameSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setShowNameFieldValidation(true);
-
-    if (isNameTooLong) {
-      setNameStatus(null);
-      return;
-    }
-
-    setIsSavingName(true);
-    setNameStatus(null);
-
-    const response = await updateAccountProfile({
-      name: trimmedNameValue,
-    });
-
-    if (response.ok) {
-      patchProfile(response.data.profile);
-      setNameValue(response.data.profile.name ?? "");
-      toast.success(t("common.successTitle"), {
-        id: nameToastId,
-        description: t("profile.status.savedMessage"),
-      });
-    } else if (response.errorCode === "UNAUTHORIZED") {
-      setNameStatus({
-        kind: "error",
-        message: t("profile.status.unauthorizedMessage"),
-      });
-    } else if (response.errorCode === "BAD_REQUEST" || response.errorCode === "VALIDATION_ERROR") {
-      setNameStatus({
-        kind: "error",
-        message: t("profile.status.invalidInputMessage"),
-      });
-    } else {
-      setNameStatus({
-        kind: "error",
-        message: t("profile.status.errorMessage"),
-      });
-    }
-
-    setIsSavingName(false);
-  }
-
   return (
     <AccountItem>
-      <form onSubmit={handleNameSubmit}>
-        <AccountItemContent className="flex flex-col gap-6">
-          <AccountItemContentHeader>
-            <AccountItemTitle>{t("profile.title")}</AccountItemTitle>
-            <AccountItemDescription>{t("profile.description")}</AccountItemDescription>
-          </AccountItemContentHeader>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <form.Subscribe
+          selector={(state) => ({
+            isSubmitting: state.isSubmitting,
+            submissionAttempts: state.submissionAttempts,
+          })}
+        >
+          {({ isSubmitting, submissionAttempts }) => (
+            <>
+              <AccountItemContent className="flex flex-col gap-6">
+                <AccountItemContentHeader>
+                  <AccountItemTitle>{t("profile.title")}</AccountItemTitle>
+                  <AccountItemDescription>{t("profile.description")}</AccountItemDescription>
+                </AccountItemContentHeader>
 
-          <AccountItemContentBody>
-            <div className="grid gap-4">
-              <Field
-                data-invalid={Boolean(nameFieldError) || nameStatus?.kind === "error"}
-                className="grid max-w-md gap-2"
-              >
-                <FieldLabel htmlFor="account-profile-name">
-                  {t("profile.fields.name.label")}
-                </FieldLabel>
-                <Input
-                  id="account-profile-name"
-                  name="account-profile-name"
-                  value={nameValue}
-                  onChange={handleNameInputChange}
-                  onBlur={() => setShowNameFieldValidation(true)}
-                  placeholder={t("profile.fields.name.placeholder")}
-                  autoComplete="name"
-                  aria-invalid={Boolean(nameFieldError) || nameStatus?.kind === "error"}
-                />
-                <FieldDescription>{t("profile.fields.name.description")}</FieldDescription>
-                {nameFieldError && <FieldError>{nameFieldError}</FieldError>}
-              </Field>
+                <AccountItemContentBody>
+                  <div className="grid gap-4">
+                    <form.Field name="name">
+                      {(field) => {
+                        const hasFieldError =
+                          (field.state.meta.isTouched || submissionAttempts > 0) &&
+                          !field.state.meta.isValid;
+                        const isInvalid = hasFieldError || nameStatus?.kind === "error";
 
-              {nameStatus?.kind === "error" ? (
-                <Alert variant="destructive" className="py-2">
-                  <AlertCircleIcon aria-hidden="true" className="size-4" />
-                  <AlertTitle>{t("common.errorTitle")}</AlertTitle>
-                  <AlertDescription>{nameStatus.message}</AlertDescription>
-                </Alert>
-              ) : null}
-            </div>
-          </AccountItemContentBody>
-        </AccountItemContent>
+                        return (
+                          <Field data-invalid={isInvalid} className="grid max-w-md gap-2">
+                            <FieldLabel htmlFor={`account-profile-${field.name}`}>
+                              {t("profile.fields.name.label")}
+                            </FieldLabel>
+                            <Input
+                              id={`account-profile-${field.name}`}
+                              name={`account-profile-${field.name}`}
+                              value={field.state.value}
+                              onBlur={field.handleBlur}
+                              onChange={(event) => {
+                                clearNameStatus();
+                                field.handleChange(event.target.value);
+                              }}
+                              placeholder={t("profile.fields.name.placeholder")}
+                              autoComplete="name"
+                              aria-invalid={isInvalid}
+                            />
+                            <FieldDescription>{t("profile.fields.name.description")}</FieldDescription>
+                            {hasFieldError && <FieldError errors={field.state.meta.errors} />}
+                          </Field>
+                        );
+                      }}
+                    </form.Field>
 
-        <AccountItemFooter>
-          <AccountItemDescription>{t("profile.footerHint")}</AccountItemDescription>
-          <Button type="submit" size="lg" disabled={isSavingName} className="sm:self-end">
-            {isSavingName ? <Spinner /> : null}
-            {isSavingName ? t("profile.submit.pending") : t("profile.submit.default")}
-          </Button>
-        </AccountItemFooter>
+                    {nameStatus?.kind === "error" && (
+                      <Alert variant="destructive" className="py-2">
+                        <AlertCircleIcon aria-hidden="true" className="size-4" />
+                        <AlertTitle>{t("common.errorTitle")}</AlertTitle>
+                        <AlertDescription>{nameStatus.message}</AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
+                </AccountItemContentBody>
+              </AccountItemContent>
+
+              <AccountItemFooter>
+                <AccountItemDescription>{t("profile.footerHint")}</AccountItemDescription>
+                <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
+                  {isSubmitting && <Spinner />}
+                  {isSubmitting ? t("profile.submit.pending") : t("profile.submit.default")}
+                </Button>
+              </AccountItemFooter>
+            </>
+          )}
+        </form.Subscribe>
       </form>
     </AccountItem>
   );

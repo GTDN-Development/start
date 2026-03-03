@@ -1,19 +1,26 @@
 "use client";
 
+import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
+import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { resetPasswordWithToken } from "@/features/auth/auth-client";
 import { setAuthFlash } from "@/features/auth/auth-flash";
+import { createAuthPasswordSchema } from "@/features/auth/auth-schemas";
 import { AlertCircleIcon, KeyRoundIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type SubmitErrorCode = "invalid-token" | "password" | "password-mismatch" | "generic" | null;
+type SubmitErrorCode = "invalid-token" | "password" | "generic" | null;
+type ResetPasswordFormValues = {
+  password: string;
+  confirmPassword: string;
+};
 
 export function ResetPasswordForm({
   token,
@@ -24,123 +31,183 @@ export function ResetPasswordForm({
 }) {
   const t = useTranslations("forms.resetPassword");
   const router = useRouter();
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitErrorCode, setSubmitErrorCode] = useState<SubmitErrorCode>(null);
   const submitErrorMessage = getSubmitErrorMessage(submitErrorCode, t);
-  const isPasswordInvalid = submitErrorCode === "password";
-  const isConfirmPasswordInvalid = submitErrorCode === "password-mismatch";
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!token) {
-      setSubmitErrorCode("invalid-token");
-      return;
-    }
-
-    if (password.length < 8 || confirmPassword.length < 8) {
-      setSubmitErrorCode("password");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setSubmitErrorCode("password-mismatch");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setSubmitErrorCode(null);
-
-    const response = await resetPasswordWithToken({
-      token,
-      password,
-      confirmPassword,
+  const resetPasswordFormSchema = z
+    .object({
+      password: createAuthPasswordSchema({
+        min: t("validation.password"),
+      }),
+      confirmPassword: createAuthPasswordSchema({
+        min: t("validation.password"),
+      }),
+    })
+    .superRefine((values, context) => {
+      if (values.password !== values.confirmPassword) {
+        context.addIssue({
+          code: "custom",
+          path: ["confirmPassword"],
+          message: t("validation.passwordMismatch"),
+        });
+      }
     });
 
-    if (response.ok) {
-      setAuthFlash("password-reset");
-      router.replace("/login");
-      return;
-    }
+  const form = useForm({
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+    validators: {
+      onSubmit: resetPasswordFormSchema,
+    },
+    onSubmit: async ({ value }: { value: ResetPasswordFormValues }) => {
+      if (!token) {
+        setSubmitErrorCode("invalid-token");
+        return;
+      }
 
-    if (response.errorCode === "BAD_REQUEST") {
-      setSubmitErrorCode("invalid-token");
-    } else if (
-      response.errorCode === "WEAK_PASSWORD" ||
-      response.errorCode === "VALIDATION_ERROR"
-    ) {
-      setSubmitErrorCode("password");
-    } else {
+      setSubmitErrorCode(null);
+
+      const response = await resetPasswordWithToken({
+        token,
+        password: value.password,
+        confirmPassword: value.confirmPassword,
+      });
+
+      if (response.ok) {
+        setAuthFlash("password-reset");
+        router.replace("/login");
+        return;
+      }
+
+      if (response.errorCode === "BAD_REQUEST") {
+        setSubmitErrorCode("invalid-token");
+        return;
+      }
+
+      if (
+        response.errorCode === "WEAK_PASSWORD" ||
+        response.errorCode === "VALIDATION_ERROR"
+      ) {
+        setSubmitErrorCode("password");
+        return;
+      }
+
       setSubmitErrorCode("generic");
-    }
+    },
+  });
 
-    setIsSubmitting(false);
+  function clearSubmitErrorCode() {
+    if (submitErrorCode) {
+      setSubmitErrorCode(null);
+    }
   }
 
   return (
     <div {...props} className={cn("@container w-full", className)}>
-      <form onSubmit={handleSubmit}>
-        <FieldGroup>
-          <Field data-invalid={isPasswordInvalid}>
-            <FieldLabel htmlFor="reset-password-password">{t("fields.password.label")}</FieldLabel>
-            <PasswordInput
-              id="reset-password-password"
-              name="reset-password-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder={t("fields.password.placeholder")}
-              required
-              minLength={8}
-              autoComplete="new-password"
-              aria-invalid={isPasswordInvalid}
-              showPasswordLabel={t("passwordVisibility.show")}
-              hidePasswordLabel={t("passwordVisibility.hide")}
-            />
-            <FieldDescription>{t("fields.password.description")}</FieldDescription>
-          </Field>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <form.Subscribe
+          selector={(state) => ({
+            isSubmitting: state.isSubmitting,
+            submissionAttempts: state.submissionAttempts,
+          })}
+        >
+          {({ isSubmitting, submissionAttempts }) => (
+            <FieldGroup>
+              <form.Field name="password">
+                {(field) => {
+                  const hasFieldError =
+                    (field.state.meta.isTouched || submissionAttempts > 0) &&
+                    !field.state.meta.isValid;
+                  const isInvalid = hasFieldError || submitErrorCode === "password";
 
-          <Field data-invalid={isConfirmPasswordInvalid}>
-            <FieldLabel htmlFor="reset-password-confirm-password">
-              {t("fields.confirmPassword.label")}
-            </FieldLabel>
-            <PasswordInput
-              id="reset-password-confirm-password"
-              name="reset-password-confirm-password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              placeholder={t("fields.confirmPassword.placeholder")}
-              required
-              minLength={8}
-              autoComplete="new-password"
-              aria-invalid={isConfirmPasswordInvalid}
-              showPasswordLabel={t("passwordVisibility.show")}
-              hidePasswordLabel={t("passwordVisibility.hide")}
-            />
-          </Field>
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={`reset-password-${field.name}`}>
+                        {t("fields.password.label")}
+                      </FieldLabel>
+                      <PasswordInput
+                        id={`reset-password-${field.name}`}
+                        name={`reset-password-${field.name}`}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => {
+                          clearSubmitErrorCode();
+                          field.handleChange(event.target.value);
+                        }}
+                        placeholder={t("fields.password.placeholder")}
+                        autoComplete="new-password"
+                        aria-invalid={isInvalid}
+                        showPasswordLabel={t("passwordVisibility.show")}
+                        hidePasswordLabel={t("passwordVisibility.hide")}
+                      />
+                      <FieldDescription>{t("fields.password.description")}</FieldDescription>
+                      {hasFieldError && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  );
+                }}
+              </form.Field>
 
-          <Button type="submit" disabled={isSubmitting || !token} size="lg" className="w-full">
-            {isSubmitting ? <Spinner /> : <KeyRoundIcon aria-hidden="true" className="size-4" />}
-            {isSubmitting ? t("submit.pending") : t("submit.default")}
-          </Button>
+              <form.Field name="confirmPassword">
+                {(field) => {
+                  const isInvalid =
+                    (field.state.meta.isTouched || submissionAttempts > 0) &&
+                    !field.state.meta.isValid;
 
-          {!token && (
-            <Alert variant="destructive">
-              <AlertCircleIcon aria-hidden="true" className="size-4" />
-              <AlertTitle>{t("status.error.title")}</AlertTitle>
-              <AlertDescription>{t("status.error.invalidOrExpiredToken")}</AlertDescription>
-            </Alert>
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={`reset-password-${field.name}`}>
+                        {t("fields.confirmPassword.label")}
+                      </FieldLabel>
+                      <PasswordInput
+                        id={`reset-password-${field.name}`}
+                        name={`reset-password-${field.name}`}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => {
+                          clearSubmitErrorCode();
+                          field.handleChange(event.target.value);
+                        }}
+                        placeholder={t("fields.confirmPassword.placeholder")}
+                        autoComplete="new-password"
+                        aria-invalid={isInvalid}
+                        showPasswordLabel={t("passwordVisibility.show")}
+                        hidePasswordLabel={t("passwordVisibility.hide")}
+                      />
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  );
+                }}
+              </form.Field>
+
+              <Button type="submit" disabled={isSubmitting || !token} size="lg" className="w-full">
+                {isSubmitting ? <Spinner /> : <KeyRoundIcon aria-hidden="true" className="size-4" />}
+                {isSubmitting ? t("submit.pending") : t("submit.default")}
+              </Button>
+
+              {!token && (
+                <Alert variant="destructive">
+                  <AlertCircleIcon aria-hidden="true" className="size-4" />
+                  <AlertTitle>{t("status.error.title")}</AlertTitle>
+                  <AlertDescription>{t("status.error.invalidOrExpiredToken")}</AlertDescription>
+                </Alert>
+              )}
+
+              {submitErrorMessage && (
+                <Alert variant="destructive">
+                  <AlertCircleIcon aria-hidden="true" className="size-4" />
+                  <AlertTitle>{t("status.error.title")}</AlertTitle>
+                  <AlertDescription>{submitErrorMessage}</AlertDescription>
+                </Alert>
+              )}
+            </FieldGroup>
           )}
-
-          {submitErrorMessage && (
-            <Alert variant="destructive">
-              <AlertCircleIcon aria-hidden="true" className="size-4" />
-              <AlertTitle>{t("status.error.title")}</AlertTitle>
-              <AlertDescription>{submitErrorMessage}</AlertDescription>
-            </Alert>
-          )}
-        </FieldGroup>
+        </form.Subscribe>
       </form>
     </div>
   );
@@ -153,10 +220,6 @@ function getSubmitErrorMessage(errorCode: SubmitErrorCode, t: (key: string) => s
 
   if (errorCode === "password") {
     return t("validation.password");
-  }
-
-  if (errorCode === "password-mismatch") {
-    return t("validation.passwordMismatch");
   }
 
   if (errorCode === "generic") {
