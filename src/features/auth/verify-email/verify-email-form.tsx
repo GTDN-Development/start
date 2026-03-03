@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { verifyEmailToken } from "@/features/auth/auth-client";
+import { setAuthFlash } from "@/features/auth/auth-flash";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +43,7 @@ export function VerifyEmailForm({
         return;
       }
 
+      setAuthFlash("email-verified");
       router.replace("/login");
       return;
     }

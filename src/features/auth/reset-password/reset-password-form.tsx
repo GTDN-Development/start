@@ -9,6 +9,7 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { resetPasswordWithToken } from "@/features/auth/auth-client";
+import { setAuthFlash } from "@/features/auth/auth-flash";
 import { AlertCircleIcon, KeyRoundIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -59,6 +60,7 @@ export function ResetPasswordForm({
     });
 
     if (response.ok) {
+      setAuthFlash("password-reset");
       router.replace("/login");
       return;
     }

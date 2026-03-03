@@ -43,6 +43,10 @@ export type ResetPasswordPayload = {
   passwordReset: true;
 };
 
+export type RequestPasswordResetPayload = {
+  sent: true;
+};
+
 export type RequestEmailVerificationPayload = {
   sent: true;
 };
@@ -74,6 +78,7 @@ export type SignOutResponse = AuthResponse<AuthSignOutPayload>;
 export type SessionResponse = AuthResponse<AuthSessionPayload>;
 export type VerifyEmailResponse = AuthResponse<VerifyEmailPayload>;
 export type ResetPasswordResponse = AuthResponse<ResetPasswordPayload>;
+export type RequestPasswordResetResponse = AuthResponse<RequestPasswordResetPayload>;
 export type RequestEmailVerificationResponse = AuthResponse<RequestEmailVerificationPayload>;
 export type RequestEmailChangeResponse = AuthResponse<RequestEmailChangePayload>;
 export type ConfirmEmailChangeResponse = AuthResponse<ConfirmEmailChangePayload>;

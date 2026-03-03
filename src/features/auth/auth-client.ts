@@ -13,6 +13,8 @@ import type {
   RequestEmailChangeResponse,
   RequestEmailVerificationPayload,
   RequestEmailVerificationResponse,
+  RequestPasswordResetPayload,
+  RequestPasswordResetResponse,
   ResetPasswordPayload,
   ResetPasswordResponse,
   AuthSignOutPayload,
@@ -32,6 +34,7 @@ const SIGN_OUT_ENDPOINT_PATH = "/api/auth/sign-out";
 const VERIFY_EMAIL_ENDPOINT_PATH = "/api/auth/verify-email";
 const RESET_PASSWORD_ENDPOINT_PATH = "/api/auth/reset-password";
 const REQUEST_EMAIL_VERIFICATION_ENDPOINT_PATH = "/api/auth/request-email-verification";
+const REQUEST_PASSWORD_RESET_ENDPOINT_PATH = "/api/auth/request-password-reset";
 const REQUEST_EMAIL_CHANGE_ENDPOINT_PATH = "/api/auth/request-email-change";
 const CONFIRM_EMAIL_CHANGE_ENDPOINT_PATH = "/api/auth/confirm-email-change";
 
@@ -168,6 +171,16 @@ export async function resetPasswordWithToken(
   }
 
   return response;
+}
+
+export async function requestPasswordReset(email: string): Promise<RequestPasswordResetResponse> {
+  return requestAuthEndpoint<RequestPasswordResetPayload>(REQUEST_PASSWORD_RESET_ENDPOINT_PATH, {
+    method: "POST",
+    body: JSON.stringify({ email }),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
 }
 
 export async function requestEmailVerification(): Promise<RequestEmailVerificationResponse> {

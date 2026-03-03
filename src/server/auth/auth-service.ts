@@ -8,6 +8,7 @@ import type {
   AuthSessionPayload,
   RequestEmailChangePayload,
   RequestEmailVerificationPayload,
+  RequestPasswordResetPayload,
   ResetPasswordPayload,
   AuthSignOutPayload,
   VerifyEmailPayload,
@@ -237,6 +238,37 @@ export async function confirmPasswordResetToken(input: {
       ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
     };
   }
+}
+
+export async function requestPasswordResetForEmail(
+  email: string
+): Promise<ServerAuthResponse<RequestPasswordResetPayload>> {
+  const { pb } = await createPocketBaseServerClient();
+
+  try {
+    await pb.collection("users").requestPasswordReset(email);
+  } catch (error) {
+    // Always return success to prevent email enumeration.
+    // Only propagate rate-limiting so the UI can inform the user.
+    if (error instanceof ClientResponseError && error.status === 429) {
+      return {
+        ok: false,
+        errorCode: "RATE_LIMITED",
+      };
+    }
+
+    // Log unexpected errors but still return success to the client.
+    if (!(error instanceof ClientResponseError) || (error.status !== 400 && error.status !== 404)) {
+      logAuthServiceError("requestPasswordResetForEmail", error);
+    }
+  }
+
+  return {
+    ok: true,
+    data: {
+      sent: true,
+    },
+  };
 }
 
 export async function requestEmailVerificationForCurrentUser(): Promise<

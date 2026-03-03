@@ -8,6 +8,7 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircleIcon, MailIcon } from "lucide-react";
+import { requestPasswordReset } from "@/features/auth/auth-client";
 import { cn } from "@/lib/utils";
 
 export function ForgotPasswordForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -25,20 +26,21 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: "" });
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
+    const response = await requestPasswordReset(email);
+
+    if (response.ok) {
       setSubmitStatus({
         type: "success",
         message: t("status.success.message"),
       });
-    } catch {
+    } else {
       setSubmitStatus({
         type: "error",
         message: t("status.error.message"),
       });
-    } finally {
-      setIsSubmitting(false);
     }
+
+    setIsSubmitting(false);
   }
 
   return (
