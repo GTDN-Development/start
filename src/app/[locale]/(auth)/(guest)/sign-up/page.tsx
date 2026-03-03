@@ -51,7 +51,10 @@ export default async function Page({ params }: PageProps<"/[locale]/sign-up">) {
         <SignUpForm />
         <p className="text-muted-foreground mt-6 text-sm">
           {t("alreadyHaveAccount")}{" "}
-          <Link href="/sign-in" className="underline decoration-current/30 hover:decoration-current">
+          <Link
+            href="/sign-in"
+            className="underline decoration-current/30 hover:decoration-current"
+          >
             {t("signIn")}
           </Link>
           .

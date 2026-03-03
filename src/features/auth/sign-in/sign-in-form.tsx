@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 
 export function SignInForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.signIn");
+  const tPage = useTranslations("pages.signIn");
   const router = useRouter();
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
 
@@ -107,9 +108,19 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
                     !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={`sign-in-${field.name}`}>
-                        {t("fields.password.label")}
-                      </FieldLabel>
+                      <div className="flex justify-between">
+                        <FieldLabel htmlFor={`sign-in-${field.name}`}>
+                          {t("fields.password.label")}
+                        </FieldLabel>
+                        <p className="text-sm">
+                          <Link
+                            href="/forgot-password"
+                            className="underline decoration-current/30 hover:decoration-current"
+                          >
+                            {tPage("forgotPassword")}
+                          </Link>
+                        </p>
+                      </div>
                       <PasswordInput
                         id={`sign-in-${field.name}`}
                         name={`sign-in-${field.name}`}

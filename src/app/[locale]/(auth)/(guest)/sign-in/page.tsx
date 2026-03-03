@@ -51,15 +51,6 @@ export default async function Page({ params }: PageProps<"/[locale]/sign-in">) {
       <div className="mt-6 pt-6">
         <SignInFlashToast />
         <SignInForm />
-        <p className="mt-4 text-sm">
-          <Link
-            href="/forgot-password"
-            className="underline decoration-current/30 hover:decoration-current"
-          >
-            {t("forgotPassword")}
-          </Link>
-          .
-        </p>
         <p className="text-muted-foreground mt-6 text-sm">
           {t("newHere")}{" "}
           <Link
