@@ -29,7 +29,7 @@
 - Update packages and add security patches.
 - Introduced App Router route groups for marketing/auth/dev and mirrored component structure.
 - Added dev-only component + color playground pages with production guard.
-- Added login/sign-up pages, forms, and stub API routes.
+- Added sign-in/sign-up pages, forms, and stub API routes.
 - Updated overall folder structure and reflect the changes inside `AGENTS.md`
 
 ## 26-01-12

@@ -76,7 +76,7 @@ export function ResetPasswordForm({
 
       if (response.ok) {
         setAuthFlash("password-reset");
-        router.replace("/login");
+        router.replace("/sign-in");
         return;
       }
 

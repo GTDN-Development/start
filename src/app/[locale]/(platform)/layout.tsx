@@ -66,15 +66,15 @@ export default async function Layout({ children, params }: PlatformRouteLayoutPr
       user={user}
       locale={locale}
       labels={{
-        dashboard: tNavigation("dashboard"),
+        overview: tNavigation("overview"),
         userMenu: {
           account: tNavigation("account"),
           accountPage: tNavigation("account"),
           home: tNavigation("home"),
-          dashboard: tNavigation("dashboard"),
+          overview: tNavigation("overview"),
           emailNotVerified: tPlatform("emailNotVerified"),
           emailVerified: tPlatform("emailVerified"),
-          logout: tPlatform("logout"),
+          signOut: tPlatform("signOut"),
         },
       }}
     >

@@ -51,8 +51,8 @@ export default async function Page({ params }: PageProps<"/[locale]/forgot-passw
       <div className="mt-6 pt-6">
         <ForgotPasswordForm />
         <p className="text-muted-foreground mt-6 text-sm">
-          <Link href="/login" className="underline decoration-current/30 hover:decoration-current">
-            {t("backToLogin")}
+          <Link href="/sign-in" className="underline decoration-current/30 hover:decoration-current">
+            {t("backToSignIn")}
           </Link>
           .
         </p>

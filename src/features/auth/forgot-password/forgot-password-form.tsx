@@ -19,7 +19,7 @@ type ForgotPasswordFormValues = {
 
 export function ForgotPasswordForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.forgotPassword");
-  const tLoginValidation = useTranslations("forms.login.validation");
+  const tSignInValidation = useTranslations("forms.signIn.validation");
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
@@ -27,7 +27,7 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
 
   const forgotPasswordFormSchema = z.object({
     email: z.email({
-      message: tLoginValidation("email"),
+      message: tSignInValidation("email"),
     }),
   });
 

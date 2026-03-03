@@ -156,17 +156,17 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
   const t = useTranslations("layout.header");
   const tNav = useTranslations("layout.navigation.items");
   const tPlatform = useTranslations("layout.platform");
-  const loginMenuItem = authMenu.find((item) => item.labelKey === "login");
+  const signInMenuItem = authMenu.find((item) => item.labelKey === "signIn");
   const signUpMenuItem = authMenu.find((item) => item.labelKey === "signUp");
   const viewerDisplayName = getViewerDisplayName(viewer);
   const userMenuLabels: UserAccountMenuLabels = {
     account: tNav("account"),
     accountPage: tNav("account"),
     home: tNav("home"),
-    dashboard: tNav("dashboard"),
+    overview: tNav("overview"),
     emailNotVerified: tPlatform("emailNotVerified"),
     emailVerified: tPlatform("emailVerified"),
-    logout: tPlatform("logout"),
+    signOut: tPlatform("signOut"),
   };
 
   return (
@@ -212,15 +212,15 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
               </li>
             ) : (
               <>
-                {loginMenuItem && (
+                {signInMenuItem && (
                   <li>
                     <Button
                       variant="ghost"
                       size="lg"
                       nativeButton={false}
-                      render={<Link href={loginMenuItem.href} />}
+                      render={<Link href={signInMenuItem.href} />}
                     >
-                      {tNav(loginMenuItem.labelKey)}
+                      {tNav(signInMenuItem.labelKey)}
                     </Button>
                   </li>
                 )}
@@ -294,7 +294,7 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
                             {tNav(signUpMenuItem.labelKey)}
                           </MobileMenuClose>
                         )}
-                        {loginMenuItem && (
+                        {signInMenuItem && (
                           <MobileMenuClose
                             render={
                               <Button
@@ -302,11 +302,11 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
                                 size="lg"
                                 className="w-full"
                                 nativeButton={false}
-                                render={<Link href={loginMenuItem.href} />}
+                                render={<Link href={signInMenuItem.href} />}
                               />
                             }
                           >
-                            {tNav(loginMenuItem.labelKey)}
+                            {tNav(signInMenuItem.labelKey)}
                           </MobileMenuClose>
                         )}
                       </>

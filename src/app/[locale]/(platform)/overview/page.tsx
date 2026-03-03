@@ -8,26 +8,26 @@ import {
   PlatformHeroContent,
   PlatformHeroDescription,
   PlatformHeroTitle,
-} from "@/features/platform/dashboard/platform-hero";
+} from "@/features/platform/overview/platform-hero";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
-export async function generateMetadata(props: PageProps<"/[locale]/dashboard">): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.dashboard",
+    namespace: "pages.overview",
   });
 
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    pathname: "/dashboard",
+    pathname: "/overview",
   });
 }
 
-export default async function Page({ params }: PageProps<"/[locale]/dashboard">) {
+export default async function Page({ params }: PageProps<"/[locale]/overview">) {
   const { locale } = await params;
 
   // Enable static rendering
@@ -35,7 +35,7 @@ export default async function Page({ params }: PageProps<"/[locale]/dashboard">)
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.dashboard",
+    namespace: "pages.overview",
   });
 
   return (
@@ -48,13 +48,13 @@ export default async function Page({ params }: PageProps<"/[locale]/dashboard">)
       </PlatformHero>
 
       <Container size="xl" className="space-y-16 pb-24">
-        {/* Dashboard content goes here */}
+        {/* Overview content goes here */}
         <Placeholder>
-          <PlaceholderTitle>Dashboard Content</PlaceholderTitle>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
         </Placeholder>
 
         <Placeholder>
-          <PlaceholderTitle>Dashboard Content</PlaceholderTitle>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
         </Placeholder>
       </Container>
     </div>

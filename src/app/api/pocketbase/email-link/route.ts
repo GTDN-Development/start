@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const locale = resolveLocale(request);
   const action = parseEmailLinkAction(request.nextUrl.searchParams.get("action"));
   const token = parseToken(request.nextUrl.searchParams.get("token"));
-  const targetRoute: AppPathname = action ? EMAIL_LINK_ACTION_TARGETS[action] : "/login";
+  const targetRoute: AppPathname = action ? EMAIL_LINK_ACTION_TARGETS[action] : "/sign-in";
   const localizedPathname = getPathname({
     href: targetRoute,
     locale,

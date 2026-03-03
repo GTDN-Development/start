@@ -88,7 +88,7 @@ ale data čerpají ze **server-driven props**, ne z `useSession()`. Důvody:
 - **Session-aware header/nav** — zobrazení jména, avataru, stavu uživatele.
 - **Email verification banner** — `useEmailVerification()` je připravený hook,
   stačí ho mountnout v platform layoutu.
-- **Cross-tab logout** — odhlášení v jednom tabu okamžitě clearuje session v ostatních.
+- **Cross-tab sign-out** — odhlášení v jednom tabu okamžitě clearuje session v ostatních.
 - **Stale session detection** — návrat na tab po delší době odhalí revokovanou/expirovanou session.
 
 ## Rozhodnutí
@@ -96,5 +96,5 @@ ale data čerpají ze **server-driven props**, ne z `useSession()`. Důvody:
 Infrastruktura je záměrně ponechána v kódu jako pre-built základ. Odstranění by ušetřilo
 minimální komplexitu, ale vyžadovalo by reimplementaci ve chvíli, kdy session-aware UI
 bude potřeba. Headery zůstávají server-driven — `useSession()` se aktivuje až pro
-dlouhožijící interaktivní features (real-time dashboard, chat, collaborative editor),
+dlouhožijící interaktivní features (real-time overview, chat, collaborative editor),
 kde uživatel typicky nenaviguje a stale session = broken UX.

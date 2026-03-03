@@ -34,7 +34,7 @@ const MAX_PASSWORD_LENGTH = 100;
 
 export function AccountChangePasswordItem() {
   const t = useTranslations("pages.account");
-  const tPasswordVisibility = useTranslations("forms.login.passwordVisibility");
+  const tPasswordVisibility = useTranslations("forms.signIn.passwordVisibility");
   const [submitStatus, setSubmitStatus] = React.useState<InlineStatus>(null);
 
   const passwordFormSchema = getPasswordFormSchema(t);

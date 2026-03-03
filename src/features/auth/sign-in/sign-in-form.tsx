@@ -16,12 +16,12 @@ import { signIn } from "@/features/auth/auth-client";
 import { createSignInFormSchema, type SignInInput } from "@/features/auth/auth-schemas";
 import { cn } from "@/lib/utils";
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-  const t = useTranslations("forms.login");
+export function SignInForm({ className, ...props }: React.ComponentProps<"div">) {
+  const t = useTranslations("forms.signIn");
   const router = useRouter();
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
 
-  const loginFormSchema = createSignInFormSchema({
+  const signInFormSchema = createSignInFormSchema({
     email: t("validation.email"),
     passwordMin: t("validation.passwordMin"),
     passwordMax: t("validation.passwordMax"),
@@ -34,7 +34,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       rememberMe: false,
     },
     validators: {
-      onSubmit: loginFormSchema,
+      onSubmit: signInFormSchema,
     },
     onSubmit: async ({ value }: { value: SignInInput }) => {
       setSubmitErrorMessage(null);
@@ -42,7 +42,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       const response = await signIn(value);
 
       if (response.ok) {
-        router.replace("/dashboard");
+        router.replace("/overview");
         return;
       }
 
@@ -78,12 +78,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                     !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={`login-${field.name}`}>
+                      <FieldLabel htmlFor={`sign-in-${field.name}`}>
                         {t("fields.email.label")}
                       </FieldLabel>
                       <Input
-                        id={`login-${field.name}`}
-                        name={`login-${field.name}`}
+                        id={`sign-in-${field.name}`}
+                        name={`sign-in-${field.name}`}
                         type="email"
                         value={field.state.value}
                         onBlur={field.handleBlur}
@@ -105,12 +105,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                     !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={`login-${field.name}`}>
+                      <FieldLabel htmlFor={`sign-in-${field.name}`}>
                         {t("fields.password.label")}
                       </FieldLabel>
                       <PasswordInput
-                        id={`login-${field.name}`}
-                        name={`login-${field.name}`}
+                        id={`sign-in-${field.name}`}
+                        name={`sign-in-${field.name}`}
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -134,13 +134,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                   return (
                     <Field orientation="horizontal" data-invalid={isInvalid}>
                       <Checkbox
-                        id={`login-${field.name}`}
-                        name={`login-${field.name}`}
+                        id={`sign-in-${field.name}`}
+                        name={`sign-in-${field.name}`}
                         checked={field.state.value}
                         onCheckedChange={(checked) => field.handleChange(checked === true)}
                         aria-invalid={isInvalid}
                       />
-                      <FieldLabel htmlFor={`login-${field.name}`}>
+                      <FieldLabel htmlFor={`sign-in-${field.name}`}>
                         {t("fields.rememberMe.label")}
                       </FieldLabel>
                     </Field>

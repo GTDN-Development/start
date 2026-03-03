@@ -8,27 +8,27 @@ import {
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
-import { LoginFlashToast } from "@/features/auth/login/login-flash-toast";
-import { LoginForm } from "@/features/auth/login/login-form";
+import { SignInFlashToast } from "@/features/auth/sign-in/sign-in-flash-toast";
+import { SignInForm } from "@/features/auth/sign-in/sign-in-form";
 import { createPageMetadata } from "@/lib/metadata";
 
-export async function generateMetadata(props: PageProps<"/[locale]/login">): Promise<Metadata> {
+export async function generateMetadata(props: PageProps<"/[locale]/sign-in">): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.login",
+    namespace: "pages.signIn",
   });
 
   return createPageMetadata({
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    pathname: "/login",
+    pathname: "/sign-in",
   });
 }
 
-export default async function Page({ params }: PageProps<"/[locale]/login">) {
+export default async function Page({ params }: PageProps<"/[locale]/sign-in">) {
   const { locale } = await params;
 
   // Enable static rendering
@@ -36,7 +36,7 @@ export default async function Page({ params }: PageProps<"/[locale]/login">) {
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.login",
+    namespace: "pages.signIn",
   });
 
   return (
@@ -49,8 +49,8 @@ export default async function Page({ params }: PageProps<"/[locale]/login">) {
       </AuthHero>
 
       <div className="mt-6 pt-6">
-        <LoginFlashToast />
-        <LoginForm />
+        <SignInFlashToast />
+        <SignInForm />
         <p className="mt-4 text-sm">
           <Link
             href="/forgot-password"

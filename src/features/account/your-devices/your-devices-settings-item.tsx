@@ -126,14 +126,14 @@ export function YourDevicesSettingsItem() {
       </AccountItemContent>
       <AccountItemFooter className="justify-end">
         <AccountItemDescription>
-          Log out of all other devices except this one.
+          Sign out of all other devices except this one.
         </AccountItemDescription>
 
         <AlertDialog>
-          <AlertDialogTrigger render={<Button size="lg">Log out from all devices</Button>} />
+          <AlertDialogTrigger render={<Button size="lg">Sign out from all devices</Button>} />
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Log out of all other devices?</AlertDialogTitle>
+              <AlertDialogTitle>Sign out of all other devices?</AlertDialogTitle>
               <AlertDialogDescription>
                 This will end your active sessions on all other browsers and devices. You will
                 remain logged in on this current device.
@@ -141,7 +141,7 @@ export function YourDevicesSettingsItem() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction>Log out all</AlertDialogAction>
+              <AlertDialogAction>Sign out all</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -204,7 +204,7 @@ function DeviceItem({
 
       {!isCurrentDevice && (
         <AccountSettingsListAction>
-          <Button variant="secondary">Log out</Button>
+          <Button variant="secondary">Sign out</Button>
         </AccountSettingsListAction>
       )}
     </AccountSettingsListItem>

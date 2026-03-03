@@ -11,9 +11,9 @@ export type MenuLinkLabelKey =
   | "features"
   | "integrations"
   | "roadmap"
-  | "login"
+  | "signIn"
   | "signUp"
-  | "dashboard"
+  | "overview"
   | "account"
   | "privacyPolicy"
   | "cookiePolicy";
@@ -50,12 +50,12 @@ export const marketingMenu: MenuItem[] = [
 ];
 
 export const platformMenu: MenuLink[] = [
-  { labelKey: "dashboard", href: "/dashboard" },
+  { labelKey: "overview", href: "/overview" },
   { labelKey: "account", href: "/account" },
 ];
 
 export const authMenu: MenuLink[] = [
-  { labelKey: "login", href: "/login" },
+  { labelKey: "signIn", href: "/sign-in" },
   { labelKey: "signUp", href: "/sign-up" },
 ];
 

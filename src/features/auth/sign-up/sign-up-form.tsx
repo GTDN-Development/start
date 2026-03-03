@@ -54,7 +54,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       const response = await signUp(value);
 
       if (response.ok) {
-        router.replace("/dashboard");
+        router.replace("/overview");
         return;
       }
 

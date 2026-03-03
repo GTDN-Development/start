@@ -10,7 +10,7 @@ import type { AccountProfileSnapshot } from "@/features/account/account-profile"
 type PlatformHeaderUser = AccountProfileSnapshot;
 
 type PlatformHeaderLabels = {
-  dashboard: string;
+  overview: string;
   userMenu: UserAccountMenuLabels;
 };
 
@@ -31,10 +31,10 @@ export function PlatformHeader({ user, locale, labels }: PlatformHeaderProps) {
       <Container className="flex min-h-16 items-center justify-between gap-4 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <Link
-            href="/dashboard"
+            href="/overview"
             className="text-foreground hover:text-primary truncate text-sm font-semibold"
           >
-            {labels.dashboard}
+            {labels.overview}
           </Link>
         </div>
 

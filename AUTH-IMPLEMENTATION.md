@@ -47,14 +47,14 @@ Tím je oddělené SSR čtení session od HTTP cookie synchronizace.
 
 ### SSR fallback guard
 - `src/app/[locale]/(platform)/layout.tsx`
-  - Pokud není validní session, redirect na login.
+  - Pokud není validní session, redirect na sign-in.
 - `src/app/[locale]/(auth)/(guest)/layout.tsx`
-  - Pokud session existuje, redirect na dashboard.
+  - Pokud session existuje, redirect na overview.
 
 ## Marketing shell auth-aware chování
 - `src/app/[locale]/(marketing)/layout.tsx` načítá server session a předává `viewer` do `MarketingLayout`.
 - `marketing-header` při přihlášení zobrazuje avatar + user dropdown.
-- `marketing-footer` při přihlášení ukazuje account/dashboard odkazy a reálný `signOut()`.
+- `marketing-footer` při přihlášení ukazuje account/overview odkazy a reálný `signOut()`.
 
 ## Klientské DX API
 Použití:
@@ -104,7 +104,7 @@ Oba layouty (`(platform)/layout.tsx`, `(marketing)/layout.tsx`) volají `getServ
 - **Hydration mismatch** — `useSession()` startuje v `idle`, server renderuje s reálnými daty → flash/skeleton.
 - **Dva zdroje pravdy** — server props + client store pro stejná data vyžadují reconcilaci.
 
-In-session mutace (avatar, jméno) řeší `AccountProfileContext` v `UserAccountMenu`. Cross-tab sign-out pokrývá sdílená cookie `pb_auth` — jakákoliv navigace v jiném tabu session odchytí. `useSession()` se aktivuje až pro dlouhožijící interaktivní features (real-time dashboard, chat), kde uživatel typicky nenaviguje.
+In-session mutace (avatar, jméno) řeší `AccountProfileContext` v `UserAccountMenu`. Cross-tab sign-out pokrývá sdílená cookie `pb_auth` — jakákoliv navigace v jiném tabu session odchytí. `useSession()` se aktivuje až pro dlouhožijící interaktivní features (real-time overview, chat), kde uživatel typicky nenaviguje.
 
 ## Jak rozšiřovat
 1. Nové auth flow (např. reset/verify):

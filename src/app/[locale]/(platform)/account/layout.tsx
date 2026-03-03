@@ -7,7 +7,7 @@ import {
   PlatformHeroContent,
   PlatformHeroDescription,
   PlatformHeroTitle,
-} from "@/features/platform/dashboard/platform-hero";
+} from "@/features/platform/overview/platform-hero";
 
 type AccountRouteLayoutProps = {
   children: React.ReactNode;

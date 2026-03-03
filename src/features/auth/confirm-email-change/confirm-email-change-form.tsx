@@ -58,11 +58,11 @@ export function ConfirmEmailChangeForm({
 
       if (response.ok) {
         if (response.data.session?.user.id) {
-          router.replace("/dashboard");
+          router.replace("/overview");
           return;
         }
 
-        router.replace("/login");
+        router.replace("/sign-in");
         return;
       }
 

@@ -40,7 +40,7 @@ type DeleteAccountFormValues = {
 
 export function AccountDeleteAccountSettingsItem() {
   const t = useTranslations("pages.account");
-  const tPasswordVisibility = useTranslations("forms.login.passwordVisibility");
+  const tPasswordVisibility = useTranslations("forms.signIn.passwordVisibility");
   const router = useRouter();
   const deleteAccountToastId = useId();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -78,7 +78,7 @@ export function AccountDeleteAccountSettingsItem() {
 
         setIsDeleteDialogOpen(false);
         form.reset();
-        router.replace("/login");
+        router.replace("/sign-in");
         router.refresh();
         return;
       }
@@ -95,7 +95,7 @@ export function AccountDeleteAccountSettingsItem() {
         });
         setIsDeleteDialogOpen(false);
         form.reset();
-        router.replace("/login");
+        router.replace("/sign-in");
         router.refresh();
         return;
       }

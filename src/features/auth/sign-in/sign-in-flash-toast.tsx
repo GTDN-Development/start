@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { consumeAuthFlash } from "@/features/auth/auth-flash";
 
-export function LoginFlashToast() {
+export function SignInFlashToast() {
   const tVerifyEmail = useTranslations("forms.verifyEmail.status.success");
   const tResetPassword = useTranslations("forms.resetPassword.status.success");
 

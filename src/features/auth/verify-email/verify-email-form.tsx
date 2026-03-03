@@ -38,12 +38,12 @@ export function VerifyEmailForm({
 
       if (response.ok) {
         if (response.data.session?.user.verified) {
-          router.replace("/dashboard");
+          router.replace("/overview");
           return;
         }
 
         setAuthFlash("email-verified");
-        router.replace("/login");
+        router.replace("/sign-in");
         return;
       }
 

@@ -29,7 +29,7 @@ export const routing = defineRouting({
     "/cookies": {
       cs: "/cookies",
     },
-    "/dashboard": {
+    "/overview": {
       cs: "/prehled",
     },
     "/forgot-password": {
@@ -38,7 +38,7 @@ export const routing = defineRouting({
     "/gdpr": {
       cs: "/gdpr",
     },
-    "/login": {
+    "/sign-in": {
       cs: "/prihlasit-se",
     },
     "/pricing": {

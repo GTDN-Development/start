@@ -26,10 +26,10 @@ export type UserAccountMenuLabels = {
   account: string;
   accountPage: string;
   home: string;
-  dashboard: string;
+  overview: string;
   emailNotVerified: string;
   emailVerified: string;
-  logout: string;
+  signOut: string;
 };
 
 type UserAccountMenuProps = {
@@ -102,8 +102,8 @@ export function UserAccountMenu({
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/dashboard" className="w-full cursor-pointer" />}>
-          {labels.dashboard}
+        <DropdownMenuItem render={<Link href="/overview" className="w-full cursor-pointer" />}>
+          {labels.overview}
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href="/account" className="w-full cursor-pointer" />}>
           {labels.accountPage}
@@ -122,7 +122,7 @@ export function UserAccountMenu({
           className="justify-between"
           onClick={handleSignOut}
         >
-          {labels.logout}
+          {labels.signOut}
           <LogOutIcon aria-hidden="true" className="size-4" />
         </DropdownMenuItem>
       </DropdownMenuContent>

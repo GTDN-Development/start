@@ -54,8 +54,8 @@ export default async function Page({ params, searchParams }: PageProps<"/[locale
       <div className="mt-6 pt-6">
         <ResetPasswordForm token={token} />
         <p className="text-muted-foreground mt-6 text-sm">
-          <Link href="/login" className="underline decoration-current/30 hover:decoration-current">
-            {t("backToLogin")}
+          <Link href="/sign-in" className="underline decoration-current/30 hover:decoration-current">
+            {t("backToSignIn")}
           </Link>
           .
         </p>

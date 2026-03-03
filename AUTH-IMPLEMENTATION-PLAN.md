@@ -21,11 +21,11 @@ Principy:
 
 ## Scope (Phase 1)
 
-- `email + password` login
+- `email + password` sign-in
 - `email + password` sign-up
 - session read endpoint
 - sign-out
-- napojení login/sign-up UI
+- napojení sign-in/sign-up UI
 - proxy + SSR guard pro chráněné routy
 
 Mimo scope (později): OAuth2, forgot/reset password, verify email, confirm email change, advanced account mutations.
@@ -50,7 +50,7 @@ Mimo scope (později): OAuth2, forgot/reset password, verify email, confirm emai
 6. Přidat client DX vrstvu `src/features/auth/auth-client.ts` a exportovat API:
    - `signIn`, `signUp`, `useSession`, `signOut`.
 7. Přepojit formuláře:
-   - `src/features/auth/login/login-form.tsx`,
+   - `src/features/auth/sign-in/sign-in-form.tsx`,
    - `src/features/auth/sign-up/sign-up-form.tsx`,
      z mock submitu na `authClient`.
 8. Upravit `src/proxy.ts`:
@@ -58,7 +58,7 @@ Mimo scope (později): OAuth2, forgot/reset password, verify email, confirm emai
    - přidat auth redirect autoritu pro protected routy při chybějící `pb_auth` cookie.
 9. Upravit SSR fallback guard v `src/app/[locale]/(platform)/layout.tsx`:
    - načíst session ze server auth vrstvy,
-   - pokud cookie existuje, ale session je neplatná/nepoužitelná, redirect na login,
+   - pokud cookie existuje, ale session je neplatná/nepoužitelná, redirect na sign-in,
    - nahradit statický profil daty session usera.
 10. Aktualizovat `README.md` sekci Auth/Account status podle nové implementace.
 

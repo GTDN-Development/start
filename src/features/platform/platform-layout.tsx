@@ -13,7 +13,7 @@ import { type UserAccountMenuLabels } from "@/features/account/user-account-menu
 type PlatformLayoutUser = AccountProfileSnapshot;
 
 type PlatformLayoutLabels = {
-  dashboard: string;
+  overview: string;
   userMenu: UserAccountMenuLabels;
 };
 

@@ -43,9 +43,9 @@
         "integrations": "Integrace",
         "roadmap": "Plán vývoje",
         "account": "Účet",
-        "login": "Přihlášení",
+        "signIn": "Přihlášení",
         "signUp": "Registrace",
-        "dashboard": "Nástěnka",
+        "overview": "Přehled",
         "privacyPolicy": "Zásady ochrany osobních údajů",
         "cookiePolicy": "Zásady cookies"
       }
@@ -97,7 +97,7 @@
       "signedInAs": "Přihlášen jako",
       "emailVerified": "E-mail ověřen",
       "emailNotVerified": "E-mail není ověřen",
-      "logout": "Odhlásit se"
+      "signOut": "Odhlásit se"
     }
   },
   "pages": {
@@ -116,7 +116,7 @@
       "description": "Napište nám. Ozveme se vám co nejdříve.",
       "formTitle": "Kontaktní formulář"
     },
-    "login": {
+    "signIn": {
       "title": "Přihlášení",
       "description": "Přihlaste se ke svému účtu a spravujte nastavení a preference.",
       "forgotPassword": "Zapomenuté heslo",
@@ -126,29 +126,29 @@
     "forgotPassword": {
       "title": "Zapomenuté heslo",
       "description": "Zadejte svůj e-mail a pošleme vám odkaz pro obnovu hesla.",
-      "backToLogin": "Zpět na přihlášení"
+      "backToSignIn": "Zpět na přihlášení"
     },
     "resetPassword": {
       "title": "Nastavit nové heslo",
       "description": "Zvolte nové heslo ke svému účtu.",
-      "backToLogin": "Zpět na přihlášení"
+      "backToSignIn": "Zpět na přihlášení"
     },
     "verifyEmail": {
       "title": "Ověření e-mailu",
       "description": "Potvrďte svou e-mailovou adresu a dokončete nastavení účtu.",
-      "backToLogin": "Zpět na přihlášení"
+      "backToSignIn": "Zpět na přihlášení"
     },
     "confirmEmailChange": {
       "title": "Potvrzení změny e-mailu",
       "description": "Pro potvrzení nové e-mailové adresy zadejte své aktuální heslo.",
-      "backToLogin": "Zpět na přihlášení"
+      "backToSignIn": "Zpět na přihlášení"
     },
     "signUp": {
       "title": "Registrace",
       "description": "Vytvořte si nový účet a začněte používat platformu.",
       "createYourAccount": "Vytvořte si účet",
       "alreadyHaveAccount": "Již máte účet?",
-      "logIn": "Přihlásit se"
+      "signIn": "Přihlásit se"
     },
     "aboutFeatures": {
       "title": "Funkce",
@@ -180,7 +180,7 @@
       "description": "Zjistěte, jak používáme soubory cookies na našem webu, jaké typy cookies používáme a jak můžete spravovat své preference týkající se cookies.",
       "effectiveDate": "1. ledna 2025"
     },
-    "dashboard": {
+    "overview": {
       "title": "Nástěnka",
       "description": "Vítejte ve svém osobním přehledu. Spravujte svůj účet a sledujte svou aktivitu."
     },
@@ -327,7 +327,7 @@
           },
           "status": {
             "saved": "Heslo bylo aktualizováno.",
-            "savedAndRelogin": "Heslo bylo změněno. Přihlaste se prosím znovu.",
+            "savedAndSignIn": "Heslo bylo změněno. Přihlaste se prosím znovu.",
             "error": "Heslo se nepodařilo aktualizovat. Zkuste to prosím znovu.",
             "invalidInput": "Zkontrolujte aktuální heslo a ověřte, že nové heslo splňuje požadavky.",
             "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
@@ -443,7 +443,7 @@
         }
       }
     },
-    "login": {
+    "signIn": {
       "validation": {
         "email": "Zadejte prosím platnou e-mailovou adresu.",
         "passwordMin": "Heslo musí mít alespoň 8 znaků.",

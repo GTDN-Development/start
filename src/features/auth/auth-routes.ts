@@ -1,6 +1,6 @@
-export const AUTH_PROTECTED_ROUTE_PREFIXES = ["/dashboard", "/account"] as const;
+export const AUTH_PROTECTED_ROUTE_PREFIXES = ["/overview", "/account"] as const;
 
 export const AUTH_REDIRECTS = {
-  unauthenticatedTo: "/login",
-  authenticatedTo: "/dashboard",
+  unauthenticatedTo: "/sign-in",
+  authenticatedTo: "/overview",
 } as const;

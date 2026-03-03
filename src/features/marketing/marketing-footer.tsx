@@ -105,7 +105,7 @@ export function MarketingFooter({
   const copiedToClipboardMessage = t("copiedToClipboard");
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
   const accountLinks = viewer
-    ? platformMenu.filter((item) => item.labelKey === "dashboard" || item.labelKey === "account")
+    ? platformMenu.filter((item) => item.labelKey === "overview" || item.labelKey === "account")
     : authMenu;
   const viewerName = viewer?.name?.trim() || null;
 
@@ -161,7 +161,7 @@ export function MarketingFooter({
                   onClick={handleSignOut}
                   className="text-muted-foreground hover:text-foreground cursor-pointer appearance-none bg-transparent p-0 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {tPlatform("logout")}
+                  {tPlatform("signOut")}
                 </button>
               </li>
             )}

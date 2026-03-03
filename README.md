@@ -70,13 +70,13 @@ PocketBase typegen requires:
 ## i18n Routing (EN keys + CS aliases)
 
 - Default locale is `cs`
-- Internal route keys stay in English (e.g. `"/login"`, `"/dashboard"`)
+- Internal route keys stay in English (e.g. `"/sign-in"`, `"/overview"`)
 - Public Czech pathname aliases are configured in `src/i18n/routing.ts` via `pathnames`
 
 Examples:
 
-- Internal key: `"/login"`
-- EN URL: `/en/login`
+- Internal key: `"/sign-in"`
+- EN URL: `/en/sign-in`
 - CS URL alias: `/cs/prihlasit-se`
 
 ### Important navigation rules
@@ -84,8 +84,8 @@ Examples:
 - For internal localized app links use `@/components/ui/link` (re-exports `@/i18n/navigation` `Link`)
 - For external URLs and hash/mailto/tel links use a native `<a>`
 - For localized redirects/path building use `@/i18n/navigation`
-  - `redirect({href: "/login", locale})`
-  - `getPathname({href: "/login", locale})`
+  - `redirect({href: "/sign-in", locale})`
+  - `getPathname({href: "/sign-in", locale})`
 - Do not build localized URLs manually with `/${locale}/...`
   - This breaks when pathname aliases are enabled
   - It also affects hidden form redirects, server redirects and metadata canonicals
@@ -98,7 +98,7 @@ Use `redirect` from `@/i18n/navigation` for route redirects in server components
 import { redirect } from "@/i18n/navigation";
 import { Locale } from "next-intl";
 
-redirect({ href: "/login", locale: locale as Locale });
+redirect({ href: "/sign-in", locale: locale as Locale });
 ```
 
 ### Metadata canonicals / alternates

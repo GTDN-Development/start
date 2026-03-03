@@ -11,7 +11,7 @@ This document defines the correct and secure approach for integrating PocketBase
 ## 2. Session State Management (Cookies)
 The authentication state (token and model) is synchronized between the browser and SSR exclusively via cookies.
 
-* **On the client:** Login proceeds normally. Upon success, save the state to a cookie.
+* **On the client:** Sign-in proceeds normally. Upon success, save the state to a cookie.
 * **On the server (Next.js):** Create a helper function to initialize a per-request client with data from the cookies:
 
 ```typescript
@@ -49,7 +49,7 @@ await pb.collection("posts").getList(1, 30, {
 ```
 
 ## 4. Exceptions and Specific Cases
-* **OAuth2 Login:** The "All-in-one" flow (with a popup window) requires an active realtime connection and works **only on the client**. If you want to handle OAuth2 purely via the server, you must implement the "Manual code exchange". The recommended approach is to perform OAuth2 on the client and save the result into cookies.
+* **OAuth2 Sign-in:** The "All-in-one" flow (with a popup window) requires an active realtime connection and works **only on the client**. If you want to handle OAuth2 purely via the server, you must implement the "Manual code exchange". The recommended approach is to perform OAuth2 on the client and save the result into cookies.
 * **Global Admin/Superuser Instance:** The only exception where you are allowed to have a global instance on the server (`export default pb`) is a dedicated admin client for background server-side processes. In this case, you must disable automatic request cancellation:
 ```typescript
 superuserClient.autoCancellation(false);
