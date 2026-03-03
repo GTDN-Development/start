@@ -8,8 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
+import { confirmEmailChange } from "@/features/auth/auth-client";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type SubmitErrorCode = "password-required" | "invalid-token-or-password" | "generic" | null;
 
 export function ConfirmEmailChangeForm({
   token,
@@ -22,32 +25,48 @@ export function ConfirmEmailChangeForm({
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
+  const [submitErrorCode, setSubmitErrorCode] = useState<SubmitErrorCode>(null);
+  const submitErrorMessage = getSubmitErrorMessage(submitErrorCode, t);
+  const isPasswordInvalid = submitErrorCode === "password-required";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!token) {
-      setSubmitErrorMessage(t("status.error.invalidOrExpiredTokenOrPassword"));
+      setSubmitErrorCode("invalid-token-or-password");
       return;
     }
 
     if (!password.trim()) {
-      setSubmitErrorMessage(t("validation.passwordRequired"));
+      setSubmitErrorCode("password-required");
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitErrorMessage(null);
+    setSubmitErrorCode(null);
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
+    const response = await confirmEmailChange({
+      token,
+      password,
+    });
+
+    if (response.ok) {
+      if (response.data.session?.user.id) {
+        router.replace("/dashboard");
+        return;
+      }
+
       router.replace("/login");
-    } catch {
-      setSubmitErrorMessage(t("status.error.message"));
-    } finally {
-      setIsSubmitting(false);
+      return;
     }
+
+    if (response.errorCode === "BAD_REQUEST" || response.errorCode === "INVALID_CREDENTIALS") {
+      setSubmitErrorCode("invalid-token-or-password");
+    } else {
+      setSubmitErrorCode("generic");
+    }
+
+    setIsSubmitting(false);
   }
 
   return (
@@ -56,7 +75,7 @@ export function ConfirmEmailChangeForm({
         <FieldGroup>
           <FieldDescription>{t("description")}</FieldDescription>
 
-          <Field data-invalid={Boolean(submitErrorMessage && !password.trim())}>
+          <Field data-invalid={isPasswordInvalid}>
             <FieldLabel htmlFor="confirm-email-change-password">
               {t("fields.password.label")}
             </FieldLabel>
@@ -66,7 +85,7 @@ export function ConfirmEmailChangeForm({
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder={t("fields.password.placeholder")}
-              aria-invalid={Boolean(submitErrorMessage && !password.trim())}
+              aria-invalid={isPasswordInvalid}
               autoComplete="current-password"
               required
               showPasswordLabel={t("passwordVisibility.show")}
@@ -101,4 +120,20 @@ export function ConfirmEmailChangeForm({
       </form>
     </div>
   );
+}
+
+function getSubmitErrorMessage(errorCode: SubmitErrorCode, t: (key: string) => string) {
+  if (errorCode === "password-required") {
+    return t("validation.passwordRequired");
+  }
+
+  if (errorCode === "invalid-token-or-password") {
+    return t("status.error.invalidOrExpiredTokenOrPassword");
+  }
+
+  if (errorCode === "generic") {
+    return t("status.error.message");
+  }
+
+  return null;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import * as React from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import {
@@ -33,6 +33,7 @@ import { Spinner } from "@/components/ui/spinner";
 import type { InlineStatus } from "@/features/account/account-types";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { requestEmailChange } from "@/features/auth/auth-client";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
 type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;
@@ -44,8 +45,8 @@ type EmailChangeFormValues = {
 export function AccountEmailSettingsItem() {
   const t = useTranslations("pages.account");
   const { profile } = useAccountProfile();
-  const [isEmailDialogOpen, setIsEmailDialogOpen] = React.useState(false);
-  const [emailDialogStatus, setEmailDialogStatus] = React.useState<InlineStatus>(null);
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [emailDialogStatus, setEmailDialogStatus] = useState<InlineStatus>(null);
   const normalizedCurrentEmail = profile.email.trim().toLowerCase();
   const emailChangeFormSchema = getEmailChangeFormSchema(t, normalizedCurrentEmail);
   const form = useForm({
@@ -73,21 +74,44 @@ export function AccountEmailSettingsItem() {
 
       const normalizedNewEmail = parsedEmail.data;
 
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+      const response = await requestEmailChange({
+        newEmail: normalizedNewEmail,
+      });
 
+      if (response.ok) {
         setEmailDialogStatus({
           kind: "success",
           message: t("email.dialog.status.sentMessage", {
             email: normalizedNewEmail,
           }),
         });
-      } catch {
+        return;
+      }
+
+      if (response.errorCode === "UNAUTHORIZED") {
         setEmailDialogStatus({
           kind: "error",
-          message: t("email.dialog.status.errorMessage"),
+          message: t("email.dialog.errors.unauthorized"),
         });
+        return;
       }
+
+      if (
+        response.errorCode === "BAD_REQUEST" ||
+        response.errorCode === "VALIDATION_ERROR" ||
+        response.errorCode === "EMAIL_ALREADY_IN_USE"
+      ) {
+        setEmailDialogStatus({
+          kind: "error",
+          message: t("email.dialog.errors.invalidOrUnavailable"),
+        });
+        return;
+      }
+
+      setEmailDialogStatus({
+        kind: "error",
+        message: t("email.dialog.status.errorMessage"),
+      });
     },
   });
 

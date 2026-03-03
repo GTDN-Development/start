@@ -3,8 +3,11 @@ import type { UsersRecord } from "@/types/pocketbase";
 import type {
   AuthErrorCode,
   AuthResponse,
+  ConfirmEmailChangePayload,
   AuthSession,
   AuthSessionPayload,
+  RequestEmailChangePayload,
+  RequestEmailVerificationPayload,
   ResetPasswordPayload,
   AuthSignOutPayload,
   VerifyEmailPayload,
@@ -220,6 +223,173 @@ export async function confirmPasswordResetToken(input: {
       ok: false,
       errorCode,
       ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  }
+}
+
+export async function requestEmailVerificationForCurrentUser(): Promise<
+  ServerAuthResponse<RequestEmailVerificationPayload>
+> {
+  const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+
+  if (hadInvalidAuthCookie) {
+    return {
+      ok: false,
+      errorCode: "UNAUTHORIZED",
+      setCookie: createClearedPocketBaseAuthCookies(),
+    };
+  }
+
+  if (!pb.authStore.isValid || !pb.authStore.record) {
+    return {
+      ok: false,
+      errorCode: "UNAUTHORIZED",
+      ...(hasAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  }
+
+  if (!isUsersRecord(pb.authStore.record)) {
+    return {
+      ok: false,
+      errorCode: "UNAUTHORIZED",
+      setCookie: createClearedPocketBaseAuthCookies(),
+    };
+  }
+
+  try {
+    await pb.collection("users").requestVerification(pb.authStore.record.email);
+
+    return {
+      ok: true,
+      data: {
+        sent: true,
+      },
+    };
+  } catch (error) {
+    const errorCode = mapRequestEmailVerificationErrorCode(error);
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logAuthServiceError("requestEmailVerificationForCurrentUser", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  }
+}
+
+export async function requestEmailChangeForCurrentUser(
+  newEmail: string
+): Promise<ServerAuthResponse<RequestEmailChangePayload>> {
+  const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+
+  if (hadInvalidAuthCookie) {
+    return {
+      ok: false,
+      errorCode: "UNAUTHORIZED",
+      setCookie: createClearedPocketBaseAuthCookies(),
+    };
+  }
+
+  if (!pb.authStore.isValid || !pb.authStore.record) {
+    return {
+      ok: false,
+      errorCode: "UNAUTHORIZED",
+      ...(hasAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  }
+
+  if (!isUsersRecord(pb.authStore.record)) {
+    return {
+      ok: false,
+      errorCode: "UNAUTHORIZED",
+      setCookie: createClearedPocketBaseAuthCookies(),
+    };
+  }
+
+  try {
+    await pb.collection("users").requestEmailChange(newEmail);
+
+    return {
+      ok: true,
+      data: {
+        sent: true,
+      },
+    };
+  } catch (error) {
+    const errorCode = mapRequestEmailChangeErrorCode(error);
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logAuthServiceError("requestEmailChangeForCurrentUser", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  }
+}
+
+export async function confirmEmailChangeToken(input: {
+  token: string;
+  password: string;
+}): Promise<ServerAuthResponse<ConfirmEmailChangePayload>> {
+  const { pb, hadInvalidAuthCookie, shouldPersistSession } = await createPocketBaseServerClient();
+
+  try {
+    await pb.collection("users").confirmEmailChange(input.token, input.password);
+
+    if (pb.authStore.isValid && isUsersRecord(pb.authStore.record)) {
+      const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+      const session = createAuthSession(pb, refreshedAuth.record);
+
+      if (!session) {
+        return {
+          ok: true,
+          data: {
+            emailChanged: true,
+            session: null,
+          },
+          setCookie: createClearedPocketBaseAuthCookies(),
+        };
+      }
+
+      return {
+        ok: true,
+        data: {
+          emailChanged: true,
+          session,
+        },
+        setCookie: exportPocketBaseAuthCookies(pb, {
+          sessionOnly: !shouldPersistSession,
+        }),
+      };
+    }
+
+    return {
+      ok: true,
+      data: {
+        emailChanged: true,
+        session: null,
+      },
+      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  } catch (error) {
+    const errorCode = mapConfirmEmailChangeErrorCode(error);
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logAuthServiceError("confirmEmailChangeToken", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+      ...(errorCode === "UNAUTHORIZED" || hadInvalidAuthCookie
+        ? { setCookie: createClearedPocketBaseAuthCookies() }
+        : {}),
     };
   }
 }
@@ -461,6 +631,75 @@ function mapResetPasswordErrorCode(error: unknown): AuthErrorCode {
         return "WEAK_PASSWORD";
       }
 
+      return "BAD_REQUEST";
+    }
+  }
+
+  return "UNKNOWN_ERROR";
+}
+
+function mapRequestEmailVerificationErrorCode(error: unknown): AuthErrorCode {
+  if (error instanceof ClientResponseError) {
+    if (error.status === 400) {
+      return "BAD_REQUEST";
+    }
+
+    if (error.status === 401 || error.status === 403) {
+      return "UNAUTHORIZED";
+    }
+
+    if (error.status === 404) {
+      return "NOT_FOUND";
+    }
+
+    if (error.status === 429) {
+      return "RATE_LIMITED";
+    }
+  }
+
+  return "UNKNOWN_ERROR";
+}
+
+function mapRequestEmailChangeErrorCode(error: unknown): AuthErrorCode {
+  if (error instanceof ClientResponseError) {
+    if (error.status === 401 || error.status === 403) {
+      return "UNAUTHORIZED";
+    }
+
+    if (error.status === 404) {
+      return "NOT_FOUND";
+    }
+
+    if (error.status === 429) {
+      return "RATE_LIMITED";
+    }
+
+    if (error.status === 400) {
+      if (
+        hasValidationCode(error.response?.data, "newEmail", "validation_not_unique") ||
+        hasValidationCode(error.response?.data, "email", "validation_not_unique")
+      ) {
+        return "EMAIL_ALREADY_IN_USE";
+      }
+
+      return "VALIDATION_ERROR";
+    }
+  }
+
+  return "UNKNOWN_ERROR";
+}
+
+function mapConfirmEmailChangeErrorCode(error: unknown): AuthErrorCode {
+  if (error instanceof ClientResponseError) {
+    if (error.status === 401 || error.status === 403) {
+      return "UNAUTHORIZED";
+    }
+
+    if (error.status === 429) {
+      return "RATE_LIMITED";
+    }
+
+    if (error.status === 400 || error.status === 404) {
       return "BAD_REQUEST";
     }
   }

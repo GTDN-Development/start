@@ -4,11 +4,12 @@ import { routing } from "@/i18n/routing";
 
 type AppLocale = (typeof routing.locales)[number];
 
-type EmailLinkAction = "verify-email" | "reset-password";
+type EmailLinkAction = "verify-email" | "reset-password" | "confirm-email-change";
 
 const EMAIL_LINK_ACTION_TARGETS: Record<EmailLinkAction, AppPathname> = {
   "verify-email": "/verify-email",
   "reset-password": "/reset-password",
+  "confirm-email-change": "/confirm-email-change",
 };
 
 export async function GET(request: NextRequest) {
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
 }
 
 function parseEmailLinkAction(value: string | null): EmailLinkAction | null {
-  if (value === "verify-email" || value === "reset-password") {
+  if (value === "verify-email" || value === "reset-password" || value === "confirm-email-change") {
     return value;
   }
 

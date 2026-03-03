@@ -1,10 +1,6 @@
 import { NextRequest } from "next/server";
 import { PB_AUTH_COOKIE_NAME } from "@/features/auth/auth-contract";
-import {
-  AUTH_GUEST_ONLY_ROUTE_PREFIXES,
-  AUTH_PROTECTED_ROUTE_PREFIXES,
-  AUTH_REDIRECTS,
-} from "@/features/auth/auth-routes";
+import { AUTH_PROTECTED_ROUTE_PREFIXES, AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { routing } from "@/i18n/routing";
 
 type AppLocale = (typeof routing.locales)[number];
@@ -32,16 +28,6 @@ export function evaluateAuthProxyGuard(request: NextRequest): AuthProxyGuardResu
     return {
       shouldRedirect: true,
       pathname: `/${locale}${getLocalizedRoutePath(AUTH_REDIRECTS.unauthenticatedTo, locale)}`,
-    };
-  }
-
-  if (
-    hasAuthCookie &&
-    isRouteMatched(pathnameWithoutLocale, AUTH_GUEST_ONLY_ROUTE_PREFIXES, locale)
-  ) {
-    return {
-      shouldRedirect: true,
-      pathname: `/${locale}${getLocalizedRoutePath(AUTH_REDIRECTS.authenticatedTo, locale)}`,
     };
   }
 

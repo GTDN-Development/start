@@ -80,7 +80,18 @@
     "emailVerificationBanner": {
       "title": "Už jen krok. Ověřte prosím e-mail a odemkněte všechny funkce.",
       "resend": "Znovu poslat ověřovací e-mail",
-      "close": "Zavřít banner ověření e-mailu"
+      "close": "Zavřít banner ověření e-mailu",
+      "status": {
+        "success": {
+          "title": "Ověřovací e-mail odeslán",
+          "message": "Poslali jsme nový ověřovací e-mail."
+        },
+        "error": {
+          "title": "E-mail se nepodařilo odeslat",
+          "message": "Ověřovací e-mail se teď nepodařilo odeslat. Zkuste to prosím znovu.",
+          "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
+        }
+      }
     },
     "platform": {
       "signedInAs": "Přihlášen jako",

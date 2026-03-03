@@ -3,10 +3,16 @@
 import { useEffect, useSyncExternalStore } from "react";
 import type {
   AuthClient,
+  ConfirmEmailChangePayload,
+  ConfirmEmailChangeResponse,
   AuthResponse,
   AuthSession,
   AuthSessionPayload,
   AuthSessionSnapshot,
+  RequestEmailChangePayload,
+  RequestEmailChangeResponse,
+  RequestEmailVerificationPayload,
+  RequestEmailVerificationResponse,
   ResetPasswordPayload,
   ResetPasswordResponse,
   AuthSignOutPayload,
@@ -25,6 +31,9 @@ const SIGN_UP_ENDPOINT_PATH = "/api/auth/sign-up";
 const SIGN_OUT_ENDPOINT_PATH = "/api/auth/sign-out";
 const VERIFY_EMAIL_ENDPOINT_PATH = "/api/auth/verify-email";
 const RESET_PASSWORD_ENDPOINT_PATH = "/api/auth/reset-password";
+const REQUEST_EMAIL_VERIFICATION_ENDPOINT_PATH = "/api/auth/request-email-verification";
+const REQUEST_EMAIL_CHANGE_ENDPOINT_PATH = "/api/auth/request-email-change";
+const CONFIRM_EMAIL_CHANGE_ENDPOINT_PATH = "/api/auth/confirm-email-change";
 
 /** Min interval between refetches from cross-tab sync, tab focus, or online recovery. */
 const REFETCH_RATE_LIMIT_MS = 5_000;
@@ -51,6 +60,15 @@ export type ResetPasswordWithTokenInput = {
   token: string;
   password: string;
   confirmPassword: string;
+};
+
+export type RequestEmailChangeInput = {
+  newEmail: string;
+};
+
+export type ConfirmEmailChangeInput = {
+  token: string;
+  password: string;
 };
 
 export async function signIn(input: SignInInput): Promise<SignInResponse> {
@@ -144,6 +162,52 @@ export async function resetPasswordWithToken(
     setSessionState({
       status: "unauthenticated",
       session: null,
+    });
+    broadcastSessionChanged();
+  }
+
+  return response;
+}
+
+export async function requestEmailVerification(): Promise<RequestEmailVerificationResponse> {
+  return requestAuthEndpoint<RequestEmailVerificationPayload>(
+    REQUEST_EMAIL_VERIFICATION_ENDPOINT_PATH,
+    {
+      method: "POST",
+    }
+  );
+}
+
+export async function requestEmailChange(
+  input: RequestEmailChangeInput
+): Promise<RequestEmailChangeResponse> {
+  return requestAuthEndpoint<RequestEmailChangePayload>(REQUEST_EMAIL_CHANGE_ENDPOINT_PATH, {
+    method: "POST",
+    body: JSON.stringify(input),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+}
+
+export async function confirmEmailChange(
+  input: ConfirmEmailChangeInput
+): Promise<ConfirmEmailChangeResponse> {
+  const response = await requestAuthEndpoint<ConfirmEmailChangePayload>(
+    CONFIRM_EMAIL_CHANGE_ENDPOINT_PATH,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+      headers: {
+        "content-type": "application/json",
+      },
+    }
+  );
+
+  if (response.ok) {
+    setSessionState({
+      status: response.data.session ? "authenticated" : "unauthenticated",
+      session: response.data.session,
     });
     broadcastSessionChanged();
   }
