@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { PB_AUTH_COOKIE_NAME } from "@/features/auth/auth-cookie";
+import { PB_AUTH_COOKIE_NAME } from "@/features/auth/auth-contract";
 import {
   AUTH_GUEST_ONLY_ROUTE_PREFIXES,
   AUTH_PROTECTED_ROUTE_PREFIXES,

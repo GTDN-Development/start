@@ -7,6 +7,7 @@ import { SkipToContent } from "@/components/layout/skip-to-content";
 import { cn } from "@/lib/utils";
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
+import { EmailNotVerifiedBanner } from "../auth/verify-email/email-not-verified-banner";
 
 type PlatformLayoutUser = AccountProfileSnapshot;
 
@@ -43,7 +44,7 @@ export function PlatformLayout({
       >
         <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-        {/* Banner should go here */}
+        <EmailNotVerifiedBanner />
 
         <PlatformHeader user={user} locale={locale} labels={labels} />
 

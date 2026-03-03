@@ -1,6 +1,6 @@
 import PocketBase, { cookieSerialize, type SendOptions, type SerializeOptions } from "pocketbase";
 import { cookies } from "next/headers";
-import { PB_AUTH_COOKIE_NAME, PB_AUTH_PERSIST_COOKIE_NAME } from "@/features/auth/auth-cookie";
+import { PB_AUTH_COOKIE_NAME, PB_AUTH_PERSIST_COOKIE_NAME } from "@/features/auth/auth-contract";
 
 const AUTH_PERSIST_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 

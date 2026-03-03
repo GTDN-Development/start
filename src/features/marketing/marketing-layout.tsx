@@ -6,6 +6,7 @@ import { MarketingHeader } from "./marketing-header";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
 import { useTranslations } from "next-intl";
+import { EmailNotVerifiedBanner } from "../auth/verify-email/email-not-verified-banner";
 
 // Main Layout Component
 export function MarketingLayout({
@@ -27,7 +28,7 @@ export function MarketingLayout({
     >
       <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-      {/* Banner should go here */}
+      <EmailNotVerifiedBanner />
 
       <MarketingHeader viewer={viewer} />
 

@@ -1,5 +1,8 @@
 import type { SignInInput, SignUpInput } from "@/features/auth/auth-schemas";
 
+export const PB_AUTH_COOKIE_NAME = "pb_auth";
+export const PB_AUTH_PERSIST_COOKIE_NAME = "pb_auth_persist";
+
 export type AuthErrorCode =
   | "BAD_REQUEST"
   | "INVALID_CREDENTIALS"
