@@ -8,9 +8,9 @@ export function hasValidOrigin(request: NextRequest): boolean {
   }
 
   try {
-    const originHost = new URL(origin).host;
+    const parsedOrigin = new URL(origin).origin;
 
-    return originHost === request.nextUrl.host;
+    return parsedOrigin === request.nextUrl.origin;
   } catch {
     return false;
   }

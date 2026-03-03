@@ -60,7 +60,7 @@ export function ConfirmEmailChangeForm({
       return;
     }
 
-    if (response.errorCode === "BAD_REQUEST" || response.errorCode === "INVALID_CREDENTIALS") {
+    if (response.errorCode === "BAD_REQUEST") {
       setSubmitErrorCode("invalid-token-or-password");
     } else {
       setSubmitErrorCode("generic");
