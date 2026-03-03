@@ -48,6 +48,7 @@ let sessionState: AuthSessionSnapshot = {
 let pendingSessionRequest: Promise<void> | null = null;
 let lastSessionRequestAt = 0;
 let syncChannel: BroadcastChannel | null = null;
+let syncInitialized = false;
 
 export const authClient: AuthClient = {
   signIn,
@@ -223,6 +224,8 @@ export function useSession(): AuthSessionSnapshot {
   );
 
   useEffect(() => {
+    ensureSessionSyncInitialized();
+
     if (snapshot.status === "idle") {
       void refreshSession();
     }
@@ -351,10 +354,25 @@ function createSessionResponseFromSnapshot(snapshot: AuthSessionSnapshot): Sessi
 
 // Cross-tab sync: signal-based — each tab refetches from server independently.
 
+function ensureSessionSyncInitialized() {
+  if (syncInitialized || typeof window === "undefined") {
+    return;
+  }
+
+  syncInitialized = true;
+
+  initSessionSync();
+  initVisibilityRefresh();
+  initOnlineRecovery();
+}
+
 function initSessionSync() {
   if (typeof BroadcastChannel === "undefined") {
     return;
   }
+
+  // Close prior channel if module was re-evaluated (HMR safety).
+  syncChannel?.close();
 
   syncChannel = new BroadcastChannel("auth-sync");
   syncChannel.onmessage = handleSyncMessage;
@@ -432,12 +450,6 @@ function handleOnlineRecovery() {
   }
 
   void refreshSession();
-}
-
-if (typeof window !== "undefined") {
-  initSessionSync();
-  initVisibilityRefresh();
-  initOnlineRecovery();
 }
 
 async function requestAuthEndpoint<TData>(
