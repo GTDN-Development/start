@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
+import { deleteAccount } from "@/features/account/account-client";
 import {
   AccountItem,
   AccountItemContent,
@@ -54,10 +55,13 @@ export function AccountDeleteAccountSettingsItem() {
     }
 
     setIsDeletingAccount(true);
+    setPasswordErrorMessage(null);
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
+    const response = await deleteAccount({
+      password,
+    });
 
+    if (response.ok) {
       toast.success(t("common.successTitle"), {
         id: deleteAccountToastId,
         description: t("deleteAccount.status.success"),
@@ -65,16 +69,42 @@ export function AccountDeleteAccountSettingsItem() {
 
       setIsDeleteDialogOpen(false);
       resetDeleteAccountForm();
+      setIsDeletingAccount(false);
       router.replace("/login");
       router.refresh();
-    } catch {
+      return;
+    }
+
+    if (response.errorCode === "INVALID_CREDENTIALS") {
+      setPasswordErrorMessage(t("deleteAccount.status.invalidCredentials"));
+      setIsDeletingAccount(false);
+      return;
+    }
+
+    if (response.errorCode === "UNAUTHORIZED") {
+      toast.error(t("common.errorTitle"), {
+        id: deleteAccountToastId,
+        description: t("deleteAccount.status.unauthorized"),
+      });
+      setIsDeletingAccount(false);
+      router.replace("/login");
+      router.refresh();
+      return;
+    }
+
+    if (response.errorCode === "BAD_REQUEST") {
+      toast.error(t("common.errorTitle"), {
+        id: deleteAccountToastId,
+        description: t("deleteAccount.status.deleteNotAllowed"),
+      });
+    } else {
       toast.error(t("common.errorTitle"), {
         id: deleteAccountToastId,
         description: t("deleteAccount.status.error"),
       });
-    } finally {
-      setIsDeletingAccount(false);
     }
+
+    setIsDeletingAccount(false);
   }
 
   function validateDeleteAccountForm() {

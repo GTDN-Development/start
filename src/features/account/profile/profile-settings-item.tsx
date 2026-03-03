@@ -4,6 +4,7 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useAccountProfile } from "@/features/account/account-profile-context";
+import { updateAccountProfile } from "@/features/account/account-client";
 import {
   AccountItem,
   AccountItemContent,
@@ -61,24 +62,35 @@ export function AccountDisplayNameSettingsItem() {
     setIsSavingName(true);
     setNameStatus(null);
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      const nextName = trimmedNameValue || null;
-      patchProfile({ name: nextName });
-      setNameValue(nextName ?? "");
-      setNameStatus(null);
+    const response = await updateAccountProfile({
+      name: trimmedNameValue,
+    });
+
+    if (response.ok) {
+      patchProfile(response.data.profile);
+      setNameValue(response.data.profile.name ?? "");
       toast.success(t("common.successTitle"), {
         id: nameToastId,
         description: t("profile.status.savedMessage"),
       });
-    } catch {
+    } else if (response.errorCode === "UNAUTHORIZED") {
+      setNameStatus({
+        kind: "error",
+        message: t("profile.status.unauthorizedMessage"),
+      });
+    } else if (response.errorCode === "BAD_REQUEST" || response.errorCode === "VALIDATION_ERROR") {
+      setNameStatus({
+        kind: "error",
+        message: t("profile.status.invalidInputMessage"),
+      });
+    } else {
       setNameStatus({
         kind: "error",
         message: t("profile.status.errorMessage"),
       });
-    } finally {
-      setIsSavingName(false);
     }
+
+    setIsSavingName(false);
   }
 
   return (

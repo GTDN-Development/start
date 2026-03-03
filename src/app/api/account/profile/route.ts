@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { createAuthApiErrorResponse, createAuthApiResponse } from "@/server/auth/auth-api-route";
-import { requestEmailChangeForCurrentUser } from "@/server/auth/auth-service";
+import { updateCurrentUserProfileName } from "@/server/account/account-service";
 import { hasValidOrigin, parseRequestJson } from "@/server/http/request-utils";
 
-const requestEmailChangeSchema = z.object({
-  newEmail: z.string().trim().toLowerCase().pipe(z.email()),
+const updateProfileSchema = z.object({
+  name: z.string().trim().max(32),
 });
 
-export async function POST(request: NextRequest) {
+export async function PATCH(request: NextRequest) {
   if (!hasValidOrigin(request)) {
     return createAuthApiErrorResponse("BAD_REQUEST");
   }
@@ -19,13 +19,13 @@ export async function POST(request: NextRequest) {
     return createAuthApiErrorResponse("BAD_REQUEST");
   }
 
-  const parsedBody = requestEmailChangeSchema.safeParse(rawBody);
+  const parsedBody = updateProfileSchema.safeParse(rawBody);
 
   if (!parsedBody.success) {
     return createAuthApiErrorResponse("BAD_REQUEST");
   }
 
-  const result = await requestEmailChangeForCurrentUser(parsedBody.data.newEmail);
+  const result = await updateCurrentUserProfileName(parsedBody.data.name);
 
   return createAuthApiResponse(result);
 }

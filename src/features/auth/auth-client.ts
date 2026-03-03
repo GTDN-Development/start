@@ -9,8 +9,6 @@ import type {
   AuthSession,
   AuthSessionPayload,
   AuthSessionSnapshot,
-  RequestEmailChangePayload,
-  RequestEmailChangeResponse,
   RequestEmailVerificationPayload,
   RequestEmailVerificationResponse,
   RequestPasswordResetPayload,
@@ -35,7 +33,6 @@ const VERIFY_EMAIL_ENDPOINT_PATH = "/api/auth/verify-email";
 const RESET_PASSWORD_ENDPOINT_PATH = "/api/auth/reset-password";
 const REQUEST_EMAIL_VERIFICATION_ENDPOINT_PATH = "/api/auth/request-email-verification";
 const REQUEST_PASSWORD_RESET_ENDPOINT_PATH = "/api/auth/request-password-reset";
-const REQUEST_EMAIL_CHANGE_ENDPOINT_PATH = "/api/auth/request-email-change";
 const CONFIRM_EMAIL_CHANGE_ENDPOINT_PATH = "/api/auth/confirm-email-change";
 
 /** Min interval between refetches from cross-tab sync, tab focus, or online recovery. */
@@ -64,10 +61,6 @@ export type ResetPasswordWithTokenInput = {
   token: string;
   password: string;
   confirmPassword: string;
-};
-
-export type RequestEmailChangeInput = {
-  newEmail: string;
 };
 
 export type ConfirmEmailChangeInput = {
@@ -190,18 +183,6 @@ export async function requestEmailVerification(): Promise<RequestEmailVerificati
       method: "POST",
     }
   );
-}
-
-export async function requestEmailChange(
-  input: RequestEmailChangeInput
-): Promise<RequestEmailChangeResponse> {
-  return requestAuthEndpoint<RequestEmailChangePayload>(REQUEST_EMAIL_CHANGE_ENDPOINT_PATH, {
-    method: "POST",
-    body: JSON.stringify(input),
-    headers: {
-      "content-type": "application/json",
-    },
-  });
 }
 
 export async function confirmEmailChange(

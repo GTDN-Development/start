@@ -31,9 +31,9 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import type { InlineStatus } from "@/features/account/account-types";
+import { requestAccountEmailChange } from "@/features/account/account-client";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { requestEmailChange } from "@/features/auth/auth-client";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
 type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;
@@ -74,7 +74,7 @@ export function AccountEmailSettingsItem() {
 
       const normalizedNewEmail = parsedEmail.data;
 
-      const response = await requestEmailChange({
+      const response = await requestAccountEmailChange({
         newEmail: normalizedNewEmail,
       });
 

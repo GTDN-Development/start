@@ -5,11 +5,6 @@ export type AccountProfileSnapshot = {
   avatarUrl: string | null;
 };
 
-export function createStaticAccountProfileSnapshot(): AccountProfileSnapshot {
-  return {
-    email: "demo@example.com",
-    name: "Demo User",
-    verified: false,
-    avatarUrl: null,
-  };
-}
+export type AccountProfilePayload = {
+  profile: AccountProfileSnapshot;
+};

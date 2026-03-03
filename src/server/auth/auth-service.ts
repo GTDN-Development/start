@@ -6,7 +6,6 @@ import type {
   ConfirmEmailChangePayload,
   AuthSession,
   AuthSessionPayload,
-  RequestEmailChangePayload,
   RequestEmailVerificationPayload,
   RequestPasswordResetPayload,
   ResetPasswordPayload,
@@ -314,59 +313,6 @@ export async function requestEmailVerificationForCurrentUser(): Promise<
 
     if (errorCode === "UNKNOWN_ERROR") {
       logAuthServiceError("requestEmailVerificationForCurrentUser", error);
-    }
-
-    return {
-      ok: false,
-      errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
-    };
-  }
-}
-
-export async function requestEmailChangeForCurrentUser(
-  newEmail: string
-): Promise<ServerAuthResponse<RequestEmailChangePayload>> {
-  const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
-
-  if (hadInvalidAuthCookie) {
-    return {
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-      setCookie: createClearedPocketBaseAuthCookies(),
-    };
-  }
-
-  if (!pb.authStore.isValid || !pb.authStore.record) {
-    return {
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-      ...(hasAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
-    };
-  }
-
-  if (!isUsersRecord(pb.authStore.record)) {
-    return {
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-      setCookie: createClearedPocketBaseAuthCookies(),
-    };
-  }
-
-  try {
-    await pb.collection("users").requestEmailChange(newEmail);
-
-    return {
-      ok: true,
-      data: {
-        sent: true,
-      },
-    };
-  } catch (error) {
-    const errorCode = mapRequestEmailChangeErrorCode(error);
-
-    if (errorCode === "UNKNOWN_ERROR") {
-      logAuthServiceError("requestEmailChangeForCurrentUser", error);
     }
 
     return {
@@ -747,35 +693,6 @@ function mapRequestEmailVerificationErrorCode(error: unknown): AuthErrorCode {
 
     if (error.status === 429) {
       return "RATE_LIMITED";
-    }
-  }
-
-  return "UNKNOWN_ERROR";
-}
-
-function mapRequestEmailChangeErrorCode(error: unknown): AuthErrorCode {
-  if (error instanceof ClientResponseError) {
-    if (error.status === 401 || error.status === 403) {
-      return "UNAUTHORIZED";
-    }
-
-    if (error.status === 404) {
-      return "NOT_FOUND";
-    }
-
-    if (error.status === 429) {
-      return "RATE_LIMITED";
-    }
-
-    if (error.status === 400) {
-      if (
-        hasValidationCode(error.response?.data, "newEmail", "validation_not_unique") ||
-        hasValidationCode(error.response?.data, "email", "validation_not_unique")
-      ) {
-        return "EMAIL_ALREADY_IN_USE";
-      }
-
-      return "VALIDATION_ERROR";
     }
   }
 

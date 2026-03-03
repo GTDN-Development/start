@@ -4,6 +4,7 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useAccountProfile } from "@/features/account/account-profile-context";
+import { removeAccountAvatar, uploadAccountAvatar } from "@/features/account/account-client";
 import {
   AccountItem,
   AccountItemContent,
@@ -32,21 +33,12 @@ export function AccountAvatarSettingsItem() {
   const { profile, patchProfile, isAvatarUpdating, setIsAvatarUpdating } = useAccountProfile();
   const avatarToastId = React.useId();
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
-  const localAvatarUrlRef = React.useRef<string | null>(null);
   const [failedAvatarUrl, setFailedAvatarUrl] = React.useState<string | null>(null);
 
   const displayName = profile.name?.trim() ? profile.name : null;
   const initials = getUserInitials(displayName ?? profile.email);
   const avatarUrl =
     profile.avatarUrl && profile.avatarUrl !== failedAvatarUrl ? profile.avatarUrl : null;
-
-  React.useEffect(() => {
-    return () => {
-      if (localAvatarUrlRef.current) {
-        URL.revokeObjectURL(localAvatarUrlRef.current);
-      }
-    };
-  }, []);
 
   async function handleAvatarInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
@@ -74,29 +66,25 @@ export function AccountAvatarSettingsItem() {
 
     setIsAvatarUpdating(true);
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      const nextAvatarUrl = URL.createObjectURL(avatarFile);
+    const response = await uploadAccountAvatar(avatarFile);
 
-      if (localAvatarUrlRef.current) {
-        URL.revokeObjectURL(localAvatarUrlRef.current);
-      }
-
-      localAvatarUrlRef.current = nextAvatarUrl;
-      patchProfile({ avatarUrl: nextAvatarUrl });
+    if (response.ok) {
+      patchProfile(response.data.profile);
       setFailedAvatarUrl(null);
       toast.success(t("common.successTitle"), {
         id: avatarToastId,
         description: t("avatar.status.updated"),
       });
-    } catch {
+    } else {
       toast.error(t("common.errorTitle"), {
         id: avatarToastId,
-        description: t("avatar.status.error"),
+        description: resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
+          UNAUTHORIZED: t("avatar.status.unauthorized"),
+        }),
       });
-    } finally {
-      setIsAvatarUpdating(false);
     }
+
+    setIsAvatarUpdating(false);
   }
 
   async function handleAvatarRemoveClick() {
@@ -106,28 +94,25 @@ export function AccountAvatarSettingsItem() {
 
     setIsAvatarUpdating(true);
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
+    const response = await removeAccountAvatar();
 
-      if (localAvatarUrlRef.current) {
-        URL.revokeObjectURL(localAvatarUrlRef.current);
-        localAvatarUrlRef.current = null;
-      }
-
-      patchProfile({ avatarUrl: null });
+    if (response.ok) {
+      patchProfile(response.data.profile);
       setFailedAvatarUrl(null);
       toast.success(t("common.successTitle"), {
         id: avatarToastId,
         description: t("avatar.status.removed"),
       });
-    } catch {
+    } else {
       toast.error(t("common.errorTitle"), {
         id: avatarToastId,
-        description: t("avatar.status.error"),
+        description: resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
+          UNAUTHORIZED: t("avatar.status.unauthorized"),
+        }),
       });
-    } finally {
-      setIsAvatarUpdating(false);
     }
+
+    setIsAvatarUpdating(false);
   }
 
   function handleAvatarChangeMenuClick() {
