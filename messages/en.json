@@ -77,6 +77,22 @@
       "callToAction": "Call to action",
       "close": "Close alert"
     },
+    "emailVerificationBanner": {
+      "title": "Almost there! Please verify your email to unlock all features.",
+      "resend": "Resend verification email",
+      "close": "Close email verification banner",
+      "status": {
+        "success": {
+          "title": "Verification email sent",
+          "message": "We've sent a new verification email."
+        },
+        "error": {
+          "title": "Unable to send email",
+          "message": "We couldn't send the verification email right now. Please try again.",
+          "unauthorized": "Your session expired. Please sign in again."
+        }
+      }
+    },
     "platform": {
       "signedInAs": "Signed in as",
       "emailVerified": "Email verified",
@@ -430,7 +446,8 @@
     "login": {
       "validation": {
         "email": "Please enter a valid email address.",
-        "password": "Password must be at least 8 characters."
+        "passwordMin": "Password must be at least 8 characters.",
+        "passwordMax": "Password must not exceed 100 characters."
       },
       "passwordVisibility": {
         "show": "Show password",
@@ -613,7 +630,7 @@
         "password": {
           "label": "Current password",
           "placeholder": "Enter your current password",
-          "description": "PocketBase requires your current password to confirm the email change."
+          "description": "For security reasons, enter your current password to confirm this change."
         }
       },
       "submit": {
@@ -684,7 +701,6 @@
       },
       "purposes": {
         "cookieConsent": "Stores cookie consent preferences.",
-        "cookieConsentSubject": "Stores a pseudonymous key used to record consent history events.",
         "theme": "Stores theme preference (system/light/dark mode).",
         "ga": "Distinguishes users for analytics (with consent).",
         "gaWildcard": "Persists GA4 session state (with consent).",

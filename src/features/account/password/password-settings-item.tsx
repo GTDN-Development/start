@@ -4,12 +4,8 @@ import { useForm } from "@tanstack/react-form";
 import * as React from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
-import { useRouter } from "@/i18n/navigation";
-import {
-  readAccountSettingsApiResponse,
-  type InlineStatus,
-} from "@/features/account/account-response";
+import type { InlineStatus } from "@/features/account/account-types";
+import { updateAccountPassword } from "@/features/account/account-client";
 import {
   AccountItem,
   AccountItemContent,
@@ -25,8 +21,6 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
-import { resolveErrorMessage } from "@/lib/utils";
 
 type SecurityTranslationFn = (key: string, values?: Record<string, string>) => string;
 type PasswordFormValues = {
@@ -41,8 +35,6 @@ const MAX_PASSWORD_LENGTH = 100;
 export function AccountChangePasswordItem() {
   const t = useTranslations("pages.account");
   const tPasswordVisibility = useTranslations("forms.login.passwordVisibility");
-  const router = useRouter();
-  const passwordToastId = React.useId();
   const [submitStatus, setSubmitStatus] = React.useState<InlineStatus>(null);
 
   const passwordFormSchema = getPasswordFormSchema(t);
@@ -58,54 +50,42 @@ export function AccountChangePasswordItem() {
     onSubmit: async ({ value }: { value: PasswordFormValues }) => {
       setSubmitStatus(null);
 
-      try {
-        const response = await fetch("/api/account/password", {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            oldPassword: value.currentPassword,
-            password: value.newPassword,
-            passwordConfirm: value.confirmPassword,
-          }),
-        });
-        const result = await readAccountSettingsApiResponse(response);
+      const response = await updateAccountPassword(value);
 
-        if (!response.ok || !result?.ok) {
-          setSubmitStatus({
-            kind: "error",
-            message: resolveErrorMessage(result?.errorCode, t("security.password.status.error"), {
-              INVALID_PASSWORD_INPUT: t("security.password.status.invalidInput"),
-              UNAUTHORIZED: t("security.password.status.unauthorized"),
-            }),
-          });
-          return;
-        }
-
+      if (response.ok) {
         form.reset();
-
-        if (result.sessionExpired) {
-          notifyAuthSync("auth");
-          toast.success(t("common.successTitle"), {
-            id: passwordToastId,
-            description: t("security.password.status.savedAndRelogin"),
-          });
-          router.replace("/login");
-          router.refresh();
-          return;
-        }
-
         setSubmitStatus({
           kind: "success",
           message: t("security.password.status.saved"),
         });
-      } catch {
+        return;
+      }
+
+      if (response.errorCode === "UNAUTHORIZED") {
         setSubmitStatus({
           kind: "error",
-          message: t("security.password.status.error"),
+          message: t("security.password.status.unauthorized"),
         });
+        return;
       }
+
+      if (
+        response.errorCode === "BAD_REQUEST" ||
+        response.errorCode === "VALIDATION_ERROR" ||
+        response.errorCode === "INVALID_CREDENTIALS" ||
+        response.errorCode === "WEAK_PASSWORD"
+      ) {
+        setSubmitStatus({
+          kind: "error",
+          message: t("security.password.status.invalidInput"),
+        });
+        return;
+      }
+
+      setSubmitStatus({
+        kind: "error",
+        message: t("security.password.status.error"),
+      });
     },
   });
 
@@ -134,7 +114,9 @@ export function AccountChangePasswordItem() {
               <AccountItemContent className="flex flex-col gap-6">
                 <AccountItemContentHeader>
                   <AccountItemTitle>{t("security.password.title")}</AccountItemTitle>
-                  <AccountItemDescription>{t("security.password.description")}</AccountItemDescription>
+                  <AccountItemDescription>
+                    {t("security.password.description")}
+                  </AccountItemDescription>
                 </AccountItemContentHeader>
 
                 <AccountItemContentBody>
@@ -235,7 +217,10 @@ export function AccountChangePasswordItem() {
                     {submitStatus ? (
                       submitStatus.kind === "success" ? (
                         <Alert className="py-2">
-                          <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-500" />
+                          <CheckCircle2Icon
+                            aria-hidden="true"
+                            className="size-4 text-emerald-500"
+                          />
                           <AlertTitle>{t("common.successTitle")}</AlertTitle>
                           <AlertDescription>{submitStatus.message}</AlertDescription>
                         </Alert>

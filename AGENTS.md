@@ -35,10 +35,7 @@
 - Before adding a new helper/utility, check whether an existing one already exists in `src/lib/utils.ts`, the relevant feature root, or `src/server/*`, and reuse/extend it when practical
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
 - API route groups:
-  - auth: `src/app/api/auth/*`
-  - account: `src/app/api/account/*`
   - marketing: `src/app/api/marketing/*`
-  - cookies: `src/app/api/cookies/consent/route.ts`
 
 ## Tailwind CSS v4
 
@@ -82,7 +79,7 @@
 - For internal navigation use `@/i18n/navigation` (`Link`, `useRouter`, `redirect`, `getPathname`) — avoid `next/navigation` for localized redirects/push/replace
 - **Never** build localized app URLs manually with `/${locale}/...` for redirects, hidden form inputs, metadata, or links — use `redirect({href, locale})` / `getPathname({href, locale})`
 - API `redirectTo` values must be internal path-only route keys (English), preferably typed/allowlisted
-- PocketBase auth email templates should link to `/api/pocketbase/email-link` (single-template bridge), not directly to locale-specific auth pages
+- Auth and account routes are currently static UI flows (no backend integration)
 
 ## PocketBase / Typegen
 

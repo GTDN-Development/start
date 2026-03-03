@@ -1,7 +1,6 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -13,31 +12,19 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, LogInIcon } from "lucide-react";
-
-import { authRedirectPaths } from "@/features/auth/auth-redirects";
-import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
+import { signIn } from "@/features/auth/auth-client";
+import { createSignInFormSchema, type SignInInput } from "@/features/auth/auth-schemas";
 import { cn } from "@/lib/utils";
-
-type LoginFormValues = {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-};
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.login");
   const router = useRouter();
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
 
-  const loginFormSchema = z.object({
-    email: z.email({
-      message: t("validation.email"),
-    }),
-    password: z.string().min(8, {
-      message: t("validation.password"),
-    }),
-    rememberMe: z.boolean(),
+  const loginFormSchema = createSignInFormSchema({
+    email: t("validation.email"),
+    passwordMin: t("validation.passwordMin"),
+    passwordMax: t("validation.passwordMax"),
   });
 
   const form = useForm({
@@ -49,29 +36,22 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     validators: {
       onSubmit: loginFormSchema,
     },
-    onSubmit: async ({ value }: { value: LoginFormValues }) => {
+    onSubmit: async ({ value }: { value: SignInInput }) => {
       setSubmitErrorMessage(null);
 
-      try {
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(value),
-        });
+      const response = await signIn(value);
 
-        const result = await readAuthFormApiResponse(response);
-
-        if (response.ok) {
-          notifyAuthSync("auth");
-          router.replace(result?.redirectTo ?? authRedirectPaths.dashboard);
-        } else {
-          setSubmitErrorMessage(t("status.error.message"));
-        }
-      } catch {
-        setSubmitErrorMessage(t("status.error.message"));
+      if (response.ok) {
+        router.replace("/dashboard");
+        return;
       }
+
+      if (response.errorCode === "INVALID_CREDENTIALS") {
+        setSubmitErrorMessage(t("status.error.message"));
+        return;
+      }
+
+      setSubmitErrorMessage(t("status.error.message"));
     },
   });
 

@@ -77,6 +77,22 @@
       "callToAction": "Akce",
       "close": "Zavřít oznámení"
     },
+    "emailVerificationBanner": {
+      "title": "Už jen krok. Ověřte prosím e-mail a odemkněte všechny funkce.",
+      "resend": "Znovu poslat ověřovací e-mail",
+      "close": "Zavřít banner ověření e-mailu",
+      "status": {
+        "success": {
+          "title": "Ověřovací e-mail odeslán",
+          "message": "Poslali jsme nový ověřovací e-mail."
+        },
+        "error": {
+          "title": "E-mail se nepodařilo odeslat",
+          "message": "Ověřovací e-mail se teď nepodařilo odeslat. Zkuste to prosím znovu.",
+          "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
+        }
+      }
+    },
     "platform": {
       "signedInAs": "Přihlášen jako",
       "emailVerified": "E-mail ověřen",
@@ -430,7 +446,8 @@
     "login": {
       "validation": {
         "email": "Zadejte prosím platnou e-mailovou adresu.",
-        "password": "Heslo musí mít alespoň 8 znaků."
+        "passwordMin": "Heslo musí mít alespoň 8 znaků.",
+        "passwordMax": "Heslo nesmí být delší než 100 znaků."
       },
       "passwordVisibility": {
         "show": "Zobrazit heslo",
@@ -613,7 +630,7 @@
         "password": {
           "label": "Aktuální heslo",
           "placeholder": "Zadejte své aktuální heslo",
-          "description": "PocketBase vyžaduje pro potvrzení změny e-mailu vaše aktuální heslo."
+          "description": "Z bezpečnostních důvodů zadejte pro potvrzení této změny své aktuální heslo."
         }
       },
       "submit": {
@@ -684,7 +701,6 @@
       },
       "purposes": {
         "cookieConsent": "Ukládá preference souhlasu s cookies.",
-        "cookieConsentSubject": "Ukládá pseudonymní klíč pro evidenci historie udělených souhlasů.",
         "theme": "Ukládá preferenci motivu (systémový/světlý/tmavý režim).",
         "ga": "Rozlišuje uživatele pro analytiku (se souhlasem).",
         "gaWildcard": "Uchovává stav relace GA4 (se souhlasem).",

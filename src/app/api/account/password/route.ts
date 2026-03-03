@@ -1,67 +1,43 @@
-import { ClientResponseError } from "pocketbase";
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { jsonError, jsonOk, parseJsonBody } from "@/server/http/json";
-import { clearPocketBaseAuthCookie } from "@/server/pocketbase/pb-client";
-import {
-  getAuthenticatedUserApiContext,
-  refreshAuthenticatedUserApiSession,
-  setAuthenticatedUserApiCookie,
-} from "@/server/pocketbase/pb-authenticated-context";
+import { createAuthPasswordSchema } from "@/features/auth/auth-schemas";
+import { updateCurrentUserPassword } from "@/server/account/account-service";
+import { createAuthApiErrorResponse, createAuthApiResponse } from "@/server/auth/auth-api-route";
+import { hasValidOrigin, parseRequestJson } from "@/server/http/request-utils";
 
-const updatePasswordPayloadSchema = z
+const updatePasswordSchema = z
   .object({
-    oldPassword: z.string().min(1),
-    password: z.string().min(8).max(100),
-    passwordConfirm: z.string().min(1),
+    currentPassword: z.string().min(1),
+    newPassword: createAuthPasswordSchema(),
+    confirmPassword: createAuthPasswordSchema(),
   })
-  .refine((value) => value.password === value.passwordConfirm, {
-    path: ["passwordConfirm"],
+  .superRefine((values, context) => {
+    if (values.newPassword !== values.confirmPassword) {
+      context.addIssue({
+        code: "custom",
+        path: ["confirmPassword"],
+      });
+    }
   });
 
-export async function PATCH(request: NextRequest) {
-  try {
-    const body = await parseJsonBody(request, updatePasswordPayloadSchema);
-
-    if (!body) {
-      return jsonError("BAD_REQUEST", 400);
-    }
-
-    const userContext = getAuthenticatedUserApiContext(request);
-
-    if (!userContext) {
-      return jsonError("UNAUTHORIZED", 401);
-    }
-
-    await userContext.pb.collection("users").update(userContext.userId, {
-      oldPassword: body.oldPassword,
-      password: body.password,
-      passwordConfirm: body.passwordConfirm,
-    });
-
-    const hasRefreshedSession = await refreshAuthenticatedUserApiSession(userContext.pb);
-    const response = jsonOk({ sessionExpired: !hasRefreshedSession }, 200);
-
-    if (hasRefreshedSession) {
-      setAuthenticatedUserApiCookie(response, userContext.pb);
-    } else {
-      clearPocketBaseAuthCookie(response);
-    }
-
-    return response;
-  } catch (error) {
-    if (error instanceof ClientResponseError) {
-      if (error.status === 400) {
-        return jsonError("INVALID_PASSWORD_INPUT", 400);
-      }
-
-      if (error.status === 401 || error.status === 403) {
-        return jsonError("UNAUTHORIZED", 401);
-      }
-    }
-
-    console.error("Change account password API error:", error);
-
-    return jsonError("INTERNAL_ERROR", 500);
+export async function POST(request: NextRequest) {
+  if (!hasValidOrigin(request)) {
+    return createAuthApiErrorResponse("BAD_REQUEST");
   }
+
+  const rawBody = await parseRequestJson(request);
+
+  if (rawBody === null) {
+    return createAuthApiErrorResponse("BAD_REQUEST");
+  }
+
+  const parsedBody = updatePasswordSchema.safeParse(rawBody);
+
+  if (!parsedBody.success) {
+    return createAuthApiErrorResponse("BAD_REQUEST");
+  }
+
+  const result = await updateCurrentUserPassword(parsedBody.data);
+
+  return createAuthApiResponse(result);
 }

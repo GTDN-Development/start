@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
+import { confirmEmailChange } from "@/features/auth/auth-client";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
-import { authRedirectPaths } from "@/features/auth/auth-redirects";
-import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
-import { cn, resolveErrorMessage } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+
+type SubmitErrorCode = "password-required" | "invalid-token-or-password" | "generic" | null;
 
 export function ConfirmEmailChangeForm({
   token,
@@ -25,53 +25,48 @@ export function ConfirmEmailChangeForm({
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
+  const [submitErrorCode, setSubmitErrorCode] = useState<SubmitErrorCode>(null);
+  const submitErrorMessage = getSubmitErrorMessage(submitErrorCode, t);
+  const isPasswordInvalid = submitErrorCode === "password-required";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!token) {
-      setSubmitErrorMessage(t("status.error.invalidOrExpiredTokenOrPassword"));
+      setSubmitErrorCode("invalid-token-or-password");
       return;
     }
 
     if (!password.trim()) {
-      setSubmitErrorMessage(t("validation.passwordRequired"));
+      setSubmitErrorCode("password-required");
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitErrorMessage(null);
+    setSubmitErrorCode(null);
 
-    try {
-      const response = await fetch("/api/auth/confirm-email-change", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token,
-          password,
-        }),
-      });
+    const response = await confirmEmailChange({
+      token,
+      password,
+    });
 
-      const result = await readAuthFormApiResponse(response);
-
-      if (response.ok && result?.ok) {
-        notifyAuthSync("auth");
-        router.replace(result.redirectTo ?? authRedirectPaths.login);
-      } else {
-        setSubmitErrorMessage(
-          resolveErrorMessage(result?.errorCode, t("status.error.message"), {
-            INVALID_OR_EXPIRED_TOKEN_OR_PASSWORD: t("status.error.invalidOrExpiredTokenOrPassword"),
-          })
-        );
+    if (response.ok) {
+      if (response.data.session?.user.id) {
+        router.replace("/dashboard");
+        return;
       }
-    } catch {
-      setSubmitErrorMessage(t("status.error.message"));
-    } finally {
-      setIsSubmitting(false);
+
+      router.replace("/login");
+      return;
     }
+
+    if (response.errorCode === "BAD_REQUEST") {
+      setSubmitErrorCode("invalid-token-or-password");
+    } else {
+      setSubmitErrorCode("generic");
+    }
+
+    setIsSubmitting(false);
   }
 
   return (
@@ -80,7 +75,7 @@ export function ConfirmEmailChangeForm({
         <FieldGroup>
           <FieldDescription>{t("description")}</FieldDescription>
 
-          <Field data-invalid={Boolean(submitErrorMessage && !password.trim())}>
+          <Field data-invalid={isPasswordInvalid}>
             <FieldLabel htmlFor="confirm-email-change-password">
               {t("fields.password.label")}
             </FieldLabel>
@@ -90,7 +85,7 @@ export function ConfirmEmailChangeForm({
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder={t("fields.password.placeholder")}
-              aria-invalid={Boolean(submitErrorMessage && !password.trim())}
+              aria-invalid={isPasswordInvalid}
               autoComplete="current-password"
               required
               showPasswordLabel={t("passwordVisibility.show")}
@@ -125,4 +120,20 @@ export function ConfirmEmailChangeForm({
       </form>
     </div>
   );
+}
+
+function getSubmitErrorMessage(errorCode: SubmitErrorCode, t: (key: string) => string) {
+  if (errorCode === "password-required") {
+    return t("validation.passwordRequired");
+  }
+
+  if (errorCode === "invalid-token-or-password") {
+    return t("status.error.invalidOrExpiredTokenOrPassword");
+  }
+
+  if (errorCode === "generic") {
+    return t("status.error.message");
+  }
+
+  return null;
 }

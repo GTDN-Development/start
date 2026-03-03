@@ -1,30 +1,22 @@
 import { MarketingLayout } from "@/features/marketing/marketing-layout";
-import { getAccountProfileSnapshot } from "@/features/account/account-profile";
-import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
-import { createServerPocketBaseClient } from "@/server/pocketbase/pb-client";
+import { getServerAuthSession } from "@/server/auth/auth-service";
 
 type MarketingRouteLayoutProps = {
   children: React.ReactNode;
 };
 
 export default async function Layout({ children }: MarketingRouteLayoutProps) {
-  const pb = await createServerPocketBaseClient();
-  const viewer = getMarketingViewer(pb.authStore.record);
+  const sessionResponse = await getServerAuthSession();
+  const viewer = sessionResponse.ok
+    ? sessionResponse.data.session?.user
+      ? {
+          email: sessionResponse.data.session.user.email,
+          name: sessionResponse.data.session.user.name,
+          verified: sessionResponse.data.session.user.verified,
+          avatarUrl: sessionResponse.data.session.user.avatarUrl,
+        }
+      : null
+    : null;
 
   return <MarketingLayout viewer={viewer}>{children}</MarketingLayout>;
-}
-
-function getMarketingViewer(record: unknown): UserAccountMenuViewer | null {
-  const profile = getAccountProfileSnapshot(record);
-
-  if (!profile.email) {
-    return null;
-  }
-
-  return {
-    email: profile.email,
-    name: profile.name,
-    verified: profile.verified,
-    avatarUrl: profile.avatarUrl,
-  };
 }

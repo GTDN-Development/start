@@ -10,7 +10,7 @@ Next.js 16 starter app for marketing, auth, and platform pages.
 - shadcn/base-ui components
 - next-intl (EN/CS)
 - Cloudflare Turnstile
-- PocketBase (SSR auth + route handlers)
+- PocketBase (typegen + auth integration)
 
 ## Commands
 
@@ -45,13 +45,13 @@ PocketBase typegen requires:
 - `src/app` - routes, layouts, metadata, API route adapters
 - `src/features` - feature-first modules (`auth`, `account`, `marketing`, `cookies`, `platform`)
 - `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `providers`, `dev`)
-- `src/server` - server-only infrastructure (`pocketbase`, `http`, `captcha`, `email`)
+- `src/server` - server-only infrastructure (`captcha`, `email`)
 - `src/config` - structural config (menus, links, site data)
 - `src/i18n` + `messages` - routing and translations
 - `src/lib` - shared utilities
 - `src/types` - shared types + generated PocketBase types
 - `scripts/pocketbase-typegen.mjs` - PocketBase type generator
-- `POCKETBASE-INTEGRATION.md` - PocketBase SSR/auth notes
+- `POCKETBASE-INTEGRATION.md` - PocketBase integration notes
 
 ## Architecture Conventions
 
@@ -65,10 +65,7 @@ PocketBase typegen requires:
 - Keep common helpers centralized in `src/lib/utils.ts`; avoid splitting utility helpers into many micro files
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
 - API groups are path-based:
-  - Auth: `/api/auth/*`
-  - Account: `/api/account/*`
   - Marketing: `/api/marketing/*`
-  - Cookies: `/api/cookies/consent`
 
 ## i18n Routing (EN keys + CS aliases)
 
@@ -109,16 +106,13 @@ redirect({ href: "/login", locale: locale as Locale });
 - Route metadata uses localized path generation for canonical URLs and language alternates
 - `createPageMetadata(...)` now expects `locale` and an internal pathname key
 
-## PocketBase Email Links (single template)
+## Auth/Account Status
 
-PocketBase templates cannot be localized per user in our setup, so auth emails should use the bridge route:
-
-- Verify email: `{APP_URL}/api/pocketbase/email-link?action=verify-email&token={TOKEN}`
-- Reset password: `{APP_URL}/api/pocketbase/email-link?action=reset-password&token={TOKEN}`
-- Confirm email change: `{APP_URL}/api/pocketbase/email-link?action=confirm-email-change&token={TOKEN}`
-
-Bridge behavior:
-
-- Preserves token/query params
-- Resolves locale by `?locale=...` -> `NEXT_LOCALE` cookie -> `Accept-Language` -> default `cs`
-- Redirects to the localized auth page (including Czech aliases)
+- Auth uses PocketBase via SSR-safe per-request server clients.
+- Auth API is available via catch-all route `src/app/api/auth/[...all]/route.ts`.
+- Implemented actions: `sign-in`, `sign-up`, `sign-out`, `session`.
+- Client DX API is exposed via `src/features/auth/auth-client.ts`:
+  - `signIn`, `signUp`, `useSession`, `signOut`
+- Platform routes are protected by:
+  - `src/proxy.ts` cookie-presence redirect guard
+  - server-layout fallback session validation in `src/app/[locale]/(platform)/layout.tsx`

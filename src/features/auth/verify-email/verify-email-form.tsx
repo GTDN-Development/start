@@ -7,11 +7,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
+import { verifyEmailToken } from "@/features/auth/auth-client";
+import { setAuthFlash } from "@/features/auth/auth-flash";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
-import { authRedirectPaths } from "@/features/auth/auth-redirects";
-import { readAuthFormApiResponse } from "@/features/auth/auth-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
-import { cn, resolveErrorMessage } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export function VerifyEmailForm({
   token,
@@ -36,35 +35,26 @@ export function VerifyEmailForm({
     setIsSubmitting(true);
     setSubmitErrorMessage(null);
 
-    try {
-      const response = await fetch("/api/auth/verify-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token,
-        }),
-      });
+    const response = await verifyEmailToken(token);
 
-      const result = await readAuthFormApiResponse(response);
-
-      if (response.ok && result?.ok) {
-        notifyAuthSync("profile");
-        router.replace(result.redirectTo ?? authRedirectPaths.login);
-        router.refresh();
-      } else {
-        setSubmitErrorMessage(
-          resolveErrorMessage(result?.errorCode, t("status.error.message"), {
-            INVALID_OR_EXPIRED_TOKEN: t("status.error.invalidOrExpiredToken"),
-          })
-        );
+    if (response.ok) {
+      if (response.data.session?.user.verified) {
+        router.replace("/dashboard");
+        return;
       }
-    } catch {
-      setSubmitErrorMessage(t("status.error.message"));
-    } finally {
-      setIsSubmitting(false);
+
+      setAuthFlash("email-verified");
+      router.replace("/login");
+      return;
     }
+
+    if (response.errorCode === "BAD_REQUEST") {
+      setSubmitErrorMessage(t("status.error.invalidOrExpiredToken"));
+    } else {
+      setSubmitErrorMessage(t("status.error.message"));
+    }
+
+    setIsSubmitting(false);
   }
 
   return (

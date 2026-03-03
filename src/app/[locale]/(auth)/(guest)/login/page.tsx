@@ -8,6 +8,7 @@ import {
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
+import { LoginFlashToast } from "@/features/auth/login/login-flash-toast";
 import { LoginForm } from "@/features/auth/login/login-form";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -48,6 +49,7 @@ export default async function Page({ params }: PageProps<"/[locale]/login">) {
       </AuthHero>
 
       <div className="mt-6 pt-6">
+        <LoginFlashToast />
         <LoginForm />
         <p className="mt-4 text-sm">
           <Link

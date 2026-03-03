@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
+import { deleteAccount } from "@/features/account/account-client";
 import {
   AccountItem,
   AccountItemContent,
@@ -28,10 +29,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
-import { readAccountSettingsApiResponse } from "@/features/account/account-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { Trash2Icon } from "lucide-react";
-import { resolveErrorMessage } from "@/lib/utils";
 
 export function AccountDeleteAccountSettingsItem() {
   const t = useTranslations("pages.account");
@@ -57,50 +55,56 @@ export function AccountDeleteAccountSettingsItem() {
     }
 
     setIsDeletingAccount(true);
+    setPasswordErrorMessage(null);
 
-    try {
-      const response = await fetch("/api/account/delete", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          password,
-          acknowledged: isDeletionAcknowledged,
-        }),
-      });
-      const result = await readAccountSettingsApiResponse(response);
+    const response = await deleteAccount({
+      password,
+    });
 
-      if (!response.ok || !result?.ok) {
-        toast.error(t("common.errorTitle"), {
-          id: deleteAccountToastId,
-          description: resolveErrorMessage(result?.errorCode, t("deleteAccount.status.error"), {
-            DELETE_NOT_ALLOWED: t("deleteAccount.status.deleteNotAllowed"),
-            INVALID_CREDENTIALS: t("deleteAccount.status.invalidCredentials"),
-            UNAUTHORIZED: t("deleteAccount.status.unauthorized"),
-          }),
-        });
-        return;
-      }
-
+    if (response.ok) {
       toast.success(t("common.successTitle"), {
         id: deleteAccountToastId,
         description: t("deleteAccount.status.success"),
       });
 
-      notifyAuthSync("auth");
       setIsDeleteDialogOpen(false);
       resetDeleteAccountForm();
+      setIsDeletingAccount(false);
       router.replace("/login");
       router.refresh();
-    } catch {
+      return;
+    }
+
+    if (response.errorCode === "INVALID_CREDENTIALS") {
+      setPasswordErrorMessage(t("deleteAccount.status.invalidCredentials"));
+      setIsDeletingAccount(false);
+      return;
+    }
+
+    if (response.errorCode === "UNAUTHORIZED") {
+      toast.error(t("common.errorTitle"), {
+        id: deleteAccountToastId,
+        description: t("deleteAccount.status.unauthorized"),
+      });
+      setIsDeletingAccount(false);
+      router.replace("/login");
+      router.refresh();
+      return;
+    }
+
+    if (response.errorCode === "BAD_REQUEST") {
+      toast.error(t("common.errorTitle"), {
+        id: deleteAccountToastId,
+        description: t("deleteAccount.status.deleteNotAllowed"),
+      });
+    } else {
       toast.error(t("common.errorTitle"), {
         id: deleteAccountToastId,
         description: t("deleteAccount.status.error"),
       });
-    } finally {
-      setIsDeletingAccount(false);
     }
+
+    setIsDeletingAccount(false);
   }
 
   function validateDeleteAccountForm() {

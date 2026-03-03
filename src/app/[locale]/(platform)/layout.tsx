@@ -3,8 +3,8 @@ import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { PlatformLayout } from "@/features/platform/platform-layout";
-import { getAccountProfileSnapshot } from "@/features/account/account-profile";
-import { createServerPocketBaseClient } from "@/server/pocketbase/pb-client";
+import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
+import { getServerAuthSession } from "@/server/auth/auth-service";
 
 type PlatformRouteLayoutProps = {
   children: React.ReactNode;
@@ -22,17 +22,35 @@ export const metadata: Metadata = {
 
 export default async function Layout({ children, params }: PlatformRouteLayoutProps) {
   const { locale } = await params;
-  const pb = await createServerPocketBaseClient({ refreshAuth: true });
+  const authSession = await getServerAuthSession();
 
-  if (!pb.authStore.isValid || !pb.authStore.record) {
-    redirect({ href: "/login", locale: locale as Locale });
+  if (!authSession.ok) {
+    redirect({
+      href: AUTH_REDIRECTS.unauthenticatedTo,
+      locale: locale as Locale,
+    });
+
+    return null;
   }
 
-  const user = getAccountProfileSnapshot(pb.authStore.record);
+  const sessionPayload = authSession.ok ? authSession.data : null;
+  const session = sessionPayload?.session;
 
-  if (!user.email) {
-    redirect({ href: "/login", locale: locale as Locale });
+  if (!session) {
+    redirect({
+      href: AUTH_REDIRECTS.unauthenticatedTo,
+      locale: locale as Locale,
+    });
+
+    return null;
   }
+
+  const user = {
+    email: session.user.email,
+    name: session.user.name,
+    verified: session.user.verified,
+    avatarUrl: session.user.avatarUrl,
+  };
 
   const tPlatform = await getTranslations({
     locale: locale as Locale,

@@ -1,7 +1,6 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import { AuthSessionSync } from "@/features/auth/auth-session-sync";
 import { CookieContextProvider } from "@/features/cookies/cookie-context";
 import type { ConsentState } from "@/features/cookies/cookie-consent";
 
@@ -21,13 +20,7 @@ export function AppProviders({
       initialConsent={initialCookieConsent}
       initialHasInteracted={initialCookieConsentInteracted}
     >
-      <AuthSessionSync />
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         {children}
       </ThemeProvider>
     </CookieContextProvider>

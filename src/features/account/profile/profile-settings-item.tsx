@@ -4,6 +4,7 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useAccountProfile } from "@/features/account/account-profile-context";
+import { updateAccountProfile } from "@/features/account/account-client";
 import {
   AccountItem,
   AccountItemContent,
@@ -14,17 +15,12 @@ import {
   AccountItemTitle,
 } from "@/features/account/account-item";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  readAccountSettingsApiResponse,
-  type InlineStatus,
-} from "@/features/account/account-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
+import type { InlineStatus } from "@/features/account/account-types";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon } from "lucide-react";
-import { resolveErrorMessage } from "@/lib/utils";
 
 const MAX_PROFILE_NAME_LENGTH = 32;
 
@@ -66,45 +62,35 @@ export function AccountDisplayNameSettingsItem() {
     setIsSavingName(true);
     setNameStatus(null);
 
-    try {
-      const response = await fetch("/api/account/profile", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: nameValue,
-        }),
-      });
-      const result = await readAccountSettingsApiResponse(response);
+    const response = await updateAccountProfile({
+      name: trimmedNameValue,
+    });
 
-      if (!response.ok || !result?.ok || !result.profile) {
-        setNameStatus({
-          kind: "error",
-          message: resolveErrorMessage(result?.errorCode, t("profile.status.errorMessage"), {
-            UNAUTHORIZED: t("profile.status.unauthorizedMessage"),
-            INVALID_PROFILE_INPUT: t("profile.status.invalidInputMessage"),
-          }),
-        });
-        return;
-      }
-
-      patchProfile(result.profile);
-      notifyAuthSync("profile");
-      setNameValue(result.profile.name ?? "");
-      setNameStatus(null);
+    if (response.ok) {
+      patchProfile(response.data.profile);
+      setNameValue(response.data.profile.name ?? "");
       toast.success(t("common.successTitle"), {
         id: nameToastId,
         description: t("profile.status.savedMessage"),
       });
-    } catch {
+    } else if (response.errorCode === "UNAUTHORIZED") {
+      setNameStatus({
+        kind: "error",
+        message: t("profile.status.unauthorizedMessage"),
+      });
+    } else if (response.errorCode === "BAD_REQUEST" || response.errorCode === "VALIDATION_ERROR") {
+      setNameStatus({
+        kind: "error",
+        message: t("profile.status.invalidInputMessage"),
+      });
+    } else {
       setNameStatus({
         kind: "error",
         message: t("profile.status.errorMessage"),
       });
-    } finally {
-      setIsSavingName(false);
     }
+
+    setIsSavingName(false);
   }
 
   return (

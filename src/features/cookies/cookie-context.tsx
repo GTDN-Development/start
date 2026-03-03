@@ -1,13 +1,10 @@
 "use client";
 
-import { useLocale } from "next-intl";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
   COOKIE_NAME,
   type ConsentState,
-  type CookieConsentEventRequest,
-  type CookieConsentEventType,
   acceptAllConsent,
   defaultConsent,
   rejectAllConsent,
@@ -69,7 +66,6 @@ export function CookieContextProvider({
   initialConsent = defaultConsent,
   initialHasInteracted = false,
 }: CookieContextProviderProps) {
-  const locale = useLocale();
   const router = useRouter();
   const [consent, setConsent] = useState<ConsentState>(initialConsent);
   const [hasInteracted, setHasInteracted] = useState(
@@ -97,16 +93,7 @@ export function CookieContextProvider({
     setConsent((prev) => ({ ...prev, [category]: value }));
   }
 
-  function commitConsent(nextConsent: ConsentState, eventType: CookieConsentEventType) {
-    const eventPayload: CookieConsentEventRequest = {
-      consent: nextConsent,
-      eventType,
-      locale,
-      idempotencyKey: createConsentEventIdempotencyKey(),
-    };
-
-    void persistConsentEvent(eventPayload);
-
+  function commitConsent(nextConsent: ConsentState) {
     setConsentCookie(nextConsent);
     setConsent(nextConsent);
     setHasInteracted(true);
@@ -117,15 +104,15 @@ export function CookieContextProvider({
   }
 
   function acceptAll() {
-    commitConsent(acceptAllConsent, "accept_all");
+    commitConsent(acceptAllConsent);
   }
 
   function rejectAll() {
-    commitConsent(rejectAllConsent, "reject_all");
+    commitConsent(rejectAllConsent);
   }
 
   function savePreferences() {
-    commitConsent(consent, "save_preferences");
+    commitConsent(consent);
   }
 
   function hasConsentedTo(category: keyof ConsentState): boolean {
@@ -168,36 +155,6 @@ export function useCookieContext() {
   }
 
   return context;
-}
-
-async function persistConsentEvent(payload: CookieConsentEventRequest) {
-  try {
-    const response = await fetch("/api/cookies/consent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "same-origin",
-      keepalive: true,
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok && ENABLE_DEBUG_MODE) {
-      console.error("Cookie consent event logging failed:", response.status);
-    }
-  } catch (error) {
-    if (ENABLE_DEBUG_MODE) {
-      console.error("Cookie consent event request failed:", error);
-    }
-  }
-}
-
-function createConsentEventIdempotencyKey() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return `cce_${crypto.randomUUID()}`;
-  }
-
-  return `cce_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function isSameConsent(a: ConsentState, b: ConsentState) {

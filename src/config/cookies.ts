@@ -11,14 +11,6 @@ export const cookies: Cookie[] = [
     category: "essential",
     storageType: "cookie",
   },
-  {
-    name: "cookie_consent_subject",
-    provider: site.domain,
-    purposeKey: "cookieConsentSubject",
-    duration: { kind: "relative", value: 1, unit: "year" },
-    category: "essential",
-    storageType: "cookie",
-  },
 
   // Functional Storage
   {

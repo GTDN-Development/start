@@ -1,101 +1,100 @@
-import { hasLocale } from "next-intl";
-import type { Locale } from "next-intl";
 import { NextRequest, NextResponse } from "next/server";
 import { getPathname, type AppPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
-const NEXT_INTL_LOCALE_COOKIE_NAME = "NEXT_LOCALE";
+type AppLocale = (typeof routing.locales)[number];
 
-const pocketBaseEmailActionPathnames = {
-  "confirm-email-change": "/confirm-email-change",
-  "reset-password": "/reset-password",
+type EmailLinkAction = "verify-email" | "reset-password" | "confirm-email-change";
+
+const EMAIL_LINK_ACTION_TARGETS: Record<EmailLinkAction, AppPathname> = {
   "verify-email": "/verify-email",
-} as const satisfies Record<string, AppPathname>;
+  "reset-password": "/reset-password",
+  "confirm-email-change": "/confirm-email-change",
+};
 
-type PocketBaseEmailAction = keyof typeof pocketBaseEmailActionPathnames;
-
-export function GET(request: NextRequest) {
+export async function GET(request: NextRequest) {
   const locale = resolveLocale(request);
-  const actionParam = request.nextUrl.searchParams.get("action");
-  const action =
-    actionParam && actionParam in pocketBaseEmailActionPathnames
-      ? (actionParam as PocketBaseEmailAction)
-      : null;
+  const action = parseEmailLinkAction(request.nextUrl.searchParams.get("action"));
+  const token = parseToken(request.nextUrl.searchParams.get("token"));
+  const targetRoute: AppPathname = action ? EMAIL_LINK_ACTION_TARGETS[action] : "/login";
+  const localizedPathname = getPathname({
+    href: targetRoute,
+    locale,
+  });
+  const redirectUrl = new URL(localizedPathname, request.nextUrl.origin);
 
-  if (!action) {
-    const fallbackUrl = new URL(getPathname({ href: "/", locale }), request.url);
-
-    return NextResponse.redirect(fallbackUrl, { status: 302 });
+  if (action && token) {
+    redirectUrl.searchParams.set("token", token);
   }
 
-  const destination = new URL(
-    getPathname({
-      href: pocketBaseEmailActionPathnames[action],
-      locale,
-    }),
-    request.url
+  return NextResponse.redirect(redirectUrl);
+}
+
+function parseEmailLinkAction(value: string | null): EmailLinkAction | null {
+  if (value === "verify-email" || value === "reset-password" || value === "confirm-email-change") {
+    return value;
+  }
+
+  return null;
+}
+
+function parseToken(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const token = value.trim();
+
+  return token.length > 0 ? token : null;
+}
+
+function resolveLocale(request: NextRequest): AppLocale {
+  const localeFromCookie = request.cookies.get("NEXT_LOCALE")?.value;
+
+  if (isAppLocale(localeFromCookie)) {
+    return localeFromCookie;
+  }
+
+  const localeFromAcceptLanguage = resolveLocaleFromAcceptLanguage(
+    request.headers.get("accept-language")
   );
 
-  for (const [key, value] of request.nextUrl.searchParams.entries()) {
-    if (key === "action" || key === "locale") {
-      continue;
-    }
-
-    destination.searchParams.append(key, value);
-  }
-
-  return NextResponse.redirect(destination, { status: 307 });
-}
-function resolveLocale(request: NextRequest): Locale {
-  const explicitLocale = normalizeLocale(request.nextUrl.searchParams.get("locale"));
-
-  if (explicitLocale) {
-    return explicitLocale;
-  }
-
-  const cookieLocale = normalizeLocale(request.cookies.get(NEXT_INTL_LOCALE_COOKIE_NAME)?.value ?? null);
-
-  if (cookieLocale) {
-    return cookieLocale;
-  }
-
-  const headerLocale = getLocaleFromAcceptLanguage(request.headers.get("accept-language"));
-
-  if (headerLocale) {
-    return headerLocale;
+  if (localeFromAcceptLanguage) {
+    return localeFromAcceptLanguage;
   }
 
   return routing.defaultLocale;
 }
 
-function normalizeLocale(value: string | null): Locale | null {
+function resolveLocaleFromAcceptLanguage(value: string | null): AppLocale | null {
   if (!value) {
     return null;
   }
 
-  return hasLocale(routing.locales, value) ? value : null;
-}
+  const languagePreferences = value
+    .split(",")
+    .map((part) => part.split(";")[0]?.trim().toLowerCase())
+    .filter(Boolean);
 
-function getLocaleFromAcceptLanguage(headerValue: string | null): Locale | null {
-  if (!headerValue) {
-    return null;
-  }
-
-  const parts = headerValue.split(",");
-
-  for (const part of parts) {
-    const languageTag = part.split(";")[0]?.trim().toLowerCase();
-
-    if (!languageTag) {
-      continue;
+  for (const languagePreference of languagePreferences) {
+    if (isAppLocale(languagePreference)) {
+      return languagePreference;
     }
 
-    const baseLocale = languageTag.split("-")[0] ?? "";
+    const baseLanguage = languagePreference.split("-")[0];
 
-    if (hasLocale(routing.locales, baseLocale)) {
-      return baseLocale;
+    if (isAppLocale(baseLanguage)) {
+      return baseLanguage;
     }
   }
 
   return null;
+}
+
+function isAppLocale(value: string | null | undefined): value is AppLocale {
+  if (!value) {
+    return false;
+  }
+
+  return routing.locales.includes(value as AppLocale);
 }

@@ -4,6 +4,7 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useAccountProfile } from "@/features/account/account-profile-context";
+import { removeAccountAvatar, uploadAccountAvatar } from "@/features/account/account-client";
 import {
   AccountItem,
   AccountItemContent,
@@ -22,8 +23,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { readAccountSettingsApiResponse } from "@/features/account/account-response";
-import { notifyAuthSync } from "@/features/auth/auth-sync-events";
 import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
@@ -67,43 +66,25 @@ export function AccountAvatarSettingsItem() {
 
     setIsAvatarUpdating(true);
 
-    try {
-      const formData = new FormData();
-      formData.append("avatar", avatarFile);
+    const response = await uploadAccountAvatar(avatarFile);
 
-      const response = await fetch("/api/account/avatar", {
-        method: "POST",
-        body: formData,
-      });
-      const result = await readAccountSettingsApiResponse(response);
-
-      if (!response.ok || !result?.ok || !result.profile) {
-        toast.error(t("common.errorTitle"), {
-          id: avatarToastId,
-          description: resolveErrorMessage(result?.errorCode, t("avatar.status.error"), {
-            INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
-            FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
-            UNAUTHORIZED: t("avatar.status.unauthorized"),
-          }),
-        });
-        return;
-      }
-
-      patchProfile(result.profile);
-      notifyAuthSync("profile");
+    if (response.ok) {
+      patchProfile(response.data.profile);
       setFailedAvatarUrl(null);
       toast.success(t("common.successTitle"), {
         id: avatarToastId,
         description: t("avatar.status.updated"),
       });
-    } catch {
+    } else {
       toast.error(t("common.errorTitle"), {
         id: avatarToastId,
-        description: t("avatar.status.error"),
+        description: resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
+          UNAUTHORIZED: t("avatar.status.unauthorized"),
+        }),
       });
-    } finally {
-      setIsAvatarUpdating(false);
     }
+
+    setIsAvatarUpdating(false);
   }
 
   async function handleAvatarRemoveClick() {
@@ -113,39 +94,25 @@ export function AccountAvatarSettingsItem() {
 
     setIsAvatarUpdating(true);
 
-    try {
-      const response = await fetch("/api/account/avatar", {
-        method: "DELETE",
-      });
-      const result = await readAccountSettingsApiResponse(response);
+    const response = await removeAccountAvatar();
 
-      if (!response.ok || !result?.ok || !result.profile) {
-        toast.error(t("common.errorTitle"), {
-          id: avatarToastId,
-          description: resolveErrorMessage(result?.errorCode, t("avatar.status.error"), {
-            INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
-            FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
-            UNAUTHORIZED: t("avatar.status.unauthorized"),
-          }),
-        });
-        return;
-      }
-
-      patchProfile(result.profile);
-      notifyAuthSync("profile");
+    if (response.ok) {
+      patchProfile(response.data.profile);
       setFailedAvatarUrl(null);
       toast.success(t("common.successTitle"), {
         id: avatarToastId,
         description: t("avatar.status.removed"),
       });
-    } catch {
+    } else {
       toast.error(t("common.errorTitle"), {
         id: avatarToastId,
-        description: t("avatar.status.error"),
+        description: resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
+          UNAUTHORIZED: t("avatar.status.unauthorized"),
+        }),
       });
-    } finally {
-      setIsAvatarUpdating(false);
     }
+
+    setIsAvatarUpdating(false);
   }
 
   function handleAvatarChangeMenuClick() {
