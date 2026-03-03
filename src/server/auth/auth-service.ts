@@ -437,6 +437,19 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
   } catch (error) {
     logAuthServiceError("getServerAuthSession", error);
 
+    // Transient error (5xx / network) — return stale session from the local JWT.
+    if (isTransientError(error) && isUsersRecord(pb.authStore.record)) {
+      console.warn("[auth-service] getServerAuthSession: PB unavailable, stale session");
+      const staleSession = createAuthSession(pb, pb.authStore.record);
+
+      return {
+        ok: true,
+        data: {
+          session: staleSession,
+        },
+      };
+    }
+
     return {
       ok: true,
       data: {
@@ -505,6 +518,19 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
     };
   } catch (error) {
     logAuthServiceError("getApiAuthSession", error);
+
+    // Transient error (5xx / network) — keep existing cookie, return stale session.
+    if (isTransientError(error) && isUsersRecord(pb.authStore.record)) {
+      console.warn("[auth-service] getApiAuthSession: PB unavailable, stale session");
+      const staleSession = createAuthSession(pb, pb.authStore.record);
+
+      return {
+        ok: true,
+        data: {
+          session: staleSession,
+        },
+      };
+    }
 
     return {
       ok: true,
@@ -726,6 +752,15 @@ function getFieldError(data: unknown, field: string): { code?: string } | null {
   }
 
   return fieldValue as { code?: string };
+}
+
+/** Status 0 (network) or ≥ 500 (server) — as opposed to 401 (invalid token). */
+function isTransientError(error: unknown): boolean {
+  if (error instanceof ClientResponseError) {
+    return error.status === 0 || error.status >= 500;
+  }
+
+  return true;
 }
 
 function logAuthServiceError(context: string, error: unknown) {

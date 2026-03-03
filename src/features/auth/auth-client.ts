@@ -263,10 +263,18 @@ async function executeSessionRefresh() {
   });
 
   if (!response.ok) {
-    setSessionState({
-      status: "unauthenticated",
-      session: null,
-    });
+    // Transient error — restore previous session if we had one.
+    if (sessionState.session) {
+      setSessionState({
+        status: "authenticated",
+        session: sessionState.session,
+      });
+    } else {
+      setSessionState({
+        status: "unauthenticated",
+        session: null,
+      });
+    }
 
     return;
   }
