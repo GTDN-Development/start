@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { escapeHtml, sendFormEmail } from "@/server/email/send-form-email";
 import { verifyTurnstileToken, getClientIP } from "@/server/captcha/turnstile";
+import { parseRequestJson } from "@/server/http/request-utils";
 import { formatEmailTimestamp } from "@/lib/utils";
 
 const newsletterPayloadSchema = z.object({
@@ -60,13 +61,5 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Newsletter API error:", error);
     return NextResponse.json({ ok: false, errorCode: "INTERNAL_ERROR" }, { status: 500 });
-  }
-}
-
-async function parseRequestJson(request: Request) {
-  try {
-    return (await request.json()) as unknown;
-  } catch {
-    return null;
   }
 }

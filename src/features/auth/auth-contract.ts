@@ -34,6 +34,15 @@ export type AuthSignOutPayload = {
   signedOut: true;
 };
 
+export type VerifyEmailPayload = {
+  verified: true;
+  session: AuthSession | null;
+};
+
+export type ResetPasswordPayload = {
+  passwordReset: true;
+};
+
 export type AuthSuccessResponse<TData> = {
   ok: true;
   data: TData;
@@ -50,6 +59,8 @@ export type SignInResponse = AuthResponse<AuthSessionPayload>;
 export type SignUpResponse = AuthResponse<AuthSessionPayload>;
 export type SignOutResponse = AuthResponse<AuthSignOutPayload>;
 export type SessionResponse = AuthResponse<AuthSessionPayload>;
+export type VerifyEmailResponse = AuthResponse<VerifyEmailPayload>;
+export type ResetPasswordResponse = AuthResponse<ResetPasswordPayload>;
 
 export type AuthSessionStatus = "idle" | "loading" | "authenticated" | "unauthenticated";
 

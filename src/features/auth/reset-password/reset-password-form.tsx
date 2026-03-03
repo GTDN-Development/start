@@ -8,8 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
+import { resetPasswordWithToken } from "@/features/auth/auth-client";
 import { AlertCircleIcon, KeyRoundIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+type SubmitErrorCode = "invalid-token" | "password" | "password-mismatch" | "generic" | null;
 
 export function ResetPasswordForm({
   token,
@@ -23,44 +26,62 @@ export function ResetPasswordForm({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
+  const [submitErrorCode, setSubmitErrorCode] = useState<SubmitErrorCode>(null);
+  const submitErrorMessage = getSubmitErrorMessage(submitErrorCode, t);
+  const isPasswordInvalid = submitErrorCode === "password";
+  const isConfirmPasswordInvalid = submitErrorCode === "password-mismatch";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!token) {
-      setSubmitErrorMessage(t("status.error.invalidOrExpiredToken"));
+      setSubmitErrorCode("invalid-token");
       return;
     }
 
     if (password.length < 8 || confirmPassword.length < 8) {
-      setSubmitErrorMessage(t("validation.password"));
+      setSubmitErrorCode("password");
       return;
     }
 
     if (password !== confirmPassword) {
-      setSubmitErrorMessage(t("validation.passwordMismatch"));
+      setSubmitErrorCode("password-mismatch");
       return;
     }
 
     setIsSubmitting(true);
-    setSubmitErrorMessage(null);
+    setSubmitErrorCode(null);
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
+    const response = await resetPasswordWithToken({
+      token,
+      password,
+      confirmPassword,
+    });
+
+    if (response.ok) {
       router.replace("/login");
-    } catch {
-      setSubmitErrorMessage(t("status.error.message"));
-    } finally {
-      setIsSubmitting(false);
+      return;
     }
+
+    if (response.errorCode === "BAD_REQUEST") {
+      setSubmitErrorCode("invalid-token");
+    } else if (
+      response.errorCode === "WEAK_PASSWORD" ||
+      response.errorCode === "VALIDATION_ERROR"
+    ) {
+      setSubmitErrorCode("password");
+    } else {
+      setSubmitErrorCode("generic");
+    }
+
+    setIsSubmitting(false);
   }
 
   return (
     <div {...props} className={cn("@container w-full", className)}>
       <form onSubmit={handleSubmit}>
         <FieldGroup>
-          <Field>
+          <Field data-invalid={isPasswordInvalid}>
             <FieldLabel htmlFor="reset-password-password">{t("fields.password.label")}</FieldLabel>
             <PasswordInput
               id="reset-password-password"
@@ -71,13 +92,14 @@ export function ResetPasswordForm({
               required
               minLength={8}
               autoComplete="new-password"
+              aria-invalid={isPasswordInvalid}
               showPasswordLabel={t("passwordVisibility.show")}
               hidePasswordLabel={t("passwordVisibility.hide")}
             />
             <FieldDescription>{t("fields.password.description")}</FieldDescription>
           </Field>
 
-          <Field>
+          <Field data-invalid={isConfirmPasswordInvalid}>
             <FieldLabel htmlFor="reset-password-confirm-password">
               {t("fields.confirmPassword.label")}
             </FieldLabel>
@@ -90,6 +112,7 @@ export function ResetPasswordForm({
               required
               minLength={8}
               autoComplete="new-password"
+              aria-invalid={isConfirmPasswordInvalid}
               showPasswordLabel={t("passwordVisibility.show")}
               hidePasswordLabel={t("passwordVisibility.hide")}
             />
@@ -119,4 +142,24 @@ export function ResetPasswordForm({
       </form>
     </div>
   );
+}
+
+function getSubmitErrorMessage(errorCode: SubmitErrorCode, t: (key: string) => string) {
+  if (errorCode === "invalid-token") {
+    return t("status.error.invalidOrExpiredToken");
+  }
+
+  if (errorCode === "password") {
+    return t("validation.password");
+  }
+
+  if (errorCode === "password-mismatch") {
+    return t("validation.passwordMismatch");
+  }
+
+  if (errorCode === "generic") {
+    return t("status.error.message");
+  }
+
+  return null;
 }

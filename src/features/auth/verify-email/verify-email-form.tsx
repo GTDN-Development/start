@@ -7,6 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
+import { verifyEmailToken } from "@/features/auth/auth-client";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -33,14 +34,25 @@ export function VerifyEmailForm({
     setIsSubmitting(true);
     setSubmitErrorMessage(null);
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 300));
+    const response = await verifyEmailToken(token);
+
+    if (response.ok) {
+      if (response.data.session?.user.verified) {
+        router.replace("/dashboard");
+        return;
+      }
+
       router.replace("/login");
-    } catch {
-      setSubmitErrorMessage(t("status.error.message"));
-    } finally {
-      setIsSubmitting(false);
+      return;
     }
+
+    if (response.errorCode === "BAD_REQUEST") {
+      setSubmitErrorMessage(t("status.error.invalidOrExpiredToken"));
+    } else {
+      setSubmitErrorMessage(t("status.error.message"));
+    }
+
+    setIsSubmitting(false);
   }
 
   return (

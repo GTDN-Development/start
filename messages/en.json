@@ -77,6 +77,11 @@
       "callToAction": "Call to action",
       "close": "Close alert"
     },
+    "emailVerificationBanner": {
+      "title": "Almost there! Please verify your email to unlock all features.",
+      "resend": "Resend verification email",
+      "close": "Close email verification banner"
+    },
     "platform": {
       "signedInAs": "Signed in as",
       "emailVerified": "Email verified",

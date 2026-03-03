@@ -77,6 +77,11 @@
       "callToAction": "Akce",
       "close": "Zavřít oznámení"
     },
+    "emailVerificationBanner": {
+      "title": "Už jen krok. Ověřte prosím e-mail a odemkněte všechny funkce.",
+      "resend": "Znovu poslat ověřovací e-mail",
+      "close": "Zavřít banner ověření e-mailu"
+    },
     "platform": {
       "signedInAs": "Přihlášen jako",
       "emailVerified": "E-mail ověřen",

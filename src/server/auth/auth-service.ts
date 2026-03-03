@@ -2,10 +2,12 @@ import PocketBase, { ClientResponseError } from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
 import type {
   AuthErrorCode,
+  AuthResponse,
   AuthSession,
   AuthSessionPayload,
+  ResetPasswordPayload,
   AuthSignOutPayload,
-  AuthResponse,
+  VerifyEmailPayload,
 } from "@/features/auth/auth-contract";
 import type { SignInInput, SignUpInput } from "@/features/auth/auth-schemas";
 import {
@@ -128,6 +130,98 @@ export async function signOutServerSession(): Promise<ServerAuthResponse<AuthSig
     },
     setCookie: createClearedPocketBaseAuthCookies(),
   };
+}
+
+export async function confirmEmailVerificationToken(
+  token: string
+): Promise<ServerAuthResponse<VerifyEmailPayload>> {
+  const { pb, hadInvalidAuthCookie, shouldPersistSession } = await createPocketBaseServerClient();
+
+  try {
+    await pb.collection("users").confirmVerification(token);
+
+    if (pb.authStore.isValid && isUsersRecord(pb.authStore.record)) {
+      const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+      const session = createAuthSession(pb, refreshedAuth.record);
+
+      if (!session) {
+        return {
+          ok: true,
+          data: {
+            verified: true,
+            session: null,
+          },
+          setCookie: createClearedPocketBaseAuthCookies(),
+        };
+      }
+
+      return {
+        ok: true,
+        data: {
+          verified: true,
+          session,
+        },
+        setCookie: exportPocketBaseAuthCookies(pb, {
+          sessionOnly: !shouldPersistSession,
+        }),
+      };
+    }
+
+    return {
+      ok: true,
+      data: {
+        verified: true,
+        session: null,
+      },
+      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  } catch (error) {
+    const errorCode = mapVerifyEmailErrorCode(error);
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logAuthServiceError("confirmEmailVerificationToken", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  }
+}
+
+export async function confirmPasswordResetToken(input: {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}): Promise<ServerAuthResponse<ResetPasswordPayload>> {
+  const { pb, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+
+  try {
+    await pb
+      .collection("users")
+      .confirmPasswordReset(input.token, input.password, input.confirmPassword);
+
+    return {
+      ok: true,
+      data: {
+        passwordReset: true,
+      },
+      setCookie: createClearedPocketBaseAuthCookies(),
+    };
+  } catch (error) {
+    const errorCode = mapResetPasswordErrorCode(error);
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logAuthServiceError("confirmPasswordResetToken", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  }
 }
 
 export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSessionPayload>> {
@@ -336,6 +430,38 @@ function mapSignUpErrorCode(error: unknown): AuthErrorCode {
       }
 
       return "VALIDATION_ERROR";
+    }
+  }
+
+  return "UNKNOWN_ERROR";
+}
+
+function mapVerifyEmailErrorCode(error: unknown): AuthErrorCode {
+  if (error instanceof ClientResponseError) {
+    if (error.status === 400 || error.status === 404) {
+      return "BAD_REQUEST";
+    }
+
+    if (error.status === 429) {
+      return "RATE_LIMITED";
+    }
+  }
+
+  return "UNKNOWN_ERROR";
+}
+
+function mapResetPasswordErrorCode(error: unknown): AuthErrorCode {
+  if (error instanceof ClientResponseError) {
+    if (error.status === 429) {
+      return "RATE_LIMITED";
+    }
+
+    if (error.status === 400 || error.status === 404) {
+      if (hasValidationCode(error.response?.data, "password", "validation_length_out_of_range")) {
+        return "WEAK_PASSWORD";
+      }
+
+      return "BAD_REQUEST";
     }
   }
 

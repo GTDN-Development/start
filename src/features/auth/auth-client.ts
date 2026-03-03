@@ -7,11 +7,15 @@ import type {
   AuthSession,
   AuthSessionPayload,
   AuthSessionSnapshot,
+  ResetPasswordPayload,
+  ResetPasswordResponse,
   AuthSignOutPayload,
   SessionResponse,
   SignInResponse,
   SignOutResponse,
   SignUpResponse,
+  VerifyEmailPayload,
+  VerifyEmailResponse,
 } from "@/features/auth/auth-contract";
 import type { SignInInput, SignUpInput } from "@/features/auth/auth-schemas";
 
@@ -19,6 +23,8 @@ const SESSION_ENDPOINT_PATH = "/api/auth/session";
 const SIGN_IN_ENDPOINT_PATH = "/api/auth/sign-in";
 const SIGN_UP_ENDPOINT_PATH = "/api/auth/sign-up";
 const SIGN_OUT_ENDPOINT_PATH = "/api/auth/sign-out";
+const VERIFY_EMAIL_ENDPOINT_PATH = "/api/auth/verify-email";
+const RESET_PASSWORD_ENDPOINT_PATH = "/api/auth/reset-password";
 
 /** Min interval between refetches from cross-tab sync, tab focus, or online recovery. */
 const REFETCH_RATE_LIMIT_MS = 5_000;
@@ -39,6 +45,12 @@ export const authClient: AuthClient = {
   signUp,
   signOut,
   useSession,
+};
+
+export type ResetPasswordWithTokenInput = {
+  token: string;
+  password: string;
+  confirmPassword: string;
 };
 
 export async function signIn(input: SignInInput): Promise<SignInResponse> {
@@ -84,6 +96,48 @@ export async function signUp(input: SignUpInput): Promise<SignUpResponse> {
 export async function signOut(): Promise<SignOutResponse> {
   const response = await requestAuthEndpoint<AuthSignOutPayload>(SIGN_OUT_ENDPOINT_PATH, {
     method: "POST",
+  });
+
+  if (response.ok) {
+    setSessionState({
+      status: "unauthenticated",
+      session: null,
+    });
+    broadcastSessionChanged();
+  }
+
+  return response;
+}
+
+export async function verifyEmailToken(token: string): Promise<VerifyEmailResponse> {
+  const response = await requestAuthEndpoint<VerifyEmailPayload>(VERIFY_EMAIL_ENDPOINT_PATH, {
+    method: "POST",
+    body: JSON.stringify({ token }),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+
+  if (response.ok) {
+    setSessionState({
+      status: response.data.session ? "authenticated" : "unauthenticated",
+      session: response.data.session,
+    });
+    broadcastSessionChanged();
+  }
+
+  return response;
+}
+
+export async function resetPasswordWithToken(
+  input: ResetPasswordWithTokenInput
+): Promise<ResetPasswordResponse> {
+  const response = await requestAuthEndpoint<ResetPasswordPayload>(RESET_PASSWORD_ENDPOINT_PATH, {
+    method: "POST",
+    body: JSON.stringify(input),
+    headers: {
+      "content-type": "application/json",
+    },
   });
 
   if (response.ok) {

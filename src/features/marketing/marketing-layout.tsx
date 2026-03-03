@@ -1,14 +1,14 @@
 "use client";
 
 import clsx from "clsx";
-import { MarketingFooter } from "./marketing-footer";
-import { MarketingHeader } from "./marketing-header";
+import { useTranslations } from "next-intl";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
-import { useTranslations } from "next-intl";
-import { EmailNotVerifiedBanner } from "../auth/verify-email/email-not-verified-banner";
+import { shouldShowEmailNotVerifiedBanner } from "@/features/auth/email-verification";
+import { EmailNotVerifiedBanner } from "@/features/auth/verify-email/email-not-verified-banner";
+import { MarketingFooter } from "./marketing-footer";
+import { MarketingHeader } from "./marketing-header";
 
-// Main Layout Component
 export function MarketingLayout({
   children,
   viewer,
@@ -18,6 +18,7 @@ export function MarketingLayout({
 }) {
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
+  const shouldRenderUnverifiedBanner = shouldShowEmailNotVerifiedBanner(viewer);
 
   return (
     <div
@@ -28,7 +29,7 @@ export function MarketingLayout({
     >
       <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-      <EmailNotVerifiedBanner />
+      {shouldRenderUnverifiedBanner && <EmailNotVerifiedBanner />}
 
       <MarketingHeader viewer={viewer} />
 

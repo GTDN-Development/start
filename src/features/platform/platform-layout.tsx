@@ -1,13 +1,14 @@
-import { AccountProfileProvider } from "@/features/account/account-profile-context";
-import { PlatformHeader } from "@/features/platform/platform-header";
-import { PlatformFooter } from "@/features/platform/platform-footer";
-import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
-import type { AccountProfileSnapshot } from "@/features/account/account-profile";
-import { SkipToContent } from "@/components/layout/skip-to-content";
-import { cn } from "@/lib/utils";
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
-import { EmailNotVerifiedBanner } from "../auth/verify-email/email-not-verified-banner";
+import { SkipToContent } from "@/components/layout/skip-to-content";
+import { cn } from "@/lib/utils";
+import { AccountProfileProvider } from "@/features/account/account-profile-context";
+import type { AccountProfileSnapshot } from "@/features/account/account-profile";
+import { shouldShowEmailNotVerifiedBanner } from "@/features/auth/email-verification";
+import { EmailNotVerifiedBanner } from "@/features/auth/verify-email/email-not-verified-banner";
+import { PlatformFooter } from "@/features/platform/platform-footer";
+import { PlatformHeader } from "@/features/platform/platform-header";
+import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
 
 type PlatformLayoutUser = AccountProfileSnapshot;
 
@@ -31,6 +32,7 @@ export function PlatformLayout({
   ...props
 }: PlatformLayoutProps) {
   const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
+  const shouldRenderUnverifiedBanner = shouldShowEmailNotVerifiedBanner(user);
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
@@ -44,7 +46,7 @@ export function PlatformLayout({
       >
         <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-        <EmailNotVerifiedBanner />
+        {shouldRenderUnverifiedBanner && <EmailNotVerifiedBanner />}
 
         <PlatformHeader user={user} locale={locale} labels={labels} />
 
