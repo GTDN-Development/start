@@ -87,6 +87,18 @@ export async function signUpWithPassword(
       name: createDisplayName(input.firstName, input.lastName),
     });
 
+    // Explicitly request verification email as a safety net.
+    // PocketBase auto-sends on create only when the collection setting is enabled AND SMTP works.
+    // This ensures delivery even if the auto-send was skipped or silently failed.
+    try {
+      await pb.collection("users").requestVerification(input.email);
+    } catch (verificationError) {
+      console.warn(
+        "[auth-service] signUpWithPassword: requestVerification failed, user was created but verification email may not have been sent",
+        formatAuthServiceError(verificationError)
+      );
+    }
+
     const authResponse = await pb
       .collection("users")
       .authWithPassword<UsersRecord>(input.email, input.password);

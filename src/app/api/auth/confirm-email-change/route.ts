@@ -6,7 +6,7 @@ import { hasValidOrigin, parseRequestJson } from "@/server/http/request-utils";
 
 const confirmEmailChangeSchema = z.object({
   token: z.string().trim().min(1),
-  password: z.string().trim().min(1),
+  password: z.string().min(1),
 });
 
 export async function POST(request: NextRequest) {

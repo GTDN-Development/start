@@ -122,7 +122,7 @@ export async function signOut(): Promise<SignOutResponse> {
       status: "unauthenticated",
       session: null,
     });
-    broadcastSessionChanged();
+    broadcastSignedOut();
   }
 
   return response;
@@ -379,7 +379,20 @@ function initSessionSync() {
 }
 
 function handleSyncMessage(event: MessageEvent) {
-  if (!isSyncSignal(event.data)) {
+  const signal = event.data;
+
+  if (!isSyncSignal(signal)) {
+    return;
+  }
+
+  // Sign-out signals bypass rate limiting and immediately clear local state.
+  // The auth cookie is already cleared (cookies are shared across tabs),
+  // so no server roundtrip is needed.
+  if (signal === "signed-out") {
+    setSessionState({
+      status: "unauthenticated",
+      session: null,
+    });
     return;
   }
 
@@ -390,12 +403,18 @@ function handleSyncMessage(event: MessageEvent) {
   void refreshSession();
 }
 
+type SyncSignal = "session-changed" | "signed-out";
+
 function broadcastSessionChanged() {
-  syncChannel?.postMessage("session-changed");
+  syncChannel?.postMessage("session-changed" satisfies SyncSignal);
 }
 
-function isSyncSignal(value: unknown): value is string {
-  return value === "session-changed";
+function broadcastSignedOut() {
+  syncChannel?.postMessage("signed-out" satisfies SyncSignal);
+}
+
+function isSyncSignal(value: unknown): value is SyncSignal {
+  return value === "session-changed" || value === "signed-out";
 }
 
 // Visibility & online refetch
