@@ -72,6 +72,13 @@ const { signIn, signUp, useSession, signOut } = authClient;
 - `unauthenticated`
 
 ## Cross-tab sync & session freshness
+
+> **Stav:** Infrastruktura je plně implementovaná, ale aktuálně **dormantní** — nemá živého
+> consumera, takže se za běhu neaktivuje. Aktivuje se automaticky ve chvíli, kdy libovolná
+> komponenta zavolá `useSession()`. Headery (`PlatformHeader`, `MarketingHeader`) záměrně
+> používají server-driven props místo `useSession()` — viz vysvětlení níže.
+> Podrobnosti viz [AUTH-SESSION-SYNC.md](./AUTH-SESSION-SYNC.md).
+
 `auth-client.ts` obsahuje tři mechanismy pro udržení session konzistence napříč taby a síťovými podmínkami. Design je inspirovaný better-auth — signal-based přístup, kde server je vždy single source of truth. Oproti better-auth používáme nativní `BroadcastChannel` (ne `localStorage`).
 
 ### 1. BroadcastChannel cross-tab sync (signal-based)
@@ -91,6 +98,14 @@ const { signIn, signUp, useSession, signOut } = authClient;
 - Při přechodu z offline → online (`window.online` event) se provede `refreshSession()` pro authenticated uživatele.
 - Sdílí stejný rate limit jako ostatní refetch triggery.
 
+### Proč headery nepoužívají `useSession()`
+Oba layouty (`(platform)/layout.tsx`, `(marketing)/layout.tsx`) volají `getServerAuthSession()` v Server Component a předávají data jako props do headerů → `UserAccountMenu`. Zapojení `useSession()` by znamenalo:
+- **Redundantní fetch** — `GET /api/auth/session` na mount, přestože server tatáž data právě dodal.
+- **Hydration mismatch** — `useSession()` startuje v `idle`, server renderuje s reálnými daty → flash/skeleton.
+- **Dva zdroje pravdy** — server props + client store pro stejná data vyžadují reconcilaci.
+
+In-session mutace (avatar, jméno) řeší `AccountProfileContext` v `UserAccountMenu`. Cross-tab sign-out pokrývá sdílená cookie `pb_auth` — jakákoliv navigace v jiném tabu session odchytí. `useSession()` se aktivuje až pro dlouhožijící interaktivní features (real-time dashboard, chat), kde uživatel typicky nenaviguje.
+
 ## Jak rozšiřovat
 1. Nové auth flow (např. reset/verify):
 - přidat schéma do `auth-schemas.ts`
@@ -108,5 +123,5 @@ const { signIn, signUp, useSession, signOut } = authClient;
 - `pb_auth` cookie se čistí při neplatné session/token situaci.
 - `signIn` už nemaže cookie při každé chybě (např. transient error).
 - Autorizace je fail-closed: při nevalidní server session je uživatel považován za odhlášeného.
-- Cross-tab sync, visibility refetch a online recovery se inicializují automaticky při loadu modulu na klientu (`if (typeof window !== "undefined")`). Listenery jsou lightweight a žijí po celou dobu app lifecycle — cleanup není potřeba (na rozdíl od better-auth, kde je vázán na nanostores `onMount`).
+- Cross-tab sync, visibility refetch a online recovery se inicializují lazy přes `ensureSessionSyncInitialized()` při prvním mountu `useSession()`. Listenery jsou lightweight a žijí po celou dobu app lifecycle — cleanup není potřeba (na rozdíl od better-auth, kde je vázán na nanostores `onMount`). Dokud žádná komponenta `useSession()` nepoužívá, vrstva zůstává dormantní (viz [AUTH-SESSION-SYNC.md](./AUTH-SESSION-SYNC.md)).
 - Cross-tab broadcast je signal-based (ne data-based) — každý tab si validuje session sám proti serveru. Důvod: PocketBase `authRefresh()` musí proběhnout per-tab, aby každý tab dostal vlastní refreshnutý JWT token v cookie.
