@@ -5,6 +5,7 @@ import * as React from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import type { InlineStatus } from "@/features/account/account-types";
+import { updateAccountPassword } from "@/features/account/account-client";
 import {
   AccountItem,
   AccountItemContent,
@@ -46,24 +47,45 @@ export function AccountChangePasswordItem() {
     validators: {
       onSubmit: passwordFormSchema,
     },
-    onSubmit: async ({ value: _value }: { value: PasswordFormValues }) => {
+    onSubmit: async ({ value }: { value: PasswordFormValues }) => {
       setSubmitStatus(null);
 
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+      const response = await updateAccountPassword(value);
 
+      if (response.ok) {
         form.reset();
-
         setSubmitStatus({
           kind: "success",
           message: t("security.password.status.saved"),
         });
-      } catch {
+        return;
+      }
+
+      if (response.errorCode === "UNAUTHORIZED") {
         setSubmitStatus({
           kind: "error",
-          message: t("security.password.status.error"),
+          message: t("security.password.status.unauthorized"),
         });
+        return;
       }
+
+      if (
+        response.errorCode === "BAD_REQUEST" ||
+        response.errorCode === "VALIDATION_ERROR" ||
+        response.errorCode === "INVALID_CREDENTIALS" ||
+        response.errorCode === "WEAK_PASSWORD"
+      ) {
+        setSubmitStatus({
+          kind: "error",
+          message: t("security.password.status.invalidInput"),
+        });
+        return;
+      }
+
+      setSubmitStatus({
+        kind: "error",
+        message: t("security.password.status.error"),
+      });
     },
   });
 

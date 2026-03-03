@@ -5,6 +5,7 @@ const ACCOUNT_PROFILE_ENDPOINT_PATH = "/api/account/profile";
 const ACCOUNT_AVATAR_ENDPOINT_PATH = "/api/account/avatar";
 const ACCOUNT_EMAIL_CHANGE_REQUEST_ENDPOINT_PATH = "/api/account/email-change/request";
 const ACCOUNT_DELETE_ENDPOINT_PATH = "/api/account/delete";
+const ACCOUNT_PASSWORD_ENDPOINT_PATH = "/api/account/password";
 
 type AccountRequestEmailChangePayload = {
   sent: true;
@@ -12,6 +13,10 @@ type AccountRequestEmailChangePayload = {
 
 type DeleteAccountPayload = {
   deleted: true;
+};
+
+type UpdateAccountPasswordPayload = {
+  passwordUpdated: true;
 };
 
 type UpdateAccountProfileInput = {
@@ -24,6 +29,12 @@ type RequestAccountEmailChangeInput = {
 
 type DeleteAccountInput = {
   password: string;
+};
+
+type UpdateAccountPasswordInput = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 };
 
 export async function updateAccountProfile(
@@ -75,6 +86,18 @@ export async function deleteAccount(
   input: DeleteAccountInput
 ): Promise<AuthResponse<DeleteAccountPayload>> {
   return requestAccountEndpoint<DeleteAccountPayload>(ACCOUNT_DELETE_ENDPOINT_PATH, {
+    method: "POST",
+    body: JSON.stringify(input),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+}
+
+export async function updateAccountPassword(
+  input: UpdateAccountPasswordInput
+): Promise<AuthResponse<UpdateAccountPasswordPayload>> {
+  return requestAccountEndpoint<UpdateAccountPasswordPayload>(ACCOUNT_PASSWORD_ENDPOINT_PATH, {
     method: "POST",
     body: JSON.stringify(input),
     headers: {

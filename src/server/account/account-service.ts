@@ -15,6 +15,10 @@ type DeleteAccountPayload = {
   deleted: true;
 };
 
+type UpdateAccountPasswordPayload = {
+  passwordUpdated: true;
+};
+
 type RequestAccountEmailChangePayload = {
   sent: true;
 };
@@ -256,6 +260,52 @@ export async function deleteCurrentUserAccountWithPassword(
   }
 }
 
+export async function updateCurrentUserPassword(input: {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<ServerAuthResponse<UpdateAccountPasswordPayload>> {
+  if (!input.currentPassword.trim() || !input.newPassword.trim() || !input.confirmPassword.trim()) {
+    return {
+      ok: false,
+      errorCode: "BAD_REQUEST",
+    };
+  }
+
+  const currentUser = await requireCurrentUser();
+
+  if (!currentUser.ok) {
+    return currentUser.response;
+  }
+
+  try {
+    await currentUser.pb.collection("users").update<UsersRecord>(currentUser.user.id, {
+      oldPassword: input.currentPassword,
+      password: input.newPassword,
+      passwordConfirm: input.confirmPassword,
+    });
+
+    return {
+      ok: true,
+      data: {
+        passwordUpdated: true,
+      },
+    };
+  } catch (error) {
+    const errorCode = mapUpdatePasswordErrorCode(error);
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logAccountServiceError("updateCurrentUserPassword", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    };
+  }
+}
+
 async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
   const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
 
@@ -433,6 +483,39 @@ function mapDeleteAccountErrorCode(error: unknown): AuthErrorCode {
 
     if (error.status === 429) {
       return "RATE_LIMITED";
+    }
+  }
+
+  return "UNKNOWN_ERROR";
+}
+
+function mapUpdatePasswordErrorCode(error: unknown): AuthErrorCode {
+  if (error instanceof ClientResponseError) {
+    if (error.status === 401 || error.status === 403) {
+      return "UNAUTHORIZED";
+    }
+
+    if (error.status === 404) {
+      return "NOT_FOUND";
+    }
+
+    if (error.status === 429) {
+      return "RATE_LIMITED";
+    }
+
+    if (error.status === 400) {
+      if (
+        hasValidationCode(error.response?.data, "oldPassword", "validation_invalid_credentials") ||
+        hasValidationCode(error.response?.data, "oldPassword", "validation_invalid_old_password")
+      ) {
+        return "INVALID_CREDENTIALS";
+      }
+
+      if (hasValidationCode(error.response?.data, "password", "validation_length_out_of_range")) {
+        return "WEAK_PASSWORD";
+      }
+
+      return "VALIDATION_ERROR";
     }
   }
 
