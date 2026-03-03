@@ -16,6 +16,7 @@ export type MenuLinkLabelKey =
   | "overview"
   | "account"
   | "privacyPolicy"
+  | "termsOfService"
   | "cookiePolicy";
 
 export type MenuNestedLabelKey = "aboutApp";
@@ -61,6 +62,7 @@ export const authMenu: MenuLink[] = [
 
 export const legalItems: MenuLink[] = [
   { labelKey: legalLinks.gdpr.label, href: legalLinks.gdpr.href },
+  { labelKey: legalLinks.termsOfService.label, href: legalLinks.termsOfService.href },
   { labelKey: legalLinks.cookies.label, href: legalLinks.cookies.href },
 ];
 

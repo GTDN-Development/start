@@ -27,7 +27,6 @@ export type SignUpValidationMessages = {
   passwordMin: string;
   passwordMax: string;
   confirmPassword: string;
-  termsAccepted: string;
   passwordMismatch: string;
 };
 
@@ -99,9 +98,6 @@ function createSignUpSchema(messages?: SignUpValidationMessages) {
       confirmPassword: createAuthPasswordSchema({
         min: messages?.confirmPassword,
         max: messages?.passwordMax,
-      }),
-      termsAccepted: z.boolean().refine((value) => value === true, {
-        message: messages?.termsAccepted,
       }),
     })
     .superRefine((values, ctx) => {

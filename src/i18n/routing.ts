@@ -38,6 +38,9 @@ export const routing = defineRouting({
     "/gdpr": {
       cs: "/gdpr",
     },
+    "/terms-of-service": {
+      cs: "/obchodni-podminky",
+    },
     "/sign-in": {
       cs: "/prihlasit-se",
     },

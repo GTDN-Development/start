@@ -47,6 +47,7 @@
         "signUp": "Sign up",
         "overview": "Overview",
         "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service",
         "cookiePolicy": "Cookie Policy"
       }
     },
@@ -174,6 +175,11 @@
       "title": "Privacy Policy",
       "description": "Information about the processing of personal data in accordance with the GDPR regulation",
       "effectiveDate": "January 1, 2025"
+    },
+    "termsOfService": {
+      "title": "Terms of Service",
+      "description": "Rules for using our SaaS platform, including user responsibilities, liability limits, and consumer information under EU and Czech law.",
+      "effectiveDate": "March 3, 2026"
     },
     "cookies": {
       "title": "Cookie Policy",
@@ -470,6 +476,7 @@
         "default": "Sign in",
         "pending": "Signing in..."
       },
+      "legalNotice": "By signing in, you agree to the <termsOfService>Terms of Service</termsOfService> and <privacyPolicy>Privacy Policy</privacyPolicy>.",
       "status": {
         "success": {
           "title": "Signed in",
@@ -528,6 +535,7 @@
         "default": "Create account",
         "pending": "Creating account..."
       },
+      "legalNotice": "By signing up, you agree to the <termsOfService>Terms of Service</termsOfService> and <privacyPolicy>Privacy Policy</privacyPolicy>.",
       "status": {
         "success": {
           "title": "Account created",
@@ -810,6 +818,136 @@
             "service": "Payment processing",
             "country": "United States"
           }
+        ]
+      }
+    },
+    "termsOfService": {
+      "title": "Terms of Service",
+      "effectiveFrom": "Effective from:",
+      "lastUpdated": "Last updated:",
+      "introduction": "These Terms of Service govern access to and use of our software services and related websites. By creating an account, purchasing a subscription, or using the service, you agree to these Terms.",
+      "providerIdentification": {
+        "title": "1. Service provider and contact",
+        "description": "The service is provided by the following company:",
+        "companyLabel": "Company:",
+        "companyIdLabel": "Company ID:",
+        "vatIdLabel": "VAT ID:",
+        "addressLabel": "Registered address:",
+        "domainLabel": "Website:",
+        "registerLabel": "Commercial register:",
+        "registerValue": "{court}, file number {fileNumber}",
+        "supportLabel": "Support email:",
+        "phoneLabel": "Phone:"
+      },
+      "acceptance": {
+        "title": "2. Acceptance and eligibility",
+        "description": "You may use the service only in compliance with these Terms and applicable law. If you use the service on behalf of an organization, you confirm that you are authorized to bind that organization.",
+        "ageRequirement": "You must be at least {minimumAge} years old (or have valid parental/legal guardian consent where required by law)."
+      },
+      "accountSecurity": {
+        "title": "3. Account, credentials, and security",
+        "description": "You are responsible for safeguarding your login credentials and for all activity under your account. You must promptly notify us of any unauthorized access or security incident."
+      },
+      "licenseScope": {
+        "title": "4. License and scope of use",
+        "description": "Subject to these Terms, we grant you a limited, non-exclusive, non-transferable, and revocable right to use the service for your internal lawful purposes."
+      },
+      "acceptableUse": {
+        "title": "5. Permitted use",
+        "description": "You agree to use the service responsibly, especially as follows:"
+      },
+      "prohibitedUse": {
+        "title": "6. Prohibited use",
+        "description": "You must not misuse the service. In particular, you must not:"
+      },
+      "userContent": {
+        "title": "7. User content and output responsibility",
+        "description": "You retain responsibility for your data, prompts, uploads, generated outputs, and how they are used."
+      },
+      "providerRights": {
+        "title": "8. Enforcement rights",
+        "description": "To protect users, infrastructure, and legal compliance, we may take measures such as:"
+      },
+      "thirdPartyServices": {
+        "title": "9. Third-party services",
+        "description": "The service may integrate third-party services (for example hosting, analytics, payments, and communication tools). Their terms and privacy policies apply to their respective services."
+      },
+      "subscriptions": {
+        "title": "10. Plans, billing, and cancellation",
+        "description": "Paid plans, billing periods, renewals, taxes, and pricing are governed by the offer shown at checkout or in your account. Unless stated otherwise, fees are non-refundable for the active billing period to the extent permitted by law."
+      },
+      "consumerRights": {
+        "title": "11. Consumer rights (EU/CZ)",
+        "description": "If you act as a consumer under applicable law, mandatory consumer protections apply in addition to these Terms.",
+        "withdrawal": "For distance contracts, consumers generally have a {withdrawalDays}-day right of withdrawal.",
+        "withdrawalException": "For digital content/services delivered before the withdrawal period ends, you may be asked to give explicit consent to immediate performance and acknowledge that this can end the right of withdrawal once performance starts.",
+        "adr": "Out-of-court consumer dispute resolution in the Czech Republic: {authority}, website {website}, email {email}, address {address}.",
+        "odrDiscontinued": "The EU Online Dispute Resolution (ODR) platform was discontinued on July 20, 2025 under Regulation (EU) 2024/3228, therefore no ODR platform link is provided."
+      },
+      "availabilityChanges": {
+        "title": "12. Availability, updates, and changes",
+        "description": "We may modify, update, or discontinue parts of the service for operational, security, legal, or product reasons. For material adverse changes, we aim to provide at least {noticeDays} days' prior notice where feasible."
+      },
+      "liability": {
+        "title": "13. Warranty disclaimer and limitation of liability",
+        "description": "To the maximum extent permitted by law, the service is provided \"as is\" and \"as available\". We do not guarantee uninterrupted or error-free operation. Our aggregate liability arising out of or related to these Terms is limited to the higher of (a) fees paid by you for the service in the previous {lookbackMonths} months and (b) {capAmount} {capCurrency}.",
+        "legalRightsReserved": "Nothing in these Terms limits liability that cannot be excluded under mandatory law, including liability for willful misconduct, gross negligence, or mandatory consumer rights."
+      },
+      "indemnification": {
+        "title": "14. Indemnification",
+        "description": "You agree to indemnify and hold us harmless from third-party claims, losses, damages, liabilities, costs, and expenses (including reasonable legal fees) arising from your breach of these Terms, unlawful conduct, or misuse of the service."
+      },
+      "termination": {
+        "title": "15. Suspension and termination",
+        "description": "You may stop using the service at any time. We may suspend or terminate access immediately if required by law, due to security risk, non-payment, or serious/repeated breach of these Terms."
+      },
+      "governingLaw": {
+        "title": "16. Governing law and jurisdiction",
+        "description": "Unless mandatory consumer law provides otherwise, disputes are governed and resolved as follows:",
+        "lawLabel": "Governing law:",
+        "courtLabel": "Jurisdiction:",
+        "laws": {
+          "czechRepublic": "Law of the Czech Republic"
+        },
+        "courts": {
+          "czechRepublic": "Courts of the Czech Republic"
+        }
+      },
+      "additionalInfoTitle": "Additional information",
+      "changes": {
+        "title": "Changes to these Terms",
+        "description": "We may update these Terms from time to time. Updated versions become effective on the date shown above. If changes materially affect your rights, we aim to provide at least {noticeDays} days' prior notice."
+      },
+      "contact": {
+        "title": "Contact",
+        "description": "For legal and contractual matters, contact us at",
+        "phone": "or by phone:"
+      },
+      "defaults": {
+        "acceptableUse": [
+          "Use the service in accordance with applicable law and these Terms.",
+          "Provide accurate account and billing information.",
+          "Keep your credentials confidential and maintain appropriate account security.",
+          "Review and validate outputs before relying on them in legal, financial, medical, or other high-risk contexts."
+        ],
+        "prohibitedUse": [
+          "Use the service for unlawful, fraudulent, infringing, harassing, or abusive activity.",
+          "Upload or distribute malware, malicious code, or content intended to disrupt systems.",
+          "Attempt unauthorized access to the service, other accounts, or related infrastructure.",
+          "Scrape, benchmark, reverse engineer, or overload the service beyond permitted usage.",
+          "Use outputs to violate third-party rights or for fully automated high-impact decisions without meaningful human review."
+        ],
+        "userResponsibilities": [
+          "You are solely responsible for the legality, accuracy, and suitability of content you upload, generate, or share.",
+          "You represent that you have all rights, licenses, and legal bases needed for your content and processing activities.",
+          "You are responsible for how generated outputs are used and for verifying factual, legal, and technical correctness.",
+          "You bear responsibility for claims, damages, fines, and losses caused by your content, instructions, or use of the service."
+        ],
+        "providerRights": [
+          "We may remove, restrict, or disable content and accounts where required by law or where we reasonably suspect a Terms violation.",
+          "We may suspend access to mitigate security incidents, abuse, fraud, or legal risk.",
+          "Where required by law, we will provide notice and reasons for significant enforcement actions.",
+          "We may cooperate with competent authorities when legally required."
         ]
       }
     }

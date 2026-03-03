@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -32,7 +31,6 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     passwordMin: t("validation.passwordMin"),
     passwordMax: t("validation.passwordMax"),
     confirmPassword: t("validation.confirmPassword"),
-    termsAccepted: t("validation.termsAccepted"),
     passwordMismatch: t("validation.passwordMismatch"),
   });
 
@@ -43,7 +41,6 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       email: "",
       password: "",
       confirmPassword: "",
-      termsAccepted: false,
     },
     validators: {
       onSubmit: signUpFormSchema,
@@ -226,44 +223,6 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                 }}
               </form.Field>
 
-              <form.Field name="termsAccepted">
-                {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
-                  return (
-                    <div className="flex flex-col gap-y-2">
-                      <Field orientation="horizontal" data-invalid={isInvalid}>
-                        <Checkbox
-                          id={`signup-${field.name}`}
-                          name={`signup-${field.name}`}
-                          checked={field.state.value}
-                          onCheckedChange={(checked) => field.handleChange(checked === true)}
-                          aria-invalid={isInvalid}
-                        />
-                        <FieldLabel htmlFor={`signup-${field.name}`}>
-                          <span>
-                            {t.rich("fields.termsAccepted.label", {
-                              link: (chunks) => (
-                                <Link
-                                  href={legalLinks.gdpr.href}
-                                  className="underline hover:no-underline"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {chunks}
-                                </Link>
-                              ),
-                            })}
-                          </span>
-                        </FieldLabel>
-                      </Field>
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                    </div>
-                  );
-                }}
-              </form.Field>
-
               <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
                 {isSubmitting ? (
                   <Spinner />
@@ -280,6 +239,31 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                   <AlertDescription>{submitErrorMessage}</AlertDescription>
                 </Alert>
               )}
+
+              <p className="text-muted-foreground text-center text-xs">
+                {t.rich("legalNotice", {
+                  termsOfService: (chunks) => (
+                    <Link
+                      href={legalLinks.termsOfService.href}
+                      className="underline hover:no-underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                  privacyPolicy: (chunks) => (
+                    <Link
+                      href={legalLinks.gdpr.href}
+                      className="underline hover:no-underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                })}
+              </p>
             </FieldGroup>
           )}
         </form.Subscribe>

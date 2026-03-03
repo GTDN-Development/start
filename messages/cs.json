@@ -47,6 +47,7 @@
         "signUp": "Registrace",
         "overview": "Přehled",
         "privacyPolicy": "Zásady ochrany osobních údajů",
+        "termsOfService": "Obchodní podmínky",
         "cookiePolicy": "Zásady cookies"
       }
     },
@@ -174,6 +175,11 @@
       "title": "Zásady ochrany osobních údajů",
       "description": "Informace o zpracování osobních údajů v souladu s nařízením GDPR",
       "effectiveDate": "1. ledna 2025"
+    },
+    "termsOfService": {
+      "title": "Obchodní podmínky",
+      "description": "Podmínky používání SaaS aplikace včetně odpovědnosti uživatele, omezení odpovědnosti provozovatele a spotřebitelských informací dle práva EU a ČR.",
+      "effectiveDate": "3. března 2026"
     },
     "cookies": {
       "title": "Zásady cookies",
@@ -470,6 +476,7 @@
         "default": "Přihlásit se",
         "pending": "Přihlašování..."
       },
+      "legalNotice": "Přihlášením souhlasíte s <termsOfService>obchodními podmínkami</termsOfService> a <privacyPolicy>zásadami ochrany osobních údajů</privacyPolicy>.",
       "status": {
         "success": {
           "title": "Přihlášeno",
@@ -528,6 +535,7 @@
         "default": "Vytvořit účet",
         "pending": "Vytváření účtu..."
       },
+      "legalNotice": "Registrací souhlasíte s <termsOfService>obchodními podmínkami</termsOfService> a <privacyPolicy>zásadami ochrany osobních údajů</privacyPolicy>.",
       "status": {
         "success": {
           "title": "Účet vytvořen",
@@ -810,6 +818,136 @@
             "service": "Zpracování plateb",
             "country": "Spojené státy americké"
           }
+        ]
+      }
+    },
+    "termsOfService": {
+      "title": "Obchodní podmínky",
+      "effectiveFrom": "Účinné od:",
+      "lastUpdated": "Poslední aktualizace:",
+      "introduction": "Tyto obchodní podmínky upravují přístup k našim softwarovým službám a souvisejícím webům a jejich používání. Vytvořením účtu, zakoupením předplatného nebo používáním služby vyjadřujete souhlas s těmito podmínkami.",
+      "providerIdentification": {
+        "title": "1. Poskytovatel služby a kontakt",
+        "description": "Službu poskytuje následující společnost:",
+        "companyLabel": "Společnost:",
+        "companyIdLabel": "IČO:",
+        "vatIdLabel": "DIČ:",
+        "addressLabel": "Sídlo:",
+        "domainLabel": "Web:",
+        "registerLabel": "Obchodní rejstřík:",
+        "registerValue": "{court}, spisová značka {fileNumber}",
+        "supportLabel": "Kontaktní e-mail:",
+        "phoneLabel": "Telefon:"
+      },
+      "acceptance": {
+        "title": "2. Přijetí podmínek a způsobilost",
+        "description": "Službu můžete používat pouze v souladu s těmito podmínkami a platnými právními předpisy. Pokud službu používáte jménem organizace, potvrzujete, že jste oprávněni tuto organizaci zavázat.",
+        "ageRequirement": "Musíte být starší {minimumAge} let (nebo mít platný souhlas rodiče/zákonného zástupce, pokud to vyžaduje zákon)."
+      },
+      "accountSecurity": {
+        "title": "3. Účet, přístupové údaje a zabezpečení",
+        "description": "Odpovídáte za ochranu přístupových údajů a za veškerou aktivitu provedenou pod vaším účtem. Jakýkoli podezřelý přístup nebo bezpečnostní incident nám musíte bez zbytečného odkladu nahlásit."
+      },
+      "licenseScope": {
+        "title": "4. Licence a rozsah použití",
+        "description": "Za podmínek uvedených v tomto dokumentu vám udělujeme omezené, nevýhradní, nepřevoditelné a odvolatelné oprávnění službu používat pro vaše interní a zákonné účely."
+      },
+      "acceptableUse": {
+        "title": "5. Povolené používání",
+        "description": "Službu jste povinni používat odpovědně, zejména následujícím způsobem:"
+      },
+      "prohibitedUse": {
+        "title": "6. Zakázané používání",
+        "description": "Službu nesmíte zneužívat. Zejména nesmíte:"
+      },
+      "userContent": {
+        "title": "7. Uživatelský obsah a odpovědnost za výstupy",
+        "description": "Za svá data, zadání, nahraný obsah, vygenerované výstupy i způsob jejich použití odpovídáte vy."
+      },
+      "providerRights": {
+        "title": "8. Oprávnění k zásahu",
+        "description": "Za účelem ochrany uživatelů, infrastruktury a souladu s právem můžeme provést zejména následující kroky:"
+      },
+      "thirdPartyServices": {
+        "title": "9. Služby třetích stran",
+        "description": "Služba může využívat integrace třetích stran (např. hosting, analytiku, platby nebo komunikační nástroje). Na tyto služby se vztahují jejich vlastní podmínky a zásady ochrany soukromí."
+      },
+      "subscriptions": {
+        "title": "10. Tarify, platby a zrušení",
+        "description": "Placené tarify, fakturační období, automatická obnova, daně a ceny se řídí nabídkou uvedenou při objednávce nebo v účtu. Není-li uvedeno jinak, poplatky za aktivní fakturační období jsou v rozsahu dovoleném právem nevratné."
+      },
+      "consumerRights": {
+        "title": "11. Práva spotřebitele (EU/ČR)",
+        "description": "Pokud vystupujete jako spotřebitel, použijí se kromě těchto podmínek také kogentní ustanovení na ochranu spotřebitele.",
+        "withdrawal": "U smluv uzavřených na dálku má spotřebitel obecně právo odstoupit od smlouvy ve lhůtě {withdrawalDays} dnů.",
+        "withdrawalException": "U digitálního obsahu/služeb poskytovaných před uplynutím lhůty pro odstoupení vás můžeme požádat o výslovný souhlas se zahájením plnění a o potvrzení, že tím může právo na odstoupení zaniknout po zahájení plnění.",
+        "adr": "Mimosoudní řešení spotřebitelských sporů v ČR: {authority}, web {website}, e-mail {email}, adresa {address}.",
+        "odrDiscontinued": "Evropská platforma online řešení sporů (ODR) byla k 20. červenci 2025 zrušena nařízením (EU) 2024/3228, proto zde odkaz na ODR platformu není uveden."
+      },
+      "availabilityChanges": {
+        "title": "12. Dostupnost, aktualizace a změny služby",
+        "description": "Službu můžeme měnit, aktualizovat nebo ukončit z provozních, bezpečnostních, právních nebo produktových důvodů. U podstatných změn s negativním dopadem se budeme, pokud to bude možné, snažit poskytnout upozornění alespoň {noticeDays} dní předem."
+      },
+      "liability": {
+        "title": "13. Vyloučení záruk a omezení odpovědnosti",
+        "description": "V maximálním rozsahu dovoleném právem je služba poskytována \"tak jak je\" a \"jak je dostupná\". Nezaručujeme nepřerušený nebo bezchybný provoz. Souhrnná odpovědnost poskytovatele z těchto podmínek nebo v souvislosti s nimi je omezena na vyšší z částek: (a) částka uhrazená uživatelem za službu za předchozích {lookbackMonths} měsíců a (b) {capAmount} {capCurrency}.",
+        "legalRightsReserved": "Nic v těchto podmínkách neomezuje odpovědnost, kterou nelze podle kogentních právních předpisů vyloučit, zejména odpovědnost za úmysl, hrubou nedbalost nebo zákonná práva spotřebitele."
+      },
+      "indemnification": {
+        "title": "14. Náhrada újmy (odškodnění)",
+        "description": "Zavazujete se nahradit nám škodu a účelně vynaložené náklady (včetně přiměřených nákladů na právní zastoupení), které vzniknou v důsledku porušení těchto podmínek, protiprávního jednání nebo zneužití služby z vaší strany."
+      },
+      "termination": {
+        "title": "15. Pozastavení a ukončení",
+        "description": "Službu můžete kdykoli přestat používat. My můžeme přístup okamžitě pozastavit nebo ukončit, pokud to vyžaduje zákon, hrozí bezpečnostní riziko, dojde k neuhrazení plateb nebo k závažnému/opakovanému porušení těchto podmínek."
+      },
+      "governingLaw": {
+        "title": "16. Rozhodné právo a příslušnost",
+        "description": "Není-li kogentním právem na ochranu spotřebitele stanoveno jinak, spory se řídí a řeší následovně:",
+        "lawLabel": "Rozhodné právo:",
+        "courtLabel": "Příslušnost soudů:",
+        "laws": {
+          "czechRepublic": "Právní řád České republiky"
+        },
+        "courts": {
+          "czechRepublic": "Soudy České republiky"
+        }
+      },
+      "additionalInfoTitle": "Doplňující informace",
+      "changes": {
+        "title": "Změny obchodních podmínek",
+        "description": "Tyto podmínky můžeme průběžně měnit. Nové znění je účinné dnem uvedeným výše. Pokud změna podstatně ovlivní vaše práva, budeme se snažit poskytnout upozornění alespoň {noticeDays} dní předem."
+      },
+      "contact": {
+        "title": "Kontakt",
+        "description": "Pro právní a smluvní záležitosti nás kontaktujte na",
+        "phone": "nebo telefonicky:"
+      },
+      "defaults": {
+        "acceptableUse": [
+          "Používejte službu v souladu s právními předpisy a těmito podmínkami.",
+          "Uvádějte pravdivé a aktuální údaje o účtu a fakturaci.",
+          "Chraňte své přihlašovací údaje a udržujte odpovídající úroveň zabezpečení účtu.",
+          "Před použitím v právních, finančních, zdravotních nebo jiných rizikových situacích výstupy vždy zkontrolujte a ověřte."
+        ],
+        "prohibitedUse": [
+          "Používat službu k protiprávní, podvodné, obtěžující, škodlivé nebo jinak zneužívající činnosti.",
+          "Nahrávat nebo šířit malware, škodlivý kód nebo obsah určený k narušení systémů.",
+          "Pokoušet se o neoprávněný přístup ke službě, cizím účtům nebo související infrastruktuře.",
+          "Provádět scraping, benchmarky, reverzní inženýrství nebo nadměrně zatěžovat službu mimo povolené použití.",
+          "Používat výstupy k porušování práv třetích osob nebo k plně automatizovaným vysoce dopadovým rozhodnutím bez smysluplného lidského přezkumu."
+        ],
+        "userResponsibilities": [
+          "Za zákonnost, přesnost a vhodnost obsahu, který nahrajete, vygenerujete nebo sdílíte, nesete výhradní odpovědnost.",
+          "Prohlašujete, že máte všechna potřebná práva, licence a právní tituly pro svůj obsah a způsob jeho zpracování.",
+          "Za způsob použití výstupů odpovídáte vy, včetně ověření jejich věcné, právní a technické správnosti.",
+          "Nesete odpovědnost za nároky třetích stran, škody, sankce a jiné ztráty způsobené vaším obsahem, instrukcemi nebo používáním služby."
+        ],
+        "providerRights": [
+          "Můžeme odstranit, omezit nebo znepřístupnit obsah či účty, pokud to vyžaduje zákon nebo máme důvodné podezření na porušení podmínek.",
+          "Můžeme pozastavit přístup za účelem omezení bezpečnostních incidentů, zneužití, podvodu nebo právních rizik.",
+          "Pokud to vyžaduje právo, poskytneme oznámení a odůvodnění významných zásahů.",
+          "Pokud to vyžaduje právo, můžeme spolupracovat s příslušnými orgány veřejné moci."
         ]
       }
     }

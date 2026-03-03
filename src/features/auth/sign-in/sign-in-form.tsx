@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, LogInIcon } from "lucide-react";
+import { Link } from "@/components/ui/link";
+import { legalLinks } from "@/config/legal-links";
 import { signIn } from "@/features/auth/auth-client";
 import { createSignInFormSchema, type SignInInput } from "@/features/auth/auth-schemas";
 import { cn } from "@/lib/utils";
@@ -160,6 +162,31 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
                   <AlertDescription>{submitErrorMessage}</AlertDescription>
                 </Alert>
               )}
+
+              <p className="text-muted-foreground text-center text-xs">
+                {t.rich("legalNotice", {
+                  termsOfService: (chunks) => (
+                    <Link
+                      href={legalLinks.termsOfService.href}
+                      className="underline hover:no-underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                  privacyPolicy: (chunks) => (
+                    <Link
+                      href={legalLinks.gdpr.href}
+                      className="underline hover:no-underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                })}
+              </p>
             </FieldGroup>
           )}
         </form.Subscribe>
