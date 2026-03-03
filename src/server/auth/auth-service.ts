@@ -435,6 +435,17 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
       },
     };
   } catch (error) {
+    // User record not found (deleted/banned) — expected scenario, not a real error.
+    if (error instanceof ClientResponseError && error.status === 404) {
+      console.warn("[auth-service] getServerAuthSession: user record not found, clearing session");
+      return {
+        ok: true,
+        data: {
+          session: null,
+        },
+      };
+    }
+
     logAuthServiceError("getServerAuthSession", error);
 
     // Transient error (5xx / network) — return stale session from the local JWT.
@@ -517,6 +528,18 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       }),
     };
   } catch (error) {
+    // User record not found (deleted/banned) — expected scenario, not a real error.
+    if (error instanceof ClientResponseError && error.status === 404) {
+      console.warn("[auth-service] getApiAuthSession: user record not found, clearing session");
+      return {
+        ok: true,
+        data: {
+          session: null,
+        },
+        setCookie: createClearedPocketBaseAuthCookies(),
+      };
+    }
+
     logAuthServiceError("getApiAuthSession", error);
 
     // Transient error (5xx / network) — keep existing cookie, return stale session.

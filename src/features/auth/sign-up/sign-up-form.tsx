@@ -88,7 +88,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
         >
           {({ isSubmitting, submissionAttempts }) => (
             <FieldGroup>
-              <div className="grid gap-4 @lg:grid-cols-2">
+              <div className="grid gap-4 @md:grid-cols-2">
                 <form.Field name="firstName">
                   {(field) => {
                     const isInvalid =
