@@ -9,7 +9,7 @@ import {
   AccountItemFooter,
   AccountItemTitle,
 } from "@/features/account/account-item";
-import { detectDeviceType } from "@/lib/platform";
+import { detectDeviceType } from "@/lib/device-environment";
 import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import {
   AccountSettingsListAction,

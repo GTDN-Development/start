@@ -4,11 +4,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { createPageMetadata } from "@/lib/metadata";
 import {
-  PlatformHero,
-  PlatformHeroContent,
-  PlatformHeroDescription,
-  PlatformHeroTitle,
-} from "@/features/platform/overview/platform-hero";
+  ApplicationHero,
+  ApplicationHeroContent,
+  ApplicationHeroDescription,
+  ApplicationHeroTitle,
+} from "@/features/application/overview/application-hero";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {
@@ -40,12 +40,12 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
 
   return (
     <div className="relative">
-      <PlatformHero>
-        <PlatformHeroContent>
-          <PlatformHeroTitle>{t("title")}</PlatformHeroTitle>
-          <PlatformHeroDescription>{t("description")}</PlatformHeroDescription>
-        </PlatformHeroContent>
-      </PlatformHero>
+      <ApplicationHero>
+        <ApplicationHeroContent>
+          <ApplicationHeroTitle>{t("title")}</ApplicationHeroTitle>
+          <ApplicationHeroDescription>{t("description")}</ApplicationHeroDescription>
+        </ApplicationHeroContent>
+      </ApplicationHero>
 
       <Container size="xl" className="space-y-16 pb-24">
         {/* Overview content goes here */}

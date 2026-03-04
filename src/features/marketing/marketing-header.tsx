@@ -155,7 +155,7 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
   const locale = useLocale();
   const t = useTranslations("layout.header");
   const tNav = useTranslations("layout.navigation.items");
-  const tPlatform = useTranslations("layout.platform");
+  const tApplication = useTranslations("layout.application");
   const signInMenuItem = authMenu.find((item) => item.labelKey === "signIn");
   const signUpMenuItem = authMenu.find((item) => item.labelKey === "signUp");
   const viewerDisplayName = getViewerDisplayName(viewer);
@@ -164,9 +164,9 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
     accountPage: tNav("account"),
     home: tNav("home"),
     overview: tNav("overview"),
-    emailNotVerified: tPlatform("emailNotVerified"),
-    emailVerified: tPlatform("emailVerified"),
-    signOut: tPlatform("signOut"),
+    emailNotVerified: tApplication("emailNotVerified"),
+    emailVerified: tApplication("emailVerified"),
+    signOut: tApplication("signOut"),
   };
 
   return (
@@ -260,7 +260,7 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
 
                   {viewer && (
                     <div className="border-border rounded-xl border p-4">
-                      <p className="text-muted-foreground text-xs">{tPlatform("signedInAs")}</p>
+                      <p className="text-muted-foreground text-xs">{tApplication("signedInAs")}</p>
                       <p className="mt-1 truncate text-sm font-medium">
                         {viewerDisplayName ?? viewer.email}
                       </p>

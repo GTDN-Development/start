@@ -3,11 +3,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountLayout } from "@/features/account/account-layout";
 import { Container } from "@/components/ui/container";
 import {
-  PlatformHero,
-  PlatformHeroContent,
-  PlatformHeroDescription,
-  PlatformHeroTitle,
-} from "@/features/platform/overview/platform-hero";
+  ApplicationHero,
+  ApplicationHeroContent,
+  ApplicationHeroDescription,
+  ApplicationHeroTitle,
+} from "@/features/application/overview/application-hero";
 
 type AccountRouteLayoutProps = {
   children: React.ReactNode;
@@ -28,12 +28,12 @@ export default async function Layout({ children, params }: AccountRouteLayoutPro
 
   return (
     <div className="relative">
-      <PlatformHero>
-        <PlatformHeroContent>
-          <PlatformHeroTitle>{tAccount("title")}</PlatformHeroTitle>
-          <PlatformHeroDescription>{tAccount("description")}</PlatformHeroDescription>
-        </PlatformHeroContent>
-      </PlatformHero>
+      <ApplicationHero>
+        <ApplicationHeroContent>
+          <ApplicationHeroTitle>{tAccount("title")}</ApplicationHeroTitle>
+          <ApplicationHeroDescription>{tAccount("description")}</ApplicationHeroDescription>
+        </ApplicationHeroContent>
+      </ApplicationHero>
 
       <Container className="pb-24">
         <AccountLayout>{children}</AccountLayout>

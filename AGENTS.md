@@ -25,7 +25,7 @@
 
 - Primary app/domain code lives in `src/features/*`
 - `src/components/*` is for shared cross-feature UI infrastructure only (`ui`, `layout`, `brand`, `providers`, `dev`)
-- Keep platform shell/composition in `src/features/platform`; keep account domain in `src/features/account`
+- Keep application shell/composition in `src/features/application`; keep account domain in `src/features/account`
 - Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
 - Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
 - **Never** introduce barrel files (`index.ts` / `index.tsx`) in features
@@ -65,7 +65,7 @@
 ## Configuration & Menus (`src/config/menu.ts`)
 
 - **Never** reintroduce `getMenu`, `getMenuLinks`, `flattenMenuItems`, group resolvers, or multi-step mapping layers — use direct exported arrays
-- Keep already-flat menus (`authMenu`, `platformMenu`, `legalItems`) flat; only `marketingMenu` is nested
+- Keep already-flat menus (`authMenu`, `applicationMenu`, `legalItems`) flat; only `marketingMenu` is nested
 - Every new `labelKey` in `menu.ts` must be added to both `messages/en.json` and `messages/cs.json` under `layout.navigation.items`
 - Auth CTAs (sign-in/sign-up) are component-level — **not** part of `marketingMenu`
 - Menu `href` values must be internal path-only strings (e.g. `"/pricing"`)

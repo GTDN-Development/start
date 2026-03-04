@@ -3,7 +3,7 @@ import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@/lib/utils";
 import { ContainerProps, containerVariants } from "@/components/ui/container";
 
-function PlatformHero({ className, render, ...props }: useRender.ComponentProps<"section">) {
+function ApplicationHero({ className, render, ...props }: useRender.ComponentProps<"section">) {
   return useRender({
     render,
     defaultTagName: "section",
@@ -14,7 +14,7 @@ function PlatformHero({ className, render, ...props }: useRender.ComponentProps<
   });
 }
 
-function PlatformHeroTitle({ className, render, ...props }: useRender.ComponentProps<"h1">) {
+function ApplicationHeroTitle({ className, render, ...props }: useRender.ComponentProps<"h1">) {
   return useRender({
     render,
     defaultTagName: "h1",
@@ -28,7 +28,7 @@ function PlatformHeroTitle({ className, render, ...props }: useRender.ComponentP
   });
 }
 
-function PlatformHeroDescription({ className, render, ...props }: useRender.ComponentProps<"p">) {
+function ApplicationHeroDescription({ className, render, ...props }: useRender.ComponentProps<"p">) {
   return useRender({
     render,
     defaultTagName: "p",
@@ -39,7 +39,7 @@ function PlatformHeroDescription({ className, render, ...props }: useRender.Comp
   });
 }
 
-function PlatformHeroContent({ className, size, render, ...props }: ContainerProps) {
+function ApplicationHeroContent({ className, size, render, ...props }: ContainerProps) {
   return useRender({
     render,
     defaultTagName: "div",
@@ -54,4 +54,4 @@ function PlatformHeroContent({ className, size, render, ...props }: ContainerPro
   });
 }
 
-export { PlatformHero, PlatformHeroTitle, PlatformHeroDescription, PlatformHeroContent };
+export { ApplicationHero, ApplicationHeroTitle, ApplicationHeroDescription, ApplicationHeroContent };

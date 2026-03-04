@@ -52,7 +52,7 @@ dormantní funkce v něm zůstávají jako mrtvý kód s minimálním size footp
 Stačí v libovolné renderované komponentě zavolat `useSession()`. Například:
 
 ```tsx
-// v platform header, sidebar, nebo layout komponentě
+// v application header, sidebar, nebo layout komponentě
 import { useSession } from "@/features/auth/auth-client";
 
 export function SessionIndicator() {
@@ -66,10 +66,10 @@ a všechny tři mechanismy se automaticky aktivují. Žádné další zapojován
 
 ### Proč headery nepoužívají `useSession()`
 
-`PlatformHeader` a `MarketingHeader` zobrazují `UserAccountMenu` s avatarem a údaji o uživateli,
+`ApplicationHeader` a `MarketingHeader` zobrazují `UserAccountMenu` s avatarem a údaji o uživateli,
 ale data čerpají ze **server-driven props**, ne z `useSession()`. Důvody:
 
-1. **Server layouty už validují session na každou navigaci.** Oba layouty (`(platform)/layout.tsx`,
+1. **Server layouty už validují session na každou navigaci.** Oba layouty (`(application)/layout.tsx`,
    `(marketing)/layout.tsx`) volají `getServerAuthSession()` v Server Component — data jsou vždy
    čerstvá při každém přechodu stránky.
 2. **Redundantní fetch.** `useSession()` by na mount vyvolal `GET /api/auth/session`, přestože
@@ -87,7 +87,7 @@ ale data čerpají ze **server-driven props**, ne z `useSession()`. Důvody:
 
 - **Session-aware header/nav** — zobrazení jména, avataru, stavu uživatele.
 - **Email verification banner** — `useEmailVerification()` je připravený hook,
-  stačí ho mountnout v platform layoutu.
+  stačí ho mountnout v application layoutu.
 - **Cross-tab sign-out** — odhlášení v jednom tabu okamžitě clearuje session v ostatních.
 - **Stale session detection** — návrat na tab po delší době odhalí revokovanou/expirovanou session.
 

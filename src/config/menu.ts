@@ -50,7 +50,7 @@ export const marketingMenu: MenuItem[] = [
   { labelKey: "contact", href: "/contact" },
 ];
 
-export const platformMenu: MenuLink[] = [
+export const applicationMenu: MenuLink[] = [
   { labelKey: "overview", href: "/overview" },
   { labelKey: "account", href: "/account" },
 ];

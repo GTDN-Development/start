@@ -7,20 +7,20 @@ import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 
-type PlatformHeaderUser = AccountProfileSnapshot;
+type ApplicationHeaderUser = AccountProfileSnapshot;
 
-type PlatformHeaderLabels = {
+type ApplicationHeaderLabels = {
   overview: string;
   userMenu: UserAccountMenuLabels;
 };
 
-type PlatformHeaderProps = {
-  user: PlatformHeaderUser;
+type ApplicationHeaderProps = {
+  user: ApplicationHeaderUser;
   locale: string;
-  labels: PlatformHeaderLabels;
+  labels: ApplicationHeaderLabels;
 };
 
-export function PlatformHeader({ user, locale, labels }: PlatformHeaderProps) {
+export function ApplicationHeader({ user, locale, labels }: ApplicationHeaderProps) {
   return (
     <FloatingBar
       render={<header />}
