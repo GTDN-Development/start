@@ -14,12 +14,13 @@ export function WorkspaceSwitcher() {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className="hover:bg-sidebar-accent grid w-full grid-cols-[auto_1fr_auto] items-center gap-2 rounded-sm px-2 py-2">
-          <Avatar size="sm">
+        <DropdownMenuTrigger className="hover:bg-sidebar-accent grid w-full grid-cols-[auto_1fr_auto] items-center gap-2 rounded-lg p-2">
+          <Avatar>
             <AvatarFallback>WS</AvatarFallback>
           </Avatar>
-          <div className="flex min-w-0 items-center justify-start">
-            <span className="block truncate text-sm">Workspace Name</span>
+          <div className="flex min-w-0 flex-col items-start justify-start gap-0.5 leading-none">
+            <span className="block truncate text-sm font-semibold">Workspace Name</span>
+            <span className="block truncate text-xs">Pro</span>
           </div>
           <div className="ml-auto">
             <ChevronsUpDownIcon aria-hidden="true" className="size-4" />

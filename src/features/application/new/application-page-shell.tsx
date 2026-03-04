@@ -10,7 +10,7 @@ export function ApplicationPageShell({
     <div className="flex min-h-dvh w-full flex-col justify-between *:shrink-0 *:grow-0 *:data-[slot=main]:shrink *:data-[slot=main]:grow">
       <ApplicationPageNavbar breadcrumbs={breadcrumbs} title={title} />
 
-      <main data-slot="main" className="min-w-0">
+      <main data-slot="main" className="relative isolate min-w-0">
         {children}
       </main>
 
