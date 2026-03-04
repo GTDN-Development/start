@@ -1,29 +1,30 @@
 "use client";
 
-import {
-  useContext,
-  // useState
-} from "react";
-import { SidebarContext } from "./application-layout";
 import { Button } from "@/components/ui/button";
 import { SidebarIcon } from "lucide-react";
 import { FloatingBar } from "@/components/layout/floating-bar";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/container";
+import {
+  MobileMenu,
+  MobileMenuClose,
+  MobileMenuContent,
+  MobileMenuFooter,
+  MobileMenuHeader,
+  MobileMenuTitle,
+  MobileMenuTrigger,
+} from "@/components/ui/mobile-menu";
+import { UserAccountMenu } from "@/features/account/user-account-menu";
+import { ApplicationMenuTree } from "./application-menu-tree";
+import { useSidebarContext } from "./application-layout";
 
 export type ApplicationPageNavbarProps = {
   breadcrumbs: React.ReactNode;
 };
 
 export function ApplicationPageNavbar({ breadcrumbs }: ApplicationPageNavbarProps) {
-  // const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const {
-    isSidebarOpen,
-    setIsSidebarOpen,
-    // isMobileSidebarOpen,
-    // setIsMobileSidebarOpen
-  } = useContext(SidebarContext);
+  const { isSidebarOpen, setIsSidebarOpen, user, locale, userMenuLabels, mobileMenuLabels } =
+    useSidebarContext();
 
   return (
     <FloatingBar
@@ -46,17 +47,43 @@ export function ApplicationPageNavbar({ breadcrumbs }: ApplicationPageNavbarProp
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             variant="secondary"
             size="icon-lg"
-            aria-label="Open Sidebar"
-            className="max-xl:hidden"
+            aria-label={mobileMenuLabels.openAriaLabel}
+            className="max-lg:hidden"
           >
             <SidebarIcon aria-hidden="true" />
           </Button>
 
-          {/* Sidebar on mobile */}
-          <div className="xl:hidden">
-            <Button variant="secondary" size="icon-lg" aria-label="Start search">
-              <SidebarIcon aria-hidden="true" />
-            </Button>
+          <div className="lg:hidden">
+            <MobileMenu>
+              <Button
+                variant="secondary"
+                size="icon-lg"
+                aria-label={mobileMenuLabels.openAriaLabel}
+                render={<MobileMenuTrigger />}
+              >
+                <SidebarIcon aria-hidden="true" />
+              </Button>
+              <MobileMenuContent>
+                <MobileMenuHeader>
+                  <MobileMenuTitle>{mobileMenuLabels.title}</MobileMenuTitle>
+                </MobileMenuHeader>
+
+                <div className="mt-6">
+                  <ApplicationMenuTree variant="mobile" />
+
+                  <MobileMenuFooter className="mt-6">
+                    <Button
+                      variant="secondary"
+                      size="lg"
+                      className="w-full"
+                      render={<MobileMenuClose />}
+                    >
+                      {mobileMenuLabels.close}
+                    </Button>
+                  </MobileMenuFooter>
+                </div>
+              </MobileMenuContent>
+            </MobileMenu>
           </div>
 
           {/* Breadcrumbs */}
@@ -65,7 +92,7 @@ export function ApplicationPageNavbar({ breadcrumbs }: ApplicationPageNavbarProp
 
         {/* Right side */}
         <div className="flex flex-1 items-center justify-end gap-x-4">
-          <div className="text-sm">User Account Menu</div>
+          <UserAccountMenu viewer={user} locale={locale} labels={userMenuLabels} />
         </div>
       </Container>
     </FloatingBar>

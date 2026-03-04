@@ -1,65 +1,109 @@
 "use client";
 
-import { createContext, useState } from "react";
-import { ApplicationMenuTree } from "./application-menu-tree";
 import clsx from "clsx";
+import { createContext, useContext, useState } from "react";
+import { useTranslations } from "next-intl";
+import { SkipToContent } from "@/components/layout/skip-to-content";
 import { Container } from "@/components/ui/container";
+import { AccountProfileProvider } from "@/features/account/account-profile-context";
+import type { AccountProfileSnapshot } from "@/features/account/account-profile";
+import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
+import { shouldShowEmailNotVerifiedBanner } from "@/features/auth/email-verification";
+import { EmailNotVerifiedBanner } from "@/features/auth/email-not-verified-banner";
+import { ApplicationMenuTree } from "./application-menu-tree";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
-export const SidebarContext = createContext<{
+type ApplicationMobileMenuLabels = {
+  openAriaLabel: string;
+  title: string;
+  close: string;
+};
+
+type SidebarContextValue = {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (isSidebarOpen: boolean) => void;
-  isMobileSidebarOpen: boolean;
-  setIsMobileSidebarOpen: (isMobileSidebarOpen: boolean) => void;
-}>({
-  isSidebarOpen: true,
-  setIsSidebarOpen: () => {},
-  isMobileSidebarOpen: false,
-  setIsMobileSidebarOpen: () => {},
-});
+  user: AccountProfileSnapshot;
+  locale: string;
+  userMenuLabels: UserAccountMenuLabels;
+  mobileMenuLabels: ApplicationMobileMenuLabels;
+};
 
-export function ApplicationLayout({ children }: { children: React.ReactNode }) {
+export type ApplicationLayoutLabels = {
+  userMenu: UserAccountMenuLabels;
+  mobileMenu: ApplicationMobileMenuLabels;
+};
+
+type ApplicationLayoutProps = {
+  children: React.ReactNode;
+  user: AccountProfileSnapshot;
+  locale: string;
+  labels: ApplicationLayoutLabels;
+};
+
+const SidebarContext = createContext<SidebarContextValue | null>(null);
+
+export function useSidebarContext() {
+  const context = useContext(SidebarContext);
+
+  if (!context) {
+    throw new Error("useSidebarContext must be used within ApplicationLayout.");
+  }
+
+  return context;
+}
+
+export function ApplicationLayout({ children, user, locale, labels }: ApplicationLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
+  const shouldRenderUnverifiedBanner = shouldShowEmailNotVerifiedBanner(user);
+  const t = useTranslations("layout");
+  const contentId = "gtdn-app-content";
 
   return (
-    <SidebarContext.Provider
-      value={{
-        isSidebarOpen,
-        setIsSidebarOpen,
-        isMobileSidebarOpen,
-        setIsMobileSidebarOpen,
-      }}
-    >
-      <div>
-        <div className="bg-muted flex h-10 w-full items-center justify-center text-sm">
-          Banneeer
-        </div>
-        <div
-          data-sidebar-open={isSidebarOpen ? undefined : ""}
-          className={clsx(
-            "[--navbar-height:--spacing(16)]",
-            "group relative isolate not-data-sidebar-open:grid xl:grid-cols-[auto_1fr]"
-          )}
-        >
-          {/* Sidebar */}
-          <aside className="bg-sidebar sticky top-0 left-0 hidden h-screen w-72 overflow-y-auto border-r group-data-sidebar-open:hidden xl:block">
-            <div className="bg-sidebar sticky top-0">
-              <Container className="flex gap-3 py-3.5">
-                <WorkspaceSwitcher />
-              </Container>
-            </div>
-            <Container render={<nav aria-label="sidebar menu" />}>
-              <div className="pb-16">
-                <ApplicationMenuTree className="max-xl:hidden" />
-              </div>
-            </Container>
-          </aside>
+    <AccountProfileProvider key={profileProviderKey} initialProfile={user}>
+      <SidebarContext.Provider
+        value={{
+          isSidebarOpen,
+          setIsSidebarOpen,
+          user,
+          locale,
+          userMenuLabels: labels.userMenu,
+          mobileMenuLabels: labels.mobileMenu,
+        }}
+      >
+        <div className="relative isolate">
+          <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-          {/* Content */}
-          <div className="min-w-0">{children}</div>
+          {shouldRenderUnverifiedBanner && <EmailNotVerifiedBanner />}
+
+          <div
+            className={clsx(
+              "relative isolate [--navbar-height:--spacing(16)]",
+              isSidebarOpen && "lg:grid lg:grid-cols-[auto_1fr]"
+            )}
+          >
+            <aside
+              className={clsx(
+                "bg-sidebar sticky top-0 left-0 hidden h-screen w-72 overflow-y-auto border-r lg:block",
+                !isSidebarOpen && "lg:hidden"
+              )}
+            >
+              <div className="bg-sidebar sticky top-0 border-b">
+                <Container className="flex gap-3 py-3.5">
+                  <WorkspaceSwitcher />
+                </Container>
+              </div>
+              <Container className="pt-4 pb-16">
+                <ApplicationMenuTree aria-label={labels.mobileMenu.title} />
+              </Container>
+            </aside>
+
+            <div id={contentId} className="min-w-0">
+              {children}
+            </div>
+          </div>
         </div>
-      </div>
-    </SidebarContext.Provider>
+      </SidebarContext.Provider>
+    </AccountProfileProvider>
   );
 }

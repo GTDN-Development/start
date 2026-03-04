@@ -4,11 +4,18 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { createPageMetadata } from "@/lib/metadata";
 import {
-  ApplicationHero,
-  ApplicationHeroContent,
-  ApplicationHeroDescription,
-  ApplicationHeroTitle,
-} from "@/features/application/application-hero";
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
+import {
+  ApplicationPageHero,
+  ApplicationPageHeroContent,
+  ApplicationPageHeroDescription,
+  ApplicationPageHeroTitle,
+} from "@/features/application/new/application-page-hero";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {
@@ -37,26 +44,42 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
     locale: locale as Locale,
     namespace: "pages.overview",
   });
+  const tNav = await getTranslations({
+    locale: locale as Locale,
+    namespace: "layout.navigation.items",
+  });
 
   return (
-    <div className="relative">
-      <ApplicationHero>
-        <ApplicationHeroContent>
-          <ApplicationHeroTitle>{t("title")}</ApplicationHeroTitle>
-          <ApplicationHeroDescription>{t("description")}</ApplicationHeroDescription>
-        </ApplicationHeroContent>
-      </ApplicationHero>
+    <ApplicationPageShell
+      breadcrumbs={
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbPage>{tNav("overview")}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      }
+    >
+      <ApplicationPageHero>
+        <ApplicationPageHeroContent size="xl">
+          <ApplicationPageHeroTitle>{t("title")}</ApplicationPageHeroTitle>
+          <ApplicationPageHeroDescription>{t("description")}</ApplicationPageHeroDescription>
+        </ApplicationPageHeroContent>
+      </ApplicationPageHero>
 
-      <Container size="xl" className="space-y-16 pb-24">
+      <Container size="xl" className="pb-24">
         {/* Overview content goes here */}
         <Placeholder>
           <PlaceholderTitle>Overview Content</PlaceholderTitle>
         </Placeholder>
 
-        <Placeholder>
-          <PlaceholderTitle>Overview Content</PlaceholderTitle>
-        </Placeholder>
+        <div className="mt-16">
+          <Placeholder>
+            <PlaceholderTitle>Overview Content</PlaceholderTitle>
+          </Placeholder>
+        </div>
       </Container>
-    </div>
+    </ApplicationPageShell>
   );
 }

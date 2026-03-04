@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import { useOptionalAccountProfile } from "@/features/account/account-profile-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -47,7 +47,7 @@ export function UserAccountMenu({
 }: UserAccountMenuProps) {
   const accountProfile = useOptionalAccountProfile();
   const { handleSignOut, isPending: isSignOutPending } = useSignOut();
-  const [failedAvatarUrl, setFailedAvatarUrl] = React.useState<string | null>(null);
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const currentViewer = accountProfile?.profile ?? viewer;
   const isAvatarUpdating = accountProfile?.isAvatarUpdating ?? false;
   const displayName = getUserDisplayName(currentViewer);

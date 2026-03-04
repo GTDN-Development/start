@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
-import { ApplicationLayout } from "@/features/application/application-layout";
+import { ApplicationLayout } from "@/features/application/new/application-layout";
 import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 
@@ -56,6 +56,10 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
     locale: locale as Locale,
     namespace: "layout.application",
   });
+  const tHeaderMenu = await getTranslations({
+    locale: locale as Locale,
+    namespace: "layout.header.menu",
+  });
   const tNavigation = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
@@ -66,7 +70,6 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
       user={user}
       locale={locale}
       labels={{
-        overview: tNavigation("overview"),
         userMenu: {
           account: tNavigation("account"),
           accountPage: tNavigation("account"),
@@ -75,6 +78,11 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
           emailNotVerified: tApplication("emailNotVerified"),
           emailVerified: tApplication("emailVerified"),
           signOut: tApplication("signOut"),
+        },
+        mobileMenu: {
+          openAriaLabel: tHeaderMenu("openAriaLabel"),
+          title: tHeaderMenu("title"),
+          close: tHeaderMenu("close"),
         },
       }}
     >
