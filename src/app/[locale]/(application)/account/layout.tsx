@@ -7,7 +7,7 @@ import {
   ApplicationHeroContent,
   ApplicationHeroDescription,
   ApplicationHeroTitle,
-} from "@/features/application/overview/application-hero";
+} from "@/features/application/application-hero";
 
 type AccountRouteLayoutProps = {
   children: React.ReactNode;

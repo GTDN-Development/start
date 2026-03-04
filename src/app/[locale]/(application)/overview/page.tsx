@@ -8,7 +8,7 @@ import {
   ApplicationHeroContent,
   ApplicationHeroDescription,
   ApplicationHeroTitle,
-} from "@/features/application/overview/application-hero";
+} from "@/features/application/application-hero";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {
