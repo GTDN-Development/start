@@ -1,11 +1,12 @@
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
+import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import { cn } from "@/lib/utils";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
-import { shouldShowEmailNotVerifiedBanner } from "@/features/auth/email-verification";
-import { EmailNotVerifiedBanner } from "@/features/auth/email-not-verified-banner";
+import { showEmailVerificationBanner } from "@/features/auth/email-verification";
+import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
 import { ApplicationFooter } from "@/features/application/application-footer";
 import { ApplicationHeader } from "@/features/application/application-header";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
@@ -32,7 +33,7 @@ export function ApplicationLayout({
   ...props
 }: ApplicationLayoutProps) {
   const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
-  const shouldRenderUnverifiedBanner = shouldShowEmailNotVerifiedBanner(user);
+  const renderEmailVerificationBanner = showEmailVerificationBanner(user);
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
@@ -46,7 +47,14 @@ export function ApplicationLayout({
       >
         <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-        {shouldRenderUnverifiedBanner && <EmailNotVerifiedBanner />}
+        <LayoutBanners
+          banners={[
+            {
+              isVisible: renderEmailVerificationBanner,
+              content: <EmailVerificationBanner />,
+            },
+          ]}
+        />
 
         <ApplicationHeader user={user} locale={locale} labels={labels} />
 

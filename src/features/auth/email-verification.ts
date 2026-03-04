@@ -20,7 +20,7 @@ export function isEmailUnverifiedUser(user: EmailVerificationUser): boolean {
   return getEmailVerificationState(user) === "unverified";
 }
 
-export function shouldShowEmailNotVerifiedBanner(user: EmailVerificationUser): boolean {
+export function showEmailVerificationBanner(user: EmailVerificationUser): boolean {
   return isEmailUnverifiedUser(user);
 }
 

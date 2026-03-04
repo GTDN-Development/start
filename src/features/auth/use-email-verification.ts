@@ -5,7 +5,7 @@ import {
   getEmailVerificationState,
   isEmailUnverifiedUser,
   isEmailVerifiedUser,
-  shouldShowEmailNotVerifiedBanner,
+  showEmailVerificationBanner,
   type EmailVerificationState,
 } from "@/features/auth/email-verification";
 
@@ -29,7 +29,7 @@ export function useEmailVerification(): UseEmailVerificationResult {
     isAuthenticated,
     isVerified: isEmailVerifiedUser(user),
     isUnverified: isEmailUnverifiedUser(user),
-    shouldShowBanner: shouldShowEmailNotVerifiedBanner(user),
+    shouldShowBanner: showEmailVerificationBanner(user),
     state,
   };
 }

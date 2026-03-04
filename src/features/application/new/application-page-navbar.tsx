@@ -20,9 +20,10 @@ import { useSidebarContext } from "./application-layout";
 
 export type ApplicationPageNavbarProps = {
   breadcrumbs: React.ReactNode;
+  title?: React.ReactNode;
 };
 
-export function ApplicationPageNavbar({ breadcrumbs }: ApplicationPageNavbarProps) {
+export function ApplicationPageNavbar({ breadcrumbs, title }: ApplicationPageNavbarProps) {
   const { isSidebarOpen, setIsSidebarOpen, user, locale, userMenuLabels, mobileMenuLabels } =
     useSidebarContext();
 
@@ -41,7 +42,7 @@ export function ApplicationPageNavbar({ breadcrumbs }: ApplicationPageNavbarProp
     >
       <Container className="flex h-full min-w-0 shrink items-center gap-x-4 [--container-max-width:100%]">
         {/* Left side */}
-        <div className="flex flex-1 items-center gap-x-4">
+        <div className="flex min-w-0 flex-1 items-center gap-x-4">
           {/* Sidebar toggle button on desktop */}
           <Button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -90,8 +91,13 @@ export function ApplicationPageNavbar({ breadcrumbs }: ApplicationPageNavbarProp
           <div className="min-w-0 max-lg:hidden">{breadcrumbs}</div>
         </div>
 
+        {/* Center */}
+        <div className="flex min-w-0 flex-1 items-center justify-center px-2 text-center">
+          {title && <p className="truncate text-sm font-medium">{title}</p>}
+        </div>
+
         {/* Right side */}
-        <div className="flex flex-1 items-center justify-end gap-x-4">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-x-4">
           <UserAccountMenu viewer={user} locale={locale} labels={userMenuLabels} />
         </div>
       </Container>

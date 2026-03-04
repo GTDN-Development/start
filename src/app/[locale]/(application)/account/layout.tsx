@@ -12,12 +12,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Link } from "@/components/ui/link";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
-import {
-  ApplicationPageHero,
-  ApplicationPageHeroContent,
-  ApplicationPageHeroDescription,
-  ApplicationPageHeroTitle,
-} from "@/features/application/new/application-page-hero";
 
 type AccountRouteLayoutProps = {
   children: React.ReactNode;
@@ -42,6 +36,7 @@ export default async function Layout({ children, params }: AccountRouteLayoutPro
 
   return (
     <ApplicationPageShell
+      title={tAccount("title")}
       breadcrumbs={
         <Breadcrumb>
           <BreadcrumbList>
@@ -56,14 +51,7 @@ export default async function Layout({ children, params }: AccountRouteLayoutPro
         </Breadcrumb>
       }
     >
-      <ApplicationPageHero>
-        <ApplicationPageHeroContent size="xl">
-          <ApplicationPageHeroTitle>{tAccount("title")}</ApplicationPageHeroTitle>
-          <ApplicationPageHeroDescription>{tAccount("description")}</ApplicationPageHeroDescription>
-        </ApplicationPageHeroContent>
-      </ApplicationPageHero>
-
-      <Container className="pb-24">
+      <Container className="pt-10 pb-24">
         <AccountLayout>{children}</AccountLayout>
       </Container>
     </ApplicationPageShell>

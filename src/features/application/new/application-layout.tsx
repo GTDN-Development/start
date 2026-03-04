@@ -3,13 +3,14 @@
 import clsx from "clsx";
 import { createContext, useContext, useState } from "react";
 import { useTranslations } from "next-intl";
+import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import { Container } from "@/components/ui/container";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
-import { shouldShowEmailNotVerifiedBanner } from "@/features/auth/email-verification";
-import { EmailNotVerifiedBanner } from "@/features/auth/email-not-verified-banner";
+import { showEmailVerificationBanner } from "@/features/auth/email-verification";
+import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
 import { ApplicationMenuTree } from "./application-menu-tree";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
@@ -55,7 +56,7 @@ export function useSidebarContext() {
 export function ApplicationLayout({ children, user, locale, labels }: ApplicationLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
-  const shouldRenderUnverifiedBanner = shouldShowEmailNotVerifiedBanner(user);
+  const renderEmailVerificationBanner = showEmailVerificationBanner(user);
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
@@ -74,7 +75,14 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
         <div className="relative isolate">
           <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-          {shouldRenderUnverifiedBanner && <EmailNotVerifiedBanner />}
+          <LayoutBanners
+            banners={[
+              {
+                isVisible: renderEmailVerificationBanner,
+                content: <EmailVerificationBanner />,
+              },
+            ]}
+          />
 
           <div
             className={clsx(

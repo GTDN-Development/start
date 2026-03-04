@@ -14,15 +14,15 @@ export function WorkspaceSwitcher() {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className="group/workspace-switcher grid w-full grid-cols-[auto_1fr_auto] items-center gap-2 py-1">
+        <DropdownMenuTrigger className="hover:bg-sidebar-accent grid w-full grid-cols-[auto_1fr_auto] items-center gap-2 rounded-sm px-2 py-2">
           <Avatar size="sm">
             <AvatarFallback>WS</AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 items-center justify-start">
             <span className="block truncate text-sm">Workspace Name</span>
           </div>
-          <div className="group-hover/workspace-switcher:bg-muted rounded-sm p-1.5">
-            <ChevronsUpDownIcon aria-hidden="true" className="ml-auto size-4" />
+          <div className="ml-auto">
+            <ChevronsUpDownIcon aria-hidden="true" className="size-4" />
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent>

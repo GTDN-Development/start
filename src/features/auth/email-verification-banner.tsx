@@ -8,7 +8,7 @@ import { Container } from "@/components/ui/container";
 import { requestEmailVerification } from "@/features/auth/auth-client";
 import { XIcon } from "lucide-react";
 
-export function EmailNotVerifiedBanner() {
+export function EmailVerificationBanner() {
   const t = useTranslations("layout.emailVerificationBanner");
   const [isDismissed, setIsDismissed] = useState(false);
   const [isSendingVerificationEmail, setIsSendingVerificationEmail] = useState(false);

@@ -10,12 +10,6 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
-import {
-  ApplicationPageHero,
-  ApplicationPageHeroContent,
-  ApplicationPageHeroDescription,
-  ApplicationPageHeroTitle,
-} from "@/features/application/new/application-page-hero";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {
@@ -51,6 +45,7 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
 
   return (
     <ApplicationPageShell
+      title={t("title")}
       breadcrumbs={
         <Breadcrumb>
           <BreadcrumbList>
@@ -61,24 +56,23 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
         </Breadcrumb>
       }
     >
-      <ApplicationPageHero>
-        <ApplicationPageHeroContent size="xl">
-          <ApplicationPageHeroTitle>{t("title")}</ApplicationPageHeroTitle>
-          <ApplicationPageHeroDescription>{t("description")}</ApplicationPageHeroDescription>
-        </ApplicationPageHeroContent>
-      </ApplicationPageHero>
-
-      <Container size="xl" className="pb-24">
+      <Container size="xl" className="space-y-16 pt-10 pb-24">
         {/* Overview content goes here */}
         <Placeholder>
           <PlaceholderTitle>Overview Content</PlaceholderTitle>
         </Placeholder>
 
-        <div className="mt-16">
-          <Placeholder>
-            <PlaceholderTitle>Overview Content</PlaceholderTitle>
-          </Placeholder>
-        </div>
+        <Placeholder>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+        </Placeholder>
+
+        <Placeholder>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+        </Placeholder>
+
+        <Placeholder>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+        </Placeholder>
       </Container>
     </ApplicationPageShell>
   );
