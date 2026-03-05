@@ -17,6 +17,7 @@
     "@tanstack/react-form": "^1.26.0",
     "@types/nodemailer": "~7.0.4",
     "babel-plugin-react-compiler": "^1.0.0",
+    "browser-image-compression": "^2.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",

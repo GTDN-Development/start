@@ -94,11 +94,36 @@
         }
       }
     },
-    "platform": {
+    "application": {
       "signedInAs": "Přihlášen jako",
       "emailVerified": "E-mail ověřen",
       "emailNotVerified": "E-mail není ověřen",
-      "signOut": "Odhlásit se"
+      "signOut": "Odhlásit se",
+      "workspaceSwitcher": {
+        "labels": {
+          "workspaces": "Pracovní prostory"
+        },
+        "actions": {
+          "create": "Vytvořit pracovní prostor"
+        },
+        "workspaces": {
+          "current": {
+            "name": "Název pracovního prostoru",
+            "plan": "Pro",
+            "initials": "PP"
+          },
+          "alpha": {
+            "name": "Produktový tým",
+            "plan": "Business",
+            "initials": "PT"
+          },
+          "beta": {
+            "name": "Design studio",
+            "plan": "Starter",
+            "initials": "DS"
+          }
+        }
+      }
     }
   },
   "pages": {
@@ -146,7 +171,7 @@
     },
     "signUp": {
       "title": "Registrace",
-      "description": "Vytvořte si nový účet a začněte používat platformu.",
+      "description": "Vytvořte si nový účet a začněte používat aplikaci.",
       "createYourAccount": "Vytvořte si účet",
       "alreadyHaveAccount": "Již máte účet?",
       "signIn": "Přihlásit se"
@@ -218,13 +243,14 @@
           "change": "Změnit avatar",
           "remove": "Odebrat avatar"
         },
-        "hint": "Podporovány jsou pouze obrázky. Maximální velikost souboru je 1 MB.",
+        "hint": "Jsou podporovány pouze standardní formáty obrázků (JPEG, PNG, WebP). Nadměrně velké obrázky automaticky optimalizujeme.",
         "status": {
           "updated": "Avatar byl úspěšně aktualizován.",
           "removed": "Avatar byl úspěšně odebrán.",
           "error": "Avatar se teď nepodařilo upravit. Zkuste to prosím znovu.",
           "invalidFileType": "Vyberte prosím platný obrázek.",
-          "fileTooLarge": "Avatar musí mít maximálně 1 MB.",
+          "fileTooLarge": "Obrázek se nepodařilo dostatečně zmenšit. Zkuste prosím jiný soubor.",
+          "processingFailed": "Vybraný obrázek se nepodařilo zpracovat. Zkuste prosím jiný soubor.",
           "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
         }
       },
@@ -799,7 +825,7 @@
             "country": "Spojené státy americké"
           },
           {
-            "name": "Google Cloud Platform",
+            "name": "Google Cloud",
             "service": "Analytické a cloudové služby",
             "country": "Spojené státy americké"
           },
@@ -882,7 +908,7 @@
         "withdrawal": "U smluv uzavřených na dálku má spotřebitel obecně právo odstoupit od smlouvy ve lhůtě {withdrawalDays} dnů.",
         "withdrawalException": "U digitálního obsahu/služeb poskytovaných před uplynutím lhůty pro odstoupení vás můžeme požádat o výslovný souhlas se zahájením plnění a o potvrzení, že tím může právo na odstoupení zaniknout po zahájení plnění.",
         "adr": "Mimosoudní řešení spotřebitelských sporů v ČR: {authority}, web {website}, e-mail {email}, adresa {address}.",
-        "odrDiscontinued": "Evropská platforma online řešení sporů (ODR) byla k 20. červenci 2025 zrušena nařízením (EU) 2024/3228, proto zde odkaz na ODR platformu není uveden."
+        "odrDiscontinued": "Evropská služba online řešení sporů (ODR) byla k 20. červenci 2025 zrušena nařízením (EU) 2024/3228, proto zde odkaz na ODR službu není uveden."
       },
       "availabilityChanges": {
         "title": "12. Dostupnost, aktualizace a změny služby",

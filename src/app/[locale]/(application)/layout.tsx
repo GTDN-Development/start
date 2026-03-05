@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
-import { PlatformLayout } from "@/features/platform/platform-layout";
+import { ApplicationLayout } from "@/features/application/new/application-layout";
 import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 
-type PlatformRouteLayoutProps = {
+type ApplicationRouteLayoutProps = {
   children: React.ReactNode;
   params: Promise<{
     locale: string;
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Layout({ children, params }: PlatformRouteLayoutProps) {
+export default async function Layout({ children, params }: ApplicationRouteLayoutProps) {
   const { locale } = await params;
   const authSession = await getServerAuthSession();
 
@@ -52,9 +52,13 @@ export default async function Layout({ children, params }: PlatformRouteLayoutPr
     avatarUrl: session.user.avatarUrl,
   };
 
-  const tPlatform = await getTranslations({
+  const tApplication = await getTranslations({
     locale: locale as Locale,
-    namespace: "layout.platform",
+    namespace: "layout.application",
+  });
+  const tHeaderMenu = await getTranslations({
+    locale: locale as Locale,
+    namespace: "layout.header.menu",
   });
   const tNavigation = await getTranslations({
     locale: locale as Locale,
@@ -62,23 +66,27 @@ export default async function Layout({ children, params }: PlatformRouteLayoutPr
   });
 
   return (
-    <PlatformLayout
+    <ApplicationLayout
       user={user}
       locale={locale}
       labels={{
-        overview: tNavigation("overview"),
         userMenu: {
           account: tNavigation("account"),
           accountPage: tNavigation("account"),
           home: tNavigation("home"),
           overview: tNavigation("overview"),
-          emailNotVerified: tPlatform("emailNotVerified"),
-          emailVerified: tPlatform("emailVerified"),
-          signOut: tPlatform("signOut"),
+          emailNotVerified: tApplication("emailNotVerified"),
+          emailVerified: tApplication("emailVerified"),
+          signOut: tApplication("signOut"),
+        },
+        mobileMenu: {
+          openAriaLabel: tHeaderMenu("openAriaLabel"),
+          title: tHeaderMenu("title"),
+          close: tHeaderMenu("close"),
         },
       }}
     >
       {children}
-    </PlatformLayout>
+    </ApplicationLayout>
   );
 }

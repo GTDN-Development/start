@@ -94,11 +94,36 @@
         }
       }
     },
-    "platform": {
+    "application": {
       "signedInAs": "Signed in as",
       "emailVerified": "Email verified",
       "emailNotVerified": "Email not verified",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "workspaceSwitcher": {
+        "labels": {
+          "workspaces": "Workspaces"
+        },
+        "actions": {
+          "create": "Create workspace"
+        },
+        "workspaces": {
+          "current": {
+            "name": "Workspace Name",
+            "plan": "Pro",
+            "initials": "WS"
+          },
+          "alpha": {
+            "name": "Product Team",
+            "plan": "Business",
+            "initials": "PT"
+          },
+          "beta": {
+            "name": "Design Studio",
+            "plan": "Starter",
+            "initials": "DS"
+          }
+        }
+      }
     }
   },
   "pages": {
@@ -146,7 +171,7 @@
     },
     "signUp": {
       "title": "Sign up",
-      "description": "Create a new account to start using the platform.",
+      "description": "Create a new account to start using the application.",
       "createYourAccount": "Create your account",
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign in"
@@ -178,7 +203,7 @@
     },
     "termsOfService": {
       "title": "Terms of Service",
-      "description": "Rules for using our SaaS platform, including user responsibilities, liability limits, and consumer information under EU and Czech law.",
+      "description": "Rules for using our SaaS application, including user responsibilities, liability limits, and consumer information under EU and Czech law.",
       "effectiveDate": "March 3, 2026"
     },
     "cookies": {
@@ -218,13 +243,14 @@
           "change": "Change avatar",
           "remove": "Remove avatar"
         },
-        "hint": "Supported image formats only. Maximum file size is 1 MB.",
+        "hint": "Only standard image formats are supported (JPEG, PNG, WebP). Oversized images are optimized automatically.",
         "status": {
           "updated": "Avatar updated successfully.",
           "removed": "Avatar removed successfully.",
           "error": "We couldn't update your avatar right now. Please try again.",
           "invalidFileType": "Please choose a valid image file.",
-          "fileTooLarge": "Avatar image must be 1 MB or smaller.",
+          "fileTooLarge": "We couldn't reduce the image size enough. Please choose a different image.",
+          "processingFailed": "We couldn't process the selected image. Please try a different file.",
           "unauthorized": "Your session expired. Please sign in again."
         }
       },
@@ -799,7 +825,7 @@
             "country": "United States"
           },
           {
-            "name": "Google Cloud Platform",
+            "name": "Google Cloud",
             "service": "Analytics and cloud services",
             "country": "United States"
           },
@@ -882,7 +908,7 @@
         "withdrawal": "For distance contracts, consumers generally have a {withdrawalDays}-day right of withdrawal.",
         "withdrawalException": "For digital content/services delivered before the withdrawal period ends, you may be asked to give explicit consent to immediate performance and acknowledge that this can end the right of withdrawal once performance starts.",
         "adr": "Out-of-court consumer dispute resolution in the Czech Republic: {authority}, website {website}, email {email}, address {address}.",
-        "odrDiscontinued": "The EU Online Dispute Resolution (ODR) platform was discontinued on July 20, 2025 under Regulation (EU) 2024/3228, therefore no ODR platform link is provided."
+        "odrDiscontinued": "The EU Online Dispute Resolution (ODR) service was discontinued on July 20, 2025 under Regulation (EU) 2024/3228, therefore no ODR service link is provided."
       },
       "availabilityChanges": {
         "title": "12. Availability, updates, and changes",

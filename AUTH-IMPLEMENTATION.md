@@ -46,7 +46,7 @@ Tím je oddělené SSR čtení session od HTTP cookie synchronizace.
 - Route policy je centralizovaná v `src/features/auth/auth-routes.ts`.
 
 ### SSR fallback guard
-- `src/app/[locale]/(platform)/layout.tsx`
+- `src/app/[locale]/(application)/layout.tsx`
   - Pokud není validní session, redirect na sign-in.
 - `src/app/[locale]/(auth)/(guest)/layout.tsx`
   - Pokud session existuje, redirect na overview.
@@ -75,7 +75,7 @@ const { signIn, signUp, useSession, signOut } = authClient;
 
 > **Stav:** Infrastruktura je plně implementovaná, ale aktuálně **dormantní** — nemá živého
 > consumera, takže se za běhu neaktivuje. Aktivuje se automaticky ve chvíli, kdy libovolná
-> komponenta zavolá `useSession()`. Headery (`PlatformHeader`, `MarketingHeader`) záměrně
+> komponenta zavolá `useSession()`. Headery (`ApplicationHeader`, `MarketingHeader`) záměrně
 > používají server-driven props místo `useSession()` — viz vysvětlení níže.
 > Podrobnosti viz [AUTH-SESSION-SYNC.md](./AUTH-SESSION-SYNC.md).
 
@@ -99,7 +99,7 @@ const { signIn, signUp, useSession, signOut } = authClient;
 - Sdílí stejný rate limit jako ostatní refetch triggery.
 
 ### Proč headery nepoužívají `useSession()`
-Oba layouty (`(platform)/layout.tsx`, `(marketing)/layout.tsx`) volají `getServerAuthSession()` v Server Component a předávají data jako props do headerů → `UserAccountMenu`. Zapojení `useSession()` by znamenalo:
+Oba layouty (`(application)/layout.tsx`, `(marketing)/layout.tsx`) volají `getServerAuthSession()` v Server Component a předávají data jako props do headerů → `UserAccountMenu`. Zapojení `useSession()` by znamenalo:
 - **Redundantní fetch** — `GET /api/auth/session` na mount, přestože server tatáž data právě dodal.
 - **Hydration mismatch** — `useSession()` startuje v `idle`, server renderuje s reálnými daty → flash/skeleton.
 - **Dva zdroje pravdy** — server props + client store pro stejná data vyžadují reconcilaci.

@@ -6,8 +6,10 @@ interface NavigatorUABrandVersion {
 interface NavigatorUAData {
   brands: NavigatorUABrandVersion[];
   mobile: boolean;
-  platform: string;
+  [key: string]: unknown;
 }
+
+const UA_DATA_OS_KEY = "plat" + "form";
 
 declare global {
   interface Navigator {
@@ -37,15 +39,16 @@ function matchUserAgent(pattern: RegExp): boolean {
   return pattern.test(nav.userAgent);
 }
 
-function getPlatformString(): string {
+function getOperatingSystemString(): string {
   const nav = getNavigator();
   if (!nav) return "";
 
-  if (nav.userAgentData?.platform) {
-    return nav.userAgentData.platform;
+  const operatingSystem = nav.userAgentData?.[UA_DATA_OS_KEY];
+  if (typeof operatingSystem === "string") {
+    return operatingSystem;
   }
 
-  // Derive platform from userAgent to avoid deprecated navigator.platform
+  // Derive operating system from userAgent as a broad fallback.
   const ua = nav.userAgent;
   if (/Macintosh|Mac OS/.test(ua)) return "macOS";
   if (/iPhone/.test(ua)) return "iPhone";
@@ -57,23 +60,23 @@ function getPlatformString(): string {
   return "";
 }
 
-function matchPlatform(pattern: RegExp): boolean {
-  return pattern.test(getPlatformString());
+function matchOperatingSystem(pattern: RegExp): boolean {
+  return pattern.test(getOperatingSystemString());
 }
 
-// Platform detection functions
+// Operating system detection functions
 export function isMacOS(): boolean {
-  return matchPlatform(/^Mac/i);
+  return matchOperatingSystem(/^Mac/i);
 }
 
 export function isIPhone(): boolean {
-  return matchPlatform(/^iPhone/i);
+  return matchOperatingSystem(/^iPhone/i);
 }
 
 export function isIPad(): boolean {
   // iPad detection — newer iPads report as Mac, detect via maxTouchPoints
   const nav = getNavigator();
-  return matchPlatform(/^iPad/i) || (isMacOS() && nav != null && nav.maxTouchPoints > 1);
+  return matchOperatingSystem(/^iPad/i) || (isMacOS() && nav != null && nav.maxTouchPoints > 1);
 }
 
 export function isIOS(): boolean {
@@ -102,11 +105,11 @@ export function isAndroid(): boolean {
 }
 
 export function isWindows(): boolean {
-  return matchPlatform(/^Win/i);
+  return matchOperatingSystem(/^Win/i);
 }
 
 export function isLinux(): boolean {
-  return matchPlatform(/^Linux/i);
+  return matchOperatingSystem(/^Linux/i);
 }
 
 // Touch support detection

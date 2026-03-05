@@ -13,22 +13,22 @@ import {
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
-type PlatformFooterLink = MenuLink;
+type ApplicationFooterLink = MenuLink;
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 
-const platformFooterLinks: PlatformFooterLink[] = [
+const applicationFooterLinks: ApplicationFooterLink[] = [
   { labelKey: "home", href: "/" },
   { labelKey: "blog", href: "/blog" },
   { labelKey: "contact", href: "/contact" },
 ];
 
-function PlatformFooterNavigation({
+function ApplicationFooterNavigation({
   items,
   translate,
   legalLabel,
   className,
 }: {
-  items: PlatformFooterLink[];
+  items: ApplicationFooterLink[];
   translate: TranslateNavigationLabel;
   legalLabel: string;
   className?: string;
@@ -76,15 +76,15 @@ function PlatformFooterNavigation({
   );
 }
 
-export function PlatformFooter({ className, ...props }: React.ComponentProps<"footer">) {
+export function ApplicationFooter({ className, ...props }: React.ComponentProps<"footer">) {
   const tNav = useTranslations("layout.navigation.items");
   const tFooter = useTranslations("layout.footer");
 
   return (
     <footer {...props} className={cn("border-t-border border-t", className)}>
       <Container className="flex flex-wrap items-center justify-center gap-x-4 gap-y-8 py-8 sm:justify-between">
-        <PlatformFooterNavigation
-          items={platformFooterLinks}
+        <ApplicationFooterNavigation
+          items={applicationFooterLinks}
           translate={tNav}
           legalLabel={tFooter("sections.legal")}
           className="flex flex-wrap items-center gap-x-5 gap-y-2"

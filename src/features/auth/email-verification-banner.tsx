@@ -8,7 +8,7 @@ import { Container } from "@/components/ui/container";
 import { requestEmailVerification } from "@/features/auth/auth-client";
 import { XIcon } from "lucide-react";
 
-export function EmailNotVerifiedBanner() {
+export function EmailVerificationBanner() {
   const t = useTranslations("layout.emailVerificationBanner");
   const [isDismissed, setIsDismissed] = useState(false);
   const [isSendingVerificationEmail, setIsSendingVerificationEmail] = useState(false);
@@ -49,7 +49,7 @@ export function EmailNotVerifiedBanner() {
 
   return (
     <div className="bg-amber-600 py-2.5 text-amber-100">
-      <Container className="flex items-center gap-2 lg:before:flex-1">
+      <Container size="full" className="flex items-center gap-2">
         <div className="flex w-full flex-wrap items-center gap-2 lg:justify-center lg:text-center">
           <p className="text-sm">
             <strong>{t("title")}</strong>

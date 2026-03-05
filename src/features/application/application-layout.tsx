@@ -1,38 +1,39 @@
 import clsx from "clsx";
 import { useTranslations } from "next-intl";
+import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import { cn } from "@/lib/utils";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
-import { shouldShowEmailNotVerifiedBanner } from "@/features/auth/email-verification";
-import { EmailNotVerifiedBanner } from "@/features/auth/email-not-verified-banner";
-import { PlatformFooter } from "@/features/platform/platform-footer";
-import { PlatformHeader } from "@/features/platform/platform-header";
+import { showEmailVerificationBanner } from "@/features/auth/email-verification";
+import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
+import { ApplicationFooter } from "@/features/application/application-footer";
+import { ApplicationHeader } from "@/features/application/application-header";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
 
-type PlatformLayoutUser = AccountProfileSnapshot;
+type ApplicationLayoutUser = AccountProfileSnapshot;
 
-type PlatformLayoutLabels = {
+type ApplicationLayoutLabels = {
   overview: string;
   userMenu: UserAccountMenuLabels;
 };
 
-type PlatformLayoutProps = React.ComponentProps<"main"> & {
-  user: PlatformLayoutUser;
+type ApplicationLayoutProps = React.ComponentProps<"main"> & {
+  user: ApplicationLayoutUser;
   locale: string;
-  labels: PlatformLayoutLabels;
+  labels: ApplicationLayoutLabels;
 };
 
-export function PlatformLayout({
+export function ApplicationLayout({
   children,
   className,
   user,
   locale,
   labels,
   ...props
-}: PlatformLayoutProps) {
+}: ApplicationLayoutProps) {
   const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
-  const shouldRenderUnverifiedBanner = shouldShowEmailNotVerifiedBanner(user);
+  const renderEmailVerificationBanner = showEmailVerificationBanner(user);
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
@@ -46,9 +47,16 @@ export function PlatformLayout({
       >
         <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-        {shouldRenderUnverifiedBanner && <EmailNotVerifiedBanner />}
+        <LayoutBanners
+          banners={[
+            {
+              isVisible: renderEmailVerificationBanner,
+              content: <EmailVerificationBanner />,
+            },
+          ]}
+        />
 
-        <PlatformHeader user={user} locale={locale} labels={labels} />
+        <ApplicationHeader user={user} locale={locale} labels={labels} />
 
         <main
           {...props}
@@ -59,7 +67,7 @@ export function PlatformLayout({
           {children}
         </main>
 
-        <PlatformFooter />
+        <ApplicationFooter />
       </div>
     </AccountProfileProvider>
   );

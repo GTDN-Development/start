@@ -10,7 +10,7 @@ import {
   isNested,
   legalItems,
   marketingMenu,
-  platformMenu,
+  applicationMenu,
   type MenuItem,
   type MenuLabelKey,
 } from "@/config/menu";
@@ -101,11 +101,11 @@ export function MarketingFooter({
   const { handleSignOut, isPending: isSignOutPending } = useSignOut();
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
-  const tPlatform = useTranslations("layout.platform");
+  const tApplication = useTranslations("layout.application");
   const copiedToClipboardMessage = t("copiedToClipboard");
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
   const accountLinks = viewer
-    ? platformMenu.filter((item) => item.labelKey === "overview" || item.labelKey === "account")
+    ? applicationMenu.filter((item) => item.labelKey === "overview" || item.labelKey === "account")
     : authMenu;
   const viewerName = viewer?.name?.trim() || null;
 
@@ -133,7 +133,7 @@ export function MarketingFooter({
           <p className="text-sm font-semibold">{tNav("account")}</p>
           {viewer && (
             <div className="space-y-1">
-              <p className="text-muted-foreground text-xs">{tPlatform("signedInAs")}</p>
+              <p className="text-muted-foreground text-xs">{tApplication("signedInAs")}</p>
               <p className="max-w-full truncate text-sm font-medium">
                 {viewerName ?? viewer.email}
               </p>
@@ -161,7 +161,7 @@ export function MarketingFooter({
                   onClick={handleSignOut}
                   className="text-muted-foreground hover:text-foreground cursor-pointer appearance-none bg-transparent p-0 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {tPlatform("signOut")}
+                  {tApplication("signOut")}
                 </button>
               </li>
             )}

@@ -1,6 +1,6 @@
 # Start
 
-Next.js 16 starter app for marketing, auth, and platform pages.
+Next.js 16 starter app for marketing, auth, and application pages.
 
 ## Stack
 
@@ -43,7 +43,7 @@ PocketBase typegen requires:
 ## Structure
 
 - `src/app` - routes, layouts, metadata, API route adapters
-- `src/features` - feature-first modules (`auth`, `account`, `marketing`, `cookies`, `platform`)
+- `src/features` - feature-first modules (`auth`, `account`, `marketing`, `cookies`, `application`)
 - `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `providers`, `dev`)
 - `src/server` - server-only infrastructure (`captcha`, `email`)
 - `src/config` - structural config (menus, links, site data)
@@ -59,7 +59,7 @@ PocketBase typegen requires:
 - No barrel exports (`index.ts` / `index.tsx`) in feature modules
 - No `shared/` folders inside features; feature-wide types/helpers live at feature root
 - Keep `src/components/ui` as the shadcn CLI target
-- Platform shell/composition belongs to `src/features/platform`; account domain stays in `src/features/account`
+- Application shell/composition belongs to `src/features/application`; account domain stays in `src/features/account`
 - Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
 - Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
 - Keep common helpers centralized in `src/lib/utils.ts`; avoid splitting utility helpers into many micro files
@@ -113,6 +113,6 @@ redirect({ href: "/sign-in", locale: locale as Locale });
 - Implemented actions: `sign-in`, `sign-up`, `sign-out`, `session`.
 - Client DX API is exposed via `src/features/auth/auth-client.ts`:
   - `signIn`, `signUp`, `useSession`, `signOut`
-- Platform routes are protected by:
+- Application routes are protected by:
   - `src/proxy.ts` cookie-presence redirect guard
-  - server-layout fallback session validation in `src/app/[locale]/(platform)/layout.tsx`
+  - server-layout fallback session validation in `src/app/[locale]/(application)/layout.tsx`

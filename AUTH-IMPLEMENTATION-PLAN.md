@@ -56,7 +56,7 @@ Mimo scope (později): OAuth2, forgot/reset password, verify email, confirm emai
 8. Upravit `src/proxy.ts`:
    - ponechat next-intl behavior,
    - přidat auth redirect autoritu pro protected routy při chybějící `pb_auth` cookie.
-9. Upravit SSR fallback guard v `src/app/[locale]/(platform)/layout.tsx`:
+9. Upravit SSR fallback guard v `src/app/[locale]/(application)/layout.tsx`:
    - načíst session ze server auth vrstvy,
    - pokud cookie existuje, ale session je neplatná/nepoužitelná, redirect na sign-in,
    - nahradit statický profil daty session usera.

@@ -4,11 +4,12 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { createPageMetadata } from "@/lib/metadata";
 import {
-  PlatformHero,
-  PlatformHeroContent,
-  PlatformHeroDescription,
-  PlatformHeroTitle,
-} from "@/features/platform/overview/platform-hero";
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {
@@ -37,17 +38,25 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
     locale: locale as Locale,
     namespace: "pages.overview",
   });
+  const tNav = await getTranslations({
+    locale: locale as Locale,
+    namespace: "layout.navigation.items",
+  });
 
   return (
-    <div className="relative">
-      <PlatformHero>
-        <PlatformHeroContent>
-          <PlatformHeroTitle>{t("title")}</PlatformHeroTitle>
-          <PlatformHeroDescription>{t("description")}</PlatformHeroDescription>
-        </PlatformHeroContent>
-      </PlatformHero>
-
-      <Container size="xl" className="space-y-16 pb-24">
+    <ApplicationPageShell
+      title={t("title")}
+      breadcrumbs={
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbPage>{tNav("overview")}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      }
+    >
+      <Container size="xl" className="space-y-16 pt-10 pb-24">
         {/* Overview content goes here */}
         <Placeholder>
           <PlaceholderTitle>Overview Content</PlaceholderTitle>
@@ -56,7 +65,15 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
         <Placeholder>
           <PlaceholderTitle>Overview Content</PlaceholderTitle>
         </Placeholder>
+
+        <Placeholder>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+        </Placeholder>
+
+        <Placeholder>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+        </Placeholder>
       </Container>
-    </div>
+    </ApplicationPageShell>
   );
 }
