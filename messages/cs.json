@@ -243,13 +243,14 @@
           "change": "Změnit avatar",
           "remove": "Odebrat avatar"
         },
-        "hint": "Podporovány jsou pouze obrázky. Maximální velikost souboru je 1 MB.",
+        "hint": "Podporovány jsou pouze obrázky. Obrázek před nahráním automaticky optimalizujeme.",
         "status": {
           "updated": "Avatar byl úspěšně aktualizován.",
           "removed": "Avatar byl úspěšně odebrán.",
           "error": "Avatar se teď nepodařilo upravit. Zkuste to prosím znovu.",
           "invalidFileType": "Vyberte prosím platný obrázek.",
-          "fileTooLarge": "Avatar musí mít maximálně 1 MB.",
+          "fileTooLarge": "Obrázek se nepodařilo dostatečně zmenšit. Zkuste prosím jiný soubor.",
+          "processingFailed": "Vybraný obrázek se nepodařilo zpracovat. Zkuste prosím jiný soubor.",
           "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
         }
       },

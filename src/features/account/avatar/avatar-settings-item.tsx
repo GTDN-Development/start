@@ -1,10 +1,11 @@
 "use client";
 
-import * as React from "react";
+import { type ChangeEvent, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useAccountProfile } from "@/features/account/account-profile-context";
 import { removeAccountAvatar, uploadAccountAvatar } from "@/features/account/account-client";
+import { prepareAccountAvatarUpload } from "@/features/account/avatar/avatar-image-processing";
 import {
   AccountItem,
   AccountItemContent,
@@ -26,21 +27,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
-const MAX_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
-
 export function AccountAvatarSettingsItem() {
   const t = useTranslations("pages.account");
   const { profile, patchProfile, isAvatarUpdating, setIsAvatarUpdating } = useAccountProfile();
-  const avatarToastId = React.useId();
-  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
-  const [failedAvatarUrl, setFailedAvatarUrl] = React.useState<string | null>(null);
+  const avatarToastId = useId();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
 
   const displayName = profile.name?.trim() ? profile.name : null;
   const initials = getUserInitials(displayName ?? profile.email);
   const avatarUrl =
     profile.avatarUrl && profile.avatarUrl !== failedAvatarUrl ? profile.avatarUrl : null;
 
-  async function handleAvatarInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleAvatarInputChange(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
     const avatarFile = input.files?.[0] ?? null;
 
@@ -57,8 +56,6 @@ export function AccountAvatarSettingsItem() {
         id: avatarToastId,
         description: resolveErrorMessage(avatarValidationErrorCode, t("avatar.status.error"), {
           INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
-          FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
-          UNAUTHORIZED: t("avatar.status.unauthorized"),
         }),
       });
       return;
@@ -66,25 +63,46 @@ export function AccountAvatarSettingsItem() {
 
     setIsAvatarUpdating(true);
 
-    const response = await uploadAccountAvatar(avatarFile);
+    try {
+      const preparedAvatarFileResult = await prepareAccountAvatarUpload(avatarFile);
 
-    if (response.ok) {
-      patchProfile(response.data.profile);
-      setFailedAvatarUrl(null);
-      toast.success(t("common.successTitle"), {
-        id: avatarToastId,
-        description: t("avatar.status.updated"),
-      });
-    } else {
-      toast.error(t("common.errorTitle"), {
-        id: avatarToastId,
-        description: resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
-          UNAUTHORIZED: t("avatar.status.unauthorized"),
-        }),
-      });
+      if (!preparedAvatarFileResult.ok) {
+        toast.error(t("common.errorTitle"), {
+          id: avatarToastId,
+          description: resolveErrorMessage(
+            preparedAvatarFileResult.errorCode,
+            t("avatar.status.error"),
+            {
+              INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
+              IMAGE_PROCESSING_FAILED: t("avatar.status.processingFailed"),
+              FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
+            }
+          ),
+        });
+        return;
+      }
+
+      const response = await uploadAccountAvatar(preparedAvatarFileResult.file);
+
+      if (response.ok) {
+        patchProfile(response.data.profile);
+        setFailedAvatarUrl(null);
+        toast.success(t("common.successTitle"), {
+          id: avatarToastId,
+          description: t("avatar.status.updated"),
+        });
+      } else {
+        toast.error(t("common.errorTitle"), {
+          id: avatarToastId,
+          description: resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
+            UNAUTHORIZED: t("avatar.status.unauthorized"),
+            VALIDATION_ERROR: t("avatar.status.fileTooLarge"),
+          }),
+        });
+      }
+    } finally {
+      setIsAvatarUpdating(false);
     }
-
-    setIsAvatarUpdating(false);
   }
 
   async function handleAvatarRemoveClick() {
@@ -217,10 +235,6 @@ export function AccountAvatarSettingsItem() {
 function validateAvatarFile(file: File): string | null {
   if (!file.type.startsWith("image/")) {
     return "INVALID_FILE_TYPE";
-  }
-
-  if (file.size > MAX_AVATAR_FILE_SIZE_BYTES) {
-    return "FILE_TOO_LARGE";
   }
 
   return null;

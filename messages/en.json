@@ -243,13 +243,14 @@
           "change": "Change avatar",
           "remove": "Remove avatar"
         },
-        "hint": "Supported image formats only. Maximum file size is 1 MB.",
+        "hint": "Supported image formats only. Images are optimized before upload.",
         "status": {
           "updated": "Avatar updated successfully.",
           "removed": "Avatar removed successfully.",
           "error": "We couldn't update your avatar right now. Please try again.",
           "invalidFileType": "Please choose a valid image file.",
-          "fileTooLarge": "Avatar image must be 1 MB or smaller.",
+          "fileTooLarge": "We couldn't reduce the image size enough. Please choose a different image.",
+          "processingFailed": "We couldn't process the selected image. Please try a different file.",
           "unauthorized": "Your session expired. Please sign in again."
         }
       },
