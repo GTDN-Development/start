@@ -1,7 +1,7 @@
 import imageCompression from "browser-image-compression";
 
 const MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
-const MAX_ACCOUNT_AVATAR_FILE_SIZE_MB = 1;
+const TARGET_ACCOUNT_AVATAR_FILE_SIZE_MB = 0.9;
 const MAX_ACCOUNT_AVATAR_IMAGE_DIMENSION = 1024;
 
 export type PrepareAccountAvatarUploadErrorCode =
@@ -38,7 +38,7 @@ export async function prepareAccountAvatarUpload(
 
   try {
     const optimizedFile = await imageCompression(file, {
-      maxSizeMB: MAX_ACCOUNT_AVATAR_FILE_SIZE_MB,
+      maxSizeMB: TARGET_ACCOUNT_AVATAR_FILE_SIZE_MB,
       maxWidthOrHeight: MAX_ACCOUNT_AVATAR_IMAGE_DIMENSION,
       useWebWorker: true,
       initialQuality: 0.9,
