@@ -23,21 +23,15 @@ export function EmailVerificationBanner() {
     const response = await requestEmailVerification();
 
     if (response.ok) {
-      toast.success(t("status.success.title"), {
-        description: t("status.success.message"),
-      });
+      toast.success(t("status.success.message"));
       setIsSendingVerificationEmail(false);
       return;
     }
 
     if (response.errorCode === "UNAUTHORIZED") {
-      toast.error(t("status.error.title"), {
-        description: t("status.error.unauthorized"),
-      });
+      toast.error(t("status.error.unauthorized"));
     } else {
-      toast.error(t("status.error.title"), {
-        description: t("status.error.message"),
-      });
+      toast.error(t("status.error.message"));
     }
 
     setIsSendingVerificationEmail(false);

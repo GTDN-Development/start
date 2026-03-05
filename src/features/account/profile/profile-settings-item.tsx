@@ -35,11 +35,14 @@ export function AccountDisplayNameSettingsItem() {
   const nameToastId = useId();
   const [nameStatus, setNameStatus] = useState<InlineStatus>(null);
   const profileNameSchema = z.object({
-    name: z.string().trim().max(MAX_PROFILE_NAME_LENGTH, {
-      message: t("profile.fields.name.errors.max", {
-        max: String(MAX_PROFILE_NAME_LENGTH),
+    name: z
+      .string()
+      .trim()
+      .max(MAX_PROFILE_NAME_LENGTH, {
+        message: t("profile.fields.name.errors.max", {
+          max: String(MAX_PROFILE_NAME_LENGTH),
+        }),
       }),
-    }),
   });
 
   const form = useForm({
@@ -61,9 +64,8 @@ export function AccountDisplayNameSettingsItem() {
         patchProfile(response.data.profile);
         form.reset();
         form.setFieldValue("name", nextName);
-        toast.success(t("common.successTitle"), {
+        toast.success(t("profile.status.savedMessage"), {
           id: nameToastId,
-          description: t("profile.status.savedMessage"),
         });
         return;
       }
@@ -146,7 +148,9 @@ export function AccountDisplayNameSettingsItem() {
                               autoComplete="name"
                               aria-invalid={isInvalid}
                             />
-                            <FieldDescription>{t("profile.fields.name.description")}</FieldDescription>
+                            <FieldDescription>
+                              {t("profile.fields.name.description")}
+                            </FieldDescription>
                             {hasFieldError && <FieldError errors={field.state.meta.errors} />}
                           </Field>
                         );

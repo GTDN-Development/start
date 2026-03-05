@@ -18,9 +18,9 @@ export function SignInFlashToast() {
 
     Promise.resolve().then(() => {
       if (flash === "email-verified") {
-        toast.success(tVerifyEmail("title"), { description: tVerifyEmail("message") });
+        toast.success(tVerifyEmail("message"));
       } else if (flash === "password-reset") {
-        toast.success(tResetPassword("title"), { description: tResetPassword("message") });
+        toast.success(tResetPassword("message"));
       }
     });
   }, [tVerifyEmail, tResetPassword]);

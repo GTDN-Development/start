@@ -44,13 +44,14 @@ export function AccountDeleteAccountSettingsItem() {
   const router = useRouter();
   const deleteAccountToastId = useId();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [passwordServerErrorMessage, setPasswordServerErrorMessage] = useState<string | null>(
-    null
-  );
+  const [passwordServerErrorMessage, setPasswordServerErrorMessage] = useState<string | null>(null);
   const deleteAccountSchema = z.object({
-    password: z.string().trim().min(1, {
-      message: t("deleteAccount.dialog.fields.password.errors.required"),
-    }),
+    password: z
+      .string()
+      .trim()
+      .min(1, {
+        message: t("deleteAccount.dialog.fields.password.errors.required"),
+      }),
     isDeletionAcknowledged: z.boolean().refine((value) => value === true, {
       message: t("deleteAccount.dialog.fields.acknowledgement.errors.required"),
     }),
@@ -71,9 +72,8 @@ export function AccountDeleteAccountSettingsItem() {
       });
 
       if (response.ok) {
-        toast.success(t("common.successTitle"), {
+        toast.success(t("deleteAccount.status.success"), {
           id: deleteAccountToastId,
-          description: t("deleteAccount.status.success"),
         });
 
         setIsDeleteDialogOpen(false);
@@ -89,9 +89,8 @@ export function AccountDeleteAccountSettingsItem() {
       }
 
       if (response.errorCode === "UNAUTHORIZED") {
-        toast.error(t("common.errorTitle"), {
+        toast.error(t("deleteAccount.status.unauthorized"), {
           id: deleteAccountToastId,
-          description: t("deleteAccount.status.unauthorized"),
         });
         setIsDeleteDialogOpen(false);
         form.reset();
@@ -101,16 +100,14 @@ export function AccountDeleteAccountSettingsItem() {
       }
 
       if (response.errorCode === "BAD_REQUEST") {
-        toast.error(t("common.errorTitle"), {
+        toast.error(t("deleteAccount.status.deleteNotAllowed"), {
           id: deleteAccountToastId,
-          description: t("deleteAccount.status.deleteNotAllowed"),
         });
         return;
       }
 
-      toast.error(t("common.errorTitle"), {
+      toast.error(t("deleteAccount.status.error"), {
         id: deleteAccountToastId,
-        description: t("deleteAccount.status.error"),
       });
     },
   });
@@ -223,7 +220,9 @@ export function AccountDeleteAccountSettingsItem() {
                                   name={`account-delete-${field.name}`}
                                   checked={field.state.value}
                                   onBlur={field.handleBlur}
-                                  onCheckedChange={(checked) => field.handleChange(checked === true)}
+                                  onCheckedChange={(checked) =>
+                                    field.handleChange(checked === true)
+                                  }
                                   aria-invalid={isInvalid}
                                 />
                                 <FieldLabel htmlFor={`account-delete-${field.name}`}>
