@@ -1,56 +1,47 @@
 "use client";
 
 import { NavLink } from "@/components/layout/nav-link";
-import { MobileMenuClose } from "@/components/ui/mobile-menu";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { applicationMenu } from "@/config/menu";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
-type ApplicationMenuTreeVariant = "sidebar" | "mobile";
-
-type ApplicationMenuTreeProps = React.ComponentProps<"nav"> & {
-  variant?: ApplicationMenuTreeVariant;
-};
-
-export function ApplicationMenuTree({
-  className,
-  variant = "sidebar",
-  ...props
-}: ApplicationMenuTreeProps) {
+export function ApplicationMenuTree({ className, ...props }: React.ComponentProps<"nav">) {
   const tNav = useTranslations("layout.navigation.items");
-  const isMobile = variant === "mobile";
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  function handleItemClick() {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }
 
   return (
     <nav {...props} className={cn(className)}>
-      <ul className={cn(isMobile ? "divide-border flex flex-col divide-y" : "flex flex-col gap-1")}>
+      <SidebarMenu>
         {applicationMenu.map((item) => (
-          <li key={item.href}>
-            {isMobile ? (
-              <MobileMenuClose
-                render={
-                  <NavLink
-                    href={item.href}
-                    matchNested={item.href !== "/overview"}
-                    className="text-foreground block w-full py-3 text-sm font-medium"
-                  />
-                }
-              >
-                {tNav(item.labelKey)}
-              </MobileMenuClose>
-            ) : (
-              <NavLink
-                href={item.href}
-                matchNested={item.href !== "/overview"}
-                className={
-                  "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-current:bg-sidebar-accent data-current:text-sidebar-accent-foreground flex rounded-md px-3 py-2 text-sm font-medium transition-colors"
-                }
-              >
-                {tNav(item.labelKey)}
-              </NavLink>
-            )}
-          </li>
+          <SidebarMenuItem key={item.href}>
+            <SidebarMenuButton
+              tooltip={tNav(item.labelKey)}
+              render={
+                <NavLink
+                  href={item.href}
+                  matchNested={item.href !== "/overview"}
+                  onClick={handleItemClick}
+                />
+              }
+              className="text-sidebar-foreground/80 data-[current=true]:bg-sidebar-accent data-[current=true]:text-sidebar-accent-foreground"
+            >
+              {tNav(item.labelKey)}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         ))}
-      </ul>
+      </SidebarMenu>
     </nav>
   );
 }

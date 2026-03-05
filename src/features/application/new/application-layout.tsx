@@ -1,11 +1,19 @@
 "use client";
 
-import clsx from "clsx";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext } from "react";
 import { useTranslations } from "next-intl";
 import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
-import { Container } from "@/components/ui/container";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarInset,
+  SidebarProvider,
+  SidebarRail,
+} from "@/components/ui/sidebar";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
@@ -20,9 +28,7 @@ type ApplicationMobileMenuLabels = {
   close: string;
 };
 
-type SidebarContextValue = {
-  isSidebarOpen: boolean;
-  setIsSidebarOpen: (isSidebarOpen: boolean) => void;
+type ApplicationLayoutContextValue = {
   user: AccountProfileSnapshot;
   locale: string;
   userMenuLabels: UserAccountMenuLabels;
@@ -41,10 +47,10 @@ type ApplicationLayoutProps = {
   labels: ApplicationLayoutLabels;
 };
 
-const SidebarContext = createContext<SidebarContextValue | null>(null);
+const ApplicationLayoutContext = createContext<ApplicationLayoutContextValue | null>(null);
 
 export function useSidebarContext() {
-  const context = useContext(SidebarContext);
+  const context = useContext(ApplicationLayoutContext);
 
   if (!context) {
     throw new Error("useSidebarContext must be used within ApplicationLayout.");
@@ -54,7 +60,6 @@ export function useSidebarContext() {
 }
 
 export function ApplicationLayout({ children, user, locale, labels }: ApplicationLayoutProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
   const renderEmailVerificationBanner = showEmailVerificationBanner(user);
   const t = useTranslations("layout");
@@ -62,10 +67,8 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
 
   return (
     <AccountProfileProvider key={profileProviderKey} initialProfile={user}>
-      <SidebarContext.Provider
+      <ApplicationLayoutContext.Provider
         value={{
-          isSidebarOpen,
-          setIsSidebarOpen,
           user,
           locale,
           userMenuLabels: labels.userMenu,
@@ -75,43 +78,35 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
         <div className="relative isolate">
           <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-          <LayoutBanners
-            banners={[
-              {
-                isVisible: renderEmailVerificationBanner,
-                content: <EmailVerificationBanner />,
-              },
-            ]}
-          />
+          <SidebarProvider className="[--navbar-height:--spacing(16)]">
+            <Sidebar collapsible="offcanvas" className="border-sidebar-border border-r">
+              <SidebarHeader className="border-sidebar-border border-b p-2">
+                <WorkspaceSwitcher />
+              </SidebarHeader>
+              <SidebarContent>
+                <SidebarGroup className="p-2">
+                  <SidebarGroupContent>
+                    <ApplicationMenuTree aria-label={labels.mobileMenu.title} />
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              </SidebarContent>
+              <SidebarRail />
+            </Sidebar>
 
-          <div
-            className={clsx(
-              "relative isolate [--navbar-height:--spacing(16)]",
-              isSidebarOpen && "lg:grid lg:grid-cols-[auto_1fr]"
-            )}
-          >
-            <aside
-              className={clsx(
-                "bg-sidebar sticky top-0 left-0 hidden h-screen w-72 overflow-y-auto border-r lg:block",
-                !isSidebarOpen && "lg:hidden"
-              )}
-            >
-              <div className="bg-sidebar sticky top-0 border-b">
-                <Container className="flex gap-3 py-3.5">
-                  <WorkspaceSwitcher />
-                </Container>
-              </div>
-              <Container className="pt-4 pb-16">
-                <ApplicationMenuTree aria-label={labels.mobileMenu.title} />
-              </Container>
-            </aside>
-
-            <div id={contentId} className="min-w-0">
+            <SidebarInset id={contentId} className="min-w-0">
+              <LayoutBanners
+                banners={[
+                  {
+                    isVisible: renderEmailVerificationBanner,
+                    content: <EmailVerificationBanner />,
+                  },
+                ]}
+              />
               {children}
-            </div>
-          </div>
+            </SidebarInset>
+          </SidebarProvider>
         </div>
-      </SidebarContext.Provider>
+      </ApplicationLayoutContext.Provider>
     </AccountProfileProvider>
   );
 }

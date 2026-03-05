@@ -98,7 +98,32 @@
       "signedInAs": "Přihlášen jako",
       "emailVerified": "E-mail ověřen",
       "emailNotVerified": "E-mail není ověřen",
-      "signOut": "Odhlásit se"
+      "signOut": "Odhlásit se",
+      "workspaceSwitcher": {
+        "labels": {
+          "workspaces": "Pracovní prostory"
+        },
+        "actions": {
+          "create": "Vytvořit pracovní prostor"
+        },
+        "workspaces": {
+          "current": {
+            "name": "Název pracovního prostoru",
+            "plan": "Pro",
+            "initials": "PP"
+          },
+          "alpha": {
+            "name": "Produktový tým",
+            "plan": "Business",
+            "initials": "PT"
+          },
+          "beta": {
+            "name": "Design studio",
+            "plan": "Starter",
+            "initials": "DS"
+          }
+        }
+      }
     }
   },
   "pages": {

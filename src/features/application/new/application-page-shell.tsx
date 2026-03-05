@@ -7,12 +7,12 @@ export function ApplicationPageShell({
   children,
 }: ApplicationPageNavbarProps & { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-dvh w-full flex-col justify-between *:shrink-0 *:grow-0 *:data-[slot=main]:shrink *:data-[slot=main]:grow">
+    <div className="flex min-h-0 w-full flex-1 flex-col justify-between *:shrink-0 *:grow-0 *:data-[slot=main]:shrink *:data-[slot=main]:grow">
       <ApplicationPageNavbar breadcrumbs={breadcrumbs} title={title} />
 
-      <main data-slot="main" className="relative isolate min-w-0">
+      <div data-slot="main" className="relative isolate min-w-0">
         {children}
-      </main>
+      </div>
 
       <ApplicationFooter />
     </div>

@@ -1,21 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { SidebarIcon } from "lucide-react";
 import { FloatingBar } from "@/components/layout/floating-bar";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/container";
-import {
-  MobileMenu,
-  MobileMenuClose,
-  MobileMenuContent,
-  MobileMenuFooter,
-  MobileMenuHeader,
-  MobileMenuTitle,
-  MobileMenuTrigger,
-} from "@/components/ui/mobile-menu";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserAccountMenu } from "@/features/account/user-account-menu";
-import { ApplicationMenuTree } from "./application-menu-tree";
 import { useSidebarContext } from "./application-layout";
 
 export type ApplicationPageNavbarProps = {
@@ -24,8 +13,7 @@ export type ApplicationPageNavbarProps = {
 };
 
 export function ApplicationPageNavbar({ breadcrumbs, title }: ApplicationPageNavbarProps) {
-  const { isSidebarOpen, setIsSidebarOpen, user, locale, userMenuLabels, mobileMenuLabels } =
-    useSidebarContext();
+  const { user, locale, userMenuLabels, mobileMenuLabels } = useSidebarContext();
 
   return (
     <FloatingBar
@@ -43,49 +31,12 @@ export function ApplicationPageNavbar({ breadcrumbs, title }: ApplicationPageNav
       <Container className="flex h-full min-w-0 shrink items-center gap-x-4 [--container-max-width:100%]">
         {/* Left side */}
         <div className="flex min-w-0 flex-1 items-center gap-x-4">
-          {/* Sidebar toggle button on desktop */}
-          <Button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          <SidebarTrigger
             variant="secondary"
             size="icon-lg"
             aria-label={mobileMenuLabels.openAriaLabel}
-            className="max-lg:hidden"
-          >
-            <SidebarIcon aria-hidden="true" />
-          </Button>
-
-          <div className="lg:hidden">
-            <MobileMenu>
-              <Button
-                variant="secondary"
-                size="icon-lg"
-                aria-label={mobileMenuLabels.openAriaLabel}
-                render={<MobileMenuTrigger />}
-              >
-                <SidebarIcon aria-hidden="true" />
-              </Button>
-              <MobileMenuContent>
-                <MobileMenuHeader>
-                  <MobileMenuTitle>{mobileMenuLabels.title}</MobileMenuTitle>
-                </MobileMenuHeader>
-
-                <div className="mt-6">
-                  <ApplicationMenuTree variant="mobile" />
-
-                  <MobileMenuFooter className="mt-6">
-                    <Button
-                      variant="secondary"
-                      size="lg"
-                      className="w-full"
-                      render={<MobileMenuClose />}
-                    >
-                      {mobileMenuLabels.close}
-                    </Button>
-                  </MobileMenuFooter>
-                </div>
-              </MobileMenuContent>
-            </MobileMenu>
-          </div>
+            className="shrink-0"
+          />
 
           {/* Breadcrumbs */}
           <div className="min-w-0 max-lg:hidden">{breadcrumbs}</div>

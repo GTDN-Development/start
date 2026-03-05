@@ -98,7 +98,32 @@
       "signedInAs": "Signed in as",
       "emailVerified": "Email verified",
       "emailNotVerified": "Email not verified",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "workspaceSwitcher": {
+        "labels": {
+          "workspaces": "Workspaces"
+        },
+        "actions": {
+          "create": "Create workspace"
+        },
+        "workspaces": {
+          "current": {
+            "name": "Workspace Name",
+            "plan": "Pro",
+            "initials": "WS"
+          },
+          "alpha": {
+            "name": "Product Team",
+            "plan": "Business",
+            "initials": "PT"
+          },
+          "beta": {
+            "name": "Design Studio",
+            "plan": "Starter",
+            "initials": "DS"
+          }
+        }
+      }
     }
   },
   "pages": {

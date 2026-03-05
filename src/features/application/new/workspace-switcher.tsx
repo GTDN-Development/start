@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -8,54 +11,120 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronsUpDownIcon, PlusIcon } from "lucide-react";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
+
+type WorkspaceOption = {
+  id: string;
+  name: string;
+  plan: string;
+  initials: string;
+  chipClassName: string;
+};
 
 export function WorkspaceSwitcher() {
+  const t = useTranslations("layout.application.workspaceSwitcher");
+  const { isMobile } = useSidebar();
+
+  const workspaces: WorkspaceOption[] = [
+    {
+      id: "current",
+      name: t("workspaces.current.name"),
+      plan: t("workspaces.current.plan"),
+      initials: t("workspaces.current.initials"),
+      chipClassName: "bg-sidebar-primary text-sidebar-primary-foreground",
+    },
+    {
+      id: "alpha",
+      name: t("workspaces.alpha.name"),
+      plan: t("workspaces.alpha.plan"),
+      initials: t("workspaces.alpha.initials"),
+      chipClassName: "bg-emerald-600 text-white",
+    },
+    {
+      id: "beta",
+      name: t("workspaces.beta.name"),
+      plan: t("workspaces.beta.plan"),
+      initials: t("workspaces.beta.initials"),
+      chipClassName: "bg-amber-500 text-black",
+    },
+  ];
+  const [activeWorkspaceId, setActiveWorkspaceId] = useState(workspaces[0]?.id ?? "current");
+  const activeWorkspace =
+    workspaces.find((workspace) => workspace.id === activeWorkspaceId) ?? workspaces[0];
+
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger className="hover:bg-sidebar-accent grid w-full grid-cols-[auto_1fr_auto] items-center gap-2 rounded-lg p-2">
-          <Avatar>
-            <AvatarFallback>WS</AvatarFallback>
-          </Avatar>
-          <div className="flex min-w-0 flex-col items-start justify-start gap-0.5 leading-none">
-            <span className="block truncate text-sm font-semibold">Workspace Name</span>
-            <span className="block truncate text-xs">Pro</span>
-          </div>
-          <div className="ml-auto">
-            <ChevronsUpDownIcon aria-hidden="true" className="size-4" />
-          </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <SidebarMenuButton
+                size="lg"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              />
+            }
+          >
+            <div
+              className={cn(
+                "flex size-8 items-center justify-center rounded-lg text-xs font-semibold",
+                activeWorkspace.chipClassName
+              )}
+            >
+              {activeWorkspace.initials}
+            </div>
+            <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">{activeWorkspace.name}</span>
+              <span className="truncate text-xs">{activeWorkspace.plan}</span>
+            </div>
+            <ChevronsUpDownIcon aria-hidden="true" className="ml-auto size-4" />
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent
+            className="min-w-56 rounded-lg"
+            align="start"
+            side={isMobile ? "bottom" : "right"}
+            sideOffset={4}
+          >
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="text-xs">{t("labels.workspaces")}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {workspaces.map((workspace) => (
+                <DropdownMenuItem
+                  key={workspace.id}
+                  className="gap-2 p-2"
+                  onClick={() => setActiveWorkspaceId(workspace.id)}
+                >
+                  <Avatar size="sm">
+                    <AvatarFallback className={cn(workspace.chipClassName, "text-xs font-semibold")}>
+                      {workspace.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{workspace.name}</span>
+                    <span className="text-muted-foreground truncate text-xs">{workspace.plan}</span>
+                  </div>
+                  {workspace.id === activeWorkspace.id && <CheckIcon aria-hidden="true" className="size-4" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Avatar size="sm">
-                <AvatarFallback>1</AvatarFallback>
-              </Avatar>
-              My awesome workspace 1
+            <DropdownMenuItem className="gap-2 p-2">
+              <div className="bg-background border-border flex size-6 items-center justify-center rounded-md border">
+                <PlusIcon aria-hidden="true" className="size-4" />
+              </div>
+              <span className="text-muted-foreground font-medium">{t("actions.create")}</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Avatar size="sm">
-                <AvatarFallback>2</AvatarFallback>
-              </Avatar>
-              My awesome workspace 2
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Avatar size="sm">
-                <AvatarFallback>2</AvatarFallback>
-              </Avatar>
-              My awesome workspace 2
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <PlusIcon />
-            Create new workspace
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }
