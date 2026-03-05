@@ -67,7 +67,7 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
 
   return (
     <nav {...props} className={cn(className)}>
-      <SidebarMenu>
+      <SidebarMenu className="gap-1">
         {applicationMenu.map((item) => {
           const renderAccountChildren = item.href === "/account";
 
@@ -116,7 +116,6 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
                   <ChevronRightIcon
                     aria-hidden="true"
                     className={cn(
-                      "transition-transform duration-200",
                       isAccountSectionOpen ? "translate-y-px rotate-90" : "-translate-y-px rotate-0"
                     )}
                   />

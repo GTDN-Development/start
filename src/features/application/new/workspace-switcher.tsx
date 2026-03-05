@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +16,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  WorkspaceAvatar,
+  WorkspaceAvatarFallback,
+  WorkspaceAvatarImage,
+} from "./workspace-avatar";
 import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -26,6 +30,7 @@ type WorkspaceOption = {
   name: string;
   plan: string;
   initials: string;
+  avatarUrl: string | null;
   chipClassName: string;
 };
 
@@ -39,6 +44,7 @@ export function WorkspaceSwitcher() {
       name: t("workspaces.current.name"),
       plan: t("workspaces.current.plan"),
       initials: t("workspaces.current.initials"),
+      avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Current",
       chipClassName:
         "bg-sidebar-primary text-sidebar-primary-foreground hover:text-sidebar-primary-foreground",
     },
@@ -47,6 +53,7 @@ export function WorkspaceSwitcher() {
       name: t("workspaces.alpha.name"),
       plan: t("workspaces.alpha.plan"),
       initials: t("workspaces.alpha.initials"),
+      avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Alpha",
       chipClassName: "bg-emerald-600 text-white hover:text-white",
     },
     {
@@ -54,12 +61,25 @@ export function WorkspaceSwitcher() {
       name: t("workspaces.beta.name"),
       plan: t("workspaces.beta.plan"),
       initials: t("workspaces.beta.initials"),
+      avatarUrl: null,
       chipClassName: "bg-amber-500 text-black hover:text-black",
     },
   ];
   const [activeWorkspaceId, setActiveWorkspaceId] = useState(workspaces[0]?.id ?? "current");
+  const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);
   const activeWorkspace =
     workspaces.find((workspace) => workspace.id === activeWorkspaceId) ?? workspaces[0];
+  const activeWorkspaceAvatarUrl = getWorkspaceAvatarUrl(activeWorkspace, failedAvatarUrls);
+
+  function handleWorkspaceAvatarError(avatarUrl: string) {
+    setFailedAvatarUrls((currentUrls) => {
+      if (currentUrls.includes(avatarUrl)) {
+        return currentUrls;
+      }
+
+      return [...currentUrls, avatarUrl];
+    });
+  }
 
   return (
     <SidebarMenu>
@@ -73,14 +93,21 @@ export function WorkspaceSwitcher() {
               />
             }
           >
-            <div
-              className={cn(
-                "flex size-8 items-center justify-center rounded-lg text-xs font-semibold",
-                activeWorkspace.chipClassName
+            <WorkspaceAvatar key={activeWorkspace.id}>
+              {activeWorkspaceAvatarUrl ? (
+                <WorkspaceAvatarImage
+                  src={activeWorkspaceAvatarUrl}
+                  alt=""
+                  onError={() => handleWorkspaceAvatarError(activeWorkspaceAvatarUrl)}
+                />
+              ) : (
+                <WorkspaceAvatarFallback
+                  className={cn(activeWorkspace.chipClassName, "text-xs font-semibold")}
+                >
+                  {activeWorkspace.initials}
+                </WorkspaceAvatarFallback>
               )}
-            >
-              {activeWorkspace.initials}
-            </div>
+            </WorkspaceAvatar>
             <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">{activeWorkspace.name}</span>
               <span className="truncate text-xs">{activeWorkspace.plan}</span>
@@ -97,28 +124,42 @@ export function WorkspaceSwitcher() {
             <DropdownMenuGroup>
               <DropdownMenuLabel className="text-xs">{t("labels.workspaces")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {workspaces.map((workspace) => (
-                <DropdownMenuItem
-                  key={workspace.id}
-                  className="gap-2 p-2"
-                  onClick={() => setActiveWorkspaceId(workspace.id)}
-                >
-                  <Avatar size="sm">
-                    <AvatarFallback
-                      className={cn(workspace.chipClassName, "text-xs font-semibold")}
-                    >
-                      {workspace.initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{workspace.name}</span>
-                    <span className="text-muted-foreground truncate text-xs">{workspace.plan}</span>
-                  </div>
-                  {workspace.id === activeWorkspace.id && (
-                    <CheckIcon aria-hidden="true" className="size-4" />
-                  )}
-                </DropdownMenuItem>
-              ))}
+              {workspaces.map((workspace) => {
+                const workspaceAvatarUrl = getWorkspaceAvatarUrl(workspace, failedAvatarUrls);
+
+                return (
+                  <DropdownMenuItem
+                    key={workspace.id}
+                    className="gap-2 p-2"
+                    onClick={() => setActiveWorkspaceId(workspace.id)}
+                  >
+                    <WorkspaceAvatar size="sm">
+                      {workspaceAvatarUrl ? (
+                        <WorkspaceAvatarImage
+                          src={workspaceAvatarUrl}
+                          alt=""
+                          onError={() => handleWorkspaceAvatarError(workspaceAvatarUrl)}
+                        />
+                      ) : (
+                        <WorkspaceAvatarFallback
+                          className={cn(workspace.chipClassName, "text-xs font-semibold")}
+                        >
+                          {workspace.initials}
+                        </WorkspaceAvatarFallback>
+                      )}
+                    </WorkspaceAvatar>
+                    <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-medium">{workspace.name}</span>
+                      <span className="text-muted-foreground truncate text-xs">
+                        {workspace.plan}
+                      </span>
+                    </div>
+                    {workspace.id === activeWorkspace.id && (
+                      <CheckIcon aria-hidden="true" className="size-4" />
+                    )}
+                  </DropdownMenuItem>
+                );
+              })}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="gap-2 p-2">
@@ -132,4 +173,12 @@ export function WorkspaceSwitcher() {
       </SidebarMenuItem>
     </SidebarMenu>
   );
+}
+
+function getWorkspaceAvatarUrl(workspace: WorkspaceOption, failedAvatarUrls: string[]) {
+  if (!workspace.avatarUrl) {
+    return null;
+  }
+
+  return failedAvatarUrls.includes(workspace.avatarUrl) ? null : workspace.avatarUrl;
 }
