@@ -39,7 +39,7 @@
 - `pages.signIn`
 - `pages.overview`
 - `forms.signIn`
-- `layout.platform.signOut`
+- `layout.application.signOut`
 - `layout.navigation.items.signIn`
 - `layout.navigation.items.overview`
 - `backToSignIn`
