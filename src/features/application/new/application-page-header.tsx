@@ -7,18 +7,19 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserAccountMenu } from "@/features/account/user-account-menu";
 import { useSidebarContext } from "./application-layout";
 
-export type ApplicationPageNavbarProps = {
+export type ApplicationPageHeaderProps = {
   breadcrumbs: React.ReactNode;
   title?: React.ReactNode;
 };
 
-export function ApplicationPageNavbar({ breadcrumbs, title }: ApplicationPageNavbarProps) {
+export function ApplicationPageHeader({ breadcrumbs, title }: ApplicationPageHeaderProps) {
   const { user, locale, userMenuLabels, mobileMenuLabels } = useSidebarContext();
 
   return (
     <FloatingBar
       position="sticky"
       autoHide={false}
+      render={<header />}
       className={cn(
         // Base styles for the navbar
         "z-100 h-(--navbar-height,64px) w-full",

@@ -75,10 +75,10 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
           mobileMenuLabels: labels.mobileMenu,
         }}
       >
-        <div className="relative isolate">
+        <div className="relative isolate [--navbar-height:--spacing(16)]">
           <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-          <SidebarProvider className="[--navbar-height:--spacing(16)]">
+          <SidebarProvider>
             <Sidebar collapsible="offcanvas" className="border-sidebar-border border-r">
               <SidebarHeader className="border-sidebar-border border-b p-2">
                 <WorkspaceSwitcher />
@@ -94,6 +94,7 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
             </Sidebar>
 
             <SidebarInset id={contentId} className="min-w-0">
+              {/* Banners */}
               <LayoutBanners
                 banners={[
                   {
@@ -102,6 +103,8 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
                   },
                 ]}
               />
+
+              {/* children */}
               {children}
             </SidebarInset>
           </SidebarProvider>
