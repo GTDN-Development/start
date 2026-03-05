@@ -16,9 +16,8 @@ import { Link } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthUser } from "@/features/auth/auth-contract";
 import { useSignOut } from "@/features/auth/use-sign-out";
-import { getUserInitials } from "@/lib/utils";
-import { HomeIcon, LogOutIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { cn, getUserInitials } from "@/lib/utils";
+import { ChevronsUpDownIcon, HomeIcon, LogOutIcon } from "lucide-react";
 
 export type UserAccountMenuViewer = Pick<AuthUser, "email" | "name" | "verified" | "avatarUrl">;
 
@@ -60,33 +59,32 @@ export function UserAccountMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon-lg"
-            className="rounded-full"
-            aria-label={labels.account}
-          >
-            {isAvatarUpdating ? (
-              <span className="inline-flex size-8 items-center justify-center">
-                <Skeleton className="size-8 rounded-full" />
-              </span>
+        className={cn(
+          "hover:bg-muted/50 rounded-full p-0 lg:flex lg:w-48 lg:items-center lg:justify-start lg:gap-2 lg:rounded-md lg:p-1"
+        )}
+        aria-label={labels.account}
+      >
+        {isAvatarUpdating ? (
+          <span className="inline-flex size-8 shrink-0 items-center justify-center">
+            <Skeleton className="size-8 rounded-full" />
+          </span>
+        ) : (
+          <Avatar className={className}>
+            {avatarUrl ? (
+              <AvatarImage src={avatarUrl} alt="" onError={() => setFailedAvatarUrl(avatarUrl)} />
             ) : (
-              <Avatar className={className}>
-                {avatarUrl ? (
-                  <AvatarImage
-                    src={avatarUrl}
-                    alt=""
-                    onError={() => setFailedAvatarUrl(avatarUrl)}
-                  />
-                ) : (
-                  <AvatarFallback>{initials}</AvatarFallback>
-                )}
-              </Avatar>
+              <AvatarFallback>{initials}</AvatarFallback>
             )}
-          </Button>
-        }
-      />
+          </Avatar>
+        )}
+        <span className="hidden min-w-0 flex-1 truncate text-sm font-medium lg:block">
+          {displayName ?? currentViewer.email}
+        </span>
+        <ChevronsUpDownIcon
+          aria-hidden="true"
+          className="text-muted-foreground hidden size-4 shrink-0 lg:block"
+        />
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-48">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="space-y-1">
