@@ -49,7 +49,7 @@ export function EmailVerificationBanner() {
 
   return (
     <div className="bg-amber-600 py-2.5 text-amber-100">
-      <Container className="flex items-center gap-2 [--container-max-width:100%]">
+      <Container size="full" className="flex items-center gap-2">
         <div className="flex w-full flex-wrap items-center gap-2 lg:justify-center lg:text-center">
           <p className="text-sm">
             <strong>{t("title")}</strong>

@@ -29,7 +29,7 @@ export function ApplicationPageHeader({ breadcrumbs, title }: ApplicationPageHea
         "bg-background/75 backdrop-blur-2xl"
       )}
     >
-      <Container className="flex h-full min-w-0 shrink items-center gap-x-4 [--container-max-width:100%]">
+      <Container size="full" className="flex h-full min-w-0 shrink items-center gap-x-4">
         {/* Left side */}
         <div className="flex min-w-0 flex-1 items-center gap-x-4">
           <SidebarTrigger

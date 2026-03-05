@@ -39,21 +39,22 @@ export function WorkspaceSwitcher() {
       name: t("workspaces.current.name"),
       plan: t("workspaces.current.plan"),
       initials: t("workspaces.current.initials"),
-      chipClassName: "bg-sidebar-primary text-sidebar-primary-foreground",
+      chipClassName:
+        "bg-sidebar-primary text-sidebar-primary-foreground hover:text-sidebar-primary-foreground",
     },
     {
       id: "alpha",
       name: t("workspaces.alpha.name"),
       plan: t("workspaces.alpha.plan"),
       initials: t("workspaces.alpha.initials"),
-      chipClassName: "bg-emerald-600 text-white",
+      chipClassName: "bg-emerald-600 text-white hover:text-white",
     },
     {
       id: "beta",
       name: t("workspaces.beta.name"),
       plan: t("workspaces.beta.plan"),
       initials: t("workspaces.beta.initials"),
-      chipClassName: "bg-amber-500 text-black",
+      chipClassName: "bg-amber-500 text-black hover:text-black",
     },
   ];
   const [activeWorkspaceId, setActiveWorkspaceId] = useState(workspaces[0]?.id ?? "current");
@@ -103,7 +104,9 @@ export function WorkspaceSwitcher() {
                   onClick={() => setActiveWorkspaceId(workspace.id)}
                 >
                   <Avatar size="sm">
-                    <AvatarFallback className={cn(workspace.chipClassName, "text-xs font-semibold")}>
+                    <AvatarFallback
+                      className={cn(workspace.chipClassName, "text-xs font-semibold")}
+                    >
                       {workspace.initials}
                     </AvatarFallback>
                   </Avatar>
@@ -111,7 +114,9 @@ export function WorkspaceSwitcher() {
                     <span className="truncate font-medium">{workspace.name}</span>
                     <span className="text-muted-foreground truncate text-xs">{workspace.plan}</span>
                   </div>
-                  {workspace.id === activeWorkspace.id && <CheckIcon aria-hidden="true" className="size-4" />}
+                  {workspace.id === activeWorkspace.id && (
+                    <CheckIcon aria-hidden="true" className="size-4" />
+                  )}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuGroup>
