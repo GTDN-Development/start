@@ -42,6 +42,7 @@
         "features": "Features",
         "integrations": "Integrations",
         "roadmap": "Roadmap",
+        "workspace": "Workspace",
         "account": "Account",
         "signIn": "Sign in",
         "signUp": "Sign up",
@@ -387,6 +388,12 @@
             }
           }
         }
+      }
+    },
+    "workspace": {
+      "nav": {
+        "general": "General",
+        "members": "Members"
       }
     }
   },

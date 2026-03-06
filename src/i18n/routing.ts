@@ -32,6 +32,9 @@ export const routing = defineRouting({
     "/overview": {
       cs: "/prehled",
     },
+    "/w/workspace/overview": "/w/workspace/overview",
+    "/w/workspace/settings/general": "/w/workspace/settings/general",
+    "/w/workspace/settings/members": "/w/workspace/settings/members",
     "/forgot-password": {
       cs: "/zapomenute-heslo",
     },
@@ -53,6 +56,8 @@ export const routing = defineRouting({
     "/account": {
       cs: "/ucet",
     },
+    "/account/settings/general": "/account/settings/general",
+    "/account/settings/security": "/account/settings/security",
     "/account/security": {
       cs: "/ucet/zabezpeceni",
     },
@@ -62,5 +67,6 @@ export const routing = defineRouting({
     "/verify-email": {
       cs: "/overit-email",
     },
+    "/invite/[token]": "/invite/[token]",
   },
 });

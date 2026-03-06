@@ -34,10 +34,6 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
   // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.overview",
-  });
   const tNav = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
@@ -45,7 +41,6 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
 
   return (
     <ApplicationPageShell
-      title={t("title")}
       breadcrumbs={
         <Breadcrumb>
           <BreadcrumbList>

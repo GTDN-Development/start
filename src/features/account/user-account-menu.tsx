@@ -77,7 +77,7 @@ export function UserAccountMenu({
             )}
           </Avatar>
         )}
-        <span className="hidden min-w-0 flex-1 truncate text-sm font-medium lg:block">
+        <span className="hidden min-w-0 flex-1 truncate text-left text-sm font-medium lg:block">
           {displayName ?? currentViewer.email}
         </span>
         <ChevronsUpDownIcon

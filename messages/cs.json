@@ -42,6 +42,7 @@
         "features": "Funkce",
         "integrations": "Integrace",
         "roadmap": "Plán vývoje",
+        "workspace": "Workspace",
         "account": "Účet",
         "signIn": "Přihlášení",
         "signUp": "Registrace",
@@ -387,6 +388,12 @@
             }
           }
         }
+      }
+    },
+    "workspace": {
+      "nav": {
+        "general": "Obecné",
+        "members": "Členové"
       }
     }
   },

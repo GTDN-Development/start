@@ -9,10 +9,9 @@ import { useSidebarContext } from "./application-layout";
 
 export type ApplicationPageHeaderProps = {
   breadcrumbs: React.ReactNode;
-  title?: React.ReactNode;
 };
 
-export function ApplicationPageHeader({ breadcrumbs, title }: ApplicationPageHeaderProps) {
+export function ApplicationPageHeader({ breadcrumbs }: ApplicationPageHeaderProps) {
   const { user, locale, userMenuLabels, mobileMenuLabels } = useSidebarContext();
 
   return (
@@ -41,11 +40,6 @@ export function ApplicationPageHeader({ breadcrumbs, title }: ApplicationPageHea
 
           {/* Breadcrumbs */}
           <div className="min-w-0 max-lg:hidden">{breadcrumbs}</div>
-        </div>
-
-        {/* Center */}
-        <div className="flex min-w-0 flex-1 items-center justify-center px-2 text-center">
-          {title && <p className="truncate text-sm font-medium">{title}</p>}
         </div>
 
         {/* Right side */}

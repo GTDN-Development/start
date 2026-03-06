@@ -20,10 +20,8 @@
 - `/[locale]/w/[workspaceSlug]/overview`
 - `/[locale]/w/[workspaceSlug]/settings/general`
 - `/[locale]/w/[workspaceSlug]/settings/members`
-- `/[locale]/w/[workspaceSlug]/settings/danger`
 - `/[locale]/account/settings/general`
 - `/[locale]/account/settings/security`
-- `/[locale]/account/settings/danger`
 - `/[locale]/invite/[token]`
 
 - `/[locale]/overview` je vstupní route, která vždy redirectuje na konkrétní workspace.
@@ -53,13 +51,11 @@
 
 - `general` (name, slug, avatar)
 - `members` (members + invites)
-- `danger` (transfer ownership, leave, delete)
 
 ### Account settings stránky
 
 - `general`
 - `security`
-- `danger`
 
 ## 5. PocketBase schéma (ultimátní KISS)
 
@@ -181,7 +177,7 @@ Poznámka: nepoužívat `status`, `joined_at`, `archived`, `accepted_by`, `accep
 - Invites: create/resend/revoke/accept
 - Ownership transfer
 - Workspace hard delete (organization only)
-- Account settings: general/security/danger
+- Account settings: general/security
 
 ## 14. Implementační etapy
 

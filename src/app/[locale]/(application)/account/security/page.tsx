@@ -52,7 +52,6 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
 
   return (
     <ApplicationPageShell
-      title={tAccount("title")}
       breadcrumbs={
         <Breadcrumb>
           <BreadcrumbList>
