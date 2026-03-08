@@ -12,8 +12,11 @@ import {
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { AccountChangePasswordItem } from "@/features/account/password/password-settings-item";
+import {
+  accountInnerSidebarItems,
+  mapInnerSidebarItems,
+} from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
-import { createAccountInnerSidebarMenu } from "@/features/application/inner-sidebar/inner-sidebar-menus";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
@@ -51,11 +54,8 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
     locale: locale as Locale,
     namespace: "layout.navigation.items",
   });
-  const innerSidebar = createAccountInnerSidebarMenu({
-    title: tNav("account"),
-    general: tAccount("nav.general"),
-    security: tAccount("nav.security"),
-  });
+
+  const innerSidebarItems = mapInnerSidebarItems(accountInnerSidebarItems, tAccount);
 
   return (
     <ApplicationPageShell
@@ -74,7 +74,7 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
       }
     >
       <Container className="pt-10 pb-24">
-        <InnerSidebarLayout title={innerSidebar.title} items={innerSidebar.items}>
+        <InnerSidebarLayout title={tNav("account")} items={innerSidebarItems}>
           <SettingsPage
             title={tAccount("securityPage.title")}
             description={tAccount("securityPage.description")}

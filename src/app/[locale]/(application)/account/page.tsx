@@ -12,8 +12,11 @@ import { AccountAvatarSettingsItem } from "@/features/account/avatar/avatar-sett
 import { AccountDeleteAccountSettingsItem } from "@/features/account/delete-account/delete-account-settings-item";
 import { AccountDisplayNameSettingsItem } from "@/features/account/profile/profile-settings-item";
 import { AccountEmailSettingsItem } from "@/features/account/email-change/email-change-settings-item";
+import {
+  accountInnerSidebarItems,
+  mapInnerSidebarItems,
+} from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
-import { createAccountInnerSidebarMenu } from "@/features/application/inner-sidebar/inner-sidebar-menus";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
@@ -47,11 +50,8 @@ export default async function Page({ params }: PageProps<"/[locale]/account">) {
     locale: locale as Locale,
     namespace: "layout.navigation.items",
   });
-  const innerSidebar = createAccountInnerSidebarMenu({
-    title: tNav("account"),
-    general: tAccount("nav.general"),
-    security: tAccount("nav.security"),
-  });
+
+  const innerSidebarItems = mapInnerSidebarItems(accountInnerSidebarItems, tAccount);
 
   return (
     <ApplicationPageShell
@@ -66,7 +66,7 @@ export default async function Page({ params }: PageProps<"/[locale]/account">) {
       }
     >
       <Container className="pt-10 pb-24">
-        <InnerSidebarLayout title={innerSidebar.title} items={innerSidebar.items}>
+        <InnerSidebarLayout title={tNav("account")} items={innerSidebarItems}>
           <SettingsPage
             title={tAccount("generalPage.title")}
             description={tAccount("generalPage.description")}

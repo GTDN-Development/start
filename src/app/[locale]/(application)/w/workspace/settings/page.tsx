@@ -9,8 +9,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
+import {
+  mapInnerSidebarItems,
+  workspaceSettingsInnerSidebarItems,
+} from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
-import { createWorkspaceSettingsInnerSidebarMenu } from "@/features/application/inner-sidebar/inner-sidebar-menus";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
@@ -53,11 +56,8 @@ export default async function Page({ params }: PageProps<"/[locale]/w/workspace/
     locale: locale as Locale,
     namespace: "pages.workspace.nav",
   });
-  const innerSidebar = createWorkspaceSettingsInnerSidebarMenu({
-    title: tNav("workspace"),
-    general: tWorkspaceNav("general"),
-    members: tWorkspaceNav("members"),
-  });
+
+  const innerSidebarItems = mapInnerSidebarItems(workspaceSettingsInnerSidebarItems, tWorkspaceNav);
 
   return (
     <ApplicationPageShell
@@ -72,7 +72,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/workspace/
       }
     >
       <Container size="xl" className="pt-10 pb-24">
-        <InnerSidebarLayout title={innerSidebar.title} items={innerSidebar.items}>
+        <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
           <SettingsPage title={tWorkspaceNav("general")}>
             <Placeholder>
               <PlaceholderTitle>Content</PlaceholderTitle>

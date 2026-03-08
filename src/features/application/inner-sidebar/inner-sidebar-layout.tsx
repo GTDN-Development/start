@@ -10,21 +10,19 @@ import {
 import { type AppPathname, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import {
+  CircleIcon,
   ChevronDownIcon,
   ShieldIcon,
   SlidersHorizontalIcon,
   UserIcon,
   UsersIcon,
-  type LucideIcon,
 } from "lucide-react";
 import { useMemo } from "react";
-
-export type InnerSidebarIconKey = "user" | "shield" | "sliders" | "users";
 
 export type InnerSidebarNavItem = {
   href: AppPathname;
   label: string;
-  icon: InnerSidebarIconKey;
+  icon?: string;
   matchNested?: boolean;
   activePathnames?: AppPathname[];
   activePathPrefixes?: string[];
@@ -43,23 +41,11 @@ type InnerSidebarMobileNavProps = {
   items: InnerSidebarNavItem[];
 };
 
-type RenderableInnerSidebarNavItem = Omit<InnerSidebarNavItem, "icon"> & {
-  icon: LucideIcon;
-};
-
-const INNER_SIDEBAR_ICONS: Record<InnerSidebarIconKey, LucideIcon> = {
-  user: UserIcon,
-  shield: ShieldIcon,
-  sliders: SlidersHorizontalIcon,
-  users: UsersIcon,
-};
-
 function InnerSidebarMobileNav({ className, title, items }: InnerSidebarMobileNavProps) {
   const pathname = usePathname();
-  const renderableItems = useMemo(() => createRenderableItems(items), [items]);
   const currentItem = useMemo(
-    () => getCurrentInnerSidebarNavItem(pathname, renderableItems),
-    [pathname, renderableItems]
+    () => getCurrentInnerSidebarNavItem(pathname, items),
+    [pathname, items]
   );
 
   return (
@@ -73,12 +59,12 @@ function InnerSidebarMobileNav({ className, title, items }: InnerSidebarMobileNa
             />
           }
         >
-          {currentItem ? <currentItem.icon aria-hidden="true" className="size-4 shrink-0" /> : null}
+          {currentItem && <InnerSidebarItemIcon icon={currentItem.icon} className="size-4 shrink-0" />}
           {currentItem ? currentItem.label : title}
           <ChevronDownIcon aria-hidden="true" className="ml-auto size-4 shrink-0" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" sideOffset={8} className="space-y-1">
-          {renderableItems.map((item) => {
+          {items.map((item) => {
             return (
               <DropdownMenuItem
                 key={item.href}
@@ -90,7 +76,7 @@ function InnerSidebarMobileNav({ className, title, items }: InnerSidebarMobileNa
                   />
                 }
               >
-                <item.icon aria-hidden="true" />
+                <InnerSidebarItemIcon icon={item.icon} />
                 {item.label}
               </DropdownMenuItem>
             );
@@ -103,17 +89,16 @@ function InnerSidebarMobileNav({ className, title, items }: InnerSidebarMobileNa
 
 export function InnerSidebarLayout({ children, title, items, className }: InnerSidebarLayoutProps) {
   const pathname = usePathname();
-  const renderableItems = useMemo(() => createRenderableItems(items), [items]);
 
   return (
     <div className={cn("@container/inner-sidebar", className)}>
       <div className="grid gap-6 @3xl/inner-sidebar:grid-cols-[auto_1fr] @3xl/inner-sidebar:gap-12">
         <InnerSidebarMobileNav className="@3xl/inner-sidebar:hidden" title={title} items={items} />
 
-        {renderableItems.length > 0 && (
+        {items.length > 0 && (
           <nav className="relative hidden w-64 @3xl/inner-sidebar:block" aria-label={title}>
             <ul className="sticky top-[calc(var(--navbar-height,64px)+2rem)] flex flex-col gap-1">
-              {renderableItems.map((item) => {
+              {items.map((item) => {
                 const isActive = isCurrentInnerSidebarNavItem(pathname, item);
 
                 return (
@@ -127,7 +112,7 @@ export function InnerSidebarLayout({ children, title, items, className }: InnerS
                         isActive && "bg-accent text-accent-foreground"
                       )}
                     >
-                      <item.icon aria-hidden="true" />
+                      <InnerSidebarItemIcon icon={item.icon} />
                       {item.label}
                     </NavLink>
                   </li>
@@ -143,17 +128,33 @@ export function InnerSidebarLayout({ children, title, items, className }: InnerS
   );
 }
 
-function createRenderableItems(items: InnerSidebarNavItem[]): RenderableInnerSidebarNavItem[] {
-  return items.map((item) => ({
-    ...item,
-    icon: INNER_SIDEBAR_ICONS[item.icon],
-  }));
+function InnerSidebarItemIcon({
+  icon,
+  className,
+}: {
+  icon?: string;
+  className?: string;
+}) {
+  if (icon === "user") {
+    return <UserIcon aria-hidden="true" className={className} />;
+  }
+
+  if (icon === "shield") {
+    return <ShieldIcon aria-hidden="true" className={className} />;
+  }
+
+  if (icon === "sliders") {
+    return <SlidersHorizontalIcon aria-hidden="true" className={className} />;
+  }
+
+  if (icon === "users") {
+    return <UsersIcon aria-hidden="true" className={className} />;
+  }
+
+  return <CircleIcon aria-hidden="true" className={className} />;
 }
 
-function getCurrentInnerSidebarNavItem<T extends Omit<InnerSidebarNavItem, "icon">>(
-  pathname: string,
-  items: T[]
-) {
+function getCurrentInnerSidebarNavItem(pathname: string, items: InnerSidebarNavItem[]) {
   if (items.length === 0) {
     return null;
   }
@@ -161,7 +162,7 @@ function getCurrentInnerSidebarNavItem<T extends Omit<InnerSidebarNavItem, "icon
   return items.find((item) => isCurrentInnerSidebarNavItem(pathname, item)) ?? items[0];
 }
 
-function isCurrentInnerSidebarNavItem(pathname: string, item: Omit<InnerSidebarNavItem, "icon">) {
+function isCurrentInnerSidebarNavItem(pathname: string, item: InnerSidebarNavItem) {
   if (item.activePathnames?.includes(pathname as AppPathname)) {
     return true;
   }
