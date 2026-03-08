@@ -16,6 +16,7 @@ import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-s
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceNameSettingsItem } from "@/features/workspaces/settings/general/workspace-name-settings-item";
+import { WorkspaceUrlSettingsItem } from "@/features/workspaces/settings/general/workspace-url-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
@@ -76,6 +77,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/workspace/
           <SettingsPage title={tWorkspaceNav("general")}>
             <div className="grid gap-8">
               <WorkspaceNameSettingsItem />
+              <WorkspaceUrlSettingsItem />
             </div>
           </SettingsPage>
         </InnerSidebarLayout>
