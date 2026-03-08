@@ -16,6 +16,8 @@ import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-s
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceAvatarSettingsItem } from "@/features/workspaces/settings/general/workspace-avatar-settings-item";
+import { WorkspaceDeleteSettingsItem } from "@/features/workspaces/settings/general/workspace-delete-settings-item";
+import { WorkspaceLeaveSettingsItem } from "@/features/workspaces/settings/general/workspace-leave-settings-item";
 import { WorkspaceNameSettingsItem } from "@/features/workspaces/settings/general/workspace-name-settings-item";
 import { WorkspaceUrlSettingsItem } from "@/features/workspaces/settings/general/workspace-url-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
@@ -80,6 +82,8 @@ export default async function Page({ params }: PageProps<"/[locale]/w/workspace/
               <WorkspaceNameSettingsItem />
               <WorkspaceUrlSettingsItem />
               <WorkspaceAvatarSettingsItem />
+              <WorkspaceLeaveSettingsItem />
+              <WorkspaceDeleteSettingsItem />
             </div>
           </SettingsPage>
         </InnerSidebarLayout>
