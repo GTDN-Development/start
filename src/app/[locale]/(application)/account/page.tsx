@@ -8,12 +8,14 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
-import { AccountPage } from "@/features/account/account-page";
 import { AccountAvatarSettingsItem } from "@/features/account/avatar/avatar-settings-item";
 import { AccountDeleteAccountSettingsItem } from "@/features/account/delete-account/delete-account-settings-item";
 import { AccountDisplayNameSettingsItem } from "@/features/account/profile/profile-settings-item";
 import { AccountEmailSettingsItem } from "@/features/account/email-change/email-change-settings-item";
+import { InnerSidebarLayout } from "@/features/application/inner-sidebar/application-inner-sidebar-layout";
+import { createAccountInnerSidebarMenu } from "@/features/application/inner-sidebar/application-inner-sidebar-menus";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
+import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/account">): Promise<Metadata> {
@@ -45,6 +47,11 @@ export default async function Page({ params }: PageProps<"/[locale]/account">) {
     locale: locale as Locale,
     namespace: "layout.navigation.items",
   });
+  const innerSidebar = createAccountInnerSidebarMenu({
+    title: tNav("account"),
+    general: tAccount("nav.general"),
+    security: tAccount("nav.security"),
+  });
 
   return (
     <ApplicationPageShell
@@ -59,17 +66,19 @@ export default async function Page({ params }: PageProps<"/[locale]/account">) {
       }
     >
       <Container className="pt-10 pb-24">
-        <AccountPage
-          title={tAccount("generalPage.title")}
-          description={tAccount("generalPage.description")}
-        >
-          <div className="grid gap-8">
-            <AccountAvatarSettingsItem />
-            <AccountDisplayNameSettingsItem />
-            <AccountEmailSettingsItem />
-            <AccountDeleteAccountSettingsItem />
-          </div>
-        </AccountPage>
+        <InnerSidebarLayout title={innerSidebar.title} items={innerSidebar.items}>
+          <SettingsPage
+            title={tAccount("generalPage.title")}
+            description={tAccount("generalPage.description")}
+          >
+            <div className="grid gap-8">
+              <AccountAvatarSettingsItem />
+              <AccountDisplayNameSettingsItem />
+              <AccountEmailSettingsItem />
+              <AccountDeleteAccountSettingsItem />
+            </div>
+          </SettingsPage>
+        </InnerSidebarLayout>
       </Container>
     </ApplicationPageShell>
   );

@@ -12,7 +12,10 @@ import {
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
+import { InnerSidebarLayout } from "@/features/application/inner-sidebar/application-inner-sidebar-layout";
+import { createWorkspaceSettingsInnerSidebarMenu } from "@/features/application/inner-sidebar/application-inner-sidebar-menus";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
+import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
@@ -51,6 +54,11 @@ export default async function Page({
     locale: locale as Locale,
     namespace: "pages.workspace.nav",
   });
+  const innerSidebar = createWorkspaceSettingsInnerSidebarMenu({
+    title: tNav("workspace"),
+    general: tWorkspaceNav("general"),
+    members: tWorkspaceNav("members"),
+  });
 
   return (
     <ApplicationPageShell
@@ -58,7 +66,7 @@ export default async function Page({
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/w/workspace/settings/general" />}>
+              <BreadcrumbLink render={<Link href="/w/workspace/settings" />}>
                 {tNav("workspace")}
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -70,10 +78,14 @@ export default async function Page({
         </Breadcrumb>
       }
     >
-      <Container size="xl" className="space-y-16 pt-10 pb-24">
-        <Placeholder>
-          <PlaceholderTitle>Content</PlaceholderTitle>
-        </Placeholder>
+      <Container size="xl" className="pt-10 pb-24">
+        <InnerSidebarLayout title={innerSidebar.title} items={innerSidebar.items}>
+          <SettingsPage title={tWorkspaceNav("members")}>
+            <Placeholder>
+              <PlaceholderTitle>Content</PlaceholderTitle>
+            </Placeholder>
+          </SettingsPage>
+        </InnerSidebarLayout>
       </Container>
     </ApplicationPageShell>
   );

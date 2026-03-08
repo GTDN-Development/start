@@ -6,15 +6,17 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
+import { InnerSidebarLayout } from "@/features/application/inner-sidebar/application-inner-sidebar-layout";
+import { createWorkspaceSettingsInnerSidebarMenu } from "@/features/application/inner-sidebar/application-inner-sidebar-menus";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
+import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
-  props: PageProps<"/[locale]/w/workspace/settings/general">
+  props: PageProps<"/[locale]/w/workspace/settings">
 ): Promise<Metadata> {
   const { locale } = await props.params;
   const tNav = await getTranslations({
@@ -30,13 +32,11 @@ export async function generateMetadata(
     title: `${tNav("workspace")} · ${tWorkspaceNav("general")}`,
     description: tWorkspaceNav("general"),
     locale: locale as Locale,
-    pathname: "/w/workspace/settings/general",
+    pathname: "/w/workspace/settings",
   });
 }
 
-export default async function Page({
-  params,
-}: PageProps<"/[locale]/w/workspace/settings/general">) {
+export default async function Page({ params }: PageProps<"/[locale]/w/workspace/settings">) {
   const { locale } = await params;
 
   setRequestLocale(locale as Locale);
@@ -49,6 +49,11 @@ export default async function Page({
     locale: locale as Locale,
     namespace: "pages.workspace.nav",
   });
+  const innerSidebar = createWorkspaceSettingsInnerSidebarMenu({
+    title: tNav("workspace"),
+    general: tWorkspaceNav("general"),
+    members: tWorkspaceNav("members"),
+  });
 
   return (
     <ApplicationPageShell
@@ -58,18 +63,18 @@ export default async function Page({
             <BreadcrumbItem>
               <BreadcrumbPage>{tNav("workspace")}</BreadcrumbPage>
             </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{tWorkspaceNav("general")}</BreadcrumbPage>
-            </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       }
     >
-      <Container size="xl" className="space-y-16 pt-10 pb-24">
-        <Placeholder>
-          <PlaceholderTitle>Content</PlaceholderTitle>
-        </Placeholder>
+      <Container size="xl" className="pt-10 pb-24">
+        <InnerSidebarLayout title={innerSidebar.title} items={innerSidebar.items}>
+          <SettingsPage title={tWorkspaceNav("general")}>
+            <Placeholder>
+              <PlaceholderTitle>Content</PlaceholderTitle>
+            </Placeholder>
+          </SettingsPage>
+        </InnerSidebarLayout>
       </Container>
     </ApplicationPageShell>
   );

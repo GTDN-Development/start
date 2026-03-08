@@ -53,8 +53,8 @@ export const marketingMenu: MenuItem[] = [
 
 export const applicationMenu: MenuLink[] = [
   { labelKey: "overview", href: "/w/workspace/overview" },
-  { labelKey: "workspace", href: "/w/workspace/settings/general" },
-  { labelKey: "account", href: "/account/settings/general" },
+  { labelKey: "workspace", href: "/w/workspace/settings" },
+  { labelKey: "account", href: "/account" },
 ];
 
 export const authMenu: MenuLink[] = [

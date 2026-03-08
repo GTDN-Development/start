@@ -33,6 +33,7 @@ export const routing = defineRouting({
       cs: "/prehled",
     },
     "/w/workspace/overview": "/w/workspace/overview",
+    "/w/workspace/settings": "/w/workspace/settings",
     "/w/workspace/settings/general": "/w/workspace/settings/general",
     "/w/workspace/settings/members": "/w/workspace/settings/members",
     "/forgot-password": {
