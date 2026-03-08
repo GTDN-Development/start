@@ -125,10 +125,7 @@ export function WorkspaceNameSettingsItem() {
               </SettingsItemContent>
 
               <SettingsItemFooter>
-                <SettingsItemDescription>
-                  Current name: <span className="text-foreground font-medium">{workspaceName}</span>
-                  . Static-only setup for now, backend save will be connected later.
-                </SettingsItemDescription>
+                <SettingsItemDescription>Maximum length is 32 characters.</SettingsItemDescription>
                 <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
                   {isSubmitting && <Spinner />}
                   {isSubmitting ? "Saving..." : "Save changes"}

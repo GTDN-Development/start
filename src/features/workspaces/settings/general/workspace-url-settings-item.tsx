@@ -129,10 +129,7 @@ export function WorkspaceUrlSettingsItem() {
               </SettingsItemContent>
 
               <SettingsItemFooter>
-                <SettingsItemDescription>
-                  Current URL: <span className="text-foreground font-medium">{workspaceUrl}</span>.
-                  Static-only setup for now, backend save will be connected later.
-                </SettingsItemDescription>
+                <SettingsItemDescription>Maximum length is 48 characters.</SettingsItemDescription>
                 <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
                   {isSubmitting && <Spinner />}
                   {isSubmitting ? "Saving..." : "Save changes"}
