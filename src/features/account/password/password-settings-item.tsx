@@ -7,14 +7,14 @@ import { useTranslations } from "next-intl";
 import type { InlineStatus } from "@/features/account/account-types";
 import { updateAccountPassword } from "@/features/account/account-client";
 import {
-  AccountItem,
-  AccountItemContent,
-  AccountItemContentBody,
-  AccountItemContentHeader,
-  AccountItemDescription,
-  AccountItemFooter,
-  AccountItemTitle,
-} from "@/features/account/account-item";
+  SettingsItem,
+  SettingsItemContent,
+  SettingsItemContentBody,
+  SettingsItemContentHeader,
+  SettingsItemDescription,
+  SettingsItemFooter,
+  SettingsItemTitle,
+} from "@/components/ui/settings-item";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -96,7 +96,7 @@ export function AccountChangePasswordItem() {
   }
 
   return (
-    <AccountItem>
+    <SettingsItem>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -111,15 +111,15 @@ export function AccountChangePasswordItem() {
         >
           {({ isSubmitting, submissionAttempts }) => (
             <>
-              <AccountItemContent className="flex flex-col gap-6">
-                <AccountItemContentHeader>
-                  <AccountItemTitle>{t("security.password.title")}</AccountItemTitle>
-                  <AccountItemDescription>
+              <SettingsItemContent className="flex flex-col gap-6">
+                <SettingsItemContentHeader>
+                  <SettingsItemTitle>{t("security.password.title")}</SettingsItemTitle>
+                  <SettingsItemDescription>
                     {t("security.password.description")}
-                  </AccountItemDescription>
-                </AccountItemContentHeader>
+                  </SettingsItemDescription>
+                </SettingsItemContentHeader>
 
-                <AccountItemContentBody>
+                <SettingsItemContentBody>
                   <div className="grid max-w-xl gap-4">
                     <form.Field name="currentPassword">
                       {(field) => {
@@ -233,23 +233,23 @@ export function AccountChangePasswordItem() {
                       )
                     ) : null}
                   </div>
-                </AccountItemContentBody>
-              </AccountItemContent>
+                </SettingsItemContentBody>
+              </SettingsItemContent>
 
-              <AccountItemFooter>
-                <AccountItemDescription>{t("security.password.footerHint")}</AccountItemDescription>
+              <SettingsItemFooter>
+                <SettingsItemDescription>{t("security.password.footerHint")}</SettingsItemDescription>
                 <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
                   {isSubmitting ? <Spinner /> : null}
                   {isSubmitting
                     ? t("security.password.submit.pending")
                     : t("security.password.submit.default")}
                 </Button>
-              </AccountItemFooter>
+              </SettingsItemFooter>
             </>
           )}
         </form.Subscribe>
       </form>
-    </AccountItem>
+    </SettingsItem>
   );
 }
 

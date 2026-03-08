@@ -8,7 +8,6 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
-import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import {
   mapInnerSidebarItems,
   workspaceSettingsInnerSidebarItems,
@@ -16,6 +15,7 @@ import {
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
+import { WorkspaceNameSettingsItem } from "@/features/workspaces/settings/general/workspace-name-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
@@ -74,9 +74,9 @@ export default async function Page({ params }: PageProps<"/[locale]/w/workspace/
       <Container size="xl" className="pt-10 pb-24">
         <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
           <SettingsPage title={tWorkspaceNav("general")}>
-            <Placeholder>
-              <PlaceholderTitle>Content</PlaceholderTitle>
-            </Placeholder>
+            <div className="grid gap-8">
+              <WorkspaceNameSettingsItem />
+            </div>
           </SettingsPage>
         </InnerSidebarLayout>
       </Container>

@@ -10,7 +10,7 @@ import {
 import { Container } from "@/components/ui/container";
 import { AccountAvatarSettingsItem } from "@/features/account/avatar/avatar-settings-item";
 import { AccountDeleteAccountSettingsItem } from "@/features/account/delete-account/delete-account-settings-item";
-import { AccountDisplayNameSettingsItem } from "@/features/account/profile/profile-settings-item";
+import { AccountDisplayNameSettingsItem } from "@/features/account/display-name/display-name-settings-item";
 import { AccountEmailSettingsItem } from "@/features/account/email-change/email-change-settings-item";
 import {
   accountInnerSidebarItems,

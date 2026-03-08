@@ -5,14 +5,14 @@ import { useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import {
-  AccountItem,
-  AccountItemContent,
-  AccountItemContentBody,
-  AccountItemContentHeader,
-  AccountItemDescription,
-  AccountItemFooter,
-  AccountItemTitle,
-} from "@/features/account/account-item";
+  SettingsItem,
+  SettingsItemContent,
+  SettingsItemContentBody,
+  SettingsItemContentHeader,
+  SettingsItemDescription,
+  SettingsItemFooter,
+  SettingsItemTitle,
+} from "@/components/ui/settings-item";
 import { useAccountProfile } from "@/features/account/account-profile-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -131,13 +131,13 @@ export function AccountEmailSettingsItem() {
   }
 
   return (
-    <AccountItem>
-      <AccountItemContent className="flex flex-col gap-6">
+    <SettingsItem>
+      <SettingsItemContent className="flex flex-col gap-6">
         <div className="flex flex-row flex-wrap gap-6 xl:gap-8">
-          <AccountItemContentHeader className="w-full grow basis-72">
-            <AccountItemTitle>{t("email.title")}</AccountItemTitle>
-            <AccountItemDescription>{t("email.description")}</AccountItemDescription>
-          </AccountItemContentHeader>
+          <SettingsItemContentHeader className="w-full grow basis-72">
+            <SettingsItemTitle>{t("email.title")}</SettingsItemTitle>
+            <SettingsItemDescription>{t("email.description")}</SettingsItemDescription>
+          </SettingsItemContentHeader>
 
           <div className="shrink-0 basis-auto self-start">
             {profile.verified ? (
@@ -148,13 +148,13 @@ export function AccountEmailSettingsItem() {
           </div>
         </div>
 
-        <AccountItemContentBody>
+        <SettingsItemContentBody>
           <p className="text-foreground text-sm font-semibold break-all">{profile.email}</p>
-        </AccountItemContentBody>
-      </AccountItemContent>
+        </SettingsItemContentBody>
+      </SettingsItemContent>
 
-      <AccountItemFooter>
-        <AccountItemDescription>{t("email.footerHint")}</AccountItemDescription>
+      <SettingsItemFooter>
+        <SettingsItemDescription>{t("email.footerHint")}</SettingsItemDescription>
 
         <Dialog open={isEmailDialogOpen} onOpenChange={handleEmailDialogOpenChange}>
           <DialogTrigger
@@ -297,8 +297,8 @@ export function AccountEmailSettingsItem() {
             </form.Subscribe>
           </DialogContent>
         </Dialog>
-      </AccountItemFooter>
-    </AccountItem>
+      </SettingsItemFooter>
+    </SettingsItem>
   );
 }
 

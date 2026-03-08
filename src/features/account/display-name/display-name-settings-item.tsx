@@ -8,14 +8,14 @@ import { toast } from "sonner";
 import { useAccountProfile } from "@/features/account/account-profile-context";
 import { updateAccountProfile } from "@/features/account/account-client";
 import {
-  AccountItem,
-  AccountItemContent,
-  AccountItemContentBody,
-  AccountItemContentHeader,
-  AccountItemDescription,
-  AccountItemFooter,
-  AccountItemTitle,
-} from "@/features/account/account-item";
+  SettingsItem,
+  SettingsItemContent,
+  SettingsItemContentBody,
+  SettingsItemContentHeader,
+  SettingsItemDescription,
+  SettingsItemFooter,
+  SettingsItemTitle,
+} from "@/components/ui/settings-item";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { InlineStatus } from "@/features/account/account-types";
 import { Button } from "@/components/ui/button";
@@ -98,7 +98,7 @@ export function AccountDisplayNameSettingsItem() {
   }
 
   return (
-    <AccountItem>
+    <SettingsItem>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -113,13 +113,13 @@ export function AccountDisplayNameSettingsItem() {
         >
           {({ isSubmitting, submissionAttempts }) => (
             <>
-              <AccountItemContent className="flex flex-col gap-6">
-                <AccountItemContentHeader>
-                  <AccountItemTitle>{t("profile.title")}</AccountItemTitle>
-                  <AccountItemDescription>{t("profile.description")}</AccountItemDescription>
-                </AccountItemContentHeader>
+              <SettingsItemContent className="flex flex-col gap-6">
+                <SettingsItemContentHeader>
+                  <SettingsItemTitle>{t("profile.title")}</SettingsItemTitle>
+                  <SettingsItemDescription>{t("profile.description")}</SettingsItemDescription>
+                </SettingsItemContentHeader>
 
-                <AccountItemContentBody>
+                <SettingsItemContentBody>
                   <div className="grid gap-4">
                     <form.Field name="name">
                       {(field) => {
@@ -161,20 +161,20 @@ export function AccountDisplayNameSettingsItem() {
                       </Alert>
                     )}
                   </div>
-                </AccountItemContentBody>
-              </AccountItemContent>
+                </SettingsItemContentBody>
+              </SettingsItemContent>
 
-              <AccountItemFooter>
-                <AccountItemDescription>{t("profile.footerHint")}</AccountItemDescription>
+              <SettingsItemFooter>
+                <SettingsItemDescription>{t("profile.footerHint")}</SettingsItemDescription>
                 <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
                   {isSubmitting && <Spinner />}
                   {isSubmitting ? t("profile.submit.pending") : t("profile.submit.default")}
                 </Button>
-              </AccountItemFooter>
+              </SettingsItemFooter>
             </>
           )}
         </form.Subscribe>
       </form>
-    </AccountItem>
+    </SettingsItem>
   );
 }

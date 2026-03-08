@@ -1,14 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  AccountItem,
-  AccountItemContent,
-  AccountItemContentBody,
-  AccountItemContentHeader,
-  AccountItemDescription,
-  AccountItemFooter,
-  AccountItemTitle,
-} from "@/features/account/account-item";
+  SettingsItem,
+  SettingsItemContent,
+  SettingsItemContentBody,
+  SettingsItemContentHeader,
+  SettingsItemDescription,
+  SettingsItemFooter,
+  SettingsItemTitle,
+} from "@/components/ui/settings-item";
 import { detectDeviceType } from "@/lib/device-environment";
 import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import {
@@ -109,27 +109,27 @@ const MOCK_DEVICES: DeviceItemProps[] = [
 
 export function YourDevicesSettingsItem() {
   return (
-    <AccountItem>
-      <AccountItemContent className="flex flex-col gap-6">
-        <AccountItemContentHeader>
+    <SettingsItem>
+      <SettingsItemContent className="flex flex-col gap-6">
+        <SettingsItemContentHeader>
           <StaticPlaceholder />
-          <AccountItemTitle>Your Devices</AccountItemTitle>
-          <AccountItemDescription>
+          <SettingsItemTitle>Your Devices</SettingsItemTitle>
+          <SettingsItemDescription>
             Devices where you are currently logged in.
-          </AccountItemDescription>
-        </AccountItemContentHeader>
-        <AccountItemContentBody>
+          </SettingsItemDescription>
+        </SettingsItemContentHeader>
+        <SettingsItemContentBody>
           <AccountSettingsList>
             {MOCK_DEVICES.map((device) => (
               <DeviceItem key={device.id} {...device} />
             ))}
           </AccountSettingsList>
-        </AccountItemContentBody>
-      </AccountItemContent>
-      <AccountItemFooter className="justify-end">
-        <AccountItemDescription>
+        </SettingsItemContentBody>
+      </SettingsItemContent>
+      <SettingsItemFooter className="justify-end">
+        <SettingsItemDescription>
           Sign out of all other devices except this one.
-        </AccountItemDescription>
+        </SettingsItemDescription>
 
         <AlertDialog>
           <AlertDialogTrigger render={<Button size="lg">Sign out from all devices</Button>} />
@@ -147,8 +147,8 @@ export function YourDevicesSettingsItem() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </AccountItemFooter>
-    </AccountItem>
+      </SettingsItemFooter>
+    </SettingsItem>
   );
 }
 

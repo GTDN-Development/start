@@ -7,14 +7,14 @@ import { useAccountProfile } from "@/features/account/account-profile-context";
 import { removeAccountAvatar, uploadAccountAvatar } from "@/features/account/account-client";
 import { prepareAccountAvatarUpload } from "@/features/account/avatar/avatar-image-processing";
 import {
-  AccountItem,
-  AccountItemContent,
-  AccountItemContentBody,
-  AccountItemContentHeader,
-  AccountItemDescription,
-  AccountItemFooter,
-  AccountItemTitle,
-} from "@/features/account/account-item";
+  SettingsItem,
+  SettingsItemContent,
+  SettingsItemContentBody,
+  SettingsItemContentHeader,
+  SettingsItemDescription,
+  SettingsItemFooter,
+  SettingsItemTitle,
+} from "@/components/ui/settings-item";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -142,14 +142,14 @@ export function AccountAvatarSettingsItem() {
   }
 
   return (
-    <AccountItem>
-      <AccountItemContent className="flex flex-row flex-wrap gap-6 xl:gap-8">
-        <AccountItemContentHeader className="w-full grow basis-72">
-          <AccountItemTitle>{t("avatar.title")}</AccountItemTitle>
-          <AccountItemDescription>{t("avatar.description")}</AccountItemDescription>
-        </AccountItemContentHeader>
+    <SettingsItem>
+      <SettingsItemContent className="flex flex-row flex-wrap gap-6 xl:gap-8">
+        <SettingsItemContentHeader className="w-full grow basis-72">
+          <SettingsItemTitle>{t("avatar.title")}</SettingsItemTitle>
+          <SettingsItemDescription>{t("avatar.description")}</SettingsItemDescription>
+        </SettingsItemContentHeader>
 
-        <AccountItemContentBody className="shrink-0 basis-auto">
+        <SettingsItemContentBody className="shrink-0 basis-auto">
           <div className="flex justify-start sm:justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -222,13 +222,13 @@ export function AccountAvatarSettingsItem() {
             onChange={handleAvatarInputChange}
             tabIndex={-1}
           />
-        </AccountItemContentBody>
-      </AccountItemContent>
+        </SettingsItemContentBody>
+      </SettingsItemContent>
 
-      <AccountItemFooter>
-        <AccountItemDescription>{t("avatar.hint")}</AccountItemDescription>
-      </AccountItemFooter>
-    </AccountItem>
+      <SettingsItemFooter>
+        <SettingsItemDescription>{t("avatar.hint")}</SettingsItemDescription>
+      </SettingsItemFooter>
+    </SettingsItem>
   );
 }
 

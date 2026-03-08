@@ -8,13 +8,13 @@ import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { deleteAccount } from "@/features/account/account-client";
 import {
-  AccountItem,
-  AccountItemContent,
-  AccountItemContentHeader,
-  AccountItemDescription,
-  AccountItemFooter,
-  AccountItemTitle,
-} from "@/features/account/account-item";
+  SettingsItem,
+  SettingsItemContent,
+  SettingsItemContentHeader,
+  SettingsItemDescription,
+  SettingsItemFooter,
+  SettingsItemTitle,
+} from "@/components/ui/settings-item";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -131,15 +131,15 @@ export function AccountDeleteAccountSettingsItem() {
   }
 
   return (
-    <AccountItem variant="destructive">
-      <AccountItemContent>
-        <AccountItemContentHeader>
-          <AccountItemTitle>{t("deleteAccount.title")}</AccountItemTitle>
-          <AccountItemDescription>{t("deleteAccount.description")}</AccountItemDescription>
-        </AccountItemContentHeader>
-      </AccountItemContent>
+    <SettingsItem variant="destructive">
+      <SettingsItemContent>
+        <SettingsItemContentHeader>
+          <SettingsItemTitle>{t("deleteAccount.title")}</SettingsItemTitle>
+          <SettingsItemDescription>{t("deleteAccount.description")}</SettingsItemDescription>
+        </SettingsItemContentHeader>
+      </SettingsItemContent>
 
-      <AccountItemFooter className="sm:justify-end">
+      <SettingsItemFooter className="sm:justify-end">
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
           <AlertDialogTrigger
             nativeButton={true}
@@ -263,7 +263,7 @@ export function AccountDeleteAccountSettingsItem() {
             </form>
           </AlertDialogContent>
         </AlertDialog>
-      </AccountItemFooter>
-    </AccountItem>
+      </SettingsItemFooter>
+    </SettingsItem>
   );
 }
