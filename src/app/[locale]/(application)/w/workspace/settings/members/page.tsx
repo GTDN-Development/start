@@ -12,8 +12,8 @@ import {
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
-import { InnerSidebarLayout } from "@/features/application/inner-sidebar/application-inner-sidebar-layout";
-import { createWorkspaceSettingsInnerSidebarMenu } from "@/features/application/inner-sidebar/application-inner-sidebar-menus";
+import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
+import { createWorkspaceSettingsInnerSidebarMenu } from "@/features/application/inner-sidebar/inner-sidebar-menus";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
@@ -50,6 +50,10 @@ export default async function Page({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
   });
+  const tWorkspace = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.workspace",
+  });
   const tWorkspaceNav = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.workspace.nav",
@@ -67,7 +71,7 @@ export default async function Page({
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink render={<Link href="/w/workspace/settings" />}>
-                {tNav("workspace")}
+                {tWorkspace("title")}
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

@@ -391,6 +391,7 @@
       }
     },
     "workspace": {
+      "title": "Nastavení",
       "nav": {
         "general": "Obecné",
         "members": "Členové"

@@ -391,6 +391,7 @@
       }
     },
     "workspace": {
+      "title": "Settings",
       "nav": {
         "general": "General",
         "members": "Members"

@@ -12,8 +12,8 @@ import { AccountAvatarSettingsItem } from "@/features/account/avatar/avatar-sett
 import { AccountDeleteAccountSettingsItem } from "@/features/account/delete-account/delete-account-settings-item";
 import { AccountDisplayNameSettingsItem } from "@/features/account/profile/profile-settings-item";
 import { AccountEmailSettingsItem } from "@/features/account/email-change/email-change-settings-item";
-import { InnerSidebarLayout } from "@/features/application/inner-sidebar/application-inner-sidebar-layout";
-import { createAccountInnerSidebarMenu } from "@/features/application/inner-sidebar/application-inner-sidebar-menus";
+import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
+import { createAccountInnerSidebarMenu } from "@/features/application/inner-sidebar/inner-sidebar-menus";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";

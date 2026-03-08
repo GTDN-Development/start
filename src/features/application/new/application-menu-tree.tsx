@@ -5,6 +5,13 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/c
 import { applicationMenu } from "@/config/menu";
 import { AppPathname, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import {
+  CircleIcon,
+  LayoutDashboardIcon,
+  SettingsIcon,
+  type LucideIcon,
+  UserIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 
 function isAccountRoute(pathname: string) {
@@ -45,8 +52,25 @@ function shouldMatchNested(href: AppPathname) {
   return href !== "/w/workspace/overview";
 }
 
+function getMainMenuItemIcon(href: AppPathname): LucideIcon {
+  if (href === "/w/workspace/overview") {
+    return LayoutDashboardIcon;
+  }
+
+  if (href === "/w/workspace/settings") {
+    return SettingsIcon;
+  }
+
+  if (href === "/account") {
+    return UserIcon;
+  }
+
+  return CircleIcon;
+}
+
 export function ApplicationMenuTree({ className, ...props }: React.ComponentProps<"nav">) {
   const tNav = useTranslations("layout.navigation.items");
+  const tWorkspace = useTranslations("pages.workspace");
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
 
@@ -61,12 +85,14 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
       <SidebarMenu className="gap-1">
         {applicationMenu.map((item) => {
           const isActive = isMenuItemActive(pathname, item.href);
+          const itemLabel = item.labelKey === "workspace" ? tWorkspace("title") : tNav(item.labelKey);
+          const ItemIcon = getMainMenuItemIcon(item.href);
 
           return (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 isActive={isActive}
-                tooltip={tNav(item.labelKey)}
+                tooltip={itemLabel}
                 render={
                   <NavLink
                     href={item.href}
@@ -76,7 +102,8 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
                 }
                 className="text-sidebar-foreground/80 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-[current=true]:bg-sidebar-accent data-[current=true]:text-sidebar-accent-foreground"
               >
-                {tNav(item.labelKey)}
+                <ItemIcon aria-hidden="true" />
+                {itemLabel}
               </SidebarMenuButton>
             </SidebarMenuItem>
           );

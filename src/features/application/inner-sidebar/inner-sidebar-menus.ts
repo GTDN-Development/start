@@ -1,4 +1,4 @@
-import type { InnerSidebarNavItem } from "./application-inner-sidebar-layout";
+import type { InnerSidebarNavItem } from "./inner-sidebar-layout";
 
 type ApplicationInnerSidebarMenu = {
   title: string;
@@ -26,13 +26,13 @@ export function createAccountInnerSidebarMenu(
       {
         href: "/account",
         label: labels.general,
-        activePathnames: ["/account", "/account/settings/general"],
+        icon: "user",
       },
       {
         href: "/account/security",
         label: labels.security,
+        icon: "shield",
         matchNested: true,
-        activePathnames: ["/account/security", "/account/settings/security"],
       },
     ],
   };
@@ -47,10 +47,12 @@ export function createWorkspaceSettingsInnerSidebarMenu(
       {
         href: "/w/workspace/settings",
         label: labels.general,
+        icon: "sliders",
       },
       {
         href: "/w/workspace/settings/members",
         label: labels.members,
+        icon: "users",
       },
     ],
   };
