@@ -31,6 +31,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { StaticPlaceholder } from "@/components/ui/static-placeholder";
 
 const MOCK_DEVICES: DeviceItemProps[] = [
   {
@@ -111,6 +112,7 @@ export function YourDevicesSettingsItem() {
     <AccountItem>
       <AccountItemContent className="flex flex-col gap-6">
         <AccountItemContentHeader>
+          <StaticPlaceholder />
           <AccountItemTitle>Your Devices</AccountItemTitle>
           <AccountItemDescription>
             Devices where you are currently logged in.

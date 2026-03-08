@@ -16,6 +16,7 @@ import {
   AccountSettingsListItem,
   AccountSettingsListTitle,
 } from "../account-settings-list";
+import { StaticPlaceholder } from "@/components/ui/static-placeholder";
 
 export function TwoFactorAuthSettingsItem() {
   return (
@@ -23,6 +24,7 @@ export function TwoFactorAuthSettingsItem() {
       <AccountItemContent className="flex flex-col gap-6">
         <div className="flex flex-row flex-wrap items-center gap-6 xl:gap-8">
           <AccountItemContentHeader className="w-full grow basis-72">
+            <StaticPlaceholder />
             <AccountItemTitle>Two-factor Authentication</AccountItemTitle>
             <AccountItemDescription>
               Add an additional layer of security by requiring at least two methods of

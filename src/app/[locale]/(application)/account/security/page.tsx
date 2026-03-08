@@ -20,6 +20,8 @@ import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-s
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
+import { YourDevicesSettingsItem } from "@/features/account/your-devices/your-devices-settings-item";
+import { TwoFactorAuthSettingsItem } from "@/features/account/two-factor-auth/two-factor-auth-settings-item";
 // import { YourDevicesSettingsItem } from "@/features/account/your-devices/your-devices-settings-item";
 // import { TwoFactorAuthSettingsItem } from "@/features/account/two-factor-auth/two-factor-auth-settings-item";
 
@@ -81,11 +83,8 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
           >
             <div className="grid gap-8">
               <AccountChangePasswordItem />
-              {/*<p className="text-destructive text-sm">
-                Currently static mocks for devices and two-factor authentication
-              </p>*/}
-              {/*<YourDevicesSettingsItem />*/}
-              {/*<TwoFactorAuthSettingsItem />*/}
+              <YourDevicesSettingsItem />
+              <TwoFactorAuthSettingsItem />
             </div>
           </SettingsPage>
         </InnerSidebarLayout>
