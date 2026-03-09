@@ -10,6 +10,20 @@ const withNextIntl = createNextIntlPlugin({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   reactCompiler: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+        pathname: "/api/files/**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+        pathname: "/api/files/**",
+      },
+    ],
+  },
   // how to configure @svgr/webpack: https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#configuring-webpack-loaders
   turbopack: {
     rules: {
