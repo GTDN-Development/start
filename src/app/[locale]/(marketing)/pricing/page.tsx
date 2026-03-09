@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPageMetadata } from "@/lib/metadata";
-import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
+import { PricingCards } from "@/features/marketing/pricing/pricing-cards";
+import { PricingComparison } from "@/features/marketing/pricing/pricing-comparison";
 
 export async function generateMetadata(props: PageProps<"/[locale]/pricing">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -42,19 +42,8 @@ export default async function Page({ params }: PageProps<"/[locale]/pricing">) {
         </HeroContent>
       </Hero>
 
-      <div className="space-y-16 pb-24">
-        <Container render={<section />}>
-          <Placeholder>
-            <PlaceholderTitle>Content</PlaceholderTitle>
-          </Placeholder>
-        </Container>
-
-        <Container render={<section />}>
-          <Placeholder>
-            <PlaceholderTitle>Content</PlaceholderTitle>
-          </Placeholder>
-        </Container>
-      </div>
+      <PricingCards className="py-0 pb-24" />
+      <PricingComparison />
     </div>
   );
 }
