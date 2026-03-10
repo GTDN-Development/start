@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
-import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import {
   mapInnerSidebarItems,
   workspaceSettingsInnerSidebarItems,
@@ -19,6 +18,8 @@ import {
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
+import { WorkspaceInviteMembersSettingsItem } from "@/features/workspaces/settings/members/workspace-invite-members-settings-item";
+import { WorkspaceMembersManagementSettingsItem } from "@/features/workspaces/settings/members/workspace-members-management-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
@@ -84,10 +85,11 @@ export default async function Page({
     >
       <Container size="xl" className="pt-10 pb-24">
         <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
-          <SettingsPage title={tWorkspaceNav("members")}>
-            <Placeholder>
-              <PlaceholderTitle>Content</PlaceholderTitle>
-            </Placeholder>
+          <SettingsPage title="Members" description="Manage team members and invitations">
+            <div className="grid gap-8">
+              <WorkspaceInviteMembersSettingsItem />
+              <WorkspaceMembersManagementSettingsItem />
+            </div>
           </SettingsPage>
         </InnerSidebarLayout>
       </Container>
