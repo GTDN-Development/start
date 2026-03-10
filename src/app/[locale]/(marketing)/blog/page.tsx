@@ -49,7 +49,7 @@ export default async function Page({ params }: PageProps<"/[locale]/blog">) {
 
       <div className="pb-24">
         <Container render={<section />}>
-          <BlogPostGrid posts={posts} loadMoreLabel={t("loadMore")} readMoreLabel={t("readMore")} />
+          <BlogPostGrid posts={posts} />
         </Container>
       </div>
     </div>

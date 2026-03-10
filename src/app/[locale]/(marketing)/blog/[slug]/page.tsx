@@ -8,9 +8,9 @@ import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Link } from "@/components/ui/link";
 import { site } from "@/config/site";
+import { getPathname } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 import { getAllPosts, getPostBySlug, stripHtmlTags } from "@/server/blog/blog-api";
-
-type SlugParams = { locale: string; slug: string };
 
 export const revalidate = 180;
 
@@ -19,12 +19,10 @@ export async function generateStaticParams() {
   return [...csPosts, ...enPosts].map((post) => ({ slug: post.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<SlugParams>;
-}): Promise<Metadata> {
-  const { slug } = await params;
+export async function generateMetadata(
+  props: PageProps<"/[locale]/blog/[slug]">
+): Promise<Metadata> {
+  const { locale, slug } = await props.params;
   const post = await getPostBySlug(slug);
 
   if (!post) {
@@ -33,10 +31,17 @@ export async function generateMetadata({
 
   const title = stripHtmlTags(post.title);
   const description = stripHtmlTags(post.excerpt);
+  const href = { pathname: "/blog/[slug]" as const, params: { slug } };
 
   return {
     title,
     description,
+    alternates: {
+      canonical: getPathname({ href, locale: locale as Locale }),
+      languages: Object.fromEntries(
+        routing.locales.map((l) => [l, getPathname({ href, locale: l })])
+      ),
+    },
     openGraph: {
       type: "article",
       siteName: site.name,
@@ -56,7 +61,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function Page({ params }: { params: Promise<SlugParams> }) {
+export default async function Page({ params }: PageProps<"/[locale]/blog/[slug]">) {
   const { locale, slug } = await params;
 
   setRequestLocale(locale as Locale);
@@ -70,7 +75,7 @@ export default async function Page({ params }: { params: Promise<SlugParams> }) 
     notFound();
   }
 
-  const formattedDate = new Date(post.date).toLocaleDateString("en-US", {
+  const formattedDate = new Date(post.date).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",

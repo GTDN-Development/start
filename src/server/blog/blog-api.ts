@@ -43,6 +43,10 @@ function embedYouTubeLinks(html: string): string {
   );
 }
 
+function escapePBValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
 function mapPost(record: PostsRecord): BlogPost {
   return {
     id: record.id,
@@ -91,7 +95,7 @@ export async function getAllPosts(locale: "cs" | "en"): Promise<BlogPost[]> {
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
     const items = await fetchPosts({
-      filter: `slug="${slug}" && status="published"`,
+      filter: `slug="${escapePBValue(slug)}" && status="published"`,
       perPage: "1",
     });
     const record = items[0];
