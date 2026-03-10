@@ -2,9 +2,20 @@
 
 import { useId, useRef, useState } from "react";
 import { toast } from "sonner";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import { InfoIcon, PlusIcon, TrashIcon } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -37,8 +48,6 @@ type InviteMemberRow = {
   role: InviteRole;
 };
 
-type InviteMemberRowErrors = Record<string, { email?: string }>;
-
 type InvitePayloadMember = {
   email: string;
   role: InviteRole;
@@ -62,6 +71,7 @@ const INVITE_ROLE_OPTIONS: Array<{
 ];
 
 const inviteEmailSchema = z.email();
+const INVITE_PRICE_PER_MEMBER = 12;
 
 function isInviteRole(value: string): value is InviteRole {
   return INVITE_ROLE_VALUES.includes(value as InviteRole);
@@ -71,8 +81,15 @@ function getInviteRoleOption(value: string | null) {
   return INVITE_ROLE_OPTIONS.find((option) => option.value === value);
 }
 
+function getInviteRoleLabel(role: InviteRole): string {
+  if (role === "owner") {
+    return "Owner";
+  }
+
+  return "Member";
+}
+
 export function WorkspaceInviteMembersSettingsItem() {
-  const inviteToastId = useId();
   const rowIdPrefix = useId().replaceAll(":", "");
   const nextRowOrderRef = useRef(1);
 
@@ -89,32 +106,23 @@ export function WorkspaceInviteMembersSettingsItem() {
   }
 
   const [isInviting, setIsInviting] = useState(false);
-  const [rowErrors, setRowErrors] = useState<InviteMemberRowErrors>({});
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [pendingInvitePayload, setPendingInvitePayload] = useState<InvitePayloadMember[]>([]);
+  const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
   const [inviteRows, setInviteRows] = useState<InviteMemberRow[]>(() => [createInviteMemberRow(0)]);
 
-  function clearRowError(rowId: string) {
-    setRowErrors((currentErrors) => {
-      if (!currentErrors[rowId]) {
-        return currentErrors;
-      }
-
-      const nextErrors = { ...currentErrors };
-      delete nextErrors[rowId];
-
-      return nextErrors;
-    });
-  }
-
   function handleAddMore() {
+    setSubmitErrorMessage(null);
     setInviteRows((currentRows) => [...currentRows, createInviteMemberRow()]);
   }
 
   function handleRemoveRow(rowId: string) {
+    setSubmitErrorMessage(null);
     setInviteRows((currentRows) => currentRows.filter((row) => row.id !== rowId));
-    clearRowError(rowId);
   }
 
   function handleEmailChange(rowId: string, nextEmail: string) {
+    setSubmitErrorMessage(null);
     setInviteRows((currentRows) =>
       currentRows.map((row) => {
         if (row.id !== rowId) {
@@ -127,7 +135,6 @@ export function WorkspaceInviteMembersSettingsItem() {
         };
       })
     );
-    clearRowError(rowId);
   }
 
   function handleRoleChange(rowId: string, nextRole: string | null) {
@@ -139,6 +146,7 @@ export function WorkspaceInviteMembersSettingsItem() {
       return;
     }
 
+    setSubmitErrorMessage(null);
     setInviteRows((currentRows) =>
       currentRows.map((row) => {
         if (row.id !== rowId) {
@@ -155,25 +163,21 @@ export function WorkspaceInviteMembersSettingsItem() {
 
   function parseInvitePayload(rows: InviteMemberRow[]): {
     payload: InvitePayloadMember[];
-    errors: InviteMemberRowErrors;
+    hasInvalidRows: boolean;
   } {
     const payload: InvitePayloadMember[] = [];
-    const errors: InviteMemberRowErrors = {};
+    let hasInvalidRows = false;
 
     for (const row of rows) {
       const normalizedEmail = row.email.trim();
 
       if (normalizedEmail.length === 0) {
-        errors[row.id] = {
-          email: "Email is required.",
-        };
+        hasInvalidRows = true;
         continue;
       }
 
       if (!inviteEmailSchema.safeParse(normalizedEmail).success) {
-        errors[row.id] = {
-          email: "Enter a valid email address.",
-        };
+        hasInvalidRows = true;
         continue;
       }
 
@@ -185,42 +189,55 @@ export function WorkspaceInviteMembersSettingsItem() {
 
     return {
       payload,
-      errors,
+      hasInvalidRows,
     };
   }
 
-  async function handleInviteSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function handleInviteRequest() {
+    const { payload, hasInvalidRows } = parseInvitePayload(inviteRows);
 
-    const { payload, errors } = parseInvitePayload(inviteRows);
-    const hasErrors = Object.keys(errors).length > 0;
-
-    setRowErrors(errors);
-
-    if (hasErrors) {
+    if (hasInvalidRows) {
+      setSubmitErrorMessage("Please complete the fields above.");
       return;
     }
 
+    setSubmitErrorMessage(null);
+    setPendingInvitePayload(payload);
+    setIsInviteDialogOpen(true);
+  }
+
+  async function handleInviteConfirm() {
     setIsInviting(true);
 
     await Promise.resolve();
 
-    const inviteCount = payload.length;
-    const inviteLabel = inviteCount === 1 ? "invitation" : "invitations";
-
-    toast.success("Invitations prepared", {
-      id: inviteToastId,
-      description: `${inviteCount} ${inviteLabel} ready for backend integration.`,
-    });
-
     setIsInviting(false);
-    setRowErrors({});
+    setIsInviteDialogOpen(false);
+    setPendingInvitePayload([]);
+    toast.success("Invitations sent.");
     setInviteRows([createInviteMemberRow()]);
   }
 
+  function handleInviteDialogOpenChange(open: boolean) {
+    if (isInviting) {
+      return;
+    }
+
+    setIsInviteDialogOpen(open);
+  }
+
+  const pendingInviteCount = pendingInvitePayload.length;
+  const pendingInviteLabel = pendingInviteCount === 1 ? "Member" : "Members";
+  const pendingInviteAmount = pendingInviteCount * INVITE_PRICE_PER_MEMBER;
+
   return (
     <SettingsItem className="@container">
-      <form onSubmit={handleInviteSubmit}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleInviteRequest();
+        }}
+      >
         <SettingsItemContent className="flex flex-col gap-6">
           <SettingsItemContentHeader>
             <StaticPlaceholder />
@@ -233,15 +250,12 @@ export function WorkspaceInviteMembersSettingsItem() {
           <SettingsItemContentBody className="grid gap-4">
             <div className="divide-y *:py-5 @lg:divide-y-0 @lg:*:py-3">
               {inviteRows.map((row) => {
-                const emailError = rowErrors[row.id]?.email;
-                const isEmailInvalid = Boolean(emailError);
-
                 return (
                   <div
                     key={row.id}
-                    className={"grid gap-3 @lg:grid-cols-[1fr_1fr_auto] @lg:items-end"}
+                    className={"grid gap-3 @lg:grid-cols-[1fr_1fr_auto] @lg:items-start"}
                   >
-                    <Field data-invalid={isEmailInvalid}>
+                    <Field>
                       <FieldLabel htmlFor={`workspace-members-email-${row.id}`}>Email</FieldLabel>
                       <Input
                         id={`workspace-members-email-${row.id}`}
@@ -251,9 +265,7 @@ export function WorkspaceInviteMembersSettingsItem() {
                         onChange={(event) => handleEmailChange(row.id, event.target.value)}
                         autoComplete="email"
                         placeholder="name@company.com"
-                        aria-invalid={isEmailInvalid}
                       />
-                      {isEmailInvalid && <FieldError>{emailError}</FieldError>}
                     </Field>
 
                     <Field>
@@ -292,7 +304,7 @@ export function WorkspaceInviteMembersSettingsItem() {
                       </Select>
                     </Field>
 
-                    <div className="flex w-full justify-end">
+                    <div className="flex w-full justify-end @lg:self-end">
                       <Button
                         type="button"
                         variant="destructive"
@@ -317,15 +329,61 @@ export function WorkspaceInviteMembersSettingsItem() {
           </SettingsItemContentBody>
         </SettingsItemContent>
 
-        <SettingsItemFooter>
-          <SettingsItemDescription>
-            All rows are submitted together when backend integration is connected.
-          </SettingsItemDescription>
-          <Button type="submit" size="lg" disabled={isInviting}>
-            {isInviting && <Spinner />}
-            {isInviting ? "Inviting..." : "Invite"}
-          </Button>
-        </SettingsItemFooter>
+        <AlertDialog open={isInviteDialogOpen} onOpenChange={handleInviteDialogOpenChange}>
+          <SettingsItemFooter>
+            <SettingsItemDescription
+              className={submitErrorMessage ? "text-destructive" : undefined}
+            >
+              {submitErrorMessage ??
+                "All rows are submitted together when backend integration is connected."}
+            </SettingsItemDescription>
+            <Button type="button" size="lg" disabled={isInviting} onClick={handleInviteRequest}>
+              Invite
+            </Button>
+          </SettingsItemFooter>
+
+          <AlertDialogContent className="sm:max-w-lg">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Invite Team Members</AlertDialogTitle>
+              <AlertDialogDescription>
+                Your team is expanding! By confirming, you will be inviting {pendingInviteCount} new{" "}
+                Team {pendingInviteLabel}. Your bill will increase by ${pendingInviteAmount}.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <ul className="mt-4 grid gap-2">
+              {pendingInvitePayload.map((member) => (
+                <li
+                  key={`${member.email}-${member.role}`}
+                  className="bg-muted flex items-center justify-between rounded-md px-3 py-2 text-sm"
+                >
+                  <span className="font-medium">{member.email}</span>
+                  <span className="text-muted-foreground">{getInviteRoleLabel(member.role)}</span>
+                </li>
+              ))}
+            </ul>
+
+            <Alert>
+              <InfoIcon aria-hidden="true" />
+              <AlertTitle>Invite will expire after 1 week</AlertTitle>
+            </Alert>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel size="lg" disabled={isInviting}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                type="button"
+                size="lg"
+                disabled={isInviting}
+                onClick={handleInviteConfirm}
+              >
+                {isInviting && <Spinner />}
+                {isInviting ? "Inviting..." : "Continue"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </form>
     </SettingsItem>
   );
