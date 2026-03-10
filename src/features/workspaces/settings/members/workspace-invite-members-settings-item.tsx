@@ -36,11 +36,15 @@ import {
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
 import { StaticPlaceholder } from "@/components/ui/static-placeholder";
+import {
+  WORKSPACE_MEMBER_ROLE_OPTIONS,
+  getWorkspaceMemberRoleLabel,
+  isWorkspaceMemberRole,
+  type WorkspaceMemberRole,
+} from "@/features/workspaces/settings/members/workspace-member-roles";
 import { z } from "zod";
 
-const INVITE_ROLE_VALUES = ["owner", "member"] as const;
-
-type InviteRole = (typeof INVITE_ROLE_VALUES)[number];
+type InviteRole = WorkspaceMemberRole;
 
 type InviteMemberRow = {
   id: string;
@@ -53,40 +57,11 @@ type InvitePayloadMember = {
   role: InviteRole;
 };
 
-const INVITE_ROLE_OPTIONS: Array<{
-  value: InviteRole;
-  label: string;
-  description: string;
-}> = [
-  {
-    value: "owner",
-    label: "Owner",
-    description: "Full access to workspace settings, members, and management.",
-  },
-  {
-    value: "member",
-    label: "Member",
-    description: "Can collaborate in workspace, but cannot manage ownership.",
-  },
-];
-
 const inviteEmailSchema = z.email();
 const INVITE_PRICE_PER_MEMBER = 12;
 
-function isInviteRole(value: string): value is InviteRole {
-  return INVITE_ROLE_VALUES.includes(value as InviteRole);
-}
-
 function getInviteRoleOption(value: string | null) {
-  return INVITE_ROLE_OPTIONS.find((option) => option.value === value);
-}
-
-function getInviteRoleLabel(role: InviteRole): string {
-  if (role === "owner") {
-    return "Owner";
-  }
-
-  return "Member";
+  return WORKSPACE_MEMBER_ROLE_OPTIONS.find((option) => option.value === value);
 }
 
 export function WorkspaceInviteMembersSettingsItem() {
@@ -142,7 +117,7 @@ export function WorkspaceInviteMembersSettingsItem() {
       return;
     }
 
-    if (!isInviteRole(nextRole)) {
+    if (!isWorkspaceMemberRole(nextRole)) {
       return;
     }
 
@@ -289,7 +264,7 @@ export function WorkspaceInviteMembersSettingsItem() {
                         </SelectTrigger>
                         <SelectContent alignItemWithTrigger={false}>
                           <SelectGroup>
-                            {INVITE_ROLE_OPTIONS.map((option) => (
+                            {WORKSPACE_MEMBER_ROLE_OPTIONS.map((option) => (
                               <SelectItem key={option.value} value={option.value}>
                                 <span className="flex flex-col items-start gap-0.5">
                                   <span className="font-medium">{option.label}</span>
@@ -358,7 +333,9 @@ export function WorkspaceInviteMembersSettingsItem() {
                   className="bg-muted flex items-center justify-between rounded-md px-3 py-2 text-sm"
                 >
                   <span className="font-medium">{member.email}</span>
-                  <span className="text-muted-foreground">{getInviteRoleLabel(member.role)}</span>
+                  <span className="text-muted-foreground">
+                    {getWorkspaceMemberRoleLabel(member.role)}
+                  </span>
                 </li>
               ))}
             </ul>
