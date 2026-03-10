@@ -35,10 +35,8 @@ import {
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
 import { StaticPlaceholder } from "@/components/ui/static-placeholder";
+import { WORKSPACE_SETTINGS_PREVIEW } from "@/features/workspaces/settings/workspace-settings-preview";
 import { Trash2Icon } from "lucide-react";
-
-const WORKSPACE_NAME = "Acme Studio";
-const WORKSPACE_URL = "acme-studio";
 
 type DeleteWorkspaceFormValues = {
   confirmationUrl: string;
@@ -46,6 +44,7 @@ type DeleteWorkspaceFormValues = {
 };
 
 export function WorkspaceDeleteSettingsItem() {
+  const isPersonalWorkspace = WORKSPACE_SETTINGS_PREVIEW.kind === "personal";
   const deleteWorkspaceToastId = useId();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteWorkspaceSchema = z.object({
@@ -55,8 +54,8 @@ export function WorkspaceDeleteSettingsItem() {
       .min(1, {
         message: "Workspace URL is required.",
       })
-      .refine((value) => value === WORKSPACE_URL, {
-        message: `Type "${WORKSPACE_URL}" to confirm.`,
+      .refine((value) => value === WORKSPACE_SETTINGS_PREVIEW.slug, {
+        message: `Type "${WORKSPACE_SETTINGS_PREVIEW.slug}" to confirm.`,
       }),
     isDeletionAcknowledged: z.boolean().refine((value) => value === true, {
       message: "You must confirm that this action cannot be undone.",
@@ -99,12 +98,19 @@ export function WorkspaceDeleteSettingsItem() {
           <StaticPlaceholder />
           <SettingsItemTitle>Delete workspace</SettingsItemTitle>
           <SettingsItemDescription>
-            Permanently remove <strong>{WORKSPACE_NAME}</strong> and all workspace data.
+            Permanently remove <strong>{WORKSPACE_SETTINGS_PREVIEW.name}</strong> and all workspace
+            data.
           </SettingsItemDescription>
         </SettingsItemContentHeader>
       </SettingsItemContent>
 
       <SettingsItemFooter className="sm:justify-end">
+        {isPersonalWorkspace && (
+          <SettingsItemDescription>
+            Personal workspace cannot be deleted. It is required for your account.
+          </SettingsItemDescription>
+        )}
+        {!isPersonalWorkspace && (
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
           <AlertDialogTrigger
             nativeButton={true}
@@ -157,11 +163,12 @@ export function WorkspaceDeleteSettingsItem() {
                                 onBlur={field.handleBlur}
                                 onChange={(event) => field.handleChange(event.target.value)}
                                 autoComplete="off"
-                                placeholder={WORKSPACE_URL}
+                                placeholder={WORKSPACE_SETTINGS_PREVIEW.slug}
                                 aria-invalid={isInvalid}
                               />
                               <FieldDescription>
-                                Type <strong>{WORKSPACE_URL}</strong> to confirm deletion.
+                                Type <strong>{WORKSPACE_SETTINGS_PREVIEW.slug}</strong> to confirm
+                                deletion.
                               </FieldDescription>
                               {isInvalid && <FieldError errors={field.state.meta.errors} />}
                             </Field>
@@ -217,6 +224,7 @@ export function WorkspaceDeleteSettingsItem() {
             </form>
           </AlertDialogContent>
         </AlertDialog>
+        )}
       </SettingsItemFooter>
     </SettingsItem>
   );

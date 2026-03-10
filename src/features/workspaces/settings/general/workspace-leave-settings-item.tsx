@@ -35,10 +35,8 @@ import {
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
 import { StaticPlaceholder } from "@/components/ui/static-placeholder";
+import { WORKSPACE_SETTINGS_PREVIEW } from "@/features/workspaces/settings/workspace-settings-preview";
 import { LogOutIcon } from "lucide-react";
-
-const WORKSPACE_NAME = "Acme Studio";
-const WORKSPACE_URL = "acme-studio";
 
 type LeaveWorkspaceFormValues = {
   confirmationUrl: string;
@@ -46,6 +44,7 @@ type LeaveWorkspaceFormValues = {
 };
 
 export function WorkspaceLeaveSettingsItem() {
+  const isPersonalWorkspace = WORKSPACE_SETTINGS_PREVIEW.kind === "personal";
   const leaveWorkspaceToastId = useId();
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
   const leaveWorkspaceSchema = z.object({
@@ -55,8 +54,8 @@ export function WorkspaceLeaveSettingsItem() {
       .min(1, {
         message: "Workspace URL is required.",
       })
-      .refine((value) => value === WORKSPACE_URL, {
-        message: `Type "${WORKSPACE_URL}" to confirm.`,
+      .refine((value) => value === WORKSPACE_SETTINGS_PREVIEW.slug, {
+        message: `Type "${WORKSPACE_SETTINGS_PREVIEW.slug}" to confirm.`,
       }),
     isLeavingAcknowledged: z.boolean().refine((value) => value === true, {
       message: "You must confirm that you will lose access to this workspace.",
@@ -99,12 +98,19 @@ export function WorkspaceLeaveSettingsItem() {
           <StaticPlaceholder />
           <SettingsItemTitle>Leave workspace</SettingsItemTitle>
           <SettingsItemDescription>
-            Leave <strong>{WORKSPACE_NAME}</strong> and remove your access to this workspace.
+            Leave <strong>{WORKSPACE_SETTINGS_PREVIEW.name}</strong> and remove your access to this
+            workspace.
           </SettingsItemDescription>
         </SettingsItemContentHeader>
       </SettingsItemContent>
 
       <SettingsItemFooter className="sm:justify-end">
+        {isPersonalWorkspace && (
+          <SettingsItemDescription>
+            Personal workspace cannot be left. It always stays connected to your account.
+          </SettingsItemDescription>
+        )}
+        {!isPersonalWorkspace && (
         <AlertDialog open={isLeaveDialogOpen} onOpenChange={handleLeaveDialogOpenChange}>
           <AlertDialogTrigger
             nativeButton={true}
@@ -157,11 +163,12 @@ export function WorkspaceLeaveSettingsItem() {
                                 onBlur={field.handleBlur}
                                 onChange={(event) => field.handleChange(event.target.value)}
                                 autoComplete="off"
-                                placeholder={WORKSPACE_URL}
+                                placeholder={WORKSPACE_SETTINGS_PREVIEW.slug}
                                 aria-invalid={isInvalid}
                               />
                               <FieldDescription>
-                                Type <strong>{WORKSPACE_URL}</strong> to confirm leaving.
+                                Type <strong>{WORKSPACE_SETTINGS_PREVIEW.slug}</strong> to confirm
+                                leaving.
                               </FieldDescription>
                               {isInvalid && <FieldError errors={field.state.meta.errors} />}
                             </Field>
@@ -217,6 +224,7 @@ export function WorkspaceLeaveSettingsItem() {
             </form>
           </AlertDialogContent>
         </AlertDialog>
+        )}
       </SettingsItemFooter>
     </SettingsItem>
   );

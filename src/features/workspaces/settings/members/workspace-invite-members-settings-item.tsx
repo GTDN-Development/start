@@ -37,14 +37,15 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { StaticPlaceholder } from "@/components/ui/static-placeholder";
 import {
-  WORKSPACE_MEMBER_ROLE_OPTIONS,
+  WORKSPACE_INVITABLE_ROLE_OPTIONS,
   getWorkspaceMemberRoleLabel,
-  isWorkspaceMemberRole,
-  type WorkspaceMemberRole,
+  isWorkspaceInvitableRole,
+  type WorkspaceInvitableRole,
 } from "@/features/workspaces/settings/members/workspace-member-roles";
+import { WORKSPACE_SETTINGS_PREVIEW } from "@/features/workspaces/settings/workspace-settings-preview";
 import { z } from "zod";
 
-type InviteRole = WorkspaceMemberRole;
+type InviteRole = WorkspaceInvitableRole;
 
 type InviteMemberRow = {
   id: string;
@@ -61,12 +62,13 @@ const inviteEmailSchema = z.email();
 const INVITE_PRICE_PER_MEMBER = 12;
 
 function getInviteRoleOption(value: string | null) {
-  return WORKSPACE_MEMBER_ROLE_OPTIONS.find((option) => option.value === value);
+  return WORKSPACE_INVITABLE_ROLE_OPTIONS.find((option) => option.value === value);
 }
 
 export function WorkspaceInviteMembersSettingsItem() {
   const rowIdPrefix = useId().replaceAll(":", "");
   const nextRowOrderRef = useRef(1);
+  const isPersonalWorkspace = WORKSPACE_SETTINGS_PREVIEW.kind === "personal";
 
   function createInviteMemberRow(order: number = nextRowOrderRef.current): InviteMemberRow {
     if (order === nextRowOrderRef.current) {
@@ -117,7 +119,7 @@ export function WorkspaceInviteMembersSettingsItem() {
       return;
     }
 
-    if (!isWorkspaceMemberRole(nextRole)) {
+    if (!isWorkspaceInvitableRole(nextRole)) {
       return;
     }
 
@@ -205,6 +207,29 @@ export function WorkspaceInviteMembersSettingsItem() {
   const pendingInviteLabel = pendingInviteCount === 1 ? "Member" : "Members";
   const pendingInviteAmount = pendingInviteCount * INVITE_PRICE_PER_MEMBER;
 
+  if (isPersonalWorkspace) {
+    return (
+      <SettingsItem>
+        <SettingsItemContent className="flex flex-col gap-6">
+          <SettingsItemContentHeader>
+            <StaticPlaceholder />
+            <SettingsItemTitle>Invite members</SettingsItemTitle>
+            <SettingsItemDescription>
+              Personal workspace <strong>{WORKSPACE_SETTINGS_PREVIEW.name}</strong> is limited to a
+              single member.
+            </SettingsItemDescription>
+          </SettingsItemContentHeader>
+
+          <SettingsItemContentBody>
+            <SettingsItemDescription>
+              Invites are available only in organization workspaces.
+            </SettingsItemDescription>
+          </SettingsItemContentBody>
+        </SettingsItemContent>
+      </SettingsItem>
+    );
+  }
+
   return (
     <SettingsItem className="@container">
       <form
@@ -264,7 +289,7 @@ export function WorkspaceInviteMembersSettingsItem() {
                         </SelectTrigger>
                         <SelectContent alignItemWithTrigger={false}>
                           <SelectGroup>
-                            {WORKSPACE_MEMBER_ROLE_OPTIONS.map((option) => (
+                            {WORKSPACE_INVITABLE_ROLE_OPTIONS.map((option) => (
                               <SelectItem key={option.value} value={option.value}>
                                 <span className="flex flex-col items-start gap-0.5">
                                   <span className="font-medium">{option.label}</span>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { InboxIcon, MoreHorizontalIcon, PencilLineIcon, TrashIcon, XIcon } from "lucide-react";
+import { InboxIcon, MoreHorizontalIcon, PencilLineIcon, SendIcon, TrashIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   DescriptionDetails,
@@ -53,8 +54,10 @@ import {
   WORKSPACE_MEMBER_ROLE_OPTIONS,
   getWorkspaceMemberRoleLabel,
   isWorkspaceMemberRole,
+  type WorkspaceInvitableRole,
   type WorkspaceMemberRole,
 } from "@/features/workspaces/settings/members/workspace-member-roles";
+import { WORKSPACE_SETTINGS_PREVIEW } from "@/features/workspaces/settings/workspace-settings-preview";
 import {
   Table,
   TableBody,
@@ -73,6 +76,17 @@ type WorkspaceMemberRow = {
   role: WorkspaceMemberRole;
 };
 
+type PendingInvitationRow = {
+  id: string;
+  name: string;
+  email: string;
+  role: WorkspaceInvitableRole;
+};
+
+function isLastOwnerMember(member: WorkspaceMemberRow, ownerCount: number): boolean {
+  return member.role === "owner" && ownerCount === 1;
+}
+
 type ManagementActionState =
   | {
       type: "change-role";
@@ -84,12 +98,14 @@ type ManagementActionState =
       memberId: string;
     }
   | {
+      type: "resend-invitation";
+      invitationId: string;
+    }
+  | {
       type: "remove-invitation";
       invitationId: string;
     }
   | null;
-
-const WORKSPACE_NAME = "Acme Studio";
 
 const DEFAULT_WORKSPACE_MEMBERS: WorkspaceMemberRow[] = [
   {
@@ -112,29 +128,55 @@ const DEFAULT_WORKSPACE_MEMBERS: WorkspaceMemberRow[] = [
   },
 ];
 
-const DEFAULT_PENDING_INVITATIONS: WorkspaceMemberRow[] = [];
+const DEFAULT_PENDING_INVITATIONS: PendingInvitationRow[] = [
+  {
+    id: "invite-1",
+    name: "Petr Kral",
+    email: "petr@partner.io",
+    role: "member",
+  },
+  {
+    id: "invite-2",
+    name: "Jana Prochazkova",
+    email: "jana@partner.io",
+    role: "member",
+  },
+];
 
 export function WorkspaceMembersManagementSettingsItem() {
   const [members, setMembers] = useState<WorkspaceMemberRow[]>(DEFAULT_WORKSPACE_MEMBERS);
-  const [pendingInvitations, setPendingInvitations] = useState<WorkspaceMemberRow[]>(
+  const [pendingInvitations, setPendingInvitations] = useState<PendingInvitationRow[]>(
     DEFAULT_PENDING_INVITATIONS
   );
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
+  const ownerCount = members.filter((member) => member.role === "owner").length;
 
   const hasPendingInvitations = pendingInvitations.length > 0;
   const changeRoleMember =
     actionState?.type === "change-role"
-      ? members.find((member) => member.id === actionState.memberId) ?? null
+      ? (members.find((member) => member.id === actionState.memberId) ?? null)
       : null;
   const removeMemberTarget =
     actionState?.type === "remove-member"
-      ? members.find((member) => member.id === actionState.memberId) ?? null
+      ? (members.find((member) => member.id === actionState.memberId) ?? null)
+      : null;
+  const resendInvitationTarget =
+    actionState?.type === "resend-invitation"
+      ? (pendingInvitations.find((invitation) => invitation.id === actionState.invitationId) ??
+        null)
       : null;
   const removeInvitationTarget =
     actionState?.type === "remove-invitation"
-      ? pendingInvitations.find((invitation) => invitation.id === actionState.invitationId) ?? null
+      ? (pendingInvitations.find((invitation) => invitation.id === actionState.invitationId) ??
+        null)
       : null;
+  const isChangeRoleTargetLastOwner = changeRoleMember
+    ? isLastOwnerMember(changeRoleMember, ownerCount)
+    : false;
+  const isRemoveMemberTargetLastOwner = removeMemberTarget
+    ? isLastOwnerMember(removeMemberTarget, ownerCount)
+    : false;
 
   function handleChangeRoleRequest(member: WorkspaceMemberRow) {
     setActionState({
@@ -145,13 +187,24 @@ export function WorkspaceMembersManagementSettingsItem() {
   }
 
   function handleRemoveMemberRequest(member: WorkspaceMemberRow) {
+    if (isLastOwnerMember(member, ownerCount)) {
+      return;
+    }
+
     setActionState({
       type: "remove-member",
       memberId: member.id,
     });
   }
 
-  function handleRemoveInvitationRequest(invitation: WorkspaceMemberRow) {
+  function handleResendInvitationRequest(invitation: PendingInvitationRow) {
+    setActionState({
+      type: "resend-invitation",
+      invitationId: invitation.id,
+    });
+  }
+
+  function handleRemoveInvitationRequest(invitation: PendingInvitationRow) {
     setActionState({
       type: "remove-invitation",
       invitationId: invitation.id,
@@ -173,6 +226,10 @@ export function WorkspaceMembersManagementSettingsItem() {
       return;
     }
 
+    if (isChangeRoleTargetLastOwner && value !== "owner") {
+      return;
+    }
+
     setActionState((currentState) => {
       if (!currentState || currentState.type !== "change-role") {
         return currentState;
@@ -187,6 +244,11 @@ export function WorkspaceMembersManagementSettingsItem() {
 
   async function handleChangeRoleConfirm() {
     if (!changeRoleMember || actionState?.type !== "change-role") {
+      return;
+    }
+
+    if (isChangeRoleTargetLastOwner && actionState.selectedRole !== "owner") {
+      toast.error("Last owner cannot be downgraded.");
       return;
     }
 
@@ -218,6 +280,11 @@ export function WorkspaceMembersManagementSettingsItem() {
       return;
     }
 
+    if (isRemoveMemberTargetLastOwner) {
+      toast.error("Last owner cannot be removed.");
+      return;
+    }
+
     setIsActionSubmitting(true);
 
     await Promise.resolve();
@@ -228,6 +295,20 @@ export function WorkspaceMembersManagementSettingsItem() {
     setIsActionSubmitting(false);
     setActionState(null);
     toast.success("Member removed.");
+  }
+
+  async function handleResendInvitationConfirm() {
+    if (!resendInvitationTarget) {
+      return;
+    }
+
+    setIsActionSubmitting(true);
+
+    await Promise.resolve();
+
+    setIsActionSubmitting(false);
+    setActionState(null);
+    toast.success("Invite link resent.");
   }
 
   async function handleRemoveInvitationConfirm() {
@@ -269,6 +350,7 @@ export function WorkspaceMembersManagementSettingsItem() {
               <div className="hidden @lg/members-management:block">
                 <MembersTable
                   rows={members}
+                  ownerCount={ownerCount}
                   onChangeRoleRequest={handleChangeRoleRequest}
                   onRemoveMemberRequest={handleRemoveMemberRequest}
                 />
@@ -278,6 +360,7 @@ export function WorkspaceMembersManagementSettingsItem() {
                   <MemberDescriptionRow
                     key={member.id}
                     member={member}
+                    ownerCount={ownerCount}
                     onChangeRoleRequest={handleChangeRoleRequest}
                     onRemoveMemberRequest={handleRemoveMemberRequest}
                   />
@@ -291,6 +374,7 @@ export function WorkspaceMembersManagementSettingsItem() {
                   <div className="hidden @lg/members-management:block">
                     <PendingInvitationsTable
                       rows={pendingInvitations}
+                      onResendInvitationRequest={handleResendInvitationRequest}
                       onRemoveInvitationRequest={handleRemoveInvitationRequest}
                     />
                   </div>
@@ -299,6 +383,7 @@ export function WorkspaceMembersManagementSettingsItem() {
                       <PendingInvitationDescriptionRow
                         key={invitation.id}
                         invitation={invitation}
+                        onResendInvitationRequest={handleResendInvitationRequest}
                         onRemoveInvitationRequest={handleRemoveInvitationRequest}
                       />
                     ))}
@@ -312,16 +397,13 @@ export function WorkspaceMembersManagementSettingsItem() {
         </SettingsItemContentBody>
       </div>
 
-      <AlertDialog
-        open={Boolean(changeRoleMember)}
-        onOpenChange={handleActionDialogOpenChange}
-      >
+      <AlertDialog open={Boolean(changeRoleMember)} onOpenChange={handleActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Change member role?</AlertDialogTitle>
             <AlertDialogDescription>
               Select a new role for <strong>{changeRoleMember?.name ?? "this member"}</strong> in{" "}
-              <strong>{WORKSPACE_NAME}</strong>.
+              <strong>{WORKSPACE_SETTINGS_PREVIEW.name}</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -343,12 +425,25 @@ export function WorkspaceMembersManagementSettingsItem() {
                     <RadioGroupItem
                       id={`workspace-member-role-${changeRoleMember.id}-${option.value}`}
                       value={option.value}
-                      disabled={isActionSubmitting}
+                      disabled={
+                        isActionSubmitting ||
+                        (isChangeRoleTargetLastOwner && option.value !== "owner")
+                      }
                     />
                   </Field>
                 </FieldLabel>
               ))}
             </RadioGroup>
+          )}
+
+          {isChangeRoleTargetLastOwner && (
+            <Alert>
+              <AlertTitle>Last owner protection</AlertTitle>
+              <AlertDescription>
+                This member is the last owner of this workspace. Promote another member to owner
+                before downgrading.
+              </AlertDescription>
+            </Alert>
           )}
 
           <AlertDialogFooter>
@@ -358,7 +453,13 @@ export function WorkspaceMembersManagementSettingsItem() {
             <AlertDialogAction
               type="button"
               size="lg"
-              disabled={isActionSubmitting || !changeRoleMember}
+              disabled={
+                isActionSubmitting ||
+                !changeRoleMember ||
+                (isChangeRoleTargetLastOwner &&
+                  actionState?.type === "change-role" &&
+                  actionState.selectedRole !== "owner")
+              }
               onClick={handleChangeRoleConfirm}
             >
               {isActionSubmitting && <Spinner />}
@@ -368,19 +469,28 @@ export function WorkspaceMembersManagementSettingsItem() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog
-        open={Boolean(removeMemberTarget)}
-        onOpenChange={handleActionDialogOpenChange}
-      >
+      <AlertDialog open={Boolean(removeMemberTarget)} onOpenChange={handleActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>Remove member from workspace?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will immediately revoke access to <strong>{WORKSPACE_NAME}</strong>.
+              This will immediately revoke access to{" "}
+              <strong>{WORKSPACE_SETTINGS_PREVIEW.name}</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           {removeMemberTarget && <MemberSummaryRow member={removeMemberTarget} />}
+
+          {isRemoveMemberTargetLastOwner && (
+            <Alert>
+              <AlertTitle>
+                This member is the last owner. Add another owner before removing this member.
+              </AlertTitle>
+              <AlertDescription>
+                This member is the last owner. Add another owner before removing this member.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <AlertDialogFooter>
             <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
@@ -390,11 +500,43 @@ export function WorkspaceMembersManagementSettingsItem() {
               type="button"
               size="lg"
               variant="destructive"
-              disabled={isActionSubmitting || !removeMemberTarget}
+              disabled={isActionSubmitting || !removeMemberTarget || isRemoveMemberTargetLastOwner}
               onClick={handleRemoveMemberConfirm}
             >
               {isActionSubmitting && <Spinner />}
               {isActionSubmitting ? "Removing..." : "Remove member"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={Boolean(resendInvitationTarget)}
+        onOpenChange={handleActionDialogOpenChange}
+      >
+        <AlertDialogContent className="sm:max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Resend invitation link?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will send a new invitation link for{" "}
+              <strong>{WORKSPACE_SETTINGS_PREVIEW.name}</strong>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {resendInvitationTarget && <InvitationSummaryRow invitation={resendInvitationTarget} />}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              type="button"
+              size="lg"
+              disabled={isActionSubmitting || !resendInvitationTarget}
+              onClick={handleResendInvitationConfirm}
+            >
+              {isActionSubmitting && <Spinner />}
+              {isActionSubmitting ? "Resending..." : "Resend invite link"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -406,9 +548,10 @@ export function WorkspaceMembersManagementSettingsItem() {
       >
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancel invitation?</AlertDialogTitle>
+            <AlertDialogTitle>Remove invitation?</AlertDialogTitle>
             <AlertDialogDescription>
-              This invitation will be removed from <strong>{WORKSPACE_NAME}</strong>.
+              This will invalidate the invite token and remove this pending invitation from{" "}
+              <strong>{WORKSPACE_SETTINGS_PREVIEW.name}</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -437,10 +580,12 @@ export function WorkspaceMembersManagementSettingsItem() {
 
 function MembersTable({
   rows,
+  ownerCount,
   onChangeRoleRequest,
   onRemoveMemberRequest,
 }: {
   rows: WorkspaceMemberRow[];
+  ownerCount: number;
   onChangeRoleRequest: (member: WorkspaceMemberRow) => void;
   onRemoveMemberRequest: (member: WorkspaceMemberRow) => void;
 }) {
@@ -463,6 +608,7 @@ function MembersTable({
             <TableCell className="text-right">
               <MembersActionMenu
                 member={member}
+                isLastOwner={isLastOwnerMember(member, ownerCount)}
                 onChangeRoleRequest={onChangeRoleRequest}
                 onRemoveMemberRequest={onRemoveMemberRequest}
               />
@@ -476,10 +622,12 @@ function MembersTable({
 
 function PendingInvitationsTable({
   rows,
+  onResendInvitationRequest,
   onRemoveInvitationRequest,
 }: {
-  rows: WorkspaceMemberRow[];
-  onRemoveInvitationRequest: (invitation: WorkspaceMemberRow) => void;
+  rows: PendingInvitationRow[];
+  onResendInvitationRequest: (invitation: PendingInvitationRow) => void;
+  onRemoveInvitationRequest: (invitation: PendingInvitationRow) => void;
 }) {
   return (
     <Table>
@@ -498,8 +646,9 @@ function PendingInvitationsTable({
             </TableCell>
             <TableCell>{getWorkspaceMemberRoleLabel(invitation.role)}</TableCell>
             <TableCell className="text-right">
-              <PendingInvitationActionButton
+              <PendingInvitationActionMenu
                 invitation={invitation}
+                onResendInvitationRequest={onResendInvitationRequest}
                 onRemoveInvitationRequest={onRemoveInvitationRequest}
               />
             </TableCell>
@@ -512,10 +661,12 @@ function PendingInvitationsTable({
 
 function MemberDescriptionRow({
   member,
+  ownerCount,
   onChangeRoleRequest,
   onRemoveMemberRequest,
 }: {
   member: WorkspaceMemberRow;
+  ownerCount: number;
   onChangeRoleRequest: (member: WorkspaceMemberRow) => void;
   onRemoveMemberRequest: (member: WorkspaceMemberRow) => void;
 }) {
@@ -534,6 +685,7 @@ function MemberDescriptionRow({
         <DescriptionDetails>
           <MembersActionMenu
             member={member}
+            isLastOwner={isLastOwnerMember(member, ownerCount)}
             onChangeRoleRequest={onChangeRoleRequest}
             onRemoveMemberRequest={onRemoveMemberRequest}
           />
@@ -545,10 +697,12 @@ function MemberDescriptionRow({
 
 function PendingInvitationDescriptionRow({
   invitation,
+  onResendInvitationRequest,
   onRemoveInvitationRequest,
 }: {
-  invitation: WorkspaceMemberRow;
-  onRemoveInvitationRequest: (invitation: WorkspaceMemberRow) => void;
+  invitation: PendingInvitationRow;
+  onResendInvitationRequest: (invitation: PendingInvitationRow) => void;
+  onRemoveInvitationRequest: (invitation: PendingInvitationRow) => void;
 }) {
   return (
     <div className="bg-background rounded-xl border px-3">
@@ -563,8 +717,9 @@ function PendingInvitationDescriptionRow({
 
         <DescriptionTerm>Actions</DescriptionTerm>
         <DescriptionDetails>
-          <PendingInvitationActionButton
+          <PendingInvitationActionMenu
             invitation={invitation}
+            onResendInvitationRequest={onResendInvitationRequest}
             onRemoveInvitationRequest={onRemoveInvitationRequest}
           />
         </DescriptionDetails>
@@ -593,12 +748,14 @@ function MemberSummaryRow({ member }: { member: WorkspaceMemberRow }) {
   return (
     <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
       <MemberIdentityCell name={member.name} email={member.email} />
-      <span className="text-muted-foreground text-sm">{getWorkspaceMemberRoleLabel(member.role)}</span>
+      <span className="text-muted-foreground text-sm">
+        {getWorkspaceMemberRoleLabel(member.role)}
+      </span>
     </div>
   );
 }
 
-function InvitationSummaryRow({ invitation }: { invitation: WorkspaceMemberRow }) {
+function InvitationSummaryRow({ invitation }: { invitation: PendingInvitationRow }) {
   return (
     <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
       <span className="text-sm font-medium">{invitation.email}</span>
@@ -611,10 +768,12 @@ function InvitationSummaryRow({ invitation }: { invitation: WorkspaceMemberRow }
 
 function MembersActionMenu({
   member,
+  isLastOwner,
   onChangeRoleRequest,
   onRemoveMemberRequest,
 }: {
   member: WorkspaceMemberRow;
+  isLastOwner: boolean;
   onChangeRoleRequest: (member: WorkspaceMemberRow) => void;
   onRemoveMemberRequest: (member: WorkspaceMemberRow) => void;
 }) {
@@ -632,7 +791,11 @@ function MembersActionMenu({
         <DropdownMenuItem onClick={() => onChangeRoleRequest(member)}>
           <PencilLineIcon aria-hidden="true" /> Change role
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onRemoveMemberRequest(member)} variant="destructive">
+        <DropdownMenuItem
+          onClick={() => onRemoveMemberRequest(member)}
+          variant="destructive"
+          disabled={isLastOwner}
+        >
           <TrashIcon aria-hidden="true" /> Remove from workspace
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -640,23 +803,37 @@ function MembersActionMenu({
   );
 }
 
-function PendingInvitationActionButton({
+function PendingInvitationActionMenu({
   invitation,
+  onResendInvitationRequest,
   onRemoveInvitationRequest,
 }: {
-  invitation: WorkspaceMemberRow;
-  onRemoveInvitationRequest: (invitation: WorkspaceMemberRow) => void;
+  invitation: PendingInvitationRow;
+  onResendInvitationRequest: (invitation: PendingInvitationRow) => void;
+  onRemoveInvitationRequest: (invitation: PendingInvitationRow) => void;
 }) {
   return (
-    <Button
-      type="button"
-      size="icon"
-      variant="destructive"
-      aria-label="Cancel invitation"
-      onClick={() => onRemoveInvitationRequest(invitation)}
-    >
-      <XIcon aria-hidden="true" className="size-4" />
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        nativeButton={true}
+        render={
+          <Button type="button" variant="ghost" size="icon" aria-label="Open invitation actions">
+            <MoreHorizontalIcon aria-hidden="true" className="size-4" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end" className="w-auto min-w-44">
+        <DropdownMenuItem onClick={() => onResendInvitationRequest(invitation)}>
+          <SendIcon aria-hidden="true" /> Resend invite link
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => onRemoveInvitationRequest(invitation)}
+          variant="destructive"
+        >
+          <TrashIcon aria-hidden="true" /> Remove invitation
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

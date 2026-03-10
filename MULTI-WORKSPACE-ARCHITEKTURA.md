@@ -18,13 +18,14 @@
 - `/[locale]/sign-up`
 - `/[locale]/overview`
 - `/[locale]/w/[workspaceSlug]/overview`
-- `/[locale]/w/[workspaceSlug]/settings/general`
+- `/[locale]/w/[workspaceSlug]/settings`
 - `/[locale]/w/[workspaceSlug]/settings/members`
-- `/[locale]/account/settings/general`
-- `/[locale]/account/settings/security`
+- `/[locale]/account`
+- `/[locale]/account/security`
 - `/[locale]/invite/[token]`
 
 - `/[locale]/overview` je vstupní route, která vždy redirectuje na konkrétní workspace.
+- Ve statické UI fázi může být dočasně použit placeholder route tvar `/[locale]/w/workspace/...`.
 
 ### CZ aliasy
 
