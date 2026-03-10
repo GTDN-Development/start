@@ -185,7 +185,7 @@ function PendingInvitationsTable({ rows }: { rows: WorkspaceMemberRow[] }) {
 
 function MemberDescriptionRow({ member }: { member: WorkspaceMemberRow }) {
   return (
-    <div className="bg-background rounded-lg border px-3">
+    <div className="bg-background rounded-xl border px-3">
       <DescriptionList>
         <DescriptionTerm>User</DescriptionTerm>
         <DescriptionDetails>
@@ -206,7 +206,7 @@ function MemberDescriptionRow({ member }: { member: WorkspaceMemberRow }) {
 
 function PendingInvitationDescriptionRow({ invitation }: { invitation: WorkspaceMemberRow }) {
   return (
-    <div className="bg-background rounded-lg border px-3">
+    <div className="bg-background rounded-xl border px-3">
       <DescriptionList>
         <DescriptionTerm>User</DescriptionTerm>
         <DescriptionDetails>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { toast } from "sonner";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,6 @@ const INVITE_ROLE_OPTIONS: Array<{
 ];
 
 const inviteEmailSchema = z.email();
-let inviteMemberRowCounter = 0;
 
 function isInviteRole(value: string): value is InviteRole {
   return INVITE_ROLE_VALUES.includes(value as InviteRole);
@@ -72,22 +71,26 @@ function getInviteRoleOption(value: string | null) {
   return INVITE_ROLE_OPTIONS.find((option) => option.value === value);
 }
 
-function createInviteMemberRow(): InviteMemberRow {
-  inviteMemberRowCounter += 1;
-
-  return {
-    id: `workspace-members-invite-row-${inviteMemberRowCounter}`,
-    email: "",
-    role: "member",
-  };
-}
-
 export function WorkspaceInviteMembersSettingsItem() {
   const inviteToastId = useId();
+  const rowIdPrefix = useId().replaceAll(":", "");
+  const nextRowOrderRef = useRef(1);
+
+  function createInviteMemberRow(order: number = nextRowOrderRef.current): InviteMemberRow {
+    if (order === nextRowOrderRef.current) {
+      nextRowOrderRef.current += 1;
+    }
+
+    return {
+      id: `workspace-members-invite-row-${rowIdPrefix}-${order}`,
+      email: "",
+      role: "member",
+    };
+  }
 
   const [isInviting, setIsInviting] = useState(false);
   const [rowErrors, setRowErrors] = useState<InviteMemberRowErrors>({});
-  const [inviteRows, setInviteRows] = useState<InviteMemberRow[]>(() => [createInviteMemberRow()]);
+  const [inviteRows, setInviteRows] = useState<InviteMemberRow[]>(() => [createInviteMemberRow(0)]);
 
   function clearRowError(rowId: string) {
     setRowErrors((currentErrors) => {
