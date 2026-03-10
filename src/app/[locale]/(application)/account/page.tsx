@@ -8,10 +8,10 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
-import { AccountAvatarSettingsItem } from "@/features/account/avatar/avatar-settings-item";
-import { AccountDeleteAccountSettingsItem } from "@/features/account/delete-account/delete-account-settings-item";
-import { AccountDisplayNameSettingsItem } from "@/features/account/display-name/display-name-settings-item";
-import { AccountEmailSettingsItem } from "@/features/account/email-change/email-change-settings-item";
+import { AccountAvatarSettingsItem } from "@/features/account/general/avatar-settings-item";
+import { AccountDeleteAccountSettingsItem } from "@/features/account/general/delete-account-settings-item";
+import { AccountDisplayNameSettingsItem } from "@/features/account/general/display-name-settings-item";
+import { AccountEmailSettingsItem } from "@/features/account/general/email-change-settings-item";
 import {
   accountInnerSidebarItems,
   mapInnerSidebarItems,

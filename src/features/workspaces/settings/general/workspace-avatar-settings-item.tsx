@@ -136,7 +136,7 @@ export function WorkspaceAvatarSettingsItem() {
                     type="button"
                     variant="ghost"
                     size="icon-lg"
-                    className="group relative size-14 rounded-md sm:size-18"
+                    className="group relative size-14 overflow-clip rounded-md sm:size-18"
                     aria-label="Change workspace avatar"
                     disabled={isAvatarUpdating}
                   >
@@ -157,7 +157,7 @@ export function WorkspaceAvatarSettingsItem() {
                             </WorkspaceAvatarFallback>
                           )}
                         </WorkspaceAvatar>
-                        <span className="absolute inset-0 grid place-items-center rounded-md bg-black/0 transition-colors group-hover:bg-black/15 group-focus-visible:bg-black/15">
+                        <span className="absolute inset-0 grid place-items-center bg-black/0 transition-colors group-hover:bg-black/15 group-focus-visible:bg-black/15">
                           <PencilIcon
                             aria-hidden="true"
                             className="size-4 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"

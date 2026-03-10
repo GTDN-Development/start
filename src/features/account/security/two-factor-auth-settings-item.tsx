@@ -7,15 +7,13 @@ import {
   SettingsItemContentHeader,
   SettingsItemDescription,
   SettingsItemTitle,
+  SettingsItemListAction,
+  SettingsItemListContent,
+  SettingsItemListDescription,
+  SettingsItemList,
+  SettingsItemListItem,
+  SettingsItemListTitle,
 } from "@/components/ui/settings-item";
-import {
-  AccountSettingsListAction,
-  AccountSettingsListContent,
-  AccountSettingsListDescription,
-  AccountSettingsList,
-  AccountSettingsListItem,
-  AccountSettingsListTitle,
-} from "../account-settings-list";
 import { StaticPlaceholder } from "@/components/ui/static-placeholder";
 
 export function TwoFactorAuthSettingsItem() {
@@ -37,9 +35,9 @@ export function TwoFactorAuthSettingsItem() {
           </div>
         </div>
         <SettingsItemContentBody>
-          <AccountSettingsList>
+          <SettingsItemList>
             <AuthSettingsItem />
-          </AccountSettingsList>
+          </SettingsItemList>
         </SettingsItemContentBody>
       </SettingsItemContent>
     </SettingsItem>
@@ -49,19 +47,19 @@ export function TwoFactorAuthSettingsItem() {
 function AuthSettingsItem({
   className,
   ...props
-}: {} & React.ComponentProps<typeof AccountSettingsListItem>) {
+}: {} & React.ComponentProps<typeof SettingsItemListItem>) {
   return (
-    <AccountSettingsListItem {...props} className={className}>
-      <AccountSettingsListContent>
-        <AccountSettingsListTitle>One time password</AccountSettingsListTitle>
-        <AccountSettingsListDescription>
+    <SettingsItemListItem {...props} className={className}>
+      <SettingsItemListContent>
+        <SettingsItemListTitle>One time password</SettingsItemListTitle>
+        <SettingsItemListDescription>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi, vero?
-        </AccountSettingsListDescription>
-      </AccountSettingsListContent>
+        </SettingsItemListDescription>
+      </SettingsItemListContent>
 
-      <AccountSettingsListAction>
+      <SettingsItemListAction>
         <Button>Enable</Button>
-      </AccountSettingsListAction>
-    </AccountSettingsListItem>
+      </SettingsItemListAction>
+    </SettingsItemListItem>
   );
 }

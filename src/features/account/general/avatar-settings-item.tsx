@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useAccountProfile } from "@/features/account/account-profile-context";
 import { removeAccountAvatar, uploadAccountAvatar } from "@/features/account/account-client";
-import { prepareAccountAvatarUpload } from "@/features/account/avatar/avatar-image-processing";
+import { prepareAccountAvatarUpload } from "@/features/account/general/avatar-image-processing";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -159,7 +159,7 @@ export function AccountAvatarSettingsItem() {
                     type="button"
                     variant="ghost"
                     size="icon-lg"
-                    className="group relative size-14 rounded-full sm:size-18"
+                    className="group relative size-14 overflow-clip rounded-full sm:size-18"
                     aria-label={t("avatar.buttonLabel")}
                     disabled={isAvatarUpdating}
                   >
@@ -180,7 +180,7 @@ export function AccountAvatarSettingsItem() {
                             </AvatarFallback>
                           )}
                         </Avatar>
-                        <span className="absolute inset-0 grid place-items-center rounded-full bg-black/0 transition-colors group-hover:bg-black/15 group-focus-visible:bg-black/15">
+                        <span className="absolute inset-0 grid place-items-center bg-black/0 transition-colors group-hover:bg-black/15 group-focus-visible:bg-black/15">
                           <PencilIcon
                             aria-hidden="true"
                             className="size-4 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"

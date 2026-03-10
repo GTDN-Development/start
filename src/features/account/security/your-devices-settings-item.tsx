@@ -8,18 +8,16 @@ import {
   SettingsItemDescription,
   SettingsItemFooter,
   SettingsItemTitle,
+  SettingsItemListAction,
+  SettingsItemListContent,
+  SettingsItemListDescription,
+  SettingsItemListMedia,
+  SettingsItemList,
+  SettingsItemListItem,
+  SettingsItemListTitle,
 } from "@/components/ui/settings-item";
 import { detectDeviceType } from "@/lib/device-environment";
 import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
-import {
-  AccountSettingsListAction,
-  AccountSettingsListContent,
-  AccountSettingsListDescription,
-  AccountSettingsListMedia,
-  AccountSettingsList,
-  AccountSettingsListItem,
-  AccountSettingsListTitle,
-} from "../account-settings-list";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -119,11 +117,11 @@ export function YourDevicesSettingsItem() {
           </SettingsItemDescription>
         </SettingsItemContentHeader>
         <SettingsItemContentBody>
-          <AccountSettingsList>
+          <SettingsItemList>
             {MOCK_DEVICES.map((device) => (
               <DeviceItem key={device.id} {...device} />
             ))}
-          </AccountSettingsList>
+          </SettingsItemList>
         </SettingsItemContentBody>
       </SettingsItemContent>
       <SettingsItemFooter className="justify-end">
@@ -187,28 +185,28 @@ function DeviceItem({
   className,
 }: DeviceItemProps) {
   return (
-    <AccountSettingsListItem className={className}>
-      <AccountSettingsListMedia>
+    <SettingsItemListItem className={className}>
+      <SettingsItemListMedia>
         <DeviceIcon device={device} userAgent={userAgent} />
-      </AccountSettingsListMedia>
+      </SettingsItemListMedia>
 
-      <AccountSettingsListContent>
+      <SettingsItemListContent>
         <div className="flex flex-col-reverse items-center justify-center gap-3 @xs:flex-row @xs:items-start @xs:justify-start">
-          <AccountSettingsListTitle>
+          <SettingsItemListTitle>
             {device} - {browser}
-          </AccountSettingsListTitle>
+          </SettingsItemListTitle>
           {isCurrentDevice && <Badge variant={"secondary"}>This device</Badge>}
         </div>
-        <AccountSettingsListDescription>
+        <SettingsItemListDescription>
           {place} - {lastSeenAt}
-        </AccountSettingsListDescription>
-      </AccountSettingsListContent>
+        </SettingsItemListDescription>
+      </SettingsItemListContent>
 
       {!isCurrentDevice && (
-        <AccountSettingsListAction>
+        <SettingsItemListAction>
           <Button variant="secondary">Sign out</Button>
-        </AccountSettingsListAction>
+        </SettingsItemListAction>
       )}
-    </AccountSettingsListItem>
+    </SettingsItemListItem>
   );
 }

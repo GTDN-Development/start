@@ -100,7 +100,9 @@ export function UserAccountMenu({
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/overview" className="w-full cursor-pointer" />}>
+        <DropdownMenuItem
+          render={<Link href="/w/workspace/overview" className="w-full cursor-pointer" />}
+        >
           {labels.overview}
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href="/account" className="w-full cursor-pointer" />}>

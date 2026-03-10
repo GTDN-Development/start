@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
-import { AccountChangePasswordItem } from "@/features/account/password/password-settings-item";
+import { AccountChangePasswordItem } from "@/features/account/security/password-settings-item";
 import {
   accountInnerSidebarItems,
   mapInnerSidebarItems,
@@ -20,8 +20,8 @@ import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-s
 import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
-import { YourDevicesSettingsItem } from "@/features/account/your-devices/your-devices-settings-item";
-import { TwoFactorAuthSettingsItem } from "@/features/account/two-factor-auth/two-factor-auth-settings-item";
+import { YourDevicesSettingsItem } from "@/features/account/security/your-devices-settings-item";
+import { TwoFactorAuthSettingsItem } from "@/features/account/security/two-factor-auth-settings-item";
 // import { YourDevicesSettingsItem } from "@/features/account/your-devices/your-devices-settings-item";
 // import { TwoFactorAuthSettingsItem } from "@/features/account/two-factor-auth/two-factor-auth-settings-item";
 
