@@ -92,10 +92,10 @@ export async function getAllPosts(locale: "cs" | "en"): Promise<BlogPost[]> {
   }
 }
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+export async function getPostBySlug(slug: string, locale: "cs" | "en"): Promise<BlogPost | null> {
   try {
     const items = await fetchPosts({
-      filter: `slug="${escapePBValue(slug)}" && status="published"`,
+      filter: `slug="${escapePBValue(slug)}" && status="published" && locale="${locale}"`,
       perPage: "1",
     });
     const record = items[0];

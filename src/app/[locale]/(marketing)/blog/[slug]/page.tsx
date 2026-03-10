@@ -23,7 +23,7 @@ export async function generateMetadata(
   props: PageProps<"/[locale]/blog/[slug]">
 ): Promise<Metadata> {
   const { locale, slug } = await props.params;
-  const post = await getPostBySlug(slug);
+  const post = await getPostBySlug(slug, locale as "cs" | "en");
 
   if (!post) {
     return {};
@@ -68,7 +68,7 @@ export default async function Page({ params }: PageProps<"/[locale]/blog/[slug]"
 
   const [t, post] = await Promise.all([
     getTranslations({ locale: locale as Locale, namespace: "pages.blog" }),
-    getPostBySlug(slug),
+    getPostBySlug(slug, locale as "cs" | "en"),
   ]);
 
   if (!post) {
@@ -87,7 +87,7 @@ export default async function Page({ params }: PageProps<"/[locale]/blog/[slug]"
         <HeroContent size="md">
           <Link
             href="/blog"
-            className="text-muted-foreground hover:text-foreground mb-6 inline-flex items-center gap-1.5 text-sm transition-colors"
+            className="text-muted-foreground hover:text-foreground mb-6 flex items-center justify-center gap-1.5 text-sm transition-colors"
           >
             <ArrowLeftIcon aria-hidden="true" className="size-4" />
             {t("backToBlog")}
