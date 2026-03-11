@@ -110,14 +110,18 @@ function ComparisonRow({
   );
 }
 
-function MobileComparison({ t }: { t: ReturnType<typeof useTranslations<"pages.pricing">> }) {
+function MobileComparison({
+  t,
+  className,
+  ...props
+}: { t: ReturnType<typeof useTranslations<"pages.pricing">> } & React.ComponentProps<"div">) {
   const [selectedPlan, setSelectedPlan] = useState(1);
   const [open, setOpen] = useState(false);
   const selectedPlanKey = planKeys[selectedPlan];
   const isHighlighted = selectedPlan === highlightedIndex;
 
   return (
-    <div className="md:hidden">
+    <div className={className} {...props}>
       <Collapsible open={open} onOpenChange={setOpen}>
         <div className="flex items-center justify-between border-b py-4">
           <CollapsibleTrigger className="flex items-center gap-2">
@@ -186,9 +190,13 @@ function MobileComparison({ t }: { t: ReturnType<typeof useTranslations<"pages.p
   );
 }
 
-function DesktopComparison({ t }: { t: ReturnType<typeof useTranslations<"pages.pricing">> }) {
+function DesktopComparison({
+  t,
+  className,
+  ...props
+}: { t: ReturnType<typeof useTranslations<"pages.pricing">> } & React.ComponentProps<"div">) {
   return (
-    <div className="max-md:hidden">
+    <div className={className} {...props}>
       <div className="grid grid-cols-5">
         <div className="pt-5 pb-6" />
         {planKeys.map((planKey, i) => (
@@ -257,8 +265,8 @@ export function PricingComparison({ className }: { className?: string }) {
   return (
     <section className={cn("pb-28 lg:py-32", className)}>
       <div className="container max-w-6xl">
-        <MobileComparison t={t} />
-        <DesktopComparison t={t} />
+        <MobileComparison t={t} className="md:hidden" />
+        <DesktopComparison t={t} className="max-md:hidden" />
       </div>
     </section>
   );

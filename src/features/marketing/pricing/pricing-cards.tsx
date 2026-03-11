@@ -21,6 +21,8 @@ function PricingCard({
   ctaHref,
   isAnnual,
   onToggleBilling,
+  className,
+  ...props
 }: {
   planKey: PlanKey;
   highlighted: boolean;
@@ -29,13 +31,20 @@ function PricingCard({
   ctaHref: string;
   isAnnual: boolean;
   onToggleBilling: () => void;
-}) {
+} & React.ComponentProps<typeof Card>) {
   const t = useTranslations("pages.pricing");
   const price = isAnnual ? t(`plans.${planKey}.yearlyPrice`) : t(`plans.${planKey}.monthlyPrice`);
-  const period = isAnnual ? t("billing.annual").toLowerCase() : t("billing.monthly").toLowerCase();
+  const period = t("billing.monthly").toLowerCase();
 
   return (
-    <Card className={cn("rounded-xl", highlighted && "ring-primary relative z-10 ring-2 xl:-my-4")}>
+    <Card
+      className={cn(
+        "rounded-xl",
+        highlighted && "ring-primary relative z-10 ring-2 xl:-my-4",
+        className
+      )}
+      {...props}
+    >
       <CardContent className={cn("flex h-full flex-col gap-7 px-6 py-5", highlighted && "lg:py-9")}>
         <div className="space-y-2">
           <h3 className="text-foreground font-semibold">{t(`plans.${planKey}.name`)}</h3>
@@ -78,11 +87,11 @@ function PricingCard({
   );
 }
 
-export function PricingCards({ className }: { className?: string }) {
+export function PricingCards({ className, ...props }: React.ComponentProps<"section">) {
   const [isAnnual, setIsAnnual] = useState(true);
 
   return (
-    <section className={cn("py-28 lg:py-24", className)}>
+    <section className={cn("py-28 lg:py-24", className)} {...props}>
       <div className="container max-w-6xl">
         <div className="grid gap-4 text-start md:grid-cols-2 xl:grid-cols-4">
           {plans.map((plan) => (
