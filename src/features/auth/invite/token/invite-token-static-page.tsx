@@ -21,7 +21,6 @@ import { useRouter } from "@/i18n/navigation";
 type InviteTokenState =
   | "loading"
   | "auth_required"
-  | "accepting"
   | "success"
   | "already_member"
   | "blocked"
@@ -58,7 +57,6 @@ type InviteTokenMockContext = {
 const DEV_PREVIEW_OPTIONS = [
   "loading",
   "auth_required",
-  "accepting",
   "success",
   "already_member",
   "blocked",
@@ -81,8 +79,9 @@ export function InviteTokenStaticPage() {
   const t = useTranslations("pages.inviteToken");
   const router = useRouter();
   const [previewState, setPreviewState] = useState<InviteTokenPreviewState>("auth_required");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const showDevStateSwitcher = process.env.NODE_ENV !== "production";
-  const viewModel = createInviteTokenViewModel(previewState, MOCK_INVITE_CONTEXT);
+  const viewModel = createInviteTokenViewModel(previewState, MOCK_INVITE_CONTEXT, isSubmitting);
   const shouldRedirectToWorkspace = previewState === "success" && !showDevStateSwitcher;
 
   useEffect(() => {
@@ -101,6 +100,7 @@ export function InviteTokenStaticPage() {
           value={previewState}
           onChange={(event) => {
             setPreviewState(parseInviteTokenPreviewState(event.target.value));
+            setIsSubmitting(false);
           }}
           className="mx-auto"
         >
@@ -151,7 +151,13 @@ export function InviteTokenStaticPage() {
         )}
 
         {viewModel.ctaLabelKey && (
-          <Button type="button" size="lg" className="mt-6 w-full" disabled={viewModel.ctaDisabled}>
+          <Button
+            type="button"
+            size="lg"
+            className="mt-6 w-full"
+            disabled={viewModel.ctaDisabled}
+            onClick={handlePrimaryActionClick}
+          >
             {viewModel.ctaLoading && <Spinner />}
             {t.rich(viewModel.ctaLabelKey, {
               ...viewModel.ctaLabelValues,
@@ -162,6 +168,18 @@ export function InviteTokenStaticPage() {
       </div>
     </div>
   );
+
+  function handlePrimaryActionClick() {
+    if (previewState !== "auth_required" || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    window.setTimeout(() => {
+      setIsSubmitting(false);
+    }, 1200);
+  }
 }
 
 function parseInviteTokenPreviewState(value: string): InviteTokenPreviewState {
@@ -178,94 +196,82 @@ function isInviteTokenPreviewState(value: string): value is InviteTokenPreviewSt
 
 function createInviteTokenViewModel(
   state: InviteTokenState,
-  inviteContext: InviteTokenMockContext
+  inviteContext: InviteTokenMockContext,
+  isSubmitting: boolean
 ): InviteTokenViewModel {
-  switch (state) {
-    case "loading":
-      return {
-        visual: "loading",
-        titleKey: "states.loading.title",
-        descriptionKey: "states.loading.description",
-      };
-    case "auth_required":
-      return {
-        visual: "avatar",
-        titleKey: "states.auth_required.title",
-        descriptionKey: "states.auth_required.description",
-        descriptionValues: {
-          workspace: inviteContext.workspaceName,
-        },
-        secondaryDescriptionKey: "states.auth_required.invitedBy",
-        secondaryDescriptionValues: {
-          inviter: inviteContext.invitedByName,
-        },
-        ctaLabelKey: "shared.continueAs",
-        ctaLabelValues: {
-          email: inviteContext.currentEmail,
-        },
-      };
-    case "accepting":
-      return {
-        visual: "avatar",
-        titleKey: "states.auth_required.title",
-        descriptionKey: "states.auth_required.description",
-        descriptionValues: {
-          workspace: inviteContext.workspaceName,
-        },
-        secondaryDescriptionKey: "states.auth_required.invitedBy",
-        secondaryDescriptionValues: {
-          inviter: inviteContext.invitedByName,
-        },
-        ctaLabelKey: "shared.continueAs",
-        ctaLabelValues: {
-          email: inviteContext.currentEmail,
-        },
-        ctaDisabled: true,
-        ctaLoading: true,
-      };
-    case "success":
-      return {
-        visual: "success",
-        titleKey: "states.success.title",
-        descriptionKey: "states.success.description",
-        descriptionValues: {
-          workspace: inviteContext.workspaceName,
-        },
-      };
-    case "already_member":
-      return {
-        visual: "avatar",
-        titleKey: "states.already_member.title",
-        titleValues: {
-          workspace: inviteContext.workspaceName,
-        },
-        ctaLabelKey: "states.already_member.cta",
-      };
-    case "blocked":
-      return {
-        visual: "blocked",
-        titleKey: "states.blocked.title",
-        descriptionKey: "states.blocked.description",
-      };
-    case "email_mismatch":
-      return {
-        visual: "warning",
-        titleKey: "states.email_mismatch.title",
-        descriptionKey: "states.email_mismatch.description",
-        secondaryDescriptionKey: "states.email_mismatch.secondary",
-        secondaryDescriptionValues: {
-          invitedEmail: inviteContext.invitedEmail,
-          currentEmail: inviteContext.mismatchedEmail,
-        },
-        ctaLabelKey: "states.email_mismatch.cta",
-      };
-    case "error":
-      return {
-        visual: "error",
-        titleKey: "states.error.title",
-        descriptionKey: "states.error.description",
-      };
-  }
+  const authRequiredViewModel = createAuthRequiredViewModel(inviteContext, isSubmitting);
+
+  const stateViewModelMap: Record<InviteTokenState, InviteTokenViewModel> = {
+    loading: {
+      visual: "loading",
+      titleKey: "states.loading.title",
+      descriptionKey: "states.loading.description",
+    },
+    auth_required: authRequiredViewModel,
+    success: {
+      visual: "success",
+      titleKey: "states.success.title",
+      descriptionKey: "states.success.description",
+      descriptionValues: {
+        workspace: inviteContext.workspaceName,
+      },
+    },
+    already_member: {
+      visual: "avatar",
+      titleKey: "states.already_member.title",
+      titleValues: {
+        workspace: inviteContext.workspaceName,
+      },
+      ctaLabelKey: "states.already_member.cta",
+    },
+    blocked: {
+      visual: "blocked",
+      titleKey: "states.blocked.title",
+      descriptionKey: "states.blocked.description",
+    },
+    email_mismatch: {
+      visual: "warning",
+      titleKey: "states.email_mismatch.title",
+      descriptionKey: "states.email_mismatch.description",
+      secondaryDescriptionKey: "states.email_mismatch.secondary",
+      secondaryDescriptionValues: {
+        invitedEmail: inviteContext.invitedEmail,
+        currentEmail: inviteContext.mismatchedEmail,
+      },
+      ctaLabelKey: "states.email_mismatch.cta",
+    },
+    error: {
+      visual: "error",
+      titleKey: "states.error.title",
+      descriptionKey: "states.error.description",
+    },
+  };
+
+  return stateViewModelMap[state];
+}
+
+function createAuthRequiredViewModel(
+  inviteContext: InviteTokenMockContext,
+  isSubmitting: boolean
+): InviteTokenViewModel {
+  return {
+    visual: "avatar",
+    titleKey: "states.auth_required.title",
+    descriptionKey: "states.auth_required.description",
+    descriptionValues: {
+      workspace: inviteContext.workspaceName,
+    },
+    secondaryDescriptionKey: "states.auth_required.invitedBy",
+    secondaryDescriptionValues: {
+      inviter: inviteContext.invitedByName,
+    },
+    ctaLabelKey: "shared.continueAs",
+    ctaLabelValues: {
+      email: inviteContext.currentEmail,
+    },
+    ctaDisabled: isSubmitting,
+    ctaLoading: isSubmitting,
+  };
 }
 
 function InviteTokenVisual({
@@ -279,7 +285,7 @@ function InviteTokenVisual({
 }) {
   if (visual === "avatar") {
     return (
-      <WorkspaceAvatar aria-label={workspaceName} title={workspaceName} className="size-14">
+      <WorkspaceAvatar size="lg" aria-label={workspaceName} title={workspaceName}>
         <WorkspaceAvatarFallback>{workspaceInitials}</WorkspaceAvatarFallback>
       </WorkspaceAvatar>
     );
