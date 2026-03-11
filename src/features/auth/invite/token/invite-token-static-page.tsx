@@ -9,7 +9,6 @@ import {
   LoaderCircleIcon,
   TriangleAlertIcon,
 } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Spinner } from "@/components/ui/spinner";
@@ -33,13 +32,6 @@ type InviteTokenVisual = "avatar" | "loading" | "success" | "blocked" | "warning
 
 type InviteTokenTranslationValues = Record<string, string>;
 
-type InviteTokenAlert = {
-  variant?: "default" | "destructive";
-  titleKey: string;
-  descriptionKey: string;
-  descriptionValues?: InviteTokenTranslationValues;
-};
-
 type InviteTokenViewModel = {
   visual: InviteTokenVisual;
   titleKey: string;
@@ -52,7 +44,6 @@ type InviteTokenViewModel = {
   ctaLabelValues?: InviteTokenTranslationValues;
   ctaDisabled?: boolean;
   ctaLoading?: boolean;
-  alert?: InviteTokenAlert;
 };
 
 type InviteTokenMockContext = {
@@ -168,21 +159,6 @@ export function InviteTokenStaticPage() {
             })}
           </Button>
         )}
-
-        {viewModel.alert && (
-          <Alert variant={viewModel.alert.variant} className="mt-4 text-left">
-            <TriangleAlertIcon aria-hidden="true" />
-            <AlertTitle>{t(viewModel.alert.titleKey)}</AlertTitle>
-            <AlertDescription>
-              {t.rich(viewModel.alert.descriptionKey, {
-                ...viewModel.alert.descriptionValues,
-                strong: (chunks) => (
-                  <strong className="text-foreground font-semibold">{chunks}</strong>
-                ),
-              })}
-            </AlertDescription>
-          </Alert>
-        )}
       </div>
     </div>
   );
@@ -270,38 +246,24 @@ function createInviteTokenViewModel(
         visual: "blocked",
         titleKey: "states.blocked.title",
         descriptionKey: "states.blocked.description",
-        ctaLabelKey: "states.blocked.cta",
-        alert: {
-          titleKey: "states.blocked.alert.title",
-          descriptionKey: "states.blocked.alert.description",
-        },
       };
     case "email_mismatch":
       return {
         visual: "warning",
         titleKey: "states.email_mismatch.title",
         descriptionKey: "states.email_mismatch.description",
-        ctaLabelKey: "states.email_mismatch.cta",
-        alert: {
-          titleKey: "states.email_mismatch.alert.title",
-          descriptionKey: "states.email_mismatch.alert.description",
-          descriptionValues: {
-            invitedEmail: inviteContext.invitedEmail,
-            currentEmail: inviteContext.mismatchedEmail,
-          },
+        secondaryDescriptionKey: "states.email_mismatch.secondary",
+        secondaryDescriptionValues: {
+          invitedEmail: inviteContext.invitedEmail,
+          currentEmail: inviteContext.mismatchedEmail,
         },
+        ctaLabelKey: "states.email_mismatch.cta",
       };
     case "error":
       return {
         visual: "error",
         titleKey: "states.error.title",
         descriptionKey: "states.error.description",
-        ctaLabelKey: "states.error.cta",
-        alert: {
-          variant: "destructive",
-          titleKey: "states.error.alert.title",
-          descriptionKey: "states.error.alert.description",
-        },
       };
   }
 }

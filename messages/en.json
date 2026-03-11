@@ -199,16 +199,16 @@
       "states": {
         "loading": {
           "title": "Checking invitation link",
-          "description": "Please wait while we validate this invitation."
+          "description": "Validating invitation link."
         },
         "auth_required": {
           "title": "Join workspace",
-          "description": "You've been invited to join <strong>{workspace}</strong>. Continue to accept this invitation.",
+          "description": "You've been invited to <strong>{workspace}</strong>.",
           "invitedBy": "Invited by <strong>{inviter}</strong>"
         },
         "success": {
           "title": "Invitation accepted",
-          "description": "You're now a member of <strong>{workspace}</strong>. Redirecting to workspace..."
+          "description": "You're now a member of <strong>{workspace}</strong>. Redirecting..."
         },
         "already_member": {
           "title": "You're already a member of <strong>{workspace}</strong>",
@@ -216,30 +216,17 @@
         },
         "blocked": {
           "title": "Invitation unavailable",
-          "description": "This invitation cannot be used anymore.",
-          "cta": "Go to overview",
-          "alert": {
-            "title": "Invitation is blocked",
-            "description": "The invitation may be invalid, expired, revoked, unavailable, or already accepted."
-          }
+          "description": "This invitation can't be used. It may be invalid, expired, revoked, unavailable, or already accepted."
         },
         "email_mismatch": {
           "title": "Email mismatch",
-          "description": "This invitation can only be accepted with the invited email address.",
-          "cta": "Sign out and continue with another account",
-          "alert": {
-            "title": "Use the invited account",
-            "description": "Invited: <strong>{invitedEmail}</strong>. Current: <strong>{currentEmail}</strong>."
-          }
+          "description": "Use the invited email address.",
+          "secondary": "Invited: <strong>{invitedEmail}</strong>. Current: <strong>{currentEmail}</strong>.",
+          "cta": "Sign out and continue with another account"
         },
         "error": {
           "title": "Unexpected error",
-          "description": "We couldn't process this invitation right now.",
-          "cta": "Try again",
-          "alert": {
-            "title": "Try again later",
-            "description": "If the problem persists, ask the workspace owner to send a new invitation link."
-          }
+          "description": "We couldn't process this invitation. Try again, or ask the workspace owner for a new link."
         }
       }
     },

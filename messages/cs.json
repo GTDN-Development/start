@@ -199,16 +199,16 @@
       "states": {
         "loading": {
           "title": "Ověřujeme odkaz pozvánky",
-          "description": "Počkejte prosím, ověřujeme platnost pozvánky."
+          "description": "Ověřujeme platnost pozvánky."
         },
         "auth_required": {
           "title": "Připojit se do workspace",
-          "description": "Byli jste pozváni do workspace <strong>{workspace}</strong>. Pokračujte a potvrďte pozvánku.",
+          "description": "Byli jste pozváni do workspace <strong>{workspace}</strong>.",
           "invitedBy": "Pozval vás <strong>{inviter}</strong>"
         },
         "success": {
           "title": "Pozvánka přijata",
-          "description": "Už jste členem workspace <strong>{workspace}</strong>. Přesměrováváme do workspace..."
+          "description": "Už jste členem workspace <strong>{workspace}</strong>. Přesměrováváme..."
         },
         "already_member": {
           "title": "Už jste členem workspace <strong>{workspace}</strong>",
@@ -216,30 +216,17 @@
         },
         "blocked": {
           "title": "Pozvánka není dostupná",
-          "description": "Tuto pozvánku už nelze použít.",
-          "cta": "Přejít na přehled",
-          "alert": {
-            "title": "Pozvánka je zablokovaná",
-            "description": "Pozvánka může být neplatná, expirovaná, zrušená, nedostupná nebo už použitá."
-          }
+          "description": "Tuto pozvánku už nelze použít. Může být neplatná, expirovaná, zrušená, nedostupná nebo už použitá."
         },
         "email_mismatch": {
           "title": "E-mail nesouhlasí",
-          "description": "Tuto pozvánku lze přijmout jen s pozvanou e-mailovou adresou.",
-          "cta": "Odhlásit se a pokračovat jiným účtem",
-          "alert": {
-            "title": "Použijte pozvaný účet",
-            "description": "Pozvánka: <strong>{invitedEmail}</strong>. Aktuálně přihlášený účet: <strong>{currentEmail}</strong>."
-          }
+          "description": "Použijte pozvanou e-mailovou adresu.",
+          "secondary": "Pozvánka: <strong>{invitedEmail}</strong>. Aktuální účet: <strong>{currentEmail}</strong>.",
+          "cta": "Odhlásit se a pokračovat jiným účtem"
         },
         "error": {
           "title": "Neočekávaná chyba",
-          "description": "Pozvánku se teď nepodařilo zpracovat.",
-          "cta": "Zkusit znovu",
-          "alert": {
-            "title": "Zkuste to později",
-            "description": "Pokud problém přetrvá, požádejte vlastníka workspace o zaslání nové pozvánky."
-          }
+          "description": "Pozvánku se nepodařilo zpracovat. Zkuste to znovu, nebo požádejte vlastníka workspace o nový odkaz."
         }
       }
     },
