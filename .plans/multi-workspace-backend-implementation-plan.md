@@ -265,6 +265,12 @@ Bezpečnost:
 3. Doménové `WorkspaceErrorCode`: `WORKSPACE_MEMBERSHIP_REQUIRED`, `WORKSPACE_SLUG_CONFLICT`, `PERSONAL_WORKSPACE_RESTRICTED`, `LAST_OWNER_GUARD`, `ALREADY_MEMBER`, `INVITE_NOT_FOUND`, `INVITE_EXPIRED`, `INVITE_EMAIL_MISMATCH`, `INVITE_ALREADY_CONSUMED`, `OWNERSHIP_TRANSFER_PARTIAL`.
 4. Error kódy jsou stabilní kontrakt pro UI i i18n (`messages/en.json`, `messages/cs.json`).
 
+## 6.5 API security baseline (workspace routes)
+
+1. Každý mutační workspace endpoint (`POST`, `PATCH`, `DELETE`) musí mít `hasValidOrigin` check.
+2. Nevalidní nebo chybějící `Origin` vrací `BAD_REQUEST` (`400`).
+3. Toto pravidlo platí pro `src/app/api/workspaces/*` i `src/app/api/workspace-invites/*`.
+
 ## 7. Integrace do existující auth flow (plugin mode)
 
 ## 7.1 Post-auth hook
@@ -273,6 +279,11 @@ Bezpečnost:
 2. Pokud pending invite není, nic se neděje.
 3. Pokud je invite validní a email sedí, membership se vytvoří idempotentně + invite smaže.
 4. Pokud email nesedí, pending cookie se smaže a nastaví se flash kód `INVITE_EMAIL_MISMATCH`.
+5. Hook je vůči auth flow fail-open: `sign-in`/`sign-up` nesmí failnout kvůli workspace hook chybě.
+6. Hook vrací explicitní stav (`none`, `consumed`, `email_mismatch`, `invalid_or_expired`, `transient_error`).
+7. `email_mismatch` a `invalid_or_expired` vždy clearují `pending_invite_hash`.
+8. `transient_error` se pouze zaloguje (warning), auth pokračuje a retry proběhne best-effort v `/overview` bootstrapu.
+9. Hook má mít vlastní krátký timeout, aby nebrzdil auth endpointy.
 
 ## 7.2 Auth formuláře
 
@@ -366,6 +377,8 @@ Bezpečnost:
 10. E2E flow: invite email mismatch.
 11. E2E flow: last owner guard.
 12. E2E flow: personal workspace restrictions.
+13. Security test: cross-origin `POST/PATCH/DELETE` na workspace API vrací `400`.
+14. Auth resilience test: při `transient_error` z `consumePendingInviteIfAny` zůstane `sign-in`/`sign-up` `ok: true`.
 
 ## 12. Implementační etapy
 
