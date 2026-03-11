@@ -24,13 +24,18 @@ Cíl: převést statické `Your Devices` na produkční backend jako plugin nad 
 1. `src/server/device-sessions/device-sessions-service.ts`
 2. `src/server/device-sessions/device-sessions-types.ts`
 3. `src/server/device-sessions/device-sessions-cookie.ts`
-4. `src/server/device-sessions/device-sessions-plugin.ts`
-5. `src/features/account/security/device-sessions-contract.ts`
-6. `src/features/account/security/device-sessions-client.ts`
-7. `src/app/api/account/devices/route.ts` (`GET` list + `POST` sign-out-others)
-8. `src/app/api/account/devices/[deviceSessionId]/route.ts` (`DELETE` sign-out konkrétního zařízení)
+4. `src/server/device-sessions/device-sessions-ua-parser.ts`
+5. `src/server/device-sessions/device-sessions-auth-check.ts`
+6. `src/server/device-sessions/device-sessions-plugin.ts`
+7. `src/features/account/security/device-sessions-contract.ts`
+8. `src/features/account/security/device-sessions-client.ts`
+9. `src/app/api/account/devices/route.ts` (`GET` list)
+10. `src/app/api/account/devices/sign-out-others/route.ts` (`POST` sign-out-others)
+11. `src/app/api/account/devices/[deviceSessionId]/route.ts` (`DELETE` sign-out konkrétního zařízení)
 
-Poznámka: volání pluginu bude jen z centrálních auth míst (`auth-service.ts`, `account-service.ts`, `api/account/devices/*`).
+Poznámka:
+1. `device-sessions-auth-check.ts` je sdílený helper pro obě auth-check cesty (`auth-service.ts` i `account-service.ts`), aby logika nebyla duplicitní.
+2. `device-sessions-ua-parser.ts` je lightweight server-side parser `User-Agent` pro `device_label`, `device_type`, `browser`, `os`.
 
 ## 4. PocketBase kolekce
 
@@ -49,7 +54,7 @@ Poznámka: volání pluginu bude jen z centrálních auth míst (`auth-service.t
 7. `user_agent` (text, optional, max 500)
 8. `ip_masked` (text, optional, max 64) - např. `"89.24.xx.xx"`
 9. `ip_hash` (text, optional, max 64) - SHA-256(salt + ip)
-10. `location_label` (text, optional, max 120) - např. `"Prague, CZ"`
+10. `location_label` (text, optional, max 120)
 11. `last_seen_at` (date, required)
 12. `expires_at` (date, required)
 13. `revoked_at` (date, optional)
@@ -59,6 +64,7 @@ Poznámka: volání pluginu bude jen z centrálních auth míst (`auth-service.t
 Doporučení:
 1. `session_id_hash` a `ip_hash` nikdy neposílat do klienta.
 2. `user_agent` držet pro diagnostiku, ale v UI použít uživatelsky čitelné `device_label`.
+3. `location_label` je Phase 2; v první fázi se neplní, dokud nebude vybraný geolocation provider.
 
 ## 4.3 Indexy
 
@@ -100,7 +106,7 @@ Delete rule:
 ```
 
 Pracovní pravidlo:
-1. Přes app client nikdy nevolat PocketBase přímo; všechny operace jdou přes `api/account/devices`.
+1. Přes app client nikdy nevolat PocketBase přímo; všechny operace jdou přes `api/account/devices*`.
 2. Rules jsou fallback ochrana, hlavní business pravidla vynucuje server service.
 
 ## 5. Pravidla práce s daty (produkční lifecycle)
@@ -112,37 +118,47 @@ Pracovní pravidlo:
 3. Cookie životnost:
 4. `rememberMe=true`: persistent (např. 90 dní)
 5. `rememberMe=false`: session cookie
+6. Sign-up flow aktuálně nemá `rememberMe`; v první fázi bude `app_device_session` při sign-up persistent, aby byl v souladu se stávajícím auth chováním.
 
 ## 5.2 Registrace/obnova session
 
 1. Po úspěšném `sign-in` a `sign-up` volat plugin hook `registerOrRefreshDeviceSession`.
 2. Hook vytvoří nebo aktualizuje record podle `session_id_hash` + `user`.
 3. Vždy nastaví `last_seen_at = now`, `expires_at`, metadata zařízení.
-4. Následně spustí `enforceDeviceLimit(userId)`.
+4. Metadata se parsují na serveru z request headers (`User-Agent`, IP) přes `device-sessions-ua-parser.ts`.
+5. Následně hook spustí `enforceDeviceLimit(userId)`.
 
-## 5.3 Kontrola session při auth guardu
+## 5.3 Kontrola session při auth guardu (dvě cesty)
 
-1. V `getApiAuthSession`, `getServerAuthSession` a `requireCurrentUser` doplnit plugin check:
-2. když `pb_auth` existuje, ale `app_device_session` chybí/neexistuje/revoked/expires => považovat session za neplatnou
-3. vrátit unauthenticated a vyčistit auth cookies + device cookie
-4. Na každém requestu dělat heartbeat s debounce (např. max 1x za 5 min na session).
+1. Zavést sdílený helper `validateDeviceSessionOrInvalidate` v `device-sessions-auth-check.ts`.
+2. Cesta A: API/route handlers (`getApiAuthSession`, `requireCurrentUser`) při invalidní device session vrací `UNAUTHORIZED` a nastaví `setCookie` pro vyčištění `pb_auth`, `pb_auth_persist`, `app_device_session`.
+3. Cesta B: server render (`getServerAuthSession`) při invalidní device session vrací `session: null` + `deviceInvalidated: true` a caller provede `redirect("/sign-in")`.
+4. `getServerAuthSession` se nepoužije jako místo pro přímé mazání cookies; clearing zajišťuje API path při nejbližším auth requestu.
 
-## 5.4 Sign-out chování
+## 5.4 Heartbeat (debounce, serverless-safe)
 
-1. `sign-out` (current device): nastaví `revoked_at=now`, `revoked_reason=signed_out`, vyčistí obě cookie.
-2. `sign-out other devices`: revokuje všechny aktivní sessions uživatele kromě current (`signed_out_others`).
-3. `sign-out specific device`: revokuje cílový record (pokud není current).
+1. Debounce není in-memory.
+2. Mechanismus: načti record, pokud `last_seen_at < now - DEVICE_SESSION_HEARTBEAT_MIN_SECONDS`, proveď update, jinak write přeskoč.
+3. Tento check běží v rámci shared auth-check helperu.
 
-## 5.5 Omezování počtu zařízení (future-proof na 3)
+## 5.5 Sign-out chování
+
+1. `sign-out` (current device) musí běžet v pořadí: načíst auth identitu + přečíst `app_device_session` -> revokovat session record (`revoked_at=now`, `revoked_reason=signed_out`) -> vyčistit cookie.
+2. Revokace se provádí před `createClearedPocketBaseAuthCookies`, jinak není dostupná session identita.
+3. `sign-out other devices`: revokuje všechny aktivní sessions uživatele kromě current (`signed_out_others`).
+4. `sign-out specific device`: revokuje cílový record (blokovat revoke current).
+
+## 5.6 Omezování počtu zařízení (future-proof na 3)
 
 1. Env `AUTH_MAX_ACTIVE_DEVICE_SESSIONS` (doporučený start `5`).
 2. `enforceDeviceLimit` drží max N aktivních sessions (`revoked_at IS NULL`, `expires_at > now`).
 3. Pokud je aktivních víc než N, revokují se nejstarší podle `last_seen_at ASC` (nikdy current).
-4. Pro budoucí limit 3 stačí změna env na `3`; žádná změna schématu/API.
+4. Při souběžných loginech je enforce best-effort; případný krátkodobý přesah limitu srovná další login/heartbeat.
+5. Pro budoucí limit 3 stačí změna env na `3`; žádná změna schématu/API.
 
-## 5.6 Čištění starých záznamů
+## 5.7 Čištění starých záznamů
 
-1. Opportunistic cleanup spouštět při `sign-in`, `GET /api/account/devices` a `sign-out-others`.
+1. Opportunistic cleanup spouštět při `sign-in`, `GET /api/account/devices` a `POST /api/account/devices/sign-out-others`.
 2. Pravidla cleanupu:
 3. hard-delete revoked records starší než `DEVICE_SESSION_REVOKED_RETENTION_DAYS` (např. 30)
 4. hard-delete expired records starší než `DEVICE_SESSION_EXPIRED_RETENTION_DAYS` (např. 7)
@@ -152,11 +168,10 @@ Pracovní pravidlo:
 
 1. `GET /api/account/devices`
 2. response: seznam aktivních sessions uživatele (max N), `isCurrentDevice` flag
-3. `POST /api/account/devices`
-4. action: `"sign-out-others"`
-5. effect: revokace všech ostatních aktivních sessions
-6. `DELETE /api/account/devices/[deviceSessionId]`
-7. effect: revokace jedné session (blokovat revoke current)
+3. `POST /api/account/devices/sign-out-others`
+4. effect: revokace všech ostatních aktivních sessions
+5. `DELETE /api/account/devices/[deviceSessionId]`
+6. effect: revokace jedné session (blokovat revoke current)
 
 Error codes (stejný styl jako auth):
 1. `UNAUTHORIZED`
@@ -170,7 +185,7 @@ Error codes (stejný styl jako auth):
 1. Nahradit `MOCK_DEVICES` daty z `device-sessions-client.ts`.
 2. Zobrazit pouze aktivní sessions (`revoked_at = null`, `expires_at > now`).
 3. `Sign out` tlačítko na řádku volá `DELETE /api/account/devices/[id]`.
-4. `Sign out from all devices` volá `POST /api/account/devices` s akcí `sign-out-others`.
+4. `Sign out from all devices` volá `POST /api/account/devices/sign-out-others`.
 5. UI copy přes `messages/en.json` + `messages/cs.json` (žádné hardcoded stringy).
 6. Pokud po revokaci current session dojde k invalidaci, klient přesměruje na `/sign-in`.
 
@@ -183,6 +198,7 @@ Error codes (stejný styl jako auth):
 5. při selhání device plugin write operace neblokovat sign-in/sign-up
 6. při explicitních device akcích (`sign-out-others`, `revoke`) failnout s chybou
 7. Service API držet malé a explicitní (max 6-8 veřejných metod).
+8. Rotace `DEVICE_SESSION_PEPPER` je supported, ale invaliduje všechny existující device sessions.
 
 ## 9. Testovací strategie
 
@@ -191,12 +207,13 @@ Error codes (stejný styl jako auth):
 3. API integration testy:
 4. `GET /api/account/devices`
 5. `DELETE /api/account/devices/[id]`
-6. `POST /api/account/devices` sign-out-others
+6. `POST /api/account/devices/sign-out-others`
 7. Auth integration testy:
 8. sign-in registruje session
-9. sign-out current ji revokuje
-10. revoked session je na dalším requestu odhlášena
-11. limit N funguje deterministicky (N+1 loginů -> jen N aktivních)
+9. sign-out current ji revokuje v pořadí revoke -> clear cookies
+10. revoked/expired device session je na dalším requestu odhlášena
+11. limit N funguje deterministicky (N+1 loginů -> nejvýš N aktivních po následném enforce)
+12. server-render path při `deviceInvalidated` přesměruje na `/sign-in`
 
 ## 10. Implementační etapy
 
@@ -209,13 +226,14 @@ Error codes (stejný styl jako auth):
 
 ## Etapa B: Server plugin
 
-1. Implementovat `device-sessions-cookie.ts` + `device-sessions-service.ts`.
-2. Napojit hooky do `signInWithPassword`, `signUpWithPassword`, `signOutServerSession`.
-3. Přidat guard check do `getApiAuthSession`, `getServerAuthSession`, `requireCurrentUser`.
+1. Implementovat `device-sessions-cookie.ts`, `device-sessions-ua-parser.ts`, `device-sessions-service.ts`.
+2. Přidat `device-sessions-auth-check.ts` a používat ho v `getApiAuthSession`, `getServerAuthSession`, `requireCurrentUser`.
+3. Napojit hooky do `signInWithPassword`, `signUpWithPassword`, `signOutServerSession`.
+4. V `signOutServerSession` zavést sekvenci `identify -> revoke -> clear cookies`.
 
 ## Etapa C: Account API + UI
 
-1. Přidat `api/account/devices` endpointy.
+1. Přidat endpointy `api/account/devices`, `api/account/devices/sign-out-others`, `api/account/devices/[deviceSessionId]`.
 2. Napojit `your-devices-settings-item.tsx` na reálná data a akce.
 3. Dodat i18n texty (`messages/en.json`, `messages/cs.json`).
 
@@ -232,6 +250,11 @@ Error codes (stejný styl jako auth):
 3. `DEVICE_SESSION_HEARTBEAT_MIN_SECONDS=300`
 4. `DEVICE_SESSION_REVOKED_RETENTION_DAYS=30`
 5. `DEVICE_SESSION_EXPIRED_RETENTION_DAYS=7`
+6. `DEVICE_SESSION_PEPPER=<crypto-random-secret>`
+
+Poznámka:
+1. `DEVICE_SESSION_PEPPER` musí být dlouhý kryptograficky náhodný secret.
+2. Jeho rotace invaliduje všechny existující device sessions.
 
 ## 12. Vztah k multi-workspace plánu
 

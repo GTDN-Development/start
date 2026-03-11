@@ -266,6 +266,13 @@ Poznamka k rozsahu: tento plan bere jako cilovy stav auth a account auth flows, 
 21. lazy init pouze pri prvnim mountu `useSession()`
 22. zustava dormantni, pokud `useSession()` nikde neni mounted
 
+23. Dulezite architekturicke rozhodnuti:
+24. `ApplicationLayout` a `MarketingLayout` zustanou server-driven (session pres `getServerAuthSession()`),
+25. nebudou primarne napojene na `useSession()` kvuli:
+26. redundantnimu klientskemu fetchi po SSR renderu,
+27. riziku hydration mismatch/flicker stavu `idle -> loading`,
+28. a dvojimu zdroji pravdy (server props vs client session store).
+
 ## 10. Guarding a routing
 
 1. `auth-routes.ts`:
@@ -359,9 +366,11 @@ Poznamka k rozsahu: tento plan bere jako cilovy stav auth a account auth flows, 
 3. Origin check na vsech mutacnich auth/account API routech.
 4. Fail-closed behavior pro invalid auth tokeny.
 5. Cookie clear pri stale/invalid auth situacich.
-6. Transient PB outage:
-7. session endpoint vraci stale session z JWT (kdyz to je bezpecne mozne)
-8. nezpusobovat okamzite forced logout pri kratkem vypadku PB
+6. `signIn` pri beznych/chvili trvajicich chybach nema preventivne mazat auth cookie.
+7. Cookie clear pri sign-in chybe pouze pokud request zacinal s prokazatelne invalid cookie (`hadInvalidAuthCookie`).
+8. Transient PB outage:
+9. session endpoint vraci stale session z JWT (kdyz to je bezpecne mozne)
+10. nezpusobovat okamzite forced logout pri kratkem vypadku PB
 
 ## 14. Implementacni etapy (from scratch)
 
