@@ -54,14 +54,11 @@ Použití: odškrtávej položky postupně při implementaci/verifikaci. Každá
 - [ ] Flow: Audit kritických akcí (invite create/revoke/accept, role change, workspace delete). | Očekávaný výsledek: Akce jsou zalogované bez úniku tokenů/hashů.
 - [ ] Flow: Logování citlivých dat. | Očekávaný výsledek: Raw token ani `token_hash` se nikdy neobjeví v logu.
 
-## 8) Testy + rollout
-- [ ] Flow: Unit testy `workspace-service` a `workspace-invite-service`. | Očekávaný výsledek: Pokrývají happy path i edge casy.
-- [ ] Flow: API integration testy workspace mutací. | Očekávaný výsledek: Pokryté create/switch/leave/delete/invite/role/transfer flow.
-- [ ] Flow: E2E scénáře (signup bootstrap, switch, invite cold flow, mismatch, last-owner, personal restrictions). | Očekávaný výsledek: Všechny kritické uživatelské cesty jsou zelené.
-- [ ] Flow: Security test cross-origin mutací. | Očekávaný výsledek: `POST/PATCH/DELETE` na workspace API vrací `400`.
-- [ ] Flow: Auth regression testy (`sign-in/sign-up/sign-out/session`). | Očekávaný výsledek: Vše zelené i se zapnutým workspace pluginem.
+## 8) Rollout (v1) + testy (odloženo)
 - [ ] Flow: Rollout po etapách (backend za flagem -> overview/routing -> settings mutace). | Očekávaný výsledek: Nasazení je postupné a reverzibilní.
 - [ ] Flow: Rollback workspace feature flagu. | Očekávaný výsledek: Rychlý návrat bez dopadu na auth endpointy.
+- [ ] Flow: V1 release bez automatizovaných testů (unit/integration/E2E/component). | Očekávaný výsledek: Scope první verze explicitně neobsahuje Vitest, React Testing Library, Playwright/Cypress ani CI test joby.
+- [ ] Flow: Testovací implementace je přesunutá do navazující etapy. | Očekávaný výsledek: Existuje samostatný deferred task (`Task 09`) pro kompletní testovací backlog.
 
 ## Finální release gate
 - [ ] Flow: Kontrola všech bodů tohoto checklistu. | Očekávaný výsledek: 100% pokrytí scope původního plánu před produkčním release.

@@ -32,7 +32,7 @@ Close implementation with staged rollout, explicit Definition of Done release ga
 ## Acceptance criteria
 1. There is a clear rollout sequence with defined activation order.
 2. There is a clear rollback procedure with minimal auth risk.
-3. DoD checklist is actionable as release gate and linked to test evidence.
+3. DoD checklist is actionable as release gate for v1 without mandatory automated test evidence.
 4. Optional DB hooks provide owner-invariant safety even if service/API logic fails.
 
 ## User-visible behavior
