@@ -134,6 +134,11 @@ Pracovní pravidlo:
 2. Cesta A: API/route handlers (`getApiAuthSession`, `requireCurrentUser`) při invalidní device session vrací `UNAUTHORIZED` a nastaví `setCookie` pro vyčištění `pb_auth`, `pb_auth_persist`, `app_device_session`.
 3. Cesta B: server render (`getServerAuthSession`) při invalidní device session vrací `session: null` + `deviceInvalidated: true` a caller provede `redirect("/sign-in")`.
 4. `getServerAuthSession` se nepoužije jako místo pro přímé mazání cookies; clearing zajišťuje API path při nejbližším auth requestu.
+5. Migrační pravidlo při rolloutu (zásadní): pokud je validní `pb_auth`, ale chybí `app_device_session`, helper nesmí uživatele odhlásit.
+6. V migračním režimu helper provede lazy registration:
+7. API path: vytvoří `app_device_session` cookie + DB record on the fly a request pustí dál.
+8. Server-render path: session neinvaliduje, vrátí `deviceBootstrapRequired: true`; bootstrap proběhne při nejbližším API auth requestu.
+9. Po vypnutí migračního režimu (`AUTH_DEVICE_SESSIONS_ALLOW_LEGACY_BOOTSTRAP=false`) se chybějící `app_device_session` bere jako invalidní stav.
 
 ## 5.4 Heartbeat (debounce, serverless-safe)
 
@@ -214,6 +219,7 @@ Error codes (stejný styl jako auth):
 10. revoked/expired device session je na dalším requestu odhlášena
 11. limit N funguje deterministicky (N+1 loginů -> nejvýš N aktivních po následném enforce)
 12. server-render path při `deviceInvalidated` přesměruje na `/sign-in`
+13. rollout test: validní legacy `pb_auth` bez `app_device_session` nevynutí globální logout a provede lazy bootstrap
 
 ## 10. Implementační etapy
 
@@ -242,6 +248,9 @@ Error codes (stejný styl jako auth):
 1. Dodat logging/telemetrii pro revoke/cap/cleanup eventy.
 2. Spustit regression test auth flow (sign-in, sign-up, session refresh, sign-out).
 3. Ověřit kompatibilitu s workspace backend větví (žádné cross-dependency).
+4. Rollout legacy migrace:
+5. dočasně zapnout `AUTH_DEVICE_SESSIONS_ALLOW_LEGACY_BOOTSTRAP=true`
+6. po stabilizačním okně přepnout na `false`
 
 ## 11. Doporučené výchozí hodnoty
 
@@ -251,10 +260,12 @@ Error codes (stejný styl jako auth):
 4. `DEVICE_SESSION_REVOKED_RETENTION_DAYS=30`
 5. `DEVICE_SESSION_EXPIRED_RETENTION_DAYS=7`
 6. `DEVICE_SESSION_PEPPER=<crypto-random-secret>`
+7. `AUTH_DEVICE_SESSIONS_ALLOW_LEGACY_BOOTSTRAP=true` (jen po dobu rollout migrace)
 
 Poznámka:
 1. `DEVICE_SESSION_PEPPER` musí být dlouhý kryptograficky náhodný secret.
 2. Jeho rotace invaliduje všechny existující device sessions.
+3. `AUTH_DEVICE_SESSIONS_ALLOW_LEGACY_BOOTSTRAP` je dočasný rollout přepínač, ne trvalý security režim.
 
 ## 12. Vztah k multi-workspace plánu
 
