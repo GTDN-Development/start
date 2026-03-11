@@ -177,6 +177,72 @@
       "alreadyHaveAccount": "Již máte účet?",
       "signIn": "Přihlásit se"
     },
+    "inviteToken": {
+      "title": "Pozvánka do workspace",
+      "description": "Zkontrolujte a potvrďte pozvánku do workspace.",
+      "shared": {
+        "continueAs": "Pokračovat jako <strong>{email}</strong>"
+      },
+      "dev": {
+        "selectAriaLabel": "Náhled stavu pozvánky",
+        "options": {
+          "loading": "loading",
+          "auth_required": "auth_required",
+          "accepting": "accepting",
+          "success": "success",
+          "already_member": "already_member",
+          "blocked": "blocked",
+          "email_mismatch": "email_mismatch",
+          "error": "error"
+        }
+      },
+      "states": {
+        "loading": {
+          "title": "Ověřujeme odkaz pozvánky",
+          "description": "Počkejte prosím, ověřujeme platnost pozvánky."
+        },
+        "auth_required": {
+          "title": "Připojit se do workspace",
+          "description": "Byli jste pozváni do workspace <strong>{workspace}</strong>. Pokračujte a potvrďte pozvánku.",
+          "invitedBy": "Pozval vás <strong>{inviter}</strong>"
+        },
+        "success": {
+          "title": "Pozvánka přijata",
+          "description": "Už jste členem workspace <strong>{workspace}</strong>. Přesměrováváme do workspace..."
+        },
+        "already_member": {
+          "title": "Už jste členem workspace <strong>{workspace}</strong>",
+          "cta": "Přejít do workspace"
+        },
+        "blocked": {
+          "title": "Pozvánka není dostupná",
+          "description": "Tuto pozvánku už nelze použít.",
+          "cta": "Přejít na přehled",
+          "alert": {
+            "title": "Pozvánka je zablokovaná",
+            "description": "Pozvánka může být neplatná, expirovaná, zrušená, nedostupná nebo už použitá."
+          }
+        },
+        "email_mismatch": {
+          "title": "E-mail nesouhlasí",
+          "description": "Tuto pozvánku lze přijmout jen s pozvanou e-mailovou adresou.",
+          "cta": "Odhlásit se a pokračovat jiným účtem",
+          "alert": {
+            "title": "Použijte pozvaný účet",
+            "description": "Pozvánka: <strong>{invitedEmail}</strong>. Aktuálně přihlášený účet: <strong>{currentEmail}</strong>."
+          }
+        },
+        "error": {
+          "title": "Neočekávaná chyba",
+          "description": "Pozvánku se teď nepodařilo zpracovat.",
+          "cta": "Zkusit znovu",
+          "alert": {
+            "title": "Zkuste to později",
+            "description": "Pokud problém přetrvá, požádejte vlastníka workspace o zaslání nové pozvánky."
+          }
+        }
+      }
+    },
     "aboutFeatures": {
       "title": "Funkce",
       "description": "Prozkoumejte klíčové možnosti, které týmům pomáhají rychleji spouštět a škálovat produkt."

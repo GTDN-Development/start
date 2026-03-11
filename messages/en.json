@@ -177,6 +177,72 @@
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign in"
     },
+    "inviteToken": {
+      "title": "Workspace invitation",
+      "description": "Review and accept a workspace invitation.",
+      "shared": {
+        "continueAs": "Continue as <strong>{email}</strong>"
+      },
+      "dev": {
+        "selectAriaLabel": "Invite state preview",
+        "options": {
+          "loading": "loading",
+          "auth_required": "auth_required",
+          "accepting": "accepting",
+          "success": "success",
+          "already_member": "already_member",
+          "blocked": "blocked",
+          "email_mismatch": "email_mismatch",
+          "error": "error"
+        }
+      },
+      "states": {
+        "loading": {
+          "title": "Checking invitation link",
+          "description": "Please wait while we validate this invitation."
+        },
+        "auth_required": {
+          "title": "Join workspace",
+          "description": "You've been invited to join <strong>{workspace}</strong>. Continue to accept this invitation.",
+          "invitedBy": "Invited by <strong>{inviter}</strong>"
+        },
+        "success": {
+          "title": "Invitation accepted",
+          "description": "You're now a member of <strong>{workspace}</strong>. Redirecting to workspace..."
+        },
+        "already_member": {
+          "title": "You're already a member of <strong>{workspace}</strong>",
+          "cta": "Go to workspace"
+        },
+        "blocked": {
+          "title": "Invitation unavailable",
+          "description": "This invitation cannot be used anymore.",
+          "cta": "Go to overview",
+          "alert": {
+            "title": "Invitation is blocked",
+            "description": "The invitation may be invalid, expired, revoked, unavailable, or already accepted."
+          }
+        },
+        "email_mismatch": {
+          "title": "Email mismatch",
+          "description": "This invitation can only be accepted with the invited email address.",
+          "cta": "Sign out and continue with another account",
+          "alert": {
+            "title": "Use the invited account",
+            "description": "Invited: <strong>{invitedEmail}</strong>. Current: <strong>{currentEmail}</strong>."
+          }
+        },
+        "error": {
+          "title": "Unexpected error",
+          "description": "We couldn't process this invitation right now.",
+          "cta": "Try again",
+          "alert": {
+            "title": "Try again later",
+            "description": "If the problem persists, ask the workspace owner to send a new invitation link."
+          }
+        }
+      }
+    },
     "aboutFeatures": {
       "title": "Features",
       "description": "Explore the core capabilities that help teams launch and scale faster."
