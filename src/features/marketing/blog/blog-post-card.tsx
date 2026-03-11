@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import type { BlogPost } from "@/server/blog/blog-api";
+import { cn } from "@/lib/utils";
 
-type BlogPostCardProps = {
+type BlogPostCardProps = React.ComponentProps<typeof Card> & {
   post: BlogPost;
 };
 
-export function BlogPostCard({ post }: BlogPostCardProps) {
+export function BlogPostCard({ post, className, ...props }: BlogPostCardProps) {
   const t = useTranslations("pages.blog");
   const locale = useLocale();
 
@@ -21,7 +22,7 @@ export function BlogPostCard({ post }: BlogPostCardProps) {
   });
 
   return (
-    <Card className="relative h-full transition-shadow hover:shadow-md">
+    <Card className={cn("relative h-full transition-shadow hover:shadow-md", className)} {...props}>
       {post.coverImage && (
         <Image
           src={post.coverImage.url}
