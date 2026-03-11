@@ -24,7 +24,7 @@ import {
   WorkspaceAvatar,
   WorkspaceAvatarFallback,
   WorkspaceAvatarImage,
-} from "@/features/application/new/workspace-avatar";
+} from "@/features/workspaces/workspace-avatar";
 import { getUserInitials } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 

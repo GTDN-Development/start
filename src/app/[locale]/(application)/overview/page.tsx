@@ -9,7 +9,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
-import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
+import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {

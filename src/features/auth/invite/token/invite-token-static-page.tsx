@@ -12,10 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  WorkspaceAvatar,
-  WorkspaceAvatarFallback,
-} from "@/features/application/new/workspace-avatar";
+import { WorkspaceAvatar, WorkspaceAvatarFallback } from "@/features/workspaces/workspace-avatar";
 import { useRouter } from "@/i18n/navigation";
 
 type InviteTokenState =

@@ -13,7 +13,7 @@ import {
   workspaceSettingsInnerSidebarItems,
 } from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
-import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
+import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceAvatarSettingsItem } from "@/features/workspaces/settings/general/workspace-avatar-settings-item";
 import { WorkspaceDeleteSettingsItem } from "@/features/workspaces/settings/general/workspace-delete-settings-item";

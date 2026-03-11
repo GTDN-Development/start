@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { ApplicationLayout } from "@/features/application/new/application-layout";
+import { ApplicationLayout } from "@/features/application/application-layout";
 
 type ApplicationRouteLayoutProps = {
   children: React.ReactNode;
