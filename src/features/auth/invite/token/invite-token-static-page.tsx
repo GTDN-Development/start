@@ -103,7 +103,7 @@ export function InviteTokenStaticPage() {
   }, [router, shouldRedirectToWorkspace]);
 
   return (
-    <div className="w-full text-center">
+    <div className="w-full py-4 text-center">
       {showDevStateSwitcher && (
         <NativeSelect
           aria-label={t("dev.selectAriaLabel")}
@@ -136,8 +136,9 @@ export function InviteTokenStaticPage() {
             strong: (chunks) => <strong className="text-foreground font-bold">{chunks}</strong>,
           })}
         </h1>
+
         {viewModel.descriptionKey && (
-          <p className="text-muted-foreground mt-3 text-sm text-pretty sm:text-base">
+          <p className="text-muted-foreground mt-3 text-sm text-pretty">
             {t.rich(viewModel.descriptionKey, {
               ...viewModel.descriptionValues,
               strong: (chunks) => (
@@ -146,6 +147,7 @@ export function InviteTokenStaticPage() {
             })}
           </p>
         )}
+
         {viewModel.secondaryDescriptionKey && (
           <p className="text-muted-foreground mt-2 text-sm text-pretty">
             {t.rich(viewModel.secondaryDescriptionKey, {
@@ -315,14 +317,14 @@ function InviteTokenVisual({
 }) {
   if (visual === "avatar") {
     return (
-      <WorkspaceAvatar size="lg" aria-label={workspaceName} title={workspaceName}>
+      <WorkspaceAvatar aria-label={workspaceName} title={workspaceName} className="size-14">
         <WorkspaceAvatarFallback>{workspaceInitials}</WorkspaceAvatarFallback>
       </WorkspaceAvatar>
     );
   }
 
   return (
-    <div className="bg-muted text-muted-foreground flex size-16 items-center justify-center rounded-full">
+    <div className="text-muted-foreground flex size-10 items-center justify-center">
       {visual === "loading" && (
         <LoaderCircleIcon aria-hidden="true" className="size-8 animate-spin" />
       )}
