@@ -8,7 +8,6 @@ import {
   uploadAccountAvatarAction,
 } from "@/features/account/actions/account-actions";
 import { useAccountProfile } from "@/features/account/account-profile-context";
-import { prepareAccountAvatarUpload } from "@/features/account/general/avatar-image-processing";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -27,8 +26,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
+
+const MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
 
 export function AccountAvatarSettingsItem() {
   const t = useTranslations("pages.account");
@@ -52,22 +54,12 @@ export function AccountAvatarSettingsItem() {
       return;
     }
 
-    const avatarValidationErrorCode = validateAvatarFile(avatarFile);
-
-    if (avatarValidationErrorCode) {
-      toast.error(t("common.errorTitle"), {
-        id: avatarToastId,
-        description: resolveErrorMessage(avatarValidationErrorCode, t("avatar.status.error"), {
-          INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
-        }),
-      });
-      return;
-    }
-
     setIsAvatarUpdating(true);
 
     try {
-      const preparedAvatarFileResult = await prepareAccountAvatarUpload(avatarFile);
+      const preparedAvatarFileResult = await prepareAvatarUpload(avatarFile, {
+        maxFileSizeBytes: MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES,
+      });
 
       if (!preparedAvatarFileResult.ok) {
         toast.error(t("common.errorTitle"), {
@@ -236,12 +228,4 @@ export function AccountAvatarSettingsItem() {
       </SettingsItemFooter>
     </SettingsItem>
   );
-}
-
-function validateAvatarFile(file: File): string | null {
-  if (!file.type.startsWith("image/")) {
-    return "INVALID_FILE_TYPE";
-  }
-
-  return null;
 }

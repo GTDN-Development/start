@@ -2,6 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useId, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { z } from "zod";
 import { LogOutIcon } from "lucide-react";
@@ -45,6 +46,8 @@ type LeaveWorkspaceFormValues = {
 };
 
 export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
+  const t = useTranslations("pages.workspace.general.leave");
+  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const isPersonalWorkspace = workspace.kind === "personal";
   const leaveWorkspaceToastId = useId();
@@ -54,13 +57,15 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
       .string()
       .trim()
       .min(1, {
-        message: "Workspace URL is required.",
+        message: t("validation.confirmationUrl.required"),
       })
       .refine((value) => value === workspace.slug, {
-        message: `Type "${workspace.slug}" to confirm.`,
+        message: t("validation.confirmationUrl.mismatch", {
+          workspaceSlug: workspace.slug,
+        }),
       }),
     isLeavingAcknowledged: z.boolean().refine((value) => value === true, {
-      message: "You must confirm that you will lose access to this workspace.",
+      message: t("validation.acknowledged.required"),
     }),
   });
 
@@ -76,16 +81,16 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
       const response = await leaveWorkspaceAction(workspace.slug);
 
       if (!response.ok) {
-        toast.error("Leave failed", {
+        toast.error(tCommon("errorTitle"), {
           id: leaveWorkspaceToastId,
-          description: "Workspace could not be left.",
+          description: t("status.failed"),
         });
         return;
       }
 
-      toast.success("Workspace left", {
+      toast.success(tCommon("successTitle"), {
         id: leaveWorkspaceToastId,
-        description: "You no longer have access to this workspace.",
+        description: t("status.success"),
       });
 
       setIsLeaveDialogOpen(false);
@@ -106,18 +111,18 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
     <SettingsItem variant="destructive">
       <SettingsItemContent>
         <SettingsItemContentHeader>
-          <SettingsItemTitle>Leave workspace</SettingsItemTitle>
+          <SettingsItemTitle>{t("title")}</SettingsItemTitle>
           <SettingsItemDescription>
-            Leave <strong>{workspace.name}</strong> and remove your access to this workspace.
+            {t("description", {
+              workspaceName: workspace.name,
+            })}
           </SettingsItemDescription>
         </SettingsItemContentHeader>
       </SettingsItemContent>
 
       <SettingsItemFooter className="sm:justify-end">
         {isPersonalWorkspace && (
-          <SettingsItemDescription>
-            Personal workspace cannot be left. It always stays connected to your account.
-          </SettingsItemDescription>
+          <SettingsItemDescription>{t("personalHint")}</SettingsItemDescription>
         )}
         {!isPersonalWorkspace && (
           <AlertDialog open={isLeaveDialogOpen} onOpenChange={handleLeaveDialogOpenChange}>
@@ -125,7 +130,7 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
               nativeButton={true}
               render={
                 <Button type="button" variant="destructive" size="lg">
-                  Leave workspace
+                  {t("trigger")}
                 </Button>
               }
             />
@@ -146,11 +151,8 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
                   {({ isSubmitting, submissionAttempts }) => (
                     <>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Leave workspace?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          You will lose access to all workspace projects and settings. You can only
-                          return if another member invites you again.
-                        </AlertDialogDescription>
+                        <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
+                        <AlertDialogDescription>{t("dialog.description")}</AlertDialogDescription>
                       </AlertDialogHeader>
 
                       <FieldGroup className="mt-4 flex flex-col gap-6 pb-2">
@@ -163,7 +165,7 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
                             return (
                               <Field data-invalid={isInvalid}>
                                 <FieldLabel htmlFor={`workspace-leave-${field.name}`}>
-                                  Workspace URL
+                                  {t("dialog.fields.confirmationUrl.label")}
                                 </FieldLabel>
                                 <Input
                                   id={`workspace-leave-${field.name}`}
@@ -176,7 +178,9 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
                                   aria-invalid={isInvalid}
                                 />
                                 <FieldDescription>
-                                  Type <strong>{workspace.slug}</strong> to confirm leaving.
+                                  {t("dialog.fields.confirmationUrl.description", {
+                                    workspaceSlug: workspace.slug,
+                                  })}
                                 </FieldDescription>
                                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
                               </Field>
@@ -204,7 +208,7 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
                                     aria-invalid={isInvalid}
                                   />
                                   <FieldLabel htmlFor={`workspace-leave-${field.name}`}>
-                                    I understand I will lose access to this workspace.
+                                    {t("dialog.fields.acknowledged.label")}
                                   </FieldLabel>
                                 </Field>
                                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -216,7 +220,7 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
 
                       <AlertDialogFooter>
                         <AlertDialogCancel type="button" size="lg" disabled={isSubmitting}>
-                          Cancel
+                          {tCommon("cancel")}
                         </AlertDialogCancel>
                         <AlertDialogAction
                           type="submit"
@@ -229,7 +233,7 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
                           ) : (
                             <LogOutIcon aria-hidden="true" className="size-4" />
                           )}
-                          {isSubmitting ? "Leaving..." : "Leave workspace"}
+                          {isSubmitting ? t("dialog.submit.pending") : t("dialog.submit.default")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </>

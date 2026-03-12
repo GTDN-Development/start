@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { InfoIcon, PlusIcon, TrashIcon } from "lucide-react";
 import {
@@ -71,6 +72,9 @@ export function WorkspaceInviteMembersSettingsItem({
 }: {
   workspace: WorkspaceSettingsWorkspace;
 }) {
+  const tInvite = useTranslations("pages.workspace.members.invite");
+  const tRoles = useTranslations("pages.workspace.members.roles");
+  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const rowIdPrefix = useId().replaceAll(":", "");
   const nextRowOrderRef = useRef(1);
@@ -180,7 +184,7 @@ export function WorkspaceInviteMembersSettingsItem({
     const { payload, hasInvalidRows } = parseInvitePayload(inviteRows);
 
     if (hasInvalidRows) {
-      setSubmitErrorMessage("Please complete the fields above.");
+      setSubmitErrorMessage(tInvite("status.invalidRows"));
       return;
     }
 
@@ -202,7 +206,7 @@ export function WorkspaceInviteMembersSettingsItem({
         setIsInviting(false);
         setIsInviteDialogOpen(false);
         setPendingInvitePayload([]);
-        setSubmitErrorMessage("Invitations could not be sent.");
+        setSubmitErrorMessage(tInvite("status.sendFailed"));
         return;
       }
     }
@@ -210,7 +214,9 @@ export function WorkspaceInviteMembersSettingsItem({
     setIsInviting(false);
     setIsInviteDialogOpen(false);
     setPendingInvitePayload([]);
-    toast.success("Invitations sent.");
+    toast.success(tCommon("successTitle"), {
+      description: tInvite("status.sent"),
+    });
     setInviteRows([createInviteMemberRow()]);
     router.refresh();
   }
@@ -224,7 +230,6 @@ export function WorkspaceInviteMembersSettingsItem({
   }
 
   const pendingInviteCount = pendingInvitePayload.length;
-  const pendingInviteLabel = pendingInviteCount === 1 ? "Member" : "Members";
 
   if (isPersonalWorkspace) {
     return (
@@ -232,16 +237,16 @@ export function WorkspaceInviteMembersSettingsItem({
         <SettingsItemContent className="flex flex-col gap-6">
           <SettingsItemContentHeader>
             <StaticPlaceholder />
-            <SettingsItemTitle>Invite members</SettingsItemTitle>
+            <SettingsItemTitle>{tInvite("title")}</SettingsItemTitle>
             <SettingsItemDescription>
-              Personal workspace <strong>{workspace.name}</strong> is limited to a single member.
+              {tInvite("personalWorkspace.description", {
+                workspaceName: workspace.name,
+              })}
             </SettingsItemDescription>
           </SettingsItemContentHeader>
 
           <SettingsItemContentBody>
-            <SettingsItemDescription>
-              Invites are available only in organization workspaces.
-            </SettingsItemDescription>
+            <SettingsItemDescription>{tInvite("personalWorkspace.hint")}</SettingsItemDescription>
           </SettingsItemContentBody>
         </SettingsItemContent>
       </SettingsItem>
@@ -259,10 +264,8 @@ export function WorkspaceInviteMembersSettingsItem({
         <SettingsItemContent className="flex flex-col gap-6">
           <SettingsItemContentHeader>
             <StaticPlaceholder />
-            <SettingsItemTitle>Invite members</SettingsItemTitle>
-            <SettingsItemDescription>
-              Add one or more people and choose their access role.
-            </SettingsItemDescription>
+            <SettingsItemTitle>{tInvite("title")}</SettingsItemTitle>
+            <SettingsItemDescription>{tInvite("description")}</SettingsItemDescription>
           </SettingsItemContentHeader>
 
           <SettingsItemContentBody className="grid gap-4">
@@ -274,7 +277,9 @@ export function WorkspaceInviteMembersSettingsItem({
                     className={"grid gap-3 @lg:grid-cols-[1fr_1fr_auto] @lg:items-start"}
                   >
                     <Field>
-                      <FieldLabel htmlFor={`workspace-members-email-${row.id}`}>Email</FieldLabel>
+                      <FieldLabel htmlFor={`workspace-members-email-${row.id}`}>
+                        {tInvite("fields.email.label")}
+                      </FieldLabel>
                       <Input
                         id={`workspace-members-email-${row.id}`}
                         name={`workspace-members-email-${row.id}`}
@@ -282,12 +287,14 @@ export function WorkspaceInviteMembersSettingsItem({
                         value={row.email}
                         onChange={(event) => handleEmailChange(row.id, event.target.value)}
                         autoComplete="email"
-                        placeholder="name@company.com"
+                        placeholder={tInvite("fields.email.placeholder")}
                       />
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor={`workspace-members-role-${row.id}`}>Role</FieldLabel>
+                      <FieldLabel htmlFor={`workspace-members-role-${row.id}`}>
+                        {tInvite("fields.role.label")}
+                      </FieldLabel>
                       <Select
                         value={row.role}
                         onValueChange={(value) => handleRoleChange(row.id, value)}
@@ -298,10 +305,10 @@ export function WorkspaceInviteMembersSettingsItem({
                               const option = getInviteRoleOption(value);
 
                               if (!option) {
-                                return "Select role";
+                                return tInvite("fields.role.placeholder");
                               }
 
-                              return option.label;
+                              return tRoles(option.labelKey);
                             }}
                           </SelectValue>
                         </SelectTrigger>
@@ -310,9 +317,9 @@ export function WorkspaceInviteMembersSettingsItem({
                             {WORKSPACE_INVITABLE_ROLE_OPTIONS.map((option) => (
                               <SelectItem key={option.value} value={option.value}>
                                 <span className="flex flex-col items-start gap-0.5">
-                                  <span className="font-medium">{option.label}</span>
+                                  <span className="font-medium">{tRoles(option.labelKey)}</span>
                                   <span className="text-muted-foreground text-xs">
-                                    {option.description}
+                                    {tRoles(option.descriptionKey)}
                                   </span>
                                 </span>
                               </SelectItem>
@@ -327,7 +334,7 @@ export function WorkspaceInviteMembersSettingsItem({
                         type="button"
                         variant="destructive"
                         size="icon"
-                        aria-label="Remove invitation row"
+                        aria-label={tInvite("actions.removeRowAriaLabel")}
                         disabled={!(inviteRows.length > 1)}
                         onClick={() => handleRemoveRow(row.id)}
                       >
@@ -341,7 +348,7 @@ export function WorkspaceInviteMembersSettingsItem({
 
             <div className="flex w-full items-center justify-center pb-4 @lg:justify-start @lg:pb-0">
               <Button type="button" variant="outline" className="w-fit" onClick={handleAddMore}>
-                <PlusIcon aria-hidden="true" /> Add more
+                <PlusIcon aria-hidden="true" /> {tInvite("actions.addMore")}
               </Button>
             </div>
           </SettingsItemContentBody>
@@ -352,19 +359,20 @@ export function WorkspaceInviteMembersSettingsItem({
             <SettingsItemDescription
               className={submitErrorMessage ? "text-destructive" : undefined}
             >
-              {submitErrorMessage ??
-                "All rows are submitted together."}
+              {submitErrorMessage ?? tInvite("footer.defaultHint")}
             </SettingsItemDescription>
             <Button type="button" size="lg" disabled={isInviting} onClick={handleInviteRequest}>
-              Invite
+              {tInvite("actions.invite")}
             </Button>
           </SettingsItemFooter>
 
           <AlertDialogContent className="sm:max-w-lg">
             <AlertDialogHeader>
-              <AlertDialogTitle>Invite Team Members</AlertDialogTitle>
+              <AlertDialogTitle>{tInvite("dialog.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                By confirming, you will invite {pendingInviteCount} new {pendingInviteLabel}.
+                {tInvite("dialog.description", {
+                  count: pendingInviteCount,
+                })}
               </AlertDialogDescription>
             </AlertDialogHeader>
 
@@ -376,7 +384,7 @@ export function WorkspaceInviteMembersSettingsItem({
                 >
                   <span className="font-medium">{member.email}</span>
                   <span className="text-muted-foreground">
-                    {getWorkspaceMemberRoleLabel(member.role)}
+                    {getWorkspaceMemberRoleLabel(member.role, tRoles)}
                   </span>
                 </li>
               ))}
@@ -384,12 +392,12 @@ export function WorkspaceInviteMembersSettingsItem({
 
             <Alert>
               <InfoIcon aria-hidden="true" />
-              <AlertTitle>Invite will expire after 1 week</AlertTitle>
+              <AlertTitle>{tInvite("dialog.expiryHint")}</AlertTitle>
             </Alert>
 
             <AlertDialogFooter>
               <AlertDialogCancel size="lg" disabled={isInviting}>
-                Cancel
+                {tCommon("cancel")}
               </AlertDialogCancel>
               <AlertDialogAction
                 type="button"
@@ -398,7 +406,7 @@ export function WorkspaceInviteMembersSettingsItem({
                 onClick={handleInviteConfirm}
               >
                 {isInviting && <Spinner />}
-                {isInviting ? "Inviting..." : "Continue"}
+                {isInviting ? tInvite("dialog.submit.pending") : tInvite("dialog.submit.default")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

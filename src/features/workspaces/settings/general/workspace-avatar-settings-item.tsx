@@ -1,6 +1,7 @@
 "use client";
 
 import { type ChangeEvent, useId, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,11 +29,14 @@ import {
   WorkspaceAvatarImage,
 } from "@/features/workspaces/workspace-avatar";
 import { useRouter } from "@/i18n/navigation";
-import { getUserInitials } from "@/lib/utils";
+import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
+import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 
-const MAX_WORKSPACE_AVATAR_SIZE_BYTES = 1024 * 1024;
+const MAX_WORKSPACE_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
 
 export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
+  const t = useTranslations("pages.workspace.general.avatar");
+  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const avatarToastId = useId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -53,32 +57,43 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
       return;
     }
 
-    if (!isAvatarFileValid(selectedFile)) {
-      toast.error("Update failed", {
-        id: avatarToastId,
-        description: "Please upload a valid image up to 1 MB.",
-      });
-      return;
-    }
-
     setIsAvatarUpdating(true);
 
     try {
-      const response = await updateWorkspaceGeneralAction(workspace.slug, {
-        avatarFile: selectedFile,
+      const preparedAvatarFileResult = await prepareAvatarUpload(selectedFile, {
+        maxFileSizeBytes: MAX_WORKSPACE_AVATAR_FILE_SIZE_BYTES,
       });
 
-      if (!response.ok) {
-        toast.error("Update failed", {
+      if (!preparedAvatarFileResult.ok) {
+        toast.error(tCommon("errorTitle"), {
           id: avatarToastId,
-          description: "Workspace avatar could not be updated.",
+          description: resolveErrorMessage(preparedAvatarFileResult.errorCode, t("status.error"), {
+            INVALID_FILE_TYPE: t("status.invalidFile"),
+            IMAGE_PROCESSING_FAILED: t("status.processingFailed"),
+            FILE_TOO_LARGE: t("status.fileTooLarge"),
+          }),
         });
         return;
       }
 
-      toast.success("Workspace updated", {
+      const response = await updateWorkspaceGeneralAction(workspace.slug, {
+        avatarFile: preparedAvatarFileResult.file,
+      });
+
+      if (!response.ok) {
+        toast.error(tCommon("errorTitle"), {
+          id: avatarToastId,
+          description: resolveErrorMessage(response.errorCode, t("status.error"), {
+            UNAUTHORIZED: t("status.unauthorized"),
+            VALIDATION_ERROR: t("status.fileTooLarge"),
+          }),
+        });
+        return;
+      }
+
+      toast.success(tCommon("successTitle"), {
         id: avatarToastId,
-        description: "Workspace avatar was updated.",
+        description: t("status.updated"),
       });
       setFailedAvatarUrl(null);
       router.refresh();
@@ -100,16 +115,16 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
       });
 
       if (!response.ok) {
-        toast.error("Update failed", {
+        toast.error(tCommon("errorTitle"), {
           id: avatarToastId,
-          description: "Workspace avatar could not be removed.",
+          description: t("status.removeFailed"),
         });
         return;
       }
 
-      toast.success("Workspace updated", {
+      toast.success(tCommon("successTitle"), {
         id: avatarToastId,
-        description: "Workspace avatar was removed.",
+        description: t("status.removed"),
       });
       setFailedAvatarUrl(null);
       router.refresh();
@@ -130,10 +145,8 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
     <SettingsItem>
       <SettingsItemContent className="flex flex-row flex-wrap gap-6 xl:gap-8">
         <SettingsItemContentHeader className="w-full grow basis-72">
-          <SettingsItemTitle>Workspace avatar</SettingsItemTitle>
-          <SettingsItemDescription>
-            Upload a square avatar for this workspace.
-          </SettingsItemDescription>
+          <SettingsItemTitle>{t("title")}</SettingsItemTitle>
+          <SettingsItemDescription>{t("description")}</SettingsItemDescription>
         </SettingsItemContentHeader>
 
         <SettingsItemContentBody className="shrink-0 basis-auto">
@@ -147,7 +160,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
                     variant="ghost"
                     size="icon-lg"
                     className="group relative size-14 overflow-clip rounded-md sm:size-18"
-                    aria-label="Change workspace avatar"
+                    aria-label={t("buttonLabel")}
                     disabled={isAvatarUpdating}
                   >
                     {isAvatarUpdating ? (
@@ -185,7 +198,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
                   className="whitespace-nowrap"
                 >
                   <PencilIcon aria-hidden="true" className="size-4" />
-                  Change avatar
+                  {t("menu.change")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleAvatarRemoveClick}
@@ -194,7 +207,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
                   className="whitespace-nowrap"
                 >
                   <Trash2Icon aria-hidden="true" className="size-4" />
-                  Remove avatar
+                  {t("menu.remove")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -213,22 +226,8 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
       </SettingsItemContent>
 
       <SettingsItemFooter>
-        <SettingsItemDescription>
-          Only standard image formats are supported (JPEG, PNG, WebP).
-        </SettingsItemDescription>
+        <SettingsItemDescription>{t("hint")}</SettingsItemDescription>
       </SettingsItemFooter>
     </SettingsItem>
   );
-}
-
-function isAvatarFileValid(file: File): boolean {
-  if (!file.type.startsWith("image/")) {
-    return false;
-  }
-
-  if (file.size > MAX_WORKSPACE_AVATAR_SIZE_BYTES) {
-    return false;
-  }
-
-  return true;
 }

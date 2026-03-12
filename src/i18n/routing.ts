@@ -32,9 +32,15 @@ export const routing = defineRouting({
     "/overview": {
       cs: "/prehled",
     },
-    "/w/[workspaceSlug]/overview": "/w/[workspaceSlug]/overview",
-    "/w/[workspaceSlug]/settings": "/w/[workspaceSlug]/settings",
-    "/w/[workspaceSlug]/settings/members": "/w/[workspaceSlug]/settings/members",
+    "/w/[workspaceSlug]/overview": {
+      cs: "/w/[workspaceSlug]/prehled",
+    },
+    "/w/[workspaceSlug]/settings": {
+      cs: "/w/[workspaceSlug]/nastaveni",
+    },
+    "/w/[workspaceSlug]/settings/members": {
+      cs: "/w/[workspaceSlug]/nastaveni/clenove",
+    },
     "/forgot-password": {
       cs: "/zapomenute-heslo",
     },

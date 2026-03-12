@@ -3,33 +3,39 @@ const WORKSPACE_INVITABLE_ROLE_VALUES = ["member"] as const;
 
 type WorkspaceMemberRole = (typeof WORKSPACE_MEMBER_ROLE_VALUES)[number];
 type WorkspaceInvitableRole = (typeof WORKSPACE_INVITABLE_ROLE_VALUES)[number];
+type WorkspaceMemberRoleLabelKey = `${WorkspaceMemberRole}.label`;
+type WorkspaceMemberRoleDescriptionKey = `${WorkspaceMemberRole}.description`;
+type WorkspaceMemberRoleTranslationKey =
+  | WorkspaceMemberRoleLabelKey
+  | WorkspaceMemberRoleDescriptionKey;
+type WorkspaceMemberRoleTranslationFn = (key: WorkspaceMemberRoleTranslationKey) => string;
 
 const WORKSPACE_MEMBER_ROLE_OPTIONS: Array<{
   value: WorkspaceMemberRole;
-  label: string;
-  description: string;
+  labelKey: WorkspaceMemberRoleLabelKey;
+  descriptionKey: WorkspaceMemberRoleDescriptionKey;
 }> = [
   {
     value: "owner",
-    label: "Owner",
-    description: "Full access to workspace settings, members, and management.",
+    labelKey: "owner.label",
+    descriptionKey: "owner.description",
   },
   {
     value: "member",
-    label: "Member",
-    description: "Can collaborate in workspace, but cannot manage ownership.",
+    labelKey: "member.label",
+    descriptionKey: "member.description",
   },
 ];
 
 const WORKSPACE_INVITABLE_ROLE_OPTIONS: Array<{
   value: WorkspaceInvitableRole;
-  label: string;
-  description: string;
+  labelKey: `${WorkspaceInvitableRole}.label`;
+  descriptionKey: `${WorkspaceInvitableRole}.description`;
 }> = [
   {
     value: "member",
-    label: "Member",
-    description: "Can collaborate in workspace, but cannot manage ownership.",
+    labelKey: "member.label",
+    descriptionKey: "member.description",
   },
 ];
 
@@ -41,12 +47,15 @@ function isWorkspaceInvitableRole(value: string): value is WorkspaceInvitableRol
   return WORKSPACE_INVITABLE_ROLE_VALUES.includes(value as WorkspaceInvitableRole);
 }
 
-function getWorkspaceMemberRoleLabel(role: WorkspaceMemberRole): string {
+function getWorkspaceMemberRoleLabel(
+  role: WorkspaceMemberRole,
+  t: WorkspaceMemberRoleTranslationFn
+): string {
   if (role === "owner") {
-    return "Owner";
+    return t("owner.label");
   }
 
-  return "Member";
+  return t("member.label");
 }
 
 export {
@@ -58,5 +67,9 @@ export {
   isWorkspaceInvitableRole,
   isWorkspaceMemberRole,
   type WorkspaceInvitableRole,
+  type WorkspaceMemberRoleDescriptionKey,
+  type WorkspaceMemberRoleLabelKey,
+  type WorkspaceMemberRoleTranslationFn,
+  type WorkspaceMemberRoleTranslationKey,
   type WorkspaceMemberRole,
 };

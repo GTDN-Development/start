@@ -698,13 +698,17 @@ export async function updateWorkspaceGeneralForCurrentUser(
         };
       }
 
-      const uniqueSlug = await resolveUniqueWorkspaceSlug(
-        access.pb,
-        normalizedSlugInput,
-        access.workspace.id
-      );
+      const normalizedSlug = toWorkspaceSlug(normalizedSlugInput);
+      const existingWorkspace = await findWorkspaceBySlug(access.pb, normalizedSlug);
 
-      updateData.slug = uniqueSlug;
+      if (existingWorkspace && existingWorkspace.id !== access.workspace.id) {
+        return {
+          ok: false,
+          errorCode: "SLUG_NOT_AVAILABLE",
+        };
+      }
+
+      updateData.slug = normalizedSlug;
     }
 
     if (input.removeAvatar === true) {
@@ -735,7 +739,7 @@ export async function updateWorkspaceGeneralForCurrentUser(
     const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
       if (pocketBaseError.status === 400) {
         if (hasValidationCode(pocketBaseError.response?.data, "slug", "validation_not_unique")) {
-          return "BAD_REQUEST";
+          return "SLUG_NOT_AVAILABLE";
         }
 
         return "BAD_REQUEST";

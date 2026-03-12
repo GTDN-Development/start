@@ -2,6 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useId, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,8 @@ type WorkspaceNameFormValues = {
 };
 
 export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
+  const t = useTranslations("pages.workspace.general.name");
+  const tCommon = useTranslations("pages.workspace.common");
   const nameToastId = useId();
   const [workspaceName, setWorkspaceName] = useState(workspace.name);
   const workspaceNameSchema = z.object({
@@ -34,10 +37,12 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
       .string()
       .trim()
       .min(1, {
-        message: "Workspace name is required.",
+        message: t("validation.required"),
       })
       .max(MAX_WORKSPACE_NAME_LENGTH, {
-        message: `Workspace name must be at most ${MAX_WORKSPACE_NAME_LENGTH} characters long.`,
+        message: t("validation.max", {
+          max: String(MAX_WORKSPACE_NAME_LENGTH),
+        }),
       }),
   });
 
@@ -56,9 +61,9 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
       });
 
       if (!response.ok) {
-        toast.error("Update failed", {
+        toast.error(tCommon("errorTitle"), {
           id: nameToastId,
-          description: "Workspace name could not be updated.",
+          description: t("status.updateFailed"),
         });
         return;
       }
@@ -67,9 +72,9 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
       form.reset();
       form.setFieldValue("name", nextName);
 
-      toast.success("Workspace updated", {
+      toast.success(tCommon("successTitle"), {
         id: nameToastId,
-        description: "Workspace name was updated.",
+        description: t("status.updated"),
       });
     },
   });
@@ -92,10 +97,8 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
             <>
               <SettingsItemContent className="flex flex-col gap-6">
                 <SettingsItemContentHeader>
-                  <SettingsItemTitle>Workspace name</SettingsItemTitle>
-                  <SettingsItemDescription>
-                    Update how this workspace appears across the app.
-                  </SettingsItemDescription>
+                  <SettingsItemTitle>{t("title")}</SettingsItemTitle>
+                  <SettingsItemDescription>{t("description")}</SettingsItemDescription>
                 </SettingsItemContentHeader>
 
                 <SettingsItemContentBody>
@@ -109,7 +112,7 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
                         return (
                           <Field data-invalid={isInvalid} className="grid max-w-md gap-2">
                             <FieldLabel htmlFor={`workspace-general-name-${field.name}`}>
-                              Name
+                              {t("field.label")}
                             </FieldLabel>
                             <Input
                               id={`workspace-general-name-${field.name}`}
@@ -117,13 +120,11 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
                               value={field.state.value}
                               onBlur={field.handleBlur}
                               onChange={(event) => field.handleChange(event.target.value)}
-                              placeholder="Enter workspace name"
+                              placeholder={t("field.placeholder")}
                               autoComplete="organization"
                               aria-invalid={isInvalid}
                             />
-                            <FieldDescription>
-                              This name is visible in navigation and workspace switcher.
-                            </FieldDescription>
+                            <FieldDescription>{t("field.description")}</FieldDescription>
                             {isInvalid && <FieldError errors={field.state.meta.errors} />}
                           </Field>
                         );
@@ -134,10 +135,14 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
               </SettingsItemContent>
 
               <SettingsItemFooter>
-                <SettingsItemDescription>Maximum length is 48 characters.</SettingsItemDescription>
+                <SettingsItemDescription>
+                  {t("footerHint", {
+                    max: String(MAX_WORKSPACE_NAME_LENGTH),
+                  })}
+                </SettingsItemDescription>
                 <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
                   {isSubmitting && <Spinner />}
-                  {isSubmitting ? "Saving..." : "Save changes"}
+                  {isSubmitting ? t("submit.pending") : t("submit.default")}
                 </Button>
               </SettingsItemFooter>
             </>

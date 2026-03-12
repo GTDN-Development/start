@@ -2,6 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useId, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Trash2Icon } from "lucide-react";
@@ -49,6 +50,8 @@ export function WorkspaceDeleteSettingsItem({
 }: {
   workspace: WorkspaceSettingsWorkspace;
 }) {
+  const t = useTranslations("pages.workspace.general.delete");
+  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const isPersonalWorkspace = workspace.kind === "personal";
   const deleteWorkspaceToastId = useId();
@@ -58,13 +61,15 @@ export function WorkspaceDeleteSettingsItem({
       .string()
       .trim()
       .min(1, {
-        message: "Workspace URL is required.",
+        message: t("validation.confirmationUrl.required"),
       })
       .refine((value) => value === workspace.slug, {
-        message: `Type "${workspace.slug}" to confirm.`,
+        message: t("validation.confirmationUrl.mismatch", {
+          workspaceSlug: workspace.slug,
+        }),
       }),
     isDeletionAcknowledged: z.boolean().refine((value) => value === true, {
-      message: "You must confirm that this action cannot be undone.",
+      message: t("validation.acknowledged.required"),
     }),
   });
 
@@ -80,16 +85,16 @@ export function WorkspaceDeleteSettingsItem({
       const response = await deleteOrganizationWorkspaceAction(workspace.slug);
 
       if (!response.ok) {
-        toast.error("Delete failed", {
+        toast.error(tCommon("errorTitle"), {
           id: deleteWorkspaceToastId,
-          description: "Workspace could not be deleted.",
+          description: t("status.failed"),
         });
         return;
       }
 
-      toast.success("Workspace deleted", {
+      toast.success(tCommon("successTitle"), {
         id: deleteWorkspaceToastId,
-        description: "Workspace was deleted.",
+        description: t("status.success"),
       });
 
       setIsDeleteDialogOpen(false);
@@ -110,18 +115,18 @@ export function WorkspaceDeleteSettingsItem({
     <SettingsItem variant="destructive">
       <SettingsItemContent>
         <SettingsItemContentHeader>
-          <SettingsItemTitle>Delete workspace</SettingsItemTitle>
+          <SettingsItemTitle>{t("title")}</SettingsItemTitle>
           <SettingsItemDescription>
-            Permanently remove <strong>{workspace.name}</strong> and all workspace data.
+            {t("description", {
+              workspaceName: workspace.name,
+            })}
           </SettingsItemDescription>
         </SettingsItemContentHeader>
       </SettingsItemContent>
 
       <SettingsItemFooter className="sm:justify-end">
         {isPersonalWorkspace && (
-          <SettingsItemDescription>
-            Personal workspace cannot be deleted. It is required for your account.
-          </SettingsItemDescription>
+          <SettingsItemDescription>{t("personalHint")}</SettingsItemDescription>
         )}
         {!isPersonalWorkspace && (
           <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
@@ -129,7 +134,7 @@ export function WorkspaceDeleteSettingsItem({
               nativeButton={true}
               render={
                 <Button type="button" variant="destructive" size="lg">
-                  Delete workspace
+                  {t("trigger")}
                 </Button>
               }
             />
@@ -150,11 +155,8 @@ export function WorkspaceDeleteSettingsItem({
                   {({ isSubmitting, submissionAttempts }) => (
                     <>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Delete workspace?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action is irreversible. All members, invites, and data inside this
-                          workspace will be permanently removed.
-                        </AlertDialogDescription>
+                        <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
+                        <AlertDialogDescription>{t("dialog.description")}</AlertDialogDescription>
                       </AlertDialogHeader>
 
                       <FieldGroup className="mt-4 flex flex-col gap-6 pb-2">
@@ -167,7 +169,7 @@ export function WorkspaceDeleteSettingsItem({
                             return (
                               <Field data-invalid={isInvalid}>
                                 <FieldLabel htmlFor={`workspace-delete-${field.name}`}>
-                                  Workspace URL
+                                  {t("dialog.fields.confirmationUrl.label")}
                                 </FieldLabel>
                                 <Input
                                   id={`workspace-delete-${field.name}`}
@@ -180,7 +182,9 @@ export function WorkspaceDeleteSettingsItem({
                                   aria-invalid={isInvalid}
                                 />
                                 <FieldDescription>
-                                  Type <strong>{workspace.slug}</strong> to confirm deletion.
+                                  {t("dialog.fields.confirmationUrl.description", {
+                                    workspaceSlug: workspace.slug,
+                                  })}
                                 </FieldDescription>
                                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
                               </Field>
@@ -208,7 +212,7 @@ export function WorkspaceDeleteSettingsItem({
                                     aria-invalid={isInvalid}
                                   />
                                   <FieldLabel htmlFor={`workspace-delete-${field.name}`}>
-                                    I understand this action cannot be undone.
+                                    {t("dialog.fields.acknowledged.label")}
                                   </FieldLabel>
                                 </Field>
                                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -220,7 +224,7 @@ export function WorkspaceDeleteSettingsItem({
 
                       <AlertDialogFooter>
                         <AlertDialogCancel type="button" size="lg" disabled={isSubmitting}>
-                          Cancel
+                          {tCommon("cancel")}
                         </AlertDialogCancel>
                         <AlertDialogAction
                           type="submit"
@@ -233,7 +237,7 @@ export function WorkspaceDeleteSettingsItem({
                           ) : (
                             <Trash2Icon aria-hidden="true" className="size-4" />
                           )}
-                          {isSubmitting ? "Deleting..." : "Delete workspace"}
+                          {isSubmitting ? t("dialog.submit.pending") : t("dialog.submit.default")}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </>

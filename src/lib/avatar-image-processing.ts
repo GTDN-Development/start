@@ -1,27 +1,33 @@
 import imageCompression from "browser-image-compression";
 
-const MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
-const TARGET_ACCOUNT_AVATAR_FILE_SIZE_MB = 0.9;
-const MAX_ACCOUNT_AVATAR_IMAGE_DIMENSION = 1024;
+const DEFAULT_TARGET_FILE_SIZE_MB = 0.9;
+const DEFAULT_MAX_IMAGE_DIMENSION = 1024;
 
-export type PrepareAccountAvatarUploadErrorCode =
+export type PrepareAvatarUploadErrorCode =
   | "INVALID_FILE_TYPE"
   | "FILE_TOO_LARGE"
   | "IMAGE_PROCESSING_FAILED";
 
-export type PrepareAccountAvatarUploadResult =
+export type PrepareAvatarUploadResult =
   | {
       ok: true;
       file: File;
     }
   | {
       ok: false;
-      errorCode: PrepareAccountAvatarUploadErrorCode;
+      errorCode: PrepareAvatarUploadErrorCode;
     };
 
-export async function prepareAccountAvatarUpload(
-  file: File
-): Promise<PrepareAccountAvatarUploadResult> {
+type PrepareAvatarUploadOptions = {
+  maxFileSizeBytes: number;
+  targetFileSizeMb?: number;
+  maxImageDimension?: number;
+};
+
+export async function prepareAvatarUpload(
+  file: File,
+  options: PrepareAvatarUploadOptions
+): Promise<PrepareAvatarUploadResult> {
   if (!isImageFile(file)) {
     return {
       ok: false,
@@ -29,7 +35,7 @@ export async function prepareAccountAvatarUpload(
     };
   }
 
-  if (file.size <= MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES) {
+  if (file.size <= options.maxFileSizeBytes) {
     return {
       ok: true,
       file,
@@ -38,8 +44,8 @@ export async function prepareAccountAvatarUpload(
 
   try {
     const optimizedFile = await imageCompression(file, {
-      maxSizeMB: TARGET_ACCOUNT_AVATAR_FILE_SIZE_MB,
-      maxWidthOrHeight: MAX_ACCOUNT_AVATAR_IMAGE_DIMENSION,
+      maxSizeMB: options.targetFileSizeMb ?? DEFAULT_TARGET_FILE_SIZE_MB,
+      maxWidthOrHeight: options.maxImageDimension ?? DEFAULT_MAX_IMAGE_DIMENSION,
       useWebWorker: true,
       initialQuality: 0.9,
     });
@@ -51,7 +57,7 @@ export async function prepareAccountAvatarUpload(
       };
     }
 
-    if (optimizedFile.size > MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES) {
+    if (optimizedFile.size > options.maxFileSizeBytes) {
       return {
         ok: false,
         errorCode: "FILE_TOO_LARGE",

@@ -115,6 +115,10 @@ export default async function Page({
     locale: locale as Locale,
     namespace: "pages.workspace.nav",
   });
+  const tWorkspaceMembersPage = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.workspace.members.page",
+  });
 
   const innerSidebarItems = mapWorkspaceInnerSidebarItems(
     workspaceSettingsInnerSidebarItems,
@@ -153,7 +157,10 @@ export default async function Page({
     >
       <Container size="xl" className="pt-10 pb-24">
         <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
-          <SettingsPage title="Members" description="Manage team members and invitations">
+          <SettingsPage
+            title={tWorkspaceMembersPage("title")}
+            description={tWorkspaceMembersPage("description")}
+          >
             <div className="grid gap-8">
               <WorkspaceInviteMembersSettingsItem workspace={workspaceSettings} />
               <WorkspaceMembersManagementSettingsItem

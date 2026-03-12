@@ -10,6 +10,7 @@ export type WorkspaceInviteRole = WorkspaceInvitesRecord["role"];
 
 export type WorkspaceErrorCode =
   | "BAD_REQUEST"
+  | "SLUG_NOT_AVAILABLE"
   | "UNAUTHORIZED"
   | "FORBIDDEN"
   | "NOT_FOUND"

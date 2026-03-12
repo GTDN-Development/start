@@ -2,6 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useId, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,8 @@ type WorkspaceUrlFormValues = {
 };
 
 export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
+  const t = useTranslations("pages.workspace.general.url");
+  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const urlToastId = useId();
   const [workspaceUrl, setWorkspaceUrl] = useState(workspace.slug);
@@ -37,10 +40,12 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
       .string()
       .trim()
       .min(1, {
-        message: "Workspace URL is required.",
+        message: t("validation.required"),
       })
       .max(MAX_WORKSPACE_URL_LENGTH, {
-        message: `Workspace URL must be at most ${MAX_WORKSPACE_URL_LENGTH} characters long.`,
+        message: t("validation.max", {
+          max: String(MAX_WORKSPACE_URL_LENGTH),
+        }),
       }),
   });
 
@@ -59,9 +64,17 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
       });
 
       if (!response.ok) {
-        toast.error("Update failed", {
+        if (response.errorCode === "SLUG_NOT_AVAILABLE") {
+          toast.error(tCommon("errorTitle"), {
+            id: urlToastId,
+            description: t("status.slugTaken"),
+          });
+          return;
+        }
+
+        toast.error(tCommon("errorTitle"), {
           id: urlToastId,
-          description: "Workspace URL could not be updated.",
+          description: t("status.updateFailed"),
         });
         return;
       }
@@ -70,9 +83,9 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
       form.reset();
       form.setFieldValue("url", response.data.workspaceSlug);
 
-      toast.success("Workspace updated", {
+      toast.success(tCommon("successTitle"), {
         id: urlToastId,
-        description: "Workspace URL was updated.",
+        description: t("status.updated"),
       });
 
       if (response.data.workspaceSlug !== workspace.slug) {
@@ -104,10 +117,8 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
             <>
               <SettingsItemContent className="flex flex-col gap-6">
                 <SettingsItemContentHeader>
-                  <SettingsItemTitle>Workspace URL</SettingsItemTitle>
-                  <SettingsItemDescription>
-                    Set the URL segment used to access this workspace.
-                  </SettingsItemDescription>
+                  <SettingsItemTitle>{t("title")}</SettingsItemTitle>
+                  <SettingsItemDescription>{t("description")}</SettingsItemDescription>
                 </SettingsItemContentHeader>
 
                 <SettingsItemContentBody>
@@ -121,7 +132,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
                         return (
                           <Field data-invalid={isInvalid} className="grid max-w-md gap-2">
                             <FieldLabel htmlFor={`workspace-general-url-${field.name}`}>
-                              URL
+                              {t("field.label")}
                             </FieldLabel>
                             <InputGroup>
                               <InputGroupAddon>{site.domain}/w/</InputGroupAddon>
@@ -131,13 +142,15 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
                                 value={field.state.value}
                                 onBlur={field.handleBlur}
                                 onChange={(event) => field.handleChange(event.target.value)}
-                                placeholder="Enter workspace URL"
+                                placeholder={t("field.placeholder")}
                                 autoComplete="off"
                                 aria-invalid={isInvalid}
                               />
                             </InputGroup>
                             <FieldDescription>
-                              Used in routes like /w/{workspaceUrl}/overview.
+                              {t("field.description", {
+                                workspaceUrl,
+                              })}
                             </FieldDescription>
                             {isInvalid && <FieldError errors={field.state.meta.errors} />}
                           </Field>
@@ -149,10 +162,14 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
               </SettingsItemContent>
 
               <SettingsItemFooter>
-                <SettingsItemDescription>Maximum length is 48 characters.</SettingsItemDescription>
+                <SettingsItemDescription>
+                  {t("footerHint", {
+                    max: String(MAX_WORKSPACE_URL_LENGTH),
+                  })}
+                </SettingsItemDescription>
                 <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
                   {isSubmitting && <Spinner />}
-                  {isSubmitting ? "Saving..." : "Save changes"}
+                  {isSubmitting ? t("submit.pending") : t("submit.default")}
                 </Button>
               </SettingsItemFooter>
             </>

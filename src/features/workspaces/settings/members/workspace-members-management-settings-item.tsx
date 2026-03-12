@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { InboxIcon, MoreHorizontalIcon, PencilLineIcon, SendIcon, TrashIcon } from "lucide-react";
 import {
@@ -109,6 +110,9 @@ export function WorkspaceMembersManagementSettingsItem({
   invites: WorkspaceSettingsInvite[];
   currentUserId: string;
 }) {
+  const t = useTranslations("pages.workspace.members.management");
+  const tRoles = useTranslations("pages.workspace.members.roles");
+  const tCommon = useTranslations("pages.workspace.common");
   const [membersState, setMembersState] = useState<WorkspaceSettingsMember[]>(members);
   const [invitesState, setInvitesState] = useState<WorkspaceSettingsInvite[]>(invites);
   const [actionState, setActionState] = useState<ManagementActionState>(null);
@@ -209,7 +213,7 @@ export function WorkspaceMembersManagementSettingsItem({
     }
 
     if (isChangeRoleTargetLastOwner && actionState.selectedRole !== "owner") {
-      toast.error("Last owner cannot be downgraded.");
+      toast.error(t("status.lastOwnerGuard"));
       return;
     }
 
@@ -226,7 +230,9 @@ export function WorkspaceMembersManagementSettingsItem({
 
     if (!actionResponse.ok) {
       setIsActionSubmitting(false);
-      toast.error(getActionErrorMessage(actionResponse.errorCode, "Role could not be changed."));
+      toast.error(
+        getActionErrorMessage(actionResponse.errorCode, t("status.roleChange.error"), t)
+      );
       return;
     }
 
@@ -267,7 +273,9 @@ export function WorkspaceMembersManagementSettingsItem({
 
     setIsActionSubmitting(false);
     setActionState(null);
-    toast.success("Role updated.");
+    toast.success(tCommon("successTitle"), {
+      description: t("status.roleChange.success"),
+    });
   }
 
   async function handleRemoveMemberConfirm() {
@@ -276,7 +284,7 @@ export function WorkspaceMembersManagementSettingsItem({
     }
 
     if (isRemoveMemberTargetLastOwner) {
-      toast.error("Last owner cannot be removed.");
+      toast.error(t("status.lastOwnerGuard"));
       return;
     }
 
@@ -286,7 +294,7 @@ export function WorkspaceMembersManagementSettingsItem({
 
     if (!response.ok) {
       setIsActionSubmitting(false);
-      toast.error(getActionErrorMessage(response.errorCode, "Member could not be removed."));
+      toast.error(getActionErrorMessage(response.errorCode, t("status.memberRemove.error"), t));
       return;
     }
 
@@ -295,7 +303,9 @@ export function WorkspaceMembersManagementSettingsItem({
     );
     setIsActionSubmitting(false);
     setActionState(null);
-    toast.success("Member removed.");
+    toast.success(tCommon("successTitle"), {
+      description: t("status.memberRemove.success"),
+    });
   }
 
   async function handleResendInvitationConfirm() {
@@ -308,13 +318,17 @@ export function WorkspaceMembersManagementSettingsItem({
 
     if (!response.ok) {
       setIsActionSubmitting(false);
-      toast.error(getActionErrorMessage(response.errorCode, "Invite could not be resent."));
+      toast.error(
+        getActionErrorMessage(response.errorCode, t("status.inviteResend.error"), t)
+      );
       return;
     }
 
     setIsActionSubmitting(false);
     setActionState(null);
-    toast.success("Invite link resent.");
+    toast.success(tCommon("successTitle"), {
+      description: t("status.inviteResend.success"),
+    });
   }
 
   async function handleRemoveInvitationConfirm() {
@@ -327,7 +341,9 @@ export function WorkspaceMembersManagementSettingsItem({
 
     if (!response.ok) {
       setIsActionSubmitting(false);
-      toast.error(getActionErrorMessage(response.errorCode, "Invitation could not be removed."));
+      toast.error(
+        getActionErrorMessage(response.errorCode, t("status.inviteRemove.error"), t)
+      );
       return;
     }
 
@@ -336,24 +352,24 @@ export function WorkspaceMembersManagementSettingsItem({
     );
     setIsActionSubmitting(false);
     setActionState(null);
-    toast.success("Invitation removed.");
+    toast.success(tCommon("successTitle"), {
+      description: t("status.inviteRemove.success"),
+    });
   }
 
   return (
     <div className="pt-6">
       <div className="flex flex-col gap-6">
         <SettingsItemContentHeader>
-          <SettingsItemTitle>Members and invitations</SettingsItemTitle>
-          <SettingsItemDescription>
-            Review current members and pending invitations.
-          </SettingsItemDescription>
+          <SettingsItemTitle>{t("title")}</SettingsItemTitle>
+          <SettingsItemDescription>{t("description")}</SettingsItemDescription>
         </SettingsItemContentHeader>
 
         <SettingsItemContentBody className="@container/members-management grid gap-4">
           <Tabs defaultValue="members" className="flex-col gap-4">
             <TabsList>
-              <TabsTrigger value="members">Members</TabsTrigger>
-              <TabsTrigger value="pending-invitations">Pending invitations</TabsTrigger>
+              <TabsTrigger value="members">{t("tabs.members")}</TabsTrigger>
+              <TabsTrigger value="pending-invitations">{t("tabs.pendingInvitations")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="members" className="grid gap-4">
@@ -410,10 +426,12 @@ export function WorkspaceMembersManagementSettingsItem({
       <AlertDialog open={Boolean(changeRoleMember)} onOpenChange={handleActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Change member role?</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialogs.changeRole.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Select a new role for <strong>{changeRoleMember?.name ?? "this member"}</strong> in{" "}
-              <strong>{workspace.name}</strong>.
+              {t("dialogs.changeRole.description", {
+                memberName: changeRoleMember?.name ?? t("dialogs.common.thisMember"),
+                workspaceName: workspace.name,
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -427,11 +445,11 @@ export function WorkspaceMembersManagementSettingsItem({
                   key={option.value}
                   htmlFor={`workspace-member-role-${changeRoleMember.id}-${option.value}`}
                 >
-                  <Field orientation="horizontal">
-                    <FieldContent>
-                      <FieldTitle>{option.label}</FieldTitle>
-                      <FieldDescription>{option.description}</FieldDescription>
-                    </FieldContent>
+                      <Field orientation="horizontal">
+                        <FieldContent>
+                          <FieldTitle>{tRoles(option.labelKey)}</FieldTitle>
+                          <FieldDescription>{tRoles(option.descriptionKey)}</FieldDescription>
+                        </FieldContent>
                     <RadioGroupItem
                       id={`workspace-member-role-${changeRoleMember.id}-${option.value}`}
                       value={option.value}
@@ -448,17 +466,16 @@ export function WorkspaceMembersManagementSettingsItem({
 
           {isChangeRoleTargetLastOwner && (
             <Alert>
-              <AlertTitle>Last owner protection</AlertTitle>
+              <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
               <AlertDescription>
-                This member is the last owner of this workspace. Promote another member to owner
-                before downgrading.
+                {t("dialogs.lastOwnerGuard.description")}
               </AlertDescription>
             </Alert>
           )}
 
           <AlertDialogFooter>
             <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
-              Cancel
+              {tCommon("cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               type="button"
@@ -473,7 +490,9 @@ export function WorkspaceMembersManagementSettingsItem({
               onClick={handleChangeRoleConfirm}
             >
               {isActionSubmitting && <Spinner />}
-              {isActionSubmitting ? "Saving..." : "Save role"}
+              {isActionSubmitting
+                ? t("dialogs.changeRole.submit.pending")
+                : t("dialogs.changeRole.submit.default")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -482,9 +501,11 @@ export function WorkspaceMembersManagementSettingsItem({
       <AlertDialog open={Boolean(removeMemberTarget)} onOpenChange={handleActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove member from workspace?</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialogs.removeMember.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will immediately revoke access to <strong>{workspace.name}</strong>.
+              {t("dialogs.removeMember.description", {
+                workspaceName: workspace.name,
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -492,18 +513,14 @@ export function WorkspaceMembersManagementSettingsItem({
 
           {isRemoveMemberTargetLastOwner && (
             <Alert>
-              <AlertTitle>
-                This member is the last owner. Add another owner before removing this member.
-              </AlertTitle>
-              <AlertDescription>
-                This member is the last owner. Add another owner before removing this member.
-              </AlertDescription>
+              <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
+              <AlertDescription>{t("dialogs.lastOwnerGuard.description")}</AlertDescription>
             </Alert>
           )}
 
           <AlertDialogFooter>
             <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
-              Cancel
+              {tCommon("cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               type="button"
@@ -513,7 +530,9 @@ export function WorkspaceMembersManagementSettingsItem({
               onClick={handleRemoveMemberConfirm}
             >
               {isActionSubmitting && <Spinner />}
-              {isActionSubmitting ? "Removing..." : "Remove member"}
+              {isActionSubmitting
+                ? t("dialogs.removeMember.submit.pending")
+                : t("dialogs.removeMember.submit.default")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -525,9 +544,11 @@ export function WorkspaceMembersManagementSettingsItem({
       >
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Resend invitation link?</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialogs.resendInvite.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will send a new invitation link for <strong>{workspace.name}</strong>.
+              {t("dialogs.resendInvite.description", {
+                workspaceName: workspace.name,
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -535,7 +556,7 @@ export function WorkspaceMembersManagementSettingsItem({
 
           <AlertDialogFooter>
             <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
-              Cancel
+              {tCommon("cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               type="button"
@@ -544,7 +565,9 @@ export function WorkspaceMembersManagementSettingsItem({
               onClick={handleResendInvitationConfirm}
             >
               {isActionSubmitting && <Spinner />}
-              {isActionSubmitting ? "Resending..." : "Resend invite link"}
+              {isActionSubmitting
+                ? t("dialogs.resendInvite.submit.pending")
+                : t("dialogs.resendInvite.submit.default")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -556,10 +579,11 @@ export function WorkspaceMembersManagementSettingsItem({
       >
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove invitation?</AlertDialogTitle>
+            <AlertDialogTitle>{t("dialogs.removeInvite.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will invalidate the invite token and remove this pending invitation from{" "}
-              <strong>{workspace.name}</strong>.
+              {t("dialogs.removeInvite.description", {
+                workspaceName: workspace.name,
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -567,7 +591,7 @@ export function WorkspaceMembersManagementSettingsItem({
 
           <AlertDialogFooter>
             <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
-              Cancel
+              {tCommon("cancel")}
             </AlertDialogCancel>
             <AlertDialogAction
               type="button"
@@ -577,7 +601,9 @@ export function WorkspaceMembersManagementSettingsItem({
               onClick={handleRemoveInvitationConfirm}
             >
               {isActionSubmitting && <Spinner />}
-              {isActionSubmitting ? "Removing..." : "Remove invitation"}
+              {isActionSubmitting
+                ? t("dialogs.removeInvite.submit.pending")
+                : t("dialogs.removeInvite.submit.default")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -590,21 +616,25 @@ function isLastOwnerMember(member: WorkspaceSettingsMember, ownerCount: number):
   return member.role === "owner" && ownerCount === 1;
 }
 
-function getActionErrorMessage(errorCode: string, fallbackMessage: string): string {
+function getActionErrorMessage(
+  errorCode: string,
+  fallbackMessage: string,
+  t: (key: string) => string
+): string {
   if (errorCode === "LAST_OWNER_GUARD") {
-    return "Last owner cannot be changed or removed.";
+    return t("errors.lastOwnerGuard");
   }
 
   if (errorCode === "RATE_LIMITED") {
-    return "Please wait before trying again.";
+    return t("errors.rateLimited");
   }
 
   if (errorCode === "FORBIDDEN") {
-    return "You do not have permission to do this.";
+    return t("errors.forbidden");
   }
 
   if (errorCode === "NOT_FOUND") {
-    return "Item was not found.";
+    return t("errors.notFound");
   }
 
   return fallbackMessage;
@@ -621,13 +651,16 @@ function MembersTable({
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
 }) {
+  const t = useTranslations("pages.workspace.members.management");
+  const tRoles = useTranslations("pages.workspace.members.roles");
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>User</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead>{t("table.members.user")}</TableHead>
+          <TableHead>{t("table.members.role")}</TableHead>
+          <TableHead className="text-right">{t("table.members.actions")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -636,7 +669,7 @@ function MembersTable({
             <TableCell className="min-w-72">
               <MemberIdentityCell member={member} />
             </TableCell>
-            <TableCell>{getWorkspaceMemberRoleLabel(member.role)}</TableCell>
+            <TableCell>{getWorkspaceMemberRoleLabel(member.role, tRoles)}</TableCell>
             <TableCell className="text-right">
               <MembersActionMenu
                 member={member}
@@ -661,13 +694,16 @@ function PendingInvitationsTable({
   onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
 }) {
+  const t = useTranslations("pages.workspace.members.management");
+  const tRoles = useTranslations("pages.workspace.members.roles");
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Email</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead>{t("table.invites.email")}</TableHead>
+          <TableHead>{t("table.invites.role")}</TableHead>
+          <TableHead className="text-right">{t("table.invites.actions")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -676,7 +712,7 @@ function PendingInvitationsTable({
             <TableCell className="min-w-72">
               <p className="text-sm font-medium">{invitation.emailNormalized}</p>
             </TableCell>
-            <TableCell>{getWorkspaceMemberRoleLabel(invitation.role)}</TableCell>
+            <TableCell>{getWorkspaceMemberRoleLabel(invitation.role, tRoles)}</TableCell>
             <TableCell className="text-right">
               <PendingInvitationActionMenu
                 invitation={invitation}
@@ -702,18 +738,21 @@ function MemberDescriptionRow({
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
 }) {
+  const t = useTranslations("pages.workspace.members.management");
+  const tRoles = useTranslations("pages.workspace.members.roles");
+
   return (
     <div className="bg-background rounded-xl border px-3">
       <DescriptionList>
-        <DescriptionTerm>User</DescriptionTerm>
+        <DescriptionTerm>{t("table.members.user")}</DescriptionTerm>
         <DescriptionDetails>
           <MemberIdentityCell member={member} />
         </DescriptionDetails>
 
-        <DescriptionTerm>Role</DescriptionTerm>
-        <DescriptionDetails>{getWorkspaceMemberRoleLabel(member.role)}</DescriptionDetails>
+        <DescriptionTerm>{t("table.members.role")}</DescriptionTerm>
+        <DescriptionDetails>{getWorkspaceMemberRoleLabel(member.role, tRoles)}</DescriptionDetails>
 
-        <DescriptionTerm>Actions</DescriptionTerm>
+        <DescriptionTerm>{t("table.members.actions")}</DescriptionTerm>
         <DescriptionDetails>
           <MembersActionMenu
             member={member}
@@ -736,18 +775,23 @@ function PendingInvitationDescriptionRow({
   onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
 }) {
+  const t = useTranslations("pages.workspace.members.management");
+  const tRoles = useTranslations("pages.workspace.members.roles");
+
   return (
     <div className="bg-background rounded-xl border px-3">
       <DescriptionList>
-        <DescriptionTerm>Email</DescriptionTerm>
+        <DescriptionTerm>{t("table.invites.email")}</DescriptionTerm>
         <DescriptionDetails>
           <span className="text-sm font-medium">{invitation.emailNormalized}</span>
         </DescriptionDetails>
 
-        <DescriptionTerm>Role</DescriptionTerm>
-        <DescriptionDetails>{getWorkspaceMemberRoleLabel(invitation.role)}</DescriptionDetails>
+        <DescriptionTerm>{t("table.invites.role")}</DescriptionTerm>
+        <DescriptionDetails>
+          {getWorkspaceMemberRoleLabel(invitation.role, tRoles)}
+        </DescriptionDetails>
 
-        <DescriptionTerm>Actions</DescriptionTerm>
+        <DescriptionTerm>{t("table.invites.actions")}</DescriptionTerm>
         <DescriptionDetails>
           <PendingInvitationActionMenu
             invitation={invitation}
@@ -779,22 +823,26 @@ function MemberIdentityCell({ member }: { member: WorkspaceSettingsMember }) {
 }
 
 function MemberSummaryRow({ member }: { member: WorkspaceSettingsMember }) {
+  const tRoles = useTranslations("pages.workspace.members.roles");
+
   return (
     <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
       <MemberIdentityCell member={member} />
       <span className="text-muted-foreground text-sm">
-        {getWorkspaceMemberRoleLabel(member.role)}
+        {getWorkspaceMemberRoleLabel(member.role, tRoles)}
       </span>
     </div>
   );
 }
 
 function InvitationSummaryRow({ invitation }: { invitation: WorkspaceSettingsInvite }) {
+  const tRoles = useTranslations("pages.workspace.members.roles");
+
   return (
     <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
       <span className="text-sm font-medium">{invitation.emailNormalized}</span>
       <span className="text-muted-foreground text-sm">
-        {getWorkspaceMemberRoleLabel(invitation.role)}
+        {getWorkspaceMemberRoleLabel(invitation.role, tRoles)}
       </span>
     </div>
   );
@@ -811,26 +859,33 @@ function MembersActionMenu({
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
 }) {
+  const t = useTranslations("pages.workspace.members.management");
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         nativeButton={true}
         render={
-          <Button type="button" variant="ghost" size="icon" aria-label="Open member actions">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={t("menus.members.ariaLabel")}
+          >
             <MoreHorizontalIcon aria-hidden="true" className="size-4" />
           </Button>
         }
       />
       <DropdownMenuContent align="end" className="w-auto min-w-44">
         <DropdownMenuItem onClick={() => onChangeRoleRequest(member)}>
-          <PencilLineIcon aria-hidden="true" /> Change role
+          <PencilLineIcon aria-hidden="true" /> {t("menus.members.changeRole")}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onRemoveMemberRequest(member)}
           variant="destructive"
           disabled={isLastOwner}
         >
-          <TrashIcon aria-hidden="true" /> Remove from workspace
+          <TrashIcon aria-hidden="true" /> {t("menus.members.removeMember")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -846,25 +901,32 @@ function PendingInvitationActionMenu({
   onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
 }) {
+  const t = useTranslations("pages.workspace.members.management");
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         nativeButton={true}
         render={
-          <Button type="button" variant="ghost" size="icon" aria-label="Open invitation actions">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={t("menus.invites.ariaLabel")}
+          >
             <MoreHorizontalIcon aria-hidden="true" className="size-4" />
           </Button>
         }
       />
       <DropdownMenuContent align="end" className="w-auto min-w-44">
         <DropdownMenuItem onClick={() => onResendInvitationRequest(invitation)}>
-          <SendIcon aria-hidden="true" /> Resend invite link
+          <SendIcon aria-hidden="true" /> {t("menus.invites.resend")}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onRemoveInvitationRequest(invitation)}
           variant="destructive"
         >
-          <TrashIcon aria-hidden="true" /> Remove invitation
+          <TrashIcon aria-hidden="true" /> {t("menus.invites.remove")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -872,14 +934,16 @@ function PendingInvitationActionMenu({
 }
 
 function PendingInvitationsEmptyState() {
+  const t = useTranslations("pages.workspace.members.management.empty");
+
   return (
     <Empty className="bg-background border-border rounded-xl border py-12">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <InboxIcon aria-hidden="true" />
         </EmptyMedia>
-        <EmptyTitle>No pending invitations</EmptyTitle>
-        <EmptyDescription>All invitations are accepted or expired.</EmptyDescription>
+        <EmptyTitle>{t("title")}</EmptyTitle>
+        <EmptyDescription>{t("description")}</EmptyDescription>
       </EmptyHeader>
     </Empty>
   );
