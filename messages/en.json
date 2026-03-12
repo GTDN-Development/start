@@ -107,6 +107,38 @@
         "actions": {
           "create": "Create workspace"
         },
+        "createDrawer": {
+          "title": "Create a workspace",
+          "description": "Unlock collaboration and more with organisation workspace.",
+          "fields": {
+            "name": {
+              "label": "Name",
+              "placeholder": "Enter workspace name",
+              "description": "Used in navigation and workspace switcher."
+            },
+            "slug": {
+              "label": "URL",
+              "placeholder": "team-name",
+              "description": "Optional. Leave empty to generate it from the workspace name."
+            }
+          },
+          "validation": {
+            "nameRequired": "Workspace name is required.",
+            "nameMax": "Workspace name must be at most {max} characters long.",
+            "slugMax": "Workspace URL must be at most {max} characters long.",
+            "slugPattern": "Use only lowercase letters, numbers, and hyphens."
+          },
+          "submit": {
+            "default": "Create workspace",
+            "pending": "Creating..."
+          },
+          "status": {
+            "created": "Workspace was created.",
+            "failed": "Workspace could not be created.",
+            "badRequest": "Please check entered values and try again.",
+            "unauthorized": "Your session expired. Please sign in again."
+          }
+        },
         "workspaces": {
           "current": {
             "name": "Workspace Name",

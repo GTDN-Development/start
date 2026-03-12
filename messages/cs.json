@@ -107,6 +107,38 @@
         "actions": {
           "create": "Vytvořit pracovní prostor"
         },
+        "createDrawer": {
+          "title": "Vytvořit workspace",
+          "description": "Odemkněte spolupráci a další možnosti s organizačním workspace.",
+          "fields": {
+            "name": {
+              "label": "Název",
+              "placeholder": "Zadejte název workspace",
+              "description": "Používá se v navigaci a přepínači workspace."
+            },
+            "slug": {
+              "label": "URL",
+              "placeholder": "nazev-tymu",
+              "description": "Volitelné. Pokud necháte prázdné, URL se vygeneruje z názvu workspace."
+            }
+          },
+          "validation": {
+            "nameRequired": "Název workspace je povinný.",
+            "nameMax": "Název workspace může mít maximálně {max} znaků.",
+            "slugMax": "URL workspace může mít maximálně {max} znaků.",
+            "slugPattern": "Použijte pouze malá písmena, čísla a pomlčky."
+          },
+          "submit": {
+            "default": "Vytvořit workspace",
+            "pending": "Vytvářím..."
+          },
+          "status": {
+            "created": "Workspace byl vytvořen.",
+            "failed": "Workspace se nepodařilo vytvořit.",
+            "badRequest": "Zkontrolujte prosím zadané hodnoty a zkuste to znovu.",
+            "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
+          }
+        },
         "workspaces": {
           "current": {
             "name": "Název pracovního prostoru",

@@ -27,6 +27,7 @@ import {
   WorkspaceAvatarFallback,
   WorkspaceAvatarImage,
 } from "./workspace-avatar";
+import { WorkspaceCreateDrawer } from "./workspace-create-drawer";
 
 type WorkspaceOption = WorkspaceNavigationItem & {
   initials: string;
@@ -45,6 +46,7 @@ export function WorkspaceSwitcher({
   const router = useRouter();
   const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
   const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);
+  const [isCreateWorkspaceDrawerOpen, setIsCreateWorkspaceDrawerOpen] = useState(false);
 
   const workspaceOptions = workspaces.map(createWorkspaceOption);
   const activeWorkspace =
@@ -84,6 +86,14 @@ export function WorkspaceSwitcher({
         },
       });
     });
+  }
+
+  function handleCreateWorkspaceClick() {
+    if (isSwitchingWorkspace) {
+      return;
+    }
+
+    setIsCreateWorkspaceDrawerOpen(true);
   }
 
   if (!activeWorkspace) {
@@ -170,14 +180,22 @@ export function WorkspaceSwitcher({
               })}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2" disabled={true}>
+            <DropdownMenuItem
+              className="gap-2 p-2"
+              disabled={isSwitchingWorkspace}
+              onClick={handleCreateWorkspaceClick}
+            >
               <div className="bg-background border-border flex size-6 items-center justify-center rounded-md border">
                 <PlusIcon aria-hidden="true" className="size-4" />
               </div>
-              <span className="text-muted-foreground font-medium">{t("actions.create")}</span>
+              <span className="font-medium">{t("actions.create")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <WorkspaceCreateDrawer
+          open={isCreateWorkspaceDrawerOpen}
+          onOpenChange={setIsCreateWorkspaceDrawerOpen}
+        />
       </SidebarMenuItem>
     </SidebarMenu>
   );
