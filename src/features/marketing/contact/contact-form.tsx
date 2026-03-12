@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { legalLinks } from "@/config/legal-links";
+import { submitContactFormAction } from "@/features/marketing/actions/marketing-actions";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/features/marketing/turnstile";
 import { Spinner } from "@/components/ui/spinner";
@@ -96,34 +97,23 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
     onSubmit: async ({ value }: { value: ContactFormValues }) => {
       setSubmitStatus({ type: null, message: "" });
 
-      try {
-        const response = await fetch("/api/marketing/contact", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(value),
-        });
+      const response = await submitContactFormAction(value);
 
-        if (response.ok) {
-          setSubmitStatus({
-            type: "success",
-            message: t("status.success.message"),
-          });
-          form.reset();
-          turnstileRef.current?.reset();
-        } else {
-          setSubmitStatus({
-            type: "error",
-            message: t("status.error.message"),
-          });
-        }
-      } catch {
+      if (response.ok) {
         setSubmitStatus({
-          type: "error",
-          message: t("status.error.message"),
+          type: "success",
+          message: t("status.success.message"),
         });
+        form.reset();
+        turnstileRef.current?.reset();
+
+        return;
       }
+
+      setSubmitStatus({
+        type: "error",
+        message: t("status.error.message"),
+      });
     },
   });
 

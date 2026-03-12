@@ -11,6 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { legalLinks } from "@/config/legal-links";
+import { submitNewsletterFormAction } from "@/features/marketing/actions/marketing-actions";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/features/marketing/turnstile";
 
@@ -49,37 +50,26 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
     onSubmit: async ({ value }: { value: NewsletterFormValues }) => {
       setSubmitStatus({ type: null, message: "" });
 
-      try {
-        const response = await fetch("/api/marketing/newsletter", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: value["newsletter-email"],
-            turnstileToken: value.turnstileToken,
-          }),
-        });
+      const response = await submitNewsletterFormAction({
+        email: value["newsletter-email"],
+        turnstileToken: value.turnstileToken,
+      });
 
-        if (response.ok) {
-          setSubmitStatus({
-            type: "success",
-            message: t("status.success.message"),
-          });
-          form.reset();
-          turnstileRef.current?.reset();
-        } else {
-          setSubmitStatus({
-            type: "error",
-            message: t("status.error.message"),
-          });
-        }
-      } catch {
+      if (response.ok) {
         setSubmitStatus({
-          type: "error",
-          message: t("status.error.message"),
+          type: "success",
+          message: t("status.success.message"),
         });
+        form.reset();
+        turnstileRef.current?.reset();
+
+        return;
       }
+
+      setSubmitStatus({
+        type: "error",
+        message: t("status.error.message"),
+      });
     },
   });
 
