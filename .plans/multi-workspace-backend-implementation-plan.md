@@ -1,40 +1,39 @@
-# Multi-workspace Backend Implementation Plan
+# Multi-workspace Backend Implementation Plan (Lean)
 
-Datum: 11. 3. 2026
-Cíl: přepnout statickou workspace implementaci na produkční backend bez přepisu existující auth flow.
+Datum: 12. 3. 2026  
+Cíl: přepnout statickou workspace implementaci na produkční backend s minimální komplexitou, bez workspace REST proxy vrstvy a bez zásahu do auth flow.
 
-## 1. Principy návrhu (KISS + DX)
+## 1. Principy návrhu (KISS + využití nativních možností PB/Next)
 
-1. Workspace vrstva je plugin nad existujícím auth stackem, ne jeho náhrada.
-2. Auth formuláře (`sign-in`, `sign-up`) zůstávají bez workspace logiky.
-3. Veškerá business pravidla se vynucují na serveru, UI jen reflektuje stav.
-4. Route kontrakt se drží canonical URL z architektury (`/overview`, `/w/[workspaceSlug]/...`, `/invite/[token]`).
-5. Služby budou malé, explicitní a dobře testovatelné (bez "smart" framework magie).
-6. Žádné dead abstraction vrstvy; přímočará service + route handler + UI data binding.
+1. Workspace backend je server-first: čtení dat v Server Components, mutace přes Server Actions.
+2. Nevytváříme proxy REST API `src/app/api/workspaces/*` ani `src/app/api/workspace-invites/*`.
+3. Autorizace je primárně vynucena PocketBase API rules, ne duplicitní middleware vrstvou.
+4. Auth endpointy (`/api/auth/*`) řeší jen auth; workspace orchestrace běží mimo ně.
+5. Držíme minimum doménových guardů, které nelze spolehlivě vyjádřit jen PB rules (last-owner, personal restrikce, UX error mapping).
+6. Žádné over-abstraction: malé query/helper funkce + malé Server Actions.
 
 ## 2. Co se nemění
 
 1. PocketBase zůstává auth provider (`pb_auth` cookie).
-2. Existující endpointy `/api/auth/*` zůstávají, jen se rozšíří o post-auth hook.
+2. Existující endpointy `/api/auth/*` zůstávají pro auth use-cases.
 3. Existující account backend (`/api/account/*`) zůstává oddělený.
-4. Stávající ověřené auth guardy a redirecty se nerozbíjí.
+4. Route kontrakt zůstává canonical: `/overview`, `/w/[workspaceSlug]/...`, `/invite/[token]`.
 
 ## 3. Cílová modulární struktura
 
-1. `src/server/workspaces/workspace-service.ts`
-2. `src/server/workspaces/workspace-members-service.ts`
-3. `src/server/workspaces/workspace-invite-service.ts`
-4. `src/server/workspaces/workspace-cookie.ts`
-5. `src/server/workspaces/workspace-errors.ts`
-6. `src/server/workspaces/workspace-types.ts`
-7. `src/server/workspaces/post-auth-workspace-hook.ts`
-8. `src/features/workspaces/workspace-client.ts`
-9. `src/features/workspaces/workspace-contract.ts`
-10. `src/features/workspaces/workspace-context.tsx`
-11. `src/app/api/workspaces/*`
-12. `src/app/api/workspace-invites/*`
+1. `src/server/workspaces/workspace-types.ts`
+2. `src/server/workspaces/workspace-cookie.ts`
+3. `src/server/workspaces/workspace-domain.ts` (malé guard/helper funkce)
+4. `src/server/workspaces/workspace-queries.ts` (server-side read model nad PB)
+5. `src/server/workspaces/workspace-invites.ts` (token helpery + accept/consume)
+6. `src/features/workspaces/actions/workspace-actions.ts` (`"use server"` mutace)
+7. `src/features/workspaces/actions/workspace-member-actions.ts` (`"use server"` mutace členů)
+8. `src/features/workspaces/actions/workspace-invite-actions.ts` (`"use server"` mutace pozvánek)
+9. `src/features/workspaces/workspace-context.tsx` (lightweight context: active workspace + available workspaces)
+10. `src/app/[locale]/(application)/overview/page.tsx` (centrální bootstrap orchestrátor)
+11. `src/app/[locale]/(auth)/(flow)/invite/[token]/page.tsx` (server invite entrypoint)
 
-Poznámka: vše workspace-related zůstává v `workspaces` doméně, auth soubory jen volají hook.
+Poznámka: workspace data flow jde přes Server Components/Actions; route handlers pro workspace doménu nepřidáváme.
 
 ## 4. Datový model v PocketBase
 
@@ -176,272 +175,249 @@ Tato sekce je záměrně copy-paste reference aktuálně schválených rules.
 
 `workspaces.kind` je sjednoceno na hodnoty `personal | organization` (nikoliv `organisation`).
 
-## 5. Server business služby
+## 5. Server operace (queries + actions, bez REST proxy)
 
-## 5.1 `workspace-service`
+## 5.1 Query vrstva pro Server Components
 
-1. `ensurePersonalWorkspace(userId, userEmail, displayName)`
-2. `createOrganizationWorkspace(userId, input)`
-3. `listUserWorkspaces(userId)`
-4. `resolveWorkspaceForUserBySlug(userId, slug)`
-5. `pickWorkspaceForOverview(userId, activeWorkspaceSlugCookie)`
-6. `updateWorkspaceGeneral(...)`
-7. `deleteOrganizationWorkspace(...)`
-8. `leaveWorkspace(...)`
+1. `ensurePersonalWorkspace(userId, userEmail, displayName)` (idempotentní bootstrap)
+2. `listUserWorkspaces(userId)`
+3. `resolveWorkspaceForUserBySlug(userId, slug)`
+4. `pickWorkspaceForOverview(userId, activeWorkspaceSlugCookie)`
+5. `listWorkspaceMembers(workspaceId)`
+6. `listWorkspaceInvites(workspaceId)`
 
-Business guards:
-1. `personal` nelze smazat/opustit/zvát.
-2. Last owner guard je server-side hard stop.
-3. Slug policy: personal deterministický, organization s retry + suffix.
+## 5.2 Server Actions pro mutace (`"use server"`)
 
-## 5.2 `workspace-members-service`
+1. `createOrganizationWorkspaceAction(input)`
+2. `switchWorkspaceAction(workspaceSlug)`
+3. `updateWorkspaceGeneralAction(workspaceSlug, input)`
+4. `leaveWorkspaceAction(workspaceSlug)`
+5. `deleteOrganizationWorkspaceAction(workspaceSlug)`
+6. `changeMemberRoleAction(workspaceSlug, memberId, role)`
+7. `removeMemberAction(workspaceSlug, memberId)`
+8. `transferOwnershipAction(workspaceSlug, targetMemberId)`
+9. `createInviteAction(workspaceSlug, input)`
+10. `resendInviteAction(workspaceSlug, inviteId)`
+11. `revokeInviteAction(workspaceSlug, inviteId)`
 
-1. `listMembers(workspaceId)`
-2. `changeMemberRole(workspaceId, actorUserId, targetUserId, role)`
-3. `removeMember(workspaceId, actorUserId, targetUserId)`
-4. `transferOwnership(workspaceId, fromUserId, toUserId)`
+Každá action:
+1. Ověří vstup přes Zod.
+2. Spustí přímo PB operaci pod aktuální session (`createPocketBaseServerClient`).
+3. Nechá PB API rules vynutit authz.
+4. Pouze pro domain invarianty přidá explicitní guard (`personal`, `last-owner`).
+5. Po mutaci zavolá cílený `revalidatePath(...)`.
 
-## 5.3 `workspace-invite-service`
+## 5.3 Error handling model (minimal)
 
-1. `createInvite(...)`
-2. `resendInvite(...)`
-3. `revokeInvite(...)`
-4. `validateInviteToken(rawToken)`
-5. `acceptInviteByToken(rawToken, authenticatedUser)`
-6. `consumePendingInviteIfAny(authenticatedUser)`
-
-Bezpečnost:
-1. Raw token jen in-memory.
-2. Persistuje se pouze SHA-256 `token_hash`.
-3. Žádné logování tokenu.
-4. Email match je povinný (`normalize(user.email) === email_normalized`).
+1. Primární zdroj je `ClientResponseError.status` z PB.
+2. Doménové custom kódy držíme jen pro případy, kde status sám nestačí:
+3. `PERSONAL_WORKSPACE_RESTRICTED`
+4. `LAST_OWNER_GUARD`
+5. `INVITE_EMAIL_MISMATCH`
+6. `INVITE_INVALID_OR_EXPIRED`
+7. Odstraňujeme nadbytečný široký enum a kód `OWNERSHIP_TRANSFER_PARTIAL`.
 
 ## 5.4 Cookie helper
 
 1. `active_workspace` ukládá pouze `workspaceSlug`.
 2. `active_workspace` je `HttpOnly`, `Secure` (prod), `SameSite=Lax`, `Path=/`.
-3. `pending_invite_hash` je `HttpOnly` cookie s krátkým TTL.
-4. Pokud `active_workspace` odkazuje na workspace bez membership, systém cookie přepíše na validní fallback.
+3. `pending_invite` je krátkodobá `HttpOnly` cookie s tokenem (raw), nikdy se neloguje.
+4. Pokud `active_workspace` odkazuje na workspace bez membership, cookie se přepíše na validní fallback.
 5. Fallback pořadí: validní cookie workspace -> personal workspace -> první dostupný workspace.
 6. Jednotné set/clear utility v `workspace-cookie.ts`.
 
-## 5.5 Ownership transfer bez transakcí
+## 5.5 Ownership transfer přes PocketBase Batch API
 
-1. `transferOwnership` se provádí v pořadí `promote target -> demote source`.
-2. Nikdy se nedělá `demote source` jako první (prevence stavu bez ownera).
-3. Pokud demote selže, vrací se explicitní error `OWNERSHIP_TRANSFER_PARTIAL` a stav je bezpečný (2 owners).
-4. Operace je idempotentní a retry-safe.
+1. `transferOwnershipAction` použije jeden `/api/batch` request pro oba updaty:
+2. target member `role -> owner`
+3. source member `role -> member`
+4. Operace běží v jednom write transactionu (all-or-nothing).
+5. Pokud batch selže, neprovádí se žádný ruční rollback.
+6. Předpoklad: Batch API je povolené v PocketBase settings.
 
-## 6. API kontrakt
+## 6. Čtení a zápis dat bez workspace REST endpointů
 
-## 6.1 Workspace API
+## 6.1 Čtení (Server Components)
 
-1. `GET /api/workspaces` -> seznam dostupných workspace + active.
-2. `POST /api/workspaces` -> vytvoří nový `organization` workspace.
-3. `POST /api/workspaces/switch` -> nastaví `active_workspace` cookie.
-4. `PATCH /api/workspaces/[workspaceSlug]/general` -> name/slug/avatar.
-5. `POST /api/workspaces/[workspaceSlug]/leave` -> opuštění workspace.
-6. `DELETE /api/workspaces/[workspaceSlug]` -> hard delete (organization only).
+1. Route/page/layout komponenty čtou data přímo přes query funkce nad PB klientem.
+2. Žádný mezikrok přes `fetch("/api/workspaces/...")`.
 
-## 6.2 Members API
+## 6.2 Zápis (Server Actions)
 
-1. `GET /api/workspaces/[workspaceSlug]/members`
-2. `PATCH /api/workspaces/[workspaceSlug]/members/[memberId]/role`
-3. `DELETE /api/workspaces/[workspaceSlug]/members/[memberId]`
-4. `POST /api/workspaces/[workspaceSlug]/members/transfer-ownership`
+1. Formuláře a tlačítka volají Server Actions přímo (`form action` / `startTransition` wrapper).
+2. Next.js řeší POST transport nativně; držíme jen minimální validaci vstupů.
 
-## 6.3 Invites API
+## 6.3 Revalidace
 
-1. `GET /api/workspaces/[workspaceSlug]/invites`
-2. `POST /api/workspaces/[workspaceSlug]/invites`
-3. `POST /api/workspaces/[workspaceSlug]/invites/[inviteId]/resend`
-4. `DELETE /api/workspaces/[workspaceSlug]/invites/[inviteId]`
-5. `POST /api/workspace-invites/accept` (token-driven; authenticated)
+1. Members page: `revalidatePath("/w/[workspaceSlug]/settings/members")`.
+2. General settings: `revalidatePath("/w/[workspaceSlug]/settings")`.
+3. Přepnutí workspace: update cookie + redirect na `/w/[workspaceSlug]/overview`.
 
-## 6.4 Response pattern
+## 6.4 Bezpečnostní baseline
 
-1. Workspace doména používá `WorkspaceResponse` ve stejném tvaru jako auth (`ok: true/false`).
-2. Základní `WorkspaceErrorCode`: `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `CONFLICT`, `RATE_LIMITED`, `UNKNOWN_ERROR`.
-3. Doménové `WorkspaceErrorCode`: `WORKSPACE_MEMBERSHIP_REQUIRED`, `WORKSPACE_SLUG_CONFLICT`, `PERSONAL_WORKSPACE_RESTRICTED`, `LAST_OWNER_GUARD`, `ALREADY_MEMBER`, `INVITE_NOT_FOUND`, `INVITE_EXPIRED`, `INVITE_EMAIL_MISMATCH`, `INVITE_ALREADY_CONSUMED`, `OWNERSHIP_TRANSFER_PARTIAL`.
-4. Error kódy jsou stabilní kontrakt pro UI i i18n (`messages/en.json`, `messages/cs.json`).
+1. Workspace mutace nejedou přes custom route handlers, takže nevzniká duplicitní `hasValidOrigin` boilerplate.
+2. CSRF/origin ochrana se opírá o Next.js Server Actions mechanismus + same-site cookie model.
+3. Pokud bude potřeba cross-origin trusted flow, nastaví se explicitně `serverActions.allowedOrigins` v `next.config.ts`.
+4. Autorizační pravidla zůstávají v PB API rules.
 
-## 6.5 API security baseline (workspace routes)
+## 7. Integrace do auth flow (zjednodušený plugin mode)
 
-1. Každý mutační workspace endpoint (`POST`, `PATCH`, `DELETE`) musí mít `hasValidOrigin` check.
-2. Nevalidní nebo chybějící `Origin` vrací `BAD_REQUEST` (`400`).
-3. Toto pravidlo platí pro `src/app/api/workspaces/*` i `src/app/api/workspace-invites/*`.
+## 7.1 Auth endpointy zůstávají čisté
 
-## 7. Integrace do existující auth flow (plugin mode)
+1. V `src/app/api/auth/[...all]/route.ts` nepřidáváme workspace post-auth orchestraci.
+2. `sign-in`/`sign-up` mají jedinou odpovědnost: autentizace.
 
-## 7.1 Post-auth hook
+## 7.2 Invite route (`/[locale]/invite/[token]`)
 
-1. V `src/app/api/auth/[...all]/route.ts` po úspěšném `sign-in` a `sign-up` zavolat `consumePendingInviteIfAny`.
-2. Pokud pending invite není, nic se neděje.
-3. Pokud je invite validní a email sedí, membership se vytvoří idempotentně + invite smaže.
-4. Pokud email nesedí, pending cookie se smaže a nastaví se flash kód `INVITE_EMAIL_MISMATCH`.
-5. Hook je vůči auth flow fail-open: `sign-in`/`sign-up` nesmí failnout kvůli workspace hook chybě.
-6. Hook vrací explicitní stav (`none`, `consumed`, `email_mismatch`, `invalid_or_expired`, `transient_error`).
-7. `email_mismatch` a `invalid_or_expired` vždy clearují `pending_invite_hash`.
-8. `transient_error` se pouze zaloguje (warning), auth pokračuje a retry proběhne best-effort v `/overview` bootstrapu.
-9. Hook má mít vlastní krátký timeout, aby nebrzdil auth endpointy.
+1. Serverově ověří syntaxi/token existence.
+2. Pokud user není přihlášen: uloží `pending_invite` cookie a redirectne na `/sign-in`.
+3. Pokud user přihlášený je: provede accept přímo a redirectne do cílového workspace.
+4. Při invalid/expired tokenu vrátí odpovídající error stav page.
 
-## 7.2 Auth formuláře
+## 7.3 `/overview` jako jediný bootstrap orchestrace bod
 
-1. Beze změn na úrovni fields/submit payload.
-2. Volitelně zobrazit flash message, pokud přijde mismatch po redirectu na `/overview`.
+1. Ověří session.
+2. Zavolá `ensurePersonalWorkspace` idempotentně.
+3. Pokud existuje `pending_invite`, pokusí se o consume:
+4. success: vytvoří membership (idempotentně), smaže invite + cookie
+5. mismatch/invalid: smaže cookie a nastaví flash stav
+6. Poté vybere aktivní workspace a redirect na `/w/[workspaceSlug]/overview`.
 
 ## 8. Routing a bootstrap
 
-## 8.1 `/overview` (centrální bootstrap)
-
-1. Ověřit session.
-2. Zavolat `ensurePersonalWorkspace` idempotentně.
-3. Zkusit `active_workspace` slug z cookie.
-4. Validovat membership.
-5. Redirect na `/w/[workspaceSlug]/overview`.
-
-## 8.2 Workspace routes
+## 8.1 Dynamic workspace routes
 
 1. Přidat dynamické app routes:
 2. `src/app/[locale]/(application)/w/[workspaceSlug]/overview/page.tsx`
 3. `src/app/[locale]/(application)/w/[workspaceSlug]/settings/page.tsx`
 4. `src/app/[locale]/(application)/w/[workspaceSlug]/settings/members/page.tsx`
 5. Na serveru vždy validovat membership pro daný slug.
-6. Smazat staré statické routes `src/app/[locale]/(application)/w/workspace/*`.
-7. Aktualizovat menu a navigační helpery na dynamický slug (`applicationMenu`, `workspaceSettingsInnerSidebarItems`, `isMenuItemActive`, `getWorkspaceSegments`, user menu links).
-8. Nepřidávat backward-compatible alias pro `/w/workspace/*`; staré cesty budou odstraněny.
+6. Smazat statické routes `src/app/[locale]/(application)/w/workspace/*`.
+7. Aktualizovat menu a helpery na dynamický slug.
+8. Nepřidávat backward-compatible alias pro `/w/workspace/*`.
 
-## 8.3 Invite route
-
-1. `GET /[locale]/invite/[token]` serverově validuje token.
-2. Pokud user není přihlášen: uloží `pending_invite_hash`, redirect `/sign-in`.
-3. Pokud přihlášen: pokus o accept + redirect na workspace nebo error state.
-
-## 8.4 Race handling a slug policy
+## 8.2 Slug policy a race handling
 
 1. `ensurePersonalWorkspace` je idempotentní a safe pro paralelní requesty.
-2. Personal slug se generuje deterministicky (`u-{userId}`) bez suffixů.
-3. Při `slug` kolizi v `ensurePersonalWorkspace` se provede refetch existujícího personal workspace místo tvorby dalšího.
+2. Personal slug: deterministický `u-{userId}`.
+3. Při kolizi v personal bootstrapu provést refetch existujícího workspace.
 4. Guard: uživatel může mít maximálně jeden personal workspace.
-5. Organization slug policy: slugify z názvu, suffix `-2`, `-3`, ... při kolizi, max 10 pokusů.
+5. Organization slug policy: slugify + suffix `-2`, `-3`, ... max 10 pokusů.
 6. Reserved slugs: `overview`, `settings`, `account`, `api`, `invite`, `sign-in`, `sign-up`, `sign-out`.
 
 ## 9. Frontend migrace ze statiky
 
-## 9.1 Sdílený workspace context
+## 9.1 Lightweight workspace context
 
-1. Přidat provider podobný `AccountProfileProvider`.
-2. Rozhodnutí: server-first data loading.
-3. Initial workspace data načíst v server component layoutu a předat do provideru.
-4. Client fetch je pouze pro mutace a explicitní refresh; ne pro první render.
-5. Context nese `activeWorkspace`, `availableWorkspaces`, members a invites cache.
+1. Context nese jen:
+2. `activeWorkspace`
+3. `availableWorkspaces`
+4. Kontext nenese globální cache members/invites.
 
-## 9.2 Workspace settings komponenty
+## 9.2 Route-lokální data loading
 
-1. Nahradit mock data (`WORKSPACE_SETTINGS_PREVIEW`, hardcoded rows) za data z API.
-2. Zachovat stávající UI komponenty, mění se jen data source + submit handlery.
-3. Last-owner/personal guard ponechat i v UI, ale jako sekundární ochranu.
+1. `/settings/members` načítá members/invites přímo v Server Component page.
+2. Po mutaci přes Server Action se použije `revalidatePath`.
+3. Nepřidávat globální klientský state manager pro server data.
 
 ## 9.3 Invite token page
 
-1. Zrušit dev state switcher v produkčním runtime.
-2. Napojit state mapping na reálné server result codes.
-3. CTA akce skutečně napojit (`sign-in`, `go to workspace`, `sign-out`).
+1. Odebrat dev state switcher z produkčního runtime.
+2. Napojit view stavy na reálné server výsledky.
+3. CTA napojit na reálné akce (`sign-in`, `continue`, `go to workspace`, `sign-out`).
 4. Route zůstává v `(auth)` group kvůli guest přístupu.
-5. Doménová logika invite se přesune do `features/workspaces/invites/*`, auth route bude jen tenký wrapper.
 
-## 9.4 i18n cleanup (nutné pro produkci)
+## 9.4 i18n cleanup
 
-1. Přesunout veškeré user-facing stringy z `src/features/workspaces/*` do `messages/en.json` a `messages/cs.json`.
-2. Doplnit chybové texty pro nové workspace API error codes.
+1. Veškeré user-facing stringy přesunout do `messages/en.json` a `messages/cs.json`.
+2. Doplnit texty pro nové lean error stavy.
 
 ## 10. Bezpečnost a provoz
 
-1. Rate-limit resend invite přes `updated` (>= 60s).
+1. Rate-limit resend invite přes `updated` (>= 60 s).
 2. Audit log minimálně pro create/revoke/accept invite, role change, delete workspace.
 3. Tokeny a hash nikdy nelogovat.
-4. Ošetřit závodní podmínky idempotentně (unique index + retry).
+4. Ošetřit race conditions idempotentně (unique index + retry/refetch).
 5. Neautorizovaný přístup vrací `403`/`404` bez leaku existence workspace.
 
 ## 11. Testovací strategie
 
-1. Unit testy pro `workspace-service` a `workspace-invite-service`.
-2. API integration testy pro všechny mutace (create/switch/leave/delete/invite/role/transfer).
-3. Test infra: lokální PocketBase test instance přes `docker-compose`.
-4. Test infra: seed fixtures + reset script před každým integration run.
-5. CI: job, který spouští PB test instanci, aplikuje schema, naplní fixture data a spustí testy.
-6. E2E flow: sign-up -> overview -> personal workspace created.
-7. E2E flow: create organization workspace -> switch -> settings.
-8. E2E flow: sign-in -> overview redirect podle validní cookie.
-9. E2E flow: invite cold flow (guest -> sign-in -> accept).
-10. E2E flow: invite email mismatch.
-11. E2E flow: last owner guard.
-12. E2E flow: personal workspace restrictions.
-13. Security test: cross-origin `POST/PATCH/DELETE` na workspace API vrací `400`.
-14. Auth resilience test: při `transient_error` z `consumePendingInviteIfAny` zůstane `sign-in`/`sign-up` `ok: true`.
+1. Unit testy pro `workspace-domain` helpery (last-owner/personal guard, slug policy).
+2. Integration testy pro Server Actions (workspace create/switch/general/members/invites/leave/delete).
+3. Integration test pro ownership transfer přes batch (ověření all-or-nothing).
+4. Integration testy pro `/overview` bootstrap (pending invite consume + fallback).
+5. Test infra: lokální PocketBase instance přes `docker-compose`.
+6. Test infra: seed fixtures + reset script před každým integration během.
+7. E2E flow: sign-up -> overview -> personal workspace created.
+8. E2E flow: create organization workspace -> switch -> settings.
+9. E2E flow: sign-in -> overview redirect podle validní cookie.
+10. E2E flow: invite cold flow (guest -> sign-in -> consume na `/overview`).
+11. E2E flow: invite email mismatch.
+12. E2E flow: last owner guard.
+13. E2E flow: personal workspace restrictions.
+14. Auth regression test: `sign-in/sign-up/sign-out/session` beze změny kontraktu.
 
 ## 12. Implementační etapy
 
-## Etapa A: Data a server foundation
+## Etapa A: Data a foundation
 
 1. PocketBase kolekce + indexy + rules.
 2. Typegen.
-3. `workspace-types`, `workspace-errors`, `workspace-cookie`.
-4. `workspace-service` + `createOrganizationWorkspace` + testy.
+3. `workspace-types`, `workspace-cookie`, `workspace-domain`.
+4. `workspace-queries` + `ensurePersonalWorkspace`.
 5. Připravit PB test infrastrukturu (`docker-compose`, fixtures, reset script).
 
-## Etapa B: Members + invites backend
+## Etapa B: Server Actions backend
 
-1. `workspace-members-service` + testy.
-2. `workspace-invite-service` + testy.
-3. API route handlery pro members/invites.
-4. Rate-limit resend + email normalization + hash flow.
+1. `workspace-actions` (create/switch/general/leave/delete).
+2. `workspace-member-actions` včetně batch transfer ownership.
+3. `workspace-invite-actions` + resend rate-limit + email normalization + hash flow.
+4. Integration testy pro všechny mutace.
 
-## Etapa C: Auth hook + overview bootstrap
+## Etapa C: Invite + overview orchestrace
 
-1. `post-auth-workspace-hook.ts`.
-2. Integrace do `api/auth/sign-in` a `api/auth/sign-up` (bez změny payload kontraktu).
-3. Přepis `/overview` na redirect orchestrator.
+1. Přepsat `/invite/[token]` na reálné server zpracování.
+2. Přepsat `/overview` na centrální bootstrap orchestrátor.
+3. Pending invite consume přes cookie v `/overview`.
 
 ## Etapa D: UI wiring
 
 1. Dynamic routes `/w/[workspaceSlug]/*`.
 2. Smazání starých route souborů `/w/workspace/*`.
 3. Napojení switcheru, menu a user menu na active workspace.
-4. Refaktor helperů, které mají hardcoded segment `workspace`.
-5. Napojení create workspace tlačítka na `POST /api/workspaces`.
-6. Invite token page na reálné stavy.
-7. Napojení settings komponent na API.
+4. Napojení settings komponent přímo na Server Actions.
+5. Refaktor helperů s hardcoded segmentem `workspace`.
 
 ## Etapa E: Hardening
 
 1. i18n cleanup všech workspace stringů.
 2. Regression test auth flow.
 3. E2E run a edge-case bugfix.
-4. Feature flag rollout (volitelné).
+4. Feature-flag rollout (volitelné).
 
 ## 13. Definition of Done
 
 1. `/overview` vždy redirectuje do konkrétního workspace.
 2. `ensurePersonalWorkspace` běží centrálně a idempotentně.
 3. Invite flow funguje i pro nepřihlášeného uživatele bez změn auth formulářů.
-4. `POST /api/workspaces` umožňuje vytvořit organization workspace.
+4. Workspace mutace běží přes Server Actions (bez `src/app/api/workspaces/*`).
 5. Staré `/w/workspace/*` routes jsou odstraněné a nikde se již neodkazují.
 6. Workspace members/invites/general settings běží proti backendu.
 7. Personal restrikce + last-owner guard jsou vynucené serverem.
-8. Auth regression testy pro `sign-in/sign-up/sign-out/session` jsou zelené.
-9. Ve workspace UI nejsou hardcoded user-facing stringy.
+8. Ownership transfer je atomický přes PB batch.
+9. Auth regression testy pro `sign-in/sign-up/sign-out/session` jsou zelené.
+10. Ve workspace UI nejsou hardcoded user-facing stringy.
 
 ## 14. Doporučený rollout bez rizika pro auth
 
-1. Nejprve nasadit backend služby a API za feature flagem, UI nechat statické.
-2. Poté zapnout pouze `/overview` bootstrap + dynamic routing.
-3. Nakonec postupně zapínat jednotlivé settings mutace (name/slug/avatar -> members -> invites -> delete/leave).
+1. Nejprve nasadit PB schéma/rules a query vrstvu za feature flagem.
+2. Poté zapnout `/overview` bootstrap + dynamic routing.
+3. Nakonec postupně zapínat settings mutace (general -> members -> invites -> delete/leave).
 4. Mít rychlý rollback: vypnout workspace feature flag a vrátit statické komponenty bez zásahu do auth endpointů.
 
 ## 15. Nice to have (pozdější hardening)
 
-1. Přidat PocketBase hook pro tvrdý invariant "workspace musí mít alespoň jednoho ownera".
-2. `Before Update workspace_members`: blokovat změnu `owner -> member`, pokud by po změně zůstal ve workspace `0` ownerů.
+1. Přidat PocketBase hook pro invariant "workspace musí mít alespoň jednoho ownera".
+2. `Before Update workspace_members`: blokovat `owner -> member`, pokud by po změně zůstal `0` ownerů.
 3. `Before Delete workspace_members`: blokovat smazání owner membership, pokud jde o posledního ownera.
-4. Důvod: bezpečnostní pojistka přímo na úrovni databáze i při chybě v API/service vrstvě.
+4. Důvod: obrana-in-depth přímo na úrovni databáze i při chybě aplikační vrstvy.
