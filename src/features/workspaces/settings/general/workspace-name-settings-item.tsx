@@ -27,10 +27,15 @@ type WorkspaceNameFormValues = {
   name: string;
 };
 
-export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
+export function WorkspaceNameSettingsItem({
+  workspace,
+}: {
+  workspace: WorkspaceSettingsWorkspace;
+}) {
   const t = useTranslations("pages.workspace.general.name");
   const tCommon = useTranslations("pages.workspace.common");
   const nameToastId = useId();
+  const isReadOnly = workspace.role !== "owner";
   const [workspaceName, setWorkspaceName] = useState(workspace.name);
   const workspaceNameSchema = z.object({
     name: z
@@ -54,6 +59,10 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
       onSubmit: workspaceNameSchema,
     },
     onSubmit: async ({ value }: { value: WorkspaceNameFormValues }) => {
+      if (isReadOnly) {
+        return;
+      }
+
       const nextName = value.name.trim();
 
       const response = await updateWorkspaceGeneralAction(workspace.slug, {
@@ -80,7 +89,7 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
   });
 
   return (
-    <SettingsItem>
+    <SettingsItem disabled={isReadOnly}>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -122,6 +131,7 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
                               onChange={(event) => field.handleChange(event.target.value)}
                               placeholder={t("field.placeholder")}
                               autoComplete="organization"
+                              disabled={isReadOnly}
                               aria-invalid={isInvalid}
                             />
                             <FieldDescription>{t("field.description")}</FieldDescription>
@@ -136,11 +146,18 @@ export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceS
 
               <SettingsItemFooter>
                 <SettingsItemDescription>
-                  {t("footerHint", {
-                    max: String(MAX_WORKSPACE_NAME_LENGTH),
-                  })}
+                  {isReadOnly
+                    ? tCommon("readOnlyHint")
+                    : t("footerHint", {
+                        max: String(MAX_WORKSPACE_NAME_LENGTH),
+                      })}
                 </SettingsItemDescription>
-                <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={isSubmitting || isReadOnly}
+                  className="sm:self-end"
+                >
                   {isSubmitting && <Spinner />}
                   {isSubmitting ? t("submit.pending") : t("submit.default")}
                 </Button>

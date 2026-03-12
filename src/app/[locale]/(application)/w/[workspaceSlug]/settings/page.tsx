@@ -24,7 +24,10 @@ import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";
-import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-service";
+import {
+  listWorkspaceMembers,
+  resolveWorkspaceForUserBySlug,
+} from "@/server/workspaces/workspace-service";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings">
@@ -52,9 +55,7 @@ export async function generateMetadata(
   });
 }
 
-export default async function Page({
-  params,
-}: PageProps<"/[locale]/w/[workspaceSlug]/settings">) {
+export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]/settings">) {
   const { locale, workspaceSlug } = await params;
 
   setRequestLocale(locale as Locale);
@@ -85,12 +86,20 @@ export default async function Page({
   }
 
   const workspace = workspaceResponse.data.workspace;
+  const membersResponse =
+    workspace.role === "owner" ? await listWorkspaceMembers(workspace.id) : null;
+  const ownerCount =
+    membersResponse && membersResponse.ok
+      ? membersResponse.data.members.filter((member) => member.role === "owner").length
+      : 0;
+  const isCurrentUserLastOwner = workspace.role === "owner" && ownerCount === 1;
   const workspaceSettings = {
     id: workspace.id,
     slug: workspace.slug,
     name: workspace.name,
     kind: workspace.kind,
     role: workspace.role,
+    isCurrentUserLastOwner,
     avatarUrl: workspace.avatarUrl,
   } as const;
   const tNav = await getTranslations({

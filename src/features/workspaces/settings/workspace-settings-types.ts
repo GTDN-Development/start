@@ -4,6 +4,7 @@ export type WorkspaceSettingsWorkspace = {
   name: string;
   kind: "personal" | "organization";
   role: "owner" | "member";
+  isCurrentUserLastOwner: boolean;
   avatarUrl: string | null;
 };
 

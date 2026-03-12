@@ -82,7 +82,7 @@ function SettingsItem({
       "aria-disabled": disabled || undefined,
       inert: disabled || undefined,
       className: cn(
-        "group/settings-item data-[variant=default]:border-border data-[variant=destructive]:border-destructive data-[disabled=true]:opacity-50 data-[disabled=true]:cursor-not-allowed data-[disabled=true]:select-none data-[disabled=true]:[&_*]:cursor-not-allowed relative overflow-clip rounded-xl border",
+        "group/settings-item data-[variant=default]:border-border data-[variant=destructive]:border-destructive relative overflow-clip rounded-xl border data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-65 data-[disabled=true]:select-none data-[disabled=true]:[&_*]:cursor-not-allowed",
         className
       ),
     },

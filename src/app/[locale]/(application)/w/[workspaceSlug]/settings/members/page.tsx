@@ -63,8 +63,9 @@ export default async function Page({
   setRequestLocale(locale as Locale);
 
   const sessionResponse = await getServerAuthSession();
+  const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
-  if (!sessionResponse.ok || !sessionResponse.data.session) {
+  if (!sessionResponse.ok || !session) {
     redirect({
       href: AUTH_REDIRECTS.unauthenticatedTo,
       locale: locale as Locale,
@@ -73,10 +74,7 @@ export default async function Page({
     return null;
   }
 
-  const workspaceResponse = await resolveWorkspaceForUserBySlug(
-    sessionResponse.data.session.user.id,
-    workspaceSlug
-  );
+  const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
 
   if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
     redirect({
@@ -88,14 +86,6 @@ export default async function Page({
   }
 
   const workspace = workspaceResponse.data.workspace;
-  const workspaceSettings = {
-    id: workspace.id,
-    slug: workspace.slug,
-    name: workspace.name,
-    kind: workspace.kind,
-    role: workspace.role,
-    avatarUrl: workspace.avatarUrl,
-  } as const;
   const [membersResponse, invitesResponse] = await Promise.all([
     listWorkspaceMembers(workspace.id),
     listWorkspaceInvites(workspace.id),
@@ -103,6 +93,18 @@ export default async function Page({
 
   const members = membersResponse.ok ? membersResponse.data.members : [];
   const invites = invitesResponse.ok ? invitesResponse.data.invites : [];
+  const ownerCount = members.filter((member) => member.role === "owner").length;
+  const currentUserMember = members.find((member) => member.userId === session.user.id) ?? null;
+  const isCurrentUserLastOwner = currentUserMember?.role === "owner" && ownerCount === 1;
+  const workspaceSettings = {
+    id: workspace.id,
+    slug: workspace.slug,
+    name: workspace.name,
+    kind: workspace.kind,
+    role: workspace.role,
+    isCurrentUserLastOwner,
+    avatarUrl: workspace.avatarUrl,
+  } as const;
   const tNav = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
@@ -167,7 +169,7 @@ export default async function Page({
                 workspace={workspaceSettings}
                 members={members}
                 invites={invites}
-                currentUserId={sessionResponse.data.session.user.id}
+                currentUserId={session.user.id}
               />
             </div>
           </SettingsPage>

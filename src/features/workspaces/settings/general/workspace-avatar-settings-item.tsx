@@ -34,11 +34,16 @@ import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 
 const MAX_WORKSPACE_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
 
-export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
+export function WorkspaceAvatarSettingsItem({
+  workspace,
+}: {
+  workspace: WorkspaceSettingsWorkspace;
+}) {
   const t = useTranslations("pages.workspace.general.avatar");
   const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const avatarToastId = useId();
+  const isReadOnly = workspace.role !== "owner";
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const [isAvatarUpdating, setIsAvatarUpdating] = useState(false);
@@ -48,6 +53,10 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
     workspace.avatarUrl && workspace.avatarUrl !== failedAvatarUrl ? workspace.avatarUrl : null;
 
   async function handleAvatarInputChange(event: ChangeEvent<HTMLInputElement>) {
+    if (isReadOnly) {
+      return;
+    }
+
     const input = event.currentTarget;
     const selectedFile = input.files?.[0] ?? null;
 
@@ -103,7 +112,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
   }
 
   async function handleAvatarRemoveClick() {
-    if (isAvatarUpdating || !workspace.avatarUrl) {
+    if (isReadOnly || isAvatarUpdating || !workspace.avatarUrl) {
       return;
     }
 
@@ -134,7 +143,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
   }
 
   function handleAvatarChangeMenuClick() {
-    if (isAvatarUpdating) {
+    if (isReadOnly || isAvatarUpdating) {
       return;
     }
 
@@ -142,7 +151,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
   }
 
   return (
-    <SettingsItem>
+    <SettingsItem disabled={isReadOnly}>
       <SettingsItemContent className="flex flex-row flex-wrap gap-6 xl:gap-8">
         <SettingsItemContentHeader className="w-full grow basis-72">
           <SettingsItemTitle>{t("title")}</SettingsItemTitle>
@@ -161,7 +170,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
                     size="icon-lg"
                     className="group relative size-14 overflow-clip rounded-md sm:size-18"
                     aria-label={t("buttonLabel")}
-                    disabled={isAvatarUpdating}
+                    disabled={isAvatarUpdating || isReadOnly}
                   >
                     {isAvatarUpdating ? (
                       <Skeleton className="size-14 rounded-md sm:size-18" />
@@ -194,7 +203,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
               <DropdownMenuContent align="end" className="w-auto min-w-44">
                 <DropdownMenuItem
                   onClick={handleAvatarChangeMenuClick}
-                  disabled={isAvatarUpdating}
+                  disabled={isAvatarUpdating || isReadOnly}
                   className="whitespace-nowrap"
                 >
                   <PencilIcon aria-hidden="true" className="size-4" />
@@ -202,7 +211,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleAvatarRemoveClick}
-                  disabled={isAvatarUpdating || !workspace.avatarUrl}
+                  disabled={isAvatarUpdating || isReadOnly || !workspace.avatarUrl}
                   variant="destructive"
                   className="whitespace-nowrap"
                 >
@@ -219,6 +228,7 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
             type="file"
             className="sr-only"
             accept="image/*"
+            disabled={isReadOnly}
             onChange={handleAvatarInputChange}
             tabIndex={-1}
           />
@@ -226,7 +236,9 @@ export function WorkspaceAvatarSettingsItem({ workspace }: { workspace: Workspac
       </SettingsItemContent>
 
       <SettingsItemFooter>
-        <SettingsItemDescription>{t("hint")}</SettingsItemDescription>
+        <SettingsItemDescription>
+          {isReadOnly ? tCommon("readOnlyHint") : t("hint")}
+        </SettingsItemDescription>
       </SettingsItemFooter>
     </SettingsItem>
   );

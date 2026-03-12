@@ -34,6 +34,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
   const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const urlToastId = useId();
+  const isReadOnly = workspace.role !== "owner";
   const [workspaceUrl, setWorkspaceUrl] = useState(workspace.slug);
   const workspaceUrlSchema = z.object({
     url: z
@@ -57,6 +58,10 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
       onSubmit: workspaceUrlSchema,
     },
     onSubmit: async ({ value }: { value: WorkspaceUrlFormValues }) => {
+      if (isReadOnly) {
+        return;
+      }
+
       const nextUrl = value.url.trim();
 
       const response = await updateWorkspaceGeneralAction(workspace.slug, {
@@ -100,7 +105,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
   });
 
   return (
-    <SettingsItem>
+    <SettingsItem disabled={isReadOnly}>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -144,6 +149,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
                                 onChange={(event) => field.handleChange(event.target.value)}
                                 placeholder={t("field.placeholder")}
                                 autoComplete="off"
+                                disabled={isReadOnly}
                                 aria-invalid={isInvalid}
                               />
                             </InputGroup>
@@ -163,11 +169,18 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
 
               <SettingsItemFooter>
                 <SettingsItemDescription>
-                  {t("footerHint", {
-                    max: String(MAX_WORKSPACE_URL_LENGTH),
-                  })}
+                  {isReadOnly
+                    ? tCommon("readOnlyHint")
+                    : t("footerHint", {
+                        max: String(MAX_WORKSPACE_URL_LENGTH),
+                      })}
                 </SettingsItemDescription>
-                <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={isSubmitting || isReadOnly}
+                  className="sm:self-end"
+                >
                   {isSubmitting && <Spinner />}
                   {isSubmitting ? t("submit.pending") : t("submit.default")}
                 </Button>

@@ -44,13 +44,14 @@ export function AccountDeleteAccountSettingsItem() {
   const router = useRouter();
   const deleteAccountToastId = useId();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [passwordServerErrorMessage, setPasswordServerErrorMessage] = useState<string | null>(
-    null
-  );
+  const [passwordServerErrorMessage, setPasswordServerErrorMessage] = useState<string | null>(null);
   const deleteAccountSchema = z.object({
-    password: z.string().trim().min(1, {
-      message: t("deleteAccount.dialog.fields.password.errors.required"),
-    }),
+    password: z
+      .string()
+      .trim()
+      .min(1, {
+        message: t("deleteAccount.dialog.fields.password.errors.required"),
+      }),
     isDeletionAcknowledged: z.boolean().refine((value) => value === true, {
       message: t("deleteAccount.dialog.fields.acknowledgement.errors.required"),
     }),
@@ -139,12 +140,12 @@ export function AccountDeleteAccountSettingsItem() {
         </SettingsItemContentHeader>
       </SettingsItemContent>
 
-      <SettingsItemFooter className="sm:justify-end">
+      <SettingsItemFooter>
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
           <AlertDialogTrigger
             nativeButton={true}
             render={
-              <Button type="button" variant="destructive" size="lg">
+              <Button type="button" variant="destructive" size="lg" className="sm:ml-auto">
                 {t("deleteAccount.trigger")}
               </Button>
             }
@@ -223,7 +224,9 @@ export function AccountDeleteAccountSettingsItem() {
                                   name={`account-delete-${field.name}`}
                                   checked={field.state.value}
                                   onBlur={field.handleBlur}
-                                  onCheckedChange={(checked) => field.handleChange(checked === true)}
+                                  onCheckedChange={(checked) =>
+                                    field.handleChange(checked === true)
+                                  }
                                   aria-invalid={isInvalid}
                                 />
                                 <FieldLabel htmlFor={`account-delete-${field.name}`}>

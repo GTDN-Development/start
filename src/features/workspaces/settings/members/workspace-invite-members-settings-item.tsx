@@ -36,7 +36,6 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
-import { StaticPlaceholder } from "@/components/ui/static-placeholder";
 import {
   WORKSPACE_INVITABLE_ROLE_OPTIONS,
   getWorkspaceMemberRoleLabel,
@@ -78,7 +77,7 @@ export function WorkspaceInviteMembersSettingsItem({
   const router = useRouter();
   const rowIdPrefix = useId().replaceAll(":", "");
   const nextRowOrderRef = useRef(1);
-  const isPersonalWorkspace = workspace.kind === "personal";
+  const isReadOnly = workspace.kind === "personal" || workspace.role !== "owner";
 
   function createInviteMemberRow(order: number = nextRowOrderRef.current): InviteMemberRow {
     if (order === nextRowOrderRef.current) {
@@ -181,6 +180,10 @@ export function WorkspaceInviteMembersSettingsItem({
   }
 
   function handleInviteRequest() {
+    if (isReadOnly) {
+      return;
+    }
+
     const { payload, hasInvalidRows } = parseInvitePayload(inviteRows);
 
     if (hasInvalidRows) {
@@ -231,30 +234,8 @@ export function WorkspaceInviteMembersSettingsItem({
 
   const pendingInviteCount = pendingInvitePayload.length;
 
-  if (isPersonalWorkspace) {
-    return (
-      <SettingsItem>
-        <SettingsItemContent className="flex flex-col gap-6">
-          <SettingsItemContentHeader>
-            <StaticPlaceholder />
-            <SettingsItemTitle>{tInvite("title")}</SettingsItemTitle>
-            <SettingsItemDescription>
-              {tInvite("personalWorkspace.description", {
-                workspaceName: workspace.name,
-              })}
-            </SettingsItemDescription>
-          </SettingsItemContentHeader>
-
-          <SettingsItemContentBody>
-            <SettingsItemDescription>{tInvite("personalWorkspace.hint")}</SettingsItemDescription>
-          </SettingsItemContentBody>
-        </SettingsItemContent>
-      </SettingsItem>
-    );
-  }
-
   return (
-    <SettingsItem className="@container">
+    <SettingsItem className="@container" disabled={isReadOnly}>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -263,7 +244,6 @@ export function WorkspaceInviteMembersSettingsItem({
       >
         <SettingsItemContent className="flex flex-col gap-6">
           <SettingsItemContentHeader>
-            <StaticPlaceholder />
             <SettingsItemTitle>{tInvite("title")}</SettingsItemTitle>
             <SettingsItemDescription>{tInvite("description")}</SettingsItemDescription>
           </SettingsItemContentHeader>
@@ -359,9 +339,15 @@ export function WorkspaceInviteMembersSettingsItem({
             <SettingsItemDescription
               className={submitErrorMessage ? "text-destructive" : undefined}
             >
-              {submitErrorMessage ?? tInvite("footer.defaultHint")}
+              {submitErrorMessage ??
+                (isReadOnly ? tCommon("readOnlyHint") : tInvite("footer.defaultHint"))}
             </SettingsItemDescription>
-            <Button type="button" size="lg" disabled={isInviting} onClick={handleInviteRequest}>
+            <Button
+              type="button"
+              size="lg"
+              disabled={isInviting || isReadOnly}
+              onClick={handleInviteRequest}
+            >
               {tInvite("actions.invite")}
             </Button>
           </SettingsItemFooter>

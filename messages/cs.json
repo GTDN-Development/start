@@ -318,7 +318,8 @@
       "common": {
         "successTitle": "Hotovo",
         "errorTitle": "Něco se nepovedlo",
-        "cancel": "Zrušit"
+        "cancel": "Zrušit",
+        "readOnlyHint": "Na úpravu tohoto nastavení nemáte dostatečná práva."
       },
       "avatar": {
         "title": "Avatar",
@@ -483,7 +484,8 @@
       "common": {
         "successTitle": "Hotovo",
         "errorTitle": "Něco se nepovedlo",
-        "cancel": "Zrušit"
+        "cancel": "Zrušit",
+        "readOnlyHint": "Na úpravu tohoto nastavení nemáte dostatečná práva."
       },
       "general": {
         "name": {
@@ -556,6 +558,7 @@
           "title": "Opustit workspace",
           "description": "Opusťte {workspaceName} a odeberte si přístup do tohoto workspace.",
           "personalHint": "Osobní workspace nelze opustit. Je trvale propojený s vaším účtem.",
+          "ownerGuardHint": "Pro opuštění workspace musí mít workspace alespoň dva vlastníky.",
           "trigger": "Opustit workspace",
           "dialog": {
             "title": "Opustit workspace?",
@@ -585,6 +588,7 @@
           },
           "status": {
             "failed": "Workspace se nepodařilo opustit.",
+            "lastOwnerGuard": "Workspace nelze opustit, dokud není přidán další vlastník.",
             "success": "K tomuto workspace už nemáte přístup."
           }
         },

@@ -318,7 +318,8 @@
       "common": {
         "successTitle": "Done",
         "errorTitle": "Something went wrong",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "readOnlyHint": "You do not have permission to edit this setting."
       },
       "avatar": {
         "title": "Avatar",
@@ -483,7 +484,8 @@
       "common": {
         "successTitle": "Done",
         "errorTitle": "Something went wrong",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "readOnlyHint": "You do not have permission to edit this setting."
       },
       "general": {
         "name": {
@@ -556,6 +558,7 @@
           "title": "Leave workspace",
           "description": "Leave {workspaceName} and remove your access to this workspace.",
           "personalHint": "Personal workspace cannot be left. It always stays connected to your account.",
+          "ownerGuardHint": "At least two owners are required before you can leave this workspace.",
           "trigger": "Leave workspace",
           "dialog": {
             "title": "Leave workspace?",
@@ -585,6 +588,7 @@
           },
           "status": {
             "failed": "Workspace could not be left.",
+            "lastOwnerGuard": "You cannot leave this workspace until another owner is added.",
             "success": "You no longer have access to this workspace."
           }
         },

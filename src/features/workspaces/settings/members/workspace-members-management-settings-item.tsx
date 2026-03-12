@@ -44,6 +44,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
+  SettingsItem,
+  SettingsItemContent,
   SettingsItemContentBody,
   SettingsItemContentHeader,
   SettingsItemDescription,
@@ -113,6 +115,7 @@ export function WorkspaceMembersManagementSettingsItem({
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
+  const isReadOnly = workspace.kind === "personal" || workspace.role !== "owner";
   const [membersState, setMembersState] = useState<WorkspaceSettingsMember[]>(members);
   const [invitesState, setInvitesState] = useState<WorkspaceSettingsInvite[]>(invites);
   const [actionState, setActionState] = useState<ManagementActionState>(null);
@@ -152,6 +155,10 @@ export function WorkspaceMembersManagementSettingsItem({
     : false;
 
   function handleChangeRoleRequest(member: WorkspaceSettingsMember) {
+    if (isReadOnly) {
+      return;
+    }
+
     setActionState({
       type: "change-role",
       memberId: member.id,
@@ -160,6 +167,10 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   function handleRemoveMemberRequest(member: WorkspaceSettingsMember) {
+    if (isReadOnly) {
+      return;
+    }
+
     if (isLastOwnerMember(member, ownerCount)) {
       return;
     }
@@ -171,6 +182,10 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   function handleResendInvitationRequest(invitation: WorkspaceSettingsInvite) {
+    if (isReadOnly) {
+      return;
+    }
+
     setActionState({
       type: "resend-invitation",
       invitationId: invitation.id,
@@ -178,6 +193,10 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   function handleRemoveInvitationRequest(invitation: WorkspaceSettingsInvite) {
+    if (isReadOnly) {
+      return;
+    }
+
     setActionState({
       type: "remove-invitation",
       invitationId: invitation.id,
@@ -216,6 +235,10 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   async function handleChangeRoleConfirm() {
+    if (isReadOnly) {
+      return;
+    }
+
     if (!changeRoleMember || actionState?.type !== "change-role") {
       return;
     }
@@ -238,9 +261,7 @@ export function WorkspaceMembersManagementSettingsItem({
 
     if (!actionResponse.ok) {
       setIsActionSubmitting(false);
-      toast.error(
-        getActionErrorMessage(actionResponse.errorCode, t("status.roleChange.error"), t)
-      );
+      toast.error(getActionErrorMessage(actionResponse.errorCode, t("status.roleChange.error"), t));
       return;
     }
 
@@ -287,6 +308,10 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   async function handleRemoveMemberConfirm() {
+    if (isReadOnly) {
+      return;
+    }
+
     if (!removeMemberTarget) {
       return;
     }
@@ -317,6 +342,10 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   async function handleResendInvitationConfirm() {
+    if (isReadOnly) {
+      return;
+    }
+
     if (!resendInvitationTarget) {
       return;
     }
@@ -326,9 +355,7 @@ export function WorkspaceMembersManagementSettingsItem({
 
     if (!response.ok) {
       setIsActionSubmitting(false);
-      toast.error(
-        getActionErrorMessage(response.errorCode, t("status.inviteResend.error"), t)
-      );
+      toast.error(getActionErrorMessage(response.errorCode, t("status.inviteResend.error"), t));
       return;
     }
 
@@ -340,6 +367,10 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   async function handleRemoveInvitationConfirm() {
+    if (isReadOnly) {
+      return;
+    }
+
     if (!removeInvitationTarget) {
       return;
     }
@@ -349,9 +380,7 @@ export function WorkspaceMembersManagementSettingsItem({
 
     if (!response.ok) {
       setIsActionSubmitting(false);
-      toast.error(
-        getActionErrorMessage(response.errorCode, t("status.inviteRemove.error"), t)
-      );
+      toast.error(getActionErrorMessage(response.errorCode, t("status.inviteRemove.error"), t));
       return;
     }
 
@@ -367,69 +396,80 @@ export function WorkspaceMembersManagementSettingsItem({
 
   return (
     <div className="pt-6">
-      <div className="flex flex-col gap-6">
-        <SettingsItemContentHeader>
-          <SettingsItemTitle>{t("title")}</SettingsItemTitle>
-          <SettingsItemDescription>{t("description")}</SettingsItemDescription>
-        </SettingsItemContentHeader>
+      <SettingsItem disabled={isReadOnly}>
+        <SettingsItemContent className="flex flex-col gap-6">
+          <SettingsItemContentHeader>
+            <SettingsItemTitle>{t("title")}</SettingsItemTitle>
+            <SettingsItemDescription>{t("description")}</SettingsItemDescription>
+            {isReadOnly && (
+              <SettingsItemDescription>{tCommon("readOnlyHint")}</SettingsItemDescription>
+            )}
+          </SettingsItemContentHeader>
 
-        <SettingsItemContentBody className="@container/members-management grid gap-4">
-          <Tabs defaultValue="members" className="flex-col gap-4">
-            <TabsList>
-              <TabsTrigger value="members">{t("tabs.members")}</TabsTrigger>
-              <TabsTrigger value="pending-invitations">{t("tabs.pendingInvitations")}</TabsTrigger>
-            </TabsList>
+          <SettingsItemContentBody className="@container/members-management grid gap-4">
+            <Tabs defaultValue="members" className="flex-col gap-4">
+              <TabsList>
+                <TabsTrigger value="members">{t("tabs.members")}</TabsTrigger>
+                <TabsTrigger value="pending-invitations">
+                  {t("tabs.pendingInvitations")}
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="members" className="grid gap-4">
-              <div className="hidden @lg/members-management:block">
-                <MembersTable
-                  rows={membersState}
-                  ownerCount={ownerCount}
-                  onChangeRoleRequest={handleChangeRoleRequest}
-                  onRemoveMemberRequest={handleRemoveMemberRequest}
-                />
-              </div>
-              <div className="grid gap-3 @lg/members-management:hidden">
-                {membersState.map((member) => (
-                  <MemberDescriptionRow
-                    key={member.id}
-                    member={member}
+              <TabsContent value="members" className="grid gap-4">
+                <div className="hidden @lg/members-management:block">
+                  <MembersTable
+                    rows={membersState}
                     ownerCount={ownerCount}
+                    isReadOnly={isReadOnly}
                     onChangeRoleRequest={handleChangeRoleRequest}
                     onRemoveMemberRequest={handleRemoveMemberRequest}
                   />
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="pending-invitations" className="grid gap-4">
-              {hasPendingInvitations ? (
-                <>
-                  <div className="hidden @lg/members-management:block">
-                    <PendingInvitationsTable
-                      rows={invitesState}
-                      onResendInvitationRequest={handleResendInvitationRequest}
-                      onRemoveInvitationRequest={handleRemoveInvitationRequest}
+                </div>
+                <div className="grid gap-3 @lg/members-management:hidden">
+                  {membersState.map((member) => (
+                    <MemberDescriptionRow
+                      key={member.id}
+                      member={member}
+                      ownerCount={ownerCount}
+                      isReadOnly={isReadOnly}
+                      onChangeRoleRequest={handleChangeRoleRequest}
+                      onRemoveMemberRequest={handleRemoveMemberRequest}
                     />
-                  </div>
-                  <div className="grid gap-3 @lg/members-management:hidden">
-                    {invitesState.map((invitation) => (
-                      <PendingInvitationDescriptionRow
-                        key={invitation.id}
-                        invitation={invitation}
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="pending-invitations" className="grid gap-4">
+                {hasPendingInvitations ? (
+                  <>
+                    <div className="hidden @lg/members-management:block">
+                      <PendingInvitationsTable
+                        rows={invitesState}
+                        isReadOnly={isReadOnly}
                         onResendInvitationRequest={handleResendInvitationRequest}
                         onRemoveInvitationRequest={handleRemoveInvitationRequest}
                       />
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <PendingInvitationsEmptyState />
-              )}
-            </TabsContent>
-          </Tabs>
-        </SettingsItemContentBody>
-      </div>
+                    </div>
+                    <div className="grid gap-3 @lg/members-management:hidden">
+                      {invitesState.map((invitation) => (
+                        <PendingInvitationDescriptionRow
+                          key={invitation.id}
+                          invitation={invitation}
+                          isReadOnly={isReadOnly}
+                          onResendInvitationRequest={handleResendInvitationRequest}
+                          onRemoveInvitationRequest={handleRemoveInvitationRequest}
+                        />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <PendingInvitationsEmptyState />
+                )}
+              </TabsContent>
+            </Tabs>
+          </SettingsItemContentBody>
+        </SettingsItemContent>
+      </SettingsItem>
 
       <AlertDialog open={Boolean(changeRoleMember)} onOpenChange={handleActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
@@ -453,11 +493,11 @@ export function WorkspaceMembersManagementSettingsItem({
                   key={option.value}
                   htmlFor={`workspace-member-role-${changeRoleMember.id}-${option.value}`}
                 >
-                      <Field orientation="horizontal">
-                        <FieldContent>
-                          <FieldTitle>{tRoles(option.labelKey)}</FieldTitle>
-                          <FieldDescription>{tRoles(option.descriptionKey)}</FieldDescription>
-                        </FieldContent>
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>{tRoles(option.labelKey)}</FieldTitle>
+                      <FieldDescription>{tRoles(option.descriptionKey)}</FieldDescription>
+                    </FieldContent>
                     <RadioGroupItem
                       id={`workspace-member-role-${changeRoleMember.id}-${option.value}`}
                       value={option.value}
@@ -475,9 +515,7 @@ export function WorkspaceMembersManagementSettingsItem({
           {isChangeRoleTargetLastOwner && (
             <Alert>
               <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
-              <AlertDescription>
-                {t("dialogs.lastOwnerGuard.description")}
-              </AlertDescription>
+              <AlertDescription>{t("dialogs.lastOwnerGuard.description")}</AlertDescription>
             </Alert>
           )}
 
@@ -651,11 +689,13 @@ function getActionErrorMessage(
 function MembersTable({
   rows,
   ownerCount,
+  isReadOnly,
   onChangeRoleRequest,
   onRemoveMemberRequest,
 }: {
   rows: WorkspaceSettingsMember[];
   ownerCount: number;
+  isReadOnly: boolean;
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
 }) {
@@ -681,6 +721,7 @@ function MembersTable({
             <TableCell className="text-right">
               <MembersActionMenu
                 member={member}
+                disabled={isReadOnly}
                 isLastOwner={isLastOwnerMember(member, ownerCount)}
                 onChangeRoleRequest={onChangeRoleRequest}
                 onRemoveMemberRequest={onRemoveMemberRequest}
@@ -695,10 +736,12 @@ function MembersTable({
 
 function PendingInvitationsTable({
   rows,
+  isReadOnly,
   onResendInvitationRequest,
   onRemoveInvitationRequest,
 }: {
   rows: WorkspaceSettingsInvite[];
+  isReadOnly: boolean;
   onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
 }) {
@@ -724,6 +767,7 @@ function PendingInvitationsTable({
             <TableCell className="text-right">
               <PendingInvitationActionMenu
                 invitation={invitation}
+                disabled={isReadOnly}
                 onResendInvitationRequest={onResendInvitationRequest}
                 onRemoveInvitationRequest={onRemoveInvitationRequest}
               />
@@ -738,11 +782,13 @@ function PendingInvitationsTable({
 function MemberDescriptionRow({
   member,
   ownerCount,
+  isReadOnly,
   onChangeRoleRequest,
   onRemoveMemberRequest,
 }: {
   member: WorkspaceSettingsMember;
   ownerCount: number;
+  isReadOnly: boolean;
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
 }) {
@@ -764,6 +810,7 @@ function MemberDescriptionRow({
         <DescriptionDetails>
           <MembersActionMenu
             member={member}
+            disabled={isReadOnly}
             isLastOwner={isLastOwnerMember(member, ownerCount)}
             onChangeRoleRequest={onChangeRoleRequest}
             onRemoveMemberRequest={onRemoveMemberRequest}
@@ -776,10 +823,12 @@ function MemberDescriptionRow({
 
 function PendingInvitationDescriptionRow({
   invitation,
+  isReadOnly,
   onResendInvitationRequest,
   onRemoveInvitationRequest,
 }: {
   invitation: WorkspaceSettingsInvite;
+  isReadOnly: boolean;
   onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
 }) {
@@ -803,6 +852,7 @@ function PendingInvitationDescriptionRow({
         <DescriptionDetails>
           <PendingInvitationActionMenu
             invitation={invitation}
+            disabled={isReadOnly}
             onResendInvitationRequest={onResendInvitationRequest}
             onRemoveInvitationRequest={onRemoveInvitationRequest}
           />
@@ -858,11 +908,13 @@ function InvitationSummaryRow({ invitation }: { invitation: WorkspaceSettingsInv
 
 function MembersActionMenu({
   member,
+  disabled,
   isLastOwner,
   onChangeRoleRequest,
   onRemoveMemberRequest,
 }: {
   member: WorkspaceSettingsMember;
+  disabled: boolean;
   isLastOwner: boolean;
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
@@ -879,19 +931,20 @@ function MembersActionMenu({
             variant="ghost"
             size="icon"
             aria-label={t("menus.members.ariaLabel")}
+            disabled={disabled}
           >
             <MoreHorizontalIcon aria-hidden="true" className="size-4" />
           </Button>
         }
       />
       <DropdownMenuContent align="end" className="w-auto min-w-44">
-        <DropdownMenuItem onClick={() => onChangeRoleRequest(member)}>
+        <DropdownMenuItem onClick={() => onChangeRoleRequest(member)} disabled={disabled}>
           <PencilLineIcon aria-hidden="true" /> {t("menus.members.changeRole")}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onRemoveMemberRequest(member)}
           variant="destructive"
-          disabled={isLastOwner}
+          disabled={disabled || isLastOwner}
         >
           <TrashIcon aria-hidden="true" /> {t("menus.members.removeMember")}
         </DropdownMenuItem>
@@ -902,10 +955,12 @@ function MembersActionMenu({
 
 function PendingInvitationActionMenu({
   invitation,
+  disabled,
   onResendInvitationRequest,
   onRemoveInvitationRequest,
 }: {
   invitation: WorkspaceSettingsInvite;
+  disabled: boolean;
   onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
 }) {
@@ -921,18 +976,20 @@ function PendingInvitationActionMenu({
             variant="ghost"
             size="icon"
             aria-label={t("menus.invites.ariaLabel")}
+            disabled={disabled}
           >
             <MoreHorizontalIcon aria-hidden="true" className="size-4" />
           </Button>
         }
       />
       <DropdownMenuContent align="end" className="w-auto min-w-44">
-        <DropdownMenuItem onClick={() => onResendInvitationRequest(invitation)}>
+        <DropdownMenuItem onClick={() => onResendInvitationRequest(invitation)} disabled={disabled}>
           <SendIcon aria-hidden="true" /> {t("menus.invites.resend")}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onRemoveInvitationRequest(invitation)}
           variant="destructive"
+          disabled={disabled}
         >
           <TrashIcon aria-hidden="true" /> {t("menus.invites.remove")}
         </DropdownMenuItem>

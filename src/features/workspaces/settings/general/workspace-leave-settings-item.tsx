@@ -19,13 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   SettingsItem,
@@ -45,11 +39,19 @@ type LeaveWorkspaceFormValues = {
   isLeavingAcknowledged: boolean;
 };
 
-export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
+export function WorkspaceLeaveSettingsItem({
+  workspace,
+}: {
+  workspace: WorkspaceSettingsWorkspace;
+}) {
   const t = useTranslations("pages.workspace.general.leave");
   const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const isPersonalWorkspace = workspace.kind === "personal";
+  const isLeaveBlockedByLastOwnerGuard =
+    workspace.kind === "organization" &&
+    workspace.role === "owner" &&
+    workspace.isCurrentUserLastOwner;
   const leaveWorkspaceToastId = useId();
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
   const leaveWorkspaceSchema = z.object({
@@ -78,12 +80,19 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
       onSubmit: leaveWorkspaceSchema,
     },
     onSubmit: async (_: { value: LeaveWorkspaceFormValues }) => {
+      if (isLeaveBlockedByLastOwnerGuard) {
+        return;
+      }
+
       const response = await leaveWorkspaceAction(workspace.slug);
 
       if (!response.ok) {
         toast.error(tCommon("errorTitle"), {
           id: leaveWorkspaceToastId,
-          description: t("status.failed"),
+          description:
+            response.errorCode === "LAST_OWNER_GUARD"
+              ? t("status.lastOwnerGuard")
+              : t("status.failed"),
         });
         return;
       }
@@ -100,6 +109,10 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
   });
 
   function handleLeaveDialogOpenChange(open: boolean) {
+    if (isLeaveBlockedByLastOwnerGuard && open) {
+      return;
+    }
+
     setIsLeaveDialogOpen(open);
 
     if (open) {
@@ -108,7 +121,7 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
   }
 
   return (
-    <SettingsItem variant="destructive">
+    <SettingsItem variant="destructive" disabled={isLeaveBlockedByLastOwnerGuard}>
       <SettingsItemContent>
         <SettingsItemContentHeader>
           <SettingsItemTitle>{t("title")}</SettingsItemTitle>
@@ -120,16 +133,25 @@ export function WorkspaceLeaveSettingsItem({ workspace }: { workspace: Workspace
         </SettingsItemContentHeader>
       </SettingsItemContent>
 
-      <SettingsItemFooter className="sm:justify-end">
+      <SettingsItemFooter>
         {isPersonalWorkspace && (
           <SettingsItemDescription>{t("personalHint")}</SettingsItemDescription>
+        )}
+        {isLeaveBlockedByLastOwnerGuard && (
+          <SettingsItemDescription>{t("ownerGuardHint")}</SettingsItemDescription>
         )}
         {!isPersonalWorkspace && (
           <AlertDialog open={isLeaveDialogOpen} onOpenChange={handleLeaveDialogOpenChange}>
             <AlertDialogTrigger
               nativeButton={true}
               render={
-                <Button type="button" variant="destructive" size="lg">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="lg"
+                  className="sm:ml-auto"
+                  disabled={isLeaveBlockedByLastOwnerGuard}
+                >
                   {t("trigger")}
                 </Button>
               }

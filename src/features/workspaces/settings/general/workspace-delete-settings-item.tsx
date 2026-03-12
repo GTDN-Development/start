@@ -19,13 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   SettingsItem,
@@ -54,6 +48,7 @@ export function WorkspaceDeleteSettingsItem({
   const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const isPersonalWorkspace = workspace.kind === "personal";
+  const isReadOnly = workspace.role !== "owner";
   const deleteWorkspaceToastId = useId();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteWorkspaceSchema = z.object({
@@ -82,6 +77,10 @@ export function WorkspaceDeleteSettingsItem({
       onSubmit: deleteWorkspaceSchema,
     },
     onSubmit: async (_: { value: DeleteWorkspaceFormValues }) => {
+      if (isReadOnly) {
+        return;
+      }
+
       const response = await deleteOrganizationWorkspaceAction(workspace.slug);
 
       if (!response.ok) {
@@ -112,7 +111,7 @@ export function WorkspaceDeleteSettingsItem({
   }
 
   return (
-    <SettingsItem variant="destructive">
+    <SettingsItem variant="destructive" disabled={isReadOnly}>
       <SettingsItemContent>
         <SettingsItemContentHeader>
           <SettingsItemTitle>{t("title")}</SettingsItemTitle>
@@ -124,16 +123,25 @@ export function WorkspaceDeleteSettingsItem({
         </SettingsItemContentHeader>
       </SettingsItemContent>
 
-      <SettingsItemFooter className="sm:justify-end">
+      <SettingsItemFooter>
         {isPersonalWorkspace && (
           <SettingsItemDescription>{t("personalHint")}</SettingsItemDescription>
+        )}
+        {!isPersonalWorkspace && isReadOnly && (
+          <SettingsItemDescription>{tCommon("readOnlyHint")}</SettingsItemDescription>
         )}
         {!isPersonalWorkspace && (
           <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
             <AlertDialogTrigger
               nativeButton={true}
               render={
-                <Button type="button" variant="destructive" size="lg">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="lg"
+                  className="sm:ml-auto"
+                  disabled={isReadOnly}
+                >
                   {t("trigger")}
                 </Button>
               }
