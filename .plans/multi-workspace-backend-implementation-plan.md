@@ -36,12 +36,14 @@ In scope:
 1. Personal workspace bootstrap (`ensurePersonalWorkspace`).
 2. Dynamic workspace routing `/w/[workspaceSlug]/*`.
 3. Workspace switch (`active_workspace` cookie).
-4. Workspace general settings: name, slug, avatar.
-5. Members: role change, remove member, transfer ownership.
-6. Invites: create, revoke, resend, accept.
-7. Invite cold flow přes `/invite/[token]` + `pending_invite` cookie.
-8. Lokalizované pathname aliasy pro workspace routy.
-9. Workspace-aware navigace v sidebaru a account menu.
+4. Workspace creation from switcher (`organization` workspace přes drawer flow).
+5. Workspace general settings: name, slug, avatar.
+6. Members: role change, remove member, transfer ownership.
+7. Invites: create, revoke, resend, accept.
+8. Invite cold flow přes `/invite/[token]` + `pending_invite` cookie.
+9. Lokalizované pathname aliasy pro workspace routy.
+10. Workspace-aware navigace v sidebaru a account menu.
+11. Workspace switch zachovávající aktuální workspace podstránku (slug swap).
 
 Out of scope:
 1. Workspace billing/plan management.
@@ -66,6 +68,8 @@ Out of scope:
 12. `src/features/application/workspace-routing.ts`
 13. `src/features/account/user-account-menu.tsx`
 14. `src/i18n/routing.ts`
+15. `src/features/workspaces/workspace-switcher.tsx`
+16. `src/features/workspaces/workspace-create-drawer.tsx`
 
 ## 6. Query a action kontrakt
 
@@ -160,11 +164,13 @@ Invite flow `/invite/[token]`:
 1. Sidebar linky `overview` a `workspace` budou vždy směřovat na aktuálně vybraný workspace slug.
 2. Link `account` zůstane mimo workspace scope (`/account`).
 3. User account menu použije workspace-aware `overviewHref`.
-4. Resolver slugů bude mít fallback tak, aby nikdy negeneroval URL s placeholder parametry.
-5. `src/i18n/routing.ts` bude obsahovat aliasy i pro workspace trasy:
-6. `/w/[workspaceSlug]/overview` -> `cs: /w/[workspaceSlug]/prehled`
-7. `/w/[workspaceSlug]/settings` -> `cs: /w/[workspaceSlug]/nastaveni`
-8. `/w/[workspaceSlug]/settings/members` -> `cs: /w/[workspaceSlug]/nastaveni/clenove`
+4. Přepnutí workspace zachová aktuální workspace route (např. `settings/members`) a vymění pouze slug.
+5. Pokud aktuální route není workspace route, fallback bude `/w/[workspaceSlug]/overview`.
+6. Resolver slugů bude mít fallback tak, aby nikdy negeneroval URL s placeholder parametry.
+7. `src/i18n/routing.ts` bude obsahovat aliasy i pro workspace trasy:
+8. `/w/[workspaceSlug]/overview` -> `cs: /w/[workspaceSlug]/prehled`
+9. `/w/[workspaceSlug]/settings` -> `cs: /w/[workspaceSlug]/nastaveni`
+10. `/w/[workspaceSlug]/settings/members` -> `cs: /w/[workspaceSlug]/nastaveni/clenove`
 
 ## 11. UI/i18n požadavky
 
@@ -172,6 +178,10 @@ Invite flow `/invite/[token]`:
 2. Všechny nové `labelKey` v menu konfiguraci budou doplněny do obou jazyků.
 3. Stavy pro workspace URL a avatar (success/error) budou lokalizované.
 4. Klientská optimalizace avatar uploadu bude sdílená utilita, ne account-only implementace.
+5. Workspace switcher bude obsahovat aktivní `Create workspace` akci.
+6. `Create workspace` otevře drawer z pravé strany s formulářem (`name` required, `slug` optional).
+7. Nový workspace bude vždy `organization`; zakladatel bude automaticky owner.
+8. Invite/members UI po mutacích synchronizuje lokální stav s čerstvými server props, aby nebyl potřeba hard refresh.
 
 ## 12. Implementační etapy
 
@@ -203,6 +213,9 @@ Invite flow `/invite/[token]`:
 3. Přesunout user-facing texty do `messages/en.json` a `messages/cs.json`.
 4. Implementovat přeložené workspace pathnames v `src/i18n/routing.ts`.
 5. Odstranit preview/mock workspace konstanty a hardcoded `/w/workspace/*` odkazy.
+6. Implementovat create-workspace drawer ve switcheru a redirect na nově vytvořený workspace.
+7. Implementovat workspace switch slug-swap navigaci se zachováním aktuální workspace podstránky.
+8. U members/invites sekce zajistit okamžitou synchronizaci dat po mutacích bez ručního refresh.
 
 ## 13. Test strategie (další fáze)
 
@@ -225,4 +238,7 @@ Invite flow `/invite/[token]`:
 9. Workspace URL update vrací explicitní `SLUG_NOT_AVAILABLE` při kolizi.
 10. Sidebar a user menu odkazují na správný aktuální workspace slug.
 11. Lokalizované workspace pathnames jsou definované v `src/i18n/routing.ts`.
-12. Lint, typecheck, build jsou zelené.
+12. Workspace lze vytvořit přímo ze switcheru přes pravý drawer (organization + owner).
+13. Přepnutí workspace zachová aktuální workspace podstránku, pokud je to workspace route.
+14. Pending invites se po pozvání zobrazí bez hard refresh.
+15. Lint, typecheck, build jsou zelené.

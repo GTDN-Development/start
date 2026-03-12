@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { InboxIcon, MoreHorizontalIcon, PencilLineIcon, SendIcon, TrashIcon } from "lucide-react";
@@ -118,6 +118,14 @@ export function WorkspaceMembersManagementSettingsItem({
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
   const ownerCount = membersState.filter((member) => member.role === "owner").length;
+
+  useEffect(() => {
+    setMembersState(members);
+  }, [members]);
+
+  useEffect(() => {
+    setInvitesState(invites);
+  }, [invites]);
 
   const hasPendingInvitations = invitesState.length > 0;
   const changeRoleMember =

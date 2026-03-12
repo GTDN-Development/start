@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
-import { useRouter } from "@/i18n/navigation";
+import { type AppHref, usePathname, useRouter } from "@/i18n/navigation";
 import { cn, getUserInitials } from "@/lib/utils";
 import {
   WorkspaceAvatar,
@@ -43,6 +43,7 @@ export function WorkspaceSwitcher({
 }) {
   const t = useTranslations("layout.application.workspaceSwitcher");
   const { isMobile } = useSidebar();
+  const pathname = usePathname();
   const router = useRouter();
   const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
   const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);
@@ -79,12 +80,8 @@ export function WorkspaceSwitcher({
         return;
       }
 
-      router.replace({
-        pathname: "/w/[workspaceSlug]/overview",
-        params: {
-          workspaceSlug: response.data.workspaceSlug,
-        },
-      });
+      const targetHref = resolveWorkspaceSwitchHref(pathname, response.data.workspaceSlug);
+      router.replace(targetHref);
     });
   }
 
@@ -218,4 +215,21 @@ function getWorkspaceAvatarUrl(workspace: WorkspaceOption, failedAvatarUrls: str
   }
 
   return failedAvatarUrls.includes(workspace.avatarUrl) ? null : workspace.avatarUrl;
+}
+
+function resolveWorkspaceSwitchHref(pathname: string, workspaceSlug: string): AppHref {
+  const segments = pathname.split("/").filter(Boolean);
+
+  if (segments[0] !== "w" || segments.length < 2) {
+    return {
+      pathname: "/w/[workspaceSlug]/overview",
+      params: {
+        workspaceSlug,
+      },
+    };
+  }
+
+  const nextWorkspacePath = `/${["w", workspaceSlug, ...segments.slice(2)].join("/")}`;
+
+  return nextWorkspacePath as AppHref;
 }
