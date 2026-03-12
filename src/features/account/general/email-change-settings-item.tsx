@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { requestAccountEmailChangeAction } from "@/features/account/actions/account-actions";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -31,7 +32,6 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import type { InlineStatus } from "@/features/account/account-types";
-import { requestAccountEmailChange } from "@/features/account/account-client";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -74,7 +74,7 @@ export function AccountEmailSettingsItem() {
 
       const normalizedNewEmail = parsedEmail.data;
 
-      const response = await requestAccountEmailChange({
+      const response = await requestAccountEmailChangeAction({
         newEmail: normalizedNewEmail,
       });
 

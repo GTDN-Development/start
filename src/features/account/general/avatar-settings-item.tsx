@@ -3,8 +3,11 @@
 import { type ChangeEvent, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import {
+  removeAccountAvatarAction,
+  uploadAccountAvatarAction,
+} from "@/features/account/actions/account-actions";
 import { useAccountProfile } from "@/features/account/account-profile-context";
-import { removeAccountAvatar, uploadAccountAvatar } from "@/features/account/account-client";
 import { prepareAccountAvatarUpload } from "@/features/account/general/avatar-image-processing";
 import {
   SettingsItem,
@@ -82,7 +85,10 @@ export function AccountAvatarSettingsItem() {
         return;
       }
 
-      const response = await uploadAccountAvatar(preparedAvatarFileResult.file);
+      const avatarFormData = new FormData();
+      avatarFormData.set("avatar", preparedAvatarFileResult.file);
+
+      const response = await uploadAccountAvatarAction(avatarFormData);
 
       if (response.ok) {
         patchProfile(response.data.profile);
@@ -112,7 +118,7 @@ export function AccountAvatarSettingsItem() {
 
     setIsAvatarUpdating(true);
 
-    const response = await removeAccountAvatar();
+    const response = await removeAccountAvatarAction();
 
     if (response.ok) {
       patchProfile(response.data.profile);

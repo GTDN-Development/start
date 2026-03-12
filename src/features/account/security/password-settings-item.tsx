@@ -1,11 +1,11 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import * as React from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { updateAccountPasswordAction } from "@/features/account/actions/account-actions";
 import type { InlineStatus } from "@/features/account/account-types";
-import { updateAccountPassword } from "@/features/account/account-client";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -35,7 +35,7 @@ const MAX_PASSWORD_LENGTH = 100;
 export function AccountChangePasswordItem() {
   const t = useTranslations("pages.account");
   const tPasswordVisibility = useTranslations("forms.signIn.passwordVisibility");
-  const [submitStatus, setSubmitStatus] = React.useState<InlineStatus>(null);
+  const [submitStatus, setSubmitStatus] = useState<InlineStatus>(null);
 
   const passwordFormSchema = getPasswordFormSchema(t);
   const form = useForm({
@@ -50,7 +50,7 @@ export function AccountChangePasswordItem() {
     onSubmit: async ({ value }: { value: PasswordFormValues }) => {
       setSubmitStatus(null);
 
-      const response = await updateAccountPassword(value);
+      const response = await updateAccountPasswordAction(value);
 
       if (response.ok) {
         form.reset();

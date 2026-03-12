@@ -91,5 +91,3 @@ export type AuthClient = {
   signOut: () => Promise<SignOutResponse>;
   useSession: () => AuthSessionSnapshot;
 };
-
-export type AuthApiAction = "sign-in" | "sign-up" | "sign-out" | "session";

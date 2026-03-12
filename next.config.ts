@@ -10,6 +10,11 @@ const withNextIntl = createNextIntlPlugin({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   reactCompiler: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+  },
   // how to configure @svgr/webpack: https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#configuring-webpack-loaders
   turbopack: {
     rules: {

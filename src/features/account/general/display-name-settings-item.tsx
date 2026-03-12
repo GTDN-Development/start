@@ -5,8 +5,8 @@ import { useId, useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { updateAccountProfileAction } from "@/features/account/actions/account-actions";
 import { useAccountProfile } from "@/features/account/account-profile-context";
-import { updateAccountProfile } from "@/features/account/account-client";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -52,7 +52,7 @@ export function AccountDisplayNameSettingsItem() {
     onSubmit: async ({ value }: { value: ProfileNameFormValues }) => {
       setNameStatus(null);
 
-      const response = await updateAccountProfile({
+      const response = await updateAccountProfileAction({
         name: value.name.trim(),
       });
 

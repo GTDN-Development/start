@@ -6,7 +6,7 @@ import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
-import { deleteAccount } from "@/features/account/account-client";
+import { deleteAccountAction } from "@/features/account/actions/account-actions";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -66,7 +66,7 @@ export function AccountDeleteAccountSettingsItem() {
     onSubmit: async ({ value }: { value: DeleteAccountFormValues }) => {
       setPasswordServerErrorMessage(null);
 
-      const response = await deleteAccount({
+      const response = await deleteAccountAction({
         password: value.password,
       });
 
