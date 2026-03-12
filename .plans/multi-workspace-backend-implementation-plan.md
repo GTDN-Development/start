@@ -11,6 +11,9 @@ Cíl: přepnout statickou workspace implementaci na produkční backend s minim�
 4. Auth endpointy (`/api/auth/*`) řeší jen auth; workspace orchestrace běží mimo ně.
 5. Držíme minimum doménových guardů, které nelze spolehlivě vyjádřit jen PB rules (last-owner, personal restrikce, UX error mapping).
 6. Žádné over-abstraction: malé query/helper funkce + malé Server Actions.
+7. Každý server request (Server Component, Server Action, Route Handler) vytváří novou PB instanci; žádný sdílený singleton user klient.
+8. Workspace read/write operace běží pouze pod session aktuálního uživatele (`pb_auth`), nikdy přes superuser credentials.
+9. V tomto feature scope nepoužíváme superuser klienta vůbec (ani read, ani write) pro workspace doménu.
 
 ## 2. Co se nemění
 
@@ -175,6 +178,15 @@ Tato sekce je záměrně copy-paste reference aktuálně schválených rules.
 
 `workspaces.kind` je sjednoceno na hodnoty `personal | organization` (nikoliv `organisation`).
 
+## 4.6 PocketBase integrační kontrakt (must-have)
+
+1. Jediný vstupní bod pro PB klienta na serveru je `createPocketBaseServerClient`.
+2. Helper vždy vytvoří novou instanci, načte auth z `await cookies()` a použije `pb.authStore.loadFromCookie(...)`.
+3. Pokud je auth cookie nevalidní, helper provede `pb.authStore.clear()` a vrátí informaci pro clear cookie v odpovědi.
+4. Helper centrálně vypne fetch cache pro PB requesty (`cache: "no-store"`), aby nevznikala stale data.
+5. Zakázáno exportovat sdílenou globální PB instanci pro user request flow.
+6. Zakázáno použít superuser token/credentials pro workspace query i mutace.
+
 ## 5. Server operace (queries + actions, bez REST proxy)
 
 ## 5.1 Query vrstva pro Server Components
@@ -202,7 +214,7 @@ Tato sekce je záměrně copy-paste reference aktuálně schválených rules.
 
 Každá action:
 1. Ověří vstup přes Zod.
-2. Spustí přímo PB operaci pod aktuální session (`createPocketBaseServerClient`).
+2. Vytvoří nového PB klienta přes `createPocketBaseServerClient` a spustí operaci pod aktuální session.
 3. Nechá PB API rules vynutit authz.
 4. Pouze pro domain invarianty přidá explicitní guard (`personal`, `last-owner`).
 5. Po mutaci zavolá cílený `revalidatePath(...)`.
@@ -259,6 +271,8 @@ Každá action:
 2. CSRF/origin ochrana se opírá o Next.js Server Actions mechanismus + same-site cookie model.
 3. Pokud bude potřeba cross-origin trusted flow, nastaví se explicitně `serverActions.allowedOrigins` v `next.config.ts`.
 4. Autorizační pravidla zůstávají v PB API rules.
+5. Každý workspace server request vytváří vlastní PB instanci; žádný global user PB client.
+6. Workspace doména nepoužívá superuser credentials pro žádný zápis.
 
 ## 7. Integrace do auth flow (zjednodušený plugin mode)
 
@@ -363,9 +377,10 @@ Každá action:
 
 1. PocketBase kolekce + indexy + rules.
 2. Typegen.
-3. `workspace-types`, `workspace-cookie`, `workspace-domain`.
-4. `workspace-queries` + `ensurePersonalWorkspace`.
-5. Připravit PB test infrastrukturu (`docker-compose`, fixtures, reset script).
+3. `createPocketBaseServerClient` kontrakt pro workspace doménu (per-request instance, async cookies, invalid-cookie clear, no-store fetch).
+4. `workspace-types`, `workspace-cookie`, `workspace-domain`.
+5. `workspace-queries` + `ensurePersonalWorkspace`.
+6. Připravit PB test infrastrukturu (`docker-compose`, fixtures, reset script).
 
 ## Etapa B: Server Actions backend
 
@@ -407,6 +422,9 @@ Každá action:
 8. Ownership transfer je atomický přes PB batch.
 9. Auth regression testy pro `sign-in/sign-up/sign-out/session` jsou zelené.
 10. Ve workspace UI nejsou hardcoded user-facing stringy.
+11. Workspace request flow nepoužívá sdílenou globální PB instanci.
+12. Workspace query/mutace nepoužívají superuser credentials.
+13. `createPocketBaseServerClient` vynucuje async cookie auth load, invalid auth clear a `no-store` fetch behavior.
 
 ## 14. Doporučený rollout bez rizika pro auth
 
