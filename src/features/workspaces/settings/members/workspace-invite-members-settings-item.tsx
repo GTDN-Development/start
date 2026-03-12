@@ -42,8 +42,10 @@ import {
   isWorkspaceInvitableRole,
   type WorkspaceInvitableRole,
 } from "@/features/workspaces/settings/members/workspace-member-roles";
-import { WORKSPACE_SETTINGS_PREVIEW } from "@/features/workspaces/settings/workspace-settings-preview";
+import { createInviteAction } from "@/features/workspaces/actions/workspace-actions";
+import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { z } from "zod";
+import { useRouter } from "@/i18n/navigation";
 
 type InviteRole = WorkspaceInvitableRole;
 
@@ -59,16 +61,20 @@ type InvitePayloadMember = {
 };
 
 const inviteEmailSchema = z.email();
-const INVITE_PRICE_PER_MEMBER = 12;
 
 function getInviteRoleOption(value: string | null) {
   return WORKSPACE_INVITABLE_ROLE_OPTIONS.find((option) => option.value === value);
 }
 
-export function WorkspaceInviteMembersSettingsItem() {
+export function WorkspaceInviteMembersSettingsItem({
+  workspace,
+}: {
+  workspace: WorkspaceSettingsWorkspace;
+}) {
+  const router = useRouter();
   const rowIdPrefix = useId().replaceAll(":", "");
   const nextRowOrderRef = useRef(1);
-  const isPersonalWorkspace = WORKSPACE_SETTINGS_PREVIEW.kind === "personal";
+  const isPersonalWorkspace = workspace.kind === "personal";
 
   function createInviteMemberRow(order: number = nextRowOrderRef.current): InviteMemberRow {
     if (order === nextRowOrderRef.current) {
@@ -186,13 +192,27 @@ export function WorkspaceInviteMembersSettingsItem() {
   async function handleInviteConfirm() {
     setIsInviting(true);
 
-    await Promise.resolve();
+    for (const invitePayloadMember of pendingInvitePayload) {
+      const response = await createInviteAction(workspace.slug, {
+        email: invitePayloadMember.email,
+        role: invitePayloadMember.role,
+      });
+
+      if (!response.ok) {
+        setIsInviting(false);
+        setIsInviteDialogOpen(false);
+        setPendingInvitePayload([]);
+        setSubmitErrorMessage("Invitations could not be sent.");
+        return;
+      }
+    }
 
     setIsInviting(false);
     setIsInviteDialogOpen(false);
     setPendingInvitePayload([]);
     toast.success("Invitations sent.");
     setInviteRows([createInviteMemberRow()]);
+    router.refresh();
   }
 
   function handleInviteDialogOpenChange(open: boolean) {
@@ -205,7 +225,6 @@ export function WorkspaceInviteMembersSettingsItem() {
 
   const pendingInviteCount = pendingInvitePayload.length;
   const pendingInviteLabel = pendingInviteCount === 1 ? "Member" : "Members";
-  const pendingInviteAmount = pendingInviteCount * INVITE_PRICE_PER_MEMBER;
 
   if (isPersonalWorkspace) {
     return (
@@ -215,8 +234,7 @@ export function WorkspaceInviteMembersSettingsItem() {
             <StaticPlaceholder />
             <SettingsItemTitle>Invite members</SettingsItemTitle>
             <SettingsItemDescription>
-              Personal workspace <strong>{WORKSPACE_SETTINGS_PREVIEW.name}</strong> is limited to a
-              single member.
+              Personal workspace <strong>{workspace.name}</strong> is limited to a single member.
             </SettingsItemDescription>
           </SettingsItemContentHeader>
 
@@ -335,7 +353,7 @@ export function WorkspaceInviteMembersSettingsItem() {
               className={submitErrorMessage ? "text-destructive" : undefined}
             >
               {submitErrorMessage ??
-                "All rows are submitted together when backend integration is connected."}
+                "All rows are submitted together."}
             </SettingsItemDescription>
             <Button type="button" size="lg" disabled={isInviting} onClick={handleInviteRequest}>
               Invite
@@ -346,8 +364,7 @@ export function WorkspaceInviteMembersSettingsItem() {
             <AlertDialogHeader>
               <AlertDialogTitle>Invite Team Members</AlertDialogTitle>
               <AlertDialogDescription>
-                Your team is expanding! By confirming, you will be inviting {pendingInviteCount} new{" "}
-                Team {pendingInviteLabel}. Your bill will increase by ${pendingInviteAmount}.
+                By confirming, you will invite {pendingInviteCount} new {pendingInviteLabel}.
               </AlertDialogDescription>
             </AlertDialogHeader>
 

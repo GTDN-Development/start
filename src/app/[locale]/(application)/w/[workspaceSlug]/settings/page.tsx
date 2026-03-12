@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import {
-  mapInnerSidebarItems,
+  mapWorkspaceInnerSidebarItems,
   workspaceSettingsInnerSidebarItems,
 } from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
@@ -20,12 +20,16 @@ import { WorkspaceDeleteSettingsItem } from "@/features/workspaces/settings/gene
 import { WorkspaceLeaveSettingsItem } from "@/features/workspaces/settings/general/workspace-leave-settings-item";
 import { WorkspaceNameSettingsItem } from "@/features/workspaces/settings/general/workspace-name-settings-item";
 import { WorkspaceUrlSettingsItem } from "@/features/workspaces/settings/general/workspace-url-settings-item";
+import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
+import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
+import { getServerAuthSession } from "@/server/auth/auth-service";
+import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-service";
 
 export async function generateMetadata(
-  props: PageProps<"/[locale]/w/workspace/settings">
+  props: PageProps<"/[locale]/w/[workspaceSlug]/settings">
 ): Promise<Metadata> {
-  const { locale } = await props.params;
+  const { locale, workspaceSlug } = await props.params;
   const tNav = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
@@ -39,15 +43,56 @@ export async function generateMetadata(
     title: `${tNav("workspace")} · ${tWorkspaceNav("general")}`,
     description: tWorkspaceNav("general"),
     locale: locale as Locale,
-    pathname: "/w/workspace/settings",
+    pathname: {
+      pathname: "/w/[workspaceSlug]/settings",
+      params: {
+        workspaceSlug,
+      },
+    },
   });
 }
 
-export default async function Page({ params }: PageProps<"/[locale]/w/workspace/settings">) {
-  const { locale } = await params;
+export default async function Page({
+  params,
+}: PageProps<"/[locale]/w/[workspaceSlug]/settings">) {
+  const { locale, workspaceSlug } = await params;
 
   setRequestLocale(locale as Locale);
 
+  const sessionResponse = await getServerAuthSession();
+
+  if (!sessionResponse.ok || !sessionResponse.data.session) {
+    redirect({
+      href: AUTH_REDIRECTS.unauthenticatedTo,
+      locale: locale as Locale,
+    });
+
+    return null;
+  }
+
+  const workspaceResponse = await resolveWorkspaceForUserBySlug(
+    sessionResponse.data.session.user.id,
+    workspaceSlug
+  );
+
+  if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
+    redirect({
+      href: "/overview",
+      locale: locale as Locale,
+    });
+
+    return null;
+  }
+
+  const workspace = workspaceResponse.data.workspace;
+  const workspaceSettings = {
+    id: workspace.id,
+    slug: workspace.slug,
+    name: workspace.name,
+    kind: workspace.kind,
+    role: workspace.role,
+    avatarUrl: workspace.avatarUrl,
+  } as const;
   const tNav = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
@@ -61,7 +106,11 @@ export default async function Page({ params }: PageProps<"/[locale]/w/workspace/
     namespace: "pages.workspace.nav",
   });
 
-  const innerSidebarItems = mapInnerSidebarItems(workspaceSettingsInnerSidebarItems, tWorkspaceNav);
+  const innerSidebarItems = mapWorkspaceInnerSidebarItems(
+    workspaceSettingsInnerSidebarItems,
+    workspaceSettings.slug,
+    tWorkspaceNav
+  );
 
   return (
     <ApplicationPageShell
@@ -79,11 +128,11 @@ export default async function Page({ params }: PageProps<"/[locale]/w/workspace/
         <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
           <SettingsPage title={tWorkspaceNav("general")}>
             <div className="grid gap-8">
-              <WorkspaceNameSettingsItem />
-              <WorkspaceUrlSettingsItem />
-              <WorkspaceAvatarSettingsItem />
-              <WorkspaceLeaveSettingsItem />
-              <WorkspaceDeleteSettingsItem />
+              <WorkspaceNameSettingsItem workspace={workspaceSettings} />
+              <WorkspaceUrlSettingsItem workspace={workspaceSettings} />
+              <WorkspaceAvatarSettingsItem workspace={workspaceSettings} />
+              <WorkspaceLeaveSettingsItem workspace={workspaceSettings} />
+              <WorkspaceDeleteSettingsItem workspace={workspaceSettings} />
             </div>
           </SettingsPage>
         </InnerSidebarLayout>

@@ -10,9 +10,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
-import { Link } from "@/components/ui/link";
+import { Link, redirect } from "@/i18n/navigation";
 import {
-  mapInnerSidebarItems,
+  mapWorkspaceInnerSidebarItems,
   workspaceSettingsInnerSidebarItems,
 } from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
@@ -21,11 +21,18 @@ import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceInviteMembersSettingsItem } from "@/features/workspaces/settings/members/workspace-invite-members-settings-item";
 import { WorkspaceMembersManagementSettingsItem } from "@/features/workspaces/settings/members/workspace-members-management-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
+import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
+import { getServerAuthSession } from "@/server/auth/auth-service";
+import {
+  listWorkspaceInvites,
+  listWorkspaceMembers,
+  resolveWorkspaceForUserBySlug,
+} from "@/server/workspaces/workspace-service";
 
 export async function generateMetadata(
-  props: PageProps<"/[locale]/w/workspace/settings/members">
+  props: PageProps<"/[locale]/w/[workspaceSlug]/settings/members">
 ): Promise<Metadata> {
-  const { locale } = await props.params;
+  const { locale, workspaceSlug } = await props.params;
   const tNav = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
@@ -39,17 +46,63 @@ export async function generateMetadata(
     title: `${tNav("workspace")} · ${tWorkspaceNav("members")}`,
     description: tWorkspaceNav("members"),
     locale: locale as Locale,
-    pathname: "/w/workspace/settings/members",
+    pathname: {
+      pathname: "/w/[workspaceSlug]/settings/members",
+      params: {
+        workspaceSlug,
+      },
+    },
   });
 }
 
 export default async function Page({
   params,
-}: PageProps<"/[locale]/w/workspace/settings/members">) {
-  const { locale } = await params;
+}: PageProps<"/[locale]/w/[workspaceSlug]/settings/members">) {
+  const { locale, workspaceSlug } = await params;
 
   setRequestLocale(locale as Locale);
 
+  const sessionResponse = await getServerAuthSession();
+
+  if (!sessionResponse.ok || !sessionResponse.data.session) {
+    redirect({
+      href: AUTH_REDIRECTS.unauthenticatedTo,
+      locale: locale as Locale,
+    });
+
+    return null;
+  }
+
+  const workspaceResponse = await resolveWorkspaceForUserBySlug(
+    sessionResponse.data.session.user.id,
+    workspaceSlug
+  );
+
+  if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
+    redirect({
+      href: "/overview",
+      locale: locale as Locale,
+    });
+
+    return null;
+  }
+
+  const workspace = workspaceResponse.data.workspace;
+  const workspaceSettings = {
+    id: workspace.id,
+    slug: workspace.slug,
+    name: workspace.name,
+    kind: workspace.kind,
+    role: workspace.role,
+    avatarUrl: workspace.avatarUrl,
+  } as const;
+  const [membersResponse, invitesResponse] = await Promise.all([
+    listWorkspaceMembers(workspace.id),
+    listWorkspaceInvites(workspace.id),
+  ]);
+
+  const members = membersResponse.ok ? membersResponse.data.members : [];
+  const invites = invitesResponse.ok ? invitesResponse.data.invites : [];
   const tNav = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
@@ -63,7 +116,11 @@ export default async function Page({
     namespace: "pages.workspace.nav",
   });
 
-  const innerSidebarItems = mapInnerSidebarItems(workspaceSettingsInnerSidebarItems, tWorkspaceNav);
+  const innerSidebarItems = mapWorkspaceInnerSidebarItems(
+    workspaceSettingsInnerSidebarItems,
+    workspaceSettings.slug,
+    tWorkspaceNav
+  );
 
   return (
     <ApplicationPageShell
@@ -71,7 +128,18 @@ export default async function Page({
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/w/workspace/settings" />}>
+              <BreadcrumbLink
+                render={
+                  <Link
+                    href={{
+                      pathname: "/w/[workspaceSlug]/settings",
+                      params: {
+                        workspaceSlug: workspaceSettings.slug,
+                      },
+                    }}
+                  />
+                }
+              >
                 {tWorkspace("title")}
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -87,8 +155,13 @@ export default async function Page({
         <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
           <SettingsPage title="Members" description="Manage team members and invitations">
             <div className="grid gap-8">
-              <WorkspaceInviteMembersSettingsItem />
-              <WorkspaceMembersManagementSettingsItem />
+              <WorkspaceInviteMembersSettingsItem workspace={workspaceSettings} />
+              <WorkspaceMembersManagementSettingsItem
+                workspace={workspaceSettings}
+                members={members}
+                invites={invites}
+                currentUserId={sessionResponse.data.session.user.id}
+              />
             </div>
           </SettingsPage>
         </InnerSidebarLayout>

@@ -3,7 +3,7 @@
 import { NavLink } from "@/components/layout/nav-link";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { applicationMenu } from "@/config/menu";
-import { AppPathname, usePathname } from "@/i18n/navigation";
+import { AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import {
   CircleIcon,
@@ -13,6 +13,8 @@ import {
   UserIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSidebarContext } from "./application-layout";
+import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
 
 function isAccountRoute(pathname: string) {
   return pathname === "/account" || pathname.startsWith("/account/");
@@ -36,36 +38,82 @@ function isWorkspaceSettingsRoute(pathname: string) {
   return workspacePath?.scope === "settings";
 }
 
-function isMenuItemActive(pathname: string, href: AppPathname) {
-  if (href === "/account") {
+function isWorkspaceOverviewRoute(pathname: string) {
+  const workspacePath = getWorkspaceSegments(pathname);
+  return workspacePath?.scope === "overview";
+}
+
+function isMenuItemActive(pathname: string, item: (typeof applicationMenu)[number]) {
+  if (item.labelKey === "account") {
     return isAccountRoute(pathname);
   }
 
-  if (href === "/w/workspace/settings") {
+  if (item.labelKey === "workspace") {
     return isWorkspaceSettingsRoute(pathname);
   }
 
-  return pathname === href || pathname.startsWith(`${href}/`);
+  if (item.labelKey === "overview") {
+    return pathname === "/overview" || isWorkspaceOverviewRoute(pathname);
+  }
+
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-function shouldMatchNested(href: AppPathname) {
-  return href !== "/w/workspace/overview";
+function shouldMatchNested(item: (typeof applicationMenu)[number]) {
+  return item.labelKey !== "overview";
 }
 
-function getMainMenuItemIcon(href: AppPathname): LucideIcon {
-  if (href === "/w/workspace/overview") {
+function getMainMenuItemIcon(item: (typeof applicationMenu)[number]): LucideIcon {
+  if (item.labelKey === "overview") {
     return LayoutDashboardIcon;
   }
 
-  if (href === "/w/workspace/settings") {
+  if (item.labelKey === "workspace") {
     return SettingsIcon;
   }
 
-  if (href === "/account") {
+  if (item.labelKey === "account") {
     return UserIcon;
   }
 
   return CircleIcon;
+}
+
+function resolveMenuHref(
+  item: (typeof applicationMenu)[number],
+  selectedWorkspaceSlug: string | null
+): AppHref {
+  if (item.labelKey === "account") {
+    return item.href;
+  }
+
+  if (item.labelKey === "overview") {
+    if (!selectedWorkspaceSlug) {
+      return "/overview";
+    }
+
+    return {
+      pathname: "/w/[workspaceSlug]/overview",
+      params: {
+        workspaceSlug: selectedWorkspaceSlug,
+      },
+    };
+  }
+
+  if (item.labelKey === "workspace") {
+    if (!selectedWorkspaceSlug) {
+      return "/overview";
+    }
+
+    return {
+      pathname: "/w/[workspaceSlug]/settings",
+      params: {
+        workspaceSlug: selectedWorkspaceSlug,
+      },
+    };
+  }
+
+  return item.href;
 }
 
 export function ApplicationMenuTree({ className, ...props }: React.ComponentProps<"nav">) {
@@ -73,6 +121,12 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
   const tWorkspace = useTranslations("pages.workspace");
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
+  const { activeWorkspaceSlug, workspaces } = useSidebarContext();
+  const selectedWorkspaceSlug = resolveSelectedWorkspaceSlug(
+    pathname,
+    activeWorkspaceSlug,
+    workspaces
+  );
 
   function handleItemClick() {
     if (isMobile) {
@@ -84,19 +138,20 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
     <nav {...props} className={cn(className)}>
       <SidebarMenu className="gap-1">
         {applicationMenu.map((item) => {
-          const isActive = isMenuItemActive(pathname, item.href);
+          const isActive = isMenuItemActive(pathname, item);
+          const itemHref = resolveMenuHref(item, selectedWorkspaceSlug);
           const itemLabel = item.labelKey === "workspace" ? tWorkspace("title") : tNav(item.labelKey);
-          const ItemIcon = getMainMenuItemIcon(item.href);
+          const ItemIcon = getMainMenuItemIcon(item);
 
           return (
-            <SidebarMenuItem key={item.href}>
+            <SidebarMenuItem key={item.labelKey}>
               <SidebarMenuButton
                 isActive={isActive}
                 tooltip={itemLabel}
                 render={
                   <NavLink
-                    href={item.href}
-                    matchNested={shouldMatchNested(item.href)}
+                    href={itemHref}
+                    matchNested={shouldMatchNested(item)}
                     onClick={handleItemClick}
                   />
                 }

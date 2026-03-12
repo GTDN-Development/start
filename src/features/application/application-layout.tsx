@@ -19,8 +19,9 @@ import type { AccountProfileSnapshot } from "@/features/account/account-profile"
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
 import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { ApplicationMenuTree } from "./application-menu-tree";
-import { WorkspaceSwitcher } from "@/features//workspaces/workspace-switcher";
+import { WorkspaceSwitcher } from "@/features/workspaces/workspace-switcher";
 
 type ApplicationMobileMenuLabels = {
   openAriaLabel: string;
@@ -31,6 +32,8 @@ type ApplicationMobileMenuLabels = {
 type ApplicationLayoutContextValue = {
   user: AccountProfileSnapshot;
   locale: string;
+  workspaces: WorkspaceNavigationItem[];
+  activeWorkspaceSlug: string | null;
   userMenuLabels: UserAccountMenuLabels;
   mobileMenuLabels: ApplicationMobileMenuLabels;
 };
@@ -44,6 +47,8 @@ type ApplicationLayoutProps = {
   children: React.ReactNode;
   user: AccountProfileSnapshot;
   locale: string;
+  workspaces: WorkspaceNavigationItem[];
+  activeWorkspaceSlug: string | null;
   labels: ApplicationLayoutLabels;
 };
 
@@ -59,7 +64,14 @@ export function useSidebarContext() {
   return context;
 }
 
-export function ApplicationLayout({ children, user, locale, labels }: ApplicationLayoutProps) {
+export function ApplicationLayout({
+  children,
+  user,
+  locale,
+  workspaces,
+  activeWorkspaceSlug,
+  labels,
+}: ApplicationLayoutProps) {
   const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
   const renderEmailVerificationBanner = showEmailVerificationBanner(user);
   const t = useTranslations("layout");
@@ -71,6 +83,8 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
         value={{
           user,
           locale,
+          workspaces,
+          activeWorkspaceSlug,
           userMenuLabels: labels.userMenu,
           mobileMenuLabels: labels.mobileMenu,
         }}
@@ -81,7 +95,10 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
           <SidebarProvider>
             <Sidebar collapsible="offcanvas" className="border-sidebar-border border-r">
               <SidebarHeader className="border-sidebar-border border-b p-2">
-                <WorkspaceSwitcher />
+                <WorkspaceSwitcher
+                  workspaces={workspaces}
+                  activeWorkspaceSlug={activeWorkspaceSlug}
+                />
               </SidebarHeader>
               <SidebarContent>
                 <SidebarGroup className="p-2">
@@ -94,7 +111,6 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
             </Sidebar>
 
             <SidebarInset id={contentId} className="min-w-0">
-              {/* Banners */}
               <LayoutBanners
                 banners={[
                   {
@@ -104,7 +120,6 @@ export function ApplicationLayout({ children, user, locale, labels }: Applicatio
                 ]}
               />
 
-              {/* children */}
               {children}
             </SidebarInset>
           </SidebarProvider>

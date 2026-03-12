@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type AppPathname, usePathname } from "@/i18n/navigation";
+import { type AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import {
   CircleIcon,
@@ -20,11 +20,11 @@ import {
 import { useMemo } from "react";
 
 export type InnerSidebarNavItem = {
-  href: AppPathname;
+  href: AppHref;
   label: string;
   icon?: string;
   matchNested?: boolean;
-  activePathnames?: AppPathname[];
+  activePathnames?: string[];
   activePathPrefixes?: string[];
 };
 
@@ -65,9 +65,11 @@ function InnerSidebarMobileNav({ className, title, items }: InnerSidebarMobileNa
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" sideOffset={8} className="space-y-1">
           {items.map((item) => {
+            const itemPathname = getHrefPathname(item.href);
+
             return (
               <DropdownMenuItem
-                key={item.href}
+                key={itemPathname}
                 render={
                   <NavLink
                     href={item.href}
@@ -100,9 +102,10 @@ export function InnerSidebarLayout({ children, title, items, className }: InnerS
             <ul className="sticky top-[calc(var(--navbar-height,64px)+2rem)] flex flex-col gap-1">
               {items.map((item) => {
                 const isActive = isCurrentInnerSidebarNavItem(pathname, item);
+                const itemPathname = getHrefPathname(item.href);
 
                 return (
-                  <li key={item.href}>
+                  <li key={itemPathname}>
                     <NavLink
                       href={item.href}
                       matchNested={item.matchNested}
@@ -163,7 +166,9 @@ function getCurrentInnerSidebarNavItem(pathname: string, items: InnerSidebarNavI
 }
 
 function isCurrentInnerSidebarNavItem(pathname: string, item: InnerSidebarNavItem) {
-  if (item.activePathnames?.includes(pathname as AppPathname)) {
+  const itemPathname = getHrefPathname(item.href);
+
+  if (item.activePathnames?.includes(pathname)) {
     return true;
   }
 
@@ -176,8 +181,16 @@ function isCurrentInnerSidebarNavItem(pathname: string, item: InnerSidebarNavIte
   }
 
   if (item.matchNested) {
-    return pathname === item.href || pathname.startsWith(`${item.href}/`);
+    return pathname === itemPathname || pathname.startsWith(`${itemPathname}/`);
   }
 
-  return pathname === item.href;
+  return pathname === itemPathname;
+}
+
+function getHrefPathname(href: AppHref): string {
+  if (typeof href === "string") {
+    return href;
+  }
+
+  return href.pathname;
 }

@@ -17,18 +17,18 @@ import {
   SettingsItemFooter,
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
-import { StaticPlaceholder } from "@/components/ui/static-placeholder";
+import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
+import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 
-const DEFAULT_WORKSPACE_NAME = "Acme Studio";
 const MAX_WORKSPACE_NAME_LENGTH = 48;
 
 type WorkspaceNameFormValues = {
   name: string;
 };
 
-export function WorkspaceNameSettingsItem() {
+export function WorkspaceNameSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
   const nameToastId = useId();
-  const [workspaceName, setWorkspaceName] = useState(DEFAULT_WORKSPACE_NAME);
+  const [workspaceName, setWorkspaceName] = useState(workspace.name);
   const workspaceNameSchema = z.object({
     name: z
       .string()
@@ -51,7 +51,17 @@ export function WorkspaceNameSettingsItem() {
     onSubmit: async ({ value }: { value: WorkspaceNameFormValues }) => {
       const nextName = value.name.trim();
 
-      await Promise.resolve();
+      const response = await updateWorkspaceGeneralAction(workspace.slug, {
+        name: nextName,
+      });
+
+      if (!response.ok) {
+        toast.error("Update failed", {
+          id: nameToastId,
+          description: "Workspace name could not be updated.",
+        });
+        return;
+      }
 
       setWorkspaceName(nextName);
       form.reset();
@@ -59,7 +69,7 @@ export function WorkspaceNameSettingsItem() {
 
       toast.success("Workspace updated", {
         id: nameToastId,
-        description: "Workspace name was saved in this static preview.",
+        description: "Workspace name was updated.",
       });
     },
   });
@@ -82,7 +92,6 @@ export function WorkspaceNameSettingsItem() {
             <>
               <SettingsItemContent className="flex flex-col gap-6">
                 <SettingsItemContentHeader>
-                  <StaticPlaceholder />
                   <SettingsItemTitle>Workspace name</SettingsItemTitle>
                   <SettingsItemDescription>
                     Update how this workspace appears across the app.
@@ -125,7 +134,7 @@ export function WorkspaceNameSettingsItem() {
               </SettingsItemContent>
 
               <SettingsItemFooter>
-                <SettingsItemDescription>Maximum length is 32 characters.</SettingsItemDescription>
+                <SettingsItemDescription>Maximum length is 48 characters.</SettingsItemDescription>
                 <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
                   {isSubmitting && <Spinner />}
                   {isSubmitting ? "Saving..." : "Save changes"}

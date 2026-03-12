@@ -16,20 +16,22 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
-import { StaticPlaceholder } from "@/components/ui/static-placeholder";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { site } from "@/config/site";
+import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
+import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import { useRouter } from "@/i18n/navigation";
 
-const DEFAULT_WORKSPACE_URL = "acme-studio";
 const MAX_WORKSPACE_URL_LENGTH = 48;
 
 type WorkspaceUrlFormValues = {
   url: string;
 };
 
-export function WorkspaceUrlSettingsItem() {
+export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
+  const router = useRouter();
   const urlToastId = useId();
-  const [workspaceUrl, setWorkspaceUrl] = useState(DEFAULT_WORKSPACE_URL);
+  const [workspaceUrl, setWorkspaceUrl] = useState(workspace.slug);
   const workspaceUrlSchema = z.object({
     url: z
       .string()
@@ -52,16 +54,35 @@ export function WorkspaceUrlSettingsItem() {
     onSubmit: async ({ value }: { value: WorkspaceUrlFormValues }) => {
       const nextUrl = value.url.trim();
 
-      await Promise.resolve();
+      const response = await updateWorkspaceGeneralAction(workspace.slug, {
+        slug: nextUrl,
+      });
 
-      setWorkspaceUrl(nextUrl);
+      if (!response.ok) {
+        toast.error("Update failed", {
+          id: urlToastId,
+          description: "Workspace URL could not be updated.",
+        });
+        return;
+      }
+
+      setWorkspaceUrl(response.data.workspaceSlug);
       form.reset();
-      form.setFieldValue("url", nextUrl);
+      form.setFieldValue("url", response.data.workspaceSlug);
 
       toast.success("Workspace updated", {
         id: urlToastId,
-        description: "Workspace URL was saved in this static preview.",
+        description: "Workspace URL was updated.",
       });
+
+      if (response.data.workspaceSlug !== workspace.slug) {
+        router.replace({
+          pathname: "/w/[workspaceSlug]/settings",
+          params: {
+            workspaceSlug: response.data.workspaceSlug,
+          },
+        });
+      }
     },
   });
 
@@ -83,7 +104,6 @@ export function WorkspaceUrlSettingsItem() {
             <>
               <SettingsItemContent className="flex flex-col gap-6">
                 <SettingsItemContentHeader>
-                  <StaticPlaceholder />
                   <SettingsItemTitle>Workspace URL</SettingsItemTitle>
                   <SettingsItemDescription>
                     Set the URL segment used to access this workspace.

@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link } from "@/components/ui/link";
+import { Link, type LinkHref } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthUser } from "@/features/auth/auth-contract";
 import { useSignOut } from "@/features/auth/use-sign-out";
@@ -35,6 +35,7 @@ type UserAccountMenuProps = {
   viewer: UserAccountMenuViewer;
   locale: string;
   labels: UserAccountMenuLabels;
+  overviewHref?: LinkHref;
   className?: string;
 };
 
@@ -42,6 +43,7 @@ export function UserAccountMenu({
   viewer,
   locale: _locale,
   labels,
+  overviewHref = "/overview",
   className,
 }: UserAccountMenuProps) {
   const accountProfile = useOptionalAccountProfile();
@@ -101,7 +103,7 @@ export function UserAccountMenu({
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          render={<Link href="/w/workspace/overview" className="w-full cursor-pointer" />}
+          render={<Link href={overviewHref} className="w-full cursor-pointer" />}
         >
           {labels.overview}
         </DropdownMenuItem>

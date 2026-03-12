@@ -5,6 +5,8 @@ import { redirect } from "@/i18n/navigation";
 import { ApplicationLayout } from "@/features/application/application-layout";
 import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import { listUserWorkspaces } from "@/server/workspaces/workspace-service";
 
 type ApplicationRouteLayoutProps = {
   children: React.ReactNode;
@@ -51,6 +53,18 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
     verified: session.user.verified,
     avatarUrl: session.user.avatarUrl,
   };
+  const userWorkspacesResponse = await listUserWorkspaces(session.user.id);
+  const workspaces = userWorkspacesResponse.ok
+    ? userWorkspacesResponse.data.workspaces.map((workspace) => ({
+        id: workspace.id,
+        slug: workspace.slug,
+        name: workspace.name,
+        kind: workspace.kind,
+        role: workspace.role,
+        avatarUrl: workspace.avatarUrl,
+      }))
+    : [];
+  const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
 
   const tApplication = await getTranslations({
     locale: locale as Locale,
@@ -69,6 +83,8 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
     <ApplicationLayout
       user={user}
       locale={locale}
+      workspaces={workspaces}
+      activeWorkspaceSlug={activeWorkspaceSlug}
       labels={{
         userMenu: {
           account: tNavigation("account"),

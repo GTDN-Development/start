@@ -41,6 +41,17 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
         avatarUrl: null,
       }}
       locale={locale}
+      workspaces={[
+        {
+          id: "workspace-demo",
+          slug: "workspace-demo",
+          name: "Demo Workspace",
+          kind: "organization",
+          role: "owner",
+          avatarUrl: null,
+        },
+      ]}
+      activeWorkspaceSlug="workspace-demo"
       labels={{
         userMenu: {
           account: tNavigation("account"),

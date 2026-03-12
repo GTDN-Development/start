@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,60 +18,42 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
+import { useRouter } from "@/i18n/navigation";
+import { cn, getUserInitials } from "@/lib/utils";
 import {
   WorkspaceAvatar,
   WorkspaceAvatarFallback,
   WorkspaceAvatarImage,
 } from "./workspace-avatar";
-import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
 
-type WorkspaceOption = {
-  id: string;
-  name: string;
-  plan: string;
+type WorkspaceOption = WorkspaceNavigationItem & {
   initials: string;
-  avatarUrl: string | null;
   chipClassName: string;
 };
 
-export function WorkspaceSwitcher() {
+export function WorkspaceSwitcher({
+  workspaces,
+  activeWorkspaceSlug,
+}: {
+  workspaces: WorkspaceNavigationItem[];
+  activeWorkspaceSlug: string | null;
+}) {
   const t = useTranslations("layout.application.workspaceSwitcher");
   const { isMobile } = useSidebar();
-
-  const workspaces: WorkspaceOption[] = [
-    {
-      id: "current",
-      name: t("workspaces.current.name"),
-      plan: t("workspaces.current.plan"),
-      initials: t("workspaces.current.initials"),
-      avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Current",
-      chipClassName:
-        "bg-sidebar-primary text-sidebar-primary-foreground hover:text-sidebar-primary-foreground",
-    },
-    {
-      id: "alpha",
-      name: t("workspaces.alpha.name"),
-      plan: t("workspaces.alpha.plan"),
-      initials: t("workspaces.alpha.initials"),
-      avatarUrl: "https://api.dicebear.com/9.x/initials/svg?seed=Alpha",
-      chipClassName: "bg-emerald-600 text-white hover:text-white",
-    },
-    {
-      id: "beta",
-      name: t("workspaces.beta.name"),
-      plan: t("workspaces.beta.plan"),
-      initials: t("workspaces.beta.initials"),
-      avatarUrl: null,
-      chipClassName: "bg-amber-500 text-black hover:text-black",
-    },
-  ];
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState(workspaces[0]?.id ?? "current");
+  const router = useRouter();
+  const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
   const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);
+
+  const workspaceOptions = workspaces.map(createWorkspaceOption);
   const activeWorkspace =
-    workspaces.find((workspace) => workspace.id === activeWorkspaceId) ?? workspaces[0];
-  const activeWorkspaceAvatarUrl = getWorkspaceAvatarUrl(activeWorkspace, failedAvatarUrls);
+    workspaceOptions.find((workspace) => workspace.slug === activeWorkspaceSlug) ??
+    workspaceOptions[0] ??
+    null;
+  const activeWorkspaceAvatarUrl = activeWorkspace
+    ? getWorkspaceAvatarUrl(activeWorkspace, failedAvatarUrls)
+    : null;
 
   function handleWorkspaceAvatarError(avatarUrl: string) {
     setFailedAvatarUrls((currentUrls) => {
@@ -79,6 +63,31 @@ export function WorkspaceSwitcher() {
 
       return [...currentUrls, avatarUrl];
     });
+  }
+
+  function handleWorkspaceSwitch(workspace: WorkspaceOption) {
+    if (isSwitchingWorkspace || activeWorkspace?.slug === workspace.slug) {
+      return;
+    }
+
+    startSwitchWorkspaceTransition(async () => {
+      const response = await switchWorkspaceAction(workspace.slug);
+
+      if (!response.ok) {
+        return;
+      }
+
+      router.replace({
+        pathname: "/w/[workspaceSlug]/overview",
+        params: {
+          workspaceSlug: response.data.workspaceSlug,
+        },
+      });
+    });
+  }
+
+  if (!activeWorkspace) {
+    return null;
   }
 
   return (
@@ -110,7 +119,7 @@ export function WorkspaceSwitcher() {
             </WorkspaceAvatar>
             <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">{activeWorkspace.name}</span>
-              <span className="truncate text-xs">{activeWorkspace.plan}</span>
+              <span className="truncate text-xs">{activeWorkspace.slug}</span>
             </div>
             <ChevronsUpDownIcon aria-hidden="true" className="ml-auto size-4" />
           </DropdownMenuTrigger>
@@ -124,14 +133,15 @@ export function WorkspaceSwitcher() {
             <DropdownMenuGroup>
               <DropdownMenuLabel className="text-xs">{t("labels.workspaces")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {workspaces.map((workspace) => {
+              {workspaceOptions.map((workspace) => {
                 const workspaceAvatarUrl = getWorkspaceAvatarUrl(workspace, failedAvatarUrls);
 
                 return (
                   <DropdownMenuItem
                     key={workspace.id}
                     className="gap-2 p-2"
-                    onClick={() => setActiveWorkspaceId(workspace.id)}
+                    onClick={() => handleWorkspaceSwitch(workspace)}
+                    disabled={isSwitchingWorkspace}
                   >
                     <WorkspaceAvatar size="sm">
                       {workspaceAvatarUrl ? (
@@ -150,11 +160,9 @@ export function WorkspaceSwitcher() {
                     </WorkspaceAvatar>
                     <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">{workspace.name}</span>
-                      <span className="text-muted-foreground truncate text-xs">
-                        {workspace.plan}
-                      </span>
+                      <span className="text-muted-foreground truncate text-xs">{workspace.slug}</span>
                     </div>
-                    {workspace.id === activeWorkspace.id && (
+                    {workspace.slug === activeWorkspace.slug && (
                       <CheckIcon aria-hidden="true" className="size-4" />
                     )}
                   </DropdownMenuItem>
@@ -162,7 +170,7 @@ export function WorkspaceSwitcher() {
               })}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
+            <DropdownMenuItem className="gap-2 p-2" disabled={true}>
               <div className="bg-background border-border flex size-6 items-center justify-center rounded-md border">
                 <PlusIcon aria-hidden="true" className="size-4" />
               </div>
@@ -173,6 +181,17 @@ export function WorkspaceSwitcher() {
       </SidebarMenuItem>
     </SidebarMenu>
   );
+}
+
+function createWorkspaceOption(workspace: WorkspaceNavigationItem): WorkspaceOption {
+  return {
+    ...workspace,
+    initials: getUserInitials(workspace.name),
+    chipClassName:
+      workspace.kind === "personal"
+        ? "bg-sidebar-primary text-sidebar-primary-foreground hover:text-sidebar-primary-foreground"
+        : "bg-emerald-600 text-white hover:text-white",
+  };
 }
 
 function getWorkspaceAvatarUrl(workspace: WorkspaceOption, failedAvatarUrls: string[]) {
