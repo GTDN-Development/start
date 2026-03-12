@@ -36,7 +36,7 @@ import type {
   WorkspaceSummary,
 } from "@/server/workspaces/workspace-types";
 
-const MAX_WORKSPACE_NAME_LENGTH = 48;
+const MAX_WORKSPACE_NAME_LENGTH = 32;
 const MAX_WORKSPACE_SLUG_LENGTH = 48;
 const INVITE_TTL_DAYS = 7;
 const INVITE_RESEND_COOLDOWN_SECONDS = 60;

@@ -28,7 +28,7 @@ import {
 } from "@/server/workspaces/workspace-service";
 import type { ServerWorkspaceResponse, WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
-const MAX_WORKSPACE_NAME_LENGTH = 48;
+const MAX_WORKSPACE_NAME_LENGTH = 32;
 const MAX_WORKSPACE_SLUG_LENGTH = 48;
 const MAX_WORKSPACE_AVATAR_SIZE_BYTES = 1024 * 1024;
 

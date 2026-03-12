@@ -24,7 +24,7 @@ import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions
 import { useRouter } from "@/i18n/navigation";
 import { resolveErrorMessage } from "@/lib/utils";
 
-const MAX_WORKSPACE_NAME_LENGTH = 48;
+const MAX_WORKSPACE_NAME_LENGTH = 32;
 const MAX_WORKSPACE_SLUG_LENGTH = 48;
 const WORKSPACE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
