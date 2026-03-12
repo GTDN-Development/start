@@ -242,3 +242,32 @@ Invite flow `/invite/[token]`:
 13. Přepnutí workspace zachová aktuální workspace podstránku, pokud je to workspace route.
 14. Pending invites se po pozvání zobrazí bez hard refresh.
 15. Lint, typecheck, build jsou zelené.
+
+## 15. Aktualizace po implementaci (permissions UX)
+
+Datum aktualizace: 12. 3. 2026
+
+1. Workspace settings jsou role-aware:
+2. `owner` má plná práva pro editaci/mutace.
+3. `member` vidí settings položky v read-only režimu (`disabled` na úrovni celé `SettingsItem`).
+
+General stránka:
+1. `name`, `url`, `avatar`, `delete` respektují read-only režim pro `member`.
+2. `leave workspace` zůstává dostupné i pro `member`.
+3. Pokud je uživatel poslední `owner`, `leave workspace` je na UI rovnou disabled (kromě backend guardu).
+4. Footer hint u `leave` explicitně vysvětluje nutnost dalšího vlastníka.
+
+Members stránka:
+1. Obě settings položky (`invite members`, `members management`) jsou disabled pro `personal` workspace.
+2. Byl odstraněn speciální personal-only placeholder stav v invite položce.
+3. Pro `organization` workspace platí read-only režim pro `member`.
+
+Data/I18n:
+1. Do settings view-modelu byl přidán stav `isCurrentUserLastOwner`.
+2. Tento stav se počítá na server stránkách settings podle aktuálního seznamu členů.
+3. Copy pro read-only a last-owner stavy je doplněná v `messages/cs.json` a `messages/en.json`.
+
+Bezpečnostní poznámka:
+1. Frontend disabled stavy jsou UX vrstva.
+2. Autoritativní vynucení zůstává na backend guardech (`FORBIDDEN`, `LAST_OWNER_GUARD`, `PERSONAL_WORKSPACE_RESTRICTED`).
+3. Kde je to technicky možné, stejné restrikce mají být vynucené i na úrovni PocketBase rules (nejen v aplikační vrstvě).
