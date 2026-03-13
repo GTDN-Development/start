@@ -275,7 +275,139 @@
     },
     "pricing": {
       "title": "Pricing",
-      "description": "Choose a plan that matches your team size, workflow, and growth stage."
+      "description": "Choose a plan that matches your team size, workflow, and growth stage.",
+      "billing": {
+        "annual": "Annual",
+        "monthly": "Monthly",
+        "perUser": "per user/{period}",
+        "toggleLabel": "Toggle annual billing"
+      },
+      "plans": {
+        "free": {
+          "name": "Free",
+          "monthlyPrice": "$0",
+          "yearlyPrice": "$0",
+          "description": "Free for everyone",
+          "ctaText": "Get started",
+          "features": {
+            "feature1": "Unlimited members",
+            "feature2": "2 teams",
+            "feature3": "500 issues",
+            "feature4": "Slack and Github integrations"
+          }
+        },
+        "startup": {
+          "name": "Startup",
+          "monthlyPrice": "$8",
+          "yearlyPrice": "$6",
+          "ctaText": "Get started",
+          "features": {
+            "feature1": "All free plan features and...",
+            "feature2": "AI Assistant",
+            "feature3": "Unlimited teams",
+            "feature4": "Unlimited issues and file uploads",
+            "feature5": "Advanced Insights",
+            "feature6": "Admin roles"
+          }
+        },
+        "pro": {
+          "name": "Pro",
+          "monthlyPrice": "$16",
+          "yearlyPrice": "$12",
+          "ctaText": "Get started",
+          "features": {
+            "feature1": "All startup plan features and...",
+            "feature2": "Advanced AI",
+            "feature3": "Priority support",
+            "feature4": "Custom workflows",
+            "feature5": "Advanced analytics",
+            "feature6": "API access"
+          }
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "monthlyPrice": "$32",
+          "yearlyPrice": "$24",
+          "ctaText": "Contact sales",
+          "features": {
+            "feature1": "All pro plan features and...",
+            "feature2": "SSO & SAML",
+            "feature3": "Dedicated support",
+            "feature4": "Custom integrations",
+            "feature5": "SLA guarantee"
+          }
+        }
+      },
+      "comparison": {
+        "sections": {
+          "usage": {
+            "title": "Usage",
+            "features": {
+              "members": {
+                "name": "Members",
+                "free": "Unlimited",
+                "startup": "Unlimited",
+                "pro": "Unlimited",
+                "enterprise": "Unlimited"
+              },
+              "transactions": {
+                "name": "Transactions",
+                "free": "250",
+                "startup": "Unlimited",
+                "pro": "Unlimited",
+                "enterprise": "Unlimited"
+              },
+              "teams": {
+                "name": "Teams",
+                "free": "2",
+                "startup": "Unlimited",
+                "pro": "Unlimited",
+                "enterprise": "Unlimited"
+              }
+            }
+          },
+          "features": {
+            "title": "Features",
+            "features": {
+              "reporting": {
+                "name": "Reporting"
+              },
+              "analytics": {
+                "name": "Analytics"
+              },
+              "importExport": {
+                "name": "Import and export"
+              },
+              "integrations": {
+                "name": "Integrations"
+              },
+              "aiAssistant": {
+                "name": "AI Assistant"
+              },
+              "adminRoles": {
+                "name": "Admin roles"
+              },
+              "auditLog": {
+                "name": "Audit log"
+              }
+            }
+          },
+          "support": {
+            "title": "Support",
+            "features": {
+              "prioritySupport": {
+                "name": "Priority Support"
+              },
+              "accountManager": {
+                "name": "Account Manager"
+              },
+              "uptimeSla": {
+                "name": "Uptime SLA"
+              }
+            }
+          }
+        }
+      }
     },
     "blog": {
       "title": "Blog",

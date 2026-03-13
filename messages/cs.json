@@ -275,7 +275,139 @@
     },
     "pricing": {
       "title": "Ceník",
-      "description": "Vyberte si plán podle velikosti týmu, způsobu práce a fáze růstu."
+      "description": "Vyberte si plán podle velikosti týmu, způsobu práce a fáze růstu.",
+      "billing": {
+        "annual": "Ročně",
+        "monthly": "Měsíčně",
+        "perUser": "za uživatele/{period}",
+        "toggleLabel": "Přepnout roční fakturaci"
+      },
+      "plans": {
+        "free": {
+          "name": "Zdarma",
+          "monthlyPrice": "$0",
+          "yearlyPrice": "$0",
+          "description": "Zdarma pro všechny",
+          "ctaText": "Začít",
+          "features": {
+            "feature1": "Neomezený počet členů",
+            "feature2": "2 týmy",
+            "feature3": "500 úkolů",
+            "feature4": "Integrace se Slack a Github"
+          }
+        },
+        "startup": {
+          "name": "Startup",
+          "monthlyPrice": "$8",
+          "yearlyPrice": "$6",
+          "ctaText": "Začít",
+          "features": {
+            "feature1": "Vše z plánu Zdarma a navíc...",
+            "feature2": "AI Asistent",
+            "feature3": "Neomezený počet týmů",
+            "feature4": "Neomezené úkoly a nahrávání souborů",
+            "feature5": "Pokročilé přehledy",
+            "feature6": "Administrátorské role"
+          }
+        },
+        "pro": {
+          "name": "Pro",
+          "monthlyPrice": "$16",
+          "yearlyPrice": "$12",
+          "ctaText": "Začít",
+          "features": {
+            "feature1": "Vše z plánu Startup a navíc...",
+            "feature2": "Pokročilé AI",
+            "feature3": "Prioritní podpora",
+            "feature4": "Vlastní workflow",
+            "feature5": "Pokročilá analytika",
+            "feature6": "API přístup"
+          }
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "monthlyPrice": "$32",
+          "yearlyPrice": "$24",
+          "ctaText": "Kontaktovat obchod",
+          "features": {
+            "feature1": "Vše z plánu Pro a navíc...",
+            "feature2": "SSO & SAML",
+            "feature3": "Dedikovaná podpora",
+            "feature4": "Vlastní integrace",
+            "feature5": "Garance SLA"
+          }
+        }
+      },
+      "comparison": {
+        "sections": {
+          "usage": {
+            "title": "Využití",
+            "features": {
+              "members": {
+                "name": "Členové",
+                "free": "Neomezeně",
+                "startup": "Neomezeně",
+                "pro": "Neomezeně",
+                "enterprise": "Neomezeně"
+              },
+              "transactions": {
+                "name": "Transakce",
+                "free": "250",
+                "startup": "Neomezeně",
+                "pro": "Neomezeně",
+                "enterprise": "Neomezeně"
+              },
+              "teams": {
+                "name": "Týmy",
+                "free": "2",
+                "startup": "Neomezeně",
+                "pro": "Neomezeně",
+                "enterprise": "Neomezeně"
+              }
+            }
+          },
+          "features": {
+            "title": "Funkce",
+            "features": {
+              "reporting": {
+                "name": "Reporty"
+              },
+              "analytics": {
+                "name": "Analytika"
+              },
+              "importExport": {
+                "name": "Import a export"
+              },
+              "integrations": {
+                "name": "Integrace"
+              },
+              "aiAssistant": {
+                "name": "AI Asistent"
+              },
+              "adminRoles": {
+                "name": "Administrátorské role"
+              },
+              "auditLog": {
+                "name": "Auditní log"
+              }
+            }
+          },
+          "support": {
+            "title": "Podpora",
+            "features": {
+              "prioritySupport": {
+                "name": "Prioritní podpora"
+              },
+              "accountManager": {
+                "name": "Account Manager"
+              },
+              "uptimeSla": {
+                "name": "Garance dostupnosti"
+              }
+            }
+          }
+        }
+      }
     },
     "blog": {
       "title": "Blog",
