@@ -21,9 +21,6 @@ import { ApplicationPageShell } from "@/features/application/application-page-sh
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
 import { YourDevicesSettingsItem } from "@/features/account/security/your-devices-settings-item";
-import { TwoFactorAuthSettingsItem } from "@/features/account/security/two-factor-auth-settings-item";
-// import { YourDevicesSettingsItem } from "@/features/account/your-devices/your-devices-settings-item";
-// import { TwoFactorAuthSettingsItem } from "@/features/account/two-factor-auth/two-factor-auth-settings-item";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/account/security">
@@ -84,7 +81,6 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
             <div className="grid gap-8">
               <AccountChangePasswordItem />
               <YourDevicesSettingsItem />
-              <TwoFactorAuthSettingsItem />
             </div>
           </SettingsPage>
         </InnerSidebarLayout>
