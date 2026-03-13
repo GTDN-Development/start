@@ -10,6 +10,7 @@ import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
 import { verifyEmailToken } from "@/features/auth/auth-client";
 import { setAuthFlash } from "@/features/auth/auth-flash";
+import { resolvePostAuthWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,18 @@ export function VerifyEmailForm({
 
       if (response.ok) {
         if (response.data.session?.user.verified) {
+          const workspaceResponse = await resolvePostAuthWorkspaceAction();
+
+          if (workspaceResponse.ok) {
+            router.replace({
+              pathname: "/w/[workspaceSlug]/overview",
+              params: {
+                workspaceSlug: workspaceResponse.data.workspaceSlug,
+              },
+            });
+            return;
+          }
+
           router.replace("/overview");
           return;
         }

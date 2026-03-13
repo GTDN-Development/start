@@ -20,6 +20,10 @@ export type TurnstileVerificationResult = {
   errorCodes?: string[];
 };
 
+type HeaderStore = {
+  get(name: string): string | null;
+};
+
 export async function verifyTurnstileToken(
   token: string,
   remoteip?: string
@@ -141,10 +145,10 @@ function getErrorMessage(errorCodes: string[]): string {
   return "Verification failed. Please try again.";
 }
 
-export function getClientIP(request: Request): string | undefined {
-  const cfConnectingIP = request.headers.get("CF-Connecting-IP");
-  const xForwardedFor = request.headers.get("X-Forwarded-For");
-  const xRealIP = request.headers.get("X-Real-IP");
+export function getClientIPFromHeaders(headers: HeaderStore): string | undefined {
+  const cfConnectingIP = headers.get("CF-Connecting-IP");
+  const xForwardedFor = headers.get("X-Forwarded-For");
+  const xRealIP = headers.get("X-Real-IP");
 
   return (
     cfConnectingIP ||

@@ -18,6 +18,15 @@ import {
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
+import {
+  formatServiceError,
+  getAvatarUrl,
+  getNullableTrimmedString,
+  hasValidationCode,
+  isUsersRecord,
+  logServiceError,
+  mapPocketBaseError,
+} from "@/server/pocketbase/pocketbase-utils";
 
 export type ServerAuthResponse<TData> =
   | {
@@ -95,7 +104,7 @@ export async function signUpWithPassword(
     } catch (verificationError) {
       console.warn(
         "[auth-service] signUpWithPassword: requestVerification failed, user was created but verification email may not have been sent",
-        formatAuthServiceError(verificationError)
+        formatServiceError(verificationError)
       );
     }
 
@@ -571,171 +580,108 @@ function createAuthSession(pb: PocketBase, record: UsersRecord | null): AuthSess
   };
 }
 
-function getAvatarUrl(pb: PocketBase, record: UsersRecord) {
-  const avatar = getNullableTrimmedString(record.avatar);
-
-  if (!avatar) {
-    return null;
-  }
-
-  return pb.files.getURL(record, avatar);
-}
-
 function createDisplayName(firstName: string, lastName: string) {
   return `${firstName} ${lastName}`.trim();
 }
 
-function getNullableTrimmedString(value: string | null | undefined) {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const trimmedValue = value.trim();
-
-  if (trimmedValue.length === 0) {
-    return null;
-  }
-
-  return trimmedValue;
-}
-
-function isUsersRecord(value: unknown): value is UsersRecord {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const record = value as Partial<UsersRecord>;
-
-  return typeof record.id === "string" && typeof record.email === "string";
-}
-
 function mapSignInErrorCode(error: unknown): AuthErrorCode {
-  if (error instanceof ClientResponseError) {
-    if (error.status === 400 || error.status === 401 || error.status === 404) {
+  return mapPocketBaseError(error, (pocketBaseError) => {
+    if (
+      pocketBaseError.status === 400 ||
+      pocketBaseError.status === 401 ||
+      pocketBaseError.status === 404
+    ) {
       return "INVALID_CREDENTIALS";
     }
 
-    if (error.status === 429) {
-      return "RATE_LIMITED";
-    }
-  }
-
-  return "UNKNOWN_ERROR";
+    return null;
+  });
 }
 
 function mapSignUpErrorCode(error: unknown): AuthErrorCode {
-  if (error instanceof ClientResponseError) {
-    if (error.status === 429) {
-      return "RATE_LIMITED";
-    }
-
-    if (error.status === 400) {
-      if (hasValidationCode(error.response?.data, "email", "validation_not_unique")) {
+  return mapPocketBaseError(error, (pocketBaseError) => {
+    if (pocketBaseError.status === 400) {
+      if (hasValidationCode(pocketBaseError.response?.data, "email", "validation_not_unique")) {
         return "EMAIL_ALREADY_IN_USE";
       }
 
-      if (hasValidationCode(error.response?.data, "password", "validation_length_out_of_range")) {
+      if (
+        hasValidationCode(
+          pocketBaseError.response?.data,
+          "password",
+          "validation_length_out_of_range"
+        )
+      ) {
         return "WEAK_PASSWORD";
       }
 
       return "VALIDATION_ERROR";
     }
-  }
 
-  return "UNKNOWN_ERROR";
+    return null;
+  });
 }
 
 function mapVerifyEmailErrorCode(error: unknown): AuthErrorCode {
-  if (error instanceof ClientResponseError) {
-    if (error.status === 400 || error.status === 404) {
+  return mapPocketBaseError(error, (pocketBaseError) => {
+    if (pocketBaseError.status === 400 || pocketBaseError.status === 404) {
       return "BAD_REQUEST";
     }
 
-    if (error.status === 429) {
-      return "RATE_LIMITED";
-    }
-  }
-
-  return "UNKNOWN_ERROR";
+    return null;
+  });
 }
 
 function mapResetPasswordErrorCode(error: unknown): AuthErrorCode {
-  if (error instanceof ClientResponseError) {
-    if (error.status === 429) {
-      return "RATE_LIMITED";
-    }
-
-    if (error.status === 400 || error.status === 404) {
-      if (hasValidationCode(error.response?.data, "password", "validation_length_out_of_range")) {
+  return mapPocketBaseError(error, (pocketBaseError) => {
+    if (pocketBaseError.status === 400 || pocketBaseError.status === 404) {
+      if (
+        hasValidationCode(
+          pocketBaseError.response?.data,
+          "password",
+          "validation_length_out_of_range"
+        )
+      ) {
         return "WEAK_PASSWORD";
       }
 
       return "BAD_REQUEST";
     }
-  }
 
-  return "UNKNOWN_ERROR";
+    return null;
+  });
 }
 
 function mapRequestEmailVerificationErrorCode(error: unknown): AuthErrorCode {
-  if (error instanceof ClientResponseError) {
-    if (error.status === 400) {
+  return mapPocketBaseError(error, (pocketBaseError) => {
+    if (pocketBaseError.status === 400) {
       return "BAD_REQUEST";
     }
 
-    if (error.status === 401 || error.status === 403) {
+    if (pocketBaseError.status === 401 || pocketBaseError.status === 403) {
       return "UNAUTHORIZED";
     }
 
-    if (error.status === 404) {
+    if (pocketBaseError.status === 404) {
       return "NOT_FOUND";
     }
 
-    if (error.status === 429) {
-      return "RATE_LIMITED";
-    }
-  }
-
-  return "UNKNOWN_ERROR";
+    return null;
+  });
 }
 
 function mapConfirmEmailChangeErrorCode(error: unknown): AuthErrorCode {
-  if (error instanceof ClientResponseError) {
-    if (error.status === 401 || error.status === 403) {
+  return mapPocketBaseError(error, (pocketBaseError) => {
+    if (pocketBaseError.status === 401 || pocketBaseError.status === 403) {
       return "UNAUTHORIZED";
     }
 
-    if (error.status === 429) {
-      return "RATE_LIMITED";
-    }
-
-    if (error.status === 400 || error.status === 404) {
+    if (pocketBaseError.status === 400 || pocketBaseError.status === 404) {
       return "BAD_REQUEST";
     }
-  }
 
-  return "UNKNOWN_ERROR";
-}
-
-function hasValidationCode(data: unknown, field: string, expectedCode: string) {
-  const fieldError = getFieldError(data, field);
-
-  return fieldError?.code === expectedCode;
-}
-
-function getFieldError(data: unknown, field: string): { code?: string } | null {
-  if (!data || typeof data !== "object") {
     return null;
-  }
-
-  const dataRecord = data as Record<string, unknown>;
-  const fieldValue = dataRecord[field];
-
-  if (!fieldValue || typeof fieldValue !== "object") {
-    return null;
-  }
-
-  return fieldValue as { code?: string };
+  });
 }
 
 /** Status 0 (network) or ≥ 500 (server) — as opposed to 401 (invalid token). */
@@ -748,30 +694,7 @@ function isTransientError(error: unknown): boolean {
 }
 
 function logAuthServiceError(context: string, error: unknown) {
-  console.error(`[auth-service] ${context}`, formatAuthServiceError(error));
-}
-
-function formatAuthServiceError(error: unknown) {
-  if (error instanceof ClientResponseError) {
-    return {
-      type: "ClientResponseError",
-      status: error.status,
-      url: error.url,
-      message: error.message,
-    };
-  }
-
-  if (error instanceof Error) {
-    return {
-      type: error.name,
-      message: error.message,
-    };
-  }
-
-  return {
-    type: "UnknownError",
-    message: "Non-error value thrown",
-  };
+  logServiceError("auth-service", context, error);
 }
 
 export function toAuthApiResponse<TData>(response: ServerAuthResponse<TData>): AuthResponse<TData> {

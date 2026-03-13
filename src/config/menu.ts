@@ -14,6 +14,7 @@ export type MenuLinkLabelKey =
   | "signIn"
   | "signUp"
   | "overview"
+  | "workspace"
   | "account"
   | "privacyPolicy"
   | "termsOfService"
@@ -52,6 +53,7 @@ export const marketingMenu: MenuItem[] = [
 
 export const applicationMenu: MenuLink[] = [
   { labelKey: "overview", href: "/overview" },
+  { labelKey: "workspace", href: "/overview" },
   { labelKey: "account", href: "/account" },
 ];
 

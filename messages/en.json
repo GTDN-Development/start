@@ -42,6 +42,7 @@
         "features": "Features",
         "integrations": "Integrations",
         "roadmap": "Roadmap",
+        "workspace": "Workspace",
         "account": "Account",
         "signIn": "Sign in",
         "signUp": "Sign up",
@@ -105,6 +106,38 @@
         },
         "actions": {
           "create": "Create workspace"
+        },
+        "createDrawer": {
+          "title": "Create a workspace",
+          "description": "Unlock collaboration and more with organisation workspace.",
+          "fields": {
+            "name": {
+              "label": "Name",
+              "placeholder": "Enter workspace name",
+              "description": "Used in navigation and workspace switcher."
+            },
+            "slug": {
+              "label": "URL",
+              "placeholder": "team-name",
+              "description": "Optional. Leave empty to generate it from the workspace name."
+            }
+          },
+          "validation": {
+            "nameRequired": "Workspace name is required.",
+            "nameMax": "Workspace name must be at most {max} characters long.",
+            "slugMax": "Workspace URL must be at most {max} characters long.",
+            "slugPattern": "Use only lowercase letters, numbers, and hyphens."
+          },
+          "submit": {
+            "default": "Create workspace",
+            "pending": "Creating..."
+          },
+          "status": {
+            "created": "Workspace was created.",
+            "failed": "Workspace could not be created.",
+            "badRequest": "Please check entered values and try again.",
+            "unauthorized": "Your session expired. Please sign in again."
+          }
         },
         "workspaces": {
           "current": {
@@ -176,6 +209,58 @@
       "alreadyHaveAccount": "Already have an account?",
       "signIn": "Sign in"
     },
+    "inviteToken": {
+      "title": "Workspace invitation",
+      "description": "Review and accept a workspace invitation.",
+      "shared": {
+        "continueAs": "Continue as <strong>{email}</strong>"
+      },
+      "dev": {
+        "selectAriaLabel": "Invite state preview",
+        "options": {
+          "loading": "loading",
+          "auth_required": "auth_required",
+          "success": "success",
+          "already_member": "already_member",
+          "blocked": "blocked",
+          "email_mismatch": "email_mismatch",
+          "error": "error"
+        }
+      },
+      "states": {
+        "loading": {
+          "title": "Checking invitation link",
+          "description": "Validating invitation link."
+        },
+        "auth_required": {
+          "title": "Join workspace",
+          "description": "You've been invited to <strong>{workspace}</strong>.",
+          "invitedBy": "Invited by <strong>{inviter}</strong>"
+        },
+        "success": {
+          "title": "Invitation accepted",
+          "description": "You're now a member of <strong>{workspace}</strong>. Redirecting..."
+        },
+        "already_member": {
+          "title": "You're already a member of <strong>{workspace}</strong>",
+          "cta": "Go to workspace"
+        },
+        "blocked": {
+          "title": "Invitation unavailable",
+          "description": "This invitation can't be used. It may be invalid, expired, revoked, unavailable, or already accepted."
+        },
+        "email_mismatch": {
+          "title": "Email mismatch",
+          "description": "Use the invited email address.",
+          "secondary": "Invited: <strong>{invitedEmail}</strong>. Current: <strong>{currentEmail}</strong>.",
+          "cta": "Sign out and continue with another account"
+        },
+        "error": {
+          "title": "Unexpected error",
+          "description": "We couldn't process this invitation. Try again, or ask the workspace owner for a new link."
+        }
+      }
+    },
     "aboutFeatures": {
       "title": "Features",
       "description": "Explore the core capabilities that help teams launch and scale faster."
@@ -190,146 +275,11 @@
     },
     "pricing": {
       "title": "Pricing",
-      "description": "Choose a plan that matches your team size, workflow, and growth stage.",
-      "billing": {
-        "annual": "Annual",
-        "monthly": "Monthly",
-        "perUser": "per user/{period}",
-        "toggleLabel": "Toggle annual billing"
-      },
-      "plans": {
-        "free": {
-          "name": "Free",
-          "monthlyPrice": "$0",
-          "yearlyPrice": "$0",
-          "description": "Free for everyone",
-          "ctaText": "Get started",
-          "features": {
-            "feature1": "Unlimited members",
-            "feature2": "2 teams",
-            "feature3": "500 issues",
-            "feature4": "Slack and Github integrations"
-          }
-        },
-        "startup": {
-          "name": "Startup",
-          "monthlyPrice": "$8",
-          "yearlyPrice": "$6",
-          "ctaText": "Get started",
-          "features": {
-            "feature1": "All free plan features and...",
-            "feature2": "AI Assistant",
-            "feature3": "Unlimited teams",
-            "feature4": "Unlimited issues and file uploads",
-            "feature5": "Advanced Insights",
-            "feature6": "Admin roles"
-          }
-        },
-        "pro": {
-          "name": "Pro",
-          "monthlyPrice": "$16",
-          "yearlyPrice": "$12",
-          "ctaText": "Get started",
-          "features": {
-            "feature1": "All startup plan features and...",
-            "feature2": "Advanced AI",
-            "feature3": "Priority support",
-            "feature4": "Custom workflows",
-            "feature5": "Advanced analytics",
-            "feature6": "API access"
-          }
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "monthlyPrice": "$32",
-          "yearlyPrice": "$24",
-          "ctaText": "Contact sales",
-          "features": {
-            "feature1": "All pro plan features and...",
-            "feature2": "SSO & SAML",
-            "feature3": "Dedicated support",
-            "feature4": "Custom integrations",
-            "feature5": "SLA guarantee"
-          }
-        }
-      },
-      "comparison": {
-        "sections": {
-          "usage": {
-            "title": "Usage",
-            "features": {
-              "members": {
-                "name": "Members",
-                "free": "Unlimited",
-                "startup": "Unlimited",
-                "pro": "Unlimited",
-                "enterprise": "Unlimited"
-              },
-              "transactions": {
-                "name": "Transactions",
-                "free": "250",
-                "startup": "Unlimited",
-                "pro": "Unlimited",
-                "enterprise": "Unlimited"
-              },
-              "teams": {
-                "name": "Teams",
-                "free": "2",
-                "startup": "Unlimited",
-                "pro": "Unlimited",
-                "enterprise": "Unlimited"
-              }
-            }
-          },
-          "features": {
-            "title": "Features",
-            "features": {
-              "reporting": {
-                "name": "Reporting"
-              },
-              "analytics": {
-                "name": "Analytics"
-              },
-              "importExport": {
-                "name": "Import and export"
-              },
-              "integrations": {
-                "name": "Integrations"
-              },
-              "aiAssistant": {
-                "name": "AI Assistant"
-              },
-              "adminRoles": {
-                "name": "Admin roles"
-              },
-              "auditLog": {
-                "name": "Audit log"
-              }
-            }
-          },
-          "support": {
-            "title": "Support",
-            "features": {
-              "prioritySupport": {
-                "name": "Priority Support"
-              },
-              "accountManager": {
-                "name": "Account Manager"
-              },
-              "uptimeSla": {
-                "name": "Uptime SLA"
-              }
-            }
-          }
-        }
-      }
+      "description": "Choose a plan that matches your team size, workflow, and growth stage."
     },
     "blog": {
       "title": "Blog",
-      "description": "Insights, product updates, and practical guides for modern teams.",
-      "loadMore": "Load more posts",
-      "backToBlog": "Back to Blog",
-      "readMore": "Find out more"
+      "description": "Insights, product updates, and practical guides for modern teams."
     },
     "gdpr": {
       "title": "Privacy Policy",
@@ -368,7 +318,8 @@
       "common": {
         "successTitle": "Done",
         "errorTitle": "Something went wrong",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "readOnlyHint": "You do not have permission to edit this setting."
       },
       "avatar": {
         "title": "Avatar",
@@ -520,6 +471,319 @@
                 "mismatch": "Passwords do not match."
               }
             }
+          }
+        }
+      }
+    },
+    "workspace": {
+      "title": "Settings",
+      "nav": {
+        "general": "General",
+        "members": "Members"
+      },
+      "common": {
+        "successTitle": "Done",
+        "errorTitle": "Something went wrong",
+        "cancel": "Cancel",
+        "readOnlyHint": "You do not have permission to edit this setting."
+      },
+      "general": {
+        "name": {
+          "title": "Workspace name",
+          "description": "Update how this workspace appears across the app.",
+          "field": {
+            "label": "Name",
+            "placeholder": "Enter workspace name",
+            "description": "This name is visible in navigation and workspace switcher."
+          },
+          "footerHint": "Maximum length is {max} characters.",
+          "submit": {
+            "default": "Save changes",
+            "pending": "Saving..."
+          },
+          "validation": {
+            "required": "Workspace name is required.",
+            "max": "Workspace name must be at most {max} characters long."
+          },
+          "status": {
+            "updateFailed": "Workspace name could not be updated.",
+            "updated": "Workspace name was updated."
+          }
+        },
+        "url": {
+          "title": "Workspace URL",
+          "description": "Set the URL segment used to access this workspace.",
+          "field": {
+            "label": "URL",
+            "placeholder": "Enter workspace URL",
+            "description": "Used in routes like /w/{workspaceUrl}/overview."
+          },
+          "footerHint": "Maximum length is {max} characters.",
+          "submit": {
+            "default": "Save changes",
+            "pending": "Saving..."
+          },
+          "validation": {
+            "required": "Workspace URL is required.",
+            "max": "Workspace URL must be at most {max} characters long."
+          },
+          "status": {
+            "slugTaken": "This workspace URL is already taken.",
+            "updateFailed": "Workspace URL could not be updated.",
+            "updated": "Workspace URL was updated."
+          }
+        },
+        "avatar": {
+          "title": "Workspace avatar",
+          "description": "Upload a square avatar for this workspace.",
+          "buttonLabel": "Change workspace avatar",
+          "menu": {
+            "change": "Change avatar",
+            "remove": "Remove avatar"
+          },
+          "hint": "Only standard image formats are supported (JPEG, PNG, WebP). Oversized images are optimized automatically.",
+          "status": {
+            "invalidFile": "Please upload a valid image up to 1 MB.",
+            "fileTooLarge": "We couldn't reduce the image size enough. Please choose a different image.",
+            "processingFailed": "We couldn't process the selected image. Please try a different file.",
+            "unauthorized": "Your session expired. Please sign in again.",
+            "error": "We couldn't update your workspace avatar right now. Please try again.",
+            "updateFailed": "Workspace avatar could not be updated.",
+            "updated": "Workspace avatar was updated.",
+            "removeFailed": "Workspace avatar could not be removed.",
+            "removed": "Workspace avatar was removed."
+          }
+        },
+        "leave": {
+          "title": "Leave workspace",
+          "description": "Leave {workspaceName} and remove your access to this workspace.",
+          "personalHint": "Personal workspace cannot be left. It always stays connected to your account.",
+          "ownerGuardHint": "At least two owners are required before you can leave this workspace.",
+          "trigger": "Leave workspace",
+          "dialog": {
+            "title": "Leave workspace?",
+            "description": "You will lose access to all workspace projects and settings. You can only return if another member invites you again.",
+            "fields": {
+              "confirmationUrl": {
+                "label": "Workspace URL",
+                "description": "Type {workspaceSlug} to confirm leaving."
+              },
+              "acknowledged": {
+                "label": "I understand I will lose access to this workspace."
+              }
+            },
+            "submit": {
+              "default": "Leave workspace",
+              "pending": "Leaving..."
+            }
+          },
+          "validation": {
+            "confirmationUrl": {
+              "required": "Workspace URL is required.",
+              "mismatch": "Type \"{workspaceSlug}\" to confirm."
+            },
+            "acknowledged": {
+              "required": "You must confirm that you will lose access to this workspace."
+            }
+          },
+          "status": {
+            "failed": "Workspace could not be left.",
+            "lastOwnerGuard": "You cannot leave this workspace until another owner is added.",
+            "success": "You no longer have access to this workspace."
+          }
+        },
+        "delete": {
+          "title": "Delete workspace",
+          "description": "Permanently remove {workspaceName} and all workspace data.",
+          "personalHint": "Personal workspace cannot be deleted. It is required for your account.",
+          "trigger": "Delete workspace",
+          "dialog": {
+            "title": "Delete workspace?",
+            "description": "This action is irreversible. All members, invites, and data inside this workspace will be permanently removed.",
+            "fields": {
+              "confirmationUrl": {
+                "label": "Workspace URL",
+                "description": "Type {workspaceSlug} to confirm deletion."
+              },
+              "acknowledged": {
+                "label": "I understand this action cannot be undone."
+              }
+            },
+            "submit": {
+              "default": "Delete workspace",
+              "pending": "Deleting..."
+            }
+          },
+          "validation": {
+            "confirmationUrl": {
+              "required": "Workspace URL is required.",
+              "mismatch": "Type \"{workspaceSlug}\" to confirm."
+            },
+            "acknowledged": {
+              "required": "You must confirm that this action cannot be undone."
+            }
+          },
+          "status": {
+            "failed": "Workspace could not be deleted.",
+            "success": "Workspace was deleted."
+          }
+        }
+      },
+      "members": {
+        "page": {
+          "title": "Members",
+          "description": "Manage team members and invitations."
+        },
+        "roles": {
+          "owner": {
+            "label": "Owner",
+            "description": "Full access to workspace settings, members, and management."
+          },
+          "member": {
+            "label": "Member",
+            "description": "Can collaborate in workspace, but cannot manage ownership."
+          }
+        },
+        "invite": {
+          "title": "Invite members",
+          "description": "Add one or more people and choose their access role.",
+          "personalWorkspace": {
+            "description": "Personal workspace {workspaceName} is limited to a single member.",
+            "hint": "Invites are available only in organization workspaces."
+          },
+          "fields": {
+            "email": {
+              "label": "Email",
+              "placeholder": "name@company.com"
+            },
+            "role": {
+              "label": "Role",
+              "placeholder": "Select role"
+            }
+          },
+          "actions": {
+            "removeRowAriaLabel": "Remove invitation row",
+            "addMore": "Add more",
+            "invite": "Invite"
+          },
+          "footer": {
+            "defaultHint": "All rows are submitted together."
+          },
+          "dialog": {
+            "title": "Invite Team Members",
+            "description": "By confirming, you will invite {count, plural, one {# new member} other {# new members}}.",
+            "expiryHint": "Invite will expire after 1 week",
+            "submit": {
+              "default": "Continue",
+              "pending": "Inviting..."
+            }
+          },
+          "status": {
+            "invalidRows": "Please complete the fields above.",
+            "sendFailed": "Invitations could not be sent.",
+            "sent": "Invitations sent."
+          }
+        },
+        "management": {
+          "title": "Members and invitations",
+          "description": "Review current members and pending invitations.",
+          "tabs": {
+            "members": "Members",
+            "pendingInvitations": "Pending invitations"
+          },
+          "dialogs": {
+            "common": {
+              "thisMember": "this member"
+            },
+            "changeRole": {
+              "title": "Change member role?",
+              "description": "Select a new role for {memberName} in {workspaceName}.",
+              "submit": {
+                "default": "Save role",
+                "pending": "Saving..."
+              }
+            },
+            "lastOwnerGuard": {
+              "title": "Last owner protection",
+              "description": "This member is the last owner of this workspace. Promote another member to owner before downgrading."
+            },
+            "removeMember": {
+              "title": "Remove member from workspace?",
+              "description": "This will immediately revoke access to {workspaceName}.",
+              "submit": {
+                "default": "Remove member",
+                "pending": "Removing..."
+              }
+            },
+            "resendInvite": {
+              "title": "Resend invitation link?",
+              "description": "This will send a new invitation link for {workspaceName}.",
+              "submit": {
+                "default": "Resend invite link",
+                "pending": "Resending..."
+              }
+            },
+            "removeInvite": {
+              "title": "Remove invitation?",
+              "description": "This will invalidate the invite token and remove this pending invitation from {workspaceName}.",
+              "submit": {
+                "default": "Remove invitation",
+                "pending": "Removing..."
+              }
+            }
+          },
+          "status": {
+            "lastOwnerGuard": "Last owner cannot be changed or removed.",
+            "roleChange": {
+              "error": "Role could not be changed.",
+              "success": "Role updated."
+            },
+            "memberRemove": {
+              "error": "Member could not be removed.",
+              "success": "Member removed."
+            },
+            "inviteResend": {
+              "error": "Invite could not be resent.",
+              "success": "Invite link resent."
+            },
+            "inviteRemove": {
+              "error": "Invitation could not be removed.",
+              "success": "Invitation removed."
+            }
+          },
+          "errors": {
+            "lastOwnerGuard": "Last owner cannot be changed or removed.",
+            "rateLimited": "Please wait before trying again.",
+            "forbidden": "You do not have permission to do this.",
+            "notFound": "Item was not found."
+          },
+          "table": {
+            "members": {
+              "user": "User",
+              "role": "Role",
+              "actions": "Actions"
+            },
+            "invites": {
+              "email": "Email",
+              "role": "Role",
+              "actions": "Actions"
+            }
+          },
+          "menus": {
+            "members": {
+              "ariaLabel": "Open member actions",
+              "changeRole": "Change role",
+              "removeMember": "Remove from workspace"
+            },
+            "invites": {
+              "ariaLabel": "Open invitation actions",
+              "resend": "Resend invite link",
+              "remove": "Remove invitation"
+            }
+          },
+          "empty": {
+            "title": "No pending invitations",
+            "description": "All invitations are accepted or expired."
           }
         }
       }

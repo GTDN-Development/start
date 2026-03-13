@@ -6,6 +6,10 @@ type FormEmailMessage = {
   text: string;
 };
 
+type EmailMessage = FormEmailMessage & {
+  to: string;
+};
+
 const HTML_ESCAPE_REPLACEMENTS: Record<string, string> = {
   "&": "&amp;",
   "<": "&lt;",
@@ -19,15 +23,24 @@ export function escapeHtml(value: string) {
 }
 
 export async function sendFormEmail(message: FormEmailMessage) {
+  const recipientEmail = process.env.FORM_RECIPIENT_EMAIL ?? "";
+
+  await sendEmail({
+    to: recipientEmail,
+    ...message,
+  });
+}
+
+export async function sendEmail(message: EmailMessage) {
   const transporter = getOrCreateMailTransporter();
   const fromName = process.env.MAIL_FROM_NAME ?? "";
   const fromAddress = process.env.MAIL_FROM_ADDRESS ?? "";
-  const recipientEmail = process.env.FORM_RECIPIENT_EMAIL ?? "";
+  const { to, ...messageContent } = message;
 
   await transporter.sendMail({
     from: `${fromName} <${fromAddress}>`,
-    to: recipientEmail,
-    ...message,
+    to,
+    ...messageContent,
   });
 }
 

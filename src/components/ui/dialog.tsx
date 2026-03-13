@@ -52,7 +52,7 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Viewport
         data-slot="dialog-viewport"
-        className="fixed inset-0 z-50 grid grid-rows-[1fr_auto_3fr] place-items-center overflow-y-auto px-4 pt-10 pb-12"
+        className="fixed inset-0 z-50 grid place-items-center overflow-y-auto px-4 pt-10 pb-12"
       >
         <DialogPrimitive.Popup
           data-slot="dialog-content"

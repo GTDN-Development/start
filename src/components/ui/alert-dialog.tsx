@@ -45,7 +45,7 @@ function AlertDialogContent({
       <AlertDialogOverlay />
       <AlertDialogPrimitive.Viewport
         data-slot="alert-dialog-viewport"
-        className="fixed inset-0 z-50 grid grid-rows-[1fr_auto_3fr] justify-items-center overflow-y-auto px-4 pt-10 pb-16"
+        className="fixed inset-0 z-50 grid place-items-center overflow-y-auto px-4 pt-10 pb-16"
       >
         <AlertDialogPrimitive.Popup
           data-slot="alert-dialog-content"

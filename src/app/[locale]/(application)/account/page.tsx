@@ -8,12 +8,17 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
-import { AccountPage } from "@/features/account/account-page";
-import { AccountAvatarSettingsItem } from "@/features/account/avatar/avatar-settings-item";
-import { AccountDeleteAccountSettingsItem } from "@/features/account/delete-account/delete-account-settings-item";
-import { AccountDisplayNameSettingsItem } from "@/features/account/profile/profile-settings-item";
-import { AccountEmailSettingsItem } from "@/features/account/email-change/email-change-settings-item";
-import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
+import { AccountAvatarSettingsItem } from "@/features/account/general/avatar-settings-item";
+import { AccountDeleteAccountSettingsItem } from "@/features/account/general/delete-account-settings-item";
+import { AccountDisplayNameSettingsItem } from "@/features/account/general/display-name-settings-item";
+import { AccountEmailSettingsItem } from "@/features/account/general/email-change-settings-item";
+import {
+  accountInnerSidebarItems,
+  mapInnerSidebarItems,
+} from "@/features/application/inner-sidebar/inner-sidebar-items";
+import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
+import { ApplicationPageShell } from "@/features/application/application-page-shell";
+import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/account">): Promise<Metadata> {
@@ -46,9 +51,10 @@ export default async function Page({ params }: PageProps<"/[locale]/account">) {
     namespace: "layout.navigation.items",
   });
 
+  const innerSidebarItems = mapInnerSidebarItems(accountInnerSidebarItems, tAccount);
+
   return (
     <ApplicationPageShell
-      title={tAccount("title")}
       breadcrumbs={
         <Breadcrumb>
           <BreadcrumbList>
@@ -60,17 +66,19 @@ export default async function Page({ params }: PageProps<"/[locale]/account">) {
       }
     >
       <Container className="pt-10 pb-24">
-        <AccountPage
-          title={tAccount("generalPage.title")}
-          description={tAccount("generalPage.description")}
-        >
-          <div className="grid gap-8">
-            <AccountAvatarSettingsItem />
-            <AccountDisplayNameSettingsItem />
-            <AccountEmailSettingsItem />
-            <AccountDeleteAccountSettingsItem />
-          </div>
-        </AccountPage>
+        <InnerSidebarLayout title={tNav("account")} items={innerSidebarItems}>
+          <SettingsPage
+            title={tAccount("generalPage.title")}
+            description={tAccount("generalPage.description")}
+          >
+            <div className="grid gap-8">
+              <AccountAvatarSettingsItem />
+              <AccountDisplayNameSettingsItem />
+              <AccountEmailSettingsItem />
+              <AccountDeleteAccountSettingsItem />
+            </div>
+          </SettingsPage>
+        </InnerSidebarLayout>
       </Container>
     </ApplicationPageShell>
   );

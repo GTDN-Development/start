@@ -11,10 +11,17 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
-import { AccountPage } from "@/features/account/account-page";
-import { AccountChangePasswordItem } from "@/features/account/password/password-settings-item";
-import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
+import { AccountChangePasswordItem } from "@/features/account/security/password-settings-item";
+import {
+  accountInnerSidebarItems,
+  mapInnerSidebarItems,
+} from "@/features/application/inner-sidebar/inner-sidebar-items";
+import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
+import { ApplicationPageShell } from "@/features/application/application-page-shell";
+import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
+import { YourDevicesSettingsItem } from "@/features/account/security/your-devices-settings-item";
+import { TwoFactorAuthSettingsItem } from "@/features/account/security/two-factor-auth-settings-item";
 // import { YourDevicesSettingsItem } from "@/features/account/your-devices/your-devices-settings-item";
 // import { TwoFactorAuthSettingsItem } from "@/features/account/two-factor-auth/two-factor-auth-settings-item";
 
@@ -50,9 +57,10 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
     namespace: "layout.navigation.items",
   });
 
+  const innerSidebarItems = mapInnerSidebarItems(accountInnerSidebarItems, tAccount);
+
   return (
     <ApplicationPageShell
-      title={tAccount("title")}
       breadcrumbs={
         <Breadcrumb>
           <BreadcrumbList>
@@ -68,19 +76,18 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
       }
     >
       <Container className="pt-10 pb-24">
-        <AccountPage
-          title={tAccount("securityPage.title")}
-          description={tAccount("securityPage.description")}
-        >
-          <div className="grid gap-8">
-            <AccountChangePasswordItem />
-            {/*<p className="text-destructive text-sm">
-              Currently static mocks for devices and two-factor authentication
-            </p>*/}
-            {/*<YourDevicesSettingsItem />*/}
-            {/*<TwoFactorAuthSettingsItem />*/}
-          </div>
-        </AccountPage>
+        <InnerSidebarLayout title={tNav("account")} items={innerSidebarItems}>
+          <SettingsPage
+            title={tAccount("securityPage.title")}
+            description={tAccount("securityPage.description")}
+          >
+            <div className="grid gap-8">
+              <AccountChangePasswordItem />
+              <YourDevicesSettingsItem />
+              <TwoFactorAuthSettingsItem />
+            </div>
+          </SettingsPage>
+        </InnerSidebarLayout>
       </Container>
     </ApplicationPageShell>
   );

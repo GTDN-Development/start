@@ -9,8 +9,8 @@ import {
   ApplicationPageHeroContent,
   ApplicationPageHeroDescription,
   ApplicationPageHeroTitle,
-} from "@/features/application/new/application-page-hero";
-import { ApplicationPageShell } from "@/features/application/new/application-page-shell";
+} from "@/features/application/application-page-hero";
+import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import {
   Breadcrumb,
   BreadcrumbItem,

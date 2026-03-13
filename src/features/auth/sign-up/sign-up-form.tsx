@@ -15,6 +15,7 @@ import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/legal-links";
 import { signUp } from "@/features/auth/auth-client";
 import { createSignUpFormSchema, type SignUpInput } from "@/features/auth/auth-schemas";
+import { resolvePostAuthWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { cn } from "@/lib/utils";
 
 export function SignUpForm({ className, ...props }: React.ComponentProps<"div">) {
@@ -51,6 +52,18 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       const response = await signUp(value);
 
       if (response.ok) {
+        const workspaceResponse = await resolvePostAuthWorkspaceAction();
+
+        if (workspaceResponse.ok) {
+          router.replace({
+            pathname: "/w/[workspaceSlug]/overview",
+            params: {
+              workspaceSlug: workspaceResponse.data.workspaceSlug,
+            },
+          });
+          return;
+        }
+
         router.replace("/overview");
         return;
       }

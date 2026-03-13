@@ -42,6 +42,7 @@
         "features": "Funkce",
         "integrations": "Integrace",
         "roadmap": "Plán vývoje",
+        "workspace": "Workspace",
         "account": "Účet",
         "signIn": "Přihlášení",
         "signUp": "Registrace",
@@ -105,6 +106,38 @@
         },
         "actions": {
           "create": "Vytvořit pracovní prostor"
+        },
+        "createDrawer": {
+          "title": "Vytvořit workspace",
+          "description": "Odemkněte spolupráci a další možnosti s organizačním workspace.",
+          "fields": {
+            "name": {
+              "label": "Název",
+              "placeholder": "Zadejte název workspace",
+              "description": "Používá se v navigaci a přepínači workspace."
+            },
+            "slug": {
+              "label": "URL",
+              "placeholder": "nazev-tymu",
+              "description": "Volitelné. Pokud necháte prázdné, URL se vygeneruje z názvu workspace."
+            }
+          },
+          "validation": {
+            "nameRequired": "Název workspace je povinný.",
+            "nameMax": "Název workspace může mít maximálně {max} znaků.",
+            "slugMax": "URL workspace může mít maximálně {max} znaků.",
+            "slugPattern": "Použijte pouze malá písmena, čísla a pomlčky."
+          },
+          "submit": {
+            "default": "Vytvořit workspace",
+            "pending": "Vytvářím..."
+          },
+          "status": {
+            "created": "Workspace byl vytvořen.",
+            "failed": "Workspace se nepodařilo vytvořit.",
+            "badRequest": "Zkontrolujte prosím zadané hodnoty a zkuste to znovu.",
+            "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
+          }
         },
         "workspaces": {
           "current": {
@@ -176,6 +209,58 @@
       "alreadyHaveAccount": "Již máte účet?",
       "signIn": "Přihlásit se"
     },
+    "inviteToken": {
+      "title": "Pozvánka do workspace",
+      "description": "Zkontrolujte a potvrďte pozvánku do workspace.",
+      "shared": {
+        "continueAs": "Pokračovat jako <strong>{email}</strong>"
+      },
+      "dev": {
+        "selectAriaLabel": "Náhled stavu pozvánky",
+        "options": {
+          "loading": "loading",
+          "auth_required": "auth_required",
+          "success": "success",
+          "already_member": "already_member",
+          "blocked": "blocked",
+          "email_mismatch": "email_mismatch",
+          "error": "error"
+        }
+      },
+      "states": {
+        "loading": {
+          "title": "Ověřujeme odkaz pozvánky",
+          "description": "Ověřujeme platnost pozvánky."
+        },
+        "auth_required": {
+          "title": "Připojit se do workspace",
+          "description": "Byli jste pozváni do workspace <strong>{workspace}</strong>.",
+          "invitedBy": "Pozval vás <strong>{inviter}</strong>"
+        },
+        "success": {
+          "title": "Pozvánka přijata",
+          "description": "Už jste členem workspace <strong>{workspace}</strong>. Přesměrováváme..."
+        },
+        "already_member": {
+          "title": "Už jste členem workspace <strong>{workspace}</strong>",
+          "cta": "Přejít do workspace"
+        },
+        "blocked": {
+          "title": "Pozvánka není dostupná",
+          "description": "Tuto pozvánku už nelze použít. Může být neplatná, expirovaná, zrušená, nedostupná nebo už použitá."
+        },
+        "email_mismatch": {
+          "title": "E-mail nesouhlasí",
+          "description": "Použijte pozvanou e-mailovou adresu.",
+          "secondary": "Pozvánka: <strong>{invitedEmail}</strong>. Aktuální účet: <strong>{currentEmail}</strong>.",
+          "cta": "Odhlásit se a pokračovat jiným účtem"
+        },
+        "error": {
+          "title": "Neočekávaná chyba",
+          "description": "Pozvánku se nepodařilo zpracovat. Zkuste to znovu, nebo požádejte vlastníka workspace o nový odkaz."
+        }
+      }
+    },
     "aboutFeatures": {
       "title": "Funkce",
       "description": "Prozkoumejte klíčové možnosti, které týmům pomáhají rychleji spouštět a škálovat produkt."
@@ -190,146 +275,11 @@
     },
     "pricing": {
       "title": "Ceník",
-      "description": "Vyberte si plán podle velikosti týmu, způsobu práce a fáze růstu.",
-      "billing": {
-        "annual": "Ročně",
-        "monthly": "Měsíčně",
-        "perUser": "za uživatele/{period}",
-        "toggleLabel": "Přepnout roční fakturaci"
-      },
-      "plans": {
-        "free": {
-          "name": "Zdarma",
-          "monthlyPrice": "$0",
-          "yearlyPrice": "$0",
-          "description": "Zdarma pro všechny",
-          "ctaText": "Začít",
-          "features": {
-            "feature1": "Neomezený počet členů",
-            "feature2": "2 týmy",
-            "feature3": "500 úkolů",
-            "feature4": "Integrace se Slack a Github"
-          }
-        },
-        "startup": {
-          "name": "Startup",
-          "monthlyPrice": "$8",
-          "yearlyPrice": "$6",
-          "ctaText": "Začít",
-          "features": {
-            "feature1": "Vše z plánu Zdarma a navíc...",
-            "feature2": "AI Asistent",
-            "feature3": "Neomezený počet týmů",
-            "feature4": "Neomezené úkoly a nahrávání souborů",
-            "feature5": "Pokročilé přehledy",
-            "feature6": "Administrátorské role"
-          }
-        },
-        "pro": {
-          "name": "Pro",
-          "monthlyPrice": "$16",
-          "yearlyPrice": "$12",
-          "ctaText": "Začít",
-          "features": {
-            "feature1": "Vše z plánu Startup a navíc...",
-            "feature2": "Pokročilé AI",
-            "feature3": "Prioritní podpora",
-            "feature4": "Vlastní workflow",
-            "feature5": "Pokročilá analytika",
-            "feature6": "API přístup"
-          }
-        },
-        "enterprise": {
-          "name": "Enterprise",
-          "monthlyPrice": "$32",
-          "yearlyPrice": "$24",
-          "ctaText": "Kontaktovat obchod",
-          "features": {
-            "feature1": "Vše z plánu Pro a navíc...",
-            "feature2": "SSO & SAML",
-            "feature3": "Dedikovaná podpora",
-            "feature4": "Vlastní integrace",
-            "feature5": "Garance SLA"
-          }
-        }
-      },
-      "comparison": {
-        "sections": {
-          "usage": {
-            "title": "Využití",
-            "features": {
-              "members": {
-                "name": "Členové",
-                "free": "Neomezeně",
-                "startup": "Neomezeně",
-                "pro": "Neomezeně",
-                "enterprise": "Neomezeně"
-              },
-              "transactions": {
-                "name": "Transakce",
-                "free": "250",
-                "startup": "Neomezeně",
-                "pro": "Neomezeně",
-                "enterprise": "Neomezeně"
-              },
-              "teams": {
-                "name": "Týmy",
-                "free": "2",
-                "startup": "Neomezeně",
-                "pro": "Neomezeně",
-                "enterprise": "Neomezeně"
-              }
-            }
-          },
-          "features": {
-            "title": "Funkce",
-            "features": {
-              "reporting": {
-                "name": "Reporty"
-              },
-              "analytics": {
-                "name": "Analytika"
-              },
-              "importExport": {
-                "name": "Import a export"
-              },
-              "integrations": {
-                "name": "Integrace"
-              },
-              "aiAssistant": {
-                "name": "AI Asistent"
-              },
-              "adminRoles": {
-                "name": "Administrátorské role"
-              },
-              "auditLog": {
-                "name": "Auditní log"
-              }
-            }
-          },
-          "support": {
-            "title": "Podpora",
-            "features": {
-              "prioritySupport": {
-                "name": "Prioritní podpora"
-              },
-              "accountManager": {
-                "name": "Account Manager"
-              },
-              "uptimeSla": {
-                "name": "Garance dostupnosti"
-              }
-            }
-          }
-        }
-      }
+      "description": "Vyberte si plán podle velikosti týmu, způsobu práce a fáze růstu."
     },
     "blog": {
       "title": "Blog",
-      "description": "Postřehy, produktové novinky a praktické návody pro moderní týmy.",
-      "loadMore": "Načíst další příspěvky",
-      "backToBlog": "Zpět na blog",
-      "readMore": "Zjistit více"
+      "description": "Postřehy, produktové novinky a praktické návody pro moderní týmy."
     },
     "gdpr": {
       "title": "Zásady ochrany osobních údajů",
@@ -368,7 +318,8 @@
       "common": {
         "successTitle": "Hotovo",
         "errorTitle": "Něco se nepovedlo",
-        "cancel": "Zrušit"
+        "cancel": "Zrušit",
+        "readOnlyHint": "Na úpravu tohoto nastavení nemáte dostatečná práva."
       },
       "avatar": {
         "title": "Avatar",
@@ -520,6 +471,319 @@
                 "mismatch": "Hesla se neshodují."
               }
             }
+          }
+        }
+      }
+    },
+    "workspace": {
+      "title": "Nastavení",
+      "nav": {
+        "general": "Obecné",
+        "members": "Členové"
+      },
+      "common": {
+        "successTitle": "Hotovo",
+        "errorTitle": "Něco se nepovedlo",
+        "cancel": "Zrušit",
+        "readOnlyHint": "Na úpravu tohoto nastavení nemáte dostatečná práva."
+      },
+      "general": {
+        "name": {
+          "title": "Název workspace",
+          "description": "Upravte, jak se tento workspace zobrazuje napříč aplikací.",
+          "field": {
+            "label": "Název",
+            "placeholder": "Zadejte název workspace",
+            "description": "Tento název je viditelný v navigaci a přepínači workspace."
+          },
+          "footerHint": "Maximální délka je {max} znaků.",
+          "submit": {
+            "default": "Uložit změny",
+            "pending": "Ukládání..."
+          },
+          "validation": {
+            "required": "Název workspace je povinný.",
+            "max": "Název workspace může mít maximálně {max} znaků."
+          },
+          "status": {
+            "updateFailed": "Název workspace se nepodařilo aktualizovat.",
+            "updated": "Název workspace byl aktualizován."
+          }
+        },
+        "url": {
+          "title": "URL workspace",
+          "description": "Nastavte URL segment používaný pro přístup do tohoto workspace.",
+          "field": {
+            "label": "URL",
+            "placeholder": "Zadejte URL workspace",
+            "description": "Používá se v trasách jako /w/{workspaceUrl}/prehled."
+          },
+          "footerHint": "Maximální délka je {max} znaků.",
+          "submit": {
+            "default": "Uložit změny",
+            "pending": "Ukládání..."
+          },
+          "validation": {
+            "required": "URL workspace je povinná.",
+            "max": "URL workspace může mít maximálně {max} znaků."
+          },
+          "status": {
+            "slugTaken": "Tato URL workspace je už obsazená.",
+            "updateFailed": "URL workspace se nepodařilo aktualizovat.",
+            "updated": "URL workspace byla aktualizována."
+          }
+        },
+        "avatar": {
+          "title": "Avatar workspace",
+          "description": "Nahrajte čtvercový avatar pro tento workspace.",
+          "buttonLabel": "Změnit avatar workspace",
+          "menu": {
+            "change": "Změnit avatar",
+            "remove": "Odebrat avatar"
+          },
+          "hint": "Jsou podporovány pouze standardní formáty obrázků (JPEG, PNG, WebP). Nadměrně velké obrázky automaticky optimalizujeme.",
+          "status": {
+            "invalidFile": "Nahrajte prosím platný obrázek do 1 MB.",
+            "fileTooLarge": "Obrázek se nepodařilo dostatečně zmenšit. Zkuste prosím jiný soubor.",
+            "processingFailed": "Vybraný obrázek se nepodařilo zpracovat. Zkuste prosím jiný soubor.",
+            "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu.",
+            "error": "Avatar workspace se teď nepodařilo upravit. Zkuste to prosím znovu.",
+            "updateFailed": "Avatar workspace se nepodařilo aktualizovat.",
+            "updated": "Avatar workspace byl aktualizován.",
+            "removeFailed": "Avatar workspace se nepodařilo odebrat.",
+            "removed": "Avatar workspace byl odebrán."
+          }
+        },
+        "leave": {
+          "title": "Opustit workspace",
+          "description": "Opusťte {workspaceName} a odeberte si přístup do tohoto workspace.",
+          "personalHint": "Osobní workspace nelze opustit. Je trvale propojený s vaším účtem.",
+          "ownerGuardHint": "Pro opuštění workspace musí mít workspace alespoň dva vlastníky.",
+          "trigger": "Opustit workspace",
+          "dialog": {
+            "title": "Opustit workspace?",
+            "description": "Ztratíte přístup ke všem projektům a nastavením tohoto workspace. Vrátit se můžete jen pokud vás jiný člen znovu pozve.",
+            "fields": {
+              "confirmationUrl": {
+                "label": "URL workspace",
+                "description": "Pro potvrzení opuštění napište {workspaceSlug}."
+              },
+              "acknowledged": {
+                "label": "Rozumím, že ztratím přístup do tohoto workspace."
+              }
+            },
+            "submit": {
+              "default": "Opustit workspace",
+              "pending": "Opouštění..."
+            }
+          },
+          "validation": {
+            "confirmationUrl": {
+              "required": "URL workspace je povinná.",
+              "mismatch": "Pro potvrzení napište \"{workspaceSlug}\"."
+            },
+            "acknowledged": {
+              "required": "Musíte potvrdit, že ztratíte přístup do tohoto workspace."
+            }
+          },
+          "status": {
+            "failed": "Workspace se nepodařilo opustit.",
+            "lastOwnerGuard": "Workspace nelze opustit, dokud není přidán další vlastník.",
+            "success": "K tomuto workspace už nemáte přístup."
+          }
+        },
+        "delete": {
+          "title": "Smazat workspace",
+          "description": "Trvale odstraňte {workspaceName} a všechna data tohoto workspace.",
+          "personalHint": "Osobní workspace nelze smazat. Je povinný pro váš účet.",
+          "trigger": "Smazat workspace",
+          "dialog": {
+            "title": "Smazat workspace?",
+            "description": "Tato akce je nevratná. Všichni členové, pozvánky i data uvnitř tohoto workspace budou trvale odstraněny.",
+            "fields": {
+              "confirmationUrl": {
+                "label": "URL workspace",
+                "description": "Pro potvrzení smazání napište {workspaceSlug}."
+              },
+              "acknowledged": {
+                "label": "Rozumím, že tuto akci nelze vrátit zpět."
+              }
+            },
+            "submit": {
+              "default": "Smazat workspace",
+              "pending": "Mazání..."
+            }
+          },
+          "validation": {
+            "confirmationUrl": {
+              "required": "URL workspace je povinná.",
+              "mismatch": "Pro potvrzení napište \"{workspaceSlug}\"."
+            },
+            "acknowledged": {
+              "required": "Musíte potvrdit, že tuto akci nelze vrátit zpět."
+            }
+          },
+          "status": {
+            "failed": "Workspace se nepodařilo smazat.",
+            "success": "Workspace byl smazán."
+          }
+        }
+      },
+      "members": {
+        "page": {
+          "title": "Členové",
+          "description": "Spravujte členy týmu a pozvánky."
+        },
+        "roles": {
+          "owner": {
+            "label": "Vlastník",
+            "description": "Plný přístup k nastavení, členům a správě workspace."
+          },
+          "member": {
+            "label": "Člen",
+            "description": "Může spolupracovat ve workspace, ale nemůže spravovat vlastnictví."
+          }
+        },
+        "invite": {
+          "title": "Pozvat členy",
+          "description": "Přidejte jednu nebo více osob a vyberte jejich roli.",
+          "personalWorkspace": {
+            "description": "Osobní workspace {workspaceName} je omezen na jednoho člena.",
+            "hint": "Pozvánky jsou dostupné pouze v organizačních workspace."
+          },
+          "fields": {
+            "email": {
+              "label": "E-mail",
+              "placeholder": "jmeno@firma.cz"
+            },
+            "role": {
+              "label": "Role",
+              "placeholder": "Vyberte roli"
+            }
+          },
+          "actions": {
+            "removeRowAriaLabel": "Odebrat řádek pozvánky",
+            "addMore": "Přidat další",
+            "invite": "Pozvat"
+          },
+          "footer": {
+            "defaultHint": "Všechny řádky se odesílají společně."
+          },
+          "dialog": {
+            "title": "Pozvat členy týmu",
+            "description": "Potvrzením odešlete {count, plural, one {# novou pozvánku} few {# nové pozvánky} other {# nových pozvánek}}.",
+            "expiryHint": "Pozvánka vyprší za 1 týden",
+            "submit": {
+              "default": "Pokračovat",
+              "pending": "Odesílání..."
+            }
+          },
+          "status": {
+            "invalidRows": "Doplňte prosím pole výše.",
+            "sendFailed": "Pozvánky se nepodařilo odeslat.",
+            "sent": "Pozvánky byly odeslány."
+          }
+        },
+        "management": {
+          "title": "Členové a pozvánky",
+          "description": "Zkontrolujte aktuální členy a čekající pozvánky.",
+          "tabs": {
+            "members": "Členové",
+            "pendingInvitations": "Čekající pozvánky"
+          },
+          "dialogs": {
+            "common": {
+              "thisMember": "tohoto člena"
+            },
+            "changeRole": {
+              "title": "Změnit roli člena?",
+              "description": "Vyberte novou roli pro uživatele {memberName} ve workspace {workspaceName}.",
+              "submit": {
+                "default": "Uložit roli",
+                "pending": "Ukládání..."
+              }
+            },
+            "lastOwnerGuard": {
+              "title": "Ochrana posledního vlastníka",
+              "description": "Tento člen je poslední vlastník workspace. Před snížením role povyšte jiného člena na vlastníka."
+            },
+            "removeMember": {
+              "title": "Odebrat člena z workspace?",
+              "description": "Tímto okamžitě odeberete přístup do workspace {workspaceName}.",
+              "submit": {
+                "default": "Odebrat člena",
+                "pending": "Odebírání..."
+              }
+            },
+            "resendInvite": {
+              "title": "Znovu odeslat odkaz pozvánky?",
+              "description": "Tímto odešlete nový odkaz pozvánky do workspace {workspaceName}.",
+              "submit": {
+                "default": "Znovu odeslat pozvánku",
+                "pending": "Odesílání..."
+              }
+            },
+            "removeInvite": {
+              "title": "Odebrat pozvánku?",
+              "description": "Tímto zneplatníte token pozvánky a odeberete tuto čekající pozvánku z workspace {workspaceName}.",
+              "submit": {
+                "default": "Odebrat pozvánku",
+                "pending": "Odebírání..."
+              }
+            }
+          },
+          "status": {
+            "lastOwnerGuard": "Posledního vlastníka nelze snížit ani odebrat.",
+            "roleChange": {
+              "error": "Roli se nepodařilo změnit.",
+              "success": "Role byla aktualizována."
+            },
+            "memberRemove": {
+              "error": "Člena se nepodařilo odebrat.",
+              "success": "Člen byl odebrán."
+            },
+            "inviteResend": {
+              "error": "Pozvánku se nepodařilo znovu odeslat.",
+              "success": "Odkaz pozvánky byl znovu odeslán."
+            },
+            "inviteRemove": {
+              "error": "Pozvánku se nepodařilo odebrat.",
+              "success": "Pozvánka byla odebrána."
+            }
+          },
+          "errors": {
+            "lastOwnerGuard": "Posledního vlastníka nelze změnit ani odebrat.",
+            "rateLimited": "Před dalším pokusem chvíli počkejte.",
+            "forbidden": "Na tuto akci nemáte oprávnění.",
+            "notFound": "Položka nebyla nalezena."
+          },
+          "table": {
+            "members": {
+              "user": "Uživatel",
+              "role": "Role",
+              "actions": "Akce"
+            },
+            "invites": {
+              "email": "E-mail",
+              "role": "Role",
+              "actions": "Akce"
+            }
+          },
+          "menus": {
+            "members": {
+              "ariaLabel": "Otevřít akce člena",
+              "changeRole": "Změnit roli",
+              "removeMember": "Odebrat z workspace"
+            },
+            "invites": {
+              "ariaLabel": "Otevřít akce pozvánky",
+              "resend": "Znovu odeslat odkaz",
+              "remove": "Odebrat pozvánku"
+            }
+          },
+          "empty": {
+            "title": "Žádné čekající pozvánky",
+            "description": "Všechny pozvánky byly přijaty nebo expirovaly."
           }
         }
       }

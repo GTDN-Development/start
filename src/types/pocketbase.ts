@@ -9,6 +9,17 @@ export interface PocketBaseSystemFields {
   updated: string;
 }
 
+export interface AuthSessionsRecord extends PocketBaseSystemFields {
+  user: string;
+  session_key: string;
+  device_label?: string;
+  user_agent?: string;
+  ip?: string;
+  place?: string;
+  last_seen_at: string;
+  revoked_at?: string;
+}
+
 export interface CookieConsentEventsRecord extends PocketBaseSystemFields {
   subject_key: string;
   event_type: "accept_all" | "reject_all" | "save_preferences" | "withdraw";
@@ -34,6 +45,24 @@ export interface PostsRecord extends PocketBaseSystemFields {
   translation_shared_id?: string;
 }
 
+export interface UserDeviceSessionsRecord extends PocketBaseSystemFields {
+  user: string;
+  session_id_hash: string;
+  device_label: string;
+  device_type: "desktop" | "phone" | "tablet" | "unknown";
+  browser?: string;
+  os?: string;
+  user_agent?: string;
+  ip_masked?: string;
+  ip_hash?: string;
+  location_label?: string;
+  last_seen_at: string;
+  expires_at: string;
+  revoked_at?: string;
+  revoked_reason?: "signed_out" | "signed_out_others" | "capped" | "expired" | "admin";
+  remember_me?: boolean;
+}
+
 export interface UsersRecord extends PocketBaseSystemFields {
   password?: string;
   tokenKey?: string;
@@ -44,12 +73,39 @@ export interface UsersRecord extends PocketBaseSystemFields {
   avatar?: string;
 }
 
+export interface WorkspaceInvitesRecord extends PocketBaseSystemFields {
+  workspace: string;
+  email_normalized: string;
+  role: "member";
+  token_hash: string;
+  expires_at: string;
+  invited_by: string;
+}
+
+export interface WorkspaceMembersRecord extends PocketBaseSystemFields {
+  workspace: string;
+  user: string;
+  role: "owner" | "member";
+}
+
+export interface WorkspacesRecord extends PocketBaseSystemFields {
+  name: string;
+  slug: string;
+  kind: "personal" | "organization";
+  avatar?: string;
+}
+
 export interface PocketBaseCollections {
-  cookie_consent_events: CookieConsentEventsRecord;
-  posts: PostsRecord;
-  users: UsersRecord;
+  "auth_sessions": AuthSessionsRecord;
+  "cookie_consent_events": CookieConsentEventsRecord;
+  "posts": PostsRecord;
+  "user_device_sessions": UserDeviceSessionsRecord;
+  "users": UsersRecord;
+  "workspace_invites": WorkspaceInvitesRecord;
+  "workspace_members": WorkspaceMembersRecord;
+  "workspaces": WorkspacesRecord;
 }
 
 export type PocketBaseCollectionName = keyof PocketBaseCollections;
-export type PocketBaseCollectionRecord<TName extends PocketBaseCollectionName> =
-  PocketBaseCollections[TName];
+export type PocketBaseCollectionRecord<TName extends PocketBaseCollectionName> = PocketBaseCollections[TName];
+

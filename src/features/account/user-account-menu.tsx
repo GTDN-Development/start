@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link } from "@/components/ui/link";
+import { Link, type LinkHref } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthUser } from "@/features/auth/auth-contract";
 import { useSignOut } from "@/features/auth/use-sign-out";
@@ -35,6 +35,7 @@ type UserAccountMenuProps = {
   viewer: UserAccountMenuViewer;
   locale: string;
   labels: UserAccountMenuLabels;
+  overviewHref?: LinkHref;
   className?: string;
 };
 
@@ -42,6 +43,7 @@ export function UserAccountMenu({
   viewer,
   locale: _locale,
   labels,
+  overviewHref = "/overview",
   className,
 }: UserAccountMenuProps) {
   const accountProfile = useOptionalAccountProfile();
@@ -77,7 +79,7 @@ export function UserAccountMenu({
             )}
           </Avatar>
         )}
-        <span className="hidden min-w-0 flex-1 truncate text-sm font-medium lg:block">
+        <span className="hidden min-w-0 flex-1 truncate text-left text-sm font-medium lg:block">
           {displayName ?? currentViewer.email}
         </span>
         <ChevronsUpDownIcon
@@ -100,7 +102,9 @@ export function UserAccountMenu({
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/overview" className="w-full cursor-pointer" />}>
+        <DropdownMenuItem
+          render={<Link href={overviewHref} className="w-full cursor-pointer" />}
+        >
           {labels.overview}
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href="/account" className="w-full cursor-pointer" />}>

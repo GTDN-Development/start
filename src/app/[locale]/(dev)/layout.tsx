@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { ApplicationLayout } from "@/features/application/new/application-layout";
+import { ApplicationLayout } from "@/features/application/application-layout";
 
 type ApplicationRouteLayoutProps = {
   children: React.ReactNode;
@@ -41,6 +41,17 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
         avatarUrl: null,
       }}
       locale={locale}
+      workspaces={[
+        {
+          id: "workspace-demo",
+          slug: "workspace-demo",
+          name: "Demo Workspace",
+          kind: "organization",
+          role: "owner",
+          avatarUrl: null,
+        },
+      ]}
+      activeWorkspaceSlug="workspace-demo"
       labels={{
         userMenu: {
           account: tNavigation("account"),

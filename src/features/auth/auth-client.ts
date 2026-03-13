@@ -3,37 +3,31 @@
 import { useEffect, useSyncExternalStore } from "react";
 import type {
   AuthClient,
-  ConfirmEmailChangePayload,
   ConfirmEmailChangeResponse,
-  AuthResponse,
   AuthSession,
-  AuthSessionPayload,
   AuthSessionSnapshot,
-  RequestEmailVerificationPayload,
   RequestEmailVerificationResponse,
-  RequestPasswordResetPayload,
   RequestPasswordResetResponse,
-  ResetPasswordPayload,
   ResetPasswordResponse,
-  AuthSignOutPayload,
   SessionResponse,
   SignInResponse,
   SignOutResponse,
   SignUpResponse,
-  VerifyEmailPayload,
   VerifyEmailResponse,
 } from "@/features/auth/auth-contract";
+import {
+  confirmEmailChangeAction,
+  requestEmailVerificationAction,
+  requestPasswordResetAction,
+  resetPasswordAction,
+  signInAction,
+  signOutAction,
+  signUpAction,
+  verifyEmailAction,
+} from "@/features/auth/actions/auth-actions";
 import type { SignInInput, SignUpInput } from "@/features/auth/auth-schemas";
 
 const SESSION_ENDPOINT_PATH = "/api/auth/session";
-const SIGN_IN_ENDPOINT_PATH = "/api/auth/sign-in";
-const SIGN_UP_ENDPOINT_PATH = "/api/auth/sign-up";
-const SIGN_OUT_ENDPOINT_PATH = "/api/auth/sign-out";
-const VERIFY_EMAIL_ENDPOINT_PATH = "/api/auth/verify-email";
-const RESET_PASSWORD_ENDPOINT_PATH = "/api/auth/reset-password";
-const REQUEST_EMAIL_VERIFICATION_ENDPOINT_PATH = "/api/auth/request-email-verification";
-const REQUEST_PASSWORD_RESET_ENDPOINT_PATH = "/api/auth/request-password-reset";
-const CONFIRM_EMAIL_CHANGE_ENDPOINT_PATH = "/api/auth/confirm-email-change";
 
 /** Min interval between refetches from cross-tab sync, tab focus, or online recovery. */
 const REFETCH_RATE_LIMIT_MS = 5_000;
@@ -57,25 +51,8 @@ export const authClient: AuthClient = {
   useSession,
 };
 
-export type ResetPasswordWithTokenInput = {
-  token: string;
-  password: string;
-  confirmPassword: string;
-};
-
-export type ConfirmEmailChangeInput = {
-  token: string;
-  password: string;
-};
-
 export async function signIn(input: SignInInput): Promise<SignInResponse> {
-  const response = await requestAuthEndpoint<AuthSessionPayload>(SIGN_IN_ENDPOINT_PATH, {
-    method: "POST",
-    body: JSON.stringify(input),
-    headers: {
-      "content-type": "application/json",
-    },
-  });
+  const response = await signInAction(input);
 
   if (response.ok) {
     setSessionState({
@@ -89,13 +66,7 @@ export async function signIn(input: SignInInput): Promise<SignInResponse> {
 }
 
 export async function signUp(input: SignUpInput): Promise<SignUpResponse> {
-  const response = await requestAuthEndpoint<AuthSessionPayload>(SIGN_UP_ENDPOINT_PATH, {
-    method: "POST",
-    body: JSON.stringify(input),
-    headers: {
-      "content-type": "application/json",
-    },
-  });
+  const response = await signUpAction(input);
 
   if (response.ok) {
     setSessionState({
@@ -109,9 +80,7 @@ export async function signUp(input: SignUpInput): Promise<SignUpResponse> {
 }
 
 export async function signOut(): Promise<SignOutResponse> {
-  const response = await requestAuthEndpoint<AuthSignOutPayload>(SIGN_OUT_ENDPOINT_PATH, {
-    method: "POST",
-  });
+  const response = await signOutAction();
 
   if (response.ok) {
     setSessionState({
@@ -125,12 +94,8 @@ export async function signOut(): Promise<SignOutResponse> {
 }
 
 export async function verifyEmailToken(token: string): Promise<VerifyEmailResponse> {
-  const response = await requestAuthEndpoint<VerifyEmailPayload>(VERIFY_EMAIL_ENDPOINT_PATH, {
-    method: "POST",
-    body: JSON.stringify({ token }),
-    headers: {
-      "content-type": "application/json",
-    },
+  const response = await verifyEmailAction({
+    token,
   });
 
   if (response.ok) {
@@ -145,15 +110,13 @@ export async function verifyEmailToken(token: string): Promise<VerifyEmailRespon
 }
 
 export async function resetPasswordWithToken(
-  input: ResetPasswordWithTokenInput
+  input: {
+    token: string;
+    password: string;
+    confirmPassword: string;
+  }
 ): Promise<ResetPasswordResponse> {
-  const response = await requestAuthEndpoint<ResetPasswordPayload>(RESET_PASSWORD_ENDPOINT_PATH, {
-    method: "POST",
-    body: JSON.stringify(input),
-    headers: {
-      "content-type": "application/json",
-    },
-  });
+  const response = await resetPasswordAction(input);
 
   if (response.ok) {
     setSessionState({
@@ -167,37 +130,22 @@ export async function resetPasswordWithToken(
 }
 
 export async function requestPasswordReset(email: string): Promise<RequestPasswordResetResponse> {
-  return requestAuthEndpoint<RequestPasswordResetPayload>(REQUEST_PASSWORD_RESET_ENDPOINT_PATH, {
-    method: "POST",
-    body: JSON.stringify({ email }),
-    headers: {
-      "content-type": "application/json",
-    },
+  return requestPasswordResetAction({
+    email,
   });
 }
 
 export async function requestEmailVerification(): Promise<RequestEmailVerificationResponse> {
-  return requestAuthEndpoint<RequestEmailVerificationPayload>(
-    REQUEST_EMAIL_VERIFICATION_ENDPOINT_PATH,
-    {
-      method: "POST",
-    }
-  );
+  return requestEmailVerificationAction();
 }
 
 export async function confirmEmailChange(
-  input: ConfirmEmailChangeInput
+  input: {
+    token: string;
+    password: string;
+  }
 ): Promise<ConfirmEmailChangeResponse> {
-  const response = await requestAuthEndpoint<ConfirmEmailChangePayload>(
-    CONFIRM_EMAIL_CHANGE_ENDPOINT_PATH,
-    {
-      method: "POST",
-      body: JSON.stringify(input),
-      headers: {
-        "content-type": "application/json",
-      },
-    }
-  );
+  const response = await confirmEmailChangeAction(input);
 
   if (response.ok) {
     setSessionState({
@@ -254,10 +202,7 @@ export async function refreshSession(): Promise<SessionResponse> {
 async function executeSessionRefresh() {
   lastSessionRequestAt = Date.now();
 
-  const response = await requestAuthEndpoint<AuthSessionPayload>(SESSION_ENDPOINT_PATH, {
-    method: "GET",
-    cache: "no-store",
-  });
+  const response = await requestSessionEndpoint();
 
   if (!response.ok) {
     // Transient error — restore previous session if we had one.
@@ -465,30 +410,22 @@ function handleOnlineRecovery() {
   void refreshSession();
 }
 
-async function requestAuthEndpoint<TData>(
-  path: string,
-  init: RequestInit
-): Promise<AuthResponse<TData>> {
+async function requestSessionEndpoint(): Promise<SessionResponse> {
   try {
-    const response = await fetch(path, {
-      ...init,
-      cache: init.cache ?? "no-store",
+    const response = await fetch(SESSION_ENDPOINT_PATH, {
+      method: "GET",
+      cache: "no-store",
     });
 
-    const rawPayload = await parseJsonResponse(response);
+    const rawPayload = (await response.json()) as unknown;
 
-    if (isAuthResponse<TData>(rawPayload)) {
+    if (isSessionResponse(rawPayload)) {
       return rawPayload;
     }
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
-      console.error("[auth-client]", path, error);
+      console.error("[auth-client]", SESSION_ENDPOINT_PATH, error);
     }
-
-    return {
-      ok: false,
-      errorCode: "UNKNOWN_ERROR",
-    };
   }
 
   return {
@@ -497,7 +434,7 @@ async function requestAuthEndpoint<TData>(
   };
 }
 
-function isAuthResponse<TData>(value: unknown): value is AuthResponse<TData> {
+function isSessionResponse(value: unknown): value is SessionResponse {
   if (!value || typeof value !== "object") {
     return false;
   }
@@ -513,12 +450,4 @@ function isAuthResponse<TData>(value: unknown): value is AuthResponse<TData> {
   }
 
   return false;
-}
-
-async function parseJsonResponse(response: Response) {
-  try {
-    return (await response.json()) as unknown;
-  } catch {
-    return null;
-  }
 }
