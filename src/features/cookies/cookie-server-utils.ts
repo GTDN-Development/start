@@ -20,8 +20,8 @@ export async function getConsent(): Promise<ConsentState> {
 
   const parsedConsent = parseConsentCookieValue(consentCookie.value);
 
-  if (parsedConsent) {
-    return parsedConsent;
+  if (parsedConsent?.isCurrentVersion) {
+    return parsedConsent.consent;
   }
 
   return defaultConsent;
@@ -40,5 +40,13 @@ export async function hasConsentedTo(category: keyof ConsentState): Promise<bool
  */
 export async function hasInteracted(): Promise<boolean> {
   const cookieStore = await cookies();
-  return cookieStore.has(COOKIE_NAME);
+  const consentCookie = cookieStore.get(COOKIE_NAME);
+
+  if (!consentCookie?.value) {
+    return false;
+  }
+
+  const parsedConsent = parseConsentCookieValue(consentCookie.value);
+
+  return parsedConsent?.isCurrentVersion === true;
 }

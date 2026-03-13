@@ -16,6 +16,19 @@ import { Label } from "@/components/ui/label";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/legal-links";
 import { useTranslations } from "next-intl";
+import type { ConsentState } from "./cookie-consent";
+
+type CookieCategoryConfig = {
+  key: keyof ConsentState;
+  isEditable: boolean;
+};
+
+const COOKIE_CATEGORY_CONFIG: CookieCategoryConfig[] = [
+  { key: "necessary", isEditable: false },
+  { key: "functional", isEditable: true },
+  { key: "analytics", isEditable: true },
+  { key: "marketing", isEditable: true },
+];
 
 export function CookieSettingsDialog() {
   const t = useTranslations("cookies.consent.dialog");
@@ -50,6 +63,14 @@ export function CookieSettingsDialog() {
     }
   }
 
+  function handleCategoryCheckedChange(category: CookieCategoryConfig, checked: boolean) {
+    if (!category.isEditable) {
+      return;
+    }
+
+    updateConsent(category.key, checked);
+  }
+
   return (
     <AlertDialog open={isSettingsOpen} onOpenChange={handleOpenChange}>
       <AlertDialogContent>
@@ -59,73 +80,39 @@ export function CookieSettingsDialog() {
         </AlertDialogHeader>
         <div>
           <div className="border-border divide-border mt-4 divide-y rounded-lg border">
-            <div className="flex flex-col gap-2 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="necessary" className="cursor-not-allowed opacity-70">
-                  {t("categories.necessary.label")}
-                </Label>
-                <Switch
-                  id="necessary"
-                  checked={consent.necessary}
-                  disabled
-                  aria-label={t("categories.necessary.ariaLabel")}
-                />
-              </div>
-              <p className="text-muted-foreground text-sm opacity-70">
-                {t("categories.necessary.description")}
-              </p>
-            </div>
+            {COOKIE_CATEGORY_CONFIG.map((category) => {
+              const categoryTranslationKey = `categories.${category.key}`;
+              const categoryInputId = `cookie-category-${category.key}`;
 
-            <div className="flex flex-col gap-2 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="functional" className="cursor-pointer">
-                  {t("categories.functional.label")}
-                </Label>
-                <Switch
-                  id="functional"
-                  checked={consent.functional}
-                  onCheckedChange={(checked) => updateConsent("functional", checked as boolean)}
-                  aria-label={t("categories.functional.ariaLabel")}
-                />
-              </div>
-              <p className="text-muted-foreground text-sm">
-                {t("categories.functional.description")}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="analytics" className="cursor-pointer">
-                  {t("categories.analytics.label")}
-                </Label>
-                <Switch
-                  id="analytics"
-                  checked={consent.analytics}
-                  onCheckedChange={(checked) => updateConsent("analytics", checked as boolean)}
-                  aria-label={t("categories.analytics.ariaLabel")}
-                />
-              </div>
-              <p className="text-muted-foreground text-sm">
-                {t("categories.analytics.description")}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <Label htmlFor="marketing" className="cursor-pointer">
-                  {t("categories.marketing.label")}
-                </Label>
-                <Switch
-                  id="marketing"
-                  checked={consent.marketing}
-                  onCheckedChange={(checked) => updateConsent("marketing", checked as boolean)}
-                  aria-label={t("categories.marketing.ariaLabel")}
-                />
-              </div>
-              <p className="text-muted-foreground text-sm">
-                {t("categories.marketing.description")}
-              </p>
-            </div>
+              return (
+                <div key={category.key} className="flex flex-col gap-2 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Label
+                      htmlFor={categoryInputId}
+                      className={category.isEditable ? "cursor-pointer" : "cursor-not-allowed opacity-70"}
+                    >
+                      {t(`${categoryTranslationKey}.label`)}
+                    </Label>
+                    <Switch
+                      id={categoryInputId}
+                      checked={consent[category.key]}
+                      disabled={!category.isEditable}
+                      onCheckedChange={(checked) => handleCategoryCheckedChange(category, checked)}
+                      aria-label={t(`${categoryTranslationKey}.ariaLabel`)}
+                    />
+                  </div>
+                  <p
+                    className={
+                      category.isEditable
+                        ? "text-muted-foreground text-sm"
+                        : "text-muted-foreground text-sm opacity-70"
+                    }
+                  >
+                    {t(`${categoryTranslationKey}.description`)}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
           <div className="mt-4">

@@ -5,12 +5,15 @@ import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
   COOKIE_NAME,
   type ConsentState,
+  type CookieConsentEventType,
   acceptAllConsent,
   defaultConsent,
   rejectAllConsent,
   serializeConsentCookieValue,
 } from "./cookie-consent";
 import { useRouter } from "@/i18n/navigation";
+import { useLocale } from "next-intl";
+import { persistCookieConsentAction } from "./actions/cookie-consent-actions";
 
 // Enable logging of the current state and always display the consent banner
 const DEBUG_MODE = false;
@@ -67,6 +70,7 @@ export function CookieContextProvider({
   initialHasInteracted = false,
 }: CookieContextProviderProps) {
   const router = useRouter();
+  const locale = useLocale();
   const [consent, setConsent] = useState<ConsentState>(initialConsent);
   const [hasInteracted, setHasInteracted] = useState(
     ENABLE_DEBUG_MODE ? false : initialHasInteracted
@@ -93,10 +97,18 @@ export function CookieContextProvider({
     setConsent((prev) => ({ ...prev, [category]: value }));
   }
 
-  function commitConsent(nextConsent: ConsentState) {
+  function commitConsent(nextConsent: ConsentState, eventType: CookieConsentEventType) {
     setConsentCookie(nextConsent);
     setConsent(nextConsent);
     setHasInteracted(true);
+
+    void persistCookieConsentAction({
+      eventType,
+      consent: nextConsent,
+      locale,
+    }).catch((error) => {
+      console.error("Error persisting cookie consent event:", error);
+    });
 
     if (!isSameConsent(consent, nextConsent)) {
       router.refresh();
@@ -104,15 +116,15 @@ export function CookieContextProvider({
   }
 
   function acceptAll() {
-    commitConsent(acceptAllConsent);
+    commitConsent(acceptAllConsent, "accept_all");
   }
 
   function rejectAll() {
-    commitConsent(rejectAllConsent);
+    commitConsent(rejectAllConsent, "reject_all");
   }
 
   function savePreferences() {
-    commitConsent(consent);
+    commitConsent(consent, "save_preferences");
   }
 
   function hasConsentedTo(category: keyof ConsentState): boolean {

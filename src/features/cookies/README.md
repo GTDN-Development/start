@@ -1,223 +1,87 @@
-# Cookie Consent System
+# Cookie Consent
 
-Privacy-first cookie consent for Next.js 15+ App Router with SSR support.
+Cookie consent module for Next.js App Router with:
 
-## File Overview
+- SSR-aware script gating
+- versioned consent cookie payload
+- audit trail events persisted to PocketBase
 
+## File structure
+
+```txt
+src/features/cookies/
+├── cookie-consent.ts                       # Consent types, defaults, parse/serialize, versioning
+├── cookie-server-utils.ts                  # Server reads of consent + interaction state
+├── cookie-context.tsx                      # Client state and actions
+├── cookie-consent-banner.tsx               # Bottom banner UI
+├── cookie-settings-dialog.tsx              # Category settings dialog
+├── cookie-settings-trigger.tsx             # Reusable trigger button
+├── cookie-error-boundary.tsx               # UI fail-safe wrapper
+├── third-party-scripts.tsx                 # Conditionally renders GA/GTM scripts
+└── actions/
+    └── cookie-consent-actions.ts           # Server action for consent audit events
+
+src/server/cookie-consent/
+└── cookie-consent-service.ts               # PocketBase write service for audit trail
 ```
-src/components/(shared)/cookies/
-├── cookie-context.tsx              # Client state + React Context hook
-├── server-utils.ts                 # Server-side consent reading
-├── third-party-scripts.tsx         # Add your GA/GTM scripts here
-├── cookie-consent-banner.tsx       # Initial consent banner UI
-├── cookie-settings-dialog.tsx      # Detailed preferences - dialog with settings UI
-├── cookie-settings-trigger.tsx     # Reusable unstyled button, that will trigger the settings dialog to open state
-└── cookie-error-boundary.tsx       # Error handling wrapper
 
-src/components/(marketing)/legal/
-└── cookie-policy.tsx               # Cookie policy table component
+## Current integration
 
-src/config/
-└── cookies.ts                      # Cookie configuration - define all cookies here
+- UI is rendered in `src/app/[locale]/layout.tsx`
+- Provider wiring is in `src/components/providers/app-providers.tsx`
 
-src/app/(marketing)/cookies/
-└── page.tsx                        # Cookie policy page (app/cookies route)
-```
+## Consent cookie format
 
-### What Each File Does
+Cookie name: `cookie_consent`
 
-**`cookie-context.tsx`** - Manages consent state (client-side)
+Serialized payload:
 
-- Reads/writes `cookie_consent` cookie
-- Provides `useCookieContext()` hook
-
-**`server-utils.ts`** - Read consent in Server Components
-
-- `getConsent()` - Get full consent object
-- `hasConsentedTo(category)` - Check specific permission
-
-**`third-party-scripts.tsx`** - **YOUR TRACKING SCRIPTS GO HERE**
-
-- Server Component that conditionally loads GA/GTM
-- Only renders scripts if user consented
-
-## Setup (3 Steps)
-
-### 1. Root Layout
-
-```tsx
-// app/layout.tsx
-import { Suspense } from "react";
-import { CookieConsentBanner } from "@/features/cookies/cookie-consent-banner";
-import { CookieSettingsDialog } from "@/features/cookies/cookie-settings-dialog";
-import { CookieErrorBoundary } from "@/features/cookies/cookie-error-boundary";
-import { ThirdPartyScripts } from "@/features/cookies/third-party-scripts";
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        <Providers>
-          {children}
-
-          <CookieErrorBoundary>
-            <CookieConsentBanner />
-            <CookieSettingsDialog />
-          </CookieErrorBoundary>
-        </Providers>
-
-        <Suspense fallback={null}>
-          <ThirdPartyScripts />
-        </Suspense>
-      </body>
-    </html>
-  );
+```json
+{
+  "version": "1",
+  "necessary": true,
+  "functional": false,
+  "analytics": false,
+  "marketing": false
 }
 ```
 
-### 2. Context Provider
+`cookie-server-utils.hasInteracted()` returns `true` only when the cookie is present, parseable, and on the current version. If the cookie version is outdated, the banner is shown again.
 
-```tsx
-// components/layout/providers.tsx
-import { CookieContextProvider } from "@/features/cookies/cookie-context";
+## Audit trail (enabled)
 
-export function Providers({ children }) {
-  return <CookieContextProvider>{children}</CookieContextProvider>;
-}
-```
+Each consent action (`accept_all`, `reject_all`, `save_preferences`) is sent through a server action to PocketBase collection `cookie_consent_events`.
 
-### 3. Environment Variables
+Stored fields:
 
-```env
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
-NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
-```
+- `subject_key` (pseudonymous stable key per browser)
+- `event_type`
+- `preferences`, `analytics`, `marketing`
+- `consent_version`
+- `consent_snapshot`
+- `locale`
+- `idempotency_key`
 
-## Usage
+Rate limiting is handled by PocketBase rules/configuration. If PocketBase returns `429`, action error code is `RATE_LIMITED`.
 
-### Client Components
+## Script gating
 
-```tsx
-"use client";
-import { useCookieContext } from "@/features/cookies/cookie-context";
+`third-party-scripts.tsx` runs on the server and renders analytics scripts only when
+`analytics` consent is granted.
 
-function MyComponent() {
-  const { hasConsentedTo, openSettingsDialog } = useCookieContext();
+## Trigger usage
 
-  if (hasConsentedTo("analytics")) {
-    // Load analytics
-  }
-
-  return <button onClick={openSettingsDialog}>Cookie Settings</button>;
-}
-```
-
-### Server Components
-
-```tsx
-import { getConsent, hasConsentedTo } from "@/features/cookies/cookie-server-utils";
-
-async function MyPage() {
-  const consent = await getConsent();
-  const hasAnalytics = await hasConsentedTo("analytics");
-
-  return <div>{hasAnalytics ? "Tracking on" : "Tracking off"}</div>;
-}
-```
-
-### Settings Button (Footer)
+Use `CookieSettingsTrigger` directly as a button:
 
 ```tsx
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 
-<CookieSettingsTrigger>
-  <button>Manage Cookies</button>
-</CookieSettingsTrigger>;
-```
-
-## Consent Categories
-
-- **necessary** - Always on (auth, session)
-- **functional** - Theme, language preferences
-- **analytics** - GA, GTM, usage tracking
-- **marketing** - Ads, remarketing pixels
-
-## Add Tracking Scripts
-
-Edit `third-party-scripts.tsx`:
-
-```tsx
-import { getConsent } from "./server-utils";
-import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
-
-export async function ThirdPartyScripts() {
-  const consent = await getConsent();
-
-  return (
-    <>
-      {consent.analytics && process.env.NEXT_PUBLIC_GA_ID && (
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
-      )}
-
-      {consent.analytics && process.env.NEXT_PUBLIC_GTM_ID && (
-        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
-      )}
-    </>
-  );
+export function Example() {
+  return <CookieSettingsTrigger>Manage cookies</CookieSettingsTrigger>;
 }
 ```
 
-## Cookie Policy Page
+## Debugging
 
-The cookie policy page (`app/cookies/page.tsx`) displays a comprehensive overview of all cookies used on your site. It includes a hero section and renders a detailed table of cookies from the configuration.
-
-```tsx
-// app/cookies/page.tsx
-import { CookiePolicy } from "@/features/marketing/legal/cookie-policy";
-import { cookies } from "@/config/cookies";
-
-export default function Page() {
-  return (
-    <CookiePolicy
-      cookies={cookies}
-      company={{ name: "Your Co", domain: "example.com" }}
-      contact={{ email: "privacy@example.com" }}
-    />
-  );
-}
-```
-
-### Cookie Configuration
-
-**Update `config/cookies.ts` with your complete cookie list.** This file contains all cookies used by your site, organized by category:
-
-- **Essential** - Required for basic site functionality
-- **Functional** - Enhance user experience (theme, language)
-- **Analytics** - Track usage and performance
-- **Marketing** - Advertising and remarketing
-
-The configuration automatically generates the cookie policy table, so keep this file updated whenever you add new tracking scripts or cookies.
-
-## How It Works
-
-1. First visit → No cookie → Banner shows
-2. User chooses → Cookie saved → Page refreshes
-3. Scripts load based on consent
-4. Return visits → Scripts render server-side
-
-## Debug Mode
-
-Always show banner in development:
-
-```tsx
-// cookie-context.tsx (line ~8)
-const DEBUG_MODE = true;
-```
-
-## Troubleshooting
-
-**Banner not showing?** Delete `cookie_consent` cookie to test
-
-**Scripts not loading?** Check env vars and consent in DevTools → Application → Cookies
-
-**Hydration errors?** Make sure the provider receives the same initial consent state from the server that the client uses after hydration.
+- Force banner in development by toggling `DEBUG_MODE` in `cookie-context.tsx`
+- Delete `cookie_consent` and `cookie_consent_subject` cookies to reset local state
