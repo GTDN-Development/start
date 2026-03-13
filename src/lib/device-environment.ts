@@ -137,7 +137,14 @@ export type DeviceType = "phone" | "tablet" | "desktop";
 
 export function detectDeviceType(...hints: string[]): DeviceType {
   const combined = hints.join(" ").toLowerCase();
-  if (/ipad|tablet/.test(combined)) return "tablet";
-  if (/iphone|android|mobile|phone/.test(combined)) return "phone";
+
+  if (/ipad|tablet|sm-t|tab\s/.test(combined)) {
+    return "tablet";
+  }
+
+  if (/iphone|android|mobile|phone/.test(combined)) {
+    return "phone";
+  }
+
   return "desktop";
 }

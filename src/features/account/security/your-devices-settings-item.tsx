@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,8 +21,6 @@ import {
   SettingsItemListItem,
   SettingsItemListTitle,
 } from "@/components/ui/settings-item";
-import { detectDeviceType } from "@/lib/device-environment";
-import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,119 +32,204 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { StaticPlaceholder } from "@/components/ui/static-placeholder";
+import { Spinner } from "@/components/ui/spinner";
+import type { AuthErrorCode } from "@/features/auth/auth-contract";
+import {
+  listDeviceSessionsAction,
+  signOutDeviceAction,
+  signOutOtherDevicesAction,
+} from "@/features/account/actions/device-session-actions";
+import { useRouter } from "@/i18n/navigation";
+import type { DeviceSessionListItem } from "@/server/device-sessions/device-sessions-types";
+import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 
-const MOCK_DEVICES: DeviceItemProps[] = [
-  {
-    id: "mock-1",
-    user: "user-1",
-    sessionKey: "sk-1",
-    device: "Mac OS",
-    browser: "Safari",
-    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
-    ip: "89.24.110.42",
-    place: "Moravská 854/2, Doubravka, 312 00 Plzeň",
-    lastSeenAt: "2025-02-28T21:37:00Z",
-    revokedAt: "",
-    created: "2025-01-15T10:00:00Z",
-    updated: "2025-02-28T21:37:00Z",
-    isCurrentDevice: true,
-  },
-  {
-    id: "mock-2",
-    user: "user-1",
-    sessionKey: "sk-2",
-    device: "Windows",
-    browser: "Chrome",
-    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-    ip: "185.52.68.11",
-    place: "Národní 135/14, Staré Město, 110 00 Praha",
-    lastSeenAt: "2025-02-27T14:12:00Z",
-    revokedAt: "",
-    created: "2025-02-01T08:30:00Z",
-    updated: "2025-02-27T14:12:00Z",
-  },
-  {
-    id: "mock-3",
-    user: "user-1",
-    sessionKey: "sk-3",
-    device: "iPhone",
-    browser: "Safari",
-    userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)",
-    ip: "77.48.220.95",
-    place: "Masarykovo nám. 1, 602 00 Brno",
-    lastSeenAt: "2025-02-25T09:45:00Z",
-    revokedAt: "",
-    created: "2025-02-10T12:00:00Z",
-    updated: "2025-02-25T09:45:00Z",
-  },
-  {
-    id: "mock-4",
-    user: "user-1",
-    sessionKey: "sk-4",
-    device: "iPad",
-    browser: "Safari",
-    userAgent: "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X)",
-    ip: "94.113.45.20",
-    place: "Sokolovská 100/94, Karlín, 186 00 Praha",
-    lastSeenAt: "2025-02-24T16:20:00Z",
-    revokedAt: "",
-    created: "2025-02-05T11:15:00Z",
-    updated: "2025-02-24T16:20:00Z",
-  },
-  {
-    id: "mock-5",
-    user: "user-1",
-    sessionKey: "sk-5",
-    device: "Android",
-    browser: "Chrome",
-    userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 8)",
-    ip: "31.30.18.77",
-    place: "Česká 166/12, Brno-střed, 602 00 Brno",
-    lastSeenAt: "2025-02-20T08:55:00Z",
-    revokedAt: "",
-    created: "2025-02-18T07:30:00Z",
-    updated: "2025-02-20T08:55:00Z",
-  },
-];
+type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;
 
 export function YourDevicesSettingsItem() {
+  const t = useTranslations("pages.account");
+  const locale = useLocale();
+  const router = useRouter();
+  const [deviceSessions, setDeviceSessions] = useState<DeviceSessionListItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pendingDeviceSessionId, setPendingDeviceSessionId] = useState<string | null>(null);
+  const [isSignOutOthersDialogOpen, setIsSignOutOthersDialogOpen] = useState(false);
+  const [isSignOutOthersPending, setIsSignOutOthersPending] = useState(false);
+  const dateTimeFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat(locale, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }),
+    [locale]
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+
+    void listDeviceSessionsAction().then((response) => {
+      Promise.resolve().then(() => {
+        if (!isMounted) {
+          return;
+        }
+
+        if (response.ok) {
+          setDeviceSessions(response.data.sessions);
+          setIsLoading(false);
+          return;
+        }
+
+        handleAuthError(response.errorCode, t, router, "security.devices.status.loadError");
+        setIsLoading(false);
+      });
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router, t]);
+
+  async function handleSignOutOtherDevices(): Promise<void> {
+    setIsSignOutOthersPending(true);
+
+    const response = await signOutOtherDevicesAction();
+
+    if (response.ok) {
+      setDeviceSessions((previousSessions) =>
+        previousSessions.filter((session) => session.isCurrentDevice)
+      );
+      setIsSignOutOthersDialogOpen(false);
+      toast.success(t("common.successTitle"), {
+        description: t("security.devices.status.signOutAllSuccess"),
+      });
+      setIsSignOutOthersPending(false);
+      return;
+    }
+
+    handleAuthError(response.errorCode, t, router, "security.devices.status.signOutAllError");
+    setIsSignOutOthersPending(false);
+  }
+
+  async function handleSignOutDevice(deviceSessionId: string): Promise<void> {
+    setPendingDeviceSessionId(deviceSessionId);
+
+    const response = await signOutDeviceAction({
+      deviceSessionId,
+    });
+
+    if (response.ok) {
+      setDeviceSessions((previousSessions) =>
+        previousSessions.filter((session) => session.id !== deviceSessionId)
+      );
+      toast.success(t("common.successTitle"), {
+        description: t("security.devices.status.signOutSuccess"),
+      });
+      setPendingDeviceSessionId(null);
+      return;
+    }
+
+    if (response.errorCode === "NOT_FOUND") {
+      setDeviceSessions((previousSessions) =>
+        previousSessions.filter((session) => session.id !== deviceSessionId)
+      );
+      toast.error(t("common.errorTitle"), {
+        description: t("security.devices.status.notFound"),
+      });
+      setPendingDeviceSessionId(null);
+      return;
+    }
+
+    handleAuthError(response.errorCode, t, router, "security.devices.status.signOutError");
+    setPendingDeviceSessionId(null);
+  }
+
+  const hasOtherDeviceSessions = deviceSessions.some((session) => !session.isCurrentDevice);
+  const isSignOutOthersDisabled =
+    isLoading ||
+    isSignOutOthersPending ||
+    pendingDeviceSessionId !== null ||
+    !hasOtherDeviceSessions;
+
   return (
     <SettingsItem>
       <SettingsItemContent className="flex flex-col gap-6">
         <SettingsItemContentHeader>
-          <StaticPlaceholder />
-          <SettingsItemTitle>Your Devices</SettingsItemTitle>
-          <SettingsItemDescription>
-            Devices where you are currently logged in.
-          </SettingsItemDescription>
+          <SettingsItemTitle>{t("security.devices.title")}</SettingsItemTitle>
+          <SettingsItemDescription>{t("security.devices.description")}</SettingsItemDescription>
         </SettingsItemContentHeader>
+
         <SettingsItemContentBody>
           <SettingsItemList>
-            {MOCK_DEVICES.map((device) => (
-              <DeviceItem key={device.id} {...device} />
-            ))}
+            {isLoading && (
+              <SettingsItemListItem>
+                <SettingsItemListContent>
+                  <SettingsItemListDescription>{t("security.devices.loading")}</SettingsItemListDescription>
+                </SettingsItemListContent>
+              </SettingsItemListItem>
+            )}
+
+            {!isLoading &&
+              deviceSessions.map((session) => (
+                <DeviceItem
+                  key={session.id}
+                  session={session}
+                  t={t}
+                  dateTimeFormatter={dateTimeFormatter}
+                  isSignOutPending={pendingDeviceSessionId === session.id}
+                  isActionsDisabled={isSignOutOthersPending}
+                  onSignOutDevice={handleSignOutDevice}
+                />
+              ))}
+
+            {!isLoading && deviceSessions.length === 0 && (
+              <SettingsItemListItem>
+                <SettingsItemListContent>
+                  <SettingsItemListDescription>{t("security.devices.empty")}</SettingsItemListDescription>
+                </SettingsItemListContent>
+              </SettingsItemListItem>
+            )}
           </SettingsItemList>
         </SettingsItemContentBody>
       </SettingsItemContent>
-      <SettingsItemFooter className="justify-end">
-        <SettingsItemDescription>
-          Sign out of all other devices except this one.
-        </SettingsItemDescription>
 
-        <AlertDialog>
-          <AlertDialogTrigger render={<Button size="lg">Sign out from all devices</Button>} />
+      <SettingsItemFooter className="justify-end">
+        <SettingsItemDescription>{t("security.devices.footerHint")}</SettingsItemDescription>
+
+        <AlertDialog
+          open={isSignOutOthersDialogOpen}
+          onOpenChange={(open) => setIsSignOutOthersDialogOpen(open)}
+        >
+          <AlertDialogTrigger
+            nativeButton={true}
+            render={
+              <Button type="button" size="lg" disabled={isSignOutOthersDisabled}>
+                {isSignOutOthersPending && <Spinner />}
+                {isSignOutOthersPending
+                  ? t("security.devices.actions.signOutAllPending")
+                  : t("security.devices.actions.signOutAll")}
+              </Button>
+            }
+          />
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Sign out of all other devices?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will end your active sessions on all other browsers and devices. You will
-                remain logged in on this current device.
-              </AlertDialogDescription>
+              <AlertDialogTitle>{t("security.devices.dialog.title")}</AlertDialogTitle>
+              <AlertDialogDescription>{t("security.devices.dialog.description")}</AlertDialogDescription>
             </AlertDialogHeader>
+
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction>Sign out all</AlertDialogAction>
+              <AlertDialogCancel type="button" size="lg" disabled={isSignOutOthersPending}>
+                {t("common.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                type="button"
+                size="lg"
+                disabled={isSignOutOthersPending}
+                onClick={handleSignOutOtherDevices}
+              >
+                {isSignOutOthersPending && <Spinner />}
+                {isSignOutOthersPending
+                  ? t("security.devices.actions.signOutAllPending")
+                  : t("security.devices.actions.signOutAllConfirm")}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -150,63 +238,126 @@ export function YourDevicesSettingsItem() {
   );
 }
 
-type DeviceItemProps = {
-  id: string;
-  user: string;
-  sessionKey: string;
-  device: string;
-  browser: string;
-  userAgent: string;
-  ip: string;
-  place: string;
-  lastSeenAt: string;
-  revokedAt: string;
-  created: string;
-  updated: string;
-  isCurrentDevice?: boolean;
-  className?: string;
-};
+function DeviceItem(input: {
+  session: DeviceSessionListItem;
+  t: AccountTranslationFn;
+  dateTimeFormatter: Intl.DateTimeFormat;
+  isSignOutPending: boolean;
+  isActionsDisabled: boolean;
+  onSignOutDevice: (deviceSessionId: string) => Promise<void>;
+}) {
+  const { session, t, dateTimeFormatter, isSignOutPending, isActionsDisabled, onSignOutDevice } = input;
 
-function DeviceIcon({ device, userAgent }: Pick<DeviceItemProps, "device" | "userAgent">) {
-  const deviceType = detectDeviceType(device, userAgent);
-
-  if (deviceType === "tablet") return <TabletIcon aria-hidden="true" />;
-  if (deviceType === "phone") return <SmartphoneIcon aria-hidden="true" />;
-  return <LaptopIcon aria-hidden="true" />;
-}
-
-function DeviceItem({
-  device,
-  browser,
-  userAgent,
-  place,
-  lastSeenAt,
-  isCurrentDevice,
-  className,
-}: DeviceItemProps) {
   return (
-    <SettingsItemListItem className={className}>
+    <SettingsItemListItem>
       <SettingsItemListMedia>
-        <DeviceIcon device={device} userAgent={userAgent} />
+        <DeviceIcon deviceType={session.deviceType} />
       </SettingsItemListMedia>
 
       <SettingsItemListContent>
         <div className="flex flex-col-reverse items-center justify-center gap-3 @xs:flex-row @xs:items-start @xs:justify-start">
-          <SettingsItemListTitle>
-            {device} - {browser}
-          </SettingsItemListTitle>
-          {isCurrentDevice && <Badge variant={"secondary"}>This device</Badge>}
+          <SettingsItemListTitle>{resolveDeviceTitle(session, t)}</SettingsItemListTitle>
+          {session.isCurrentDevice && (
+            <Badge variant="secondary">{t("security.devices.currentBadge")}</Badge>
+          )}
         </div>
         <SettingsItemListDescription>
-          {place} - {lastSeenAt}
+          {t("security.devices.sessionMeta", {
+            lastSeen: formatLastSeenAt(session.lastSeenAt, dateTimeFormatter, t),
+            location: session.locationLabel ?? t("security.devices.unknownLocation"),
+          })}
         </SettingsItemListDescription>
       </SettingsItemListContent>
 
-      {!isCurrentDevice && (
+      {!session.isCurrentDevice && (
         <SettingsItemListAction>
-          <Button variant="secondary">Sign out</Button>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isActionsDisabled || isSignOutPending}
+            onClick={() => void onSignOutDevice(session.id)}
+          >
+            {isSignOutPending && <Spinner />}
+            {t("security.devices.actions.signOut")}
+          </Button>
         </SettingsItemListAction>
       )}
     </SettingsItemListItem>
   );
+}
+
+function DeviceIcon({ deviceType }: Pick<DeviceSessionListItem, "deviceType">) {
+  if (deviceType === "tablet") {
+    return <TabletIcon aria-hidden="true" />;
+  }
+
+  if (deviceType === "phone") {
+    return <SmartphoneIcon aria-hidden="true" />;
+  }
+
+  return <LaptopIcon aria-hidden="true" />;
+}
+
+function resolveDeviceTitle(session: DeviceSessionListItem, t: AccountTranslationFn): string {
+  if (session.deviceLabel.trim()) {
+    return session.deviceLabel;
+  }
+
+  if (session.os && session.browser) {
+    return `${session.os} · ${session.browser}`;
+  }
+
+  if (session.os) {
+    return session.os;
+  }
+
+  if (session.browser) {
+    return session.browser;
+  }
+
+  return t("security.devices.unknownDevice");
+}
+
+function formatLastSeenAt(
+  dateValue: string,
+  formatter: Intl.DateTimeFormat,
+  t: AccountTranslationFn
+): string {
+  const parsedDate = new Date(dateValue);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return t("security.devices.unknownLastSeen");
+  }
+
+  return formatter.format(parsedDate);
+}
+
+function handleAuthError(
+  errorCode: AuthErrorCode,
+  t: AccountTranslationFn,
+  router: ReturnType<typeof useRouter>,
+  fallbackKey:
+    | "security.devices.status.loadError"
+    | "security.devices.status.signOutError"
+    | "security.devices.status.signOutAllError"
+): void {
+  if (errorCode === "UNAUTHORIZED") {
+    toast.error(t("common.errorTitle"), {
+      description: t("security.devices.status.unauthorized"),
+    });
+    router.replace("/sign-in");
+    router.refresh();
+    return;
+  }
+
+  if (errorCode === "BAD_REQUEST") {
+    toast.error(t("common.errorTitle"), {
+      description: t("security.devices.status.invalidRequest"),
+    });
+    return;
+  }
+
+  toast.error(t("common.errorTitle"), {
+    description: t(fallbackKey),
+  });
 }

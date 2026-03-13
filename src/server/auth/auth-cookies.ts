@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
+import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 
 type ParsedSetCookie = {
   name: string;
@@ -43,7 +43,7 @@ export async function applyServerAuthCookies(setCookie: string[] | undefined): P
 }
 
 export async function clearServerAuthCookies(): Promise<void> {
-  await applyServerAuthCookies(createClearedPocketBaseAuthCookies());
+  await applyServerAuthCookies(createClearedAuthAndDeviceCookies());
 }
 
 function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {

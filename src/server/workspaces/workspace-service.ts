@@ -8,15 +8,12 @@ import type {
 } from "@/types/pocketbase";
 import { site } from "@/config/site";
 import { escapeHtml, sendEmail } from "@/server/email/send-form-email";
-import {
-  createClearedPocketBaseAuthCookies,
-  createPocketBaseServerClient,
-} from "@/server/pocketbase/pocketbase-server";
+import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
+import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import {
   getAvatarUrl,
   getNullableTrimmedString,
   hasValidationCode,
-  isUsersRecord,
   logServiceError,
 } from "@/server/pocketbase/pocketbase-utils";
 import {
@@ -1791,45 +1788,23 @@ async function acceptInviteByHash(
 }
 
 async function requireCurrentUser(): Promise<CurrentUser> {
-  const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+  const currentUser = await requireAuthenticatedUser();
 
-  if (hadInvalidAuthCookie) {
+  if (!currentUser.ok) {
     return {
       ok: false,
       response: {
         ok: false,
-        errorCode: "UNAUTHORIZED",
-        setCookie: createClearedPocketBaseAuthCookies(),
-      },
-    };
-  }
-
-  if (!pb.authStore.isValid || !pb.authStore.record) {
-    return {
-      ok: false,
-      response: {
-        ok: false,
-        errorCode: "UNAUTHORIZED",
-        ...(hasAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
-      },
-    };
-  }
-
-  if (!isUsersRecord(pb.authStore.record)) {
-    return {
-      ok: false,
-      response: {
-        ok: false,
-        errorCode: "UNAUTHORIZED",
-        setCookie: createClearedPocketBaseAuthCookies(),
+        errorCode: currentUser.errorCode,
+        ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
       },
     };
   }
 
   return {
     ok: true,
-    pb,
-    user: pb.authStore.record,
+    pb: currentUser.pb,
+    user: currentUser.user,
   };
 }
 

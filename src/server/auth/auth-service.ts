@@ -1,4 +1,5 @@
 import PocketBase, { ClientResponseError } from "pocketbase";
+import { headers } from "next/headers";
 import type { UsersRecord } from "@/types/pocketbase";
 import type {
   AuthErrorCode,
@@ -18,6 +19,18 @@ import {
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
+import {
+  createClearedAuthAndDeviceCookies,
+  generateDeviceSessionCookie,
+  readDeviceSessionCookie,
+} from "@/server/device-sessions/device-sessions-cookie";
+import {
+  hashSessionToken,
+  registerOrRefreshDeviceSession,
+  revokeCurrentDeviceSession,
+  validateDeviceSessionOrInvalidate,
+} from "@/server/device-sessions/device-sessions-service";
+import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
 import {
   formatServiceError,
   getAvatarUrl,
@@ -59,14 +72,37 @@ export async function signInWithPassword(
       };
     }
 
+    const { token: deviceSessionToken, setCookie: deviceSessionCookie } = generateDeviceSessionCookie(
+      input.rememberMe
+    );
+
+    try {
+      const requestHeaders = await headers();
+      await registerOrRefreshDeviceSession({
+        pb,
+        userId: session.user.id,
+        sessionToken: deviceSessionToken,
+        rememberMe: input.rememberMe,
+        requestHeaders,
+      });
+    } catch (error) {
+      console.warn(
+        "[auth-service] signInWithPassword: device session registration failed, continuing",
+        formatServiceError(error)
+      );
+    }
+
     return {
       ok: true,
       data: {
         session,
       },
-      setCookie: exportPocketBaseAuthCookies(pb, {
-        sessionOnly: !input.rememberMe,
-      }),
+      setCookie: [
+        ...exportPocketBaseAuthCookies(pb, {
+          sessionOnly: !input.rememberMe,
+        }),
+        deviceSessionCookie,
+      ],
     };
   } catch (error) {
     const errorCode = mapSignInErrorCode(error);
@@ -78,7 +114,7 @@ export async function signInWithPassword(
     return {
       ok: false,
       errorCode,
-      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(hadInvalidAuthCookie ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 }
@@ -121,14 +157,35 @@ export async function signUpWithPassword(
       };
     }
 
+    const { token: deviceSessionToken, setCookie: deviceSessionCookie } = generateDeviceSessionCookie(true);
+
+    try {
+      const requestHeaders = await headers();
+      await registerOrRefreshDeviceSession({
+        pb,
+        userId: session.user.id,
+        sessionToken: deviceSessionToken,
+        rememberMe: true,
+        requestHeaders,
+      });
+    } catch (error) {
+      console.warn(
+        "[auth-service] signUpWithPassword: device session registration failed, continuing",
+        formatServiceError(error)
+      );
+    }
+
     return {
       ok: true,
       data: {
         session,
       },
-      setCookie: exportPocketBaseAuthCookies(pb, {
-        sessionOnly: false,
-      }),
+      setCookie: [
+        ...exportPocketBaseAuthCookies(pb, {
+          sessionOnly: false,
+        }),
+        deviceSessionCookie,
+      ],
     };
   } catch (error) {
     const errorCode = mapSignUpErrorCode(error);
@@ -145,14 +202,31 @@ export async function signUpWithPassword(
 }
 
 export async function signOutServerSession(): Promise<ServerAuthResponse<AuthSignOutPayload>> {
-  await createPocketBaseServerClient();
+  const { pb } = await createPocketBaseServerClient();
+
+  const deviceSessionToken = await readDeviceSessionCookie();
+
+  if (deviceSessionToken && pb.authStore.isValid && isUsersRecord(pb.authStore.record)) {
+    try {
+      await revokeCurrentDeviceSession({
+        pb,
+        userId: pb.authStore.record.id,
+        currentSessionIdHash: hashSessionToken(deviceSessionToken),
+      });
+    } catch (error) {
+      console.warn(
+        "[auth-service] signOutServerSession: device session revoke failed, continuing",
+        formatServiceError(error)
+      );
+    }
+  }
 
   return {
     ok: true,
     data: {
       signedOut: true,
     },
-    setCookie: createClearedPocketBaseAuthCookies(),
+    setCookie: createClearedAuthAndDeviceCookies(),
   };
 }
 
@@ -282,34 +356,18 @@ export async function requestPasswordResetForEmail(
 export async function requestEmailVerificationForCurrentUser(): Promise<
   ServerAuthResponse<RequestEmailVerificationPayload>
 > {
-  const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+  const currentUser = await requireAuthenticatedUser();
 
-  if (hadInvalidAuthCookie) {
+  if (!currentUser.ok) {
     return {
       ok: false,
-      errorCode: "UNAUTHORIZED",
-      setCookie: createClearedPocketBaseAuthCookies(),
-    };
-  }
-
-  if (!pb.authStore.isValid || !pb.authStore.record) {
-    return {
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-      ...(hasAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
-    };
-  }
-
-  if (!isUsersRecord(pb.authStore.record)) {
-    return {
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-      setCookie: createClearedPocketBaseAuthCookies(),
+      errorCode: currentUser.errorCode,
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
     };
   }
 
   try {
-    await pb.collection("users").requestVerification(pb.authStore.record.email);
+    await currentUser.pb.collection("users").requestVerification(currentUser.user.email);
 
     return {
       ok: true,
@@ -327,7 +385,7 @@ export async function requestEmailVerificationForCurrentUser(): Promise<
     return {
       ok: false,
       errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 }
@@ -374,7 +432,7 @@ export async function confirmEmailChangeToken(input: {
         emailChanged: true,
         session: null,
       },
-      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(hadInvalidAuthCookie ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   } catch (error) {
     const errorCode = mapConfirmEmailChangeErrorCode(error);
@@ -387,7 +445,7 @@ export async function confirmEmailChangeToken(input: {
       ok: false,
       errorCode,
       ...(errorCode === "UNAUTHORIZED" || hadInvalidAuthCookie
-        ? { setCookie: createClearedPocketBaseAuthCookies() }
+        ? { setCookie: createClearedAuthAndDeviceCookies() }
         : {}),
     };
   }
@@ -415,6 +473,23 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
   }
 
   try {
+    const deviceSessionToken = await readDeviceSessionCookie();
+    const deviceSessionCheck = await validateDeviceSessionOrInvalidate({
+      pb,
+      userId: pb.authStore.record.id,
+      deviceSessionToken,
+      shouldUpdateHeartbeat: false,
+    });
+
+    if (deviceSessionCheck.status === "invalid") {
+      return {
+        ok: true,
+        data: {
+          session: null,
+        },
+      };
+    }
+
     const verifiedRecord = await pb.collection("users").getOne<UsersRecord>(pb.authStore.record.id);
     const session = createAuthSession(pb, verifiedRecord);
 
@@ -479,7 +554,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       data: {
         session: null,
       },
-      setCookie: createClearedPocketBaseAuthCookies(),
+      setCookie: createClearedAuthAndDeviceCookies(),
     };
   }
 
@@ -489,7 +564,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       data: {
         session: null,
       },
-      ...(hasAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(hasAuthCookie ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 
@@ -499,11 +574,29 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       data: {
         session: null,
       },
-      setCookie: createClearedPocketBaseAuthCookies(),
+      setCookie: createClearedAuthAndDeviceCookies(),
     };
   }
 
   try {
+    const deviceSessionToken = await readDeviceSessionCookie();
+    const deviceSessionCheck = await validateDeviceSessionOrInvalidate({
+      pb,
+      userId: pb.authStore.record.id,
+      deviceSessionToken,
+      shouldUpdateHeartbeat: true,
+    });
+
+    if (deviceSessionCheck.status === "invalid") {
+      return {
+        ok: true,
+        data: {
+          session: null,
+        },
+        setCookie: deviceSessionCheck.clearCookies,
+      };
+    }
+
     const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
     const session = createAuthSession(pb, refreshedAuth.record);
 
@@ -513,7 +606,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
         data: {
           session: null,
         },
-        setCookie: createClearedPocketBaseAuthCookies(),
+        setCookie: createClearedAuthAndDeviceCookies(),
       };
     }
 
@@ -535,7 +628,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
         data: {
           session: null,
         },
-        setCookie: createClearedPocketBaseAuthCookies(),
+        setCookie: createClearedAuthAndDeviceCookies(),
       };
     }
 
@@ -559,7 +652,7 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
       data: {
         session: null,
       },
-      setCookie: createClearedPocketBaseAuthCookies(),
+      setCookie: createClearedAuthAndDeviceCookies(),
     };
   }
 }

@@ -3,15 +3,12 @@ import type { AccountProfilePayload } from "@/features/account/account-profile";
 import type { AuthErrorCode } from "@/features/auth/auth-contract";
 import type { UsersRecord } from "@/types/pocketbase";
 import type { ServerAuthResponse } from "@/server/auth/auth-service";
-import {
-  createClearedPocketBaseAuthCookies,
-  createPocketBaseServerClient,
-} from "@/server/pocketbase/pocketbase-server";
+import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
+import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 import {
   getAvatarUrl,
   getNullableTrimmedString,
   hasValidationCode,
-  isUsersRecord,
   logServiceError,
   mapPocketBaseError,
 } from "@/server/pocketbase/pocketbase-utils";
@@ -83,7 +80,7 @@ export async function updateCurrentUserProfileName(
     return {
       ok: false,
       errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 }
@@ -134,7 +131,7 @@ export async function updateCurrentUserAvatar(
     return {
       ok: false,
       errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 }
@@ -171,7 +168,7 @@ export async function removeCurrentUserAvatar(): Promise<
     return {
       ok: false,
       errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 }
@@ -204,7 +201,7 @@ export async function requestEmailChangeForCurrentUser(
     return {
       ok: false,
       errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 }
@@ -239,7 +236,7 @@ export async function deleteCurrentUserAccountWithPassword(
     return {
       ok: false,
       errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 
@@ -251,7 +248,7 @@ export async function deleteCurrentUserAccountWithPassword(
       data: {
         deleted: true,
       },
-      setCookie: createClearedPocketBaseAuthCookies(),
+      setCookie: createClearedAuthAndDeviceCookies(),
     };
   } catch (error) {
     const errorCode = mapDeleteAccountErrorCode(error);
@@ -263,7 +260,7 @@ export async function deleteCurrentUserAccountWithPassword(
     return {
       ok: false,
       errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 }
@@ -309,51 +306,29 @@ export async function updateCurrentUserPassword(input: {
     return {
       ok: false,
       errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 }
 
 async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
-  const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+  const currentUser = await requireAuthenticatedUser();
 
-  if (hadInvalidAuthCookie) {
+  if (!currentUser.ok) {
     return {
       ok: false,
       response: {
         ok: false,
-        errorCode: "UNAUTHORIZED",
-        setCookie: createClearedPocketBaseAuthCookies(),
-      },
-    };
-  }
-
-  if (!pb.authStore.isValid || !pb.authStore.record) {
-    return {
-      ok: false,
-      response: {
-        ok: false,
-        errorCode: "UNAUTHORIZED",
-        ...(hasAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
-      },
-    };
-  }
-
-  if (!isUsersRecord(pb.authStore.record)) {
-    return {
-      ok: false,
-      response: {
-        ok: false,
-        errorCode: "UNAUTHORIZED",
-        setCookie: createClearedPocketBaseAuthCookies(),
+        errorCode: currentUser.errorCode,
+        ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
       },
     };
   }
 
   return {
     ok: true,
-    pb,
-    user: pb.authStore.record,
+    pb: currentUser.pb,
+    user: currentUser.user,
   };
 }
 

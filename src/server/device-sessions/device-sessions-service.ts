@@ -1,0 +1,460 @@
+import { createHash } from "node:crypto";
+import PocketBase, { ClientResponseError } from "pocketbase";
+import type { UserDeviceSessionsRecord } from "@/types/pocketbase";
+import { formatServiceError, logServiceError } from "@/server/pocketbase/pocketbase-utils";
+import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
+import { parseDeviceInfo } from "@/server/device-sessions/device-sessions-ua-parser";
+import {
+  DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS,
+  EXPIRED_RETENTION_DAYS,
+  HEARTBEAT_MIN_SECONDS,
+  MAX_ACTIVE_SESSIONS,
+  REVOKED_RETENTION_DAYS,
+  type DeviceSessionAuthCheckResult,
+  type DeviceSessionListItem,
+  type RevokeDeviceSessionByIdResult,
+} from "@/server/device-sessions/device-sessions-types";
+
+const DEVICE_SESSIONS_COLLECTION = "user_device_sessions";
+
+export function hashSessionToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+export async function registerOrRefreshDeviceSession(input: {
+  pb: PocketBase;
+  userId: string;
+  sessionToken: string;
+  rememberMe: boolean;
+  requestHeaders: Headers;
+}): Promise<void> {
+  const sessionIdHash = hashSessionToken(input.sessionToken);
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const userAgent = getUserAgent(input.requestHeaders);
+  const parsedDeviceInfo = parseDeviceInfo(userAgent);
+  const upsertPayload = {
+    user: input.userId,
+    session_id_hash: sessionIdHash,
+    device_label: parsedDeviceInfo.deviceLabel,
+    device_type: parsedDeviceInfo.deviceType,
+    browser: parsedDeviceInfo.browser,
+    os: parsedDeviceInfo.os,
+    user_agent: userAgent,
+    ip_masked: null,
+    ip_hash: null,
+    location_label: null,
+    last_seen_at: nowIso,
+    expires_at: createExpiresAt(now),
+    remember_me: input.rememberMe,
+    revoked_at: null,
+    revoked_reason: null,
+  };
+
+  const existingSession = await findDeviceSessionByHash(input.pb, sessionIdHash);
+
+  if (existingSession) {
+    await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(existingSession.id, upsertPayload);
+  } else {
+    await input.pb.collection(DEVICE_SESSIONS_COLLECTION).create(upsertPayload);
+  }
+
+  await enforceDeviceLimit({
+    pb: input.pb,
+    userId: input.userId,
+    currentSessionIdHash: sessionIdHash,
+  });
+
+  try {
+    await cleanUpStaleDeviceSessions({
+      pb: input.pb,
+      userId: input.userId,
+    });
+  } catch (error) {
+    logDeviceSessionsError("registerOrRefreshDeviceSession.cleanup", error);
+  }
+}
+
+export async function validateDeviceSessionOrInvalidate(input: {
+  pb: PocketBase;
+  userId: string;
+  deviceSessionToken: string | null;
+  shouldUpdateHeartbeat: boolean;
+}): Promise<DeviceSessionAuthCheckResult> {
+  if (!input.deviceSessionToken) {
+    return {
+      status: "invalid",
+      clearCookies: createClearedAuthAndDeviceCookies(),
+    };
+  }
+
+  const sessionIdHash = hashSessionToken(input.deviceSessionToken);
+  const session = await findDeviceSessionByHash(input.pb, sessionIdHash);
+
+  if (!session || session.user !== input.userId || !isActiveDeviceSession(session, new Date())) {
+    return {
+      status: "invalid",
+      clearCookies: createClearedAuthAndDeviceCookies(),
+    };
+  }
+
+  if (input.shouldUpdateHeartbeat) {
+    await updateDeviceHeartbeatIfNeeded({
+      pb: input.pb,
+      session,
+      now: new Date(),
+    });
+  }
+
+  return {
+    status: "valid",
+    sessionIdHash,
+  };
+}
+
+export async function listDeviceSessions(input: {
+  pb: PocketBase;
+  userId: string;
+  currentSessionIdHash: string;
+}): Promise<DeviceSessionListItem[]> {
+  try {
+    await cleanUpStaleDeviceSessions({
+      pb: input.pb,
+      userId: input.userId,
+    });
+  } catch (error) {
+    logDeviceSessionsError("listDeviceSessions.cleanup", error);
+  }
+
+  const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
+  const now = new Date();
+  const activeSessions = sessions.filter((session) => isActiveDeviceSession(session, now));
+
+  return activeSessions.map((session) => mapDeviceSessionListItem(session, input.currentSessionIdHash));
+}
+
+export async function revokeCurrentDeviceSession(input: {
+  pb: PocketBase;
+  userId: string;
+  currentSessionIdHash: string;
+}): Promise<void> {
+  const session = await findDeviceSessionByHash(input.pb, input.currentSessionIdHash);
+
+  if (!session || session.user !== input.userId || !isActiveDeviceSession(session, new Date())) {
+    return;
+  }
+
+  await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(session.id, {
+    revoked_at: new Date().toISOString(),
+    revoked_reason: "signed_out",
+  });
+}
+
+export async function revokeOtherDeviceSessions(input: {
+  pb: PocketBase;
+  userId: string;
+  currentSessionIdHash: string;
+}): Promise<number> {
+  const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
+  const now = new Date();
+  const sessionsToRevoke = sessions.filter(
+    (session) => session.session_id_hash !== input.currentSessionIdHash && isActiveDeviceSession(session, now)
+  );
+
+  if (sessionsToRevoke.length === 0) {
+    return 0;
+  }
+
+  for (const session of sessionsToRevoke) {
+    await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(session.id, {
+      revoked_at: now.toISOString(),
+      revoked_reason: "signed_out_others",
+    });
+  }
+
+  return sessionsToRevoke.length;
+}
+
+export async function revokeDeviceSessionById(input: {
+  pb: PocketBase;
+  userId: string;
+  deviceSessionId: string;
+  currentSessionIdHash: string;
+}): Promise<RevokeDeviceSessionByIdResult> {
+  const deviceSession = await findDeviceSessionById(input.pb, input.deviceSessionId);
+
+  if (!deviceSession || deviceSession.user !== input.userId || !isActiveDeviceSession(deviceSession, new Date())) {
+    return "not_found";
+  }
+
+  if (deviceSession.session_id_hash === input.currentSessionIdHash) {
+    return "current_device";
+  }
+
+  await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(deviceSession.id, {
+    revoked_at: new Date().toISOString(),
+    revoked_reason: "signed_out",
+  });
+
+  return "revoked";
+}
+
+export async function cleanUpStaleDeviceSessions(input: {
+  pb: PocketBase;
+  userId: string;
+}): Promise<number> {
+  const sessions = await listDeviceSessionsForUser(input.pb, input.userId);
+  const now = Date.now();
+  const revokedCutoff = now - REVOKED_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+  const expiredCutoff = now - EXPIRED_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+  const staleSessions = sessions.filter((session) =>
+    shouldDeleteStaleDeviceSession(session, revokedCutoff, expiredCutoff)
+  );
+
+  if (staleSessions.length === 0) {
+    return 0;
+  }
+
+  for (const staleSession of staleSessions) {
+    await deleteDeviceSessionSafely(input.pb, staleSession.id);
+  }
+
+  return staleSessions.length;
+}
+
+export async function enforceDeviceLimit(input: {
+  pb: PocketBase;
+  userId: string;
+  currentSessionIdHash: string;
+}): Promise<void> {
+  if (MAX_ACTIVE_SESSIONS === null) {
+    return;
+  }
+
+  const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "+last_seen_at");
+  const now = new Date();
+  const activeSessions = sessions.filter((session) => isActiveDeviceSession(session, now));
+
+  if (activeSessions.length <= MAX_ACTIVE_SESSIONS) {
+    return;
+  }
+
+  const sessionsToRevokeCount = activeSessions.length - MAX_ACTIVE_SESSIONS;
+  const revokeCandidates = activeSessions.filter(
+    (session) => session.session_id_hash !== input.currentSessionIdHash
+  );
+
+  for (const session of revokeCandidates.slice(0, sessionsToRevokeCount)) {
+    await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(session.id, {
+      revoked_at: now.toISOString(),
+      revoked_reason: "capped",
+    });
+  }
+}
+
+async function findDeviceSessionByHash(
+  pb: PocketBase,
+  sessionIdHash: string
+): Promise<UserDeviceSessionsRecord | null> {
+  try {
+    return await pb
+      .collection(DEVICE_SESSIONS_COLLECTION)
+      .getFirstListItem<UserDeviceSessionsRecord>(
+        `session_id_hash = "${escapeFilterValue(sessionIdHash)}"`
+      );
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+async function findDeviceSessionById(
+  pb: PocketBase,
+  deviceSessionId: string
+): Promise<UserDeviceSessionsRecord | null> {
+  try {
+    return await pb.collection(DEVICE_SESSIONS_COLLECTION).getOne<UserDeviceSessionsRecord>(deviceSessionId);
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+async function listDeviceSessionsForUser(
+  pb: PocketBase,
+  userId: string,
+  sort?: string
+): Promise<UserDeviceSessionsRecord[]> {
+  const options: {
+    filter: string;
+    sort?: string;
+  } = {
+    filter: `user = "${escapeFilterValue(userId)}"`,
+  };
+
+  if (sort) {
+    options.sort = sort;
+  }
+
+  return pb.collection(DEVICE_SESSIONS_COLLECTION).getFullList<UserDeviceSessionsRecord>(options);
+}
+
+async function updateDeviceHeartbeatIfNeeded(input: {
+  pb: PocketBase;
+  session: UserDeviceSessionsRecord;
+  now: Date;
+}): Promise<void> {
+  const lastSeenAtMs = parseDateToTimestamp(input.session.last_seen_at);
+  const heartbeatThresholdMs = HEARTBEAT_MIN_SECONDS * 1000;
+
+  if (
+    lastSeenAtMs !== null &&
+    input.now.getTime() - lastSeenAtMs < heartbeatThresholdMs
+  ) {
+    return;
+  }
+
+  try {
+    await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(input.session.id, {
+      last_seen_at: input.now.toISOString(),
+    });
+  } catch (error) {
+    if (isExpectedHeartbeatError(error)) {
+      return;
+    }
+
+    console.warn(
+      "[device-sessions-service] updateDeviceHeartbeatIfNeeded",
+      formatServiceError(error)
+    );
+  }
+}
+
+async function deleteDeviceSessionSafely(pb: PocketBase, deviceSessionId: string): Promise<void> {
+  try {
+    await pb.collection(DEVICE_SESSIONS_COLLECTION).delete(deviceSessionId);
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return;
+    }
+
+    throw error;
+  }
+}
+
+function shouldDeleteStaleDeviceSession(
+  session: UserDeviceSessionsRecord,
+  revokedCutoffMs: number,
+  expiredCutoffMs: number
+): boolean {
+  const revokedAtMs = parseDateToTimestamp(session.revoked_at);
+
+  if (revokedAtMs !== null && revokedAtMs < revokedCutoffMs) {
+    return true;
+  }
+
+  const expiresAtMs = parseDateToTimestamp(session.expires_at);
+
+  if (expiresAtMs === null) {
+    return false;
+  }
+
+  return expiresAtMs < expiredCutoffMs;
+}
+
+function mapDeviceSessionListItem(
+  session: UserDeviceSessionsRecord,
+  currentSessionIdHash: string
+): DeviceSessionListItem {
+  return {
+    id: session.id,
+    deviceLabel: session.device_label,
+    deviceType: session.device_type,
+    browser: getNullableString(session.browser),
+    os: getNullableString(session.os),
+    userAgent: getNullableString(session.user_agent),
+    ipMasked: getNullableString(session.ip_masked),
+    locationLabel: getNullableString(session.location_label),
+    lastSeenAt: session.last_seen_at,
+    createdAt: session.created,
+    isCurrentDevice: session.session_id_hash === currentSessionIdHash,
+  };
+}
+
+function isActiveDeviceSession(session: UserDeviceSessionsRecord, now: Date): boolean {
+  const revokedAtMs = parseDateToTimestamp(session.revoked_at);
+
+  if (revokedAtMs !== null) {
+    return false;
+  }
+
+  const expiresAtMs = parseDateToTimestamp(session.expires_at);
+
+  if (expiresAtMs === null) {
+    return false;
+  }
+
+  return expiresAtMs > now.getTime();
+}
+
+function parseDateToTimestamp(value: string | null | undefined): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return parsedDate.getTime();
+}
+
+function createExpiresAt(now: Date): string {
+  return new Date(now.getTime() + DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS * 1000).toISOString();
+}
+
+function getUserAgent(requestHeaders: Headers): string {
+  return requestHeaders.get("user-agent")?.trim() ?? "";
+}
+
+function getNullableString(value: string | null | undefined): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalizedValue = value.trim();
+
+  if (normalizedValue.length === 0) {
+    return null;
+  }
+
+  return normalizedValue;
+}
+
+function isNotFoundError(error: unknown): boolean {
+  return error instanceof ClientResponseError && error.status === 404;
+}
+
+function isExpectedHeartbeatError(error: unknown): boolean {
+  if (!(error instanceof ClientResponseError)) {
+    return false;
+  }
+
+  return error.status === 401 || error.status === 403 || error.status === 404;
+}
+
+function escapeFilterValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function logDeviceSessionsError(context: string, error: unknown): void {
+  logServiceError("device-sessions-service", context, error);
+}
