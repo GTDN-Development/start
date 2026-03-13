@@ -20,6 +20,9 @@ export const routing = defineRouting({
     "/blog": {
       cs: "/blog",
     },
+    "/blog/[slug]": {
+      cs: "/blog/[slug]",
+    },
     "/confirm-email-change": {
       cs: "/potvrdit-zmenu-emailu",
     },

@@ -30,6 +30,8 @@ export interface PostsRecord extends PocketBaseSystemFields {
   cover_image: string;
   cover_image_alt?: string;
   content?: string;
+  locale?: "cs" | "en";
+  translation_shared_id?: string;
 }
 
 export interface UsersRecord extends PocketBaseSystemFields {

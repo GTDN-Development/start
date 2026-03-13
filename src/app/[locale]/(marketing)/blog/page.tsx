@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPageMetadata } from "@/lib/metadata";
-import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
+import { getAllPosts } from "@/server/blog/blog-api";
+import { BlogPostGrid } from "@/features/marketing/blog/blog-post-grid";
 
 export async function generateMetadata(props: PageProps<"/[locale]/blog">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -25,13 +27,16 @@ export async function generateMetadata(props: PageProps<"/[locale]/blog">): Prom
 export default async function Page({ params }: PageProps<"/[locale]/blog">) {
   const { locale } = await params;
 
-  // Enable static rendering
   setRequestLocale(locale as Locale);
 
-  const t = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.blog",
-  });
+  const [t, posts] = await Promise.all([
+    getTranslations({ locale: locale as Locale, namespace: "pages.blog" }),
+    getAllPosts(locale as "cs" | "en"),
+  ]);
+
+  if (posts.length === 0) {
+    notFound();
+  }
 
   return (
     <div className="relative">
@@ -42,17 +47,9 @@ export default async function Page({ params }: PageProps<"/[locale]/blog">) {
         </HeroContent>
       </Hero>
 
-      <div className="space-y-16 pb-24">
+      <div className="pb-24">
         <Container render={<section />}>
-          <Placeholder>
-            <PlaceholderTitle>Content</PlaceholderTitle>
-          </Placeholder>
-        </Container>
-
-        <Container render={<section />}>
-          <Placeholder>
-            <PlaceholderTitle>Content</PlaceholderTitle>
-          </Placeholder>
+          <BlogPostGrid posts={posts} />
         </Container>
       </div>
     </div>
