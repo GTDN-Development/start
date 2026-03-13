@@ -10,6 +10,20 @@ const withNextIntl = createNextIntlPlugin({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   reactCompiler: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+        pathname: "/api/files/**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+        pathname: "/api/files/**",
+      },
+    ],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",

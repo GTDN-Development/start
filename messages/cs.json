@@ -279,7 +279,10 @@
     },
     "blog": {
       "title": "Blog",
-      "description": "Postřehy, produktové novinky a praktické návody pro moderní týmy."
+      "description": "Postřehy, produktové novinky a praktické návody pro moderní týmy.",
+      "readMore": "Číst více",
+      "loadMore": "Načíst další",
+      "backToBlog": "Zpět na blog"
     },
     "gdpr": {
       "title": "Zásady ochrany osobních údajů",

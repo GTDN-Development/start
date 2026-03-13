@@ -279,7 +279,10 @@
     },
     "blog": {
       "title": "Blog",
-      "description": "Insights, product updates, and practical guides for modern teams."
+      "description": "Insights, product updates, and practical guides for modern teams.",
+      "readMore": "Read more",
+      "loadMore": "Load more",
+      "backToBlog": "Back to blog"
     },
     "gdpr": {
       "title": "Privacy Policy",
