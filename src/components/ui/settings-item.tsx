@@ -72,7 +72,7 @@ function SettingsItem({
   variant?: "default" | "destructive";
   disabled?: boolean;
 }) {
-  return useRender({
+  const element = useRender({
     render,
     defaultTagName: "section",
     props: {
@@ -82,11 +82,17 @@ function SettingsItem({
       "aria-disabled": disabled || undefined,
       inert: disabled || undefined,
       className: cn(
-        "group/settings-item data-[variant=default]:border-border data-[variant=destructive]:border-destructive relative overflow-clip rounded-xl border data-[disabled=true]:pointer-events-auto data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-65 data-[disabled=true]:select-none data-[disabled=true]:[&_*]:cursor-not-allowed",
+        "group/settings-item data-[variant=default]:border-border data-[variant=destructive]:border-destructive relative overflow-clip rounded-xl border data-[disabled=true]:opacity-50 data-[disabled=true]:select-none",
         className
       ),
     },
   });
+
+  if (disabled) {
+    return <div className="cursor-not-allowed">{element}</div>;
+  }
+
+  return element;
 }
 
 function SettingsItemTitle({ className, render, ...props }: useRender.ComponentProps<"h3">) {
