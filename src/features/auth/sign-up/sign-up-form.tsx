@@ -1,7 +1,8 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -10,6 +11,7 @@ import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/c
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
+import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/legal-links";
@@ -18,10 +20,15 @@ import { createSignUpFormSchema, type SignUpInput } from "@/features/auth/auth-s
 import { resolvePostAuthWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { cn } from "@/lib/utils";
 
+type SignUpFormValues = SignUpInput & {
+  turnstileToken: string;
+};
+
 export function SignUpForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.signUp");
   const router = useRouter();
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileRef>(null);
 
   const signUpFormSchema = createSignUpFormSchema({
     firstNameMin: t("validation.firstNameMin"),
@@ -34,6 +41,11 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     confirmPassword: t("validation.confirmPassword"),
     passwordMismatch: t("validation.passwordMismatch"),
   });
+  const turnstileSchema = z.object({
+    turnstileToken: z.string().min(1, {
+      message: t("validation.turnstile"),
+    }),
+  });
 
   const form = useForm({
     defaultValues: {
@@ -42,11 +54,12 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       email: "",
       password: "",
       confirmPassword: "",
+      turnstileToken: "",
     },
     validators: {
-      onSubmit: signUpFormSchema,
+      onSubmit: signUpFormSchema.and(turnstileSchema),
     },
-    onSubmit: async ({ value }: { value: SignUpInput }) => {
+    onSubmit: async ({ value }: { value: SignUpFormValues }) => {
       setSubmitErrorMessage(null);
 
       const response = await signUp(value);
@@ -68,6 +81,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
         return;
       }
 
+      turnstileRef.current?.reset();
+      form.setFieldValue("turnstileToken", "");
+
       if (response.errorCode === "EMAIL_ALREADY_IN_USE") {
         setSubmitErrorMessage(t("status.error.emailAlreadyInUse"));
         return;
@@ -75,6 +91,11 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
 
       if (response.errorCode === "WEAK_PASSWORD") {
         setSubmitErrorMessage(t("status.error.message"));
+        return;
+      }
+
+      if (response.errorCode === "TURNSTILE_VERIFICATION_FAILED") {
+        setSubmitErrorMessage(t("status.error.turnstile"));
         return;
       }
 
@@ -229,6 +250,25 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                         placeholder={t("fields.confirmPassword.placeholder")}
                         showPasswordLabel={t("passwordVisibility.show")}
                         hidePasswordLabel={t("passwordVisibility.hide")}
+                      />
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  );
+                }}
+              </form.Field>
+
+              <form.Field name="turnstileToken">
+                {(field) => {
+                  const isInvalid =
+                    (field.state.meta.isTouched || submissionAttempts > 0) &&
+                    !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <Turnstile
+                        ref={turnstileRef}
+                        onSuccess={(token: string) => field.handleChange(token)}
+                        onError={() => field.handleChange("")}
+                        onExpire={() => field.handleChange("")}
                       />
                       {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>

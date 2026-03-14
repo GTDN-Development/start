@@ -1091,7 +1091,8 @@
         "passwordMax": "Password must not exceed 100 characters.",
         "confirmPassword": "Please confirm your password.",
         "termsAccepted": "You must accept the privacy policy.",
-        "passwordMismatch": "Passwords do not match."
+        "passwordMismatch": "Passwords do not match.",
+        "turnstile": "Please complete the verification."
       },
       "passwordVisibility": {
         "show": "Show password",
@@ -1136,11 +1137,15 @@
         "error": {
           "title": "Sign up failed",
           "message": "Unable to create the account. Please try again.",
-          "emailAlreadyInUse": "This email address is already in use."
+          "emailAlreadyInUse": "This email address is already in use.",
+          "turnstile": "Verification failed. Please try again."
         }
       }
     },
     "forgotPassword": {
+      "validation": {
+        "turnstile": "Please complete the verification."
+      },
       "fields": {
         "email": {
           "label": "Email address",
@@ -1159,7 +1164,9 @@
         },
         "error": {
           "title": "Request failed",
-          "message": "Unable to send the reset link right now. Please try again later."
+          "message": "Unable to send the reset link right now. Please try again later.",
+          "turnstile": "Verification failed. Please try again.",
+          "rateLimited": "Too many requests. Please wait a moment and try again."
         }
       }
     },

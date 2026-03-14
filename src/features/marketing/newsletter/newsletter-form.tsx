@@ -13,7 +13,7 @@ import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { legalLinks } from "@/config/legal-links";
 import { submitNewsletterFormAction } from "@/features/marketing/actions/marketing-actions";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
-import { Turnstile, type TurnstileRef } from "@/features/marketing/turnstile";
+import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 
 import { cn } from "@/lib/utils";
 

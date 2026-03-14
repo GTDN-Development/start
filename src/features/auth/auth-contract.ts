@@ -9,10 +9,20 @@ export type AuthErrorCode =
   | "EMAIL_ALREADY_IN_USE"
   | "VALIDATION_ERROR"
   | "WEAK_PASSWORD"
+  | "TURNSTILE_VERIFICATION_FAILED"
   | "UNAUTHORIZED"
   | "RATE_LIMITED"
   | "NOT_FOUND"
   | "UNKNOWN_ERROR";
+
+export type SignUpActionInput = SignUpInput & {
+  turnstileToken: string;
+};
+
+export type RequestPasswordResetInput = {
+  email: string;
+  turnstileToken: string;
+};
 
 export type AuthUser = {
   id: string;
@@ -87,7 +97,7 @@ export type AuthSessionSnapshot = {
 
 export type AuthClient = {
   signIn: (input: SignInInput) => Promise<SignInResponse>;
-  signUp: (input: SignUpInput) => Promise<SignUpResponse>;
+  signUp: (input: SignUpActionInput) => Promise<SignUpResponse>;
   signOut: () => Promise<SignOutResponse>;
   useSession: () => AuthSessionSnapshot;
 };

@@ -24,7 +24,7 @@ export function Turnstile({
 
   useImperativeHandle(ref, () => turnstileRef.current);
 
-  // Show placeholder in development when API key is not defined
+  // Show placeholder in development when API key is not defined.
   if ((!siteKey || siteKey === "") && process.env.NODE_ENV !== "production") {
     return (
       <div

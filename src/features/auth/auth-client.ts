@@ -7,11 +7,13 @@ import type {
   AuthSession,
   AuthSessionSnapshot,
   RequestEmailVerificationResponse,
+  RequestPasswordResetInput,
   RequestPasswordResetResponse,
   ResetPasswordResponse,
   SessionResponse,
   SignInResponse,
   SignOutResponse,
+  SignUpActionInput,
   SignUpResponse,
   VerifyEmailResponse,
 } from "@/features/auth/auth-contract";
@@ -25,7 +27,7 @@ import {
   signUpAction,
   verifyEmailAction,
 } from "@/features/auth/actions/auth-actions";
-import type { SignInInput, SignUpInput } from "@/features/auth/auth-schemas";
+import type { SignInInput } from "@/features/auth/auth-schemas";
 
 const SESSION_ENDPOINT_PATH = "/api/auth/session";
 
@@ -65,7 +67,7 @@ export async function signIn(input: SignInInput): Promise<SignInResponse> {
   return response;
 }
 
-export async function signUp(input: SignUpInput): Promise<SignUpResponse> {
+export async function signUp(input: SignUpActionInput): Promise<SignUpResponse> {
   const response = await signUpAction(input);
 
   if (response.ok) {
@@ -129,10 +131,10 @@ export async function resetPasswordWithToken(
   return response;
 }
 
-export async function requestPasswordReset(email: string): Promise<RequestPasswordResetResponse> {
-  return requestPasswordResetAction({
-    email,
-  });
+export async function requestPasswordReset(
+  input: RequestPasswordResetInput
+): Promise<RequestPasswordResetResponse> {
+  return requestPasswordResetAction(input);
 }
 
 export async function requestEmailVerification(): Promise<RequestEmailVerificationResponse> {

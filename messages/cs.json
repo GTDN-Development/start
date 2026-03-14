@@ -1091,7 +1091,8 @@
         "passwordMax": "Heslo nesmí být delší než 100 znaků.",
         "confirmPassword": "Potvrďte prosím své heslo.",
         "termsAccepted": "Musíte přijmout zásady ochrany osobních údajů.",
-        "passwordMismatch": "Hesla se neshodují."
+        "passwordMismatch": "Hesla se neshodují.",
+        "turnstile": "Dokončete prosím ověření."
       },
       "passwordVisibility": {
         "show": "Zobrazit heslo",
@@ -1136,11 +1137,15 @@
         "error": {
           "title": "Registrace selhala",
           "message": "Účet se nepodařilo vytvořit. Zkuste to prosím znovu.",
-          "emailAlreadyInUse": "Tato e-mailová adresa je již používaná."
+          "emailAlreadyInUse": "Tato e-mailová adresa je již používaná.",
+          "turnstile": "Ověření selhalo. Zkuste to prosím znovu."
         }
       }
     },
     "forgotPassword": {
+      "validation": {
+        "turnstile": "Dokončete prosím ověření."
+      },
       "fields": {
         "email": {
           "label": "E-mailová adresa",
@@ -1159,7 +1164,9 @@
         },
         "error": {
           "title": "Požadavek selhal",
-          "message": "Odkaz pro obnovu se teď nepodařilo odeslat. Zkuste to prosím později."
+          "message": "Odkaz pro obnovu se teď nepodařilo odeslat. Zkuste to prosím později.",
+          "turnstile": "Ověření selhalo. Zkuste to prosím znovu.",
+          "rateLimited": "Příliš mnoho požadavků. Chvíli počkejte a zkuste to znovu."
         }
       }
     },

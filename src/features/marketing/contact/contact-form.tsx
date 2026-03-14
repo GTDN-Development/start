@@ -14,7 +14,7 @@ import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { legalLinks } from "@/config/legal-links";
 import { submitContactFormAction } from "@/features/marketing/actions/marketing-actions";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
-import { Turnstile, type TurnstileRef } from "@/features/marketing/turnstile";
+import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { Spinner } from "@/components/ui/spinner";
 
 import { cn } from "@/lib/utils";

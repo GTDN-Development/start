@@ -1,14 +1,17 @@
 "use server";
 
+import { headers } from "next/headers";
 import { z } from "zod";
 import type {
   AuthResponse,
   AuthSessionPayload,
   AuthSignOutPayload,
   ConfirmEmailChangePayload,
+  RequestPasswordResetInput,
   RequestEmailVerificationPayload,
   RequestPasswordResetPayload,
   ResetPasswordPayload,
+  SignUpActionInput,
   VerifyEmailPayload,
 } from "@/features/auth/auth-contract";
 import {
@@ -16,9 +19,9 @@ import {
   signInInputSchema,
   signUpInputSchema,
   type SignInInput,
-  type SignUpInput,
 } from "@/features/auth/auth-schemas";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
+import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import {
   confirmEmailChangeToken,
   confirmEmailVerificationToken,
@@ -36,8 +39,15 @@ const verifyEmailInputSchema = z.object({
   token: z.string().trim().min(1),
 });
 
+const turnstileTokenSchema = z.string().trim().min(1);
+
+const signUpActionInputSchema = signUpInputSchema.extend({
+  turnstileToken: turnstileTokenSchema,
+});
+
 const requestPasswordResetInputSchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
+  turnstileToken: turnstileTokenSchema,
 });
 
 const resetPasswordInputSchema = z
@@ -72,14 +82,21 @@ export async function signInAction(input: SignInInput): Promise<AuthResponse<Aut
   return finalizeAuthAction(response);
 }
 
-export async function signUpAction(input: SignUpInput): Promise<AuthResponse<AuthSessionPayload>> {
-  const parsedInput = signUpInputSchema.safeParse(input);
+export async function signUpAction(input: SignUpActionInput): Promise<AuthResponse<AuthSessionPayload>> {
+  const parsedInput = signUpActionInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
     return createBadRequestResponse<AuthSessionPayload>();
   }
 
-  const response = await signUpWithPassword(parsedInput.data);
+  const turnstileVerification = await verifyAuthTurnstileToken(parsedInput.data.turnstileToken);
+
+  if (!turnstileVerification.success) {
+    return createTurnstileVerificationFailedResponse<AuthSessionPayload>();
+  }
+
+  const { turnstileToken: _turnstileToken, ...signUpInput } = parsedInput.data;
+  const response = await signUpWithPassword(signUpInput);
 
   return finalizeAuthAction(response);
 }
@@ -104,13 +121,19 @@ export async function verifyEmailAction(input: {
   return finalizeAuthAction(response);
 }
 
-export async function requestPasswordResetAction(input: {
-  email: string;
-}): Promise<AuthResponse<RequestPasswordResetPayload>> {
+export async function requestPasswordResetAction(
+  input: RequestPasswordResetInput
+): Promise<AuthResponse<RequestPasswordResetPayload>> {
   const parsedInput = requestPasswordResetInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
     return createBadRequestResponse<RequestPasswordResetPayload>();
+  }
+
+  const turnstileVerification = await verifyAuthTurnstileToken(parsedInput.data.turnstileToken);
+
+  if (!turnstileVerification.success) {
+    return createTurnstileVerificationFailedResponse<RequestPasswordResetPayload>();
   }
 
   const response = await requestPasswordResetForEmail(parsedInput.data.email);
@@ -169,9 +192,23 @@ async function finalizeAuthAction<TData>(
   return toAuthApiResponse(response);
 }
 
+async function verifyAuthTurnstileToken(turnstileToken: string) {
+  const requestHeaders = await headers();
+  const clientIP = getClientIPFromHeaders(requestHeaders);
+
+  return verifyTurnstileToken(turnstileToken, clientIP);
+}
+
 function createBadRequestResponse<TData>(): AuthResponse<TData> {
   return {
     ok: false,
     errorCode: "BAD_REQUEST",
+  };
+}
+
+function createTurnstileVerificationFailedResponse<TData>(): AuthResponse<TData> {
+  return {
+    ok: false,
+    errorCode: "TURNSTILE_VERIFICATION_FAILED",
   };
 }

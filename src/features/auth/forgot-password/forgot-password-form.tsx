@@ -2,24 +2,27 @@
 
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { AlertCircleIcon, CheckCircleIcon, MailIcon } from "lucide-react";
 import { requestPasswordReset } from "@/features/auth/auth-client";
 import { cn } from "@/lib/utils";
 
 type ForgotPasswordFormValues = {
   email: string;
+  turnstileToken: string;
 };
 
 export function ForgotPasswordForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.forgotPassword");
   const tSignInValidation = useTranslations("forms.signIn.validation");
+  const turnstileRef = useRef<TurnstileRef>(null);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
@@ -29,11 +32,15 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
     email: z.email({
       message: tSignInValidation("email"),
     }),
+    turnstileToken: z.string().min(1, {
+      message: t("validation.turnstile"),
+    }),
   });
 
   const form = useForm({
     defaultValues: {
       email: "",
+      turnstileToken: "",
     },
     validators: {
       onSubmit: forgotPasswordFormSchema,
@@ -41,14 +48,38 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
     onSubmit: async ({ value }: { value: ForgotPasswordFormValues }) => {
       setSubmitStatus({ type: null, message: "" });
 
-      const response = await requestPasswordReset(value.email);
+      const response = await requestPasswordReset({
+        email: value.email,
+        turnstileToken: value.turnstileToken,
+      });
 
       if (response.ok) {
         setSubmitStatus({
           type: "success",
           message: t("status.success.message"),
         });
+        form.reset();
+        turnstileRef.current?.reset();
       } else {
+        turnstileRef.current?.reset();
+        form.setFieldValue("turnstileToken", "");
+
+        if (response.errorCode === "TURNSTILE_VERIFICATION_FAILED") {
+          setSubmitStatus({
+            type: "error",
+            message: t("status.error.turnstile"),
+          });
+          return;
+        }
+
+        if (response.errorCode === "RATE_LIMITED") {
+          setSubmitStatus({
+            type: "error",
+            message: t("status.error.rateLimited"),
+          });
+          return;
+        }
+
         setSubmitStatus({
           type: "error",
           message: t("status.error.message"),
@@ -96,6 +127,26 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
                         aria-invalid={isInvalid}
                       />
                       <FieldDescription>{t("fields.email.description")}</FieldDescription>
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  );
+                }}
+              </form.Field>
+
+              <form.Field name="turnstileToken">
+                {(field) => {
+                  const isInvalid =
+                    (field.state.meta.isTouched || submissionAttempts > 0) &&
+                    !field.state.meta.isValid;
+
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <Turnstile
+                        ref={turnstileRef}
+                        onSuccess={(token: string) => field.handleChange(token)}
+                        onError={() => field.handleChange("")}
+                        onExpire={() => field.handleChange("")}
+                      />
                       {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>
                   );
