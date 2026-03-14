@@ -45,7 +45,7 @@ export function Turnstile({
       onExpire={onExpire}
       className={className}
       options={{
-        theme: "light",
+        theme: "auto",
         size: "normal",
       }}
     />
