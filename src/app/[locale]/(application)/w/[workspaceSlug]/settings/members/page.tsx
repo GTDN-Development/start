@@ -23,11 +23,9 @@ import { WorkspaceMembersManagementSettingsItem } from "@/features/workspaces/se
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { getServerAuthSession } from "@/server/auth/auth-service";
-import {
-  listWorkspaceInvites,
-  listWorkspaceMembers,
-  resolveWorkspaceForUserBySlug,
-} from "@/server/workspaces/workspace-service";
+import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-general-service";
+import { listWorkspaceInvites } from "@/server/workspaces/workspace-invite-service";
+import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings/members">
@@ -87,12 +85,26 @@ export default async function Page({
 
   const workspace = workspaceResponse.data.workspace;
   const [membersResponse, invitesResponse] = await Promise.all([
-    listWorkspaceMembers(workspace.id),
-    listWorkspaceInvites(workspace.id),
+    listWorkspaceMembers(workspace.slug),
+    listWorkspaceInvites(workspace.slug),
   ]);
 
-  const members = membersResponse.ok ? membersResponse.data.members : [];
-  const invites = invitesResponse.ok ? invitesResponse.data.invites : [];
+  if (!membersResponse.ok || !invitesResponse.ok) {
+    redirect({
+      href: {
+        pathname: "/w/[workspaceSlug]/settings",
+        params: {
+          workspaceSlug: workspace.slug,
+        },
+      },
+      locale: locale as Locale,
+    });
+
+    return null;
+  }
+
+  const members = membersResponse.data.members;
+  const invites = invitesResponse.data.invites;
   const ownerCount = members.filter((member) => member.role === "owner").length;
   const currentUserMember = members.find((member) => member.userId === session.user.id) ?? null;
   const isCurrentUserLastOwner = currentUserMember?.role === "owner" && ownerCount === 1;

@@ -24,10 +24,8 @@ import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";
-import {
-  listWorkspaceMembers,
-  resolveWorkspaceForUserBySlug,
-} from "@/server/workspaces/workspace-service";
+import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-general-service";
+import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings">
@@ -87,12 +85,12 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
 
   const workspace = workspaceResponse.data.workspace;
   const membersResponse =
-    workspace.role === "owner" ? await listWorkspaceMembers(workspace.id) : null;
-  const ownerCount =
-    membersResponse && membersResponse.ok
-      ? membersResponse.data.members.filter((member) => member.role === "owner").length
-      : 0;
-  const isCurrentUserLastOwner = workspace.role === "owner" && ownerCount === 1;
+    workspace.role === "owner" ? await listWorkspaceMembers(workspace.slug) : null;
+  const isCurrentUserLastOwner =
+    workspace.role === "owner" &&
+    (membersResponse?.ok
+      ? membersResponse.data.members.filter((member) => member.role === "owner").length === 1
+      : true);
   const workspaceSettings = {
     id: workspace.id,
     slug: workspace.slug,

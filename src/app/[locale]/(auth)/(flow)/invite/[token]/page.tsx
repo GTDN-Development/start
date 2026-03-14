@@ -11,7 +11,7 @@ import {
   acceptInviteTokenForUser,
   hashInviteToken,
   validateInviteToken,
-} from "@/server/workspaces/workspace-service";
+} from "@/server/workspaces/workspace-invite-service";
 
 type InviteTokenPageProps = {
   params: Promise<{

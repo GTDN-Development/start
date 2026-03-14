@@ -14,7 +14,7 @@ import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";
-import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-service";
+import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-general-service";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/overview">
@@ -39,9 +39,7 @@ export async function generateMetadata(
   });
 }
 
-export default async function Page({
-  params,
-}: PageProps<"/[locale]/w/[workspaceSlug]/overview">) {
+export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]/overview">) {
   const { locale, workspaceSlug } = await params;
 
   setRequestLocale(locale as Locale);

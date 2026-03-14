@@ -6,7 +6,7 @@ import { ApplicationLayout } from "@/features/application/application-layout";
 import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { listUserWorkspaces } from "@/server/workspaces/workspace-service";
+import { listUserWorkspaces } from "@/server/workspaces/workspace-general-service";
 
 type ApplicationRouteLayoutProps = {
   children: React.ReactNode;

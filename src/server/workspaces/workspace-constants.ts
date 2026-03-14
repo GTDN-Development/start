@@ -1,0 +1,5 @@
+export const MAX_WORKSPACE_NAME_LENGTH = 32;
+export const MAX_WORKSPACE_SLUG_LENGTH = 48;
+export const INVITE_TTL_DAYS = 7;
+export const INVITE_RESEND_COOLDOWN_SECONDS = 60;
+export const INVITE_TOKEN_BYTES = 32;

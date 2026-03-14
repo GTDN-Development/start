@@ -5,11 +5,7 @@ import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { getServerAuthSession } from "@/server/auth/auth-service";
-import {
-  consumePendingInviteIfPresent,
-  ensurePersonalWorkspace,
-  pickWorkspaceForOverview,
-} from "@/server/workspaces/workspace-service";
+import { resolvePostAuthWorkspace } from "@/server/workspaces/workspace-general-service";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 
 export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {
@@ -45,31 +41,15 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
   }
 
   const session = sessionResponse.data.session;
-
-  const personalWorkspaceResponse = await ensurePersonalWorkspace(
-    session.user.id,
-    session.user.email,
-    session.user.name
-  );
-
-  if (!personalWorkspaceResponse.ok) {
-    redirect({
-      href: AUTH_REDIRECTS.unauthenticatedTo,
-      locale: locale as Locale,
-    });
-
-    return null;
-  }
-
-  const pendingInviteResponse = await consumePendingInviteIfPresent({
-    id: session.user.id,
-    email: session.user.email,
+  const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
+  const response = await resolvePostAuthWorkspace({
+    userId: session.user.id,
+    userEmail: session.user.email,
+    userName: session.user.name,
+    activeWorkspaceSlugCookie: activeWorkspaceSlug,
   });
 
-  const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
-  const pickWorkspaceResponse = await pickWorkspaceForOverview(session.user.id, activeWorkspaceSlug);
-
-  if (!pickWorkspaceResponse.ok || !pickWorkspaceResponse.data.workspace) {
+  if (!response.ok) {
     redirect({
       href: AUTH_REDIRECTS.unauthenticatedTo,
       locale: locale as Locale,
@@ -78,15 +58,7 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
     return null;
   }
 
-  let targetWorkspaceSlug = pickWorkspaceResponse.data.workspace.slug;
-
-  if (
-    pendingInviteResponse.ok &&
-    (pendingInviteResponse.data.result.state === "accepted" ||
-      pendingInviteResponse.data.result.state === "already_member")
-  ) {
-    targetWorkspaceSlug = pendingInviteResponse.data.result.workspace.slug;
-  }
+  const targetWorkspaceSlug = response.data.workspaceSlug;
 
   redirect({
     href: {

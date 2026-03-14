@@ -11,22 +11,27 @@ import {
   setPendingInviteHashCookie,
 } from "@/server/workspaces/workspace-cookie";
 import {
-  consumePendingInviteIfPresent,
-  changeWorkspaceMemberRoleForCurrentUser,
   createOrganizationWorkspaceForCurrentUser,
-  createWorkspaceInviteForCurrentUser,
   deleteOrganizationWorkspaceForCurrentUser,
-  ensurePersonalWorkspace,
+  resolvePostAuthWorkspace,
+  switchWorkspaceForCurrentUser,
+  updateWorkspaceGeneralForCurrentUser,
+} from "@/server/workspaces/workspace-general-service";
+import {
+  changeWorkspaceMemberRoleForCurrentUser,
   leaveWorkspaceForCurrentUser,
-  pickWorkspaceForOverview,
   removeWorkspaceMemberForCurrentUser,
+  transferWorkspaceOwnershipForCurrentUser,
+} from "@/server/workspaces/workspace-members-service";
+import {
+  createWorkspaceInviteForCurrentUser,
   resendWorkspaceInviteForCurrentUser,
   revokeWorkspaceInviteForCurrentUser,
-  switchWorkspaceForCurrentUser,
-  transferWorkspaceOwnershipForCurrentUser,
-  updateWorkspaceGeneralForCurrentUser,
-} from "@/server/workspaces/workspace-service";
-import type { ServerWorkspaceResponse, WorkspaceResponse } from "@/server/workspaces/workspace-types";
+} from "@/server/workspaces/workspace-invite-service";
+import type {
+  ServerWorkspaceResponse,
+  WorkspaceResponse,
+} from "@/server/workspaces/workspace-types";
 
 const MAX_WORKSPACE_NAME_LENGTH = 32;
 const MAX_WORKSPACE_SLUG_LENGTH = 48;
@@ -80,7 +85,10 @@ const createInviteInputSchema = z.object({
 });
 
 const pendingInviteHashInputSchema = z.object({
-  inviteHash: z.string().trim().regex(/^[a-f0-9]{64}$/),
+  inviteHash: z
+    .string()
+    .trim()
+    .regex(/^[a-f0-9]{64}$/),
 });
 
 export async function createOrganizationWorkspaceAction(input: {
@@ -286,7 +294,10 @@ export async function createInviteAction(
     return createBadRequestResponse();
   }
 
-  const response = await createWorkspaceInviteForCurrentUser(parsedWorkspaceSlug.data, parsedInput.data);
+  const response = await createWorkspaceInviteForCurrentUser(
+    parsedWorkspaceSlug.data,
+    parsedInput.data
+  );
 
   if (response.ok) {
     revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
@@ -373,52 +384,28 @@ export async function resolvePostAuthWorkspaceAction(): Promise<
   }
 
   const session = sessionResponse.data.session;
-  const personalWorkspaceResponse = await ensurePersonalWorkspace(
-    session.user.id,
-    session.user.email,
-    session.user.name
-  );
-
-  if (!personalWorkspaceResponse.ok) {
-    return {
-      ok: false,
-      errorCode: personalWorkspaceResponse.errorCode,
-    };
-  }
-
-  const pendingInviteResponse = await consumePendingInviteIfPresent({
-    id: session.user.id,
-    email: session.user.email,
-  });
   const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
-  const pickWorkspaceResponse = await pickWorkspaceForOverview(
-    session.user.id,
-    activeWorkspaceSlug
-  );
+  const response = await resolvePostAuthWorkspace({
+    userId: session.user.id,
+    userEmail: session.user.email,
+    userName: session.user.name,
+    activeWorkspaceSlugCookie: activeWorkspaceSlug,
+  });
+  await applyServerAuthCookies(response.setCookie);
 
-  if (!pickWorkspaceResponse.ok || !pickWorkspaceResponse.data.workspace) {
+  if (!response.ok) {
     return {
       ok: false,
-      errorCode: "UNAUTHORIZED",
+      errorCode: response.errorCode,
     };
   }
 
-  let targetWorkspaceSlug = pickWorkspaceResponse.data.workspace.slug;
-
-  if (
-    pendingInviteResponse.ok &&
-    (pendingInviteResponse.data.result.state === "accepted" ||
-      pendingInviteResponse.data.result.state === "already_member")
-  ) {
-    targetWorkspaceSlug = pendingInviteResponse.data.result.workspace.slug;
-  }
-
-  await setActiveWorkspaceSlugCookie(targetWorkspaceSlug);
+  await setActiveWorkspaceSlugCookie(response.data.workspaceSlug);
 
   return {
     ok: true,
     data: {
-      workspaceSlug: targetWorkspaceSlug,
+      workspaceSlug: response.data.workspaceSlug,
     },
   };
 }
