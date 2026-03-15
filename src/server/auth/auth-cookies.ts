@@ -1,5 +1,4 @@
 import { cookies } from "next/headers";
-import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 
 type ParsedSetCookie = {
   name: string;
@@ -40,10 +39,6 @@ export async function applyServerAuthCookies(setCookie: string[] | undefined): P
 
     cookieStore.set(parsedCookie);
   }
-}
-
-export async function clearServerAuthCookies(): Promise<void> {
-  await applyServerAuthCookies(createClearedAuthAndDeviceCookies());
 }
 
 function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {

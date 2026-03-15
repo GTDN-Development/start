@@ -35,14 +35,14 @@ export async function sendWorkspaceInviteEmail(input: {
   });
 }
 
-export function createWorkspaceInviteUrl(inviteToken: string): string {
+function createWorkspaceInviteUrl(inviteToken: string): string {
   const baseUrl = getWorkspaceInviteBaseUrl().replace(/\/+$/g, "");
   const encodedToken = encodeURIComponent(inviteToken);
 
   return `${baseUrl}/invite/${encodedToken}`;
 }
 
-export function getWorkspaceInviteBaseUrl(): string {
+function getWorkspaceInviteBaseUrl(): string {
   const explicitUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
 
   if (explicitUrl) {

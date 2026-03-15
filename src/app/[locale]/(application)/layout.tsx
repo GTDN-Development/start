@@ -54,6 +54,25 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
     avatarUrl: session.user.avatarUrl,
   };
   const userWorkspacesResponse = await listUserWorkspaces(session.user.id);
+
+  if (!userWorkspacesResponse.ok) {
+    if (
+      userWorkspacesResponse.errorCode === "UNAUTHORIZED" ||
+      userWorkspacesResponse.errorCode === "FORBIDDEN"
+    ) {
+      redirect({
+        href: AUTH_REDIRECTS.unauthenticatedTo,
+        locale: locale as Locale,
+      });
+
+      return null;
+    }
+
+    console.error(
+      `[application-layout] Failed to load workspaces: ${userWorkspacesResponse.errorCode}`
+    );
+  }
+
   const workspaces = userWorkspacesResponse.ok
     ? userWorkspacesResponse.data.workspaces.map((workspace) => ({
         id: workspace.id,

@@ -150,7 +150,9 @@ export async function listDeviceSessions(input: {
   const now = new Date();
   const activeSessions = sessions.filter((session) => isActiveDeviceSession(session, now));
 
-  return activeSessions.map((session) => mapDeviceSessionListItem(session, input.currentSessionIdHash));
+  return activeSessions.map((session) =>
+    mapDeviceSessionListItem(session, input.currentSessionIdHash)
+  );
 }
 
 export async function revokeCurrentDeviceSession(input: {
@@ -178,7 +180,8 @@ export async function revokeOtherDeviceSessions(input: {
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
   const now = new Date();
   const sessionsToRevoke = sessions.filter(
-    (session) => session.session_id_hash !== input.currentSessionIdHash && isActiveDeviceSession(session, now)
+    (session) =>
+      session.session_id_hash !== input.currentSessionIdHash && isActiveDeviceSession(session, now)
   );
 
   if (sessionsToRevoke.length === 0) {
@@ -203,7 +206,11 @@ export async function revokeDeviceSessionById(input: {
 }): Promise<RevokeDeviceSessionByIdResult> {
   const deviceSession = await findDeviceSessionById(input.pb, input.deviceSessionId);
 
-  if (!deviceSession || deviceSession.user !== input.userId || !isActiveDeviceSession(deviceSession, new Date())) {
+  if (
+    !deviceSession ||
+    deviceSession.user !== input.userId ||
+    !isActiveDeviceSession(deviceSession, new Date())
+  ) {
     return "not_found";
   }
 
@@ -219,7 +226,7 @@ export async function revokeDeviceSessionById(input: {
   return "revoked";
 }
 
-export async function cleanUpStaleDeviceSessions(input: {
+async function cleanUpStaleDeviceSessions(input: {
   pb: PocketBase;
   userId: string;
 }): Promise<number> {
@@ -242,7 +249,7 @@ export async function cleanUpStaleDeviceSessions(input: {
   return staleSessions.length;
 }
 
-export async function enforceDeviceLimit(input: {
+async function enforceDeviceLimit(input: {
   pb: PocketBase;
   userId: string;
   currentSessionIdHash: string;
@@ -296,7 +303,9 @@ async function findDeviceSessionById(
   deviceSessionId: string
 ): Promise<UserDeviceSessionsRecord | null> {
   try {
-    return await pb.collection(DEVICE_SESSIONS_COLLECTION).getOne<UserDeviceSessionsRecord>(deviceSessionId);
+    return await pb
+      .collection(DEVICE_SESSIONS_COLLECTION)
+      .getOne<UserDeviceSessionsRecord>(deviceSessionId);
   } catch (error) {
     if (isNotFoundError(error)) {
       return null;
@@ -333,10 +342,7 @@ async function updateDeviceHeartbeatIfNeeded(input: {
   const lastSeenAtMs = parseDateToTimestamp(input.session.last_seen_at);
   const heartbeatThresholdMs = HEARTBEAT_MIN_SECONDS * 1000;
 
-  if (
-    lastSeenAtMs !== null &&
-    input.now.getTime() - lastSeenAtMs < heartbeatThresholdMs
-  ) {
+  if (lastSeenAtMs !== null && input.now.getTime() - lastSeenAtMs < heartbeatThresholdMs) {
     return false;
   }
 

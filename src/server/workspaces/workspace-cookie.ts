@@ -1,8 +1,10 @@
 import { cookies } from "next/headers";
 import { workspaceConfig } from "@/config/workspace";
+import { getBaseServerCookieOptions } from "@/server/cookies";
 
 const ACTIVE_WORKSPACE_COOKIE_NAME = workspaceConfig.cookies.activeWorkspace.name;
-const ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS = workspaceConfig.cookies.activeWorkspace.maxAgeSeconds;
+const ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS =
+  workspaceConfig.cookies.activeWorkspace.maxAgeSeconds;
 const PENDING_INVITE_COOKIE_NAME = workspaceConfig.cookies.pendingInvite.name;
 const PENDING_INVITE_COOKIE_MAX_AGE_SECONDS = workspaceConfig.cookies.pendingInvite.maxAgeSeconds;
 
@@ -53,12 +55,7 @@ export async function clearPendingInviteHashCookie(): Promise<void> {
 }
 
 function getBaseCookieOptions() {
-  return {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
-    path: "/",
-  };
+  return getBaseServerCookieOptions();
 }
 
 function normalizeCookieToken(value: string): string | null {

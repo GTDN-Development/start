@@ -2,7 +2,6 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import type {
-  AuthClient,
   ConfirmEmailChangeResponse,
   AuthSession,
   AuthSessionSnapshot,
@@ -45,13 +44,6 @@ let pendingSessionRequest: Promise<void> | null = null;
 let lastSessionRequestAt = 0;
 let syncChannel: BroadcastChannel | null = null;
 let syncInitialized = false;
-
-export const authClient: AuthClient = {
-  signIn,
-  signUp,
-  signOut,
-  useSession,
-};
 
 export async function signIn(input: SignInInput): Promise<SignInResponse> {
   const response = await signInAction(input);
@@ -111,13 +103,11 @@ export async function verifyEmailToken(token: string): Promise<VerifyEmailRespon
   return response;
 }
 
-export async function resetPasswordWithToken(
-  input: {
-    token: string;
-    password: string;
-    confirmPassword: string;
-  }
-): Promise<ResetPasswordResponse> {
+export async function resetPasswordWithToken(input: {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}): Promise<ResetPasswordResponse> {
   const response = await resetPasswordAction(input);
 
   if (response.ok) {
@@ -141,12 +131,10 @@ export async function requestEmailVerification(): Promise<RequestEmailVerificati
   return requestEmailVerificationAction();
 }
 
-export async function confirmEmailChange(
-  input: {
-    token: string;
-    password: string;
-  }
-): Promise<ConfirmEmailChangeResponse> {
+export async function confirmEmailChange(input: {
+  token: string;
+  password: string;
+}): Promise<ConfirmEmailChangeResponse> {
   const response = await confirmEmailChangeAction(input);
 
   if (response.ok) {

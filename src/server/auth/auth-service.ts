@@ -72,9 +72,8 @@ export async function signInWithPassword(
       };
     }
 
-    const { token: deviceSessionToken, setCookie: deviceSessionCookie } = generateDeviceSessionCookie(
-      input.rememberMe
-    );
+    const { token: deviceSessionToken, setCookie: deviceSessionCookie } =
+      generateDeviceSessionCookie(input.rememberMe);
 
     try {
       const requestHeaders = await headers();
@@ -157,7 +156,8 @@ export async function signUpWithPassword(
       };
     }
 
-    const { token: deviceSessionToken, setCookie: deviceSessionCookie } = generateDeviceSessionCookie(true);
+    const { token: deviceSessionToken, setCookie: deviceSessionCookie } =
+      generateDeviceSessionCookie(true);
 
     try {
       const requestHeaders = await headers();
@@ -487,6 +487,7 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
         data: {
           session: null,
         },
+        setCookie: deviceSessionCheck.clearCookies,
       };
     }
 
@@ -517,6 +518,7 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
         data: {
           session: null,
         },
+        setCookie: createClearedAuthAndDeviceCookies(),
       };
     }
 
@@ -540,6 +542,7 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
       data: {
         session: null,
       },
+      setCookie: createClearedAuthAndDeviceCookies(),
     };
   }
 }

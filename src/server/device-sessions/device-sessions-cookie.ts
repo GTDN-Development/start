@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { cookieSerialize, type SerializeOptions } from "pocketbase";
+import { getBaseServerCookieOptions } from "@/server/cookies";
 import { cookies } from "next/headers";
 import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
 import {
@@ -12,7 +13,11 @@ export function generateDeviceSessionCookie(rememberMe: boolean): {
   setCookie: string;
 } {
   const token = randomBytes(32).toString("hex");
-  const setCookie = cookieSerialize(DEVICE_SESSION_COOKIE_NAME, token, getDeviceCookieOptions(rememberMe));
+  const setCookie = cookieSerialize(
+    DEVICE_SESSION_COOKIE_NAME,
+    token,
+    getDeviceCookieOptions(rememberMe)
+  );
 
   return {
     token,
@@ -56,10 +61,5 @@ function getDeviceCookieOptions(rememberMe: boolean): SerializeOptions {
 }
 
 function getBaseCookieOptions(): SerializeOptions {
-  return {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-  };
+  return getBaseServerCookieOptions();
 }

@@ -27,7 +27,7 @@ import {
   requiredTokenSchema,
   turnstileTokenSchema,
 } from "@/lib/schemas";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
+import { finalizeAuthAction } from "@/server/auth/finalize-auth-action";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import {
   confirmEmailChangeToken,
@@ -38,8 +38,6 @@ import {
   signInWithPassword,
   signOutServerSession,
   signUpWithPassword,
-  toAuthApiResponse,
-  type ServerAuthResponse,
 } from "@/server/auth/auth-service";
 
 const verifyEmailInputSchema = z.object({
@@ -80,7 +78,9 @@ export async function signInAction(input: SignInInput): Promise<AuthResponse<Aut
   return finalizeAuthAction(response);
 }
 
-export async function signUpAction(input: SignUpActionInput): Promise<AuthResponse<AuthSessionPayload>> {
+export async function signUpAction(
+  input: SignUpActionInput
+): Promise<AuthResponse<AuthSessionPayload>> {
   const parsedInput = signUpActionInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
@@ -180,14 +180,6 @@ export async function confirmEmailChangeAction(input: {
   const response = await confirmEmailChangeToken(parsedInput.data);
 
   return finalizeAuthAction(response);
-}
-
-async function finalizeAuthAction<TData>(
-  response: ServerAuthResponse<TData>
-): Promise<AuthResponse<TData>> {
-  await applyServerAuthCookies(response.setCookie);
-
-  return toAuthApiResponse(response);
 }
 
 async function verifyAuthTurnstileToken(turnstileToken: string) {

@@ -18,8 +18,7 @@ import {
   updateCurrentUserPassword,
   updateCurrentUserProfileName,
 } from "@/server/account/account-service";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { toAuthApiResponse, type ServerAuthResponse } from "@/server/auth/auth-service";
+import { finalizeAuthAction } from "@/server/auth/finalize-auth-action";
 
 type DeleteAccountPayload = {
   deleted: true;
@@ -78,7 +77,7 @@ export async function updateAccountProfileAction(input: {
 
   const response = await updateCurrentUserProfileName(parsedInput.data.name);
 
-  return finalizeAccountAction(response);
+  return finalizeAuthAction(response);
 }
 
 export async function uploadAccountAvatarAction(
@@ -94,13 +93,13 @@ export async function uploadAccountAvatarAction(
 
   const response = await updateCurrentUserAvatar(parsedInput.data.avatar);
 
-  return finalizeAccountAction(response);
+  return finalizeAuthAction(response);
 }
 
 export async function removeAccountAvatarAction(): Promise<AuthResponse<AccountProfilePayload>> {
   const response = await removeCurrentUserAvatar();
 
-  return finalizeAccountAction(response);
+  return finalizeAuthAction(response);
 }
 
 export async function requestAccountEmailChangeAction(input: {
@@ -114,7 +113,7 @@ export async function requestAccountEmailChangeAction(input: {
 
   const response = await requestEmailChangeForCurrentUser(parsedInput.data.newEmail);
 
-  return finalizeAccountAction(response);
+  return finalizeAuthAction(response);
 }
 
 export async function updateAccountPasswordAction(input: {
@@ -130,7 +129,7 @@ export async function updateAccountPasswordAction(input: {
 
   const response = await updateCurrentUserPassword(parsedInput.data);
 
-  return finalizeAccountAction(response);
+  return finalizeAuthAction(response);
 }
 
 export async function deleteAccountAction(input: {
@@ -144,15 +143,7 @@ export async function deleteAccountAction(input: {
 
   const response = await deleteCurrentUserAccountWithPassword(parsedInput.data.password);
 
-  return finalizeAccountAction(response);
-}
-
-async function finalizeAccountAction<TData>(
-  response: ServerAuthResponse<TData>
-): Promise<AuthResponse<TData>> {
-  await applyServerAuthCookies(response.setCookie);
-
-  return toAuthApiResponse(response);
+  return finalizeAuthAction(response);
 }
 
 function createBadRequestResponse<TData>(): AuthResponse<TData> {

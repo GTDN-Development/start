@@ -2,9 +2,8 @@
 
 import { z } from "zod";
 import type { AuthResponse } from "@/features/auth/auth-contract";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { requireCurrentUser } from "@/server/auth/current-user";
-import { toAuthApiResponse, type ServerAuthResponse } from "@/server/auth/auth-service";
+import { finalizeAuthAction } from "@/server/auth/finalize-auth-action";
 import {
   listDeviceSessions,
   revokeDeviceSessionById,
@@ -33,7 +32,7 @@ export async function listDeviceSessionsAction(): Promise<AuthResponse<ListDevic
   const currentUser = await requireCurrentUser();
 
   if (!currentUser.ok) {
-    return finalizeDeviceSessionAction({
+    return finalizeAuthAction({
       ok: false,
       errorCode: currentUser.errorCode,
       ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
@@ -47,7 +46,7 @@ export async function listDeviceSessionsAction(): Promise<AuthResponse<ListDevic
       currentSessionIdHash: currentUser.currentSessionIdHash,
     });
 
-    return finalizeDeviceSessionAction({
+    return finalizeAuthAction({
       ok: true,
       data: {
         sessions,
@@ -56,18 +55,20 @@ export async function listDeviceSessionsAction(): Promise<AuthResponse<ListDevic
   } catch (error) {
     logServiceError("account-device-session-actions", "listDeviceSessionsAction", error);
 
-    return finalizeDeviceSessionAction({
+    return finalizeAuthAction({
       ok: false,
       errorCode: "UNKNOWN_ERROR",
     });
   }
 }
 
-export async function signOutOtherDevicesAction(): Promise<AuthResponse<SignOutOtherDevicesPayload>> {
+export async function signOutOtherDevicesAction(): Promise<
+  AuthResponse<SignOutOtherDevicesPayload>
+> {
   const currentUser = await requireCurrentUser();
 
   if (!currentUser.ok) {
-    return finalizeDeviceSessionAction({
+    return finalizeAuthAction({
       ok: false,
       errorCode: currentUser.errorCode,
       ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
@@ -81,7 +82,7 @@ export async function signOutOtherDevicesAction(): Promise<AuthResponse<SignOutO
       currentSessionIdHash: currentUser.currentSessionIdHash,
     });
 
-    return finalizeDeviceSessionAction({
+    return finalizeAuthAction({
       ok: true,
       data: {
         revoked: true,
@@ -90,7 +91,7 @@ export async function signOutOtherDevicesAction(): Promise<AuthResponse<SignOutO
   } catch (error) {
     logServiceError("account-device-session-actions", "signOutOtherDevicesAction", error);
 
-    return finalizeDeviceSessionAction({
+    return finalizeAuthAction({
       ok: false,
       errorCode: "UNKNOWN_ERROR",
     });
@@ -109,7 +110,7 @@ export async function signOutDeviceAction(input: {
   const currentUser = await requireCurrentUser();
 
   if (!currentUser.ok) {
-    return finalizeDeviceSessionAction({
+    return finalizeAuthAction({
       ok: false,
       errorCode: currentUser.errorCode,
       ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
@@ -125,7 +126,7 @@ export async function signOutDeviceAction(input: {
     });
 
     if (revokeResult === "not_found") {
-      return finalizeDeviceSessionAction({
+      return finalizeAuthAction({
         ok: false,
         errorCode: "NOT_FOUND",
       });
@@ -135,7 +136,7 @@ export async function signOutDeviceAction(input: {
       return createBadRequestResponse();
     }
 
-    return finalizeDeviceSessionAction({
+    return finalizeAuthAction({
       ok: true,
       data: {
         revoked: true,
@@ -144,19 +145,11 @@ export async function signOutDeviceAction(input: {
   } catch (error) {
     logServiceError("account-device-session-actions", "signOutDeviceAction", error);
 
-    return finalizeDeviceSessionAction({
+    return finalizeAuthAction({
       ok: false,
       errorCode: "UNKNOWN_ERROR",
     });
   }
-}
-
-async function finalizeDeviceSessionAction<TData>(
-  response: ServerAuthResponse<TData>
-): Promise<AuthResponse<TData>> {
-  await applyServerAuthCookies(response.setCookie);
-
-  return toAuthApiResponse(response);
 }
 
 function createBadRequestResponse<TData>(): AuthResponse<TData> {

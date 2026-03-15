@@ -1,6 +1,7 @@
 import PocketBase, { cookieSerialize, type SendOptions, type SerializeOptions } from "pocketbase";
 import { cookies } from "next/headers";
 import { authConfig } from "@/config/auth";
+import { getBaseServerCookieOptions } from "@/server/cookies";
 
 export type CreatePocketBaseServerClientResult = {
   pb: PocketBase;
@@ -124,12 +125,7 @@ function createClearedPersistSessionCookie() {
 }
 
 function getBaseCookieOptions(): SerializeOptions {
-  return {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-  };
+  return getBaseServerCookieOptions();
 }
 
 function getPocketBaseUrl() {

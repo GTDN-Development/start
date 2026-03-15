@@ -375,6 +375,8 @@ export async function resolvePostAuthWorkspaceAction(): Promise<
   const sessionResponse = await getServerAuthSession();
 
   if (!sessionResponse.ok || !sessionResponse.data.session) {
+    await applyServerAuthCookies(sessionResponse.setCookie);
+
     return {
       ok: false,
       errorCode: "UNAUTHORIZED",

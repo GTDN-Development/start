@@ -137,8 +137,6 @@ export async function consumePendingInviteIfPresent(user: {
       },
     };
   } catch (error) {
-    await clearPendingInviteHashCookie();
-
     const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
       if (pocketBaseError.status === 404) {
         return "INVITE_INVALID_OR_EXPIRED";
@@ -150,6 +148,12 @@ export async function consumePendingInviteIfPresent(user: {
 
       return null;
     });
+
+    // Only clear the cookie on terminal errors — keep it for transient failures
+    // so the user can retry after signing in again.
+    if (errorCode !== "UNKNOWN_ERROR") {
+      await clearPendingInviteHashCookie();
+    }
 
     if (errorCode === "UNKNOWN_ERROR") {
       logWorkspaceServiceError("consumePendingInviteIfPresent", error);

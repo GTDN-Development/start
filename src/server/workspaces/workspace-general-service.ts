@@ -269,6 +269,13 @@ export async function resolvePostAuthWorkspace(input: {
     id: input.userId,
     email: input.userEmail,
   });
+
+  if (!pendingInviteResponse.ok) {
+    console.warn(
+      `[workspace-service] resolvePostAuthWorkspace: pending invite consume failed (${pendingInviteResponse.errorCode})`
+    );
+  }
+
   const pickWorkspaceResponse = await pickWorkspaceForOverview(
     input.userId,
     input.activeWorkspaceSlugCookie
