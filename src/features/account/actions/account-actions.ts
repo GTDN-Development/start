@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { AccountProfilePayload } from "@/features/account/account-profile";
 import type { AuthResponse } from "@/features/auth/auth-contract";
 import { createAuthPasswordSchema } from "@/features/auth/auth-schemas";
-import { MAX_ACCOUNT_PROFILE_NAME_LENGTH } from "@/config/account";
+import { accountConfig } from "@/config/account";
 import {
   deleteCurrentUserAccountWithPassword,
   removeCurrentUserAvatar,
@@ -27,6 +27,8 @@ type RequestAccountEmailChangePayload = {
 type UpdateAccountPasswordPayload = {
   passwordUpdated: true;
 };
+
+const MAX_ACCOUNT_PROFILE_NAME_LENGTH = accountConfig.limits.profileNameMaxLength;
 
 const updateProfileInputSchema = z.object({
   name: z.string().trim().max(MAX_ACCOUNT_PROFILE_NAME_LENGTH),

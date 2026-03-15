@@ -20,11 +20,7 @@ import {
 } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
 import { app } from "@/config/app";
-import {
-  MAX_WORKSPACE_NAME_LENGTH,
-  MAX_WORKSPACE_SLUG_LENGTH,
-  WORKSPACE_SLUG_PATTERN,
-} from "@/config/workspace";
+import { workspaceConfig } from "@/config/workspace";
 import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { useRouter } from "@/i18n/navigation";
 import { resolveErrorMessage } from "@/lib/utils";
@@ -51,17 +47,17 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
       .min(1, {
         message: t("validation.nameRequired"),
       })
-      .max(MAX_WORKSPACE_NAME_LENGTH, {
+      .max(workspaceConfig.limits.nameMaxLength, {
         message: t("validation.nameMax", {
-          max: String(MAX_WORKSPACE_NAME_LENGTH),
+          max: String(workspaceConfig.limits.nameMaxLength),
         }),
       }),
     slug: z
       .string()
       .trim()
-      .max(MAX_WORKSPACE_SLUG_LENGTH, {
+      .max(workspaceConfig.limits.slugMaxLength, {
         message: t("validation.slugMax", {
-          max: String(MAX_WORKSPACE_SLUG_LENGTH),
+          max: String(workspaceConfig.limits.slugMaxLength),
         }),
       })
       .refine(
@@ -70,7 +66,7 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
             return true;
           }
 
-          return WORKSPACE_SLUG_PATTERN.test(value);
+          return workspaceConfig.validation.slugPattern.test(value);
         },
         {
           message: t("validation.slugPattern"),

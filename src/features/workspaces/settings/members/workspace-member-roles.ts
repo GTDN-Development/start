@@ -1,7 +1,7 @@
-import {
-  WORKSPACE_INVITABLE_ROLE_VALUES,
-  WORKSPACE_MEMBER_ROLE_VALUES,
-} from "@/config/workspace";
+import { workspaceConfig } from "@/config/workspace";
+
+const WORKSPACE_MEMBER_ROLE_VALUES = workspaceConfig.roles.memberValues;
+const WORKSPACE_INVITABLE_ROLE_VALUES = workspaceConfig.roles.invitableValues;
 
 type WorkspaceMemberRole = (typeof WORKSPACE_MEMBER_ROLE_VALUES)[number];
 type WorkspaceInvitableRole = (typeof WORKSPACE_INVITABLE_ROLE_VALUES)[number];

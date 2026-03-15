@@ -18,7 +18,7 @@ import {
   SettingsItemFooter,
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
-import { MAX_WORKSPACE_NAME_LENGTH } from "@/config/workspace";
+import { workspaceConfig } from "@/config/workspace";
 import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 
@@ -43,9 +43,9 @@ export function WorkspaceNameSettingsItem({
       .min(1, {
         message: t("validation.required"),
       })
-      .max(MAX_WORKSPACE_NAME_LENGTH, {
+      .max(workspaceConfig.limits.nameMaxLength, {
         message: t("validation.max", {
-          max: String(MAX_WORKSPACE_NAME_LENGTH),
+          max: String(workspaceConfig.limits.nameMaxLength),
         }),
       }),
   });
@@ -148,7 +148,7 @@ export function WorkspaceNameSettingsItem({
                   {isReadOnly
                     ? tCommon("readOnlyHint")
                     : t("footerHint", {
-                        max: String(MAX_WORKSPACE_NAME_LENGTH),
+                        max: String(workspaceConfig.limits.nameMaxLength),
                       })}
                 </SettingsItemDescription>
                 <Button

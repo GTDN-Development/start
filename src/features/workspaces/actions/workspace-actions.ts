@@ -2,14 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import {
-  MAX_WORKSPACE_AVATAR_SIZE_BYTES,
-  MAX_WORKSPACE_NAME_LENGTH,
-  MAX_WORKSPACE_SLUG_LENGTH,
-  WORKSPACE_INVITABLE_ROLE_VALUES,
-  WORKSPACE_MEMBER_ROLE_VALUES,
-  WORKSPACE_SLUG_PATTERN,
-} from "@/config/workspace";
+import { workspaceConfig } from "@/config/workspace";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import {
@@ -45,18 +38,18 @@ const workspaceSlugSchema = z
   .string()
   .trim()
   .min(1)
-  .max(MAX_WORKSPACE_SLUG_LENGTH)
-  .regex(WORKSPACE_SLUG_PATTERN);
+  .max(workspaceConfig.limits.slugMaxLength)
+  .regex(workspaceConfig.validation.slugPattern);
 const workspaceIdSchema = z.string().trim().min(1);
 
 const createOrganizationWorkspaceInputSchema = z.object({
-  name: z.string().trim().min(1).max(MAX_WORKSPACE_NAME_LENGTH),
+  name: z.string().trim().min(1).max(workspaceConfig.limits.nameMaxLength),
   slug: workspaceSlugSchema.optional(),
 });
 
 const updateWorkspaceGeneralInputSchema = z
   .object({
-    name: z.string().trim().min(1).max(MAX_WORKSPACE_NAME_LENGTH).optional(),
+    name: z.string().trim().min(1).max(workspaceConfig.limits.nameMaxLength).optional(),
     slug: workspaceSlugSchema.optional(),
     removeAvatar: z.boolean().optional(),
     avatarFile: z.custom<File>((value) => value instanceof File).optional(),
@@ -81,11 +74,11 @@ const updateWorkspaceGeneralInputSchema = z
     }
   });
 
-const workspaceMemberRoleSchema = z.enum(WORKSPACE_MEMBER_ROLE_VALUES);
+const workspaceMemberRoleSchema = z.enum(workspaceConfig.roles.memberValues);
 
 const createInviteInputSchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
-  role: z.enum(WORKSPACE_INVITABLE_ROLE_VALUES),
+  role: z.enum(workspaceConfig.roles.invitableValues),
 });
 
 const pendingInviteHashInputSchema = z.object({
@@ -445,7 +438,7 @@ function isWorkspaceAvatarFileValid(avatarFile: File): boolean {
     return false;
   }
 
-  if (avatarFile.size > MAX_WORKSPACE_AVATAR_SIZE_BYTES) {
+  if (avatarFile.size > workspaceConfig.limits.avatarMaxSizeBytes) {
     return false;
   }
 

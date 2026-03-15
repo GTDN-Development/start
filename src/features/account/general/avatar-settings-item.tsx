@@ -26,10 +26,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MAX_ACCOUNT_AVATAR_SIZE_BYTES } from "@/config/account";
+import { accountConfig } from "@/config/account";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
+
+const MAX_ACCOUNT_AVATAR_SIZE_BYTES = accountConfig.limits.avatarMaxSizeBytes;
 
 export function AccountAvatarSettingsItem() {
   const t = useTranslations("pages.account");

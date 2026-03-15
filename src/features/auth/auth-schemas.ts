@@ -1,12 +1,5 @@
 import { z } from "zod";
-import {
-  AUTH_FIRST_NAME_MAX_LENGTH,
-  AUTH_FIRST_NAME_MIN_LENGTH,
-  AUTH_LAST_NAME_MAX_LENGTH,
-  AUTH_LAST_NAME_MIN_LENGTH,
-  AUTH_PASSWORD_MAX_LENGTH,
-  AUTH_PASSWORD_MIN_LENGTH,
-} from "@/config/auth";
+import { authConfig } from "@/config/auth";
 
 export type AuthPasswordValidationMessages = {
   min?: string;
@@ -45,10 +38,10 @@ export type SignUpInput = z.infer<typeof signUpInputSchema>;
 export function createAuthPasswordSchema(messages?: AuthPasswordValidationMessages) {
   return z
     .string()
-    .min(AUTH_PASSWORD_MIN_LENGTH, {
+    .min(authConfig.limits.passwordMinLength, {
       message: messages?.min,
     })
-    .max(AUTH_PASSWORD_MAX_LENGTH, {
+    .max(authConfig.limits.passwordMaxLength, {
       message: messages?.max,
     });
 }
@@ -75,18 +68,18 @@ function createSignUpSchema(messages?: SignUpValidationMessages) {
     .object({
       firstName: z
         .string()
-        .min(AUTH_FIRST_NAME_MIN_LENGTH, {
+        .min(authConfig.limits.firstNameMinLength, {
           message: messages?.firstNameMin,
         })
-        .max(AUTH_FIRST_NAME_MAX_LENGTH, {
+        .max(authConfig.limits.firstNameMaxLength, {
           message: messages?.firstNameMax,
         }),
       lastName: z
         .string()
-        .min(AUTH_LAST_NAME_MIN_LENGTH, {
+        .min(authConfig.limits.lastNameMinLength, {
           message: messages?.lastNameMin,
         })
-        .max(AUTH_LAST_NAME_MAX_LENGTH, {
+        .max(authConfig.limits.lastNameMaxLength, {
           message: messages?.lastNameMax,
         }),
       email: z.email({

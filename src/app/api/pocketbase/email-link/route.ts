@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPathname, type AppPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import {
-  AUTH_EMAIL_LINK_ACTION_TARGETS,
-  type AuthEmailLinkAction,
-} from "@/config/auth";
+import { authConfig, type AuthEmailLinkAction } from "@/config/auth";
 
 type AppLocale = (typeof routing.locales)[number];
 
@@ -12,7 +9,9 @@ export async function GET(request: NextRequest) {
   const locale = resolveLocale(request);
   const action = parseEmailLinkAction(request.nextUrl.searchParams.get("action"));
   const token = parseToken(request.nextUrl.searchParams.get("token"));
-  const targetRoute: AppPathname = action ? AUTH_EMAIL_LINK_ACTION_TARGETS[action] : "/sign-in";
+  const targetRoute: AppPathname = action
+    ? authConfig.routes.emailLinkActionTargets[action]
+    : "/sign-in";
   const localizedPathname = getPathname({
     href: targetRoute,
     locale,
@@ -29,7 +28,7 @@ export async function GET(request: NextRequest) {
 function parseEmailLinkAction(value: string | null): AuthEmailLinkAction | null {
   if (
     value &&
-    Object.prototype.hasOwnProperty.call(AUTH_EMAIL_LINK_ACTION_TARGETS, value)
+    Object.prototype.hasOwnProperty.call(authConfig.routes.emailLinkActionTargets, value)
   ) {
     return value as AuthEmailLinkAction;
   }

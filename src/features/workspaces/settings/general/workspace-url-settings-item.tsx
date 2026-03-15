@@ -19,7 +19,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { app } from "@/config/app";
-import { MAX_WORKSPACE_SLUG_LENGTH } from "@/config/workspace";
+import { workspaceConfig } from "@/config/workspace";
 import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
@@ -42,9 +42,9 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
       .min(1, {
         message: t("validation.required"),
       })
-      .max(MAX_WORKSPACE_SLUG_LENGTH, {
+      .max(workspaceConfig.limits.slugMaxLength, {
         message: t("validation.max", {
-          max: String(MAX_WORKSPACE_SLUG_LENGTH),
+          max: String(workspaceConfig.limits.slugMaxLength),
         }),
       }),
   });
@@ -171,7 +171,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
                   {isReadOnly
                     ? tCommon("readOnlyHint")
                     : t("footerHint", {
-                        max: String(MAX_WORKSPACE_SLUG_LENGTH),
+                        max: String(workspaceConfig.limits.slugMaxLength),
                       })}
                 </SettingsItemDescription>
                 <Button

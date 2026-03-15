@@ -28,7 +28,7 @@ import {
   WorkspaceAvatarFallback,
   WorkspaceAvatarImage,
 } from "@/features/workspaces/workspace-avatar";
-import { MAX_WORKSPACE_AVATAR_SIZE_BYTES } from "@/config/workspace";
+import { workspaceConfig } from "@/config/workspace";
 import { useRouter } from "@/i18n/navigation";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
@@ -69,7 +69,7 @@ export function WorkspaceAvatarSettingsItem({
 
     try {
       const preparedAvatarFileResult = await prepareAvatarUpload(selectedFile, {
-        maxFileSizeBytes: MAX_WORKSPACE_AVATAR_SIZE_BYTES,
+        maxFileSizeBytes: workspaceConfig.limits.avatarMaxSizeBytes,
       });
 
       if (!preparedAvatarFileResult.ok) {

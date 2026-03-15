@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
-import {
-  ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS,
-  ACTIVE_WORKSPACE_COOKIE_NAME,
-  PENDING_INVITE_COOKIE_MAX_AGE_SECONDS,
-  PENDING_INVITE_COOKIE_NAME,
-} from "@/config/workspace";
+import { workspaceConfig } from "@/config/workspace";
+
+const ACTIVE_WORKSPACE_COOKIE_NAME = workspaceConfig.cookies.activeWorkspace.name;
+const ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS = workspaceConfig.cookies.activeWorkspace.maxAgeSeconds;
+const PENDING_INVITE_COOKIE_NAME = workspaceConfig.cookies.pendingInvite.name;
+const PENDING_INVITE_COOKIE_MAX_AGE_SECONDS = workspaceConfig.cookies.pendingInvite.maxAgeSeconds;
 
 export async function getActiveWorkspaceSlugCookie(): Promise<string | null> {
   const cookieStore = await cookies();

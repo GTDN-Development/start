@@ -1,2 +1,6 @@
-export const MAX_ACCOUNT_PROFILE_NAME_LENGTH = 32;
-export const MAX_ACCOUNT_AVATAR_SIZE_BYTES = 1024 * 1024;
+export const accountConfig = {
+  limits: {
+    profileNameMaxLength: 32,
+    avatarMaxSizeBytes: 1024 * 1024,
+  },
+} as const;

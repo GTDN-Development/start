@@ -22,12 +22,14 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { MAX_ACCOUNT_PROFILE_NAME_LENGTH } from "@/config/account";
+import { accountConfig } from "@/config/account";
 import { AlertCircleIcon } from "lucide-react";
 
 type ProfileNameFormValues = {
   name: string;
 };
+
+const MAX_ACCOUNT_PROFILE_NAME_LENGTH = accountConfig.limits.profileNameMaxLength;
 
 export function AccountDisplayNameSettingsItem() {
   const t = useTranslations("pages.account");

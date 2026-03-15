@@ -1,10 +1,6 @@
 import PocketBase, { cookieSerialize, type SendOptions, type SerializeOptions } from "pocketbase";
 import { cookies } from "next/headers";
-import {
-  AUTH_PERSIST_COOKIE_MAX_AGE_SECONDS,
-  PB_AUTH_COOKIE_NAME,
-  PB_AUTH_PERSIST_COOKIE_NAME,
-} from "@/config/auth";
+import { authConfig } from "@/config/auth";
 
 export type CreatePocketBaseServerClientResult = {
   pb: PocketBase;
@@ -24,13 +20,17 @@ export async function createPocketBaseServerClient(): Promise<CreatePocketBaseSe
   pb.beforeSend = withNoStoreFetch;
 
   const cookieStore = await cookies();
-  const pbAuthCookieValue = cookieStore.get(PB_AUTH_COOKIE_NAME)?.value ?? "";
-  const persistSessionCookieValue = cookieStore.get(PB_AUTH_PERSIST_COOKIE_NAME)?.value ?? "";
+  const pbAuthCookieValue = cookieStore.get(authConfig.cookies.authCookieName)?.value ?? "";
+  const persistSessionCookieValue =
+    cookieStore.get(authConfig.cookies.persistCookieName)?.value ?? "";
 
   const hasAuthCookie = pbAuthCookieValue.length > 0;
 
   if (hasAuthCookie) {
-    pb.authStore.loadFromCookie(`${PB_AUTH_COOKIE_NAME}=${pbAuthCookieValue}`, PB_AUTH_COOKIE_NAME);
+    pb.authStore.loadFromCookie(
+      `${authConfig.cookies.authCookieName}=${pbAuthCookieValue}`,
+      authConfig.cookies.authCookieName
+    );
   }
 
   const hadInvalidAuthCookie = hasAuthCookie && !pb.authStore.isValid;
@@ -56,7 +56,7 @@ export function exportPocketBaseAuthCookies(
   return [
     pb.authStore.exportToCookie(
       getPocketBaseAuthCookieOptions({ sessionOnly }),
-      PB_AUTH_COOKIE_NAME
+      authConfig.cookies.authCookieName
     ),
     createPersistSessionCookie({ sessionOnly }),
   ];
@@ -69,7 +69,7 @@ export function createClearedPocketBaseAuthCookies(): string[] {
   return [
     pb.authStore.exportToCookie(
       getPocketBaseAuthCookieOptions({ sessionOnly: false }),
-      PB_AUTH_COOKIE_NAME
+      authConfig.cookies.authCookieName
     ),
     createClearedPersistSessionCookie(),
   ];
@@ -105,18 +105,18 @@ function createPersistSessionCookie(options: { sessionOnly: boolean }) {
   const cookieOptions = getBaseCookieOptions();
 
   if (!options.sessionOnly) {
-    cookieOptions.maxAge = AUTH_PERSIST_COOKIE_MAX_AGE_SECONDS;
+    cookieOptions.maxAge = authConfig.cookies.persistCookieMaxAgeSeconds;
   }
 
   return cookieSerialize(
-    PB_AUTH_PERSIST_COOKIE_NAME,
+    authConfig.cookies.persistCookieName,
     options.sessionOnly ? "0" : "1",
     cookieOptions
   );
 }
 
 function createClearedPersistSessionCookie() {
-  return cookieSerialize(PB_AUTH_PERSIST_COOKIE_NAME, "", {
+  return cookieSerialize(authConfig.cookies.persistCookieName, "", {
     ...getBaseCookieOptions(),
     maxAge: 0,
     expires: new Date(0),

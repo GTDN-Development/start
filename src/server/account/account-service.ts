@@ -2,10 +2,7 @@ import PocketBase from "pocketbase";
 import type { AccountProfilePayload } from "@/features/account/account-profile";
 import type { AuthErrorCode } from "@/features/auth/auth-contract";
 import type { UsersRecord } from "@/types/pocketbase";
-import {
-  MAX_ACCOUNT_AVATAR_SIZE_BYTES,
-  MAX_ACCOUNT_PROFILE_NAME_LENGTH,
-} from "@/config/account";
+import { accountConfig } from "@/config/account";
 import type { ServerAuthResponse } from "@/server/auth/auth-service";
 import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
@@ -28,6 +25,9 @@ type UpdateAccountPasswordPayload = {
 type RequestAccountEmailChangePayload = {
   sent: true;
 };
+
+const MAX_ACCOUNT_PROFILE_NAME_LENGTH = accountConfig.limits.profileNameMaxLength;
+const MAX_ACCOUNT_AVATAR_SIZE_BYTES = accountConfig.limits.avatarMaxSizeBytes;
 
 type RequireCurrentUserResult =
   | {
