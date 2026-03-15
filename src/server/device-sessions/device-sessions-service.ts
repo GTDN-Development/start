@@ -89,9 +89,18 @@ export async function validateDeviceSessionOrInvalidate(input: {
   }
 
   const sessionIdHash = hashSessionToken(input.deviceSessionToken);
+  const now = new Date();
   const session = await findDeviceSessionByHash(input.pb, sessionIdHash);
 
-  if (!session || session.user !== input.userId || !isActiveDeviceSession(session, new Date())) {
+  if (!session || session.user !== input.userId || !isActiveDeviceSession(session, now)) {
+    if (session && session.user === input.userId) {
+      try {
+        await deleteDeviceSessionSafely(input.pb, session.id);
+      } catch (error) {
+        logDeviceSessionsError("validateDeviceSessionOrInvalidate.deleteInvalid", error);
+      }
+    }
+
     return {
       status: "invalid",
       clearCookies: createClearedAuthAndDeviceCookies(),
@@ -99,11 +108,22 @@ export async function validateDeviceSessionOrInvalidate(input: {
   }
 
   if (input.shouldUpdateHeartbeat) {
-    await updateDeviceHeartbeatIfNeeded({
+    const didUpdateHeartbeat = await updateDeviceHeartbeatIfNeeded({
       pb: input.pb,
       session,
-      now: new Date(),
+      now,
     });
+
+    if (didUpdateHeartbeat) {
+      try {
+        await cleanUpStaleDeviceSessions({
+          pb: input.pb,
+          userId: input.userId,
+        });
+      } catch (error) {
+        logDeviceSessionsError("validateDeviceSessionOrInvalidate.cleanup", error);
+      }
+    }
   }
 
   return {
@@ -309,7 +329,7 @@ async function updateDeviceHeartbeatIfNeeded(input: {
   pb: PocketBase;
   session: UserDeviceSessionsRecord;
   now: Date;
-}): Promise<void> {
+}): Promise<boolean> {
   const lastSeenAtMs = parseDateToTimestamp(input.session.last_seen_at);
   const heartbeatThresholdMs = HEARTBEAT_MIN_SECONDS * 1000;
 
@@ -317,22 +337,24 @@ async function updateDeviceHeartbeatIfNeeded(input: {
     lastSeenAtMs !== null &&
     input.now.getTime() - lastSeenAtMs < heartbeatThresholdMs
   ) {
-    return;
+    return false;
   }
 
   try {
     await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(input.session.id, {
       last_seen_at: input.now.toISOString(),
     });
+    return true;
   } catch (error) {
     if (isExpectedHeartbeatError(error)) {
-      return;
+      return false;
     }
 
     console.warn(
       "[device-sessions-service] updateDeviceHeartbeatIfNeeded",
       formatServiceError(error)
     );
+    return false;
   }
 }
 
