@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
-import { legalLinks } from "@/config/legal-links";
+import { legalLinks } from "@/config/navigation";
 import { submitContactFormAction } from "@/features/marketing/actions/marketing-actions";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";

@@ -1,4 +1,4 @@
-import { site } from "@/config/site";
+import { app } from "@/config/app";
 import { escapeHtml, sendEmail } from "@/server/email/send-form-email";
 import { INVITE_TTL_DAYS } from "@/server/workspaces/workspace-constants";
 
@@ -49,5 +49,5 @@ export function getWorkspaceInviteBaseUrl(): string {
     return explicitUrl;
   }
 
-  return site.url;
+  return app.site.url;
 }

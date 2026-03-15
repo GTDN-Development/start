@@ -19,7 +19,7 @@ import {
   getConsent,
   hasInteracted as getCookieConsentHasInteracted,
 } from "@/features/cookies/cookie-server-utils";
-import { site } from "@/config/site";
+import { app } from "@/config/app";
 import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
 
 const inter = Inter({
@@ -59,14 +59,14 @@ export async function generateMetadata(
   return {
     title: {
       default: t("title"),
-      template: `%s | ${site.name}`,
+      template: `%s | ${app.site.name}`,
     },
     description: t("description"),
-    metadataBase: new URL(site.url),
+    metadataBase: new URL(app.site.url),
     alternates: getLocalizedAlternates("/", currentLocale),
     openGraph: {
       type: "website",
-      siteName: site.name,
+      siteName: app.site.name,
       title: t("title"),
       description: t("description"),
       url: getPathname({ href: "/", locale: currentLocale }),
@@ -89,7 +89,7 @@ export async function generateMetadata(
         "max-snippet": -1,
       },
     },
-    authors: [{ name: "gtdn.online", url: "https://www.gtdn.online" }],
+    authors: app.metadata.authors,
   };
 }
 

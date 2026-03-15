@@ -22,9 +22,9 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { MAX_ACCOUNT_PROFILE_NAME_LENGTH } from "@/config/account";
 import { AlertCircleIcon } from "lucide-react";
 
-const MAX_PROFILE_NAME_LENGTH = 32;
 type ProfileNameFormValues = {
   name: string;
 };
@@ -38,9 +38,9 @@ export function AccountDisplayNameSettingsItem() {
     name: z
       .string()
       .trim()
-      .max(MAX_PROFILE_NAME_LENGTH, {
+      .max(MAX_ACCOUNT_PROFILE_NAME_LENGTH, {
         message: t("profile.fields.name.errors.max", {
-          max: String(MAX_PROFILE_NAME_LENGTH),
+          max: String(MAX_ACCOUNT_PROFILE_NAME_LENGTH),
         }),
       }),
   });

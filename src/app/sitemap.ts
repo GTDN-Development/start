@@ -1,8 +1,8 @@
 import { MetadataRoute } from "next";
-import { site } from "@/config/site";
+import { app } from "@/config/app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = site.url;
+  const baseUrl = app.site.url;
   const currentDate = new Date();
 
   // Main pages that should always be included

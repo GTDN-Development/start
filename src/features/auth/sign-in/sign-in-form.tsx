@@ -13,7 +13,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, LogInIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
-import { legalLinks } from "@/config/legal-links";
+import { legalLinks } from "@/config/navigation";
 import { signIn } from "@/features/auth/auth-client";
 import { createSignInFormSchema, type SignInInput } from "@/features/auth/auth-schemas";
 import { resolvePostAuthWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";

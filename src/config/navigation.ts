@@ -1,5 +1,4 @@
 import type { AppPathname } from "@/i18n/navigation";
-import { legalLinks } from "./legal-links";
 
 type MenuHref = AppPathname;
 
@@ -36,6 +35,14 @@ export type MenuNested = {
 
 export type MenuItem = MenuLink | MenuNested;
 
+export type LegalLinkKey = "gdpr" | "termsOfService" | "cookies";
+
+export const legalLinks = {
+  gdpr: { labelKey: "privacyPolicy", href: "/gdpr" },
+  termsOfService: { labelKey: "termsOfService", href: "/terms-of-service" },
+  cookies: { labelKey: "cookiePolicy", href: "/cookies" },
+} as const satisfies Record<LegalLinkKey, MenuLink>;
+
 export const marketingMenu: MenuItem[] = [
   { labelKey: "home", href: "/" },
   {
@@ -57,15 +64,21 @@ export const applicationMenu: MenuLink[] = [
   { labelKey: "account", href: "/account" },
 ];
 
+export const applicationFooterMenu: MenuLink[] = [
+  { labelKey: "home", href: "/" },
+  { labelKey: "blog", href: "/blog" },
+  { labelKey: "contact", href: "/contact" },
+];
+
 export const authMenu: MenuLink[] = [
   { labelKey: "signIn", href: "/sign-in" },
   { labelKey: "signUp", href: "/sign-up" },
 ];
 
 export const legalItems: MenuLink[] = [
-  { labelKey: legalLinks.gdpr.label, href: legalLinks.gdpr.href },
-  { labelKey: legalLinks.termsOfService.label, href: legalLinks.termsOfService.href },
-  { labelKey: legalLinks.cookies.label, href: legalLinks.cookies.href },
+  legalLinks.gdpr,
+  legalLinks.termsOfService,
+  legalLinks.cookies,
 ];
 
 export function isNested(item: MenuItem): item is MenuNested {

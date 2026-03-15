@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authMenu, isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/menu";
+import { authMenu, isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/navigation";
 import { SocialMediaIcons } from "@/components/brand/social-media-icons";
 import {
   UserAccountMenu,

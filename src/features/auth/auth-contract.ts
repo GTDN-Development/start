@@ -1,7 +1,7 @@
 import type { SignInInput, SignUpInput } from "@/features/auth/auth-schemas";
+import { PB_AUTH_COOKIE_NAME, PB_AUTH_PERSIST_COOKIE_NAME } from "@/config/auth";
 
-export const PB_AUTH_COOKIE_NAME = "pb_auth";
-export const PB_AUTH_PERSIST_COOKIE_NAME = "pb_auth_persist";
+export { PB_AUTH_COOKIE_NAME, PB_AUTH_PERSIST_COOKIE_NAME };
 
 export type AuthErrorCode =
   | "BAD_REQUEST"

@@ -7,7 +7,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Link } from "@/components/ui/link";
-import { site } from "@/config/site";
+import { app } from "@/config/app";
 import { getPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getAllPosts, getPostBySlug, stripHtmlTags } from "@/server/blog/blog-api";
@@ -44,7 +44,7 @@ export async function generateMetadata(
     },
     openGraph: {
       type: "article",
-      siteName: site.name,
+      siteName: app.site.name,
       title,
       description,
       publishedTime: post.date,

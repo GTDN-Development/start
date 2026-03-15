@@ -13,7 +13,7 @@ import {
   applicationMenu,
   type MenuItem,
   type MenuLabelKey,
-} from "@/config/menu";
+} from "@/config/navigation";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 import {
   DropdownMenu,
@@ -21,14 +21,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { site } from "@/config/site";
+import { app } from "@/config/app";
 import { useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
-import { contact, formatPhoneNumber } from "@/config/contact";
 import { legal } from "@/config/legal";
 import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
-import { cn } from "@/lib/utils";
+import { cn, formatPhoneNumber } from "@/lib/utils";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
 import { useSignOut } from "@/features/auth/use-sign-out";
 
@@ -180,22 +179,24 @@ export function MarketingFooter({
           <ul className="flex flex-col gap-3">
             <li>
               <FooterItemToCopy
-                toCopy={contact.email}
+                toCopy={legal.contact.email}
                 copyToastTitle={copiedToClipboardMessage}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
-                {contact.email}
+                {legal.contact.email}
               </FooterItemToCopy>
             </li>
-            <li>
-              <FooterItemToCopy
-                toCopy={contact.phone}
-                copyToastTitle={copiedToClipboardMessage}
-                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-              >
-                {formatPhoneNumber(contact.phone)}
-              </FooterItemToCopy>
-            </li>
+            {legal.contact.phone && (
+              <li>
+                <FooterItemToCopy
+                  toCopy={legal.contact.phone}
+                  copyToastTitle={copiedToClipboardMessage}
+                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                >
+                  {formatPhoneNumber(legal.contact.phone)}
+                </FooterItemToCopy>
+              </li>
+            )}
           </ul>
         </div>
 
@@ -224,7 +225,7 @@ export function MarketingFooter({
       {/* Third row - Footer meta with basic app settings */}
       <Container className="border-t-border flex min-w-0 flex-col flex-wrap items-center justify-between gap-6 border-t py-8 md:flex-row">
         <div className="flex flex-1 items-center justify-center md:justify-start">
-          <Copyright company={site.name} />
+          <Copyright company={app.site.name} />
         </div>
         <div className="flex flex-1 items-center justify-center gap-4">
           <AgencyCredit />
@@ -263,13 +264,14 @@ function AgencyCredit(props: React.ComponentProps<"p">) {
   return (
     <p {...props} className={cn("text-sm", props.className)}>
       <span>{t("createdBy")} </span>
-      <NavLink
+      <a
         href="https://www.gtdn.online/"
+        target="_blank"
+        rel="noopener noreferrer"
         className="underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60"
-        showExternalIcon
       >
         gtdn.online
-      </NavLink>
+      </a>
     </p>
   );
 }

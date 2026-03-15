@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Link } from "@/components/ui/link";
-import { legalLinks } from "@/config/legal-links";
+import { legalLinks } from "@/config/navigation";
 import { useTranslations } from "next-intl";
 import type { ConsentState } from "./cookie-consent";
 

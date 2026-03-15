@@ -2,6 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import {
+  MAX_WORKSPACE_AVATAR_SIZE_BYTES,
+  MAX_WORKSPACE_NAME_LENGTH,
+  MAX_WORKSPACE_SLUG_LENGTH,
+  WORKSPACE_INVITABLE_ROLE_VALUES,
+  WORKSPACE_MEMBER_ROLE_VALUES,
+  WORKSPACE_SLUG_PATTERN,
+} from "@/config/workspace";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import {
@@ -33,16 +41,12 @@ import type {
   WorkspaceResponse,
 } from "@/server/workspaces/workspace-types";
 
-const MAX_WORKSPACE_NAME_LENGTH = 32;
-const MAX_WORKSPACE_SLUG_LENGTH = 48;
-const MAX_WORKSPACE_AVATAR_SIZE_BYTES = 1024 * 1024;
-
 const workspaceSlugSchema = z
   .string()
   .trim()
   .min(1)
   .max(MAX_WORKSPACE_SLUG_LENGTH)
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+  .regex(WORKSPACE_SLUG_PATTERN);
 const workspaceIdSchema = z.string().trim().min(1);
 
 const createOrganizationWorkspaceInputSchema = z.object({
@@ -77,11 +81,11 @@ const updateWorkspaceGeneralInputSchema = z
     }
   });
 
-const workspaceMemberRoleSchema = z.enum(["owner", "member"]);
+const workspaceMemberRoleSchema = z.enum(WORKSPACE_MEMBER_ROLE_VALUES);
 
 const createInviteInputSchema = z.object({
   email: z.string().trim().toLowerCase().pipe(z.email()),
-  role: z.enum(["member"]),
+  role: z.enum(WORKSPACE_INVITABLE_ROLE_VALUES),
 });
 
 const pendingInviteHashInputSchema = z.object({

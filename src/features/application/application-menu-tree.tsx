@@ -2,7 +2,7 @@
 
 import { NavLink } from "@/components/layout/nav-link";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { applicationMenu } from "@/config/menu";
+import { applicationMenu } from "@/config/navigation";
 import { AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import {

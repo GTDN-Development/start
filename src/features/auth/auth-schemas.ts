@@ -1,11 +1,12 @@
 import { z } from "zod";
-
-export const AUTH_FIRST_NAME_MIN_LENGTH = 2;
-export const AUTH_FIRST_NAME_MAX_LENGTH = 50;
-export const AUTH_LAST_NAME_MIN_LENGTH = 2;
-export const AUTH_LAST_NAME_MAX_LENGTH = 50;
-export const AUTH_PASSWORD_MIN_LENGTH = 8;
-export const AUTH_PASSWORD_MAX_LENGTH = 100;
+import {
+  AUTH_FIRST_NAME_MAX_LENGTH,
+  AUTH_FIRST_NAME_MIN_LENGTH,
+  AUTH_LAST_NAME_MAX_LENGTH,
+  AUTH_LAST_NAME_MIN_LENGTH,
+  AUTH_PASSWORD_MAX_LENGTH,
+  AUTH_PASSWORD_MIN_LENGTH,
+} from "@/config/auth";
 
 export type AuthPasswordValidationMessages = {
   min?: string;

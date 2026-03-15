@@ -18,12 +18,11 @@ import {
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { site } from "@/config/site";
+import { app } from "@/config/app";
+import { MAX_WORKSPACE_SLUG_LENGTH } from "@/config/workspace";
 import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
-
-const MAX_WORKSPACE_URL_LENGTH = 48;
 
 type WorkspaceUrlFormValues = {
   url: string;
@@ -43,9 +42,9 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
       .min(1, {
         message: t("validation.required"),
       })
-      .max(MAX_WORKSPACE_URL_LENGTH, {
+      .max(MAX_WORKSPACE_SLUG_LENGTH, {
         message: t("validation.max", {
-          max: String(MAX_WORKSPACE_URL_LENGTH),
+          max: String(MAX_WORKSPACE_SLUG_LENGTH),
         }),
       }),
   });
@@ -140,7 +139,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
                               {t("field.label")}
                             </FieldLabel>
                             <InputGroup>
-                              <InputGroupAddon>{site.domain}/w/</InputGroupAddon>
+                              <InputGroupAddon>{app.site.domain}/w/</InputGroupAddon>
                               <InputGroupInput
                                 id={`workspace-general-url-${field.name}`}
                                 name={`workspace-general-url-${field.name}`}
@@ -172,7 +171,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
                   {isReadOnly
                     ? tCommon("readOnlyHint")
                     : t("footerHint", {
-                        max: String(MAX_WORKSPACE_URL_LENGTH),
+                        max: String(MAX_WORKSPACE_SLUG_LENGTH),
                       })}
                 </SettingsItemDescription>
                 <Button

@@ -2,6 +2,10 @@ import PocketBase from "pocketbase";
 import type { AccountProfilePayload } from "@/features/account/account-profile";
 import type { AuthErrorCode } from "@/features/auth/auth-contract";
 import type { UsersRecord } from "@/types/pocketbase";
+import {
+  MAX_ACCOUNT_AVATAR_SIZE_BYTES,
+  MAX_ACCOUNT_PROFILE_NAME_LENGTH,
+} from "@/config/account";
 import type { ServerAuthResponse } from "@/server/auth/auth-service";
 import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
@@ -12,9 +16,6 @@ import {
   logServiceError,
   mapPocketBaseError,
 } from "@/server/pocketbase/pocketbase-utils";
-
-const MAX_ACCOUNT_PROFILE_NAME_LENGTH = 32;
-const MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
 
 type DeleteAccountPayload = {
   deleted: true;
@@ -95,7 +96,7 @@ export async function updateCurrentUserAvatar(
     };
   }
 
-  if (avatarFile.size > MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES) {
+  if (avatarFile.size > MAX_ACCOUNT_AVATAR_SIZE_BYTES) {
     return {
       ok: false,
       errorCode: "VALIDATION_ERROR",

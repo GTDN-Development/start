@@ -1,21 +1,7 @@
 import StartLogoSvg from "@/assets/svgs/start-logo.svg";
 import StartSymbolSvg from "@/assets/svgs/start-symbol.svg";
+import { app } from "@/config/app";
 import { cn } from "@/lib/utils";
-
-const defaultCompanies = [
-  { name: "Start Logo", logo: StartLogoSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Symbol", logo: StartSymbolSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Logo", logo: StartLogoSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Symbol", logo: StartSymbolSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Logo", logo: StartLogoSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Symbol", logo: StartSymbolSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Logo", logo: StartLogoSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Symbol", logo: StartSymbolSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Logo", logo: StartLogoSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Symbol", logo: StartSymbolSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Logo", logo: StartLogoSvg, href: "https://www.gtdn.online/" },
-  { name: "Start Symbol", logo: StartSymbolSvg, href: "https://www.gtdn.online/" },
-];
 
 export type MarqueeItem = {
   name: string;
@@ -23,8 +9,25 @@ export type MarqueeItem = {
   href: string;
 };
 
+const siteUrl = `${app.site.url.replace(/\/+$/g, "")}/`;
+
+const marqueePartnersDefault: MarqueeItem[] = [
+  { name: "Start Logo", logo: StartLogoSvg, href: siteUrl },
+  { name: "Start Symbol", logo: StartSymbolSvg, href: siteUrl },
+  { name: "Start Logo", logo: StartLogoSvg, href: siteUrl },
+  { name: "Start Symbol", logo: StartSymbolSvg, href: siteUrl },
+  { name: "Start Logo", logo: StartLogoSvg, href: siteUrl },
+  { name: "Start Symbol", logo: StartSymbolSvg, href: siteUrl },
+  { name: "Start Logo", logo: StartLogoSvg, href: siteUrl },
+  { name: "Start Symbol", logo: StartSymbolSvg, href: siteUrl },
+  { name: "Start Logo", logo: StartLogoSvg, href: siteUrl },
+  { name: "Start Symbol", logo: StartSymbolSvg, href: siteUrl },
+  { name: "Start Logo", logo: StartLogoSvg, href: siteUrl },
+  { name: "Start Symbol", logo: StartSymbolSvg, href: siteUrl },
+];
+
 export function MarqueeCompanies({
-  items = defaultCompanies,
+  items = marqueePartnersDefault,
   reverse = false,
 }: {
   items?: MarqueeItem[];

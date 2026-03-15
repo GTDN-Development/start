@@ -26,11 +26,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MAX_ACCOUNT_AVATAR_SIZE_BYTES } from "@/config/account";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
-
-const MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES = 1024 * 1024;
 
 export function AccountAvatarSettingsItem() {
   const t = useTranslations("pages.account");
@@ -58,7 +57,7 @@ export function AccountAvatarSettingsItem() {
 
     try {
       const preparedAvatarFileResult = await prepareAvatarUpload(avatarFile, {
-        maxFileSizeBytes: MAX_ACCOUNT_AVATAR_FILE_SIZE_BYTES,
+        maxFileSizeBytes: MAX_ACCOUNT_AVATAR_SIZE_BYTES,
       });
 
       if (!preparedAvatarFileResult.ok) {

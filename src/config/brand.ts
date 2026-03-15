@@ -1,4 +1,4 @@
-import { InstagramIcon, TwitterXIcon, YoutubeIcon, GitHubIcon } from "@/components/ui/icon-brand";
+import { GitHubIcon, InstagramIcon, TwitterXIcon, YoutubeIcon } from "@/components/ui/icon-brand";
 
 export type ExternalLink = {
   name: string;

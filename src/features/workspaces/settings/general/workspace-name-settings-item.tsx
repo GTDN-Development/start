@@ -18,10 +18,9 @@ import {
   SettingsItemFooter,
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
+import { MAX_WORKSPACE_NAME_LENGTH } from "@/config/workspace";
 import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
-
-const MAX_WORKSPACE_NAME_LENGTH = 32;
 
 type WorkspaceNameFormValues = {
   name: string;

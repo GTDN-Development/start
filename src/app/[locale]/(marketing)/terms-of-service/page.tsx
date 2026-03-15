@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { legal } from "@/config/legal";
 import { createPageMetadata } from "@/lib/metadata";
-import { termsOfService } from "@/config/terms-of-service";
+import { termsOfService } from "@/config/legal";
 import { TermsOfService } from "@/features/marketing/legal/terms-of-service";
 
 export async function generateMetadata(

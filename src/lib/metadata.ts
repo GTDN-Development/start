@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { Locale } from "next-intl";
 import defaultOgImage from "@/assets/images/og-image.jpg";
-import { site } from "@/config/site";
+import { app } from "@/config/app";
 import { getPathname, type AppHref } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
@@ -27,7 +27,7 @@ export const defaultSocialPreviewImage = {
   url: defaultOgImage.src,
   width: defaultOgImage.width,
   height: defaultOgImage.height,
-  alt: site.defaultTitle,
+  alt: app.site.defaultTitle,
 };
 
 export function createPageMetadata({
@@ -46,7 +46,7 @@ export function createPageMetadata({
     alternates: getLocalizedAlternates(pathname, locale),
     openGraph: {
       type: "website",
-      siteName: site.name,
+      siteName: app.site.name,
       title,
       description,
       url: localizedPathname,

@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { AccountProfilePayload } from "@/features/account/account-profile";
 import type { AuthResponse } from "@/features/auth/auth-contract";
 import { createAuthPasswordSchema } from "@/features/auth/auth-schemas";
+import { MAX_ACCOUNT_PROFILE_NAME_LENGTH } from "@/config/account";
 import {
   deleteCurrentUserAccountWithPassword,
   removeCurrentUserAvatar,
@@ -14,8 +15,6 @@ import {
 } from "@/server/account/account-service";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { toAuthApiResponse, type ServerAuthResponse } from "@/server/auth/auth-service";
-
-const MAX_ACCOUNT_PROFILE_NAME_LENGTH = 32;
 
 type DeleteAccountPayload = {
   deleted: true;

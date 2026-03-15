@@ -19,14 +19,15 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
-import { site } from "@/config/site";
+import { app } from "@/config/app";
+import {
+  MAX_WORKSPACE_NAME_LENGTH,
+  MAX_WORKSPACE_SLUG_LENGTH,
+  WORKSPACE_SLUG_PATTERN,
+} from "@/config/workspace";
 import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { useRouter } from "@/i18n/navigation";
 import { resolveErrorMessage } from "@/lib/utils";
-
-const MAX_WORKSPACE_NAME_LENGTH = 32;
-const MAX_WORKSPACE_SLUG_LENGTH = 48;
-const WORKSPACE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 type WorkspaceCreateFormValues = {
   name: string;
@@ -192,7 +193,7 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
                             {t("fields.slug.label")}
                           </FieldLabel>
                           <InputGroup>
-                            <InputGroupAddon>{site.domain}/w/</InputGroupAddon>
+                            <InputGroupAddon>{app.site.domain}/w/</InputGroupAddon>
                             <InputGroupInput
                               id={`workspace-create-${field.name}`}
                               name={`workspace-create-${field.name}`}

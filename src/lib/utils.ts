@@ -44,3 +44,7 @@ export function getUserInitials(value: string) {
 
   return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
 }
+
+export function formatPhoneNumber(phone: string): string {
+  return phone.replace(/(\d{3})(\d{3})(\d{3})(\d{3})/, "$1 $2 $3 $4");
+}

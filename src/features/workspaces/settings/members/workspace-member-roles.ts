@@ -1,5 +1,7 @@
-const WORKSPACE_MEMBER_ROLE_VALUES = ["owner", "member"] as const;
-const WORKSPACE_INVITABLE_ROLE_VALUES = ["member"] as const;
+import {
+  WORKSPACE_INVITABLE_ROLE_VALUES,
+  WORKSPACE_MEMBER_ROLE_VALUES,
+} from "@/config/workspace";
 
 type WorkspaceMemberRole = (typeof WORKSPACE_MEMBER_ROLE_VALUES)[number];
 type WorkspaceInvitableRole = (typeof WORKSPACE_INVITABLE_ROLE_VALUES)[number];

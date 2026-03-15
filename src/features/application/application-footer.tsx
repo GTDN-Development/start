@@ -3,7 +3,12 @@ import { Container } from "@/components/ui/container";
 import { NavLink } from "@/components/layout/nav-link";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
-import { legalItems, type MenuLink, type MenuLabelKey } from "@/config/menu";
+import {
+  applicationFooterMenu,
+  legalItems,
+  type MenuLink,
+  type MenuLabelKey,
+} from "@/config/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,12 +20,6 @@ import { cn } from "@/lib/utils";
 
 type ApplicationFooterLink = MenuLink;
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
-
-const applicationFooterLinks: ApplicationFooterLink[] = [
-  { labelKey: "home", href: "/" },
-  { labelKey: "blog", href: "/blog" },
-  { labelKey: "contact", href: "/contact" },
-];
 
 function ApplicationFooterNavigation({
   items,
@@ -84,7 +83,7 @@ export function ApplicationFooter({ className, ...props }: React.ComponentProps<
     <footer {...props} className={cn("border-t-border border-t", className)}>
       <Container className="flex flex-wrap items-center justify-center gap-x-4 gap-y-8 py-8 sm:justify-between">
         <ApplicationFooterNavigation
-          items={applicationFooterLinks}
+          items={applicationFooterMenu}
           translate={tNav}
           legalLabel={tFooter("sections.legal")}
           className="flex flex-wrap items-center gap-x-5 gap-y-2"

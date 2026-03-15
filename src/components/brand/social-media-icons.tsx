@@ -1,4 +1,4 @@
-import { socialMediaLinksArray } from "@/config/social-media-links";
+import { socialMediaLinksArray } from "@/config/brand";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
