@@ -65,8 +65,6 @@ export const routing = defineRouting({
     "/account": {
       cs: "/ucet",
     },
-    "/account/settings/general": "/account/settings/general",
-    "/account/settings/security": "/account/settings/security",
     "/account/security": {
       cs: "/ucet/zabezpeceni",
     },
