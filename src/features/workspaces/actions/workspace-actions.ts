@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { workspaceConfig } from "@/config/workspace";
+import { normalizedEmailSchema } from "@/lib/schemas";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import {
@@ -77,7 +78,7 @@ const updateWorkspaceGeneralInputSchema = z
 const workspaceMemberRoleSchema = z.enum(workspaceConfig.roles.memberValues);
 
 const createInviteInputSchema = z.object({
-  email: z.string().trim().toLowerCase().pipe(z.email()),
+  email: normalizedEmailSchema(),
   role: z.enum(workspaceConfig.roles.invitableValues),
 });
 

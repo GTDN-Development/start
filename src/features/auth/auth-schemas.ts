@@ -1,10 +1,13 @@
 import { z } from "zod";
 import { authConfig } from "@/config/auth";
+import {
+  authPasswordSchema,
+  normalizedEmailSchema,
+  refinePasswordMatch,
+  type AuthPasswordValidationMessages,
+} from "@/lib/schemas";
 
-export type AuthPasswordValidationMessages = {
-  min?: string;
-  max?: string;
-};
+export type { AuthPasswordValidationMessages };
 
 export type SignInValidationMessages = {
   email: string;
@@ -25,25 +28,18 @@ export type SignUpValidationMessages = {
 };
 
 export const signInInputSchema = z.object({
-  email: z.email(),
-  password: createAuthPasswordSchema(),
+  email: normalizedEmailSchema(),
+  password: authPasswordSchema(),
   rememberMe: z.boolean(),
 });
 
-export const signUpInputSchema = createSignUpSchema();
+export const signUpInputSchema = createSignUpInputSchema();
 
 export type SignInInput = z.infer<typeof signInInputSchema>;
 export type SignUpInput = z.infer<typeof signUpInputSchema>;
 
 export function createAuthPasswordSchema(messages?: AuthPasswordValidationMessages) {
-  return z
-    .string()
-    .min(authConfig.limits.passwordMinLength, {
-      message: messages?.min,
-    })
-    .max(authConfig.limits.passwordMaxLength, {
-      message: messages?.max,
-    });
+  return authPasswordSchema(messages);
 }
 
 export function createSignInFormSchema(messages: SignInValidationMessages) {
@@ -60,47 +56,67 @@ export function createSignInFormSchema(messages: SignInValidationMessages) {
 }
 
 export function createSignUpFormSchema(messages: SignUpValidationMessages) {
-  return createSignUpSchema(messages);
+  return createSignUpFormInputSchema(messages);
 }
 
-function createSignUpSchema(messages?: SignUpValidationMessages) {
+function createSignUpInputSchema() {
+  return z
+    .object({
+      firstName: z
+        .string()
+        .min(authConfig.limits.firstNameMinLength)
+        .max(authConfig.limits.firstNameMaxLength),
+      lastName: z
+        .string()
+        .min(authConfig.limits.lastNameMinLength)
+        .max(authConfig.limits.lastNameMaxLength),
+      email: normalizedEmailSchema(),
+      password: authPasswordSchema(),
+      confirmPassword: authPasswordSchema(),
+    })
+    .superRefine(refinePasswordMatch());
+}
+
+function createSignUpFormInputSchema(messages: SignUpValidationMessages) {
   return z
     .object({
       firstName: z
         .string()
         .min(authConfig.limits.firstNameMinLength, {
-          message: messages?.firstNameMin,
+          message: messages.firstNameMin,
         })
         .max(authConfig.limits.firstNameMaxLength, {
-          message: messages?.firstNameMax,
+          message: messages.firstNameMax,
         }),
       lastName: z
         .string()
         .min(authConfig.limits.lastNameMinLength, {
-          message: messages?.lastNameMin,
+          message: messages.lastNameMin,
         })
         .max(authConfig.limits.lastNameMaxLength, {
-          message: messages?.lastNameMax,
+          message: messages.lastNameMax,
         }),
       email: z.email({
-        message: messages?.email,
+        message: messages.email,
       }),
       password: createAuthPasswordSchema({
-        min: messages?.passwordMin,
-        max: messages?.passwordMax,
+        min: messages.passwordMin,
+        max: messages.passwordMax,
       }),
       confirmPassword: createAuthPasswordSchema({
-        min: messages?.confirmPassword,
-        max: messages?.passwordMax,
+        min: messages.confirmPassword,
+        max: messages.passwordMax,
       }),
     })
-    .superRefine((values, ctx) => {
-      if (values.password !== values.confirmPassword) {
-        ctx.addIssue({
-          code: "custom",
-          message: messages?.passwordMismatch,
-          path: ["confirmPassword"],
-        });
-      }
-    });
+    .superRefine(
+      refinePasswordMatch<{
+        firstName: string;
+        lastName: string;
+        email: string;
+        password: string;
+        confirmPassword: string;
+      }>({
+        message: messages.passwordMismatch,
+      })
+    );
 }

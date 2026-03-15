@@ -3,8 +3,13 @@
 import { z } from "zod";
 import type { AccountProfilePayload } from "@/features/account/account-profile";
 import type { AuthResponse } from "@/features/auth/auth-contract";
-import { createAuthPasswordSchema } from "@/features/auth/auth-schemas";
 import { accountConfig } from "@/config/account";
+import {
+  authPasswordSchema,
+  normalizedEmailSchema,
+  refinePasswordMatch,
+  requiredPasswordSchema,
+} from "@/lib/schemas";
 import {
   deleteCurrentUserAccountWithPassword,
   removeCurrentUserAvatar,
@@ -39,26 +44,27 @@ const uploadAvatarInputSchema = z.object({
 });
 
 const requestEmailChangeInputSchema = z.object({
-  newEmail: z.string().trim().toLowerCase().pipe(z.email()),
+  newEmail: normalizedEmailSchema(),
 });
 
 const updatePasswordInputSchema = z
   .object({
-    currentPassword: z.string().trim().min(1),
-    newPassword: createAuthPasswordSchema(),
-    confirmPassword: createAuthPasswordSchema(),
+    currentPassword: requiredPasswordSchema(),
+    newPassword: authPasswordSchema(),
+    confirmPassword: authPasswordSchema(),
   })
-  .superRefine((values, context) => {
-    if (values.newPassword !== values.confirmPassword) {
-      context.addIssue({
-        code: "custom",
-        path: ["confirmPassword"],
-      });
-    }
-  });
+  .superRefine(
+    refinePasswordMatch<{
+      currentPassword: string;
+      newPassword: string;
+      confirmPassword: string;
+    }>({
+      passwordField: "newPassword",
+    })
+  );
 
 const deleteAccountInputSchema = z.object({
-  password: z.string().trim().min(1),
+  password: requiredPasswordSchema(),
 });
 
 export async function updateAccountProfileAction(input: {

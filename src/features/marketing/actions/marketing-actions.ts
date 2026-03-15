@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { z } from "zod";
+import { normalizedEmailSchema, turnstileTokenSchema } from "@/lib/schemas";
 import { formatEmailTimestamp } from "@/lib/utils";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import { escapeHtml, sendFormEmail } from "@/server/email/send-form-email";
@@ -9,16 +10,16 @@ import { escapeHtml, sendFormEmail } from "@/server/email/send-form-email";
 const contactFormPayloadSchema = z.object({
   name: z.string().trim().min(1),
   surname: z.string().trim().min(1),
-  email: z.email().transform((value) => value.trim()),
+  email: normalizedEmailSchema(),
   phone: z.string().trim().min(1),
   message: z.string().trim().min(1),
   gdprConsent: z.literal(true),
-  turnstileToken: z.string().min(1),
+  turnstileToken: turnstileTokenSchema(),
 });
 
 const newsletterPayloadSchema = z.object({
-  email: z.email().transform((value) => value.trim()),
-  turnstileToken: z.string().min(1),
+  email: normalizedEmailSchema(),
+  turnstileToken: turnstileTokenSchema(),
 });
 
 type MarketingActionErrorCode = "BAD_REQUEST" | "INTERNAL_ERROR" | "TURNSTILE_VERIFICATION_FAILED";

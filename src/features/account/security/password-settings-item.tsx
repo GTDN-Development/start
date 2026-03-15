@@ -4,8 +4,10 @@ import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { authConfig } from "@/config/auth";
 import { updateAccountPasswordAction } from "@/features/account/actions/account-actions";
 import type { InlineStatus } from "@/features/account/account-types";
+import { authPasswordSchema, refinePasswordMatch } from "@/lib/schemas";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -28,9 +30,6 @@ type PasswordFormValues = {
   newPassword: string;
   confirmPassword: string;
 };
-
-const MIN_PASSWORD_LENGTH = 8;
-const MAX_PASSWORD_LENGTH = 100;
 
 export function AccountChangePasswordItem() {
   const t = useTranslations("pages.account");
@@ -257,16 +256,12 @@ function getPasswordFormSchema(t: SecurityTranslationFn) {
   return z
     .object({
       currentPassword: z.string(),
-      newPassword: z
-        .string()
-        .min(MIN_PASSWORD_LENGTH, {
-          message: t("security.password.fields.newPassword.errors.min", {
-            min: String(MIN_PASSWORD_LENGTH),
-          }),
-        })
-        .max(MAX_PASSWORD_LENGTH, {
-          message: t("security.password.status.invalidInput"),
+      newPassword: authPasswordSchema({
+        min: t("security.password.fields.newPassword.errors.min", {
+          min: String(authConfig.limits.passwordMinLength),
         }),
+        max: t("security.password.status.invalidInput"),
+      }),
       confirmPassword: z.string(),
     })
     .superRefine((value, context) => {
@@ -284,12 +279,11 @@ function getPasswordFormSchema(t: SecurityTranslationFn) {
           path: ["confirmPassword"],
           message: t("security.password.fields.confirmPassword.errors.required"),
         });
-      } else if (value.newPassword !== value.confirmPassword) {
-        context.addIssue({
-          code: "custom",
-          path: ["confirmPassword"],
+      } else {
+        refinePasswordMatch<PasswordFormValues>({
+          passwordField: "newPassword",
           message: t("security.password.fields.confirmPassword.errors.mismatch"),
-        });
+        })(value, context);
       }
 
       if (

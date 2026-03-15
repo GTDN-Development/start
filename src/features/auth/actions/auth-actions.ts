@@ -15,11 +15,18 @@ import type {
   VerifyEmailPayload,
 } from "@/features/auth/auth-contract";
 import {
-  createAuthPasswordSchema,
   signInInputSchema,
   signUpInputSchema,
   type SignInInput,
 } from "@/features/auth/auth-schemas";
+import {
+  authPasswordSchema,
+  normalizedEmailSchema,
+  refinePasswordMatch,
+  requiredPasswordSchema,
+  requiredTokenSchema,
+  turnstileTokenSchema,
+} from "@/lib/schemas";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import {
@@ -36,38 +43,29 @@ import {
 } from "@/server/auth/auth-service";
 
 const verifyEmailInputSchema = z.object({
-  token: z.string().trim().min(1),
+  token: requiredTokenSchema(),
 });
 
-const turnstileTokenSchema = z.string().trim().min(1);
-
 const signUpActionInputSchema = signUpInputSchema.extend({
-  turnstileToken: turnstileTokenSchema,
+  turnstileToken: turnstileTokenSchema(),
 });
 
 const requestPasswordResetInputSchema = z.object({
-  email: z.string().trim().toLowerCase().pipe(z.email()),
-  turnstileToken: turnstileTokenSchema,
+  email: normalizedEmailSchema(),
+  turnstileToken: turnstileTokenSchema(),
 });
 
 const resetPasswordInputSchema = z
   .object({
-    token: z.string().trim().min(1),
-    password: createAuthPasswordSchema(),
-    confirmPassword: createAuthPasswordSchema(),
+    token: requiredTokenSchema(),
+    password: authPasswordSchema(),
+    confirmPassword: authPasswordSchema(),
   })
-  .superRefine((values, context) => {
-    if (values.password !== values.confirmPassword) {
-      context.addIssue({
-        code: "custom",
-        path: ["confirmPassword"],
-      });
-    }
-  });
+  .superRefine(refinePasswordMatch());
 
 const confirmEmailChangeInputSchema = z.object({
-  token: z.string().trim().min(1),
-  password: z.string().min(1),
+  token: requiredTokenSchema(),
+  password: requiredPasswordSchema(),
 });
 
 export async function signInAction(input: SignInInput): Promise<AuthResponse<AuthSessionPayload>> {
