@@ -31,6 +31,13 @@ type LegalConfig = {
   contact: {
     email: string;
     phone?: string;
+    support: {
+      email: string;
+    };
+    sales: {
+      email: string;
+      phone: string;
+    };
   };
 };
 
@@ -43,6 +50,13 @@ export const legal: LegalConfig = {
   contact: {
     email: "hello@gtdn.online",
     phone: "+420123456789",
+    support: {
+      email: "support@gtdn.online",
+    },
+    sales: {
+      email: "hello@gtdn.online",
+      phone: "+420123456789",
+    },
   },
 };
 

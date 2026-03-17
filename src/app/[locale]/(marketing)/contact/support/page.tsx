@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { ArrowLeftIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { SupportForm } from "@/features/marketing/contact/support-form";
 import { Container } from "@/components/ui/container";
-// import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { createPageMetadata } from "@/lib/metadata";
 import { ContactCopyItem } from "@/features/marketing/contact/contact-copy-item";
 import { getServerAuthSession } from "@/server/auth/auth-service";
+import { legal } from "@/config/legal";
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;
@@ -22,7 +23,7 @@ export async function generateMetadata(props: {
   });
 
   return createPageMetadata({
-    title: t("title"),
+    title: t("infoTitle"),
     description: t("infoDescription"),
     locale: locale as Locale,
     pathname: "/contact/support",
@@ -38,6 +39,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     locale: locale as Locale,
     namespace: "pages.contact.support",
   });
+  const tContact = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.contact",
+  });
   const tSupportForm = await getTranslations({
     locale: locale as Locale,
     namespace: "forms.support",
@@ -47,29 +52,23 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
 
   return (
     <div className="relative pt-20">
-      {/*<Hero>
-        <HeroContent size="md">
-          <HeroTitle>{t("title")}</HeroTitle>
-          <HeroDescription>{t("infoDescription")}</HeroDescription>
-        </HeroContent>
-      </Hero>*/}
-
-      <Container className="pb-24">
+      <Container size="lg" className="pb-24">
         <div className="grid gap-12 md:grid-cols-2">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-3">
-              <h2 className="text-2xl font-bold tracking-tight">{t("infoTitle")}</h2>
+              <Link
+                href="/contact"
+                className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors"
+              >
+                <ArrowLeftIcon aria-hidden="true" className="size-4" />
+                {tContact("backToContact")}
+              </Link>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+                {t("infoTitle")}
+              </h1>
               <p className="text-muted-foreground">{t("infoDescription")}</p>
             </div>
-            <div>
-              <Button variant="secondary" size="lg">
-                {t("infoButton")}
-              </Button>
-            </div>
-            <div className="flex flex-col gap-4">
-              <ContactCopyItem label="Email" value={t("email")} />
-              <ContactCopyItem label="Phone" value={t("phone")} />
-            </div>
+            <ContactCopyItem value={legal.contact.support.email} buttonClassName="text-primary" />
           </div>
 
           <Card>
@@ -86,11 +85,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                       {tSupportForm("loginGate.description")}
                     </p>
                   </div>
-                  <Button
-                    nativeButton={false}
-                    render={<Link href="/sign-in" />}
-                    className="w-fit"
-                  >
+                  <Button nativeButton={false} render={<Link href="/sign-in" />} className="w-fit">
                     {tSupportForm("loginGate.button")}
                   </Button>
                 </div>

@@ -9,25 +9,29 @@ import { cn } from "@/lib/utils";
 export function ContactCopyItem({
   label,
   value,
+  displayValue,
   className,
+  buttonClassName,
 }: {
-  label: string;
+  label?: string;
   value: string;
+  displayValue?: string;
   className?: string;
+  buttonClassName?: string;
 }) {
   const t = useTranslations("layout.footer");
 
   return (
     <div className={cn("flex flex-col gap-1", className)}>
-      <p className="text-muted-foreground text-sm font-medium">{label}</p>
+      {label && <p className="text-muted-foreground text-sm font-medium">{label}</p>}
       <CopyButton
         toCopy={value}
         onCopy={() => toast(t("copiedToClipboard"), { description: value, position: "bottom-center" })}
-        className="text-foreground hover:text-muted-foreground flex items-center gap-2 text-lg transition-colors"
+        className={cn("flex items-center gap-2 transition-colors", buttonClassName)}
       >
         {({ isCopied }) => (
           <>
-            <span>{value}</span>
+            <span>{displayValue ?? value}</span>
             {isCopied ? (
               <CheckIcon className="size-[1em]" aria-hidden="true" />
             ) : (

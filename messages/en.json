@@ -174,23 +174,24 @@
     "contact": {
       "title": "Contact",
       "description": "Choose how you'd like to get in touch.",
+      "backToContact": "Back to contact",
       "support": {
         "title": "Support",
         "cardDescription": "Get help with technical issues, bugs, or questions about using the product.",
-        "infoTitle": "Support",
-        "infoDescription": "Have a question or need help? Reach out and we'll get back to you as soon as possible.",
-        "infoButton": "View documentation",
-        "email": "support@example.com",
-        "phone": "+1 234 567 890"
+        "infoTitle": "Contact support",
+        "infoDescription": "Have a question or need help? Reach out and we'll reply within 24 hours."
       },
       "sales": {
         "title": "Sales",
         "cardDescription": "Talk to our sales team about pricing, plans, or enterprise options.",
-        "infoTitle": "Sales",
+        "infoTitle": "Contact us",
         "infoDescription": "Interested in our product for your team? We'd love to help you find the right plan.",
-        "infoButton": "View pricing",
-        "email": "sales@example.com",
-        "phone": "+1 234 567 891"
+        "formTitle": "How can we help?",
+        "formDescription": "Share a few details about what you're looking for and we'll get back to you.",
+        "supportPrompt": {
+          "title": "Technical issues or product questions?",
+          "cta": "Contact support"
+        }
       }
     },
     "signIn": {
@@ -1004,10 +1005,8 @@
     },
     "contact": {
       "validation": {
-        "nameMin": "Name must be at least 2 characters.",
-        "nameMax": "Name must not be longer than 50 characters.",
-        "surnameMin": "Surname must be at least 2 characters.",
-        "surnameMax": "Surname must not be longer than 50 characters.",
+        "fullNameMin": "Full name must be at least 3 characters.",
+        "fullNameMax": "Full name must not be longer than 100 characters.",
         "email": "Please enter a valid email address.",
         "phoneMin": "Phone number must be at least 9 characters.",
         "phoneInvalid": "Please enter a valid phone number.",
@@ -1017,13 +1016,9 @@
         "turnstile": "Please complete the verification."
       },
       "fields": {
-        "name": {
-          "label": "Name *",
-          "placeholder": "Your name"
-        },
-        "surname": {
-          "label": "Surname *",
-          "placeholder": "Your surname"
+        "fullName": {
+          "label": "Full name *",
+          "placeholder": "Your full name"
         },
         "email": {
           "label": "Email address *",
@@ -1060,6 +1055,10 @@
       }
     },
     "support": {
+      "intro": {
+        "title": "How can we help?",
+        "description": "Please share any relevant information we may need to answer your question."
+      },
       "loginGate": {
         "title": "Log in to your account so we can help you faster",
         "description": "We'll use your account details to get back to you quickly.",
@@ -1071,6 +1070,7 @@
         "phoneInvalid": "Please enter a valid phone number.",
         "messageMin": "Message must be at least 10 characters.",
         "messageMax": "Message must not be longer than 1000 characters.",
+        "attachmentsMaxTotalSize": "The total size of attachments must not exceed 8 MB.",
         "gdprConsent": "You must agree to the processing of personal data.",
         "turnstile": "Please complete the verification."
       },
@@ -1087,13 +1087,12 @@
         },
         "message": {
           "label": "Message *",
-          "placeholder": "Describe your issue or question...",
-          "description": "The more detail you provide, the faster we can help."
+          "placeholder": "Describe your issue or question..."
         },
         "attachment": {
-          "label": "Attachment",
-          "button": "Attach file",
-          "description": "Optional. Max 10 MB."
+          "label": "Attachments",
+          "button": "Attach files",
+          "description": "Optional. 8 MB total max."
         },
         "gdprConsent": {
           "label": "I agree to the <link>processing of personal data</link> *"

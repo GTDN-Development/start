@@ -251,7 +251,7 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
           <div className="flex items-center gap-2 lg:hidden">
             {viewer && overviewMenuItem && (
               <Button
-                size="sm"
+                size="lg"
                 className="shrink-0"
                 nativeButton={false}
                 render={<Link href={overviewMenuItem.href} />}

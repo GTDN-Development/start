@@ -2,87 +2,74 @@
 
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { useState, useRef, useCallback } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon, PaperclipIcon, XIcon } from "lucide-react";
-import { legalLinks } from "@/config/navigation";
 import { submitSupportFormAction } from "@/features/marketing/actions/marketing-actions";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
-import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
+import {
+  getSupportAttachmentsTotalSize,
+  SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES,
+  type SupportAttachmentValue,
+} from "@/features/marketing/contact/support-attachments";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
-type AttachmentValue = {
-  filename: string;
-  data: string; // base64
-  mimeType: string;
-};
-
 type SupportFormValues = {
   message: string;
-  attachment?: AttachmentValue | undefined;
-  gdprConsent: boolean;
-  turnstileToken: string;
+  attachments: SupportAttachmentValue[];
 };
 
 export function SupportForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.support");
+  const attachmentSchema = z.object({
+    filename: z.string(),
+    data: z.string(),
+    mimeType: z.string(),
+    size: z.number().nonnegative(),
+  });
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
   }>({ type: null, message: "" });
-  const turnstileRef = useRef<TurnstileRef>(null);
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const readFileAsBase64 = useCallback((file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        resolve(result.split(",")[1]);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }, []);
 
   const supportFormSchema = z.object({
     message: z
       .string()
       .min(10, { message: t("validation.messageMin") })
       .max(1000, { message: t("validation.messageMax") }),
-    attachment: z.union([
-      z.object({ filename: z.string(), data: z.string(), mimeType: z.string() }),
-      z.undefined(),
-    ]),
-    gdprConsent: z.boolean().refine((v) => v === true, {
-      message: t("validation.gdprConsent"),
-    }),
-    turnstileToken: z.string().min(1, { message: t("validation.turnstile") }),
+    attachments: z
+      .array(attachmentSchema)
+      .refine(
+        (attachments) =>
+          getSupportAttachmentsTotalSize(attachments) <= SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES,
+        {
+          message: t("validation.attachmentsMaxTotalSize"),
+        }
+      ),
   });
 
   const form = useForm({
     defaultValues: {
       message: "",
-      attachment: undefined as AttachmentValue | undefined,
-      gdprConsent: false,
-      turnstileToken: "",
+      attachments: [] as SupportAttachmentValue[],
     },
     validators: { onSubmit: supportFormSchema },
     onSubmit: async ({ value }: { value: SupportFormValues }) => {
       setSubmitStatus({ type: null, message: "" });
+      setAttachmentError(null);
 
       const response = await submitSupportFormAction(value);
 
       if (response.ok) {
         setSubmitStatus({ type: "success", message: t("status.success.message") });
         form.reset();
-        turnstileRef.current?.reset();
+        setAttachmentError(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
         return;
       }
@@ -92,7 +79,12 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
   });
 
   return (
-    <div {...props} className={cn("@container w-full", className)}>
+    <div {...props} className={cn("@container flex w-full flex-col gap-6", className)}>
+      <div className="flex flex-col gap-2">
+        <h2 className="text-lg font-semibold tracking-tight">{t("intro.title")}</h2>
+        <p className="text-muted-foreground text-sm">{t("intro.description")}</p>
+      </div>
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -127,51 +119,72 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
                         placeholder={t("fields.message.placeholder")}
                         rows={5}
                       />
-                      <FieldDescription>{t("fields.message.description")}</FieldDescription>
                       {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>
                   );
                 }}
               </form.Field>
 
-              <form.Field name="attachment">
-                {(field) => (
-                  <Field>
-                    <FieldLabel>{t("fields.attachment.label")}</FieldLabel>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      id="support-attachment"
-                      className="sr-only"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) {
-                          field.handleChange(undefined);
-                          return;
-                        }
-                        const data = await readFileAsBase64(file);
-                        field.handleChange({ filename: file.name, data, mimeType: file.type });
-                      }}
-                    />
-                    {field.state.value ? (
-                      <div className="border-border flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-                        <PaperclipIcon
-                          aria-hidden="true"
-                          className="text-muted-foreground size-4 shrink-0"
-                        />
-                        <span className="flex-1 truncate">{field.state.value.filename}</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            field.handleChange(undefined);
-                            if (fileInputRef.current) fileInputRef.current.value = "";
-                          }}
-                          className="text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          <XIcon aria-hidden="true" className="size-4" />
-                        </button>
-                      </div>
-                    ) : (
+              <form.Field name="attachments">
+                {(field) => {
+                  const isInvalid =
+                    attachmentError !== null ||
+                    ((field.state.meta.isTouched || submissionAttempts > 0) &&
+                      !field.state.meta.isValid);
+                  const errors = attachmentError
+                    ? [{ message: attachmentError }, ...(field.state.meta.errors ?? [])]
+                    : field.state.meta.errors;
+
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor="support-attachments">
+                        {t("fields.attachment.label")}
+                      </FieldLabel>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        id="support-attachments"
+                        multiple
+                        className="sr-only"
+                        onChange={async (e) => {
+                          const files = e.target.files;
+
+                          if (!files?.length) {
+                            return;
+                          }
+
+                          const nextFiles = Array.from(files);
+                          const currentTotalSize = getSupportAttachmentsTotalSize(
+                            field.state.value
+                          );
+                          const selectedFilesTotalSize = nextFiles.reduce(
+                            (total, file) => total + file.size,
+                            0
+                          );
+
+                          if (
+                            currentTotalSize + selectedFilesTotalSize >
+                            SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES
+                          ) {
+                            setAttachmentError(t("validation.attachmentsMaxTotalSize"));
+                            if (fileInputRef.current) {
+                              fileInputRef.current.value = "";
+                            }
+                            return;
+                          }
+
+                          const nextAttachments = await Promise.all(
+                            nextFiles.map(createSupportAttachmentValue)
+                          );
+
+                          setAttachmentError(null);
+                          field.handleChange([...field.state.value, ...nextAttachments]);
+
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = "";
+                          }
+                        }}
+                      />
                       <Button
                         type="button"
                         variant="outline"
@@ -181,70 +194,47 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
                         <PaperclipIcon aria-hidden="true" />
                         {t("fields.attachment.button")}
                       </Button>
-                    )}
-                    <FieldDescription>{t("fields.attachment.description")}</FieldDescription>
-                  </Field>
-                )}
-              </form.Field>
-
-              <form.Field name="gdprConsent">
-                {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
-                  return (
-                    <div className="flex flex-col gap-y-2">
-                      <Field orientation="horizontal" data-invalid={isInvalid}>
-                        <Checkbox
-                          id={`support-${field.name}`}
-                          name={`support-${field.name}`}
-                          checked={field.state.value}
-                          onCheckedChange={(checked) => field.handleChange(checked === true)}
-                          aria-invalid={isInvalid}
-                        />
-                        <div className="leading-none">
-                          <FieldLabel htmlFor={`support-${field.name}`}>
-                            <span>
-                              {t.rich("fields.gdprConsent.label", {
-                                link: (chunks) => (
-                                  <Link
-                                    href={legalLinks.gdpr.href}
-                                    className="underline hover:no-underline"
-                                  >
-                                    {chunks}
-                                  </Link>
-                                ),
-                              })}
-                            </span>
-                          </FieldLabel>
+                      {field.state.value.length > 0 && (
+                        <div className="flex flex-col gap-2">
+                          {field.state.value.map((attachment, index) => (
+                            <div
+                              key={`${attachment.filename}-${index}`}
+                              className="border-border flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                            >
+                              <PaperclipIcon
+                                aria-hidden="true"
+                                className="text-muted-foreground size-4 shrink-0"
+                              />
+                              <span className="flex-1 truncate">{attachment.filename}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAttachmentError(null);
+                                  field.handleChange(
+                                    field.state.value.filter(
+                                      (_attachment, attachmentIndex) => attachmentIndex !== index
+                                    )
+                                  );
+                                  if (fileInputRef.current) {
+                                    fileInputRef.current.value = "";
+                                  }
+                                }}
+                                className="text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                <XIcon aria-hidden="true" className="size-4" />
+                              </button>
+                            </div>
+                          ))}
                         </div>
-                      </Field>
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                    </div>
-                  );
-                }}
-              </form.Field>
-
-              <form.Field name="turnstileToken">
-                {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <Turnstile
-                        ref={turnstileRef}
-                        onSuccess={(token: string) => field.handleChange(token)}
-                        onError={() => field.handleChange("")}
-                        onExpire={() => field.handleChange("")}
-                      />
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      )}
+                      <FieldDescription>{t("fields.attachment.description")}</FieldDescription>
+                      {isInvalid && <FieldError errors={errors} />}
                     </Field>
                   );
                 }}
               </form.Field>
 
-              <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
+              <Button type="submit" disabled={isSubmitting} size="lg" className="w-fit self-start">
                 {isSubmitting && <Spinner />}
                 {isSubmitting ? t("submit.pending") : t("submit.default")}
               </Button>
@@ -270,4 +260,25 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
       </form>
     </div>
   );
+}
+
+function createSupportAttachmentValue(file: File): Promise<SupportAttachmentValue> {
+  return readFileAsBase64(file).then((data) => ({
+    filename: file.name,
+    data,
+    mimeType: file.type,
+    size: file.size,
+  }));
+}
+
+function readFileAsBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(",")[1]);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }

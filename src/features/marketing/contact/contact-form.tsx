@@ -20,8 +20,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 
 type ContactFormValues = {
-  name: string;
-  surname: string;
+  fullName: string;
   email: string;
   phone: string;
   message: string;
@@ -38,21 +37,13 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
   const turnstileRef = useRef<TurnstileRef>(null);
 
   const contactFormSchema = z.object({
-    name: z
+    fullName: z
       .string()
-      .min(2, {
-        message: t("validation.nameMin"),
+      .min(3, {
+        message: t("validation.fullNameMin"),
       })
-      .max(50, {
-        message: t("validation.nameMax"),
-      }),
-    surname: z
-      .string()
-      .min(2, {
-        message: t("validation.surnameMin"),
-      })
-      .max(50, {
-        message: t("validation.surnameMax"),
+      .max(100, {
+        message: t("validation.fullNameMax"),
       }),
     email: z.email({
       message: t("validation.email"),
@@ -83,8 +74,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
 
   const form = useForm({
     defaultValues: {
-      name: "",
-      surname: "",
+      fullName: "",
       email: "",
       phone: "",
       message: "",
@@ -133,59 +123,31 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
         >
           {({ isSubmitting, submissionAttempts }) => (
             <FieldGroup>
-              <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2">
-                <form.Field name="name">
-                  {(field) => {
-                    const isInvalid =
-                      (field.state.meta.isTouched || submissionAttempts > 0) &&
-                      !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={`contact-${field.name}`}>
-                          {t("fields.name.label")}
-                        </FieldLabel>
-                        <Input
-                          id={`contact-${field.name}`}
-                          name={`contact-${field.name}`}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          aria-invalid={isInvalid}
-                          autoComplete="given-name"
-                          placeholder={t("fields.name.placeholder")}
-                        />
-                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                      </Field>
-                    );
-                  }}
-                </form.Field>
-
-                <form.Field name="surname">
-                  {(field) => {
-                    const isInvalid =
-                      (field.state.meta.isTouched || submissionAttempts > 0) &&
-                      !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid}>
-                        <FieldLabel htmlFor={`contact-${field.name}`}>
-                          {t("fields.surname.label")}
-                        </FieldLabel>
-                        <Input
-                          id={`contact-${field.name}`}
-                          name={`contact-${field.name}`}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          aria-invalid={isInvalid}
-                          autoComplete="family-name"
-                          placeholder={t("fields.surname.placeholder")}
-                        />
-                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                      </Field>
-                    );
-                  }}
-                </form.Field>
-              </div>
+              <form.Field name="fullName">
+                {(field) => {
+                  const isInvalid =
+                    (field.state.meta.isTouched || submissionAttempts > 0) &&
+                    !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={`contact-${field.name}`}>
+                        {t("fields.fullName.label")}
+                      </FieldLabel>
+                      <Input
+                        id={`contact-${field.name}`}
+                        name={`contact-${field.name}`}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        autoComplete="name"
+                        placeholder={t("fields.fullName.placeholder")}
+                      />
+                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                    </Field>
+                  );
+                }}
+              </form.Field>
 
               <form.Field name="email">
                 {(field) => {
@@ -263,7 +225,6 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                         placeholder={t("fields.message.placeholder")}
                         rows={4}
                       />
-                      <FieldDescription>{t("fields.message.description")}</FieldDescription>
                       {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>
                   );

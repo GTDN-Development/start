@@ -25,7 +25,7 @@
     },
     "header": {
       "homeAriaLabel": "Domovská stránka",
-      "goToApplication": "Přejít do aplikace",
+      "goToApplication": "Do aplikace",
       "copied": "Zkopírováno!",
       "menu": {
         "openAriaLabel": "Otevřít menu",
@@ -174,23 +174,24 @@
     "contact": {
       "title": "Kontakt",
       "description": "Vyberte, jak nás chcete kontaktovat.",
+      "backToContact": "Zpět na kontakt",
       "support": {
         "title": "Podpora",
         "cardDescription": "Potřebujete pomoc s technickými problémy nebo máte otázky k produktu?",
-        "infoTitle": "Podpora",
-        "infoDescription": "Máte otázku nebo potřebujete pomoc? Napište nám a ozveme se co nejdříve.",
-        "infoButton": "Zobrazit dokumentaci",
-        "email": "support@example.com",
-        "phone": "+420 123 456 789"
+        "infoTitle": "Kontaktujte podporu",
+        "infoDescription": "Máte otázku nebo potřebujete pomoc? Napište nám a odpovíme do 24 hodin."
       },
       "sales": {
         "title": "Obchod",
         "cardDescription": "Zajímá vás produkt pro váš tým? Promluvte si s naším obchodním týmem.",
-        "infoTitle": "Kontaktujte Obchodní Tým",
+        "infoTitle": "Kontaktujte nás",
         "infoDescription": "Zajímá vás náš produkt pro váš tým? Rádi vám pomůžeme najít správný plán.",
-        "infoButton": "Zobrazit ceník",
-        "email": "sales@example.com",
-        "phone": "+420 123 456 790"
+        "formTitle": "Jak vám můžeme pomoci?",
+        "formDescription": "Napište nám pár detailů o tom, co hledáte, a ozveme se vám.",
+        "supportPrompt": {
+          "title": "Technické potíže nebo dotazy k produktu?",
+          "cta": "Kontaktovat podporu"
+        }
       }
     },
     "signIn": {
@@ -1004,10 +1005,8 @@
     },
     "contact": {
       "validation": {
-        "nameMin": "Jméno musí mít alespoň 2 znaky.",
-        "nameMax": "Jméno nesmí být delší než 50 znaků.",
-        "surnameMin": "Příjmení musí mít alespoň 2 znaky.",
-        "surnameMax": "Příjmení nesmí být delší než 50 znaků.",
+        "fullNameMin": "Jméno a příjmení musí mít alespoň 3 znaky.",
+        "fullNameMax": "Jméno a příjmení nesmí být delší než 100 znaků.",
         "email": "Zadejte prosím platnou e-mailovou adresu.",
         "phoneMin": "Telefonní číslo musí mít alespoň 9 znaků.",
         "phoneInvalid": "Zadejte prosím platné telefonní číslo.",
@@ -1017,13 +1016,9 @@
         "turnstile": "Dokončete prosím ověření."
       },
       "fields": {
-        "name": {
-          "label": "Jméno *",
-          "placeholder": "Vaše jméno"
-        },
-        "surname": {
-          "label": "Příjmení *",
-          "placeholder": "Vaše příjmení"
+        "fullName": {
+          "label": "Jméno a příjmení *",
+          "placeholder": "Vaše jméno a příjmení"
         },
         "email": {
           "label": "E-mailová adresa *",
@@ -1060,6 +1055,10 @@
       }
     },
     "support": {
+      "intro": {
+        "title": "Jak vám můžeme pomoci?",
+        "description": "Prosím sdílejte všechny relevantní informace, které můžeme potřebovat k zodpovězení vašeho dotazu."
+      },
       "loginGate": {
         "title": "Přihlaste se, abychom vám mohli pomoci rychleji",
         "description": "Použijeme údaje z vašeho účtu, abychom se vám ozvali co nejdříve.",
@@ -1071,6 +1070,7 @@
         "phoneInvalid": "Zadejte prosím platné telefonní číslo.",
         "messageMin": "Zpráva musí mít alespoň 10 znaků.",
         "messageMax": "Zpráva nesmí být delší než 1000 znaků.",
+        "attachmentsMaxTotalSize": "Celková velikost příloh nesmí překročit 8 MB.",
         "gdprConsent": "Musíte souhlasit se zpracováním osobních údajů.",
         "turnstile": "Dokončete prosím ověření."
       },
@@ -1087,13 +1087,12 @@
         },
         "message": {
           "label": "Zpráva *",
-          "placeholder": "Popište váš problém nebo dotaz...",
-          "description": "Čím více detailů uvedete, tím rychleji vám pomůžeme."
+          "placeholder": "Popište váš problém nebo dotaz..."
         },
         "attachment": {
-          "label": "Příloha",
-          "button": "Přiložit soubor",
-          "description": "Volitelné. Max 10 MB."
+          "label": "Přílohy",
+          "button": "Přiložit soubory",
+          "description": "Volitelné. Celková velikost příloh max 8 MB."
         },
         "gdprConsent": {
           "label": "Souhlasím se <link>zpracováním osobních údajů</link> *"

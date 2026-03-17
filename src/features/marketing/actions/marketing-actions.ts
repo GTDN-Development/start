@@ -7,10 +7,13 @@ import { formatEmailTimestamp } from "@/lib/utils";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import { escapeHtml, sendFormEmail } from "@/server/email/send-form-email";
 import { requireCurrentUser } from "@/server/auth/current-user";
+import {
+  SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES,
+  type SupportAttachmentValue,
+} from "@/features/marketing/contact/support-attachments";
 
 const contactFormPayloadSchema = z.object({
-  name: z.string().trim().min(1),
-  surname: z.string().trim().min(1),
+  fullName: z.string().trim().min(1),
   email: normalizedEmailSchema(),
   phone: z.string().trim().min(1),
   message: z.string().trim().min(1),
@@ -20,15 +23,17 @@ const contactFormPayloadSchema = z.object({
 
 const supportFormPayloadSchema = z.object({
   message: z.string().trim().min(1),
-  gdprConsent: z.literal(true),
-  turnstileToken: turnstileTokenSchema(),
-  attachment: z
-    .object({
-      filename: z.string(),
-      data: z.string(), // base64
-      mimeType: z.string(),
-    })
-    .optional(),
+  attachments: z
+    .array(
+      z.object({
+        filename: z.string(),
+        data: z.string(),
+        mimeType: z.string(),
+        size: z.number().int().nonnegative(),
+      })
+    )
+    .optional()
+    .default([]),
 });
 
 const newsletterPayloadSchema = z.object({
@@ -43,8 +48,7 @@ export type MarketingActionResponse =
   | { ok: false; errorCode: MarketingActionErrorCode };
 
 export async function submitContactFormAction(input: {
-  name: string;
-  surname: string;
+  fullName: string;
   email: string;
   phone: string;
   message: string;
@@ -70,11 +74,10 @@ export async function submitContactFormAction(input: {
     const messageHtml = escapeHtml(parsedInput.data.message).replace(/\n/g, "<br>");
 
     await sendFormEmail({
-      subject: `Nová zpráva z kontaktního formuláře - ${parsedInput.data.name} ${parsedInput.data.surname}`,
+      subject: `Nová zpráva z kontaktního formuláře - ${parsedInput.data.fullName}`,
       html: `
         <h2>Nová zpráva z kontaktního formuláře</h2>
-        <p><strong>Jméno:</strong> ${escapeHtml(parsedInput.data.name)}</p>
-        <p><strong>Příjmení:</strong> ${escapeHtml(parsedInput.data.surname)}</p>
+        <p><strong>Jméno a příjmení:</strong> ${escapeHtml(parsedInput.data.fullName)}</p>
         <p><strong>Email:</strong> ${escapeHtml(parsedInput.data.email)}</p>
         <p><strong>Telefon:</strong> ${escapeHtml(parsedInput.data.phone)}</p>
         <p><strong>Zpráva:</strong></p>
@@ -84,8 +87,7 @@ export async function submitContactFormAction(input: {
       text: `
           Nová zpráva z kontaktního formuláře
 
-          Jméno: ${parsedInput.data.name}
-          Příjmení: ${parsedInput.data.surname}
+          Jméno a příjmení: ${parsedInput.data.fullName}
           Email: ${parsedInput.data.email}
           Telefon: ${parsedInput.data.phone}
           Zpráva: ${parsedInput.data.message}
@@ -106,9 +108,7 @@ export async function submitContactFormAction(input: {
 
 export async function submitSupportFormAction(input: {
   message: string;
-  gdprConsent: boolean;
-  turnstileToken: string;
-  attachment?: { filename: string; data: string; mimeType: string };
+  attachments?: SupportAttachmentValue[];
 }): Promise<MarketingActionResponse> {
   const currentUser = await requireCurrentUser();
 
@@ -122,12 +122,8 @@ export async function submitSupportFormAction(input: {
     return createErrorResponse("BAD_REQUEST");
   }
 
-  const turnstileVerification = await verifyMarketingTurnstileToken(
-    parsedInput.data.turnstileToken
-  );
-
-  if (!turnstileVerification.success) {
-    return createErrorResponse("TURNSTILE_VERIFICATION_FAILED");
+  if (getSupportAttachmentsTotalDecodedSize(parsedInput.data.attachments) > SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES) {
+    return createErrorResponse("BAD_REQUEST");
   }
 
   try {
@@ -135,15 +131,14 @@ export async function submitSupportFormAction(input: {
     const messageHtml = escapeHtml(parsedInput.data.message).replace(/\n/g, "<br>");
     const userEmail = escapeHtml(currentUser.user.email);
 
-    const attachments = parsedInput.data.attachment
-      ? [
-          {
-            filename: parsedInput.data.attachment.filename,
-            content: Buffer.from(parsedInput.data.attachment.data, "base64"),
-            contentType: parsedInput.data.attachment.mimeType,
-          },
-        ]
-      : undefined;
+    const attachments =
+      parsedInput.data.attachments.length > 0
+        ? parsedInput.data.attachments.map((attachment) => ({
+            filename: attachment.filename,
+            content: Buffer.from(attachment.data, "base64"),
+            contentType: attachment.mimeType,
+          }))
+        : undefined;
 
     await sendFormEmail({
       subject: `Nová zpráva z formuláře podpory - ${userEmail}`,
@@ -231,4 +226,11 @@ function createErrorResponse(errorCode: MarketingActionErrorCode): MarketingActi
     ok: false,
     errorCode,
   };
+}
+
+function getSupportAttachmentsTotalDecodedSize(attachments: SupportAttachmentValue[]): number {
+  return attachments.reduce(
+    (total, attachment) => total + Buffer.byteLength(attachment.data, "base64"),
+    0
+  );
 }
