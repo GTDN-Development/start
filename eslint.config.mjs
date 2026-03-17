@@ -32,6 +32,19 @@ const eslintConfig = defineConfig([
       quotes: ["warn", "double", { avoidEscape: true, allowTemplateLiterals: true }],
     },
   },
+  {
+    files: [
+      "src/app/layout.tsx",
+      "src/components/ui/**/*.{ts,tsx}",
+      "src/hooks/use-mobile.ts",
+      "src/lib/utils.ts",
+    ],
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "func-style": "off",
+      quotes: "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
