@@ -22,14 +22,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authMenu, isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/navigation";
-import { SocialMediaIcons } from "@/components/brand/social-media-icons";
 import {
-  UserAccountMenu,
-  type UserAccountMenuLabels,
-  type UserAccountMenuViewer,
-} from "@/features/account/user-account-menu";
-import { useLocale, useTranslations } from "next-intl";
+  applicationMenu,
+  authMenu,
+  isNested,
+  marketingMenu,
+  type MenuItem,
+  type MenuLabelKey,
+} from "@/config/navigation";
+import { SocialMediaIcons } from "@/components/brand/social-media-icons";
+import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
+import { useTranslations } from "next-intl";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 type HeaderViewer = UserAccountMenuViewer | null;
@@ -152,22 +155,14 @@ function MobileNavigation({
 }
 
 export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
-  const locale = useLocale();
   const t = useTranslations("layout.header");
   const tNav = useTranslations("layout.navigation.items");
   const tApplication = useTranslations("layout.application");
   const signInMenuItem = authMenu.find((item) => item.labelKey === "signIn");
   const signUpMenuItem = authMenu.find((item) => item.labelKey === "signUp");
+  const overviewMenuItem = applicationMenu.find((item) => item.labelKey === "overview");
+  const applicationButtonLabel = t("goToApplication");
   const viewerDisplayName = getViewerDisplayName(viewer);
-  const userMenuLabels: UserAccountMenuLabels = {
-    account: tNav("account"),
-    accountPage: tNav("account"),
-    home: tNav("home"),
-    overview: tNav("overview"),
-    emailNotVerified: tApplication("emailNotVerified"),
-    emailVerified: tApplication("emailVerified"),
-    signOut: tApplication("signOut"),
-  };
 
   return (
     <FloatingBar
@@ -207,9 +202,22 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
           {/* Call to action */}
           <ul className="ml-auto hidden items-center gap-2 lg:flex">
             {viewer ? (
-              <li>
-                <UserAccountMenu viewer={viewer} locale={locale} labels={userMenuLabels} />
-              </li>
+              overviewMenuItem && (
+                <li>
+                  <Button
+                    size="lg"
+                    nativeButton={false}
+                    render={<Link href={overviewMenuItem.href} />}
+                  >
+                    {applicationButtonLabel}
+                    <ChevronRightIcon
+                      aria-hidden="true"
+                      className="size-4"
+                      data-icon="inline-end"
+                    />
+                  </Button>
+                </li>
+              )
             ) : (
               <>
                 {signInMenuItem && (
@@ -241,7 +249,17 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
 
           {/* Mobile menu */}
           <div className="flex items-center gap-2 lg:hidden">
-            {viewer && <UserAccountMenu viewer={viewer} locale={locale} labels={userMenuLabels} />}
+            {viewer && overviewMenuItem && (
+              <Button
+                size="sm"
+                className="shrink-0"
+                nativeButton={false}
+                render={<Link href={overviewMenuItem.href} />}
+              >
+                {applicationButtonLabel}
+                <ChevronRightIcon aria-hidden="true" className="size-4" data-icon="inline-end" />
+              </Button>
+            )}
             <MobileMenu>
               <Button
                 variant="secondary"
@@ -277,7 +295,26 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
                   </div>
 
                   <MobileMenuFooter>
-                    {!viewer ? (
+                    {viewer && overviewMenuItem && (
+                      <MobileMenuClose
+                        render={
+                          <Button
+                            size="lg"
+                            className="w-full"
+                            nativeButton={false}
+                            render={<Link href={overviewMenuItem.href} />}
+                          >
+                            {applicationButtonLabel}
+                            <ChevronRightIcon
+                              aria-hidden="true"
+                              className="size-4"
+                              data-icon="inline-end"
+                            />
+                          </Button>
+                        }
+                      />
+                    )}
+                    {!viewer && (
                       <>
                         {signUpMenuItem && (
                           <MobileMenuClose
@@ -310,7 +347,7 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
                           </MobileMenuClose>
                         )}
                       </>
-                    ) : null}
+                    )}
                     <Button
                       variant="secondary"
                       size="lg"

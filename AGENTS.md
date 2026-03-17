@@ -51,6 +51,9 @@
 - Remote images: use `remotePatterns` in `next.config.ts` — **never** `images.domains`
 - `Button` with a non-`<button>` render target (`<a>`, `Link`, etc.) must set `nativeButton={false}`
 - Base UI components with `render={<button ... />}` (e.g. menu items) must set `nativeButton={true}`; if `nativeButton={false}`, the render target must be non-`<button>`
+- For small, localized UI changes, prefer inline composition with existing shared primitives (`Button`, `Link`, etc.) over extracting one-off helper components
+- Do not introduce local wrapper/helper components only to deduplicate a tiny amount of markup inside a single file, unless they carry their own logic, semantics, or are likely to be reused meaningfully
+- Prefer a direct `Button` with `render={<Link ... />}` over a custom CTA wrapper component when the abstraction would only hide a simple one-off render pattern
 
 ## Forms
 

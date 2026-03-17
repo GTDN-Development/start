@@ -15,8 +15,6 @@ import { submitSupportFormAction } from "@/features/marketing/actions/marketing-
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { Spinner } from "@/components/ui/spinner";
-import { useSession } from "@/features/auth/auth-client";
-import { Link as NavLink } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 type AttachmentValue = {
@@ -34,7 +32,6 @@ type SupportFormValues = {
 
 export function SupportForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.support");
-  const { status } = useSession();
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
@@ -93,20 +90,6 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
       setSubmitStatus({ type: "error", message: t("status.error.message") });
     },
   });
-
-  if (status === "unauthenticated") {
-    return (
-      <div className={cn("flex flex-col items-center gap-6 text-center", className)} {...props}>
-        <div className="flex flex-col gap-2">
-          <p className="text-lg font-semibold tracking-tight">{t("loginGate.title")}</p>
-          <p className="text-muted-foreground text-sm">{t("loginGate.description")}</p>
-        </div>
-        <Button render={<NavLink href="/sign-in" />} nativeButton={false} className="w-fit">
-          {t("loginGate.button")}
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div {...props} className={cn("@container w-full", className)}>
@@ -172,7 +155,10 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
                     />
                     {field.state.value ? (
                       <div className="border-border flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
-                        <PaperclipIcon className="text-muted-foreground size-4 shrink-0" />
+                        <PaperclipIcon
+                          aria-hidden="true"
+                          className="text-muted-foreground size-4 shrink-0"
+                        />
                         <span className="flex-1 truncate">{field.state.value.filename}</span>
                         <button
                           type="button"
@@ -182,7 +168,7 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
                           }}
                           className="text-muted-foreground hover:text-foreground transition-colors"
                         >
-                          <XIcon className="size-4" />
+                          <XIcon aria-hidden="true" className="size-4" />
                         </button>
                       </div>
                     ) : (
@@ -192,7 +178,7 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
                         size="sm"
                         onClick={() => fileInputRef.current?.click()}
                       >
-                        <PaperclipIcon />
+                        <PaperclipIcon aria-hidden="true" />
                         {t("fields.attachment.button")}
                       </Button>
                     )}

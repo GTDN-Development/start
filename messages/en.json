@@ -25,6 +25,7 @@
     },
     "header": {
       "homeAriaLabel": "Home page",
+      "goToApplication": "Go to app",
       "copied": "Copied!",
       "menu": {
         "openAriaLabel": "Open menu",

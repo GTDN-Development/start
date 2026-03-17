@@ -25,6 +25,7 @@
     },
     "header": {
       "homeAriaLabel": "Domovská stránka",
+      "goToApplication": "Přejít do aplikace",
       "copied": "Zkopírováno!",
       "menu": {
         "openAriaLabel": "Otevřít menu",
