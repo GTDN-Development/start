@@ -174,7 +174,7 @@
       "title": "Kontakt",
       "description": "Vyberte, jak nás chcete kontaktovat.",
       "support": {
-        "title": "Kontaktovat podporu",
+        "title": "Podpora",
         "cardDescription": "Potřebujete pomoc s technickými problémy nebo máte otázky k produktu?",
         "infoTitle": "Podpora",
         "infoDescription": "Máte otázku nebo potřebujete pomoc? Napište nám a ozveme se co nejdříve.",
@@ -183,9 +183,9 @@
         "phone": "+420 123 456 789"
       },
       "sales": {
-        "title": "Kontaktovat obchod",
+        "title": "Obchod",
         "cardDescription": "Zajímá vás produkt pro váš tým? Promluvte si s naším obchodním týmem.",
-        "infoTitle": "Obchod",
+        "infoTitle": "Kontaktujte Obchodní Tým",
         "infoDescription": "Zajímá vás náš produkt pro váš tým? Rádi vám pomůžeme najít správný plán.",
         "infoButton": "Zobrazit ceník",
         "email": "sales@example.com",
@@ -1051,6 +1051,61 @@
         "success": {
           "title": "Formulář byl úspěšně odeslán!",
           "message": "Zpráva byla úspěšně odeslána!"
+        },
+        "error": {
+          "title": "Odeslání selhalo",
+          "message": "Při odesílání zprávy došlo k chybě. Zkuste to prosím později."
+        }
+      }
+    },
+    "support": {
+      "loginGate": {
+        "title": "Přihlaste se, abychom vám mohli pomoci rychleji",
+        "description": "Použijeme údaje z vašeho účtu, abychom se vám ozvali co nejdříve.",
+        "button": "Přihlásit se"
+      },
+      "validation": {
+        "email": "Zadejte prosím platnou e-mailovou adresu.",
+        "phoneMin": "Telefonní číslo musí mít alespoň 9 znaků.",
+        "phoneInvalid": "Zadejte prosím platné telefonní číslo.",
+        "messageMin": "Zpráva musí mít alespoň 10 znaků.",
+        "messageMax": "Zpráva nesmí být delší než 1000 znaků.",
+        "gdprConsent": "Musíte souhlasit se zpracováním osobních údajů.",
+        "turnstile": "Dokončete prosím ověření."
+      },
+      "fields": {
+        "email": {
+          "label": "E-mailová adresa *",
+          "placeholder": "jmeno@email.cz",
+          "description": "Na tuto adresu vám pošleme odpověď."
+        },
+        "phone": {
+          "label": "Telefonní číslo *",
+          "placeholder": "+420 123 456 789",
+          "description": "Telefonní číslo pro případné upřesnění vašeho dotazu."
+        },
+        "message": {
+          "label": "Zpráva *",
+          "placeholder": "Popište váš problém nebo dotaz...",
+          "description": "Čím více detailů uvedete, tím rychleji vám pomůžeme."
+        },
+        "attachment": {
+          "label": "Příloha",
+          "button": "Přiložit soubor",
+          "description": "Volitelné. Max 10 MB."
+        },
+        "gdprConsent": {
+          "label": "Souhlasím se <link>zpracováním osobních údajů</link> *"
+        }
+      },
+      "submit": {
+        "default": "Odeslat zprávu",
+        "pending": "Odesílání..."
+      },
+      "status": {
+        "success": {
+          "title": "Zpráva odeslána!",
+          "message": "Ozveme se vám co nejdříve."
         },
         "error": {
           "title": "Odeslání selhalo",

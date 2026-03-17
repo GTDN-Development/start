@@ -37,6 +37,7 @@ import {
   HomeCtaTitle,
 } from "@/features/marketing/home/home-cta";
 import { Separator } from "@/components/ui/separator";
+import { FaqSection } from "@/features/marketing/contact/faq-section";
 
 export async function generateMetadata(props: PageProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -104,10 +105,6 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
         </Container>
 
         <Container render={<section />}>
-          <NewsletterCta />
-        </Container>
-
-        <Container render={<section />}>
           {/*<Placeholder>
             <PlaceholderTitle>Content</PlaceholderTitle>
           </Placeholder>*/}
@@ -161,6 +158,14 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
               <HomeFeatureSubLink href="#">Feature 3</HomeFeatureSubLink>
             </HomeFeatureSubLinks>*/}
           </HomeFeature>
+        </Container>
+
+        <Container render={<section />}>
+          <NewsletterCta />
+        </Container>
+
+        <Container render={<section />}>
+          <FaqSection />
         </Container>
 
         <Container>

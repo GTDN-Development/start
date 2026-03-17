@@ -7,7 +7,9 @@ import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/h
 import { Card, CardContent } from "@/components/ui/card";
 import { createPageMetadata } from "@/lib/metadata";
 import { ArrowRightIcon } from "lucide-react";
-import { FaqSection } from "@/features/marketing/contact/faq-section";
+// import { FaqSection } from "@/features/marketing/contact/faq-section";
+import FeaturesSection from "@/features/marketing/contact/features-section";
+import { SocialMediaIcons } from "@/components/brand/social-media-icons";
 
 export async function generateMetadata(props: PageProps<"/[locale]/contact">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -45,7 +47,7 @@ export default async function Page({ params }: PageProps<"/[locale]/contact">) {
         </HeroContent>
       </Hero>
 
-      <Container size="md" className="pb-24">
+      <Container size="lg" className="pb-30">
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="hover:ring-foreground/20 relative transition-shadow">
             <CardContent className="flex flex-col gap-4 p-6 sm:p-8">
@@ -79,8 +81,22 @@ export default async function Page({ params }: PageProps<"/[locale]/contact">) {
         </div>
       </Container>
 
-      <Container className="mb-40">
+      <Container size="lg" className="pb-40">
+        <FeaturesSection />
+      </Container>
+      {/*
+      <Container size="lg" className="mb-40">
         <FaqSection />
+      </Container>*/}
+
+      <Container size="lg" className="pb-40">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <h1 className="text-4xl font-semibold tracking-tight">Sledujte naše sociální sítě</h1>
+          <p className="text-muted-foreground text-sm">
+            Buďte v obraze — sledujte nás na sociálních sítích.
+          </p>
+          <SocialMediaIcons />
+        </div>
       </Container>
     </div>
   );

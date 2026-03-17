@@ -1,14 +1,22 @@
 import nodemailer from "nodemailer";
 
+type FormEmailAttachment = {
+  filename: string;
+  content: Buffer;
+  contentType: string;
+};
+
 type FormEmailMessage = {
   subject: string;
   html: string;
   text: string;
+  attachments?: FormEmailAttachment[];
 };
 
 type EmailMessage = FormEmailMessage & {
   to: string;
 };
+
 
 const HTML_ESCAPE_REPLACEMENTS: Record<string, string> = {
   "&": "&amp;",

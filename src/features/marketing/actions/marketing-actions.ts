@@ -6,6 +6,7 @@ import { normalizedEmailSchema, turnstileTokenSchema } from "@/lib/schemas";
 import { formatEmailTimestamp } from "@/lib/utils";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import { escapeHtml, sendFormEmail } from "@/server/email/send-form-email";
+import { requireCurrentUser } from "@/server/auth/current-user";
 
 const contactFormPayloadSchema = z.object({
   name: z.string().trim().min(1),
@@ -15,6 +16,19 @@ const contactFormPayloadSchema = z.object({
   message: z.string().trim().min(1),
   gdprConsent: z.literal(true),
   turnstileToken: turnstileTokenSchema(),
+});
+
+const supportFormPayloadSchema = z.object({
+  message: z.string().trim().min(1),
+  gdprConsent: z.literal(true),
+  turnstileToken: turnstileTokenSchema(),
+  attachment: z
+    .object({
+      filename: z.string(),
+      data: z.string(), // base64
+      mimeType: z.string(),
+    })
+    .optional(),
 });
 
 const newsletterPayloadSchema = z.object({
@@ -86,6 +100,74 @@ export async function submitContactFormAction(input: {
   } catch (error) {
     console.error("Contact form action error:", error);
 
+    return createErrorResponse("INTERNAL_ERROR");
+  }
+}
+
+export async function submitSupportFormAction(input: {
+  message: string;
+  gdprConsent: boolean;
+  turnstileToken: string;
+  attachment?: { filename: string; data: string; mimeType: string };
+}): Promise<MarketingActionResponse> {
+  const currentUser = await requireCurrentUser();
+
+  if (!currentUser.ok) {
+    return createErrorResponse("BAD_REQUEST");
+  }
+
+  const parsedInput = supportFormPayloadSchema.safeParse(input);
+
+  if (!parsedInput.success) {
+    return createErrorResponse("BAD_REQUEST");
+  }
+
+  const turnstileVerification = await verifyMarketingTurnstileToken(
+    parsedInput.data.turnstileToken
+  );
+
+  if (!turnstileVerification.success) {
+    return createErrorResponse("TURNSTILE_VERIFICATION_FAILED");
+  }
+
+  try {
+    const timestamp = formatEmailTimestamp();
+    const messageHtml = escapeHtml(parsedInput.data.message).replace(/\n/g, "<br>");
+    const userEmail = escapeHtml(currentUser.user.email);
+
+    const attachments = parsedInput.data.attachment
+      ? [
+          {
+            filename: parsedInput.data.attachment.filename,
+            content: Buffer.from(parsedInput.data.attachment.data, "base64"),
+            contentType: parsedInput.data.attachment.mimeType,
+          },
+        ]
+      : undefined;
+
+    await sendFormEmail({
+      subject: `Nová zpráva z formuláře podpory - ${userEmail}`,
+      html: `
+        <h2>Nová zpráva z formuláře podpory</h2>
+        <p><strong>Email:</strong> ${userEmail}</p>
+        <p><strong>Zpráva:</strong></p>
+        <p>${messageHtml}</p>
+        <p><em>Odesláno: ${timestamp}</em></p>
+      `,
+      text: `
+          Nová zpráva z formuláře podpory
+
+          Email: ${userEmail}
+          Zpráva: ${parsedInput.data.message}
+
+          Odesláno: ${timestamp}
+      `,
+      attachments,
+    });
+
+    return { ok: true };
+  } catch (error) {
+    console.error("Support form action error:", error);
     return createErrorResponse("INTERNAL_ERROR");
   }
 }

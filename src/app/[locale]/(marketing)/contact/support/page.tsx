@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ContactForm } from "@/features/marketing/contact/contact-form";
+import { SupportForm } from "@/features/marketing/contact/support-form";
 import { Container } from "@/components/ui/container";
-import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
+// import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { createPageMetadata } from "@/lib/metadata";
 import { ContactCopyItem } from "@/features/marketing/contact/contact-copy-item";
 
-export async function generateMetadata(props: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
@@ -37,13 +39,13 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   });
 
   return (
-    <div className="relative">
-      <Hero>
+    <div className="relative pt-20">
+      {/*<Hero>
         <HeroContent size="md">
           <HeroTitle>{t("title")}</HeroTitle>
           <HeroDescription>{t("infoDescription")}</HeroDescription>
         </HeroContent>
-      </Hero>
+      </Hero>*/}
 
       <Container className="pb-24">
         <div className="grid gap-12 md:grid-cols-2">
@@ -53,7 +55,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <p className="text-muted-foreground">{t("infoDescription")}</p>
             </div>
             <div>
-              <Button variant="secondary" size="lg">{t("infoButton")}</Button>
+              <Button variant="secondary" size="lg">
+                {t("infoButton")}
+              </Button>
             </div>
             <div className="flex flex-col gap-4">
               <ContactCopyItem label="Email" value={t("email")} />
@@ -61,9 +65,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             </div>
           </div>
 
-          <Card>
-            <CardContent>
-              <ContactForm />
+          <Card className="">
+            <CardContent className="flex flex-1 flex-col justify-center">
+              <SupportForm />
             </CardContent>
           </Card>
         </div>
