@@ -15,8 +15,28 @@ import AppIconSvg from "@/assets/svgs/start-app-icon.svg";
 import { NewsletterCta } from "@/features/marketing/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
 import { MarqueeCompanies } from "@/features/marketing/home/marquee-companies";
-import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
+// import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { createPageMetadata } from "@/lib/metadata";
+import {
+  HomeFeature,
+  HomeFeatureDescription,
+  HomeFeatureHeader,
+  HomeFeatureHeaderAside,
+  HomeFeatureLink,
+  HomeFeatureMedia,
+  HomeFeatureSubLink,
+  HomeFeatureSubLinks,
+  HomeFeatureTitle,
+} from "@/features/marketing/home/home-feature";
+import OgImage from "@/assets/images/og-image.jpg";
+import Image from "next/image";
+import {
+  HomeCta,
+  HomeCtaActions,
+  HomeCtaDescription,
+  HomeCtaTitle,
+} from "@/features/marketing/home/home-cta";
+import { Separator } from "@/components/ui/separator";
 
 export async function generateMetadata(props: PageProps<"/[locale]">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -88,9 +108,72 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
         </Container>
 
         <Container render={<section />}>
-          <Placeholder>
+          {/*<Placeholder>
             <PlaceholderTitle>Content</PlaceholderTitle>
-          </Placeholder>
+          </Placeholder>*/}
+
+          <HomeFeature>
+            <HomeFeatureHeader>
+              <HomeFeatureTitle>Lorem ipsum dolor</HomeFeatureTitle>
+              <HomeFeatureHeaderAside>
+                <HomeFeatureDescription>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ullamcorper nunc a
+                  lectus eleifend, sed laoreet nulla pretium. Praesent dictum mi nunc, sit amet
+                  gravida turpis lobortis et.
+                </HomeFeatureDescription>
+                <HomeFeatureLink href="#">Zjistit více</HomeFeatureLink>
+              </HomeFeatureHeaderAside>
+            </HomeFeatureHeader>
+            <HomeFeatureMedia>
+              <Image src={OgImage} alt="" className="w-full" />
+            </HomeFeatureMedia>
+            <HomeFeatureSubLinks>
+              <HomeFeatureSubLink href="#">Feature 1</HomeFeatureSubLink>
+              <HomeFeatureSubLink href="#">Feature 2</HomeFeatureSubLink>
+              <HomeFeatureSubLink href="#">Feature 3</HomeFeatureSubLink>
+            </HomeFeatureSubLinks>
+          </HomeFeature>
+        </Container>
+
+        <Container>
+          <Separator />
+        </Container>
+
+        <Container>
+          <HomeFeature>
+            <HomeFeatureHeader>
+              <HomeFeatureTitle>Lorem ipsum dolor</HomeFeatureTitle>
+              <HomeFeatureHeaderAside>
+                <HomeFeatureDescription>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam ullamcorper nunc a
+                  lectus eleifend, sed laoreet nulla pretium. Praesent dictum mi nunc, sit amet
+                  gravida turpis lobortis et.
+                </HomeFeatureDescription>
+                <HomeFeatureLink href="#">Zjistit více</HomeFeatureLink>
+              </HomeFeatureHeaderAside>
+            </HomeFeatureHeader>
+            <HomeFeatureMedia>
+              <div className="h-100 w-full bg-gray-300"></div>
+            </HomeFeatureMedia>
+            <HomeFeatureSubLinks>
+              <HomeFeatureSubLink href="#">Feature 1</HomeFeatureSubLink>
+              <HomeFeatureSubLink href="#">Feature 2</HomeFeatureSubLink>
+              <HomeFeatureSubLink href="#">Feature 3</HomeFeatureSubLink>
+            </HomeFeatureSubLinks>
+          </HomeFeature>
+        </Container>
+
+        <Container>
+          <HomeCta>
+            <HomeCtaTitle>Call to Action Title</HomeCtaTitle>
+            <HomeCtaDescription>Call to Action Description</HomeCtaDescription>
+            <HomeCtaActions>
+              <Button size="lg">Action 1</Button>
+              <Button size="lg" variant="secondary">
+                Action 2
+              </Button>
+            </HomeCtaActions>
+          </HomeCta>
         </Container>
       </div>
     </div>

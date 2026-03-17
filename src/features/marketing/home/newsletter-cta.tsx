@@ -1,21 +1,24 @@
 import { NewsletterForm } from "@/features/marketing/newsletter/newsletter-form";
-import { Card, CardContent } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
-export function NewsletterCta(props: React.ComponentProps<typeof Card>) {
+export function NewsletterCta({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("pages.home.newsletterCta");
 
   return (
-    <Card {...props}>
-      <CardContent className="grid gap-7 md:grid-cols-2">
-        <div className="flex flex-col items-start justify-center gap-6">
-          <h2 className="text-2xl font-bold sm:text-3xl">{t("title")}</h2>
-          <p className="text-muted-foreground">{t("description")}</p>
-        </div>
-        <div className="relative z-10">
-          <NewsletterForm />
-        </div>
-      </CardContent>
-    </Card>
+    <div
+      {...props}
+      className={cn(
+        "bg-muted flex flex-col gap-8 rounded-xl px-8 py-6 sm:px-12 sm:py-8 md:flex-row md:items-center md:gap-16",
+        className
+      )}
+    >
+      <div className="flex flex-1 flex-col gap-3">
+        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("title")}</h2>
+        <p className="text-muted-foreground sm:text-lg">{t("description")}</p>
+      </div>
+
+      <NewsletterForm className="md:flex-1" />
+    </div>
   );
 }

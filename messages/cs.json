@@ -173,7 +173,12 @@
     "contact": {
       "title": "Kontakt",
       "description": "Napište nám. Ozveme se vám co nejdříve.",
-      "formTitle": "Kontaktní formulář"
+      "formTitle": "Kontaktní formulář",
+      "supportTitle": "Podpora",
+      "supportDescription": "Máte otázku nebo potřebujete pomoc? Napište nám a ozveme se co nejdříve.",
+      "supportButton": "Button",
+      "email": "hello@example.com",
+      "phone": "+1 234 567 890"
     },
     "signIn": {
       "title": "Přihlášení",
