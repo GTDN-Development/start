@@ -24,8 +24,8 @@ import {
   HomeFeatureHeaderAside,
   HomeFeatureLink,
   HomeFeatureMedia,
-  HomeFeatureSubLink,
-  HomeFeatureSubLinks,
+  // HomeFeatureSubLink,
+  // HomeFeatureSubLinks,
   HomeFeatureTitle,
 } from "@/features/marketing/home/home-feature";
 import OgImage from "@/assets/images/og-image.jpg";
@@ -127,11 +127,11 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
             <HomeFeatureMedia>
               <Image src={OgImage} alt="" className="w-full" />
             </HomeFeatureMedia>
-            <HomeFeatureSubLinks>
+            {/*<HomeFeatureSubLinks>
               <HomeFeatureSubLink href="#">Feature 1</HomeFeatureSubLink>
               <HomeFeatureSubLink href="#">Feature 2</HomeFeatureSubLink>
               <HomeFeatureSubLink href="#">Feature 3</HomeFeatureSubLink>
-            </HomeFeatureSubLinks>
+            </HomeFeatureSubLinks>*/}
           </HomeFeature>
         </Container>
 
@@ -155,11 +155,11 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
             <HomeFeatureMedia>
               <div className="h-100 w-full bg-gray-300"></div>
             </HomeFeatureMedia>
-            <HomeFeatureSubLinks>
+            {/*<HomeFeatureSubLinks>
               <HomeFeatureSubLink href="#">Feature 1</HomeFeatureSubLink>
               <HomeFeatureSubLink href="#">Feature 2</HomeFeatureSubLink>
               <HomeFeatureSubLink href="#">Feature 3</HomeFeatureSubLink>
-            </HomeFeatureSubLinks>
+            </HomeFeatureSubLinks>*/}
           </HomeFeature>
         </Container>
 

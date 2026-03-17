@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ContactForm } from "@/features/marketing/contact/contact-form";
+import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { createPageMetadata } from "@/lib/metadata";
+import { ArrowRightIcon } from "lucide-react";
+import { FaqSection } from "@/features/marketing/contact/faq-section";
 
 export async function generateMetadata(props: PageProps<"/[locale]/contact">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -44,46 +45,42 @@ export default async function Page({ params }: PageProps<"/[locale]/contact">) {
         </HeroContent>
       </Hero>
 
-      <Container className="pb-24">
-        <div className="grid gap-12 md:grid-cols-2">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-3">
-              <h2 className="text-2xl font-bold tracking-tight">{t("supportTitle")}</h2>
-              <p className="text-muted-foreground">{t("supportDescription")}</p>
-            </div>
-            <div>
-              <Button variant="secondary" size="lg">
-                {t("supportButton")}
-              </Button>
-            </div>
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <p className="text-muted-foreground text-sm font-medium">Email</p>
-                <a
-                  href="mailto:hello@example.com"
-                  className="text-foreground hover:text-muted-foreground text-lg transition-colors"
-                >
-                  hello@example.com
-                </a>
+      <Container size="md" className="pb-24">
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="hover:ring-foreground/20 relative transition-shadow">
+            <CardContent className="flex flex-col gap-4 p-6 sm:p-8">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-xl font-semibold tracking-tight">{t("support.title")}</h2>
+                <p className="text-muted-foreground">{t("support.cardDescription")}</p>
               </div>
-              <div className="flex flex-col gap-1">
-                <p className="text-muted-foreground text-sm font-medium">Phone</p>
-                <a
-                  href="tel:+1234567890"
-                  className="text-foreground hover:text-muted-foreground text-lg transition-colors"
-                >
-                  +1 234 567 890
-                </a>
+              <div className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
+                <Link href="/contact/support" className="after:absolute after:inset-0">
+                  {t("support.title")}
+                </Link>
+                <ArrowRightIcon className="size-4" aria-hidden="true" />
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <Card>
-            <CardContent>
-              <ContactForm />
+          <Card className="hover:ring-foreground/20 relative transition-shadow">
+            <CardContent className="flex flex-col gap-4 p-6 sm:p-8">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-xl font-semibold tracking-tight">{t("sales.title")}</h2>
+                <p className="text-muted-foreground">{t("sales.cardDescription")}</p>
+              </div>
+              <div className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
+                <Link href="/contact/sales" className="after:absolute after:inset-0">
+                  {t("sales.title")}
+                </Link>
+                <ArrowRightIcon className="size-4" aria-hidden="true" />
+              </div>
             </CardContent>
           </Card>
         </div>
+      </Container>
+
+      <Container className="mb-40">
+        <FaqSection />
       </Container>
     </div>
   );

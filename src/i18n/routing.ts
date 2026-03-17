@@ -29,6 +29,12 @@ export const routing = defineRouting({
     "/contact": {
       cs: "/kontakt",
     },
+    "/contact/support": {
+      cs: "/kontakt/podpora",
+    },
+    "/contact/sales": {
+      cs: "/kontakt/obchod",
+    },
     "/cookies": {
       cs: "/cookies",
     },

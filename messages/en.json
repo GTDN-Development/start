@@ -172,13 +172,25 @@
     },
     "contact": {
       "title": "Contact",
-      "description": "Get in touch with us. We will get back to you as soon as possible.",
-      "formTitle": "Contact form",
-      "supportTitle": "Support",
-      "supportDescription": "Have a question or need help? Reach out and we'll get back to you as soon as possible.",
-      "supportButton": "Button",
-      "email": "hello@example.com",
-      "phone": "+1 234 567 890"
+      "description": "Choose how you'd like to get in touch.",
+      "support": {
+        "title": "Contact Support",
+        "cardDescription": "Get help with technical issues, bugs, or questions about using the product.",
+        "infoTitle": "Support",
+        "infoDescription": "Have a question or need help? Reach out and we'll get back to you as soon as possible.",
+        "infoButton": "View documentation",
+        "email": "support@example.com",
+        "phone": "+1 234 567 890"
+      },
+      "sales": {
+        "title": "Contact Sales",
+        "cardDescription": "Talk to our sales team about pricing, plans, or enterprise options.",
+        "infoTitle": "Sales",
+        "infoDescription": "Interested in our product for your team? We'd love to help you find the right plan.",
+        "infoButton": "View pricing",
+        "email": "sales@example.com",
+        "phone": "+1 234 567 891"
+      }
     },
     "signIn": {
       "title": "Sign in",

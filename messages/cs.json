@@ -172,13 +172,25 @@
     },
     "contact": {
       "title": "Kontakt",
-      "description": "Napište nám. Ozveme se vám co nejdříve.",
-      "formTitle": "Kontaktní formulář",
-      "supportTitle": "Podpora",
-      "supportDescription": "Máte otázku nebo potřebujete pomoc? Napište nám a ozveme se co nejdříve.",
-      "supportButton": "Button",
-      "email": "hello@example.com",
-      "phone": "+1 234 567 890"
+      "description": "Vyberte, jak nás chcete kontaktovat.",
+      "support": {
+        "title": "Kontaktovat podporu",
+        "cardDescription": "Potřebujete pomoc s technickými problémy nebo máte otázky k produktu?",
+        "infoTitle": "Podpora",
+        "infoDescription": "Máte otázku nebo potřebujete pomoc? Napište nám a ozveme se co nejdříve.",
+        "infoButton": "Zobrazit dokumentaci",
+        "email": "support@example.com",
+        "phone": "+420 123 456 789"
+      },
+      "sales": {
+        "title": "Kontaktovat obchod",
+        "cardDescription": "Zajímá vás produkt pro váš tým? Promluvte si s naším obchodním týmem.",
+        "infoTitle": "Obchod",
+        "infoDescription": "Zajímá vás náš produkt pro váš tým? Rádi vám pomůžeme najít správný plán.",
+        "infoButton": "Zobrazit ceník",
+        "email": "sales@example.com",
+        "phone": "+420 123 456 790"
+      }
     },
     "signIn": {
       "title": "Přihlášení",
