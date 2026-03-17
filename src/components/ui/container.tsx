@@ -1,7 +1,7 @@
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/components/ui/utils";
 
 export const containerVariants = cva(
   [

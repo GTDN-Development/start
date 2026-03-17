@@ -22,12 +22,12 @@ import {
 import { app } from "@/config/app";
 import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
 
-const inter = Inter({
-  variable: "--font-inter",
+const fontSans = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
+const fontMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
@@ -113,9 +113,9 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`scroll-pt-16 ${inter.variable} ${geistMono.variable}`}
+      className={`scroll-pt-16 ${fontSans.variable} ${fontMono.variable}`}
     >
-      <body className="font-sans antialiased">
+      <body className="antialiased">
         <NextIntlClientProvider>
           <AppProviders
             initialCookieConsent={initialCookieConsent}

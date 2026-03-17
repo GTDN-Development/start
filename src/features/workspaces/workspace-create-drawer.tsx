@@ -23,7 +23,7 @@ import { app } from "@/config/app";
 import { workspaceConfig } from "@/config/workspace";
 import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { useRouter } from "@/i18n/navigation";
-import { resolveErrorMessage } from "@/lib/utils";
+import { resolveErrorMessage } from "@/lib/app-utils";
 
 type WorkspaceCreateFormValues = {
   name: string;

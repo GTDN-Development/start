@@ -1,4 +1,4 @@
-import { isRecord } from "@/lib/utils";
+import { isRecord } from "@/lib/app-utils";
 
 export const COOKIE_NAME = "cookie_consent";
 export const COOKIE_CONSENT_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;

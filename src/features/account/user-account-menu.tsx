@@ -16,7 +16,8 @@ import { Link, type LinkHref } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthUser } from "@/features/auth/auth-contract";
 import { useSignOut } from "@/features/auth/use-sign-out";
-import { cn, getUserInitials } from "@/lib/utils";
+import { getUserInitials } from "@/lib/app-utils";
+import { cn } from "@/lib/utils";
 import { ChevronsUpDownIcon, HomeIcon, LogOutIcon } from "lucide-react";
 
 export type UserAccountMenuViewer = Pick<AuthUser, "email" | "name" | "verified" | "avatarUrl">;

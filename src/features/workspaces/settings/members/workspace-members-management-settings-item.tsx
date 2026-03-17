@@ -70,7 +70,7 @@ import type {
   WorkspaceSettingsMember,
   WorkspaceSettingsWorkspace,
 } from "@/features/workspaces/settings/workspace-settings-types";
-import { getUserInitials } from "@/lib/utils";
+import { getUserInitials } from "@/lib/app-utils";
 import {
   Table,
   TableBody,

@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { createPageMetadata } from "@/lib/metadata";
 import { ContactCopyItem } from "@/features/marketing/contact/contact-copy-item";
 import { legal } from "@/config/legal";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber } from "@/lib/app-utils";
 
 export async function generateMetadata(props: {
   params: Promise<{ locale: string }>;

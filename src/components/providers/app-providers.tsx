@@ -3,6 +3,7 @@
 import { ThemeProvider } from "next-themes";
 import { CookieContextProvider } from "@/features/cookies/cookie-context";
 import type { ConsentState } from "@/features/cookies/cookie-consent";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 type AppProvidersProps = {
   children: React.ReactNode;
@@ -21,7 +22,7 @@ export function AppProviders({
       initialHasInteracted={initialCookieConsentInteracted}
     >
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
       </ThemeProvider>
     </CookieContextProvider>
   );

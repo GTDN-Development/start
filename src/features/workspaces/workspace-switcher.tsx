@@ -21,7 +21,8 @@ import {
 import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { type AppHref, usePathname, useRouter } from "@/i18n/navigation";
-import { cn, getUserInitials } from "@/lib/utils";
+import { getUserInitials } from "@/lib/app-utils";
+import { cn } from "@/lib/utils";
 import {
   WorkspaceAvatar,
   WorkspaceAvatarFallback,

@@ -27,7 +27,8 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { legal } from "@/config/legal";
 import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
-import { cn, formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber } from "@/lib/app-utils";
+import { cn } from "@/lib/utils";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
 import { useSignOut } from "@/features/auth/use-sign-out";
 

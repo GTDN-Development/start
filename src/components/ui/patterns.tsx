@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/components/ui/utils";
 
 export function PatternGrid({
   gridSize = 100,

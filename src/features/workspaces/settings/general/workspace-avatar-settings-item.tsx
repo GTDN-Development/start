@@ -31,7 +31,7 @@ import {
 import { workspaceConfig } from "@/config/workspace";
 import { useRouter } from "@/i18n/navigation";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
-import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
+import { getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
 
 export function WorkspaceAvatarSettingsItem({
   workspace,

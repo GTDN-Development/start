@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { z } from "zod";
 import { normalizedEmailSchema, turnstileTokenSchema } from "@/lib/schemas";
-import { formatEmailTimestamp } from "@/lib/utils";
+import { formatEmailTimestamp } from "@/lib/app-utils";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import { escapeHtml, sendFormEmail } from "@/server/email/send-form-email";
 import { requireCurrentUser } from "@/server/auth/current-user";

@@ -1,5 +1,5 @@
 import { useRender } from "@base-ui/react/use-render";
-import { cn } from "@/lib/utils";
+import { cn } from "@/components/ui/utils";
 
 /**
  * SettingsItem — a compound component for building settings panels.

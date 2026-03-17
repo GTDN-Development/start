@@ -28,7 +28,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { accountConfig } from "@/config/account";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
-import { getUserInitials, resolveErrorMessage } from "@/lib/utils";
+import { getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
 const MAX_ACCOUNT_AVATAR_SIZE_BYTES = accountConfig.limits.avatarMaxSizeBytes;
