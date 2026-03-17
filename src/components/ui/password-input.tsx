@@ -3,7 +3,7 @@
 import * as React from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import {
   InputGroup,
   InputGroupAddon,

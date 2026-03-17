@@ -1,6 +1,6 @@
 import { useRender } from "@base-ui/react/use-render";
 
-import { cn } from "@/components/ui/utils";
+import { cn } from "@/lib/utils";
 import { containerVariants, type ContainerProps } from "./container";
 
 function Hero({ className, render, ...props }: useRender.ComponentProps<"section">) {
