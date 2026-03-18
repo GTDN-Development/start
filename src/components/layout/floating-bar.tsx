@@ -23,6 +23,7 @@ function FloatingBar({
   position,
   autoHide,
   scrolledThreshold = 64,
+  scrolledExitOffset = 8,
   autoHideThreshold = 512,
   render,
   ...props
@@ -30,6 +31,7 @@ function FloatingBar({
   VariantProps<typeof floatingBarVariants> & {
     autoHide?: boolean;
     scrolledThreshold?: number;
+    scrolledExitOffset?: number;
     autoHideThreshold?: number;
   }) {
   const [isHidden, setIsHidden] = useState(false);
@@ -39,30 +41,39 @@ function FloatingBar({
   const isSticky = position === "sticky";
   const isFixed = position === "fixed";
 
-  // previous scroll position
   const prevScrollY = useRef(0);
+  const isScrolledRef = useRef(false);
 
-  // Set mounted state to prevent hydration mismatch
   useEffect(() => {
     Promise.resolve().then(() => {
       setIsMounted(true);
     });
   }, []);
 
+  useEffect(() => {
+    isScrolledRef.current = isScrolled;
+  }, [isScrolled]);
+
   useLayoutEffect(() => {
     if (!(isSticky || isFixed) || !isMounted) return;
 
+    const exitThreshold = Math.max(scrolledThreshold - scrolledExitOffset, 0);
+
+    function updateScrolledState(nextIsScrolled: boolean) {
+      if (isScrolledRef.current === nextIsScrolled) return;
+
+      isScrolledRef.current = nextIsScrolled;
+      setIsScrolled(nextIsScrolled);
+    }
+
     function handleScroll() {
       const currentScrollY = window.scrollY;
+      const nextIsScrolled = isScrolledRef.current
+        ? currentScrollY > exitThreshold
+        : currentScrollY > scrolledThreshold;
 
-      // Handle scrolled state
-      if (currentScrollY > scrolledThreshold) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      updateScrolledState(nextIsScrolled);
 
-      // Handle auto-hide behavior
       if (!autoHide) return;
 
       if (currentScrollY > autoHideThreshold && currentScrollY > prevScrollY.current) {
@@ -71,19 +82,26 @@ function FloatingBar({
         setIsHidden(false);
       }
 
-      // Update previous scroll position
       prevScrollY.current = currentScrollY;
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-
-    // Only call handleScroll after component is mounted to prevent hydration mismatch
-    handleScroll();
+    Promise.resolve().then(() => {
+      handleScroll();
+    });
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [autoHide, isSticky, isFixed, autoHideThreshold, scrolledThreshold, isMounted]);
+  }, [
+    autoHide,
+    isSticky,
+    isFixed,
+    autoHideThreshold,
+    scrolledThreshold,
+    scrolledExitOffset,
+    isMounted,
+  ]);
 
   return useRender({
     render,

@@ -313,7 +313,9 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
                             size="lg"
                             className="w-full"
                             nativeButton={false}
-                            render={<MobileMenuClose render={<Link href={signUpMenuItem.href} />} />}
+                            render={
+                              <MobileMenuClose render={<Link href={signUpMenuItem.href} />} />
+                            }
                           >
                             {tNav(signUpMenuItem.labelKey)}
                           </Button>
@@ -324,7 +326,9 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
                             size="lg"
                             className="w-full"
                             nativeButton={false}
-                            render={<MobileMenuClose render={<Link href={signInMenuItem.href} />} />}
+                            render={
+                              <MobileMenuClose render={<Link href={signInMenuItem.href} />} />
+                            }
                           >
                             {tNav(signInMenuItem.labelKey)}
                           </Button>
