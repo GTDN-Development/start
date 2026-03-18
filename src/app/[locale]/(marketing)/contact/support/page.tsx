@@ -68,7 +68,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               </h1>
               <p className="text-muted-foreground">{t("infoDescription")}</p>
             </div>
-            <ContactCopyItem value={legal.contact.support.email} buttonClassName="text-primary" />
+            <ContactCopyItem
+              value={legal.contact.support.email}
+              buttonClassName="hover:text-primary"
+            />
           </div>
 
           <Card>

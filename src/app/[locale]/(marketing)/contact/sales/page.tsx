@@ -62,18 +62,21 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <p className="text-muted-foreground">{t("infoDescription")}</p>
             </div>
             <div className="flex flex-col gap-4">
-              <ContactCopyItem value={legal.contact.sales.email} buttonClassName="text-primary" />
+              <ContactCopyItem
+                value={legal.contact.sales.email}
+                buttonClassName="hover:text-primary"
+              />
               <ContactCopyItem
                 value={legal.contact.sales.phone}
                 displayValue={formatPhoneNumber(legal.contact.sales.phone)}
-                buttonClassName="text-primary"
+                buttonClassName="hover:text-primary"
               />
             </div>
             <div className="mt-2 flex flex-col gap-2">
               <p className="text-muted-foreground">{t("supportPrompt.title")}</p>
               <Link
                 href="/contact/support"
-                className="text-primary hover:text-primary/80 inline-flex w-fit items-center gap-1.5 text-base transition-colors"
+                className="hover:text-primary inline-flex w-fit items-center gap-1.5 text-base"
               >
                 {t("supportPrompt.cta")}
                 <ChevronRightIcon aria-hidden="true" className="size-4" />
@@ -85,7 +88,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             <CardContent className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
                 <h2 className="text-lg font-semibold tracking-tight">{t("formTitle")}</h2>
-                <p className="text-sm text-muted-foreground">{t("formDescription")}</p>
+                <p className="text-muted-foreground text-sm">{t("formDescription")}</p>
               </div>
               <ContactForm />
             </CardContent>

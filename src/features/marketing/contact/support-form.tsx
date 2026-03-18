@@ -234,7 +234,7 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
                 }}
               </form.Field>
 
-              <Button type="submit" disabled={isSubmitting} size="lg" className="w-fit self-start">
+              <Button type="submit" disabled={isSubmitting} size="lg" className="w-full self-start">
                 {isSubmitting && <Spinner />}
                 {isSubmitting ? t("submit.pending") : t("submit.default")}
               </Button>
