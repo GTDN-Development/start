@@ -30,6 +30,34 @@ const eslintConfig = defineConfig([
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "func-style": ["warn", "declaration", { allowArrowFunctions: false }],
       quotes: ["warn", "double", { avoidEscape: true, allowTemplateLiterals: true }],
+      "no-restricted-imports": [
+        "warn",
+        {
+          paths: [
+            {
+              name: "react",
+              importNames: ["useEffect"],
+              message:
+                "Use declarative patterns first. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
+            },
+          ],
+        },
+      ],
+      "no-restricted-properties": [
+        "warn",
+        {
+          object: "React",
+          property: "useEffect",
+          message:
+            "Use declarative patterns first. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/hooks/use-mount-effect.ts"],
+    rules: {
+      "no-restricted-imports": "off",
     },
   },
   {
