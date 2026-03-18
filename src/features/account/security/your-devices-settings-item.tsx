@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +35,6 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import type { AuthErrorCode } from "@/features/auth/auth-contract";
 import {
-  listDeviceSessionsAction,
   signOutDeviceAction,
   signOutOtherDevicesAction,
 } from "@/features/account/actions/device-session-actions";
@@ -45,12 +44,15 @@ import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 
 type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;
 
-export function YourDevicesSettingsItem() {
+export function YourDevicesSettingsItem({
+  initialSessions,
+}: {
+  initialSessions: DeviceSessionListItem[];
+}) {
   const t = useTranslations("pages.account");
   const locale = useLocale();
   const router = useRouter();
-  const [deviceSessions, setDeviceSessions] = useState<DeviceSessionListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [deviceSessions, setDeviceSessions] = useState(initialSessions);
   const [pendingDeviceSessionId, setPendingDeviceSessionId] = useState<string | null>(null);
   const [isSignOutOthersDialogOpen, setIsSignOutOthersDialogOpen] = useState(false);
   const [isSignOutOthersPending, setIsSignOutOthersPending] = useState(false);
@@ -62,31 +64,6 @@ export function YourDevicesSettingsItem() {
       }),
     [locale]
   );
-
-  useEffect(() => {
-    let isMounted = true;
-
-    void listDeviceSessionsAction().then((response) => {
-      Promise.resolve().then(() => {
-        if (!isMounted) {
-          return;
-        }
-
-        if (response.ok) {
-          setDeviceSessions(response.data.sessions);
-          setIsLoading(false);
-          return;
-        }
-
-        handleAuthError(response.errorCode, t, router, "security.devices.status.loadError");
-        setIsLoading(false);
-      });
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [router, t]);
 
   async function handleSignOutOtherDevices(): Promise<void> {
     setIsSignOutOthersPending(true);
@@ -144,10 +121,7 @@ export function YourDevicesSettingsItem() {
 
   const hasOtherDeviceSessions = deviceSessions.some((session) => !session.isCurrentDevice);
   const isSignOutOthersDisabled =
-    isLoading ||
-    isSignOutOthersPending ||
-    pendingDeviceSessionId !== null ||
-    !hasOtherDeviceSessions;
+    isSignOutOthersPending || pendingDeviceSessionId !== null || !hasOtherDeviceSessions;
 
   return (
     <SettingsItem>
@@ -159,28 +133,19 @@ export function YourDevicesSettingsItem() {
 
         <SettingsItemContentBody>
           <SettingsItemList>
-            {isLoading && (
-              <SettingsItemListItem>
-                <SettingsItemListContent>
-                  <SettingsItemListDescription>{t("security.devices.loading")}</SettingsItemListDescription>
-                </SettingsItemListContent>
-              </SettingsItemListItem>
-            )}
+            {deviceSessions.map((session) => (
+              <DeviceItem
+                key={session.id}
+                session={session}
+                t={t}
+                dateTimeFormatter={dateTimeFormatter}
+                isSignOutPending={pendingDeviceSessionId === session.id}
+                isActionsDisabled={isSignOutOthersPending}
+                onSignOutDevice={handleSignOutDevice}
+              />
+            ))}
 
-            {!isLoading &&
-              deviceSessions.map((session) => (
-                <DeviceItem
-                  key={session.id}
-                  session={session}
-                  t={t}
-                  dateTimeFormatter={dateTimeFormatter}
-                  isSignOutPending={pendingDeviceSessionId === session.id}
-                  isActionsDisabled={isSignOutOthersPending}
-                  onSignOutDevice={handleSignOutDevice}
-                />
-              ))}
-
-            {!isLoading && deviceSessions.length === 0 && (
+            {deviceSessions.length === 0 && (
               <SettingsItemListItem>
                 <SettingsItemListContent>
                   <SettingsItemListDescription>{t("security.devices.empty")}</SettingsItemListDescription>
