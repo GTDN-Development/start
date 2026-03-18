@@ -30,26 +30,18 @@ const eslintConfig = defineConfig([
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "func-style": ["warn", "declaration", { allowArrowFunctions: false }],
       quotes: ["warn", "double", { avoidEscape: true, allowTemplateLiterals: true }],
-      "no-restricted-imports": [
-        "warn",
+      "react-hooks/set-state-in-effect": "error",
+      "no-restricted-syntax": [
+        "error",
         {
-          paths: [
-            {
-              name: "react",
-              importNames: ["useEffect"],
-              message:
-                "Use declarative patterns first. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
-            },
-          ],
-        },
-      ],
-      "no-restricted-properties": [
-        "warn",
-        {
-          object: "React",
-          property: "useEffect",
+          selector: "ImportSpecifier[imported.name='useEffect']",
           message:
-            "Use declarative patterns first. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
+            "Raw useEffect is restricted. Follow .rules/use-effect-guidelines.md. Prefer render-time derivation, handlers, keys, server/data abstractions, or useSyncExternalStore. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
+        },
+        {
+          selector: "MemberExpression[object.name='React'][property.name='useEffect']",
+          message:
+            "Raw useEffect is restricted. Follow .rules/use-effect-guidelines.md. Prefer render-time derivation, handlers, keys, server/data abstractions, or useSyncExternalStore. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
         },
       ],
     },
@@ -57,7 +49,22 @@ const eslintConfig = defineConfig([
   {
     files: ["src/hooks/use-mount-effect.ts"],
     rules: {
-      "no-restricted-imports": "off",
+      "no-restricted-syntax": "off",
+    },
+  },
+  {
+    // Temporary audited exceptions while the project is being refactored away from raw useEffect.
+    files: [
+      "src/app/[[]locale[]]/error.tsx",
+      "src/components/layout/floating-bar.tsx",
+      "src/components/ui/sidebar.tsx",
+      "src/features/auth/auth-client.ts",
+      "src/features/auth/invite/token/invite-token-auth-required-redirect.tsx",
+      "src/features/auth/sign-in/sign-in-flash-toast.tsx",
+      "src/features/cookies/cookie-context.tsx",
+    ],
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
   {

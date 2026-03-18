@@ -1,0 +1,4 @@
+interface:
+  display_name: "useEffect Refactor"
+  short_description: "Audit and remove raw useEffect."
+  default_prompt: "Use $use-effect-refactor to audit raw useEffect usage and replace it with render-time derivation, handlers, keys, useSyncExternalStore, or explicit mount sync."

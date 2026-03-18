@@ -63,7 +63,10 @@
 
 ## State
 
-- Defer `setState` inside `useEffect` via `Promise.resolve().then(...)` — **never** call it synchronously
+- Default to no raw `useEffect` in app code — follow `.rules/use-effect-guidelines.md`
+- Prefer render-time derivation, event handlers, server/data abstractions, `key`, and `useSyncExternalStore` over `useEffect`
+- `useMountEffect()` is only for mount/unmount sync with external systems — do not move business logic into it just to satisfy lint
+- `useLayoutEffect()` is only for DOM measurement or pre-paint sync that would visibly break in `useEffect`
 
 ## Configuration & Menus (`src/config/menu.ts`)
 
