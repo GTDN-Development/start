@@ -1,23 +1,40 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useRef, useState } from "react";
+
+import { useMountEffect } from "@/hooks/use-mount-effect";
 
 export function useClipboard(timeout: number = 2000) {
   const [isCopied, setIsCopied] = useState(false);
+  const timeoutIdRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (isCopied) {
-      const timeoutId = setTimeout(() => {
-        Promise.resolve().then(() => setIsCopied(false));
-      }, timeout);
-      return () => clearTimeout(timeoutId);
+  function clearResetTimeout() {
+    if (timeoutIdRef.current !== null) {
+      window.clearTimeout(timeoutIdRef.current);
+      timeoutIdRef.current = null;
     }
-  }, [isCopied, timeout]);
+  }
+
+  useMountEffect(() => {
+    return () => {
+      clearResetTimeout();
+    };
+  });
 
   async function copy(text: string): Promise<boolean> {
     try {
       await window.navigator.clipboard.writeText(text);
+
+      clearResetTimeout();
       setIsCopied(true);
+
+      timeoutIdRef.current = window.setTimeout(() => {
+        Promise.resolve().then(() => {
+          setIsCopied(false);
+          timeoutIdRef.current = null;
+        });
+      }, timeout);
+
       return true;
     } catch (error) {
       console.error("Failed to copy to clipboard:", error);
