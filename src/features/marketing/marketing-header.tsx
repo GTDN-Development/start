@@ -296,55 +296,38 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
 
                   <MobileMenuFooter>
                     {viewer && overviewMenuItem && (
-                      <MobileMenuClose
-                        render={
-                          <Button
-                            size="lg"
-                            className="w-full"
-                            nativeButton={false}
-                            render={<Link href={overviewMenuItem.href} />}
-                          >
-                            {applicationButtonLabel}
-                            <ChevronRightIcon
-                              aria-hidden="true"
-                              className="size-4"
-                              data-icon="inline-end"
-                            />
-                          </Button>
-                        }
-                      />
+                      <Button
+                        size="lg"
+                        className="w-full"
+                        nativeButton={false}
+                        render={<MobileMenuClose render={<Link href={overviewMenuItem.href} />} />}
+                      >
+                        {applicationButtonLabel}
+                        <ChevronRightIcon aria-hidden="true" data-icon="inline-end" />
+                      </Button>
                     )}
                     {!viewer && (
                       <>
                         {signUpMenuItem && (
-                          <MobileMenuClose
-                            render={
-                              <Button
-                                variant="default"
-                                size="lg"
-                                className="w-full"
-                                nativeButton={false}
-                                render={<Link href={signUpMenuItem.href} />}
-                              />
-                            }
+                          <Button
+                            size="lg"
+                            className="w-full"
+                            nativeButton={false}
+                            render={<MobileMenuClose render={<Link href={signUpMenuItem.href} />} />}
                           >
                             {tNav(signUpMenuItem.labelKey)}
-                          </MobileMenuClose>
+                          </Button>
                         )}
                         {signInMenuItem && (
-                          <MobileMenuClose
-                            render={
-                              <Button
-                                variant="secondary"
-                                size="lg"
-                                className="w-full"
-                                nativeButton={false}
-                                render={<Link href={signInMenuItem.href} />}
-                              />
-                            }
+                          <Button
+                            variant="secondary"
+                            size="lg"
+                            className="w-full"
+                            nativeButton={false}
+                            render={<MobileMenuClose render={<Link href={signInMenuItem.href} />} />}
                           >
                             {tNav(signInMenuItem.labelKey)}
-                          </MobileMenuClose>
+                          </Button>
                         )}
                       </>
                     )}
