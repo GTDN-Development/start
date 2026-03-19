@@ -175,9 +175,7 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
         // Transition and initial state
         "transform-gpu transition duration-300",
         // Initial state
-        "bg-background/75 border-b border-transparent backdrop-blur-2xl",
-        // Scrolled state - when the user starts scrolling
-        "data-scrolled:border-border",
+        "bg-background/75 border-b backdrop-blur-2xl",
         // Hidden state for auto-hide behavior
         "data-hidden:data-scrolled:shadow-none data-hidden:motion-safe:-translate-y-full"
       )}

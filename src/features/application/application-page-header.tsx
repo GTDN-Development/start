@@ -36,7 +36,7 @@ export function ApplicationPageHeader({ breadcrumbs }: ApplicationPageHeaderProp
         // Transition and initial state
         "transform-gpu transition duration-300",
         // Initial state
-        "bg-background/75 backdrop-blur-2xl"
+        "bg-background/75 border-b backdrop-blur-2xl"
       )}
     >
       <Container size="full" className="flex h-full min-w-0 shrink items-center gap-x-4">
