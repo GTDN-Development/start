@@ -46,7 +46,7 @@
         "changelog": "Nové funkce",
         "roadmap": "Plán vývoje",
         "workspace": "Workspace",
-        "account": "Účet",
+        "account": "Můj účet",
         "signIn": "Přihlášení",
         "signUp": "Registrace",
         "overview": "Přehled",
@@ -65,7 +65,7 @@
         "socialMedia": "Sociální sítě"
       },
       "cookieSettings": "Nastavení cookies",
-      "copiedToClipboard": "Zkopírováno do schránky",
+      "copiedValueToClipboard": "Zkopírováno do schránky: {value}",
       "copyright": "Copyright © {year} {company}. Všechna práva vyhrazena.",
       "scrollToTop": "Posunout nahoru",
       "createdBy": "Created by"
@@ -135,6 +135,7 @@
             "default": "Vytvořit workspace",
             "pending": "Vytvářím..."
           },
+          "cancel": "Zrušit",
           "status": {
             "created": "Workspace byl vytvořen.",
             "failed": "Workspace se nepodařilo vytvořit.",

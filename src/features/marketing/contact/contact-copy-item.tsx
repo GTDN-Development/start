@@ -26,7 +26,7 @@ export function ContactCopyItem({
       {label && <p className="text-muted-foreground text-sm font-medium">{label}</p>}
       <CopyButton
         toCopy={value}
-        onCopy={() => toast(t("copiedToClipboard"), { description: value, position: "bottom-center" })}
+        onCopy={() => toast(t("copiedValueToClipboard", { value }), { position: "bottom-center" })}
         className={cn("flex items-center gap-2 transition-colors", buttonClassName)}
       >
         {({ isCopied }) => (

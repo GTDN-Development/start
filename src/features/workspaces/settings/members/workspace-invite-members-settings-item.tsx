@@ -98,9 +98,7 @@ export function WorkspaceInviteMembersSettingsItem({
 
     setEmail("");
     setRole("member");
-    toast.success(tCommon("successTitle"), {
-      description: tInvite("status.sent"),
-    });
+    toast.success(tInvite("status.sent"));
     router.refresh();
   }
 

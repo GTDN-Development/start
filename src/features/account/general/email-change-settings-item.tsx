@@ -141,7 +141,7 @@ export function AccountEmailSettingsItem() {
 
           <div className="shrink-0 basis-auto self-start">
             {profile.verified ? (
-              <Badge variant={"secondary"}>{t("email.verification.verified")}</Badge>
+              <Badge>{t("email.verification.verified")}</Badge>
             ) : (
               <Badge variant={"destructive"}>{t("email.verification.unverified")}</Badge>
             )}

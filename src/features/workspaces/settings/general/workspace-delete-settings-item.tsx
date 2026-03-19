@@ -84,16 +84,14 @@ export function WorkspaceDeleteSettingsItem({
       const response = await deleteOrganizationWorkspaceAction(workspace.slug);
 
       if (!response.ok) {
-        toast.error(tCommon("errorTitle"), {
+        toast.error(t("status.failed"), {
           id: deleteWorkspaceToastId,
-          description: t("status.failed"),
         });
         return;
       }
 
-      toast.success(tCommon("successTitle"), {
+      toast.success(t("status.success"), {
         id: deleteWorkspaceToastId,
-        description: t("status.success"),
       });
 
       setIsDeleteDialogOpen(false);

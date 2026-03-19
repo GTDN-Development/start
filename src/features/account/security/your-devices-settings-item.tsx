@@ -75,9 +75,7 @@ export function YourDevicesSettingsItem({
         previousSessions.filter((session) => session.isCurrentDevice)
       );
       setIsSignOutOthersDialogOpen(false);
-      toast.success(t("common.successTitle"), {
-        description: t("security.devices.status.signOutAllSuccess"),
-      });
+      toast.success(t("security.devices.status.signOutAllSuccess"));
       setIsSignOutOthersPending(false);
       return;
     }
@@ -97,9 +95,7 @@ export function YourDevicesSettingsItem({
       setDeviceSessions((previousSessions) =>
         previousSessions.filter((session) => session.id !== deviceSessionId)
       );
-      toast.success(t("common.successTitle"), {
-        description: t("security.devices.status.signOutSuccess"),
-      });
+      toast.success(t("security.devices.status.signOutSuccess"));
       setPendingDeviceSessionId(null);
       return;
     }
@@ -108,9 +104,7 @@ export function YourDevicesSettingsItem({
       setDeviceSessions((previousSessions) =>
         previousSessions.filter((session) => session.id !== deviceSessionId)
       );
-      toast.error(t("common.errorTitle"), {
-        description: t("security.devices.status.notFound"),
-      });
+      toast.error(t("security.devices.status.notFound"));
       setPendingDeviceSessionId(null);
       return;
     }
@@ -312,22 +306,16 @@ function handleAuthError(
     | "security.devices.status.signOutAllError"
 ): void {
   if (errorCode === "UNAUTHORIZED") {
-    toast.error(t("common.errorTitle"), {
-      description: t("security.devices.status.unauthorized"),
-    });
+    toast.error(t("security.devices.status.unauthorized"));
     router.replace("/sign-in");
     router.refresh();
     return;
   }
 
   if (errorCode === "BAD_REQUEST") {
-    toast.error(t("common.errorTitle"), {
-      description: t("security.devices.status.invalidRequest"),
-    });
+    toast.error(t("security.devices.status.invalidRequest"));
     return;
   }
 
-  toast.error(t("common.errorTitle"), {
-    description: t(fallbackKey),
-  });
+  toast.error(t(fallbackKey));
 }

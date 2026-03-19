@@ -63,18 +63,16 @@ export function AccountAvatarSettingsItem() {
       });
 
       if (!preparedAvatarFileResult.ok) {
-        toast.error(t("common.errorTitle"), {
-          id: avatarToastId,
-          description: resolveErrorMessage(
-            preparedAvatarFileResult.errorCode,
-            t("avatar.status.error"),
-            {
-              INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
-              IMAGE_PROCESSING_FAILED: t("avatar.status.processingFailed"),
-              FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
-            }
-          ),
-        });
+        toast.error(
+          resolveErrorMessage(preparedAvatarFileResult.errorCode, t("avatar.status.error"), {
+            INVALID_FILE_TYPE: t("avatar.status.invalidFileType"),
+            IMAGE_PROCESSING_FAILED: t("avatar.status.processingFailed"),
+            FILE_TOO_LARGE: t("avatar.status.fileTooLarge"),
+          }),
+          {
+            id: avatarToastId,
+          }
+        );
         return;
       }
 
@@ -86,18 +84,19 @@ export function AccountAvatarSettingsItem() {
       if (response.ok) {
         patchProfile(response.data.profile);
         setFailedAvatarUrl(null);
-        toast.success(t("common.successTitle"), {
+        toast.success(t("avatar.status.updated"), {
           id: avatarToastId,
-          description: t("avatar.status.updated"),
         });
       } else {
-        toast.error(t("common.errorTitle"), {
-          id: avatarToastId,
-          description: resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
+        toast.error(
+          resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
             UNAUTHORIZED: t("avatar.status.unauthorized"),
             VALIDATION_ERROR: t("avatar.status.fileTooLarge"),
           }),
-        });
+          {
+            id: avatarToastId,
+          }
+        );
       }
     } finally {
       setIsAvatarUpdating(false);
@@ -116,17 +115,18 @@ export function AccountAvatarSettingsItem() {
     if (response.ok) {
       patchProfile(response.data.profile);
       setFailedAvatarUrl(null);
-      toast.success(t("common.successTitle"), {
+      toast.success(t("avatar.status.removed"), {
         id: avatarToastId,
-        description: t("avatar.status.removed"),
       });
     } else {
-      toast.error(t("common.errorTitle"), {
-        id: avatarToastId,
-        description: resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
+      toast.error(
+        resolveErrorMessage(response.errorCode, t("avatar.status.error"), {
           UNAUTHORIZED: t("avatar.status.unauthorized"),
         }),
-      });
+        {
+          id: avatarToastId,
+        }
+      );
     }
 
     setIsAvatarUpdating(false);

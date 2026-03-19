@@ -102,7 +102,6 @@ export function MarketingFooter({
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
   const tApplication = useTranslations("layout.application");
-  const copiedToClipboardMessage = t("copiedToClipboard");
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
   const accountLinks = viewer
     ? applicationMenu.filter((item) => item.labelKey === "overview" || item.labelKey === "account")
@@ -181,7 +180,6 @@ export function MarketingFooter({
             <li>
               <FooterItemToCopy
                 toCopy={legal.contact.email}
-                copyToastTitle={copiedToClipboardMessage}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 {legal.contact.email}
@@ -191,7 +189,6 @@ export function MarketingFooter({
               <li>
                 <FooterItemToCopy
                   toCopy={legal.contact.phone}
-                  copyToastTitle={copiedToClipboardMessage}
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
                   {formatPhoneNumber(legal.contact.phone)}
@@ -280,18 +277,20 @@ function AgencyCredit(props: React.ComponentProps<"p">) {
 function FooterItemToCopy({
   children,
   toCopy,
-  copyToastTitle,
   className,
 }: {
   children: React.ReactNode;
   toCopy: string;
-  copyToastTitle: string;
   className?: string;
 }) {
+  const t = useTranslations("layout.footer");
+
   return (
     <CopyButton
       toCopy={toCopy}
-      onCopy={() => toast(copyToastTitle, { description: toCopy, position: "bottom-center" })}
+      onCopy={() =>
+        toast(t("copiedValueToClipboard", { value: toCopy }), { position: "bottom-center" })
+      }
       className={cn("relative", className)}
     >
       {({ isCopied }) => (

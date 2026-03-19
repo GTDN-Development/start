@@ -69,16 +69,14 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
 
       if (!response.ok) {
         if (response.errorCode === "SLUG_NOT_AVAILABLE") {
-          toast.error(tCommon("errorTitle"), {
+          toast.error(t("status.slugTaken"), {
             id: urlToastId,
-            description: t("status.slugTaken"),
           });
           return;
         }
 
-        toast.error(tCommon("errorTitle"), {
+        toast.error(t("status.updateFailed"), {
           id: urlToastId,
-          description: t("status.updateFailed"),
         });
         return;
       }
@@ -87,9 +85,8 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
       form.reset();
       form.setFieldValue("url", response.data.workspaceSlug);
 
-      toast.success(tCommon("successTitle"), {
+      toast.success(t("status.updated"), {
         id: urlToastId,
-        description: t("status.updated"),
       });
 
       if (response.data.workspaceSlug !== workspace.slug) {

@@ -39,7 +39,6 @@ export function WorkspaceAvatarSettingsItem({
   workspace: WorkspaceSettingsWorkspace;
 }) {
   const t = useTranslations("pages.workspace.general.avatar");
-  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const avatarToastId = useId();
   const isReadOnly = workspace.role !== "owner";
@@ -73,14 +72,16 @@ export function WorkspaceAvatarSettingsItem({
       });
 
       if (!preparedAvatarFileResult.ok) {
-        toast.error(tCommon("errorTitle"), {
-          id: avatarToastId,
-          description: resolveErrorMessage(preparedAvatarFileResult.errorCode, t("status.error"), {
+        toast.error(
+          resolveErrorMessage(preparedAvatarFileResult.errorCode, t("status.error"), {
             INVALID_FILE_TYPE: t("status.invalidFile"),
             IMAGE_PROCESSING_FAILED: t("status.processingFailed"),
             FILE_TOO_LARGE: t("status.fileTooLarge"),
           }),
-        });
+          {
+            id: avatarToastId,
+          }
+        );
         return;
       }
 
@@ -89,19 +90,20 @@ export function WorkspaceAvatarSettingsItem({
       });
 
       if (!response.ok) {
-        toast.error(tCommon("errorTitle"), {
-          id: avatarToastId,
-          description: resolveErrorMessage(response.errorCode, t("status.error"), {
+        toast.error(
+          resolveErrorMessage(response.errorCode, t("status.error"), {
             UNAUTHORIZED: t("status.unauthorized"),
             VALIDATION_ERROR: t("status.fileTooLarge"),
           }),
-        });
+          {
+            id: avatarToastId,
+          }
+        );
         return;
       }
 
-      toast.success(tCommon("successTitle"), {
+      toast.success(t("status.updated"), {
         id: avatarToastId,
-        description: t("status.updated"),
       });
       setFailedAvatarUrl(null);
       router.refresh();
@@ -123,16 +125,14 @@ export function WorkspaceAvatarSettingsItem({
       });
 
       if (!response.ok) {
-        toast.error(tCommon("errorTitle"), {
+        toast.error(t("status.removeFailed"), {
           id: avatarToastId,
-          description: t("status.removeFailed"),
         });
         return;
       }
 
-      toast.success(tCommon("successTitle"), {
+      toast.success(t("status.removed"), {
         id: avatarToastId,
-        description: t("status.removed"),
       });
       setFailedAvatarUrl(null);
       router.refresh();

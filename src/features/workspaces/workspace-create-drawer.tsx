@@ -37,7 +37,6 @@ type WorkspaceCreateDrawerProps = {
 
 export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDrawerProps) {
   const t = useTranslations("layout.application.workspaceSwitcher.createDrawer");
-  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const createToastId = useId();
   const createWorkspaceSchema = z.object({
@@ -91,19 +90,20 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
       });
 
       if (!response.ok) {
-        toast.error(tCommon("errorTitle"), {
-          id: createToastId,
-          description: resolveErrorMessage(response.errorCode, t("status.failed"), {
+        toast.error(
+          resolveErrorMessage(response.errorCode, t("status.failed"), {
             BAD_REQUEST: t("status.badRequest"),
             UNAUTHORIZED: t("status.unauthorized"),
           }),
-        });
+          {
+            id: createToastId,
+          }
+        );
         return;
       }
 
-      toast.success(tCommon("successTitle"), {
+      toast.success(t("status.created"), {
         id: createToastId,
-        description: t("status.created"),
       });
 
       form.reset();
@@ -221,7 +221,7 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
               <DrawerFooter className="border-border border-t p-5 sm:flex-row sm:justify-end">
                 <DrawerClose asChild>
                   <Button type="button" variant="outline" disabled={isSubmitting}>
-                    {tCommon("cancel")}
+                    {t("cancel")}
                   </Button>
                 </DrawerClose>
                 <Button type="submit" disabled={isSubmitting}>

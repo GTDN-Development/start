@@ -45,7 +45,6 @@ export function WorkspaceLeaveSettingsItem({
   workspace: WorkspaceSettingsWorkspace;
 }) {
   const t = useTranslations("pages.workspace.general.leave");
-  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const isPersonalWorkspace = workspace.kind === "personal";
   const isLeaveBlockedByLastOwnerGuard =
@@ -87,19 +86,19 @@ export function WorkspaceLeaveSettingsItem({
       const response = await leaveWorkspaceAction(workspace.slug);
 
       if (!response.ok) {
-        toast.error(tCommon("errorTitle"), {
-          id: leaveWorkspaceToastId,
-          description:
-            response.errorCode === "LAST_OWNER_GUARD"
-              ? t("status.lastOwnerGuard")
-              : t("status.failed"),
-        });
+        toast.error(
+          response.errorCode === "LAST_OWNER_GUARD"
+            ? t("status.lastOwnerGuard")
+            : t("status.failed"),
+          {
+            id: leaveWorkspaceToastId,
+          }
+        );
         return;
       }
 
-      toast.success(tCommon("successTitle"), {
+      toast.success(t("status.success"), {
         id: leaveWorkspaceToastId,
-        description: t("status.success"),
       });
 
       setIsLeaveDialogOpen(false);

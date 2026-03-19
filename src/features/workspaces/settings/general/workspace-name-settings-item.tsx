@@ -69,9 +69,8 @@ export function WorkspaceNameSettingsItem({
       });
 
       if (!response.ok) {
-        toast.error(tCommon("errorTitle"), {
+        toast.error(t("status.updateFailed"), {
           id: nameToastId,
-          description: t("status.updateFailed"),
         });
         return;
       }
@@ -80,9 +79,8 @@ export function WorkspaceNameSettingsItem({
       form.reset();
       form.setFieldValue("name", nextName);
 
-      toast.success(tCommon("successTitle"), {
+      toast.success(t("status.updated"), {
         id: nameToastId,
-        description: t("status.updated"),
       });
     },
   });

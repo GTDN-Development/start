@@ -46,7 +46,7 @@
         "changelog": "Changelog",
         "roadmap": "Roadmap",
         "workspace": "Workspace",
-        "account": "Account",
+        "account": "My Account",
         "signIn": "Sign in",
         "signUp": "Sign up",
         "overview": "Overview",
@@ -65,7 +65,7 @@
         "socialMedia": "Social media"
       },
       "cookieSettings": "Cookie settings",
-      "copiedToClipboard": "Copied to clipboard",
+      "copiedValueToClipboard": "Copied to clipboard: {value}",
       "copyright": "Copyright © {year} {company}. All rights reserved.",
       "scrollToTop": "Scroll to top",
       "createdBy": "Created by"
@@ -135,6 +135,7 @@
             "default": "Create workspace",
             "pending": "Creating..."
           },
+          "cancel": "Cancel",
           "status": {
             "created": "Workspace was created.",
             "failed": "Workspace could not be created.",

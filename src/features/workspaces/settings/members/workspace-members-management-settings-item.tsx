@@ -328,12 +328,10 @@ export function WorkspaceMembersManagementSettingsItem({
     handleActionSuccess(t("status.inviteRemove.success"));
   }
 
-  function handleActionSuccess(description: string) {
+  function handleActionSuccess(message: string) {
     setIsActionSubmitting(false);
     setActionState(null);
-    toast.success(tCommon("successTitle"), {
-      description,
-    });
+    toast.success(message);
     router.refresh();
   }
 
