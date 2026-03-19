@@ -10,10 +10,10 @@ Vychází z: `AUDIT-WORKSPACES-AUTH-DEVICES.md`, `.plans/multi-workspace-backend
 
 ## 1. Cíl
 
-1. Zmenšit fragmentaci workspace domény bez zásadního ořezání core feature setu.
-2. Zjednodušit boundary vrstvy a server-action glue, které dnes zvyšují file count i mentální overhead.
-3. Výrazně zmenšit client-side orchestrace v members/invites UI.
-4. Zachovat stávající business pravidla: personal workspace restrikce, last-owner guard, invite email match, workspace bootstrap přes `/overview`.
+1. Vyrazne zmensit client-side orchestraci v members/invites UI bez zasadniho orezani core workspace feature setu.
+2. Zjednodusit invite creation UX tak, aby odpovidal aktualnimu backend flow a V1 prioritam.
+3. Zachovat stávající business pravidla: personal workspace restrikce, last-owner guard, invite email match, workspace bootstrap přes `/overview`.
+4. Udrzet server-first pending invite flow bez navratu ke klientskym redirect/effect mezivrstvam.
 5. Udržet výsledek kompatibilní s auth a user-devices refaktoringem bez nutnosti současného mergování všech tří tasků.
 
 ## 2. Baseline
@@ -29,11 +29,11 @@ Poznámka:
 
 Největší hotspoty:
 
-1. `src/features/workspaces/settings/members/workspace-members-management-settings-item.tsx` — 1016 LOC
+1. `src/features/workspaces/settings/members/workspace-members-management-settings-item.tsx` — 1006 LOC
 2. `src/server/workspaces/workspace-invite-service.ts` — 697 LOC
 3. `src/server/workspaces/workspace-general-service.ts` — 637 LOC
 4. `src/features/workspaces/actions/workspace-actions.ts` — 436 LOC
-5. `src/features/workspaces/settings/members/workspace-invite-members-settings-item.tsx` — 404 LOC
+5. `src/features/workspaces/settings/members/workspace-invite-members-settings-item.tsx` — 415 LOC
 6. `src/server/workspaces/workspace-members-service.ts` — 397 LOC
 
 ## 2.1 Dopad merge useEffect refaktoru
@@ -163,8 +163,8 @@ Cílový směr:
 ### 7.3 Route vrstva
 
 1. Zachovat server-first data loading.
-2. Sjednotit guard/resolve pattern tam, kde dnes duplikuje stejnou kombinaci auth + workspace access checku.
-3. Invite auth-required bridge ponechat v route/server vrstve; nevracet klientsky redirect helper nebo effect choreography.
+2. Invite auth-required bridge ponechat v route/server vrstve; nevracet klientsky redirect helper nebo effect choreography.
+3. Pokud pri W3/W4 vznikne potreba maleho route-level cleanupu, drzet ho lokalniho a nerozsirovat scope o novou orchestration vrstvu.
 4. Nesmí vzniknout nová API vrstva ani další orchestration abstrakce.
 
 ## 8. Navržené konkrétní změny po PR krocích
