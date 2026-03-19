@@ -221,9 +221,7 @@ function DeviceItem(input: {
       <SettingsItemListContent>
         <div className="flex flex-col-reverse items-center justify-center gap-3 @xs:flex-row @xs:items-start @xs:justify-start">
           <SettingsItemListTitle>{resolveDeviceTitle(session, t)}</SettingsItemListTitle>
-          {session.isCurrentDevice && (
-            <Badge variant="secondary">{t("security.devices.currentBadge")}</Badge>
-          )}
+          {session.isCurrentDevice && <Badge>{t("security.devices.currentBadge")}</Badge>}
         </div>
         <SettingsItemListDescription>
           {t("security.devices.sessionMeta", {
