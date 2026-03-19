@@ -15,6 +15,30 @@
   - `https://react.dev/reference/react/useEffectEvent`
   - `https://react.dev/reference/eslint-plugin-react-hooks/lints/set-state-in-effect`
 
+## Strucny vycuc
+
+- `useEffect` je escape hatch pro synchronizaci Reactu s externim systemem, ne defaultni nastroj pro aplikacni control flow.
+- Pokud v logice neni externi system mimo React, je velmi pravdepodobne, ze effect nepotrebujete.
+- Odvozena data patri do renderu, user-driven akce do event handleru a reset pri zmene identity do `key`/remount boundary.
+- Dependency array ma popisovat synchronizacni vstupy, ne nosit business logiku cele feature.
+- Kazdy zbytecny effect pridava implicitni casovani navic: extra rendery, stale closures, race conditions a hure citelny kod.
+
+## Proc tenhle guardrail existuje
+
+- Prakticky benefit z clanku i React docs je stejny: mene infinite loopu, mene race-condition regresi a citelnejsi control flow.
+- Dependency arrays skryvaji coupling. Refactor, ktery vypada unrelated, muze tise zmenit effect behavior.
+- Effect chains (`A` nastavi state, ktery spusti `B`) zavadeji casove rizeny control flow, ktery se spatne trasuje a snadno regreduje.
+- Debugging je horsi, protoze misto jednoho jasneho entrypointu typu render nebo handler resite "proc se to spustilo" a "proc se to nespustilo".
+- U agent-generated kodu je to jeste horsi: `useEffect` se casto prida "just in case" a tim se zalozi dalsi loop nebo race condition.
+
+## Pet defaultnich nahrad
+
+1. Derive state, do not sync it.
+2. Use server/data abstractions instead of effect-based fetching.
+3. Do the work in event handlers, not in effects.
+4. Pouzijte `useMountEffect` jen pro jednorazovy external sync typu setup-on-mount a cleanup-on-unmount.
+5. Reset pri zmene identity resit `key`, ne dependency choreography.
+
 ## Zakladni pravidlo
 
 - Raw `useEffect` je v beznem aplikacnim kodu podezrely default.
@@ -92,6 +116,7 @@
 - Pokud se komponenta ma pri zmene identity chovat jako nova instance, pouzijte `key`.
 - Neresit "reset pri zmene X" pres effect, ktery rucne nulije state nebo znovu vola init logiku.
 - Parent ma vlastnit orchestration boundary, child ma dostat uz platne preconditions.
+- Pokud je potreba cekat na preconditions, casto je lepsi conditional mounting nez guard uvnitr effectu.
 
 ### 5. Subscriptiony resit pres `useSyncExternalStore`
 
@@ -104,6 +129,9 @@
 - Jedina bezna vyjimka je synchronizace s externim systemem mimo React.
 - Typicke priklady: `addEventListener`/`removeEventListener`, timer setup/cleanup, third-party widget init/destroy, clipboard cleanup, imperative focus nebo scroll po mountu.
 - `useMountEffect` neni univerzalni nahrada za spatny `useEffect`. Pokud tam neni mount/unmount sync s externim systemem, helper nepouzivejte.
+- Smell test:
+  - opravdu synchronizujete externi system
+  - chovani je prirozene `setup on mount, cleanup on unmount`
 
 ### 7. Legitimizovane effecty drzte male a presne
 
@@ -127,6 +155,13 @@
 - `useMountEffect` neni nahrada za derivaci hodnot pri renderu.
 - `useMountEffect` neni nahrada za sync props do local state.
 - Pokud by prepis `useEffect` -> `useMountEffect` jen zachoval stejny control flow, nejde o skutecny refactor.
+
+## Forcing function pro architekturu
+
+- Zakaz raw `useEffect` funguje jako forcing function pro cistsi strom komponent.
+- Parent ma vlastnit orchestration a lifecycle boundaries.
+- Child ma idealne predpokladat, ze preconditions uz plati, a delat jednu vec dobre.
+- To obvykle vede k jednodussim komponentam, mene skrytym side effectum a jasnejsim nesting boundaries.
 
 ## Review checklist
 
