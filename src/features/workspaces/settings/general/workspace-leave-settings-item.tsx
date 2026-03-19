@@ -45,6 +45,7 @@ export function WorkspaceLeaveSettingsItem({
   workspace: WorkspaceSettingsWorkspace;
 }) {
   const t = useTranslations("pages.workspace.general.leave");
+  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const isPersonalWorkspace = workspace.kind === "personal";
   const isLeaveBlockedByLastOwnerGuard =

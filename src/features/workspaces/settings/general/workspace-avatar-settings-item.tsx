@@ -39,6 +39,7 @@ export function WorkspaceAvatarSettingsItem({
   workspace: WorkspaceSettingsWorkspace;
 }) {
   const t = useTranslations("pages.workspace.general.avatar");
+  const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const avatarToastId = useId();
   const isReadOnly = workspace.role !== "owner";
