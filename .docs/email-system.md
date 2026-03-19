@@ -57,6 +57,7 @@ Short version:
 - shared layout: [email-layout.tsx](/Users/fanda/Dev/start/src/server/email/email-layout.tsx)
 - shared form styles: [email-styles.ts](/Users/fanda/Dev/start/src/server/email/email-styles.ts)
 - template and builder files: `/src/server/email/templates/*`
+- email image assets: `/public/email/*`
 - translations: `messages/en.json` and `messages/cs.json` under `emails`
 
 ## Template Vs Builder
@@ -110,6 +111,31 @@ Global changes:
 Local changes:
 
 - the look of a single email is handled in its own `.tsx` template
+
+## Email Logo Asset
+
+Current asset:
+
+- [start-logo-email.png](/Users/fanda/Dev/start/public/email/start-logo-email.png)
+
+Current convention:
+
+- email-specific hosted images live in `/public/email`
+- logo asset is a `PNG`
+- current size is `300 x 80 px`
+- a solid white background is preferred over transparency for email-client safety
+
+Why `public`:
+
+- email clients need a stable external URL
+- `/public/email/...` maps cleanly to `/email/...`
+- this is more predictable than relying on Next build asset paths for email-hosted images
+
+Reason:
+
+- email clients are less predictable than the web
+- this project currently uses conservative light email templates
+- a single PNG logo is safer than maintaining separate dark/light email logo variants
 
 ## Changing Copy
 

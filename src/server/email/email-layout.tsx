@@ -5,6 +5,7 @@ import {
   Head,
   Hr,
   Html,
+  Img,
   Link,
   Preview,
   Section,
@@ -35,7 +36,17 @@ export function EmailLayout({
       <Body style={bodyStyle}>
         <Container style={containerStyle}>
           <Section style={cardStyle}>
-            <Text style={brandStyle}>{emailTheme.brandName}</Text>
+            <Section style={logoSectionStyle}>
+              <Link href={emailTheme.siteUrl} style={logoLinkStyle}>
+                <Img
+                  src={getEmailLogoUrl()}
+                  alt={emailTheme.brandName}
+                  width="150"
+                  height="40"
+                  style={logoStyle}
+                />
+              </Link>
+            </Section>
             {children}
             <Hr style={dividerStyle} />
             <Text style={footerTextStyle}>{footerText}</Text>
@@ -79,12 +90,18 @@ const cardStyle = {
   padding: emailTheme.contentPadding,
 };
 
-const brandStyle = {
-  margin: "0 0 24px",
-  fontSize: "20px",
-  fontWeight: "700",
-  lineHeight: "28px",
-  color: emailTheme.textColor,
+const logoSectionStyle = {
+  marginBottom: "24px",
+};
+
+const logoLinkStyle = {
+  display: "inline-block",
+};
+
+const logoStyle = {
+  display: "block",
+  width: "150px",
+  height: "40px",
 };
 
 const dividerStyle = {
@@ -110,3 +127,9 @@ const footerLinkStyle = {
   color: emailTheme.textColor,
   textDecoration: "underline",
 };
+
+function getEmailLogoUrl() {
+  const normalizedSiteUrl = emailTheme.siteUrl.replace(/\/+$/g, "");
+
+  return `${normalizedSiteUrl}/email/start-logo-email.png`;
+}
