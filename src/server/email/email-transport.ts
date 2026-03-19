@@ -1,36 +1,19 @@
 import nodemailer from "nodemailer";
+import type Mail from "nodemailer/lib/mailer";
 
-type FormEmailAttachment = {
-  filename: string;
-  content: Buffer;
-  contentType: string;
-};
-
-type FormEmailMessage = {
+type BaseEmailMessage = {
   subject: string;
   html: string;
   text: string;
-  attachments?: FormEmailAttachment[];
+  replyTo?: Mail.Options["replyTo"];
+  attachments?: Mail.Attachment[];
 };
 
-type EmailMessage = FormEmailMessage & {
-  to: string;
+type EmailMessage = BaseEmailMessage & {
+  to: Mail.Options["to"];
 };
 
-
-const HTML_ESCAPE_REPLACEMENTS: Record<string, string> = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  "\"": "&quot;",
-  "'": "&#39;",
-};
-
-export function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => HTML_ESCAPE_REPLACEMENTS[character] ?? character);
-}
-
-export async function sendFormEmail(message: FormEmailMessage) {
+export async function sendFormEmail(message: BaseEmailMessage) {
   const recipientEmail = process.env.FORM_RECIPIENT_EMAIL ?? "";
 
   await sendEmail({
@@ -41,12 +24,12 @@ export async function sendFormEmail(message: FormEmailMessage) {
 
 export async function sendEmail(message: EmailMessage) {
   const transporter = getOrCreateMailTransporter();
-  const fromName = process.env.MAIL_FROM_NAME ?? "";
-  const fromAddress = process.env.MAIL_FROM_ADDRESS ?? "";
+  const fromName = process.env.MAIL_FROM_NAME?.trim() ?? "";
+  const fromAddress = process.env.MAIL_FROM_ADDRESS?.trim() ?? "";
   const { to, ...messageContent } = message;
 
   await transporter.sendMail({
-    from: `${fromName} <${fromAddress}>`,
+    from: fromName ? `${fromName} <${fromAddress}>` : fromAddress,
     to,
     ...messageContent,
   });
@@ -58,7 +41,6 @@ function getOrCreateMailTransporter() {
   }
 
   const port = Number.parseInt(process.env.MAIL_PORT || "587", 10);
-
   const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
     port,

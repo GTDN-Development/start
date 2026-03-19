@@ -1624,6 +1624,57 @@
       }
     }
   },
+  "emails": {
+    "shared": {
+      "footerText": "Need help? Contact support or visit our website.",
+      "supportLabel": "Support",
+      "websiteLabel": "Website"
+    },
+    "workspaceInvite": {
+      "previewText": "Invitation to join {workspaceName}",
+      "subject": "Invitation to {workspaceName}",
+      "title": "Workspace invitation",
+      "description": "You've been invited to join {workspaceName}.",
+      "invitedBy": "Invited by {inviterName}.",
+      "invitedWithoutInviter": "You received a workspace invitation.",
+      "ctaLabel": "Accept invitation",
+      "urlFallbackLabel": "If the button doesn't work, open this URL:",
+      "expiryText": "This invitation expires in {days} days."
+    },
+    "contactForm": {
+      "previewText": "New contact form submission",
+      "subject": "New contact form submission - {fullName}",
+      "title": "New contact form submission",
+      "fields": {
+        "fullName": "Full name",
+        "email": "Email",
+        "phone": "Phone",
+        "message": "Message",
+        "submittedAt": "Submitted at"
+      }
+    },
+    "supportForm": {
+      "previewText": "New support request",
+      "subject": "New support request - {email}",
+      "title": "New support request",
+      "fields": {
+        "email": "Email",
+        "message": "Message",
+        "attachments": "Attachments",
+        "submittedAt": "Submitted at"
+      },
+      "attachmentsSummary": "{count, plural, one {# attachment} other {# attachments}}"
+    },
+    "newsletterSignup": {
+      "previewText": "New newsletter signup",
+      "subject": "New newsletter signup - {email}",
+      "title": "New newsletter signup",
+      "fields": {
+        "email": "Email",
+        "subscribedAt": "Subscribed at"
+      }
+    }
+  },
   "cookies": {
     "consent": {
       "banner": {

@@ -1624,6 +1624,57 @@
       }
     }
   },
+  "emails": {
+    "shared": {
+      "footerText": "Potřebujete pomoc? Kontaktujte podporu nebo navštivte náš web.",
+      "supportLabel": "Podpora",
+      "websiteLabel": "Web"
+    },
+    "workspaceInvite": {
+      "previewText": "Pozvánka do workspace {workspaceName}",
+      "subject": "Pozvánka do workspace {workspaceName}",
+      "title": "Pozvánka do workspace",
+      "description": "Byli jste pozváni do workspace {workspaceName}.",
+      "invitedBy": "Pozval vás {inviterName}.",
+      "invitedWithoutInviter": "Obdrželi jste pozvánku do workspace.",
+      "ctaLabel": "Přijmout pozvánku",
+      "urlFallbackLabel": "Pokud tlačítko nefunguje, otevřete tuto adresu:",
+      "expiryText": "Pozvánka vyprší za {days} dní."
+    },
+    "contactForm": {
+      "previewText": "Nová zpráva z kontaktního formuláře",
+      "subject": "Nová zpráva z kontaktního formuláře - {fullName}",
+      "title": "Nová zpráva z kontaktního formuláře",
+      "fields": {
+        "fullName": "Jméno a příjmení",
+        "email": "E-mail",
+        "phone": "Telefon",
+        "message": "Zpráva",
+        "submittedAt": "Odesláno"
+      }
+    },
+    "supportForm": {
+      "previewText": "Nová zpráva z formuláře podpory",
+      "subject": "Nová zpráva z formuláře podpory - {email}",
+      "title": "Nová zpráva z formuláře podpory",
+      "fields": {
+        "email": "E-mail",
+        "message": "Zpráva",
+        "attachments": "Přílohy",
+        "submittedAt": "Odesláno"
+      },
+      "attachmentsSummary": "{count, plural, one {# příloha} few {# přílohy} other {# příloh}}"
+    },
+    "newsletterSignup": {
+      "previewText": "Nové přihlášení k newsletteru",
+      "subject": "Nové přihlášení k newsletteru - {email}",
+      "title": "Nové přihlášení k newsletteru",
+      "fields": {
+        "email": "E-mail",
+        "subscribedAt": "Přihlášeno"
+      }
+    }
+  },
   "cookies": {
     "consent": {
       "banner": {

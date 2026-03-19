@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { workspaceConfig } from "@/config/workspace";
+import { routing, type AppLocale } from "@/i18n/routing";
 import { normalizedEmailSchema } from "@/lib/schemas";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
@@ -77,6 +78,7 @@ const updateWorkspaceGeneralInputSchema = z
 const workspaceMemberRoleSchema = z.enum(workspaceConfig.roles.memberValues);
 
 const createInviteInputSchema = z.object({
+  locale: z.enum(routing.locales),
   email: normalizedEmailSchema(),
   role: z.enum(workspaceConfig.roles.invitableValues),
 });
@@ -273,6 +275,7 @@ export async function transferOwnershipAction(
 export async function createInviteAction(
   workspaceSlug: string,
   input: {
+    locale: AppLocale;
     email: string;
     role: "member";
   }
@@ -298,18 +301,21 @@ export async function createInviteAction(
 
 export async function resendInviteAction(
   workspaceSlug: string,
-  inviteId: string
+  inviteId: string,
+  locale: AppLocale
 ): Promise<WorkspaceResponse<{ resent: true }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedInviteId = workspaceIdSchema.safeParse(inviteId);
+  const parsedLocale = z.enum(routing.locales).safeParse(locale);
 
-  if (!parsedWorkspaceSlug.success || !parsedInviteId.success) {
+  if (!parsedWorkspaceSlug.success || !parsedInviteId.success || !parsedLocale.success) {
     return createBadRequestResponse();
   }
 
   const response = await resendWorkspaceInviteForCurrentUser(
     parsedWorkspaceSlug.data,
-    parsedInviteId.data
+    parsedInviteId.data,
+    parsedLocale.data
   );
 
   if (response.ok) {

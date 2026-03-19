@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { InboxIcon, MoreHorizontalIcon, PencilLineIcon, SendIcon, TrashIcon } from "lucide-react";
 import {
@@ -81,6 +81,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { AppLocale } from "@/i18n/routing";
 
 type ManagementActionState =
   | {
@@ -114,6 +115,7 @@ export function WorkspaceMembersManagementSettingsItem({
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
+  const locale = useLocale() as AppLocale;
   const router = useRouter();
   const isReadOnly = workspace.kind === "personal" || workspace.role !== "owner";
   const [actionState, setActionState] = useState<ManagementActionState>(null);
@@ -294,7 +296,7 @@ export function WorkspaceMembersManagementSettingsItem({
     }
 
     setIsActionSubmitting(true);
-    const response = await resendInviteAction(workspace.slug, resendInvitationTarget.id);
+    const response = await resendInviteAction(workspace.slug, resendInvitationTarget.id, locale);
 
     if (!response.ok) {
       setIsActionSubmitting(false);

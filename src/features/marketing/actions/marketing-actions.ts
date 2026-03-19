@@ -1,12 +1,17 @@
 "use server";
 
 import { headers } from "next/headers";
+import type Mail from "nodemailer/lib/mailer";
 import { z } from "zod";
+import { routing } from "@/i18n/routing";
 import { normalizedEmailSchema, turnstileTokenSchema } from "@/lib/schemas";
-import { formatEmailTimestamp } from "@/lib/app-utils";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
-import { escapeHtml, sendFormEmail } from "@/server/email/send-form-email";
 import { requireCurrentUser } from "@/server/auth/current-user";
+import { sendFormEmail } from "@/server/email/email-transport";
+import { renderEmail } from "@/server/email/render-email";
+import { buildContactFormEmail } from "@/server/email/templates/contact-form.builder";
+import { buildNewsletterSignupEmail } from "@/server/email/templates/newsletter-signup.builder";
+import { buildSupportFormEmail } from "@/server/email/templates/support-form.builder";
 import {
   SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES,
   type SupportAttachmentValue,
@@ -70,31 +75,18 @@ export async function submitContactFormAction(input: {
   }
 
   try {
-    const timestamp = formatEmailTimestamp();
-    const messageHtml = escapeHtml(parsedInput.data.message).replace(/\n/g, "<br>");
-
-    await sendFormEmail({
-      subject: `Nová zpráva z kontaktního formuláře - ${parsedInput.data.fullName}`,
-      html: `
-        <h2>Nová zpráva z kontaktního formuláře</h2>
-        <p><strong>Jméno a příjmení:</strong> ${escapeHtml(parsedInput.data.fullName)}</p>
-        <p><strong>Email:</strong> ${escapeHtml(parsedInput.data.email)}</p>
-        <p><strong>Telefon:</strong> ${escapeHtml(parsedInput.data.phone)}</p>
-        <p><strong>Zpráva:</strong></p>
-        <p>${messageHtml}</p>
-        <p><em>Odesláno: ${timestamp}</em></p>
-      `,
-      text: `
-          Nová zpráva z kontaktního formuláře
-
-          Jméno a příjmení: ${parsedInput.data.fullName}
-          Email: ${parsedInput.data.email}
-          Telefon: ${parsedInput.data.phone}
-          Zpráva: ${parsedInput.data.message}
-
-          Odesláno: ${timestamp}
-      `,
-    });
+    await sendFormEmail(
+      await renderEmail(
+        await buildContactFormEmail({
+          locale: routing.defaultLocale,
+          fullName: parsedInput.data.fullName,
+          email: parsedInput.data.email,
+          phone: parsedInput.data.phone,
+          message: parsedInput.data.message,
+          submittedAt: new Date(),
+        })
+      )
+    );
 
     return {
       ok: true,
@@ -122,16 +114,15 @@ export async function submitSupportFormAction(input: {
     return createErrorResponse("BAD_REQUEST");
   }
 
-  if (getSupportAttachmentsTotalDecodedSize(parsedInput.data.attachments) > SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES) {
+  if (
+    getSupportAttachmentsTotalDecodedSize(parsedInput.data.attachments) >
+    SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES
+  ) {
     return createErrorResponse("BAD_REQUEST");
   }
 
   try {
-    const timestamp = formatEmailTimestamp();
-    const messageHtml = escapeHtml(parsedInput.data.message).replace(/\n/g, "<br>");
-    const userEmail = escapeHtml(currentUser.user.email);
-
-    const attachments =
+    const attachments: Mail.Attachment[] | undefined =
       parsedInput.data.attachments.length > 0
         ? parsedInput.data.attachments.map((attachment) => ({
             filename: attachment.filename,
@@ -140,25 +131,17 @@ export async function submitSupportFormAction(input: {
           }))
         : undefined;
 
-    await sendFormEmail({
-      subject: `Nová zpráva z formuláře podpory - ${userEmail}`,
-      html: `
-        <h2>Nová zpráva z formuláře podpory</h2>
-        <p><strong>Email:</strong> ${userEmail}</p>
-        <p><strong>Zpráva:</strong></p>
-        <p>${messageHtml}</p>
-        <p><em>Odesláno: ${timestamp}</em></p>
-      `,
-      text: `
-          Nová zpráva z formuláře podpory
-
-          Email: ${userEmail}
-          Zpráva: ${parsedInput.data.message}
-
-          Odesláno: ${timestamp}
-      `,
-      attachments,
-    });
+    await sendFormEmail(
+      await renderEmail(
+        await buildSupportFormEmail({
+          locale: routing.defaultLocale,
+          email: currentUser.user.email,
+          message: parsedInput.data.message,
+          submittedAt: new Date(),
+          attachments,
+        })
+      )
+    );
 
     return { ok: true };
   } catch (error) {
@@ -186,23 +169,15 @@ export async function submitNewsletterFormAction(input: {
   }
 
   try {
-    const timestamp = formatEmailTimestamp();
-
-    await sendFormEmail({
-      subject: `Nové přihlášení k newsletteru - ${parsedInput.data.email}`,
-      html: `
-        <h2>Nové přihlášení k newsletteru</h2>
-        <p><strong>Email:</strong> ${escapeHtml(parsedInput.data.email)}</p>
-        <p><em>Přihlášeno: ${timestamp}</em></p>
-      `,
-      text: `
-          Nové přihlášení k newsletteru
-
-          Email: ${parsedInput.data.email}
-
-          Přihlášeno: ${timestamp}
-      `,
-    });
+    await sendFormEmail(
+      await renderEmail(
+        await buildNewsletterSignupEmail({
+          locale: routing.defaultLocale,
+          email: parsedInput.data.email,
+          subscribedAt: new Date(),
+        })
+      )
+    );
 
     return {
       ok: true,

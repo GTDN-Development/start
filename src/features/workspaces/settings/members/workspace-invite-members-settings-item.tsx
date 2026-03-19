@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { z } from "zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ import {
 } from "@/features/workspaces/settings/members/workspace-member-roles";
 import { createInviteAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import type { AppLocale } from "@/i18n/routing";
 
 type InviteRole = WorkspaceInvitableRole;
 
@@ -50,6 +51,7 @@ export function WorkspaceInviteMembersSettingsItem({
   const tInvite = useTranslations("pages.workspace.members.invite");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
+  const locale = useLocale() as AppLocale;
   const router = useRouter();
   const isReadOnly = workspace.kind === "personal" || workspace.role !== "owner";
   const [isInviting, setIsInviting] = useState(false);
@@ -82,6 +84,7 @@ export function WorkspaceInviteMembersSettingsItem({
     setSubmitErrorMessage(null);
 
     const response = await createInviteAction(workspace.slug, {
+      locale,
       email: normalizedEmail,
       role,
     });

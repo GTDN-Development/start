@@ -83,3 +83,5 @@ export const routing = defineRouting({
     "/invite/[token]": "/invite/[token]",
   },
 });
+
+export type AppLocale = (typeof routing.locales)[number];

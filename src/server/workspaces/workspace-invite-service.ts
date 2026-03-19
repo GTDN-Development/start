@@ -1,5 +1,6 @@
 import type PocketBase from "pocketbase";
 import type { WorkspaceInvitesRecord } from "@/types/pocketbase";
+import type { AppLocale } from "@/i18n/routing";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
 import {
@@ -48,6 +49,7 @@ import type {
 
 export { hashInviteToken };
 export type CreateWorkspaceInviteInput = {
+  locale: AppLocale;
   email: string;
   role: "member";
 };
@@ -345,6 +347,7 @@ export async function createWorkspaceInviteForCurrentUser(
 
     try {
       await sendWorkspaceInviteEmail({
+        locale: input.locale,
         email: normalizedEmail,
         workspaceName: ownerAccess.context.workspace.name,
         inviterName: getNullableTrimmedString(ownerAccess.context.user.name),
@@ -406,7 +409,8 @@ export async function createWorkspaceInviteForCurrentUser(
 
 export async function resendWorkspaceInviteForCurrentUser(
   workspaceSlug: string,
-  inviteId: string
+  inviteId: string,
+  locale: AppLocale
 ): Promise<ServerWorkspaceResponse<{ resent: true }>> {
   const currentUser = await requireWorkspaceAuthContext();
 
@@ -474,6 +478,7 @@ export async function resendWorkspaceInviteForCurrentUser(
 
     try {
       await sendWorkspaceInviteEmail({
+        locale,
         email: inviteRecord.email_normalized,
         workspaceName: ownerAccess.context.workspace.name,
         inviterName: getNullableTrimmedString(ownerAccess.context.user.name),
