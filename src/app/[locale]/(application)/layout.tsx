@@ -3,7 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { ApplicationLayout } from "@/features/application/application-layout";
-import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
+import { AUTH_REDIRECTS } from "@/config/auth";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import { listUserWorkspaces } from "@/server/workspaces/workspace-general-service";

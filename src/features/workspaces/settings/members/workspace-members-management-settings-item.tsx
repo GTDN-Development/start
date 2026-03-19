@@ -70,6 +70,7 @@ import type {
   WorkspaceSettingsMember,
   WorkspaceSettingsWorkspace,
 } from "@/features/workspaces/settings/workspace-settings-types";
+import { useRouter } from "@/i18n/navigation";
 import { getUserInitials } from "@/lib/app-utils";
 import {
   Table,
@@ -105,48 +106,35 @@ export function WorkspaceMembersManagementSettingsItem({
   workspace,
   members,
   invites,
-  currentUserId,
 }: {
   workspace: WorkspaceSettingsWorkspace;
   members: WorkspaceSettingsMember[];
   invites: WorkspaceSettingsInvite[];
-  currentUserId: string;
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
+  const router = useRouter();
   const isReadOnly = workspace.kind === "personal" || workspace.role !== "owner";
-  const [memberRoleOverrides, setMemberRoleOverrides] = useState<
-    Record<string, WorkspaceMemberRole>
-  >({});
-  const [removedMemberIds, setRemovedMemberIds] = useState<string[]>([]);
-  const [removedInviteIds, setRemovedInviteIds] = useState<string[]>([]);
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
-  const visibleMembers = members
-    .filter((member) => !removedMemberIds.includes(member.id))
-    .map((member) => ({
-      ...member,
-      role: memberRoleOverrides[member.id] ?? member.role,
-    }));
-  const visibleInvites = invites.filter((invitation) => !removedInviteIds.includes(invitation.id));
-  const ownerCount = visibleMembers.filter((member) => member.role === "owner").length;
-  const hasPendingInvitations = visibleInvites.length > 0;
+  const ownerCount = members.filter((member) => member.role === "owner").length;
+  const hasPendingInvitations = invites.length > 0;
   const changeRoleMember =
     actionState?.type === "change-role"
-      ? (visibleMembers.find((member) => member.id === actionState.memberId) ?? null)
+      ? (members.find((member) => member.id === actionState.memberId) ?? null)
       : null;
   const removeMemberTarget =
     actionState?.type === "remove-member"
-      ? (visibleMembers.find((member) => member.id === actionState.memberId) ?? null)
+      ? (members.find((member) => member.id === actionState.memberId) ?? null)
       : null;
   const resendInvitationTarget =
     actionState?.type === "resend-invitation"
-      ? (visibleInvites.find((invitation) => invitation.id === actionState.invitationId) ?? null)
+      ? (invites.find((invitation) => invitation.id === actionState.invitationId) ?? null)
       : null;
   const removeInvitationTarget =
     actionState?.type === "remove-invitation"
-      ? (visibleInvites.find((invitation) => invitation.id === actionState.invitationId) ?? null)
+      ? (invites.find((invitation) => invitation.id === actionState.invitationId) ?? null)
       : null;
   const isChangeRoleTargetLastOwner = changeRoleMember
     ? isLastOwnerMember(changeRoleMember, ownerCount)
@@ -154,9 +142,6 @@ export function WorkspaceMembersManagementSettingsItem({
   const isRemoveMemberTargetLastOwner = removeMemberTarget
     ? isLastOwnerMember(removeMemberTarget, ownerCount)
     : false;
-  const currentOwnerMember = visibleMembers.find(
-    (member) => member.userId === currentUserId && member.role === "owner"
-  );
 
   function handleChangeRoleRequest(member: WorkspaceSettingsMember) {
     if (isReadOnly) {
@@ -269,26 +254,7 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
-    if (nextRole === "owner" && changeRoleMember.role !== "owner") {
-      setMemberRoleOverrides((currentOverrides) => ({
-        ...currentOverrides,
-        [changeRoleMember.id]: "owner",
-        ...(currentOwnerMember && currentOwnerMember.id !== changeRoleMember.id
-          ? { [currentOwnerMember.id]: "member" }
-          : {}),
-      }));
-    } else {
-      setMemberRoleOverrides((currentOverrides) => ({
-        ...currentOverrides,
-        [changeRoleMember.id]: nextRole,
-      }));
-    }
-
-    setIsActionSubmitting(false);
-    setActionState(null);
-    toast.success(tCommon("successTitle"), {
-      description: t("status.roleChange.success"),
-    });
+    handleActionSuccess(t("status.roleChange.success"));
   }
 
   async function handleRemoveMemberConfirm() {
@@ -315,15 +281,7 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
-    setRemovedMemberIds((currentIds) => [...new Set([...currentIds, removeMemberTarget.id])]);
-    setMemberRoleOverrides((currentOverrides) =>
-      removeMemberRoleOverride(currentOverrides, removeMemberTarget.id)
-    );
-    setIsActionSubmitting(false);
-    setActionState(null);
-    toast.success(tCommon("successTitle"), {
-      description: t("status.memberRemove.success"),
-    });
+    handleActionSuccess(t("status.memberRemove.success"));
   }
 
   async function handleResendInvitationConfirm() {
@@ -344,11 +302,7 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
-    setIsActionSubmitting(false);
-    setActionState(null);
-    toast.success(tCommon("successTitle"), {
-      description: t("status.inviteResend.success"),
-    });
+    handleActionSuccess(t("status.inviteResend.success"));
   }
 
   async function handleRemoveInvitationConfirm() {
@@ -369,12 +323,16 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
-    setRemovedInviteIds((currentIds) => [...new Set([...currentIds, removeInvitationTarget.id])]);
+    handleActionSuccess(t("status.inviteRemove.success"));
+  }
+
+  function handleActionSuccess(description: string) {
     setIsActionSubmitting(false);
     setActionState(null);
     toast.success(tCommon("successTitle"), {
-      description: t("status.inviteRemove.success"),
+      description,
     });
+    router.refresh();
   }
 
   return (
@@ -401,7 +359,7 @@ export function WorkspaceMembersManagementSettingsItem({
               <TabsContent value="members" className="grid gap-4">
                 <div className="hidden @lg/members-management:block">
                   <MembersTable
-                    rows={visibleMembers}
+                    rows={members}
                     ownerCount={ownerCount}
                     isReadOnly={isReadOnly}
                     onChangeRoleRequest={handleChangeRoleRequest}
@@ -409,7 +367,7 @@ export function WorkspaceMembersManagementSettingsItem({
                   />
                 </div>
                 <div className="grid gap-3 @lg/members-management:hidden">
-                  {visibleMembers.map((member) => (
+                  {members.map((member) => (
                     <MemberDescriptionRow
                       key={member.id}
                       member={member}
@@ -427,14 +385,14 @@ export function WorkspaceMembersManagementSettingsItem({
                   <>
                     <div className="hidden @lg/members-management:block">
                       <PendingInvitationsTable
-                        rows={visibleInvites}
+                        rows={invites}
                         isReadOnly={isReadOnly}
                         onResendInvitationRequest={handleResendInvitationRequest}
                         onRemoveInvitationRequest={handleRemoveInvitationRequest}
                       />
                     </div>
                     <div className="grid gap-3 @lg/members-management:hidden">
-                      {visibleInvites.map((invitation) => (
+                      {invites.map((invitation) => (
                         <PendingInvitationDescriptionRow
                           key={invitation.id}
                           invitation={invitation}
@@ -639,14 +597,6 @@ export function WorkspaceMembersManagementSettingsItem({
       </AlertDialog>
     </div>
   );
-}
-
-function removeMemberRoleOverride(
-  memberRoleOverrides: Record<string, WorkspaceMemberRole>,
-  memberId: string
-) {
-  const { [memberId]: _removedMemberRole, ...nextOverrides } = memberRoleOverrides;
-  return nextOverrides;
 }
 
 function isLastOwnerMember(member: WorkspaceSettingsMember, ownerCount: number): boolean {

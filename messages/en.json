@@ -832,7 +832,7 @@
         },
         "invite": {
           "title": "Invite members",
-          "description": "Add one or more people and choose their access role.",
+          "description": "Invite a person and choose their access role.",
           "personalWorkspace": {
             "description": "Personal workspace {workspaceName} is limited to a single member.",
             "hint": "Invites are available only in organization workspaces."
@@ -853,7 +853,7 @@
             "invite": "Invite"
           },
           "footer": {
-            "defaultHint": "All rows are submitted together."
+            "defaultHint": "The invitation will be sent immediately after submit."
           },
           "dialog": {
             "title": "Invite Team Members",
@@ -865,10 +865,10 @@
             }
           },
           "status": {
-            "invalidRows": "Please complete the fields above.",
+            "invalidRows": "Please enter a valid email address.",
             "alreadyMemberOrInvited": "This user is already a workspace member or already has a pending invitation.",
-            "sendFailed": "Invitations could not be sent.",
-            "sent": "Invitations sent."
+            "sendFailed": "Invitation could not be sent.",
+            "sent": "Invitation sent."
           }
         },
         "management": {

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { PB_AUTH_COOKIE_NAME } from "@/features/auth/auth-contract";
-import { AUTH_PROTECTED_ROUTE_PREFIXES, AUTH_REDIRECTS } from "@/features/auth/auth-routes";
+import { AUTH_PROTECTED_ROUTE_PREFIXES, AUTH_REDIRECTS } from "@/config/auth";
 import { routing } from "@/i18n/routing";
 
 type AppLocale = (typeof routing.locales)[number];

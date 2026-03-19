@@ -832,7 +832,7 @@
         },
         "invite": {
           "title": "Pozvat členy",
-          "description": "Přidejte jednu nebo více osob a vyberte jejich roli.",
+          "description": "Pozvěte jednu osobu a vyberte její roli.",
           "personalWorkspace": {
             "description": "Osobní workspace {workspaceName} je omezen na jednoho člena.",
             "hint": "Pozvánky jsou dostupné pouze v organizačních workspace."
@@ -853,7 +853,7 @@
             "invite": "Pozvat"
           },
           "footer": {
-            "defaultHint": "Všechny řádky se odesílají společně."
+            "defaultHint": "Pozvánka bude odeslána ihned po odeslání formuláře."
           },
           "dialog": {
             "title": "Pozvat členy týmu",
@@ -865,10 +865,10 @@
             }
           },
           "status": {
-            "invalidRows": "Doplňte prosím pole výše.",
+            "invalidRows": "Zadejte prosím platnou e-mailovou adresu.",
             "alreadyMemberOrInvited": "Tento uživatel už je členem workspace nebo už má čekající pozvánku.",
-            "sendFailed": "Pozvánky se nepodařilo odeslat.",
-            "sent": "Pozvánky byly odeslány."
+            "sendFailed": "Pozvánku se nepodařilo odeslat.",
+            "sent": "Pozvánka byla odeslána."
           }
         },
         "management": {

@@ -65,16 +65,17 @@ export default async function Page({ params }: InviteTokenPageProps) {
   }
 
   const sessionResponse = await getServerAuthSession();
+  const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
-  if (!sessionResponse.ok || !sessionResponse.data.session) {
+  if (!session) {
     await setPendingInviteHashCookie(hashInviteToken(token));
     redirect({
       href: "/sign-in",
       locale: locale as Locale,
     });
+    return null;
   }
 
-  const session = sessionResponse.data.session;
   const acceptResponse = await acceptInviteTokenForUser(token, {
     id: session.user.id,
     email: session.user.email,

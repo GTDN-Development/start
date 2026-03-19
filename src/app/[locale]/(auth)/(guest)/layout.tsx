@@ -1,6 +1,6 @@
 import { Locale } from "next-intl";
 import { redirect } from "@/i18n/navigation";
-import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
+import { AUTH_REDIRECTS } from "@/config/auth";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 
 type AuthGuestLayoutProps = {

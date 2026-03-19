@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
-import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
+import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";

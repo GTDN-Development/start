@@ -148,7 +148,9 @@ export function YourDevicesSettingsItem({
             {deviceSessions.length === 0 && (
               <SettingsItemListItem>
                 <SettingsItemListContent>
-                  <SettingsItemListDescription>{t("security.devices.empty")}</SettingsItemListDescription>
+                  <SettingsItemListDescription>
+                    {t("security.devices.empty")}
+                  </SettingsItemListDescription>
                 </SettingsItemListContent>
               </SettingsItemListItem>
             )}
@@ -177,7 +179,9 @@ export function YourDevicesSettingsItem({
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>{t("security.devices.dialog.title")}</AlertDialogTitle>
-              <AlertDialogDescription>{t("security.devices.dialog.description")}</AlertDialogDescription>
+              <AlertDialogDescription>
+                {t("security.devices.dialog.description")}
+              </AlertDialogDescription>
             </AlertDialogHeader>
 
             <AlertDialogFooter>
@@ -211,7 +215,8 @@ function DeviceItem(input: {
   isActionsDisabled: boolean;
   onSignOutDevice: (deviceSessionId: string) => Promise<void>;
 }) {
-  const { session, t, dateTimeFormatter, isSignOutPending, isActionsDisabled, onSignOutDevice } = input;
+  const { session, t, dateTimeFormatter, isSignOutPending, isActionsDisabled, onSignOutDevice } =
+    input;
 
   return (
     <SettingsItemListItem>

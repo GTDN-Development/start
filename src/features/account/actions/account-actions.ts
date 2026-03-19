@@ -18,7 +18,7 @@ import {
   updateCurrentUserPassword,
   updateCurrentUserProfileName,
 } from "@/server/account/account-service";
-import { finalizeAuthAction } from "@/server/auth/finalize-auth-action";
+import { finalizeAuthAction } from "@/server/auth/auth-service";
 
 type DeleteAccountPayload = {
   deleted: true;

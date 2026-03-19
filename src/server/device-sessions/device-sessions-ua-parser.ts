@@ -1,5 +1,7 @@
-import type { DeviceSessionDeviceType, ParsedDeviceInfo } from "@/server/device-sessions/device-sessions-types";
-import { detectDeviceType } from "@/lib/device-environment";
+import type {
+  DeviceSessionDeviceType,
+  ParsedDeviceInfo,
+} from "@/server/device-sessions/device-sessions-types";
 
 /**
  * Lightweight UA heuristic for user-facing labels.
@@ -9,10 +11,7 @@ export function parseDeviceInfo(userAgent: string): ParsedDeviceInfo {
   const normalizedUserAgent = userAgent.toLowerCase();
   const browser = parseBrowser(normalizedUserAgent);
   const os = parseOperatingSystem(normalizedUserAgent);
-  const deviceType =
-    normalizedUserAgent.length === 0
-      ? "unknown"
-      : mapDeviceType(detectDeviceType(normalizedUserAgent, os));
+  const deviceType = parseDeviceType(normalizedUserAgent, os);
 
   return {
     deviceLabel: buildDeviceLabel(os, browser),
@@ -35,11 +34,19 @@ function parseBrowser(userAgent: string): string {
     return "Opera";
   }
 
-  if (userAgent.includes("safari") && !userAgent.includes("chrome") && !userAgent.includes("chromium")) {
+  if (
+    userAgent.includes("safari") &&
+    !userAgent.includes("chrome") &&
+    !userAgent.includes("chromium")
+  ) {
     return "Safari";
   }
 
-  if (userAgent.includes("chrome") || userAgent.includes("chromium") || userAgent.includes("crios")) {
+  if (
+    userAgent.includes("chrome") ||
+    userAgent.includes("chromium") ||
+    userAgent.includes("crios")
+  ) {
     return "Chrome";
   }
 
@@ -90,14 +97,24 @@ function buildDeviceLabel(os: string, browser: string): string {
   return `${os} · ${browser}`;
 }
 
-function mapDeviceType(deviceType: "desktop" | "phone" | "tablet"): DeviceSessionDeviceType {
-  if (deviceType === "phone") {
-    return "phone";
+function parseDeviceType(userAgent: string, os: string): DeviceSessionDeviceType {
+  if (userAgent.length === 0) {
+    return "unknown";
   }
 
-  if (deviceType === "tablet") {
+  const combined = `${userAgent} ${os}`.toLowerCase();
+
+  if (/ipad|tablet|sm-t|tab\s/.test(combined)) {
     return "tablet";
   }
 
-  return "desktop";
+  if (/iphone|ipod|android.+mobile|mobile|phone/.test(combined)) {
+    return "phone";
+  }
+
+  if (/android|windows|mac|linux|cros|desktop/.test(combined)) {
+    return "desktop";
+  }
+
+  return "unknown";
 }

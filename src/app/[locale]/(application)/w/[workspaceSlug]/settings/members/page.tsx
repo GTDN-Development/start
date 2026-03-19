@@ -21,7 +21,7 @@ import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceInviteMembersSettingsItem } from "@/features/workspaces/settings/members/workspace-invite-members-settings-item";
 import { WorkspaceMembersManagementSettingsItem } from "@/features/workspaces/settings/members/workspace-members-management-settings-item";
 import { createPageMetadata } from "@/lib/metadata";
-import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
+import { AUTH_REDIRECTS } from "@/config/auth";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-general-service";
 import { listWorkspaceInvites } from "@/server/workspaces/workspace-invite-service";
@@ -181,7 +181,6 @@ export default async function Page({
                 workspace={workspaceSettings}
                 members={members}
                 invites={invites}
-                currentUserId={session.user.id}
               />
             </div>
           </SettingsPage>

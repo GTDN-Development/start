@@ -20,7 +20,7 @@ import { WorkspaceDeleteSettingsItem } from "@/features/workspaces/settings/gene
 import { WorkspaceLeaveSettingsItem } from "@/features/workspaces/settings/general/workspace-leave-settings-item";
 import { WorkspaceNameSettingsItem } from "@/features/workspaces/settings/general/workspace-name-settings-item";
 import { WorkspaceUrlSettingsItem } from "@/features/workspaces/settings/general/workspace-url-settings-item";
-import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
+import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";

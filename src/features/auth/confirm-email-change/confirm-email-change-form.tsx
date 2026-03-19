@@ -11,7 +11,7 @@ import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/c
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { confirmEmailChange } from "@/features/auth/auth-client";
-import { resolvePostAuthWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
+import { replaceToPostAuthDestination } from "@/features/auth/post-auth-redirect";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -59,19 +59,7 @@ export function ConfirmEmailChangeForm({
 
       if (response.ok) {
         if (response.data.session?.user.id) {
-          const workspaceResponse = await resolvePostAuthWorkspaceAction();
-
-          if (workspaceResponse.ok) {
-            router.replace({
-              pathname: "/w/[workspaceSlug]/overview",
-              params: {
-                workspaceSlug: workspaceResponse.data.workspaceSlug,
-              },
-            });
-            return;
-          }
-
-          router.replace("/overview");
+          await replaceToPostAuthDestination(router);
           return;
         }
 

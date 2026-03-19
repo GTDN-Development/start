@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { AUTH_REDIRECTS } from "@/config/auth";
 import { signOut } from "@/features/auth/auth-client";
-import { AUTH_REDIRECTS } from "@/features/auth/auth-routes";
 import { useRouter } from "@/i18n/navigation";
 
 type UseSignOutReturn = {

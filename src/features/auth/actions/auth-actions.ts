@@ -27,9 +27,9 @@ import {
   requiredTokenSchema,
   turnstileTokenSchema,
 } from "@/lib/schemas";
-import { finalizeAuthAction } from "@/server/auth/finalize-auth-action";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import {
+  finalizeAuthAction,
   confirmEmailChangeToken,
   confirmEmailVerificationToken,
   confirmPasswordResetToken,

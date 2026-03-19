@@ -16,8 +16,8 @@ import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/navigation";
 import { signUp } from "@/features/auth/auth-client";
+import { replaceToPostAuthDestination } from "@/features/auth/post-auth-redirect";
 import { createSignUpFormSchema, type SignUpInput } from "@/features/auth/auth-schemas";
-import { resolvePostAuthWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { cn } from "@/lib/utils";
 
 type SignUpFormValues = SignUpInput & {
@@ -65,19 +65,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       const response = await signUp(value);
 
       if (response.ok) {
-        const workspaceResponse = await resolvePostAuthWorkspaceAction();
-
-        if (workspaceResponse.ok) {
-          router.replace({
-            pathname: "/w/[workspaceSlug]/overview",
-            params: {
-              workspaceSlug: workspaceResponse.data.workspaceSlug,
-            },
-          });
-          return;
-        }
-
-        router.replace("/overview");
+        await replaceToPostAuthDestination(router);
         return;
       }
 

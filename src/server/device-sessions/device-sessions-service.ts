@@ -108,22 +108,11 @@ export async function validateDeviceSessionOrInvalidate(input: {
   }
 
   if (input.shouldUpdateHeartbeat) {
-    const didUpdateHeartbeat = await updateDeviceHeartbeatIfNeeded({
+    await updateDeviceHeartbeatIfNeeded({
       pb: input.pb,
       session,
       now,
     });
-
-    if (didUpdateHeartbeat) {
-      try {
-        await cleanUpStaleDeviceSessions({
-          pb: input.pb,
-          userId: input.userId,
-        });
-      } catch (error) {
-        logDeviceSessionsError("validateDeviceSessionOrInvalidate.cleanup", error);
-      }
-    }
   }
 
   return {
@@ -137,15 +126,6 @@ export async function listDeviceSessions(input: {
   userId: string;
   currentSessionIdHash: string;
 }): Promise<DeviceSessionListItem[]> {
-  try {
-    await cleanUpStaleDeviceSessions({
-      pb: input.pb,
-      userId: input.userId,
-    });
-  } catch (error) {
-    logDeviceSessionsError("listDeviceSessions.cleanup", error);
-  }
-
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
   const now = new Date();
   const activeSessions = sessions.filter((session) => isActiveDeviceSession(session, now));

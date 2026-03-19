@@ -19,6 +19,7 @@ import {
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
+import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import {
   createClearedAuthAndDeviceCookies,
   generateDeviceSessionCookie,
@@ -805,4 +806,12 @@ export function toAuthApiResponse<TData>(response: ServerAuthResponse<TData>): A
     ok: false,
     errorCode: response.errorCode,
   };
+}
+
+export async function finalizeAuthAction<TData>(
+  response: ServerAuthResponse<TData>
+): Promise<AuthResponse<TData>> {
+  await applyServerAuthCookies(response.setCookie);
+
+  return toAuthApiResponse(response);
 }
