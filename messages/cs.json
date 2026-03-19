@@ -42,6 +42,7 @@
         "aboutApp": "O aplikaci",
         "features": "Funkce",
         "integrations": "Integrace",
+        "changelog": "Nové funkce",
         "roadmap": "Plán vývoje",
         "workspace": "Workspace",
         "account": "Účet",
@@ -287,6 +288,10 @@
     "aboutIntegrations": {
       "title": "Integrace",
       "description": "Propojte aplikaci s nástroji, které váš tým používá každý den."
+    },
+    "aboutChangelog": {
+      "title": "Nové funkce",
+      "description": "Průběžný přehled změn, vylepšení a oprav, které v produktu právě přistály."
     },
     "aboutRoadmap": {
       "title": "Roadmapa",

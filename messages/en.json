@@ -42,6 +42,7 @@
         "aboutApp": "About app",
         "features": "Features",
         "integrations": "Integrations",
+        "changelog": "Changelog",
         "roadmap": "Roadmap",
         "workspace": "Workspace",
         "account": "Account",
@@ -287,6 +288,10 @@
     "aboutIntegrations": {
       "title": "Integrations",
       "description": "Connect your stack with the tools your team already uses every day."
+    },
+    "aboutChangelog": {
+      "title": "Changelog",
+      "description": "An ongoing record of product changes, improvements, and fixes that have just shipped."
     },
     "aboutRoadmap": {
       "title": "Roadmap",
