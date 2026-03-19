@@ -72,17 +72,7 @@ function createWorkspaceInviteUrl(inviteToken: string, locale: AppLocale): strin
     },
     locale,
   });
-  const baseUrl = getWorkspaceInviteBaseUrl().replace(/\/+$/g, "");
+  const baseUrl = app.site.url.replace(/\/+$/g, "");
 
   return `${baseUrl}${pathname}`;
-}
-
-function getWorkspaceInviteBaseUrl(): string {
-  const explicitUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
-
-  if (explicitUrl) {
-    return explicitUrl;
-  }
-
-  return app.site.url;
 }

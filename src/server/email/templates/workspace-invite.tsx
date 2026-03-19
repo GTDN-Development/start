@@ -68,7 +68,7 @@ export const PreviewProps = {
   description: "Byli jste pozváni do workspace Start Labs.",
   inviterLine: "Pozval vás Jan Novák.",
   ctaLabel: "Přijmout pozvánku",
-  inviteUrl: "https://www.gtdn.online/cs/invite/demo-token",
+  inviteUrl: "https://start.gtdn.online/cs/invite/demo-token",
   urlFallbackLabel: "Pokud tlačítko nefunguje, otevřete tuto adresu:",
   expiryText: "Pozvánka vyprší za 7 dní.",
 } satisfies WorkspaceInviteEmailProps;
