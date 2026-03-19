@@ -5,6 +5,7 @@ type MenuHref = AppPathname;
 export type MenuLinkLabelKey =
   | "home"
   | "contact"
+  | "support"
   | "pricing"
   | "blog"
   | "features"
@@ -64,6 +65,7 @@ export const applicationMenu: MenuLink[] = [
   { labelKey: "overview", href: "/overview" },
   { labelKey: "workspace", href: "/overview" },
   { labelKey: "account", href: "/account" },
+  { labelKey: "support", href: "/contact/support" },
 ];
 
 export const applicationFooterMenu: MenuLink[] = [

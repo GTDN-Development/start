@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import {
   CircleIcon,
   LayoutDashboardIcon,
+  LifeBuoyIcon,
   SettingsIcon,
   type LucideIcon,
   UserIcon,
@@ -74,6 +75,10 @@ function getMainMenuItemIcon(item: (typeof applicationMenu)[number]): LucideIcon
 
   if (item.labelKey === "account") {
     return UserIcon;
+  }
+
+  if (item.labelKey === "support") {
+    return LifeBuoyIcon;
   }
 
   return CircleIcon;
