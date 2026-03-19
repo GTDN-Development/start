@@ -5,7 +5,7 @@ type AppAuthor = {
 
 export const app = {
   site: {
-    name: "Start",
+    name: "Start App by Gtdn",
     defaultTitle: "Production-Ready SaaS Starter Template",
     defaultDescription:
       "Fully featured SaaS template built with Next.js 16, TypeScript, shadcn/ui, and modern production-ready foundations.",
