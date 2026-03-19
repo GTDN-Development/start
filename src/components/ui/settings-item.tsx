@@ -82,7 +82,7 @@ function SettingsItem({
       "aria-disabled": disabled || undefined,
       inert: disabled || undefined,
       className: cn(
-        "group/settings-item data-[variant=default]:border-border data-[variant=destructive]:border-destructive relative overflow-clip rounded-xl border data-[disabled=true]:opacity-50 data-[disabled=true]:select-none",
+        "group/settings-item data-[variant=default]:border-border data-[variant=destructive]:border-destructive/50 relative overflow-clip rounded-xl border data-[disabled=true]:opacity-50 data-[disabled=true]:select-none",
         className
       ),
     },
@@ -149,7 +149,7 @@ function SettingsItemFooter({ children, className, ...props }: React.ComponentPr
     <div
       {...props}
       className={cn(
-        "group-data-[variant=destructive]/settings-item:bg-destructive/12.5 bg-background group-data-[variant=destructive]/settings-item:border-t-destructive/30 flex flex-col items-center justify-center gap-2 border-t px-4 py-2.5 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:px-6 sm:py-3 sm:text-left",
+        "group-data-[variant=destructive]/settings-item:bg-destructive/10 bg-background group-data-[variant=destructive]/settings-item:border-t-destructive/30 flex flex-col items-center justify-center gap-2 border-t px-4 py-2.5 text-center sm:flex-row sm:flex-wrap sm:justify-between sm:px-6 sm:py-3 sm:text-left",
         className
       )}
     >
