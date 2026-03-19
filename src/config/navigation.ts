@@ -9,6 +9,7 @@ export type MenuLinkLabelKey =
   | "blog"
   | "features"
   | "integrations"
+  | "changelog"
   | "roadmap"
   | "signIn"
   | "signUp"
@@ -50,6 +51,7 @@ export const marketingMenu: MenuItem[] = [
     items: [
       { labelKey: "features", href: "/about/features" },
       { labelKey: "integrations", href: "/about/integrations" },
+      { labelKey: "changelog", href: "/about/changelog" },
       { labelKey: "roadmap", href: "/about/roadmap" },
     ],
   },
