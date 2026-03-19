@@ -18,6 +18,10 @@ import type { AccountProfileSnapshot } from "@/features/account/account-profile"
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
 import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
+import {
+  WorkspaceNavigationProvider,
+  useWorkspaceNavigation,
+} from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { ApplicationMenuTree } from "./application-menu-tree";
 import { WorkspaceSwitcher } from "@/features/workspaces/workspace-switcher";
@@ -31,8 +35,6 @@ type ApplicationMobileMenuLabels = {
 type ApplicationLayoutContextValue = {
   user: AccountProfileSnapshot;
   locale: string;
-  workspaces: WorkspaceNavigationItem[];
-  activeWorkspaceSlug: string | null;
   userMenuLabels: UserAccountMenuLabels;
   mobileMenuLabels: ApplicationMobileMenuLabels;
 };
@@ -54,13 +56,17 @@ type ApplicationLayoutProps = {
 const ApplicationLayoutContext = createContext<ApplicationLayoutContextValue | null>(null);
 
 export function useSidebarContext() {
-  const context = useContext(ApplicationLayoutContext);
+  const applicationLayoutContext = useContext(ApplicationLayoutContext);
+  const workspaceNavigationContext = useWorkspaceNavigation();
 
-  if (!context) {
+  if (!applicationLayoutContext) {
     throw new Error("useSidebarContext must be used within ApplicationLayout.");
   }
 
-  return context;
+  return {
+    ...applicationLayoutContext,
+    ...workspaceNavigationContext,
+  };
 }
 
 export function ApplicationLayout({
@@ -72,57 +78,70 @@ export function ApplicationLayout({
   labels,
 }: ApplicationLayoutProps) {
   const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
+  const workspaceNavigationKey = `${activeWorkspaceSlug ?? ""}:${workspaces
+    .map((workspace) =>
+      [
+        workspace.id,
+        workspace.slug,
+        workspace.name,
+        workspace.kind,
+        workspace.role,
+        workspace.avatarUrl ?? "",
+      ].join(":")
+    )
+    .join("|")}`;
   const renderEmailVerificationBanner = showEmailVerificationBanner(user);
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
   return (
     <AccountProfileProvider key={profileProviderKey} initialProfile={user}>
-      <ApplicationLayoutContext.Provider
-        value={{
-          user,
-          locale,
-          workspaces,
-          activeWorkspaceSlug,
-          userMenuLabels: labels.userMenu,
-          mobileMenuLabels: labels.mobileMenu,
-        }}
+      <WorkspaceNavigationProvider
+        key={workspaceNavigationKey}
+        initialWorkspaces={workspaces}
+        initialActiveWorkspaceSlug={activeWorkspaceSlug}
       >
-        <div className="relative isolate [--navbar-height:--spacing(16)]">
-          <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
+        <ApplicationLayoutContext.Provider
+          value={{
+            user,
+            locale,
+            userMenuLabels: labels.userMenu,
+            mobileMenuLabels: labels.mobileMenu,
+          }}
+        >
+          <div className="relative isolate [--navbar-height:--spacing(16)]">
+            <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
-          <SidebarProvider>
-            <Sidebar collapsible="offcanvas">
-              <SidebarHeader>
-                <WorkspaceSwitcher
-                  workspaces={workspaces}
-                  activeWorkspaceSlug={activeWorkspaceSlug}
+            <SidebarProvider>
+              <Sidebar collapsible="offcanvas">
+                <SidebarHeader>
+                  <WorkspaceSwitcher />
+                </SidebarHeader>
+                <SidebarContent>
+                  <SidebarGroup>
+                    <SidebarGroupContent>
+                      <ApplicationMenuTree aria-label={labels.mobileMenu.title} />
+                    </SidebarGroupContent>
+                  </SidebarGroup>
+                </SidebarContent>
+              </Sidebar>
+
+              <SidebarInset id={contentId} className="min-w-0">
+                <LayoutBanners
+                  banners={[
+                    {
+                      isVisible: renderEmailVerificationBanner,
+                      content: <EmailVerificationBanner />,
+                    },
+                  ]}
                 />
-              </SidebarHeader>
-              <SidebarContent>
-                <SidebarGroup>
-                  <SidebarGroupContent>
-                    <ApplicationMenuTree aria-label={labels.mobileMenu.title} />
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              </SidebarContent>
-            </Sidebar>
 
-            <SidebarInset id={contentId} className="min-w-0">
-              <LayoutBanners
-                banners={[
-                  {
-                    isVisible: renderEmailVerificationBanner,
-                    content: <EmailVerificationBanner />,
-                  },
-                ]}
-              />
-
-              {children}
-            </SidebarInset>
-          </SidebarProvider>
-        </div>
-      </ApplicationLayoutContext.Provider>
+                {children}
+              </SidebarInset>
+            </SidebarProvider>
+          </div>
+        </ApplicationLayoutContext.Provider>
+      </WorkspaceNavigationProvider>
     </AccountProfileProvider>
   );
 }

@@ -6,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";
-import { setPendingInviteHashCookie } from "@/server/workspaces/workspace-cookie";
 import {
   acceptInviteTokenForUser,
-  hashInviteToken,
   validateInviteToken,
 } from "@/server/workspaces/workspace-invite-service";
 
@@ -68,9 +66,13 @@ export default async function Page({ params }: InviteTokenPageProps) {
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!session) {
-    await setPendingInviteHashCookie(hashInviteToken(token));
     redirect({
-      href: "/sign-in",
+      href: {
+        pathname: "/invite/[token]/start",
+        params: {
+          token,
+        },
+      },
       locale: locale as Locale,
     });
     return null;

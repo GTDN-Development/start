@@ -19,15 +19,12 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
+import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { type AppHref, usePathname, useRouter } from "@/i18n/navigation";
 import { getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
-import {
-  WorkspaceAvatar,
-  WorkspaceAvatarFallback,
-  WorkspaceAvatarImage,
-} from "./workspace-avatar";
+import { WorkspaceAvatar, WorkspaceAvatarFallback, WorkspaceAvatarImage } from "./workspace-avatar";
 import { WorkspaceCreateDrawer } from "./workspace-create-drawer";
 
 type WorkspaceOption = WorkspaceNavigationItem & {
@@ -35,15 +32,10 @@ type WorkspaceOption = WorkspaceNavigationItem & {
   chipClassName: string;
 };
 
-export function WorkspaceSwitcher({
-  workspaces,
-  activeWorkspaceSlug,
-}: {
-  workspaces: WorkspaceNavigationItem[];
-  activeWorkspaceSlug: string | null;
-}) {
+export function WorkspaceSwitcher() {
   const t = useTranslations("layout.application.workspaceSwitcher");
   const { isMobile } = useSidebar();
+  const { activeWorkspaceSlug, workspaces } = useWorkspaceNavigation();
   const pathname = usePathname();
   const router = useRouter();
   const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
@@ -168,7 +160,9 @@ export function WorkspaceSwitcher({
                     </WorkspaceAvatar>
                     <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">{workspace.name}</span>
-                      <span className="text-muted-foreground truncate text-xs">{workspace.slug}</span>
+                      <span className="text-muted-foreground truncate text-xs">
+                        {workspace.slug}
+                      </span>
                     </div>
                     {workspace.slug === activeWorkspace.slug && (
                       <CheckIcon aria-hidden="true" className="size-4" />

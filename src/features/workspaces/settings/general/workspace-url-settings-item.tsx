@@ -21,6 +21,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { app } from "@/config/app";
 import { workspaceConfig } from "@/config/workspace";
 import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
+import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
 
@@ -32,8 +33,13 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
   const t = useTranslations("pages.workspace.general.url");
   const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
+  const { patchWorkspace, workspaces } = useWorkspaceNavigation();
   const urlToastId = useId();
-  const isReadOnly = workspace.role !== "owner";
+  const currentWorkspace = workspaces.find(
+    (candidateWorkspace) => candidateWorkspace.id === workspace.id
+  );
+  const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
+  const isReadOnly = workspaceSnapshot.role !== "owner";
   const [workspaceUrl, setWorkspaceUrl] = useState(workspace.slug);
   const workspaceUrlSchema = z.object({
     url: z
@@ -63,7 +69,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
 
       const nextUrl = value.url.trim();
 
-      const response = await updateWorkspaceGeneralAction(workspace.slug, {
+      const response = await updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
         slug: nextUrl,
       });
 
@@ -82,6 +88,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
       }
 
       setWorkspaceUrl(response.data.workspaceSlug);
+      patchWorkspace(workspaceSnapshot.id, response.data.workspace);
       form.reset();
       form.setFieldValue("url", response.data.workspaceSlug);
 
@@ -89,7 +96,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
         id: urlToastId,
       });
 
-      if (response.data.workspaceSlug !== workspace.slug) {
+      if (response.data.workspaceSlug !== workspaceSnapshot.slug) {
         router.replace({
           pathname: "/w/[workspaceSlug]/settings",
           params: {

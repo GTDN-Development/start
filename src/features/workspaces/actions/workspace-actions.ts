@@ -32,8 +32,10 @@ import {
 } from "@/server/workspaces/workspace-invite-service";
 import type {
   ServerWorkspaceResponse,
+  UserWorkspace,
   WorkspaceResponse,
 } from "@/server/workspaces/workspace-types";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 
 const workspaceSlugSchema = z
   .string()
@@ -135,7 +137,7 @@ export async function updateWorkspaceGeneralAction(
     removeAvatar?: boolean;
     avatarFile?: File;
   }
-): Promise<WorkspaceResponse<{ workspaceSlug: string }>> {
+): Promise<WorkspaceResponse<{ workspaceSlug: string; workspace: WorkspaceNavigationItem }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedInput = updateWorkspaceGeneralInputSchema.safeParse(input);
 
@@ -159,6 +161,7 @@ export async function updateWorkspaceGeneralAction(
 
   return finalizeWorkspaceAction(response, (data) => ({
     workspaceSlug: data.workspace.slug,
+    workspace: mapWorkspaceNavigationItem(data.workspace),
   }));
 }
 
@@ -439,4 +442,15 @@ function revalidateWorkspaceGeneralPaths(currentSlug: string, nextSlug: string):
 
 function revalidateWorkspaceMembersPath(workspaceSlug: string): void {
   revalidatePath(`/w/${workspaceSlug}/settings/members`);
+}
+
+function mapWorkspaceNavigationItem(workspace: UserWorkspace): WorkspaceNavigationItem {
+  return {
+    id: workspace.id,
+    slug: workspace.slug,
+    name: workspace.name,
+    kind: workspace.kind,
+    role: workspace.role,
+    avatarUrl: workspace.avatarUrl,
+  };
 }

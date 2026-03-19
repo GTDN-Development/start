@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/settings-item";
 import { workspaceConfig } from "@/config/workspace";
 import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
+import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 
 type WorkspaceNameFormValues = {
@@ -33,8 +34,13 @@ export function WorkspaceNameSettingsItem({
 }) {
   const t = useTranslations("pages.workspace.general.name");
   const tCommon = useTranslations("pages.workspace.common");
+  const { patchWorkspace, workspaces } = useWorkspaceNavigation();
   const nameToastId = useId();
-  const isReadOnly = workspace.role !== "owner";
+  const currentWorkspace = workspaces.find(
+    (candidateWorkspace) => candidateWorkspace.id === workspace.id
+  );
+  const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
+  const isReadOnly = workspaceSnapshot.role !== "owner";
   const [workspaceName, setWorkspaceName] = useState(workspace.name);
   const workspaceNameSchema = z.object({
     name: z
@@ -64,7 +70,7 @@ export function WorkspaceNameSettingsItem({
 
       const nextName = value.name.trim();
 
-      const response = await updateWorkspaceGeneralAction(workspace.slug, {
+      const response = await updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
         name: nextName,
       });
 
@@ -76,6 +82,7 @@ export function WorkspaceNameSettingsItem({
       }
 
       setWorkspaceName(nextName);
+      patchWorkspace(workspaceSnapshot.id, response.data.workspace);
       form.reset();
       form.setFieldValue("name", nextName);
 

@@ -60,16 +60,17 @@ Out of scope:
 4. `src/features/workspaces/actions/workspace-actions.ts`
 5. `src/app/[locale]/(application)/overview/page.tsx`
 6. `src/app/[locale]/(auth)/(flow)/invite/[token]/page.tsx`
-7. `src/app/[locale]/(application)/w/[workspaceSlug]/overview/page.tsx`
-8. `src/app/[locale]/(application)/w/[workspaceSlug]/settings/page.tsx`
-9. `src/app/[locale]/(application)/w/[workspaceSlug]/settings/members/page.tsx`
-10. `src/features/application/application-menu-tree.tsx`
-11. `src/features/application/application-page-header.tsx`
-12. `src/features/application/workspace-routing.ts`
-13. `src/features/account/user-account-menu.tsx`
-14. `src/i18n/routing.ts`
-15. `src/features/workspaces/workspace-switcher.tsx`
-16. `src/features/workspaces/workspace-create-drawer.tsx`
+7. `src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.ts`
+8. `src/app/[locale]/(application)/w/[workspaceSlug]/overview/page.tsx`
+9. `src/app/[locale]/(application)/w/[workspaceSlug]/settings/page.tsx`
+10. `src/app/[locale]/(application)/w/[workspaceSlug]/settings/members/page.tsx`
+11. `src/features/application/application-menu-tree.tsx`
+12. `src/features/application/application-page-header.tsx`
+13. `src/features/application/workspace-routing.ts`
+14. `src/features/account/user-account-menu.tsx`
+15. `src/i18n/routing.ts`
+16. `src/features/workspaces/workspace-switcher.tsx`
+17. `src/features/workspaces/workspace-create-drawer.tsx`
 
 ## 6. Query a action kontrakt
 
@@ -139,9 +140,10 @@ Post-auth flow (UX pravidlo):
 4. Cílem je eliminovat zbytečný mezikrok a viditelné přeskakování URL.
 
 Invite flow `/invite/[token]`:
-1. guest: uložit hash do `pending_invite` přes Server Action + redirect `/sign-in`
+1. guest: stránka pouze redirectne do route handleru `/invite/[token]/start`, který validuje token, uloží hash do `pending_invite` a redirectne na `/sign-in`
 2. authenticated: rovnou accept + redirect do workspace
 3. invalid/expired: zobrazit error stav stránky
+4. Zápis `pending_invite` nesmí probíhat přímo v renderu Server Component, jinak hrozí produkční RSC error při guest vstupu.
 
 ## 8. Cookie kontrakt
 
@@ -182,6 +184,7 @@ Invite flow `/invite/[token]`:
 6. `Create workspace` otevře drawer z pravé strany s formulářem (`name` required, `slug` optional).
 7. Nový workspace bude vždy `organization`; zakladatel bude automaticky owner.
 8. Invite/members UI po mutacích synchronizuje lokální stav s čerstvými server props, aby nebyl potřeba hard refresh.
+9. Workspace avatar upload/remove okamžitě synchronizuje klientský workspace stav (switcher + settings), aby se fallback a background zobrazily hned bez ručního refresh.
 
 ## 12. Implementační etapy
 
@@ -204,7 +207,7 @@ Invite flow `/invite/[token]`:
 1. Přidat dynamické routes `/w/[workspaceSlug]/*`.
 2. Implementovat `/overview` jako bootstrap/fallback route.
 3. Implementovat post-auth direct workspace redirect přes `resolvePostAuthWorkspaceAction`.
-4. Implementovat `/invite/[token]` cold flow s `pending_invite` cookie.
+4. Implementovat `/invite/[token]` cold flow s `pending_invite` cookie přes route handler `/invite/[token]/start`, ne přes cookie write v page renderu.
 
 ### Etapa D: UI wiring + i18n + cleanup
 
@@ -216,6 +219,7 @@ Invite flow `/invite/[token]`:
 6. Implementovat create-workspace drawer ve switcheru a redirect na nově vytvořený workspace.
 7. Implementovat workspace switch slug-swap navigaci se zachováním aktuální workspace podstránky.
 8. U members/invites sekce zajistit okamžitou synchronizaci dat po mutacích bez ručního refresh.
+9. U workspace avataru zajistit okamžitý klientský patch po upload/remove, nejen `router.refresh()`.
 
 ## 13. Test strategie (další fáze)
 

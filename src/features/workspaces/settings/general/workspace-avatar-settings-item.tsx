@@ -28,6 +28,7 @@ import {
   WorkspaceAvatarFallback,
   WorkspaceAvatarImage,
 } from "@/features/workspaces/workspace-avatar";
+import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import { workspaceConfig } from "@/config/workspace";
 import { useRouter } from "@/i18n/navigation";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
@@ -41,15 +42,22 @@ export function WorkspaceAvatarSettingsItem({
   const t = useTranslations("pages.workspace.general.avatar");
   const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
+  const { patchWorkspace, workspaces } = useWorkspaceNavigation();
   const avatarToastId = useId();
-  const isReadOnly = workspace.role !== "owner";
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const [isAvatarUpdating, setIsAvatarUpdating] = useState(false);
+  const currentWorkspace = workspaces.find(
+    (candidateWorkspace) => candidateWorkspace.id === workspace.id
+  );
+  const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
+  const isReadOnly = workspaceSnapshot.role !== "owner";
 
-  const initials = getUserInitials(workspace.name);
+  const initials = getUserInitials(workspaceSnapshot.name);
   const workspaceAvatarUrl =
-    workspace.avatarUrl && workspace.avatarUrl !== failedAvatarUrl ? workspace.avatarUrl : null;
+    workspaceSnapshot.avatarUrl && workspaceSnapshot.avatarUrl !== failedAvatarUrl
+      ? workspaceSnapshot.avatarUrl
+      : null;
 
   async function handleAvatarInputChange(event: ChangeEvent<HTMLInputElement>) {
     if (isReadOnly) {
@@ -86,7 +94,7 @@ export function WorkspaceAvatarSettingsItem({
         return;
       }
 
-      const response = await updateWorkspaceGeneralAction(workspace.slug, {
+      const response = await updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
         avatarFile: preparedAvatarFileResult.file,
       });
 
@@ -103,6 +111,7 @@ export function WorkspaceAvatarSettingsItem({
         return;
       }
 
+      patchWorkspace(workspaceSnapshot.id, response.data.workspace);
       toast.success(t("status.updated"), {
         id: avatarToastId,
       });
@@ -114,14 +123,14 @@ export function WorkspaceAvatarSettingsItem({
   }
 
   async function handleAvatarRemoveClick() {
-    if (isReadOnly || isAvatarUpdating || !workspace.avatarUrl) {
+    if (isReadOnly || isAvatarUpdating || !workspaceSnapshot.avatarUrl) {
       return;
     }
 
     setIsAvatarUpdating(true);
 
     try {
-      const response = await updateWorkspaceGeneralAction(workspace.slug, {
+      const response = await updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
         removeAvatar: true,
       });
 
@@ -132,6 +141,7 @@ export function WorkspaceAvatarSettingsItem({
         return;
       }
 
+      patchWorkspace(workspaceSnapshot.id, response.data.workspace);
       toast.success(t("status.removed"), {
         id: avatarToastId,
       });
@@ -211,7 +221,7 @@ export function WorkspaceAvatarSettingsItem({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleAvatarRemoveClick}
-                  disabled={isAvatarUpdating || isReadOnly || !workspace.avatarUrl}
+                  disabled={isAvatarUpdating || isReadOnly || !workspaceSnapshot.avatarUrl}
                   variant="destructive"
                   className="whitespace-nowrap"
                 >
