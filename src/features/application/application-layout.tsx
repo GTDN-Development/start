@@ -12,7 +12,6 @@ import {
   SidebarHeader,
   SidebarInset,
   SidebarProvider,
-  SidebarRail,
 } from "@/components/ui/sidebar";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
@@ -107,7 +106,6 @@ export function ApplicationLayout({
                   </SidebarGroupContent>
                 </SidebarGroup>
               </SidebarContent>
-              <SidebarRail />
             </Sidebar>
 
             <SidebarInset id={contentId} className="min-w-0">
