@@ -1,12 +1,12 @@
 # Auth Refactoring Plan
 
 Status:
-1. Tento dokument je jeden ze tří samostatných refaktoringových úkolů.
-2. Je kompatibilní s `.plans/refactoring/workspaces-refactoring-plan.md` a `.plans/refactoring/user-devices-refactoring-plan.md`.
-3. Může být realizován samostatně, pokud zůstanou zachované stabilní kontrakty ze sekce 4.
+1. Tento dokument po reevaluaci zustava spis referencnim auditem nez doporucenym samostatnym refaktoringovym taskem.
+2. Je kompatibilní s `.plans/refactoring/auth-workspaces/workspaces-refactoring-plan.md` a `.plans/refactoring/auth-workspaces/user-devices-refactoring-plan.md`.
+3. Muze byt realizovan samostatne, ale aktualne se to nedoporucuje bez noveho produktoveho nebo architektonickeho triggeru.
 
-Datum: 17. 3. 2026
-Vychází z: `AUDIT-WORKSPACES-AUTH-DEVICES.md`, `.plans/phase-2-auth-server-actions.md`
+Datum: 19. 3. 2026
+Vychází z: `AUDIT-WORKSPACES-AUTH-DEVICES.md`, `.plans/phase-2-auth-server-actions.md`, `.plans/refactoring/use-effect/use-effect-refactoring-plan.md`
 
 ## 1. Cíl
 
@@ -19,25 +19,33 @@ Vychází z: `AUDIT-WORKSPACES-AUTH-DEVICES.md`, `.plans/phase-2-auth-server-act
 
 Aktuální odhad pro auditovaný scope:
 
-- soubory: 39
-- LOC: 4438
+- soubory: 34
+- LOC: 4174
 
 Největší hotspoty:
 
 1. `src/server/auth/auth-service.ts` — 809 LOC
-2. `src/features/auth/auth-client.ts` — 444 LOC
-3. `src/features/auth/sign-up/sign-up-form.tsx` — 327 LOC
-4. `src/features/auth/reset-password/reset-password-form.tsx` — 231 LOC
-5. `src/features/auth/sign-in/sign-in-form.tsx` — 221 LOC
-6. `src/features/auth/actions/auth-actions.ts` — 205 LOC
+2. `src/features/auth/auth-client.ts` — 434 LOC
+3. `src/features/auth/sign-up/sign-up-form.tsx` — 326 LOC
+4. `src/features/auth/reset-password/reset-password-form.tsx` — 228 LOC
+5. `src/features/auth/sign-in/sign-in-form.tsx` — 220 LOC
+6. `src/features/auth/actions/auth-actions.ts` — 204 LOC
+
+## 2.1 Dopad merge useEffect refaktoru
+
+1. `src/features/auth/auth-client.ts` uz nema komponentovy `useEffect`; `useSession()` bezi pres `useSyncExternalStore` a bootstrap session store resi subscription lifecycle.
+2. Background sync (`BroadcastChannel`, `visibilitychange`, `online`) zustal zachovany, ale uz neni navazany na komponentovy effect choreography.
+3. Auth flash mezivrstva byla odstranena; `src/features/auth/sign-in/sign-in-flash-toast.tsx` uz neni kandidat dalsiho refaktoru.
+4. Invite auth-required redirect uz je server-first flow; `src/features/auth/invite/token/invite-token-auth-required-redirect.tsx` byl odstraneny.
+5. Z pohledu tohoto planu tedy odpadly useEffect-motivovane quick wins a zustava hlavne architektonicke zjednoduseni auth service a session klienta.
 
 ## 3. Hlavní problémy, které má tento task řešit
 
-1. Dva session resolvery řeší velmi podobný problém (`getServerAuthSession`, `getApiAuthSession`).
-2. `auth-client.ts` je robustní, ale na aktuální potřeby appky už příliš těžký.
-3. Existuje příliš mnoho adapter vrstev pro response a cookie flow.
-4. Některé malé auth soubory zvyšují file count bez významného architektonického přínosu.
-5. Auth formuláře jsou ještě udržitelné, ale další růst by byl už drahý bez zjednodušení infrastruktury.
+1. `auth-service.ts` je nejvetsi hotspot, ale `getServerAuthSession()` a `getApiAuthSession()` maji zamerne rozdilne chovani a nejsou vhodny kandidat na mechanicke slouceni pres `mode` flag.
+2. `auth-client.ts` je po useEffect refaktoru relativne kompaktnim session managerem, ne akutnim architektonickym problemem.
+3. Cast malych auth souboru ma nizky prinos, ale vetsina boundary je legitimni kvuli server/client oddeleni.
+4. Formularovy glue ma jen omezeny cleanup potential; nejde o hlavni zdroj complexity.
+5. Nejvetsi cast puvodne planovanych quick wins uz absorboval useEffect refaktor.
 
 ## 4. Stabilní kontrakty, které musí zůstat zachované
 
@@ -87,11 +95,10 @@ Tento task je samostatně nasaditelný jen tehdy, pokud zůstanou stabilní tyto
 
 In scope:
 
-1. Unifikace session resolver logiky v `auth-service.ts`.
-2. Zjednodušení `auth-client.ts`.
-3. Redukce malých auth helper/wrapper souborů.
-4. Zjednodušení cookie/response glue tam, kde nepřidává jasnou hodnotu.
-5. Zachování stávajících formulářů s minimálními behavior změnami.
+1. Jen oportunisticke cisteni auth vrstvy pri souvisejicich zmenach v auth domene.
+2. Sdilene male helpery v `auth-service.ts`, pokud zmensi duplikaci bez sjednocovani odlisneho behavior.
+3. Redukce jednotlivych low-value helper/wrapper souboru tam, kde nevznika horsi boundary.
+4. Lehky cleanup opakovaneho formularoveho glue bez behavior zmen.
 
 Out of scope:
 
@@ -101,6 +108,8 @@ Out of scope:
 4. Změna PocketBase integration modelu.
 5. Velký redesign formulářů.
 6. Změna device-session security modelu.
+7. Mechanicka unifikace `getServerAuthSession()` a `getApiAuthSession()` pres `mode` flag.
+8. Samostatny refactor `auth-client.ts`, pokud se nemeni produktove pozadavky na session sync.
 
 ## 6. Co zůstane zachováno a o jaké feature přijdeme
 
@@ -118,15 +127,13 @@ Out of scope:
 
 ### 6.2 Záměrně ztracené nebo zjednodušené feature
 
-1. Automatický session refetch při návratu do tabu přes `visibilitychange`.
-2. Automatický session refetch při návratu online.
-3. Část interního rate-limit/dedup glue v klientské session vrstvě.
-4. Část malých helper modulů bude absorbována do větších, ale čitelnějších souborů.
+1. Cast interniho rate-limit/dedup glue v klientske session vrstve.
+2. Cast malych helper modulu bude absorbovana do vetsich, ale citelnejsich souboru.
 
 Praktický dopad:
 
 1. Auth UX zůstane standardní.
-2. Session stav se bude aktualizovat hlavně po mutacích a explicitním refreshi, ne přes tolik background heuristik.
+2. Zachovani nebo omezeni `visibilitychange` a `online` refreshu uz neni nutna soucast useEffect cleanupu; jde o samostatne produktove/runtime rozhodnuti.
 3. Chování bude jednodušší na debugging i maintenance.
 
 ## 7. Cílový stav po refaktoru
@@ -135,33 +142,35 @@ Praktický dopad:
 
 Cílový směr:
 
-1. Sloučit `getServerAuthSession()` a `getApiAuthSession()` nad jeden interní resolver.
-2. Zachovat dvě veřejná entry point jména jen pokud to zjednoduší migraci; interně ale musí sdílet jednu logiku.
-3. Zmenšit opakování v cookie clear/set flow.
-4. Omezit počet response adapter vrstev.
+1. Zachovat oddelene `getServerAuthSession()` a `getApiAuthSession()`, protoze jejich behavior neni identicky.
+2. Sdilet jen male interni helpery tam, kde to nesmaze rozdily mezi pasivnim read a aktivnim refresh flow.
+3. Zmensit opakovani v cookie clear/set flow jen pokud tim nevznikne dalsi conditional complexity.
+4. Omezit response adapter vrstvy pouze u lokalnich low-risk mist.
 
 ### 7.2 Client vrstva
 
 Cílový směr:
 
 1. `auth-client.ts` ponechat jako jediný session client entry point.
-2. Zjednodušit background sync mechaniky.
-3. Zachovat optimistic update po auth akcích.
-4. Zachovat `useSession()` bez potřeby velkého přepisu formulářů.
+2. Zachovat `useSyncExternalStore` + store lifecycle model; nevracet komponentovy mount bootstrap pres effect.
+3. Background sync mechaniky (`BroadcastChannel`, `visibilitychange`, `online`) brat jako samostatnou optimalizacni otazku, ne jako povinny cil tohoto tasku.
+4. Zachovat optimistic update po auth akcich.
+5. Zachovat `useSession()` bez potreby velkeho prepisu formularu.
 
 ### 7.3 Malé moduly
 
 Kandidáti na sloučení:
 
 1. `auth-routes.ts` -> přímo do `config/auth.ts` nebo `auth-contract.ts`
-2. `email-verification.ts` + `use-email-verification.ts` -> jeden soubor
-3. `sign-in-flash-toast.tsx` -> k sign-in feature boundary
+2. `auth-flow-token.ts` -> k nejblizsi feature boundary nebo auth helperu
+3. `email-verification.ts` + `use-email-verification.ts` -> jeden soubor, jen pokud zustane citelna boundary
 4. `finalize-auth-action.ts` -> do `auth-actions.ts` nebo sdíleného auth helperu
-5. podle výsledku i `auth-layout.tsx` + `auth-page-shell.tsx`
 
 ## 8. Navržené konkrétní změny po PR krocích
 
 ## PR A1: Session resolver unifikace
+
+Status: nedoporuceno jako samostatny krok.
 
 1. Vytvořit jeden interní resolver v `src/server/auth/auth-service.ts`:
 2. například `resolveAuthSession({ mode: "server" | "api" })`
@@ -175,31 +184,40 @@ Kandidáti na sloučení:
 
 Výsledek:
 
-1. Méně duplikace.
-2. Menší riziko divergence mezi server a API režimem.
+1. Potencialne mene duplikace.
+2. Zaroven vyssi riziko conditional complexity a rozmazani zamerne odlisneho behavior mezi server a API rezimem.
+3. Aktualni doporuceni: nerealizovat, maximalne vytahnout jednotlive helpery bez sjednoceni resolveru.
 
 ## PR A2: Zjednodušení auth-client.ts
+
+Status: nedoporuceno jako samostatny krok.
 
 1. Zachovat:
 2. `useSession()`
 3. `refreshSession()`
 4. optimistic state updates po auth akcích
 5. `BroadcastChannel` sync pro změnu session
-6. Odebrat:
-7. `visibilitychange` refresh
-8. `online` recovery refresh
-9. část rate-limit glue kolem background refetchů
-10. Udržet jednoduché pravidlo:
-11. session se aktualizuje po mutaci
-12. session se aktualizuje při explicitním `refreshSession()`
-13. session se aktualizuje přes cross-tab signal
+6. store-lifecycle bootstrap bez komponentoveho `useEffect`
+7. Nevracet:
+8. mount-triggered fetch/bootstrap pres komponentovy effect
+9. `sessionStorage -> mount effect -> toast` auth flash choreografii
+10. Zvážit zvlášť:
+11. jestli `visibilitychange` a `online` refresh porad davaji hodnotu po zjednoduseni session vrstvy
+12. cast rate-limit glue kolem background refetchu
+13. Udržet jednoduché pravidlo:
+14. session se aktualizuje po mutaci
+15. session se aktualizuje při explicitním `refreshSession()`
+16. session se aktualizuje přes cross-tab signal
 
 Výsledek:
 
-1. Menší runtime magie.
-2. Menší počet těžko debuggovatelných větví.
+1. Teoreticky mene runtime magie.
+2. Prakticky ale maly zisk, protoze soubor uz je po useEffect refaktoru pomerne kompaktnim session managerem.
+3. Aktualni doporuceni: ponechat, pokud nevznikne novy konkretni produktovy problem.
 
 ## PR A3: Sloučení malých auth modulů
+
+Status: volitelne, jen oportunisticky.
 
 1. Sloučit malé wrapper/helper moduly tam, kde nepřinášejí samostatnou architektonickou hodnotu.
 2. Zachovat jen ty soubory, které jsou opravdu stabilní feature boundaries.
@@ -207,10 +225,12 @@ Výsledek:
 
 Výsledek:
 
-1. Menší file count.
-2. Lepší orientace v auth doméně.
+1. Maly pokles file countu.
+2. Omezena architektonicka hodnota; vyplati se jen u jednotlivych low-value souboru.
 
 ## PR A4: Lehký cleanup formulářového glue
+
+Status: volitelne, low ROI.
 
 1. Nechat stávající formuláře strukturálně podobné.
 2. Jen sjednotit a případně zjednodušit opakovaný error handling tam, kde je to levné.
@@ -223,52 +243,34 @@ Výsledek:
 
 ## 9. Odhad snížení počtu souborů a LOC
 
-### 9.1 Konzervativní varianta
-
-- soubory: z 39 na 35 až 36
-- čistá úspora: minus 3 až 4 soubory
-- LOC: z 4438 na cca 4160 až 4270
-- čistá úspora: minus cca 170 až 280 LOC
-
-### 9.2 Doporučená varianta
-
-- soubory: z 39 na 32 až 34
-- čistá úspora: minus 5 až 7 souborů
-- LOC: z 4438 na cca 3910 až 4150
-- čistá úspora: minus cca 290 až 530 LOC
-
-### 9.3 Agresivnější varianta
-
-- soubory: z 39 na 31 až 33
-- čistá úspora: minus 6 až 8 souborů
-- LOC: z 4438 na cca 3810 až 4040
-- čistá úspora: minus cca 400 až 630 LOC
-
-Doporučení:
-
-1. Jít doporučenou variantou.
-2. Zachovat cross-tab sync, ale ořezat background refetch heuristiky.
-3. Nesahat agresivně na formuláře, protože největší zisk je v infrastruktuře, ne v UI.
+1. Protoze plan uz neni doporuceny jako samostatny task, nema smysl drzet agresivni LOC/file-count target.
+2. Realisticky oportunisticky cleanup znamena spis jednotky souboru a desitky nizke stovky LOC.
+3. Hlavni prinos by byl udrzbovy, ne transformacni.
 
 ## 10. Rizika a mitigace
 
-1. Riziko: jednodušší session sync způsobí stale UI stav v některých edge casích.
-2. Mitigace: zachovat explicitní `refreshSession()` a cross-tab signal.
-3. Riziko: sloučení resolverů rozbije `GET /api/auth/session` behavior.
-4. Mitigace: ponechat wrapper jména a testovat server vs API mód odděleně.
-5. Riziko: přehnané slučování souborů zhorší čitelnost.
-6. Mitigace: slučovat jen malé wrappery, ne celé feature boundaries.
+1. Riziko: refactor bude resit neakutni problem a spotrebuje kapacitu bez odpovidajiciho zisku.
+2. Mitigace: auth menit jen opportunisticky pri navazujici praci.
+3. Riziko: slouceni resolveru rozbije `GET /api/auth/session` behavior nebo heartbeat semantics.
+4. Mitigace: resolver unifikaci nedelat; sdilet jen male helpery.
+5. Riziko: prehnane slucovani souboru zhorsi server/client boundary.
+6. Mitigace: sahat jen na jednotlive low-value soubory.
 
 ## 11. Definice hotového stavu
 
-1. Auth flow zůstává uživatelsky stejný nebo lepší.
-2. `auth-service.ts` už neduplikuje session resolver logiku ve dvou velkých větvích.
-3. `auth-client.ts` je znatelně jednodušší a méně magický.
-4. File count auth domény klesne bez zavedení nové infra vrstvy.
-5. Workspace a user-devices task nad tímto refaktorem dál fungují bez nutnosti současného release.
+1. Auth flow zustava uzivatelsky stejny nebo lepsi.
+2. Pokud probehne cleanup, nedela to kompromis v rozdilnem behavior server/API auth resolution.
+3. Oportunisticky cleanup snizi lokalni dluh bez zavedeni nove infra vrstvy.
+4. Workspace a user-devices task nad timto refaktorem dal funguji bez nutnosti soucasneho release.
 
 ## 12. Doporučené pořadí vůči ostatním taskům
 
-1. Tento task je nejlepší kandidát na první refaktor.
-2. Workspaces i user-devices z něj budou profitovat, ale nejsou na něm blokovaně závislé.
-3. Pokud půjde až po workspaces tasku, je potřeba jen zachovat kompatibilní auth entry pointy pro `/overview`, invite flow a account security.
+1. Tento task uz neni doporucen jako samostatny refaktor.
+2. Pokud se auth domena otevre v jinem tasku, dava smysl jen oportunisticky cleanup typu A3/A4.
+3. Workspaces ani user-devices na nem nejsou blokovane zavisle.
+
+## 13. Aktualni doporuceni
+
+1. A1 a A2 se aktualne nedoporucuji.
+2. A3 a A4 davat jen jako opportunisticky cleanup pri souvisejici auth praci.
+3. Samostatny auth refactoring task po useEffect vlne nedava dobry pomer effort/benefit.

@@ -332,14 +332,16 @@ export async function createWorkspaceInviteForCurrentUser(
 
     const inviteToken = createInviteToken();
     const inviteHash = hashInviteToken(inviteToken);
-    await ownerAccess.context.pb.collection("workspace_invites").create<WorkspaceInvitesRecord>({
-      workspace: ownerAccess.context.workspace.id,
-      email_normalized: normalizedEmail,
-      role: input.role,
-      token_hash: inviteHash,
-      expires_at: createInviteExpiryDate(),
-      invited_by: ownerAccess.context.user.id,
-    });
+    const inviteRecord = await ownerAccess.context.pb
+      .collection("workspace_invites")
+      .create<WorkspaceInvitesRecord>({
+        workspace: ownerAccess.context.workspace.id,
+        email_normalized: normalizedEmail,
+        role: input.role,
+        token_hash: inviteHash,
+        expires_at: createInviteExpiryDate(),
+        invited_by: ownerAccess.context.user.id,
+      });
 
     try {
       await sendWorkspaceInviteEmail({
@@ -353,6 +355,13 @@ export async function createWorkspaceInviteForCurrentUser(
         "createWorkspaceInviteForCurrentUser.sendWorkspaceInviteEmail",
         emailError
       );
+
+      await safeDeleteInvite(ownerAccess.context.pb, inviteRecord.id);
+
+      return {
+        ok: false,
+        errorCode: "UNKNOWN_ERROR",
+      };
     }
 
     return {
@@ -455,6 +464,8 @@ export async function resendWorkspaceInviteForCurrentUser(
 
     const nextInviteToken = createInviteToken();
     const nextInviteHash = hashInviteToken(nextInviteToken);
+    const previousInviteTokenHash = inviteRecord.token_hash;
+    const previousInviteExpiresAt = inviteRecord.expires_at;
 
     await ownerAccess.context.pb.collection("workspace_invites").update(inviteRecord.id, {
       token_hash: nextInviteHash,
@@ -473,6 +484,16 @@ export async function resendWorkspaceInviteForCurrentUser(
         "resendWorkspaceInviteForCurrentUser.sendWorkspaceInviteEmail",
         emailError
       );
+
+      await rollbackInviteAfterFailedResend(ownerAccess.context.pb, inviteRecord.id, {
+        tokenHash: previousInviteTokenHash,
+        expiresAt: previousInviteExpiresAt,
+      });
+
+      return {
+        ok: false,
+        errorCode: "UNKNOWN_ERROR",
+      };
     }
 
     return {
@@ -575,6 +596,24 @@ export async function revokeWorkspaceInviteForCurrentUser(
       ok: false,
       errorCode,
     };
+  }
+}
+
+async function rollbackInviteAfterFailedResend(
+  pb: PocketBase,
+  inviteId: string,
+  previousInvite: {
+    tokenHash: string;
+    expiresAt: string;
+  }
+): Promise<void> {
+  try {
+    await pb.collection("workspace_invites").update(inviteId, {
+      token_hash: previousInvite.tokenHash,
+      expires_at: previousInvite.expiresAt,
+    });
+  } catch (error) {
+    logWorkspaceServiceError("rollbackInviteAfterFailedResend", error);
   }
 }
 

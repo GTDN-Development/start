@@ -2,11 +2,11 @@
 
 Status:
 1. Tento dokument je jeden ze tří samostatných refaktoringových úkolů.
-2. Je kompatibilní s `.plans/refactoring/auth-refactoring-plan.md` a `.plans/refactoring/user-devices-refactoring-plan.md`.
-3. Může být realizován samostatně, pokud zůstanou zachované stabilní kontrakty ze sekce 4.
+2. Je kompatibilní s `.plans/refactoring/auth-workspaces/auth-refactoring-plan.md` a `.plans/refactoring/auth-workspaces/user-devices-refactoring-plan.md`.
+3. Po reevaluaci zustava doporucenym taskem, ale hlavne v uzsim scope W3 + W4.
 
-Datum: 17. 3. 2026
-Vychází z: `AUDIT-WORKSPACES-AUTH-DEVICES.md`, `.plans/multi-workspace-backend-implementation-plan.md`
+Datum: 19. 3. 2026
+Vychází z: `AUDIT-WORKSPACES-AUTH-DEVICES.md`, `.plans/multi-workspace-backend-implementation-plan.md`, `.plans/refactoring/use-effect/use-effect-refactoring-plan.md`
 
 ## 1. Cíl
 
@@ -21,24 +21,35 @@ Vychází z: `AUDIT-WORKSPACES-AUTH-DEVICES.md`, `.plans/multi-workspace-backend
 Aktuální odhad pro auditovaný scope:
 
 - soubory: 33
-- LOC: 6781
+- LOC: 6895
+
+Poznámka:
+
+1. Tato baseline zamerne zahrnuje route vrstvu i server/feature workspace boundary.
 
 Největší hotspoty:
 
 1. `src/features/workspaces/settings/members/workspace-members-management-settings-item.tsx` — 1016 LOC
-2. `src/server/workspaces/workspace-invite-service.ts` — 659 LOC
+2. `src/server/workspaces/workspace-invite-service.ts` — 697 LOC
 3. `src/server/workspaces/workspace-general-service.ts` — 637 LOC
-4. `src/features/workspaces/actions/workspace-actions.ts` — 464 LOC
+4. `src/features/workspaces/actions/workspace-actions.ts` — 436 LOC
 5. `src/features/workspaces/settings/members/workspace-invite-members-settings-item.tsx` — 404 LOC
-6. `src/server/workspaces/workspace-members-service.ts` — 398 LOC
+6. `src/server/workspaces/workspace-members-service.ts` — 397 LOC
+
+## 2.1 Dopad merge useEffect refaktoru
+
+1. Invite auth-required flow uz neni client-side redirect choreografie; `src/app/[locale]/(auth)/(flow)/invite/[token]/page.tsx` zapisuje pending invite cookie a redirectuje na serveru.
+2. `setPendingInviteHashAction()` uz byl odstranen z `src/features/workspaces/actions/workspace-actions.ts`.
+3. Z tohoto planu tedy vypadavaji kroky, ktere jen obchazely drivejsi mount/effect flow kolem invite akceptace.
+4. Relevantni zustava zjednoduseni `workspace-actions.ts`, members/invites UI a server boundary, ale bez navraceni klientskych redirect/effect mostu.
 
 ## 3. Hlavní problémy, které má tento task řešit
 
-1. Příliš mnoho malých helper/boundary souborů ve `src/server/workspaces/*` a `src/features/workspaces/*`.
-2. Přetížený glue modul `src/features/workspaces/actions/workspace-actions.ts`.
-3. Přetížená klientská members UI komponenta s velkým množstvím lokální orchestrace a optimistic state.
-4. Invite UI je těžší, než odpovídá aktuálnímu backend flow.
-5. Route-level workspace bootstrapping a guards jsou čitelné, ale už začínají být repetitivní.
+1. Nejvetsi realny hotspot je klientska members UI komponenta s velkym mnozstvim lokalni orchestrace.
+2. Invite UI je tezsi, nez odpovida aktualnimu backend flow.
+3. Cast malych helper/boundary souboru je rozdelena rozumne a neni hlavnim problemem sama o sobe.
+4. `workspace-actions.ts` je patterned a citelny; neni to hlavni cil refaktoru.
+5. Route-level workspace bootstrapping a guards jsou spis sekundarni cleanup oblast.
 
 ## 4. Stabilní kontrakty, které musí zůstat zachované
 
@@ -77,24 +88,22 @@ Tento task je samostatně nasaditelný jen tehdy, pokud zůstanou stabilní tyto
 31. `createInviteAction`
 32. `resendInviteAction`
 33. `revokeInviteAction`
-34. `setPendingInviteHashAction`
-35. `resolvePostAuthWorkspaceAction`
+34. `resolvePostAuthWorkspaceAction`
 36. Nesmí se měnit semantics:
 37. personal workspace nelze zvát/opustit/smazat
 38. last-owner guard zůstává backend enforcement
 39. invite accept zůstává vázaný na e-mail
-40. `/overview` zůstává bootstrap/fallback route
+40. invite auth-required redirect zustava server-owned pres `pending_invite` cookie + redirect
+41. `/overview` zůstává bootstrap/fallback route
 
 ## 5. Scope
 
 In scope:
 
-1. Sloučení malých workspace helper souborů tam, kde je modulární přínos nízký.
-2. Zjednodušení `workspace-actions.ts`.
-3. Zjednodušení members/invites UI orchestrace.
-4. Zjednodušení invite creation UX z batch editoru na jednodušší flow.
-5. Menší sjednocení route-level loader/guard patternů.
-6. Lehká konsolidace workspace view-model typů.
+1. Zjednodušení members/invites UI orchestrace.
+2. Zjednodušení invite creation UX z batch editoru na jednodušší flow.
+3. Zachovani server-first pending invite flow bez nove client-side redirect vrstvy.
+4. Jen navazujici male helper cleanupy, pokud je W3/W4 prirozene vyvolaji.
 
 Out of scope:
 
@@ -104,6 +113,8 @@ Out of scope:
 4. Refaktor auth session infrastruktury.
 5. Refaktor device-session security flow.
 6. Placeholder obsah v overview a dalších WIP routách.
+7. Slučování server helperů jen kvůli nižšímu file count.
+8. Mechanické štěpení nebo slučování `workspace-actions.ts`, pokud nevznikne nový konkrétní use case.
 
 ## 6. Co zůstane zachováno a o jaké feature přijdeme
 
@@ -117,6 +128,7 @@ Out of scope:
 6. Post-auth workspace resolve.
 7. Active workspace cookie.
 8. Invite token flow.
+9. Server-first pending invite cookie flow pro auth-required invite vstup.
 
 ### 6.2 Záměrně ztracené nebo zjednodušené feature
 
@@ -136,29 +148,30 @@ Praktický dopad:
 
 Cílový směr:
 
-1. Sloučit `workspace-auth-context.ts` a `workspace-access.ts` do jednoho guard modulu.
-2. Sloučit `workspace-constants.ts` a `workspace-errors.ts` do sdíleného workspace utility modulu nebo přímo do servisní vrstvy.
-3. Zvážit sloučení `workspace-invite-utils.ts` přímo do `workspace-invite-service.ts`, pokud po zjednodušení zůstane malý.
-4. Zachovat rozdělení `general / members / invites`, protože to odpovídá doméně.
+1. Zachovat stavajici `general / members / invites` rozdeleni.
+2. Helper boundaries menit jen pokud to vyplyne z W3/W4 nebo zretelne snizi coupling.
+3. Neslucovat moduly jen kvuli file count, pokud uz dnes nesou jednu citelnou zodpovednost.
 
 ### 7.2 Feature vrstva
 
 Cílový směr:
 
-1. Zmenšit `workspace-actions.ts` vytažením společného action helperu nebo rozdělením na menší tematické action moduly.
-2. Sjednotit workspace view-model typy do jednoho feature-level souboru.
-3. `workspace-members-management-settings-item.tsx` ponechat jako jednu feature boundary, ale výrazně omezit lokální stav.
-4. `workspace-invite-members-settings-item.tsx` zjednodušit na single-invite flow.
+1. `workspace-members-management-settings-item.tsx` ponechat jako jednu feature boundary, ale výrazně omezit lokální stav a local mirror data.
+2. `workspace-invite-members-settings-item.tsx` zjednodušit na single-invite flow.
+3. `workspace-actions.ts` menit jen minimalne a jen pokud to vyzaduji W3/W4.
 
 ### 7.3 Route vrstva
 
 1. Zachovat server-first data loading.
 2. Sjednotit guard/resolve pattern tam, kde dnes duplikuje stejnou kombinaci auth + workspace access checku.
-3. Nesmí vzniknout nová API vrstva ani další orchestration abstrakce.
+3. Invite auth-required bridge ponechat v route/server vrstve; nevracet klientsky redirect helper nebo effect choreography.
+4. Nesmí vzniknout nová API vrstva ani další orchestration abstrakce.
 
 ## 8. Navržené konkrétní změny po PR krocích
 
 ## PR W1: Konsolidace malých modulů
+
+Status: nedoporuceno jako samostatny krok.
 
 1. Nahradit:
 2. `src/server/workspaces/workspace-auth-context.ts`
@@ -176,10 +189,13 @@ Cílový směr:
 
 Výsledek:
 
-1. Méně navigace mezi malými soubory.
-2. Menší file count bez změny business chování.
+1. Potencialne mensi file count.
+2. Soucasne riziko horsi citelnosti; aktualne to neresi hlavni problem domeny.
+3. Aktualni doporuceni: nerealizovat samostatne.
 
 ## PR W2: Zjednodušení server action boundary
+
+Status: nedoporuceno jako samostatny krok.
 
 1. Rozdělit nebo zjednodušit `src/features/workspaces/actions/workspace-actions.ts`.
 2. Vytáhnout společné helpery:
@@ -189,14 +205,18 @@ Výsledek:
 6. Cílový stav:
 7. buď dva action soubory (`workspace-general-actions.ts`, `workspace-members-actions.ts`)
 8. nebo jeden výrazně kratší soubor se sdílenými helper funkcemi
-9. Nezavádět novou transportní vrstvu ani fetch přes interní API.
+9. Nezavadet zpet `setPendingInviteHashAction` ani jinou klientskou mezivrstvu pro pending invite flow.
+10. Nezavádět novou transportní vrstvu ani fetch přes interní API.
 
 Výsledek:
 
-1. Menší glue layer.
-2. Lepší čitelnost a menší riziko regressí při dalších změnách.
+1. Potencialne mensi glue layer.
+2. Prakticky ale maly prinos, protoze soubor uz je patterned a citelny.
+3. Aktualni doporuceni: nemenit, pokud to nevyzaduje W3/W4.
 
 ## PR W3: Members UI de-orchestrace
+
+Status: doporuceno.
 
 1. V `workspace-members-management-settings-item.tsx` odstranit lokální mirror seznamů jako primární source of truth.
 2. Po úspěšných mutacích preferovat:
@@ -212,6 +232,8 @@ Výsledek:
 2. Lepší navázání na server-first architekturu.
 
 ## PR W4: Zjednodušení invite creation UX
+
+Status: doporuceno.
 
 1. V `workspace-invite-members-settings-item.tsx` odstranit multi-row editor.
 2. Nahradit ho jednoduchým formulářem:
@@ -231,31 +253,9 @@ Výsledek:
 
 ## 9. Odhad snížení počtu souborů a LOC
 
-### 9.1 Konzervativní varianta
-
-- soubory: z 33 na 29 až 30
-- čistá úspora: minus 3 až 4 soubory
-- LOC: z 6781 na cca 6480 až 6550
-- čistá úspora: minus cca 230 až 300 LOC
-
-### 9.2 Doporučená varianta
-
-- soubory: z 33 na 27 až 29
-- čistá úspora: minus 4 až 6 souborů
-- LOC: z 6781 na cca 6240 až 6460
-- čistá úspora: minus cca 320 až 540 LOC
-
-### 9.3 Agresivnější varianta
-
-- soubory: z 33 na 26 až 28
-- čistá úspora: minus 5 až 7 souborů
-- LOC: z 6781 na cca 6100 až 6350
-- čistá úspora: minus cca 430 až 680 LOC
-
-Doporučení:
-
-1. Jít doporučenou variantou.
-2. Agresivní variantu dělat jen pokud je cílem maximalizovat zjednodušení ještě před větší produktovou expanzí workspace domény.
+1. Pro doporuceny scope W3 + W4 je realisticky cil hlavne mensi UI complexity a mensi LOC v members/invite UI.
+2. File-count reduction neni primarni metrika uspechu.
+3. Pokud se W1/W2 nerealizuji, server-side file count se muze zmenit jen minimalne nebo vubec.
 
 ## 10. Rizika a mitigace
 
@@ -263,18 +263,24 @@ Doporučení:
 2. Mitigace: explicitně potvrdit, že batch invite není core feature a resend/revoke zůstává.
 3. Riziko: méně optimistic UI může působit pomaleji.
 4. Mitigace: držet toast + server refresh + korektní loading states.
-5. Riziko: při slučování helperů vznikne přerostlý utility soubor.
-6. Mitigace: slučovat jen malé a skutečně související moduly, ne celé services.
+5. Riziko: snaha zaroven delat W1/W2 rozsiri scope a snizi focus na realne hotspoty.
+6. Mitigace: drzet task v uzkem scope W3 + W4.
 
 ## 11. Definice hotového stavu
 
 1. Workspace feature set zůstává zachovaný kromě záměrně odstraněného multi-row invite editoru.
 2. Members/invites UI používá jednodušší a čitelnější server-first refresh model.
-3. Workspace server boundary má méně malých souborů a lepší discoverability.
-4. `workspace-actions.ts` už není hlavní hotspot glue komplexity.
+3. Workspace server boundary zustava stabilni a neni zbytecne prekopana kvuli file count.
+4. `workspace-actions.ts` se meni jen pokud to vyzaduje W3/W4.
 5. Auth ani user-devices task není k deployi tohoto tasku nutný.
 
-## 12. Doporučené pořadí vůči ostatním taskům
+## 12. Aktualni doporuceni
+
+1. Implementovat W3 a W4.
+2. W1 a W2 nerealizovat jako samostatne kroky.
+3. Pokud pri W3/W4 vznikne potreba maleho helper cleanupu, resit ji lokalne a nepresouvat task zpet do sirokeho konsolidacniho refaktoru.
+
+## 13. Doporučené pořadí vůči ostatním taskům
 
 1. Tento task může jít jako první nebo druhý.
 2. Pokud půjde první, auth a user-devices na něj nemusí čekat.

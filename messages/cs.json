@@ -866,6 +866,7 @@
           },
           "status": {
             "invalidRows": "Doplňte prosím pole výše.",
+            "alreadyMemberOrInvited": "Tento uživatel už je členem workspace nebo už má čekající pozvánku.",
             "sendFailed": "Pozvánky se nepodařilo odeslat.",
             "sent": "Pozvánky byly odeslány."
           }

@@ -866,6 +866,7 @@
           },
           "status": {
             "invalidRows": "Please complete the fields above.",
+            "alreadyMemberOrInvited": "This user is already a workspace member or already has a pending invitation.",
             "sendFailed": "Invitations could not be sent.",
             "sent": "Invitations sent."
           }

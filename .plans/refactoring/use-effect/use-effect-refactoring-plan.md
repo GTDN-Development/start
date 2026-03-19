@@ -75,10 +75,8 @@ Datum: 19. 3. 2026
 
 ### 4.3 `useMountEffect` consumery k druhe vlne auditu
 
-1. `src/components/layout/floating-bar.tsx`
-2. `src/components/layout/theme-switcher.tsx`
-3. `src/components/ui/copy-button.tsx`
-4. `src/components/ui/sidebar.tsx`
+1. `src/components/ui/copy-button.tsx`
+2. `src/hooks/use-mobile.ts` - shadcn companion hook vyjimka
 
 ## 5. Klasifikace po souborech
 
@@ -188,13 +186,12 @@ Datum: 19. 3. 2026
 
 ### 6.4 `src/components/layout/floating-bar.tsx`
 
-1. Trigger: mount init + browser scroll sync.
-2. Hodnoceni: legitimni kandidat na druhou vlnu auditu, ne uz raw-effect poruseni.
-3. Plan:
-4. posoudit, jestli `useMountEffect` jen neskriva mount workaround
-5. posoudit, jestli `useLayoutEffect` opravdu potrebuje blokovat paint
-6. pokud ne, zjednodusit a vyradit soubor z efektovych vyjimek
-7. Priorita: P2
+1. Stav: neni to `useMountEffect` consumer.
+2. Trigger: mount gating + browser scroll sync + pre-paint visual sync.
+3. Hodnoceni:
+4. zustava raw-effect / `useLayoutEffect` auditovana vyjimka podle sekce 5.5
+5. dalsi prace na souboru je architektonicky optional, ne soucast druhe vlny `useMountEffect` auditu
+6. Priorita: uzavreno v ramci `useMountEffect` follow-upu
 
 ## 7. Doporucene implementacni faze
 

@@ -209,7 +209,7 @@ export function WorkspaceInviteMembersSettingsItem({
         setIsInviting(false);
         setIsInviteDialogOpen(false);
         setPendingInvitePayload([]);
-        setSubmitErrorMessage(tInvite("status.sendFailed"));
+        setSubmitErrorMessage(getInviteErrorMessage(response.errorCode, tInvite));
         return;
       }
     }
@@ -400,4 +400,16 @@ export function WorkspaceInviteMembersSettingsItem({
       </form>
     </SettingsItem>
   );
+}
+
+function getInviteErrorMessage(errorCode: string, tInvite: (key: string) => string): string {
+  if (errorCode === "BAD_REQUEST") {
+    return tInvite("status.alreadyMemberOrInvited");
+  }
+
+  if (errorCode === "FORBIDDEN") {
+    return tInvite("status.sendFailed");
+  }
+
+  return tInvite("status.sendFailed");
 }
