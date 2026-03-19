@@ -22,6 +22,12 @@
 - Pokud je potreba mount/unmount sync s browser API, DOM listenerem, timerem nebo third-party widgetem, preferujte `useMountEffect()` misto ad-hoc `useEffect(..., [])`.
 - `useLayoutEffect()` ma jeste vyssi latku: jen pro DOM measurement nebo pre-paint sync, ktery by ve `useEffect` zpusobil viditelny flicker.
 
+## Co neni cil
+
+- Cilem neni mechanicky odstranit kazdy effect za kazdou cenu.
+- Legitimizovane effecty pro external sync, subscriptions nebo mount/unmount lifecycle nejsou automaticky problem.
+- Problem je effect jako nahrada za lepsi model: derivaci, handler, server/data abstraction nebo remount boundary.
+
 ## Rozhodovaci strom
 
 1. Lze vysledek spocitat z props/state pri renderu?
@@ -69,6 +75,18 @@
 - Nepisite vlastni fetch orchestration v effectu, pokud uz pro to existuje server component, server action, query hook nebo jina sdilena data vrstva.
 - Effect-based fetching snadno vede k race conditions, duplikaci cache logiky a zbytecnym loading/error stavum.
 
+### 3a. Page data preferujte server-first
+
+- Pokud jsou data potreba pro otevreni stranky a UX tim netrpi, preferujte server-side nacitani v route/page/server wrapperu.
+- Client komponenta ma idealne dostat initial data pres props a resit hlavne interakce a lokalni UI state.
+- Raw fetch v effectu neni preferovana cesta pro page-level business data.
+
+### 3b. Client-side data loading je vyjimka
+
+- Client-side loading je pripustny, pokud je to vedomy UX kompromis a nechceme blokovat prvni render cele stranky.
+- Takova vyjimka ma byt explicitne obhajena v review a pokud mozno kratce zdokumentovana v kodu.
+- `useMountEffect` neni automaticka nahrada za fetch v `useEffect`; samotne prepsani fetchu do mount helperu neresi architektonicky problem.
+
 ### 4. Reset resit remountem
 
 - Pokud se komponenta ma pri zmene identity chovat jako nova instance, pouzijte `key`.
@@ -92,6 +110,23 @@
 - Jeden effect ma reprezentovat jednu synchronizacni zodpovednost.
 - Cleanup musi byt zrcadlem setupu.
 - Pokud legitimizovany effect potrebuje cist nejnovejsi props/state bez zbytecne re-subscription, zvazte `useEffectEvent`.
+
+## Kdy effect nechat byt
+
+- Browser event subscriptions typu `window.addEventListener(...)`.
+- `matchMedia`, `ResizeObserver`, `IntersectionObserver` a podobne browser subscriptions.
+- Third-party widget lifecycle.
+- Imperativni DOM sync po mountu, pokud nejde resit deklarativne.
+- Male logging/reporting effecty, pokud nejsou zdrojem coupling nebo race conditions.
+- I v techto pripadech ale preferujte male, izolovane effecty s jasnym setup/cleanup kontraktem.
+
+## Co `useMountEffect` neresi
+
+- `useMountEffect` neni schvaleni pro fetch pri mountu, pokud data patri do server/page vrstvy.
+- `useMountEffect` neni nahrada za event handler.
+- `useMountEffect` neni nahrada za derivaci hodnot pri renderu.
+- `useMountEffect` neni nahrada za sync props do local state.
+- Pokud by prepis `useEffect` -> `useMountEffect` jen zachoval stejny control flow, nejde o skutecny refactor.
 
 ## Review checklist
 

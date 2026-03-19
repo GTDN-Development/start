@@ -2,8 +2,9 @@
 
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
+import { useMountEffect } from "@/hooks/use-mount-effect";
 import { cn } from "@/lib/utils";
 
 const floatingBarVariants = cva("top-0 isolate", {
@@ -44,15 +45,11 @@ function FloatingBar({
   const prevScrollY = useRef(0);
   const isScrolledRef = useRef(false);
 
-  useEffect(() => {
+  useMountEffect(() => {
     Promise.resolve().then(() => {
       setIsMounted(true);
     });
-  }, []);
-
-  useEffect(() => {
-    isScrolledRef.current = isScrolled;
-  }, [isScrolled]);
+  });
 
   useLayoutEffect(() => {
     if (!(isSticky || isFixed) || !isMounted) return;
