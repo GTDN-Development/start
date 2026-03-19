@@ -56,6 +56,7 @@ const eslintConfig = defineConfig([
     // Temporary audited exceptions while the project is being refactored away from raw useEffect.
     files: [
       "src/app/[[]locale[]]/error.tsx",
+      "src/components/layout/floating-bar.tsx",
     ],
     rules: {
       "no-restricted-syntax": "off",

@@ -2,7 +2,7 @@
 
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -36,6 +36,7 @@ function FloatingBar({
   }) {
   const [isHidden, setIsHidden] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   const isSticky = position === "sticky";
   const isFixed = position === "fixed";
@@ -43,10 +44,18 @@ function FloatingBar({
   const prevScrollY = useRef(0);
   const isScrolledRef = useRef(false);
 
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      setIsMounted(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    isScrolledRef.current = isScrolled;
+  }, [isScrolled]);
+
   useLayoutEffect(() => {
-    if (!(isSticky || isFixed)) {
-      return;
-    }
+    if (!(isSticky || isFixed) || !isMounted) return;
 
     const exitThreshold = Math.max(scrolledThreshold - scrolledExitOffset, 0);
 
@@ -76,8 +85,10 @@ function FloatingBar({
       prevScrollY.current = currentScrollY;
     }
 
-    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
+    Promise.resolve().then(() => {
+      handleScroll();
+    });
 
     return function cleanupFloatingBarScrollListener() {
       window.removeEventListener("scroll", handleScroll);
@@ -87,8 +98,10 @@ function FloatingBar({
     isSticky,
     isFixed,
     autoHideThreshold,
+    position,
     scrolledThreshold,
     scrolledExitOffset,
+    isMounted,
   ]);
 
   return useRender({
@@ -96,8 +109,8 @@ function FloatingBar({
     defaultTagName: "div",
     props: {
       ...props,
-      "data-scrolled": isScrolled ? "true" : undefined,
-      "data-hidden": isHidden ? "true" : undefined,
+      "data-scrolled": isMounted && isScrolled ? "true" : undefined,
+      "data-hidden": isMounted && isHidden ? "true" : undefined,
       className: cn(floatingBarVariants({ position, className })),
     },
   });

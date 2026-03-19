@@ -57,8 +57,9 @@ Datum: 19. 3. 2026
 23. `src/features/auth/auth-client.ts` uz nema komponentovy `useEffect`; bootstrap session store se spousti ze subscription lifecycle.
 24. `src/hooks/use-mobile.ts` a `src/components/ui/**/*` jsou vedoma shadcn/preset vyjimka a zustavaji blizko upstream vanilla implementaci.
 25. ESLint pro tyto upstream-managed soubory nevynucuje `no-restricted-syntax` ani `react-hooks/set-state-in-effect`.
-26. `src/components/layout/floating-bar.tsx` uz nema mount workaround pres `useMountEffect`; zustava jen `useLayoutEffect` pro pre-paint scroll sync.
-27. `src/components/layout/theme-switcher.tsx` uz nepouziva `useMountEffect`; hydration guard je reseny pres `useSyncExternalStore` server/client snapshot pattern.
+26. `src/components/layout/floating-bar.tsx` byl po UX a hydration auditu vracen na puvodni working implementaci.
+27. `floating-bar.tsx` je ted vedoma auditovana vyjimka, protoze jednodussi originalni tradeoff vysel lepe nez dalsi refactor pokusy.
+28. `src/components/layout/theme-switcher.tsx` uz nepouziva `useMountEffect`; hydration guard je reseny pres `useSyncExternalStore` server/client snapshot pattern.
 
 ## 4. Aktualni audit raw effect usage
 
@@ -123,20 +124,18 @@ Datum: 19. 3. 2026
 
 ### 5.5 `src/components/layout/floating-bar.tsx`
 
-1. Aktualni stav po kolegove zmene:
-2. raw `useEffect` uz je odstraneny
-3. soubor ted pouziva jen `useLayoutEffect` pro scroll/layout sync
-4. Trigger:
-5. scroll subscription
-6. pre-paint visual sync
-7. Hodnoceni: mount workaround uz je pryc, `useLayoutEffect` zustava jako vedoma a overena vyjimka.
-9. Duvod:
-10. scroll listener zustava legitimni browser subscription
-11. `useLayoutEffect` je obhajitelny jen pokud je opravdu nutny kvuli flickeru nebo pre-paint synchronizaci
-12. Plan:
-13. po lokalnim UX overeni zustava soucasna implementace ponechana
-14. pokud se pozdeji ukaze, ze pre-paint sync neni potreba, zvazit presun na jednodussi subscription model
-15. Priorita: P2 architektonicka vrstva, ale momentalne uzavreno
+1. Stav: auditovana vyjimka.
+2. Trigger:
+3. mount gating
+4. scroll subscription
+5. pre-paint visual sync
+6. Hodnoceni:
+7. po pokusech o dalsi zjednoduseni vysel puvodni working model jako lepsi tradeoff mezi stabilitou a slozitosti
+8. Duvod:
+9. alternativy vedly bud k hydration mismatchum, nebo k viditelnemu flashi spatneho stavu pri refreshi ve scrolled pozici
+10. Plan:
+11. ponechat puvodni implementaci a brat ji jako vedomou auditovanou vyjimku
+12. Priorita: uzavreno
 
 ### 5.6 `src/components/ui/sidebar.tsx`
 
@@ -222,9 +221,10 @@ Datum: 19. 3. 2026
 2. Raw `useEffect` je blokovany globalne.
 3. Vyjimky z raw-effect guardrailu plati pro:
 4. `src/app/[locale]/error.tsx`
-5. `src/components/ui/**/*.{ts,tsx}` - shadcn/upstream-managed UI vrstva
-6. `src/hooks/use-mobile.ts` - shadcn companion hook
-7. `src/hooks/use-mount-effect.ts` je povoleny wrapper
+5. `src/components/layout/floating-bar.tsx` - auditovana vyjimka po UX/hydration auditu
+6. `src/components/ui/**/*.{ts,tsx}` - shadcn/upstream-managed UI vrstva
+7. `src/hooks/use-mobile.ts` - shadcn companion hook
+8. `src/hooks/use-mount-effect.ts` je povoleny wrapper
 
 ## 9. Verifikacni checklist pro kazdou dalsi PR
 
