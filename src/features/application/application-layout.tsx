@@ -92,15 +92,15 @@ export function ApplicationLayout({
           <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
 
           <SidebarProvider>
-            <Sidebar collapsible="offcanvas" className="border-sidebar-border border-r">
-              <SidebarHeader className="border-sidebar-border border-b p-2">
+            <Sidebar collapsible="offcanvas">
+              <SidebarHeader>
                 <WorkspaceSwitcher
                   workspaces={workspaces}
                   activeWorkspaceSlug={activeWorkspaceSlug}
                 />
               </SidebarHeader>
               <SidebarContent>
-                <SidebarGroup className="p-2">
+                <SidebarGroup>
                   <SidebarGroupContent>
                     <ApplicationMenuTree aria-label={labels.mobileMenu.title} />
                   </SidebarGroupContent>
