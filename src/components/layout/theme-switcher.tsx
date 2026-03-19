@@ -4,10 +4,9 @@ import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
 import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { useMountEffect } from "@/hooks/use-mount-effect";
+import { useHydrated } from "@/hooks/use-hydrated";
 
 export type ThemeSwitcherProps = {
   className?: string;
@@ -35,20 +34,13 @@ function ToggleButton({ value, label, children }: ToggleButtonProps) {
 export function ThemeSwitcher({ size = "default", className }: ThemeSwitcherProps) {
   const { theme, setTheme } = useTheme();
   const t = useTranslations("layout.themeSwitcher");
-  const [mounted, setMounted] = useState(false);
+  const isHydrated = useHydrated();
 
   function handleValueChange(value: string) {
     setTheme(value);
   }
 
-  useMountEffect(() => {
-    // Defer state update to avoid synchronous setState in effect
-    Promise.resolve().then(() => {
-      setMounted(true);
-    });
-  });
-
-  if (!mounted) {
+  if (!isHydrated) {
     return null;
   }
 

@@ -10,7 +10,6 @@ import {
   clearActiveWorkspaceSlugCookie,
   getActiveWorkspaceSlugCookie,
   setActiveWorkspaceSlugCookie,
-  setPendingInviteHashCookie,
 } from "@/server/workspaces/workspace-cookie";
 import {
   createOrganizationWorkspaceForCurrentUser,
@@ -80,13 +79,6 @@ const workspaceMemberRoleSchema = z.enum(workspaceConfig.roles.memberValues);
 const createInviteInputSchema = z.object({
   email: normalizedEmailSchema(),
   role: z.enum(workspaceConfig.roles.invitableValues),
-});
-
-const pendingInviteHashInputSchema = z.object({
-  inviteHash: z
-    .string()
-    .trim()
-    .regex(/^[a-f0-9]{64}$/),
 });
 
 export async function createOrganizationWorkspaceAction(input: {
@@ -348,25 +340,6 @@ export async function revokeInviteAction(
   }
 
   return finalizeWorkspaceAction(response);
-}
-
-export async function setPendingInviteHashAction(input: {
-  inviteHash: string;
-}): Promise<WorkspaceResponse<{ stored: true }>> {
-  const parsedInput = pendingInviteHashInputSchema.safeParse(input);
-
-  if (!parsedInput.success) {
-    return createBadRequestResponse();
-  }
-
-  await setPendingInviteHashCookie(parsedInput.data.inviteHash);
-
-  return {
-    ok: true,
-    data: {
-      stored: true,
-    },
-  };
 }
 
 export async function resolvePostAuthWorkspaceAction(): Promise<

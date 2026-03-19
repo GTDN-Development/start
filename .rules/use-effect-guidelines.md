@@ -124,6 +124,13 @@
 - Typicke kandidaty: auth session store, `matchMedia`, scroll/visibility/online stav, BroadcastChannel-backed state.
 - Effect pak nepatri do komponenty; komponenta cte snapshot, store resi subscription lifecycle.
 
+### 5a. Hydration guard resit pres `useHydrated`
+
+- Pokud je problem pouze v tom, ze server neumi znat stejny snapshot jako browser az po hydrataci, preferujte maly hydration guard hook typu `useHydrated()`.
+- To je vhodne hlavne pro client-only UI zavisle na browser runtime, napr. `next-themes`.
+- `useHydrated()` neni prima nahrada za genericky `isMounted` hook.
+- `useHydrated()` neni obecna nahrada za `useEffect`; je to uzky server/client snapshot guard.
+
 ### 6. Mount/unmount sync izolujte do `useMountEffect`
 
 - Jedina bezna vyjimka je synchronizace s externim systemem mimo React.
@@ -156,6 +163,13 @@
 - `useMountEffect` neni nahrada za sync props do local state.
 - Pokud by prepis `useEffect` -> `useMountEffect` jen zachoval stejny control flow, nejde o skutecny refactor.
 
+## Co `useHydrated` neresi
+
+- `useHydrated` neni prima nahrada za `isMounted`.
+- `useHydrated` neni schvaleni pro schovavani app logiky za `if (!hydrated) return null`.
+- `useHydrated` neni nahrada za `useSyncExternalStore` pro realne subscriptiony ani za render-time derivaci.
+- Pokud problem neni server/client snapshot mismatch, `useHydrated` pravdepodobne neni spravne reseni.
+
 ## Forcing function pro architekturu
 
 - Zakaz raw `useEffect` funguje jako forcing function pro cistsi strom komponent.
@@ -177,4 +191,6 @@
 - Postupne odstranit raw `useEffect` z bezneho feature code.
 - ESLint allowlist brat jako docasny seznam auditovanych vyjimek, ne jako precedens pro dalsi kod.
 - `useMountEffect` brat jako escape hatch, ne jako defaultni styl.
+- `useHydrated` brat jako uzky hydration guard, ne jako nove jmeno pro `isMounted`.
 - Pri dalsim refactoringu auditovat i `useMountEffect` consumery, aby se z helperu nestalo jen nove jmeno pro stejny problem.
+- Shadcn-managed `src/components/ui/**/*` a `src/hooks/use-mobile.ts` jsou vedoma upstream kompatibilni vyjimka.

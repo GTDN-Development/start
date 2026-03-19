@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import type {
   ConfirmEmailChangeResponse,
   AuthSession,
@@ -149,21 +149,7 @@ export async function confirmEmailChange(input: {
 }
 
 export function useSession(): AuthSessionSnapshot {
-  const snapshot = useSyncExternalStore(
-    subscribeToSessionStore,
-    getSessionSnapshot,
-    getSessionSnapshot
-  );
-
-  useEffect(() => {
-    ensureSessionSyncInitialized();
-
-    if (snapshot.status === "idle") {
-      void refreshSession();
-    }
-  }, [snapshot.status]);
-
-  return snapshot;
+  return useSyncExternalStore(subscribeToSessionStore, getSessionSnapshot, getSessionSnapshot);
 }
 
 export async function refreshSession(): Promise<SessionResponse> {
@@ -262,6 +248,11 @@ function notifySessionSubscribers() {
 
 function subscribeToSessionStore(listener: () => void) {
   sessionSubscribers.add(listener);
+  ensureSessionSyncInitialized();
+
+  if (sessionState.status === "idle") {
+    void refreshSession();
+  }
 
   return function unsubscribeSessionStore() {
     sessionSubscribers.delete(listener);

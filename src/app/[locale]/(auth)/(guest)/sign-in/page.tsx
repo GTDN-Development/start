@@ -8,7 +8,6 @@ import {
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
-import { SignInFlashToast } from "@/features/auth/sign-in/sign-in-flash-toast";
 import { SignInForm } from "@/features/auth/sign-in/sign-in-form";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -49,7 +48,6 @@ export default async function Page({ params }: PageProps<"/[locale]/sign-in">) {
       </AuthHero>
 
       <div className="mt-6 pt-6">
-        <SignInFlashToast />
         <SignInForm />
         <p className="text-muted-foreground mt-6 text-sm">
           {t("newHere")}{" "}

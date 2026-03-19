@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
   COOKIE_NAME,
@@ -77,30 +77,31 @@ export function CookieContextProvider({
   );
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Debug mode: log state changes
-  useEffect(() => {
-    if (ENABLE_DEBUG_MODE) {
-      // eslint-disable-next-line no-console
-      console.log("Cookie Consent State:", {
-        consent,
-        hasInteracted,
-        isSettingsOpen,
-      });
-    }
-  }, [consent, hasInteracted, isSettingsOpen]);
-
   function updateConsent(category: keyof ConsentState, value: boolean) {
     if (category === "necessary") {
       return;
     }
 
-    setConsent((prev) => ({ ...prev, [category]: value }));
+    setConsent((previousConsent) => {
+      const nextConsent = { ...previousConsent, [category]: value };
+      logCookieDebugState({
+        consent: nextConsent,
+        hasInteracted,
+        isSettingsOpen,
+      });
+      return nextConsent;
+    });
   }
 
   function commitConsent(nextConsent: ConsentState, eventType: CookieConsentEventType) {
     setConsentCookie(nextConsent);
     setConsent(nextConsent);
     setHasInteracted(true);
+    logCookieDebugState({
+      consent: nextConsent,
+      hasInteracted: true,
+      isSettingsOpen,
+    });
 
     void persistCookieConsentAction({
       eventType,
@@ -133,10 +134,20 @@ export function CookieContextProvider({
 
   function openSettingsDialog() {
     setIsSettingsOpen(true);
+    logCookieDebugState({
+      consent,
+      hasInteracted,
+      isSettingsOpen: true,
+    });
   }
 
   function closeSettingsDialog() {
     setIsSettingsOpen(false);
+    logCookieDebugState({
+      consent,
+      hasInteracted,
+      isSettingsOpen: false,
+    });
   }
 
   return (
@@ -176,4 +187,17 @@ function isSameConsent(a: ConsentState, b: ConsentState) {
     a.analytics === b.analytics &&
     a.marketing === b.marketing
   );
+}
+
+function logCookieDebugState(input: {
+  consent: ConsentState;
+  hasInteracted: boolean;
+  isSettingsOpen: boolean;
+}) {
+  if (!ENABLE_DEBUG_MODE) {
+    return;
+  }
+
+  // eslint-disable-next-line no-console
+  console.log("Cookie Consent State:", input);
 }

@@ -11,6 +11,8 @@ type Props = {
 export default function Error({ error, reset }: Props) {
   const t = useTranslations("common.error");
 
+  // Audited exception: error boundaries legitimately need reporting side effects
+  // after render, and this one is intentionally kept explicit.
   useEffect(() => {
     console.error(error);
   }, [error]);

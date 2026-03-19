@@ -39,6 +39,12 @@
 - Use this when there is a synchronous snapshot and subscription API.
 - Good repo candidates: auth session cache, `matchMedia`, scroll/visibility/online state, BroadcastChannel-backed client stores.
 
+### Use `useHydrated`
+
+- Use this for hydration-only guards where the server cannot know the same value that the browser can determine after hydration.
+- Good repo candidate: `next-themes`-driven UI that would otherwise need a generic `mounted` flag.
+- Do not treat `useHydrated` as a direct replacement for `isMounted`, and do not use it to hide unrelated app logic.
+
 ### Use `useMountEffect`
 
 - Reserve for mount/unmount synchronization with browser APIs, listeners, timers, widget lifecycle, or imperative cleanup.
@@ -60,5 +66,6 @@
 - Auth flash success UX: prefer redirect state, cookie state, or render-time status UI over `sessionStorage + mount effect`.
 - Invite auth-required redirect: prefer a server redirect path that can set state before redirecting, rather than a client effect that immediately calls a server action.
 - Auth session bootstrap: prefer lazy external-store initialization from store subscription code, not from component effects.
+- Theme hydration guard: prefer a narrow `useHydrated()` hook over `setMounted(true)` choreography.
 - Dev-only debug logging: delete it or move it to the event source instead of keeping a persistent effect.
 - When reviewing agent-written code, treat "added just in case" effects as high-risk by default.

@@ -3,10 +3,10 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
-import { InviteTokenAuthRequiredRedirect } from "@/features/auth/invite/token/invite-token-auth-required-redirect";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";
+import { setPendingInviteHashCookie } from "@/server/workspaces/workspace-cookie";
 import {
   acceptInviteTokenForUser,
   hashInviteToken,
@@ -50,10 +50,6 @@ export default async function Page({ params }: InviteTokenPageProps) {
     locale: locale as Locale,
     namespace: "pages.inviteToken",
   });
-  const tNav = await getTranslations({
-    locale: locale as Locale,
-    namespace: "layout.navigation.items",
-  });
 
   const validationResponse = await validateInviteToken(token);
 
@@ -71,14 +67,11 @@ export default async function Page({ params }: InviteTokenPageProps) {
   const sessionResponse = await getServerAuthSession();
 
   if (!sessionResponse.ok || !sessionResponse.data.session) {
-    return (
-      <InviteTokenAuthRequiredRedirect
-        inviteHash={hashInviteToken(token)}
-        title={t("states.auth_required.title")}
-        description={t("states.loading.description")}
-        actionLabel={tNav("signIn")}
-      />
-    );
+    await setPendingInviteHashCookie(hashInviteToken(token));
+    redirect({
+      href: "/sign-in",
+      locale: locale as Locale,
+    });
   }
 
   const session = sessionResponse.data.session;

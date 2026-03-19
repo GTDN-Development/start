@@ -5,20 +5,14 @@ import type { AuthResponse } from "@/features/auth/auth-contract";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { finalizeAuthAction } from "@/server/auth/finalize-auth-action";
 import {
-  listDeviceSessions,
   revokeDeviceSessionById,
   revokeOtherDeviceSessions,
 } from "@/server/device-sessions/device-sessions-service";
-import type { DeviceSessionListItem } from "@/server/device-sessions/device-sessions-types";
 import { logServiceError } from "@/server/pocketbase/pocketbase-utils";
 
 const signOutDeviceInputSchema = z.object({
   deviceSessionId: z.string().trim().min(1),
 });
-
-type ListDeviceSessionsPayload = {
-  sessions: DeviceSessionListItem[];
-};
 
 type SignOutOtherDevicesPayload = {
   revoked: true;
@@ -27,40 +21,6 @@ type SignOutOtherDevicesPayload = {
 type SignOutDevicePayload = {
   revoked: true;
 };
-
-export async function listDeviceSessionsAction(): Promise<AuthResponse<ListDeviceSessionsPayload>> {
-  const currentUser = await requireCurrentUser();
-
-  if (!currentUser.ok) {
-    return finalizeAuthAction({
-      ok: false,
-      errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
-    });
-  }
-
-  try {
-    const sessions = await listDeviceSessions({
-      pb: currentUser.pb,
-      userId: currentUser.user.id,
-      currentSessionIdHash: currentUser.currentSessionIdHash,
-    });
-
-    return finalizeAuthAction({
-      ok: true,
-      data: {
-        sessions,
-      },
-    });
-  } catch (error) {
-    logServiceError("account-device-session-actions", "listDeviceSessionsAction", error);
-
-    return finalizeAuthAction({
-      ok: false,
-      errorCode: "UNKNOWN_ERROR",
-    });
-  }
-}
 
 export async function signOutOtherDevicesAction(): Promise<
   AuthResponse<SignOutOtherDevicesPayload>

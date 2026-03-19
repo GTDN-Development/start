@@ -55,10 +55,12 @@ rg -n "\buseMountEffect\b" src
 - Do not replace a bad `useEffect` with `useMountEffect` unless the code is truly mount/unmount synchronization with an external system.
 - Treat the ESLint exception list as temporary debt. If a raw `useEffect` must remain, call that out explicitly.
 - For browser-backed subscriptions with a readable snapshot, prefer `useSyncExternalStore`.
+- For hydration-only server/client snapshot mismatch, prefer a narrow hook like `useHydrated()` instead of a generic `isMounted` pattern.
 - For reset-on-identity flows, prefer `key` or moving ownership up one boundary.
 - For page-entry status or flash UX, prefer redirect state, cookie state, or render-time UI over `sessionStorage + effect` when practical.
 - `useLayoutEffect` has the same review bar plus an additional requirement: it must need pre-paint DOM synchronization.
 - Prefer conditional mounting when preconditions are not met yet, instead of guarding inside an effect.
+- Treat shadcn-managed `src/components/ui/**/*` and `src/hooks/use-mobile.ts` as upstream-compatibility exceptions when applying this repo rule.
 
 ## Expected output
 

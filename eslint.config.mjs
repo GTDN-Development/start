@@ -56,12 +56,6 @@ const eslintConfig = defineConfig([
     // Temporary audited exceptions while the project is being refactored away from raw useEffect.
     files: [
       "src/app/[[]locale[]]/error.tsx",
-      "src/components/layout/floating-bar.tsx",
-      "src/components/ui/sidebar.tsx",
-      "src/features/auth/auth-client.ts",
-      "src/features/auth/invite/token/invite-token-auth-required-redirect.tsx",
-      "src/features/auth/sign-in/sign-in-flash-toast.tsx",
-      "src/features/cookies/cookie-context.tsx",
     ],
     rules: {
       "no-restricted-syntax": "off",
@@ -78,6 +72,8 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-unused-vars": "off",
       "func-style": "off",
       quotes: "off",
+      "no-restricted-syntax": "off",
+      "react-hooks/set-state-in-effect": "off",
     },
   },
 ]);

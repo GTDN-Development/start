@@ -87,8 +87,7 @@ Poznamka k rozsahu: tento plan bere jako cilovy stav auth a account auth flows, 
 4. `src/features/auth/auth-client.ts`
 5. `src/features/auth/auth-routes.ts`
 6. `src/features/auth/auth-proxy.ts`
-7. `src/features/auth/auth-flash.ts`
-8. `src/features/auth/auth-flow-token.ts`
+7. `src/features/auth/auth-flow-token.ts`
 
 9. Server auth:
 10. `src/server/pocketbase/pocketbase-server.ts`
@@ -396,7 +395,7 @@ Poznamka k rozsahu: tento plan bere jako cilovy stav auth a account auth flows, 
 
 1. Implementovat `auth-client.ts`.
 2. Implementovat `auth-routes.ts`, `auth-proxy.ts`, `proxy.ts`.
-3. Implementovat `auth-flash.ts` + `auth-flow-token.ts`.
+3. Implementovat `auth-flow-token.ts`.
 
 ### Etapa E: Layout guardy + UI flows
 
