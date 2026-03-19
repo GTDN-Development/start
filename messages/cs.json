@@ -167,6 +167,12 @@
       "description": "Plně vybavená SaaS šablona postavená na Next.js 16, TypeScriptu, shadcn/ui a moderních základech pro produkční použití.",
       "learnMore": "Zjistit více",
       "shadcnDocs": "Shadcn ui docs",
+      "changelogCarousel": {
+        "title": "Poslední změny",
+        "actions": {
+          "viewAll": "Zobrazit všechny změny"
+        }
+      },
       "newsletterCta": {
         "title": "Přihlaste se k newsletteru",
         "description": "Buďte v obraze s nejnovějšími novinkami, poznatky a aktualizacemi. Připojte se k odběratelům a nepropásněte důležitá oznámení."

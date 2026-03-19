@@ -30,6 +30,84 @@ export type ChangelogEntry = ChangelogEntryCopy & {
 
 const changelogEntries: ChangelogEntryRecord[] = [
   {
+    id: "1-10-command-center",
+    version: "1.10",
+    publishedAt: "2026-04-09",
+    image: {
+      altByLocale: {
+        cs: "Ukázka nového command center panelu",
+        en: "Preview of the new command center panel",
+      },
+    },
+    copyByLocale: {
+      cs: {
+        date: "9. dubna 2026",
+        versionLabel: "Verze 1.10",
+        title: "Nové command center pro rychlejší práci napříč produktem",
+        description:
+          "Přidali jsme centralizovaný panel pro rychlé akce, poslední položky a nejdůležitější zkratky, aby se tým dostal k práci během pár kliknutí.",
+        highlightsTitle: "Co je nové",
+        highlights: [
+          "Rychlé akce spojují nejčastější workflow do jednoho místa.",
+          "Poslední položky a kontextové zkratky se přizpůsobují tomu, kde tým naposledy pracoval.",
+          "Celý panel je navržený tak, aby šel později rozšířit o globální vyhledávání.",
+        ],
+      },
+      en: {
+        date: "April 9, 2026",
+        versionLabel: "Version 1.10",
+        title: "A new command center for faster work across the product",
+        description:
+          "We added a central panel for quick actions, recent items, and the most important shortcuts so teams can get into work in just a few clicks.",
+        highlightsTitle: "What changed",
+        highlights: [
+          "Quick actions bring the most common workflows into one place.",
+          "Recent items and contextual shortcuts adapt to where the team last worked.",
+          "The panel is designed to expand later with global search.",
+        ],
+      },
+    },
+  },
+  {
+    id: "1-9-team-activity-stream",
+    version: "1.9",
+    publishedAt: "2026-03-28",
+    image: {
+      altByLocale: {
+        cs: "Ukázka nového týmového activity streamu",
+        en: "Preview of the new team activity stream",
+      },
+    },
+    copyByLocale: {
+      cs: {
+        date: "28. března 2026",
+        versionLabel: "Verze 1.9",
+        title: "Týmový activity stream dává důležité změny na jedno místo",
+        description:
+          "Sjednotili jsme poslední aktivitu týmu do přehlednějšího feedu, aby bylo jasně vidět, co se změnilo a co vyžaduje další pozornost.",
+        highlightsTitle: "Co je nové",
+        highlights: [
+          "Nový feed lépe seskupuje podobné změny a snižuje vizuální šum.",
+          "Důležitější události mají výraznější hierarchii a lepší čitelnost.",
+          "Připravený základ pro budoucí filtry a personalizované výřezy aktivity.",
+        ],
+      },
+      en: {
+        date: "March 28, 2026",
+        versionLabel: "Version 1.9",
+        title: "A team activity stream that brings important changes into one place",
+        description:
+          "We consolidated recent team activity into a clearer feed so it is easier to see what changed and what needs attention next.",
+        highlightsTitle: "What changed",
+        highlights: [
+          "The new feed groups similar changes more effectively and reduces visual noise.",
+          "More important events now have clearer hierarchy and better readability.",
+          "The foundation is ready for future filters and personalized activity views.",
+        ],
+      },
+    },
+  },
+  {
     id: "1-8-clearer-home-screen",
     version: "1.8",
     publishedAt: "2026-03-19",

@@ -12,6 +12,11 @@ import {
   HeroTitle,
 } from "@/components/ui/hero";
 import AppIconSvg from "@/assets/svgs/start-app-icon.svg";
+import {
+  getChangelogEntries,
+  isChangelogLocale,
+} from "@/features/marketing/about/changelog/changelog-content";
+import { ChangelogSection } from "@/features/marketing/home/changelog-section";
 import { NewsletterCta } from "@/features/marketing/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
 import { MarqueeCompanies } from "@/features/marketing/home/marquee-companies";
@@ -68,6 +73,8 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
     locale: locale as Locale,
     namespace: "pages.home",
   });
+  const changelogLocale = isChangelogLocale(locale) ? locale : "cs";
+  const changelogEntries = getChangelogEntries(changelogLocale).slice(0, 5);
 
   return (
     <div className="relative">
@@ -158,6 +165,10 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
               <HomeFeatureSubLink href="#">Feature 3</HomeFeatureSubLink>
             </HomeFeatureSubLinks>*/}
           </HomeFeature>
+        </Container>
+
+        <Container render={<section />}>
+          <ChangelogSection entries={changelogEntries} />
         </Container>
 
         <Container render={<section />}>

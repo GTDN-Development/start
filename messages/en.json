@@ -167,6 +167,12 @@
       "description": "Fully featured SaaS template built with Next.js 16, TypeScript, shadcn/ui, and modern production-ready foundations.",
       "learnMore": "Learn more",
       "shadcnDocs": "Shadcn ui docs",
+      "changelogCarousel": {
+        "title": "Changelog",
+        "actions": {
+          "viewAll": "See all releases"
+        }
+      },
       "newsletterCta": {
         "title": "Subscribe to our newsletter",
         "description": "Stay up to date with the latest news, insights, and updates. Join our community of subscribers and never miss important announcements."
