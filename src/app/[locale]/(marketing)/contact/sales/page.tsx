@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeftIcon, ChevronRightIcon } from "lucide-react";
+import { BackLink } from "@/components/ui/back-navigation";
 import { Link } from "@/components/ui/link";
 import { ContactForm } from "@/features/marketing/contact/contact-form";
 import { Container } from "@/components/ui/container";
@@ -42,6 +43,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     locale: locale as Locale,
     namespace: "pages.contact",
   });
+  const tCommonNavigation = await getTranslations({
+    locale: locale as Locale,
+    namespace: "common.navigation",
+  });
 
   return (
     <div className="relative pt-20">
@@ -49,13 +54,19 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         <div className="grid gap-12 md:grid-cols-2">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-3">
-              <Link
-                href="/contact"
+              <BackLink
+                fallbackHref="/contact"
                 className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors"
+                backContent={
+                  <>
+                    <ArrowLeftIcon aria-hidden="true" className="size-4" />
+                    {tCommonNavigation("back")}
+                  </>
+                }
               >
                 <ArrowLeftIcon aria-hidden="true" className="size-4" />
                 {tContact("backToContact")}
-              </Link>
+              </BackLink>
               <h1 className="font-heading mt-2 text-3xl font-bold tracking-tight md:text-4xl">
                 {t("infoTitle")}
               </h1>
