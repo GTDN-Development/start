@@ -124,12 +124,12 @@ export function MarketingFooter({
       {/* Second row - Grid columns with main footer content */}
       <Container className="grid gap-x-10 gap-y-16 py-16 min-[24rem]:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
         <div className="flex flex-col items-start justify-start gap-7">
-          <p className="text-sm font-semibold">{t("sections.navigation")}</p>
+          <p className="font-heading text-sm font-semibold">{t("sections.navigation")}</p>
           <FooterNavigation items={marketingMenu} translate={tNav} />
         </div>
 
         <div className="flex flex-col items-start justify-start gap-7">
-          <p className="text-sm font-semibold">{tNav("account")}</p>
+          <p className="font-heading text-sm font-semibold">{tNav("account")}</p>
           {viewer && (
             <div className="space-y-1">
               <p className="text-muted-foreground text-xs">{tApplication("signedInAs")}</p>
@@ -168,7 +168,7 @@ export function MarketingFooter({
         </div>
 
         <div className="flex flex-col items-start justify-start gap-6">
-          <p className="text-sm font-semibold">{t("sections.contactDetails")}</p>
+          <p className="font-heading text-sm font-semibold">{t("sections.contactDetails")}</p>
           <ul className="flex flex-col gap-3">
             {primaryLegalDetails.map((item) => (
               <li key={item} className="text-muted-foreground text-sm leading-relaxed">
@@ -199,7 +199,7 @@ export function MarketingFooter({
         </div>
 
         <div className="flex flex-col items-start justify-start gap-7">
-          <p className="text-sm font-semibold">{t("sections.legal")}</p>
+          <p className="font-heading text-sm font-semibold">{t("sections.legal")}</p>
           <ul className="flex flex-col gap-2">
             {legalItems.map((item) => (
               <li key={item.href}>

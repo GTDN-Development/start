@@ -63,7 +63,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 <ArrowLeftIcon aria-hidden="true" className="size-4" />
                 {tContact("backToContact")}
               </Link>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+              <h1 className="font-heading mt-2 text-3xl font-bold tracking-tight md:text-4xl">
                 {t("infoTitle")}
               </h1>
               <p className="text-muted-foreground">{t("infoDescription")}</p>
@@ -81,7 +81,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               ) : (
                 <div className="flex flex-col items-center gap-6 py-6 text-center">
                   <div className="flex flex-col gap-2">
-                    <p className="text-lg font-semibold tracking-tight">
+                    <p className="font-heading text-lg font-semibold tracking-tight">
                       {tSupportForm("loginGate.title")}
                     </p>
                     <p className="text-muted-foreground text-sm">

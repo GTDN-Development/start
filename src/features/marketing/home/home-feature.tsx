@@ -46,7 +46,7 @@ function HomeFeatureTitle({ className, render, ...props }: useRender.ComponentPr
     props: {
       ...props,
       className: cn(
-        "text-3xl font-bold tracking-tight text-pretty sm:text-4xl lg:text-5xl",
+        "font-heading text-3xl font-bold tracking-tight text-pretty sm:text-4xl lg:text-5xl",
         className
       ),
     },

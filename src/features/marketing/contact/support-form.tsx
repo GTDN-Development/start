@@ -81,7 +81,7 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
   return (
     <div {...props} className={cn("@container flex w-full flex-col gap-6", className)}>
       <div className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold tracking-tight">{t("intro.title")}</h2>
+        <h2 className="font-heading text-lg font-semibold tracking-tight">{t("intro.title")}</h2>
         <p className="text-muted-foreground text-sm">{t("intro.description")}</p>
       </div>
 

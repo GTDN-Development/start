@@ -14,7 +14,7 @@ export function NewsletterCta({ className, ...props }: React.ComponentProps<"div
       )}
     >
       <div className="flex flex-1 flex-col gap-3">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("title")}</h2>
+        <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">{t("title")}</h2>
         <p className="text-muted-foreground sm:text-lg">{t("description")}</p>
       </div>
 

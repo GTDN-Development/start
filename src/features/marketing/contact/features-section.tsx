@@ -79,7 +79,7 @@ function FeaturesTitle({ className, render, ...props }: useRender.ComponentProps
     defaultTagName: "h2",
     props: {
       ...props,
-      className: cn("text-xl font-semibold tracking-tight", className),
+      className: cn("font-heading text-xl font-semibold tracking-tight", className),
     },
   });
 }

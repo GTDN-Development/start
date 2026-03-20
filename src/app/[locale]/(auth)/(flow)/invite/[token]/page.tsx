@@ -146,7 +146,7 @@ function InvitePageState({
 }) {
   return (
     <div className="mx-auto flex min-h-[40vh] w-full max-w-md flex-col justify-center py-8 text-center">
-      <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+      <h1 className="font-heading text-2xl font-semibold tracking-tight">{title}</h1>
       <p className="text-muted-foreground mt-3 text-sm">{description}</p>
       <Button
         size="lg"

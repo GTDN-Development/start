@@ -50,7 +50,7 @@ export function FaqSection({
 }: { faqData?: FaqItem[] } & React.ComponentProps<"div">) {
   return (
     <div className={cn("grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12", className)} {...props}>
-      <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:sticky md:top-18 md:self-start">
+      <h2 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl md:sticky md:top-18 md:self-start">
         Frequently Asked Questions
       </h2>
       <div className="md:col-span-2">
@@ -71,10 +71,18 @@ function Faq({ faqData = defaultFaqData }: { faqData?: FaqItem[] } = {}) {
           open={openIndex === index}
           onOpenChange={(open) => setOpenIndex(open ? index : null)}
         >
-          <CollapsibleTrigger className={cn("hover:text-foreground/70 flex w-full items-center justify-between gap-4 py-4 text-left font-medium transition-colors", index !== 0 && "border-t")}>
+          <CollapsibleTrigger
+            className={cn(
+              "hover:text-foreground/70 flex w-full items-center justify-between gap-4 py-4 text-left font-medium transition-colors",
+              index !== 0 && "border-t"
+            )}
+          >
             <span>{faq.question}</span>
             <ChevronDownIcon
-              className={cn("size-4 shrink-0 transition-transform duration-200", openIndex === index && "rotate-180")}
+              className={cn(
+                "size-4 shrink-0 transition-transform duration-200",
+                openIndex === index && "rotate-180"
+              )}
               aria-hidden="true"
             />
           </CollapsibleTrigger>

@@ -102,7 +102,7 @@ function SettingsItemTitle({ className, render, ...props }: useRender.ComponentP
     props: {
       ...props,
       className: cn(
-        "text-lg/[1.1] font-semibold tracking-tight text-pretty sm:text-xl/[1.1]",
+        "font-heading text-lg/[1.1] font-semibold tracking-tight text-pretty sm:text-xl/[1.1]",
         className
       ),
     },
@@ -205,7 +205,7 @@ function SettingsItemListTitle({ className, render, ...props }: useRender.Compon
     defaultTagName: "h3",
     props: {
       ...props,
-      className: cn("text-sm font-semibold", className),
+      className: cn("font-heading text-sm font-semibold", className),
     },
   });
 }

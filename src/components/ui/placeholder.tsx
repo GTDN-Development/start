@@ -19,7 +19,7 @@ function PlaceholderTitle({ className, ...props }: React.ComponentProps<"h2">) {
   return (
     <h2
       data-slot="placeholder-title"
-      className={cn("text-xl font-semibold tracking-tight sm:text-2xl", className)}
+      className={cn("font-heading text-xl font-semibold tracking-tight sm:text-2xl", className)}
       {...props}
     />
   );

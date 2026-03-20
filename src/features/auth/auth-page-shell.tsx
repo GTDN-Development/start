@@ -20,7 +20,7 @@ function AuthHeroTitle({ className, render, ...props }: useRender.ComponentProps
     props: {
       ...props,
       className: cn(
-        "text-3xl/[1.1] font-semibold tracking-tight text-pretty sm:text-4xl/[1.1]",
+        "font-heading text-3xl/[1.1] font-semibold tracking-tight text-pretty sm:text-4xl/[1.1]",
         className
       ),
     },

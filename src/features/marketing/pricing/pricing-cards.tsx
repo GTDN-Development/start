@@ -47,7 +47,9 @@ function PricingCard({
     >
       <CardContent className={cn("flex h-full flex-col gap-7 px-6 py-5", highlighted && "lg:py-9")}>
         <div className="space-y-2">
-          <h3 className="text-foreground font-semibold">{t(`plans.${planKey}.name`)}</h3>
+          <h3 className="text-foreground font-heading font-semibold">
+            {t(`plans.${planKey}.name`)}
+          </h3>
           <div className="text-muted-foreground text-lg font-medium">
             {price}{" "}
             {hasBillingToggle && (

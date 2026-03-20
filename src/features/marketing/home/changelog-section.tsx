@@ -16,7 +16,9 @@ export function ChangelogSection({ entries }: ChangelogCarouselProps) {
   return (
     <div className="space-y-8">
       <div className="mb-10 max-w-2xl">
-        <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">{t("title")}</h2>
+        <h2 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+          {t("title")}
+        </h2>
       </div>
 
       <div className="relative max-sm:hidden">
@@ -60,7 +62,7 @@ export function ChangelogSection({ entries }: ChangelogCarouselProps) {
               </p>
             </div>
             <div className="flex-1 space-y-2">
-              <h3 className="text-foreground group-hover:text-foreground/70 text-lg font-semibold tracking-tight text-balance transition-colors">
+              <h3 className="text-foreground font-heading group-hover:text-foreground/70 text-lg font-semibold tracking-tight text-balance transition-colors">
                 <Link href="/about/changelog" className="after:absolute after:inset-0">
                   {entry.title}
                 </Link>

@@ -52,7 +52,9 @@ export default async function Page({ params }: PageProps<"/[locale]/contact">) {
           <Card className="hover:ring-foreground/20 relative transition-shadow">
             <CardContent className="flex flex-col gap-4 p-6 sm:p-8">
               <div className="flex flex-col gap-2">
-                <h2 className="text-xl font-semibold tracking-tight">{t("support.title")}</h2>
+                <h2 className="font-heading text-xl font-semibold tracking-tight">
+                  {t("support.title")}
+                </h2>
                 <p className="text-muted-foreground">{t("support.cardDescription")}</p>
               </div>
               <div className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
@@ -67,7 +69,9 @@ export default async function Page({ params }: PageProps<"/[locale]/contact">) {
           <Card className="hover:ring-foreground/20 relative transition-shadow">
             <CardContent className="flex flex-col gap-4 p-6 sm:p-8">
               <div className="flex flex-col gap-2">
-                <h2 className="text-xl font-semibold tracking-tight">{t("sales.title")}</h2>
+                <h2 className="font-heading text-xl font-semibold tracking-tight">
+                  {t("sales.title")}
+                </h2>
                 <p className="text-muted-foreground">{t("sales.cardDescription")}</p>
               </div>
               <div className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
@@ -91,7 +95,9 @@ export default async function Page({ params }: PageProps<"/[locale]/contact">) {
 
       <Container size="lg" className="pb-40">
         <div className="flex flex-col items-center gap-4 text-center">
-          <h1 className="text-4xl font-semibold tracking-tight">Sledujte naše sociální sítě</h1>
+          <h1 className="font-heading text-4xl font-semibold tracking-tight">
+            Sledujte naše sociální sítě
+          </h1>
           <p className="text-muted-foreground text-sm">
             Buďte v obraze — sledujte nás na sociálních sítích.
           </p>

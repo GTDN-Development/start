@@ -125,7 +125,9 @@ function MobileComparison({
       <Collapsible open={open} onOpenChange={setOpen}>
         <div className="flex items-center justify-between border-b py-4">
           <CollapsibleTrigger className="flex items-center gap-2">
-            <h3 className="text-2xl font-semibold">{t(`plans.${selectedPlanKey}.name`)}</h3>
+            <h3 className="font-heading text-2xl font-semibold">
+              {t(`plans.${selectedPlanKey}.name`)}
+            </h3>
             <ChevronsUpDown
               className={cn("size-5 transition-transform", open && "rotate-180")}
               aria-hidden="true"
@@ -208,7 +210,7 @@ function DesktopComparison({
                 "border-border bg-foreground/4 rounded-t-2xl border border-b-0 px-4"
             )}
           >
-            <p className="text-base font-medium">{t(`plans.${planKey}.name`)}</p>
+            <p className="font-heading text-base font-medium">{t(`plans.${planKey}.name`)}</p>
           </div>
         ))}
       </div>

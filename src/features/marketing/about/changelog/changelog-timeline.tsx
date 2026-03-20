@@ -29,7 +29,7 @@ export function ChangelogTimeline({ entries }: ChangelogTimelineProps) {
               </TimelineAside>
 
               <TimelineContent>
-                <h2 className="text-foreground text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+                <h2 className="text-foreground font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                   {entry.title}
                 </h2>
                 <p className="text-muted-foreground mt-5 max-w-prose text-base leading-7 text-pretty sm:text-lg">

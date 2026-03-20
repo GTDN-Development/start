@@ -17,7 +17,7 @@ export function SettingsPage({
       {(title || description) && (
         <header className="pb-6">
           {title && (
-            <h1 className="text-xl/[1.1] font-semibold tracking-tight text-pretty sm:text-2xl/[1.1]">
+            <h1 className="font-heading text-xl/[1.1] font-semibold tracking-tight text-pretty sm:text-2xl/[1.1]">
               {title}
             </h1>
           )}

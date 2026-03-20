@@ -43,7 +43,7 @@ function HeroTitle({ className, render, ...props }: useRender.ComponentProps<"h1
     props: {
       ...props,
       className: cn(
-        "text-foreground mt-3 text-center text-3xl/[110%] font-semibold tracking-tight text-pretty sm:text-4xl/[110%] sm:leading-none lg:text-5xl/[110%] 2xl:text-6xl/[110%]",
+        "text-foreground font-heading mt-3 text-center text-3xl/[110%] font-semibold tracking-tight text-pretty sm:text-4xl/[110%] sm:leading-none lg:text-5xl/[110%] 2xl:text-6xl/[110%]",
         className
       ),
     },
