@@ -191,6 +191,7 @@ This keeps the rules explicit in the service layer instead of hiding them in a s
 The main workspace-facing routes are:
 
 - `/overview`
+- `/w/[workspaceSlug]`
 - `/w/[workspaceSlug]/overview`
 - `/w/[workspaceSlug]/settings`
 - `/w/[workspaceSlug]/settings/members`
@@ -200,7 +201,10 @@ Important behavior:
 
 - the application layout loads the current user's workspace list
 - `/overview` is a resolver route, not a permanent content page
+- `/w/[workspaceSlug]` is an entry route that redirects to the workspace overview when the workspace is valid
 - concrete workspace pages resolve the workspace again by slug and membership
+- invalid workspace slugs redirect back to `/overview`
+- unknown nested routes inside a valid workspace render a scoped not-found page inside the application shell
 
 ## Current Constraints
 
@@ -230,6 +234,7 @@ Changing workspace landing behavior:
 - check [workspace-resolution-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.ts)
 - check [workspace-cookie.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-cookie.ts)
 - check [overview/page.tsx](/Users/fanda/Dev/start/src/app/[locale]/(application)/overview/page.tsx)
+- check [page.tsx](/Users/fanda/Dev/start/src/app/[locale]/(application)/w/[workspaceSlug]/page.tsx)
 
 Changing invite behavior:
 

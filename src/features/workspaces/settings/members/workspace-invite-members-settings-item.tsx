@@ -154,13 +154,17 @@ export function WorkspaceInviteMembersSettingsItem({
                       }}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent alignItemWithTrigger={false}>
+                  <SelectContent alignItemWithTrigger={false} className="min-w-[18rem]">
                     <SelectGroup>
                       {WORKSPACE_INVITABLE_ROLE_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          <span className="flex flex-col items-start gap-0.5">
+                        <SelectItem
+                          key={option.value}
+                          value={option.value}
+                          className="items-start pr-2 [&>span:first-child]:min-w-0 [&>span:first-child]:shrink [&>span:first-child]:whitespace-normal"
+                        >
+                          <span className="flex min-w-0 flex-col items-start gap-0.5">
                             <span className="font-medium">{tRoles(option.labelKey)}</span>
-                            <span className="text-muted-foreground text-xs">
+                            <span className="text-muted-foreground text-xs wrap-break-word whitespace-normal">
                               {tRoles(option.descriptionKey)}
                             </span>
                           </span>

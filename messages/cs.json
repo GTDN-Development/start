@@ -13,8 +13,8 @@
     },
     "notFound": {
       "code": "404",
-      "title": "Stránka nenalezena",
-      "description": "Omlouváme se, nemohli jsme najít stránku, kterou hledáte. Mohla být přesunuta, smazána, nebo jste zadali špatnou URL.",
+      "title": "Nenalezeno",
+      "description": "Stránku, kterou hledáte, se nepodařilo najít.",
       "goHome": "Přejít na domovskou stránku"
     },
     "manifest": {

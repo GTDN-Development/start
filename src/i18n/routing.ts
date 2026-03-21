@@ -44,6 +44,9 @@ export const routing = defineRouting({
     "/overview": {
       cs: "/prehled",
     },
+    "/w/[workspaceSlug]": {
+      cs: "/w/[workspaceSlug]",
+    },
     "/w/[workspaceSlug]/overview": {
       cs: "/w/[workspaceSlug]/prehled",
     },

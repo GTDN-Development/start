@@ -39,6 +39,7 @@ export function WorkspaceSwitcher() {
   const pathname = usePathname();
   const router = useRouter();
   const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
+  const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);
   const [isCreateWorkspaceDrawerOpen, setIsCreateWorkspaceDrawerOpen] = useState(false);
 
@@ -66,6 +67,8 @@ export function WorkspaceSwitcher() {
       return;
     }
 
+    setIsWorkspaceMenuOpen(false);
+
     startSwitchWorkspaceTransition(async () => {
       const response = await switchWorkspaceAction(workspace.slug);
 
@@ -83,7 +86,18 @@ export function WorkspaceSwitcher() {
       return;
     }
 
-    setIsCreateWorkspaceDrawerOpen(true);
+    setIsWorkspaceMenuOpen(false);
+    requestAnimationFrame(() => {
+      setIsCreateWorkspaceDrawerOpen(true);
+    });
+  }
+
+  function handleCreateWorkspaceDrawerOpenChange(open: boolean) {
+    if (open) {
+      setIsWorkspaceMenuOpen(false);
+    }
+
+    setIsCreateWorkspaceDrawerOpen(open);
   }
 
   if (!activeWorkspace) {
@@ -93,7 +107,7 @@ export function WorkspaceSwitcher() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
+        <DropdownMenu open={isWorkspaceMenuOpen} onOpenChange={setIsWorkspaceMenuOpen}>
           <DropdownMenuTrigger
             render={
               <SidebarMenuButton
@@ -186,7 +200,7 @@ export function WorkspaceSwitcher() {
         </DropdownMenu>
         <WorkspaceCreateDrawer
           open={isCreateWorkspaceDrawerOpen}
-          onOpenChange={setIsCreateWorkspaceDrawerOpen}
+          onOpenChange={handleCreateWorkspaceDrawerOpenChange}
         />
       </SidebarMenuItem>
     </SidebarMenu>
