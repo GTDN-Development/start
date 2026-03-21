@@ -183,6 +183,7 @@ Current behavior:
 - only owner can transfer ownership
 - owner removal/demotion is blocked when it would remove the last owner
 - personal workspaces cannot be left, deleted, or used for member invites
+- personal workspaces do not expose the `Members` item in workspace settings navigation
 
 This keeps the rules explicit in the service layer instead of hiding them in a separate policy engine.
 
@@ -205,6 +206,7 @@ Important behavior:
 - concrete workspace pages resolve the workspace again by slug and membership
 - invalid workspace slugs redirect back to `/overview`
 - unknown nested routes inside a valid workspace render a scoped not-found page inside the application shell
+- `/w/[workspaceSlug]/settings/members` shows an informational state for personal workspaces instead of member management UI
 
 ## Current Constraints
 
