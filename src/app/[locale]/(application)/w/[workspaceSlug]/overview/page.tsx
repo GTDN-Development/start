@@ -14,7 +14,7 @@ import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";
-import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-general-service";
+import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/overview">

@@ -23,7 +23,7 @@ import { WorkspaceMembersManagementSettingsItem } from "@/features/workspaces/se
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { getServerAuthSession } from "@/server/auth/auth-service";
-import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-general-service";
+import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
 import { listWorkspaceInvites } from "@/server/workspaces/workspace-invite-service";
 import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
 

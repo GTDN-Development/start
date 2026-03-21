@@ -5,7 +5,7 @@ import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { getServerAuthSession } from "@/server/auth/auth-service";
-import { resolvePostAuthWorkspace } from "@/server/workspaces/workspace-general-service";
+import { resolvePostAuthWorkspace } from "@/server/workspaces/workspace-resolution-service";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 
 export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {

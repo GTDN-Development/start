@@ -15,10 +15,12 @@ import {
 import {
   createOrganizationWorkspaceForCurrentUser,
   deleteOrganizationWorkspaceForCurrentUser,
-  resolvePostAuthWorkspace,
-  switchWorkspaceForCurrentUser,
   updateWorkspaceGeneralForCurrentUser,
 } from "@/server/workspaces/workspace-general-service";
+import {
+  resolvePostAuthWorkspace,
+  switchWorkspaceForCurrentUser,
+} from "@/server/workspaces/workspace-resolution-service";
 import {
   changeWorkspaceMemberRoleForCurrentUser,
   leaveWorkspaceForCurrentUser,
