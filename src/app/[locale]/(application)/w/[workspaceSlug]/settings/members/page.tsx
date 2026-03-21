@@ -12,20 +12,22 @@ import {
 import { Container } from "@/components/ui/container";
 import { Link, redirect } from "@/i18n/navigation";
 import {
+  getWorkspaceSettingsInnerSidebarItems,
   mapWorkspaceInnerSidebarItems,
-  workspaceSettingsInnerSidebarItems,
 } from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceInviteMembersSettingsItem } from "@/features/workspaces/settings/members/workspace-invite-members-settings-item";
 import { WorkspaceMembersManagementSettingsItem } from "@/features/workspaces/settings/members/workspace-members-management-settings-item";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
 import { listWorkspaceInvites } from "@/server/workspaces/workspace-invite-service";
 import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
+import { CircleAlertIcon } from "lucide-react";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings/members">
@@ -135,10 +137,57 @@ export default async function Page({
   });
 
   const innerSidebarItems = mapWorkspaceInnerSidebarItems(
-    workspaceSettingsInnerSidebarItems,
+    getWorkspaceSettingsInnerSidebarItems(workspaceSettings.kind),
     workspaceSettings.slug,
     tWorkspaceNav
   );
+
+  if (workspaceSettings.kind === "personal") {
+    return (
+      <ApplicationPageShell
+        breadcrumbs={
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  render={
+                    <Link
+                      href={{
+                        pathname: "/w/[workspaceSlug]/settings",
+                        params: {
+                          workspaceSlug: workspaceSettings.slug,
+                        },
+                      }}
+                    />
+                  }
+                >
+                  {tWorkspace("title")}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{tWorkspaceNav("members")}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        }
+      >
+        <Container size="xl" className="pt-10 pb-24">
+          <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
+            <SettingsPage title={tWorkspaceMembersPage("title")}>
+              <Alert>
+                <CircleAlertIcon aria-hidden="true" />
+                <AlertTitle>{tWorkspaceMembersPage("personalWorkspace.title")}</AlertTitle>
+                <AlertDescription>
+                  {tWorkspaceMembersPage("personalWorkspace.description")}
+                </AlertDescription>
+              </Alert>
+            </SettingsPage>
+          </InnerSidebarLayout>
+        </Container>
+      </ApplicationPageShell>
+    );
+  }
 
   return (
     <ApplicationPageShell

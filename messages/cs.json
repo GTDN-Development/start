@@ -834,7 +834,11 @@
       "members": {
         "page": {
           "title": "Členové",
-          "description": "Spravujte členy týmu a pozvánky."
+          "description": "Spravujte členy týmu a pozvánky.",
+          "personalWorkspace": {
+            "title": "Členové nejsou v osobním workspace dostupní",
+            "description": "V osobním workspace není možné přidávat členy ani posílat pozvánky. Pro spolupráci s ostatními se přepněte na organizační workspace nebo si jej vytvořte."
+          }
         },
         "roles": {
           "owner": {

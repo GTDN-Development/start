@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import {
+  getWorkspaceSettingsInnerSidebarItems,
   mapWorkspaceInnerSidebarItems,
-  workspaceSettingsInnerSidebarItems,
 } from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
@@ -114,7 +114,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   });
 
   const innerSidebarItems = mapWorkspaceInnerSidebarItems(
-    workspaceSettingsInnerSidebarItems,
+    getWorkspaceSettingsInnerSidebarItems(workspaceSettings.kind),
     workspaceSettings.slug,
     tWorkspaceNav
   );

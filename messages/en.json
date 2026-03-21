@@ -834,7 +834,11 @@
       "members": {
         "page": {
           "title": "Members",
-          "description": "Manage team members and invitations."
+          "description": "Manage team members and invitations.",
+          "personalWorkspace": {
+            "title": "Members are unavailable in personal workspaces",
+            "description": "You can't add members or send invitations in a personal workspace. Switch to or create an organization workspace to collaborate with others."
+          }
         },
         "roles": {
           "owner": {

@@ -42,6 +42,16 @@ export const workspaceSettingsInnerSidebarItems = [
   },
 ] as const satisfies ReadonlyArray<WorkspaceInnerSidebarItemDefinition<"general" | "members">>;
 
+export function getWorkspaceSettingsInnerSidebarItems(workspaceKind: "organization" | "personal") {
+  if (workspaceKind === "personal") {
+    return workspaceSettingsInnerSidebarItems.filter(
+      (item) => item.href !== "/w/[workspaceSlug]/settings/members"
+    );
+  }
+
+  return workspaceSettingsInnerSidebarItems;
+}
+
 export function mapInnerSidebarItems<TLabelKey extends string>(
   items: ReadonlyArray<InnerSidebarItemDefinition<TLabelKey>>,
   getLabel: (labelKey: TLabelKey) => string

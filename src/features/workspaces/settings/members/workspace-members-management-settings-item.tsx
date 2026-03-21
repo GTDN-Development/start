@@ -117,7 +117,7 @@ export function WorkspaceMembersManagementSettingsItem({
   const tCommon = useTranslations("pages.workspace.common");
   const locale = useLocale() as AppLocale;
   const router = useRouter();
-  const isReadOnly = workspace.kind === "personal" || workspace.role === "member";
+  const isReadOnly = workspace.role === "member";
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
   const ownerCount = members.filter((member) => member.role === "owner").length;
@@ -1036,9 +1036,7 @@ function canChangeWorkspaceMemberRole(
   return true;
 }
 
-function getAssignableWorkspaceMemberRoleOptions(
-  actingRole: WorkspaceSettingsWorkspace["role"]
-) {
+function getAssignableWorkspaceMemberRoleOptions(actingRole: WorkspaceSettingsWorkspace["role"]) {
   return WORKSPACE_MEMBER_ROLE_OPTIONS.filter((option) =>
     canAssignWorkspaceMemberRole(actingRole, option.value)
   );
