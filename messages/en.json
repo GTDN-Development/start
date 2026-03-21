@@ -4,8 +4,13 @@
       "back": "Back"
     },
     "error": {
-      "title": "Something went wrong!",
-      "description": "<p>We've unfortunately encountered an error.</p><p>You can try to <retry>reload the page</retry> you were visiting.</p>"
+      "title": "Something went wrong",
+      "description": "An unexpected error interrupted this page.",
+      "retry": "Try again",
+      "goHome": "Go to Home page",
+      "goToOverview": "Go to overview",
+      "goToSignIn": "Go to sign in",
+      "reference": "Reference code: {reference}"
     },
     "localeSwitcher": {
       "label": "Change language",

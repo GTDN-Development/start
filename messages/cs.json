@@ -4,8 +4,13 @@
       "back": "Zpět"
     },
     "error": {
-      "title": "Něco se pokazilo!",
-      "description": "<p>Bohužel jsme narazili na chybu.</p><p>Můžete zkusit <retry>znovu načíst stránku</retry>, kterou jste navštěvovali.</p>"
+      "title": "Něco se pokazilo",
+      "description": "Na této stránce došlo k neočekávané chybě.",
+      "retry": "Zkusit znovu",
+      "goHome": "Přejít na domovskou stránku",
+      "goToOverview": "Přejít na přehled",
+      "goToSignIn": "Přejít na přihlášení",
+      "reference": "Referenční kód: {reference}"
     },
     "localeSwitcher": {
       "label": "Změnit jazyk",
