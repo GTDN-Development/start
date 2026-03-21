@@ -51,7 +51,7 @@ export function WorkspaceAvatarSettingsItem({
     (candidateWorkspace) => candidateWorkspace.id === workspace.id
   );
   const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
-  const isReadOnly = workspaceSnapshot.role !== "owner";
+  const isReadOnly = workspaceSnapshot.role === "member";
 
   const initials = getUserInitials(workspaceSnapshot.name);
   const workspaceAvatarUrl =

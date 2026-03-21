@@ -53,7 +53,7 @@ export function WorkspaceInviteMembersSettingsItem({
   const tCommon = useTranslations("pages.workspace.common");
   const locale = useLocale() as AppLocale;
   const router = useRouter();
-  const isReadOnly = workspace.kind === "personal" || workspace.role !== "owner";
+  const isReadOnly = workspace.kind === "personal" || workspace.role === "member";
   const [isInviting, setIsInviting] = useState(false);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<InviteRole>("member");

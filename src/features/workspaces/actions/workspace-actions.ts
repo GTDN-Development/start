@@ -206,7 +206,7 @@ export async function deleteOrganizationWorkspaceAction(
 export async function changeMemberRoleAction(
   workspaceSlug: string,
   memberId: string,
-  role: "owner" | "member"
+  role: "owner" | "admin" | "member"
 ): Promise<WorkspaceResponse<{ updated: true }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedMemberId = workspaceIdSchema.safeParse(memberId);
@@ -280,7 +280,7 @@ export async function createInviteAction(
   input: {
     locale: AppLocale;
     email: string;
-    role: "member";
+    role: "admin" | "member";
   }
 ): Promise<WorkspaceResponse<{ created: true }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
@@ -452,5 +452,6 @@ function mapWorkspaceNavigationItem(workspace: UserWorkspace): WorkspaceNavigati
     kind: workspace.kind,
     role: workspace.role,
     avatarUrl: workspace.avatarUrl,
+    memberCount: workspace.memberCount,
   };
 }

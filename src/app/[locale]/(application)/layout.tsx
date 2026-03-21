@@ -81,6 +81,7 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
         kind: workspace.kind,
         role: workspace.role,
         avatarUrl: workspace.avatarUrl,
+        memberCount: workspace.memberCount,
       }))
     : [];
   const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();

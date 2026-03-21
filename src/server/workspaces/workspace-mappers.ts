@@ -6,29 +6,37 @@ import type {
 import type {
   UserWorkspace,
   WorkspaceInviteSummary,
+  WorkspaceInviteRole,
   WorkspaceMemberSummary,
+  WorkspaceMemberRole,
   WorkspaceSummary,
 } from "@/server/workspaces/workspace-types";
 import type { WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 
-export function mapWorkspaceSummary(pb: PocketBase, workspace: WorkspacesRecord): WorkspaceSummary {
+export function mapWorkspaceSummary(
+  pb: PocketBase,
+  workspace: WorkspacesRecord,
+  memberCount: number
+): WorkspaceSummary {
   return {
     id: workspace.id,
     name: workspace.name,
     slug: workspace.slug,
     kind: workspace.kind,
     avatarUrl: getWorkspaceAvatarUrl(pb, workspace),
+    memberCount,
   };
 }
 
 export function mapUserWorkspaceSummary(
   pb: PocketBase,
   workspace: WorkspacesRecord,
-  membership: WorkspaceMembersRecord
+  membership: WorkspaceMembersRecord,
+  memberCount: number
 ): UserWorkspace {
   return {
-    ...mapWorkspaceSummary(pb, workspace),
+    ...mapWorkspaceSummary(pb, workspace, memberCount),
     membershipId: membership.id,
     role: membership.role,
   };
@@ -75,7 +83,7 @@ export function sortWorkspaceMembers(
     return firstMember.email.localeCompare(secondMember.email);
   }
 
-  return firstMember.role === "owner" ? -1 : 1;
+  return getWorkspaceRoleOrder(firstMember.role) - getWorkspaceRoleOrder(secondMember.role);
 }
 
 export function sortUserWorkspaces(
@@ -97,4 +105,16 @@ function getWorkspaceAvatarUrl(pb: PocketBase, workspace: WorkspacesRecord): str
   }
 
   return pb.files.getURL(workspace, avatarName);
+}
+
+function getWorkspaceRoleOrder(role: WorkspaceMemberRole | WorkspaceInviteRole): number {
+  if (role === "owner") {
+    return 0;
+  }
+
+  if (role === "admin") {
+    return 1;
+  }
+
+  return 2;
 }

@@ -31,6 +31,16 @@ type OwnerWorkspaceAccessResult =
       response: ServerWorkspaceResponse<never>;
     };
 
+type AdminWorkspaceAccessResult =
+  | {
+      ok: true;
+      context: WorkspaceAccessContext;
+    }
+  | {
+      ok: false;
+      response: ServerWorkspaceResponse<never>;
+    };
+
 export async function requireWorkspaceAccess(
   authContext: WorkspaceAuthContext,
   workspaceSlug: string
@@ -92,6 +102,25 @@ export function requireOwnerWorkspaceAccess(
   };
 }
 
+export function requireAdminWorkspaceAccess(
+  accessContext: WorkspaceAccessContext
+): AdminWorkspaceAccessResult {
+  if (accessContext.membership.role === "member") {
+    return {
+      ok: false,
+      response: {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      },
+    };
+  }
+
+  return {
+    ok: true,
+    context: accessContext,
+  };
+}
+
 export async function requireOwnerWorkspaceAccessBySlug(
   authContext: WorkspaceAuthContext,
   workspaceSlug: string
@@ -103,4 +132,17 @@ export async function requireOwnerWorkspaceAccessBySlug(
   }
 
   return requireOwnerWorkspaceAccess(access.context);
+}
+
+export async function requireAdminWorkspaceAccessBySlug(
+  authContext: WorkspaceAuthContext,
+  workspaceSlug: string
+): Promise<AdminWorkspaceAccessResult> {
+  const access = await requireWorkspaceAccess(authContext, workspaceSlug);
+
+  if (!access.ok) {
+    return access;
+  }
+
+  return requireAdminWorkspaceAccess(access.context);
 }

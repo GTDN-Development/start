@@ -841,6 +841,10 @@
             "label": "Vlastník",
             "description": "Plný přístup k nastavení, členům a správě workspace."
           },
+          "admin": {
+            "label": "Administrátor",
+            "description": "Může spravovat nastavení workspace, členy i pozvánky, ale ne vlastnictví."
+          },
           "member": {
             "label": "Člen",
             "description": "Může spolupracovat ve workspace, ale nemůže spravovat vlastnictví."

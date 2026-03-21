@@ -87,6 +87,7 @@ export function ApplicationLayout({
         workspace.kind,
         workspace.role,
         workspace.avatarUrl ?? "",
+        String(workspace.memberCount),
       ].join(":")
     )
     .join("|")}`;

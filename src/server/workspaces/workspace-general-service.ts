@@ -4,6 +4,7 @@ import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-ser
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
 import {
+  requireAdminWorkspaceAccessBySlug,
   requireOwnerWorkspaceAccessBySlug,
   requireWorkspaceAccess,
 } from "@/server/workspaces/workspace-access";
@@ -20,6 +21,7 @@ import {
   toWorkspaceSlug,
 } from "@/server/workspaces/workspace-normalization";
 import {
+  countWorkspaceMembers,
   ensureWorkspaceMembership,
   findWorkspaceBySlug,
   findWorkspaceMembershipByWorkspaceAndUser,
@@ -73,7 +75,7 @@ export async function ensurePersonalWorkspace(
     return {
       ok: true,
       data: {
-        workspace: mapUserWorkspaceSummary(pb, workspace, membership),
+        workspace: mapUserWorkspaceSummary(pb, workspace, membership, 1),
       },
     };
   } catch (error) {
@@ -174,7 +176,12 @@ export async function resolveWorkspaceForUserBySlug(
     return {
       ok: true,
       data: {
-        workspace: mapUserWorkspaceSummary(pb, workspace, membership),
+        workspace: mapUserWorkspaceSummary(
+          pb,
+          workspace,
+          membership,
+          await countWorkspaceMembers(pb, workspace.id)
+        ),
       },
     };
   } catch (error) {
@@ -354,7 +361,7 @@ export async function createOrganizationWorkspaceForCurrentUser(
     return {
       ok: true,
       data: {
-        workspace: mapUserWorkspaceSummary(currentUser.context.pb, workspace, membership),
+        workspace: mapUserWorkspaceSummary(currentUser.context.pb, workspace, membership, 1),
       },
     };
   } catch (error) {
@@ -403,7 +410,8 @@ export async function switchWorkspaceForCurrentUser(
         workspace: mapUserWorkspaceSummary(
           access.context.pb,
           access.context.workspace,
-          access.context.membership
+          access.context.membership,
+          await countWorkspaceMembers(access.context.pb, access.context.workspace.id)
         ),
       },
     };
@@ -446,10 +454,10 @@ export async function updateWorkspaceGeneralForCurrentUser(
   }
 
   try {
-    const ownerAccess = await requireOwnerWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
 
-    if (!ownerAccess.ok) {
-      return ownerAccess.response;
+    if (!adminAccess.ok) {
+      return adminAccess.response;
     }
 
     const updateData: Record<string, string | File | null> = {};
@@ -478,9 +486,9 @@ export async function updateWorkspaceGeneralForCurrentUser(
       }
 
       const normalizedSlug = toWorkspaceSlug(normalizedSlugInput);
-      const existingWorkspace = await findWorkspaceBySlug(ownerAccess.context.pb, normalizedSlug);
+      const existingWorkspace = await findWorkspaceBySlug(adminAccess.context.pb, normalizedSlug);
 
-      if (existingWorkspace && existingWorkspace.id !== ownerAccess.context.workspace.id) {
+      if (existingWorkspace && existingWorkspace.id !== adminAccess.context.workspace.id) {
         return {
           ok: false,
           errorCode: "SLUG_NOT_AVAILABLE",
@@ -503,19 +511,20 @@ export async function updateWorkspaceGeneralForCurrentUser(
       };
     }
 
-    const updatedWorkspace = await ownerAccess.context.pb
+    const updatedWorkspace = await adminAccess.context.pb
       .collection("workspaces")
-      .update<WorkspacesRecord>(ownerAccess.context.workspace.id, updateData);
+      .update<WorkspacesRecord>(adminAccess.context.workspace.id, updateData);
 
     return {
       ok: true,
       data: {
         workspace: mapUserWorkspaceSummary(
-          ownerAccess.context.pb,
+          adminAccess.context.pb,
           updatedWorkspace,
-          ownerAccess.context.membership
+          adminAccess.context.membership,
+          await countWorkspaceMembers(adminAccess.context.pb, adminAccess.context.workspace.id)
         ),
-        previousSlug: ownerAccess.context.workspace.slug,
+        previousSlug: adminAccess.context.workspace.slug,
       },
     };
   } catch (error) {
@@ -620,17 +629,24 @@ async function listUserWorkspaceMemberships(
 ): Promise<UserWorkspace[]> {
   const membershipRecords = await listUserWorkspaceMembershipRecords(pb, userId);
 
-  const workspaces = membershipRecords
-    .map((membershipRecord) => {
+  const workspaces = await Promise.all(
+    membershipRecords.map(async (membershipRecord) => {
       const expandedWorkspace = membershipRecord.expand?.workspace;
 
       if (!expandedWorkspace) {
         return null;
       }
 
-      return mapUserWorkspaceSummary(pb, expandedWorkspace, membershipRecord);
+      return mapUserWorkspaceSummary(
+        pb,
+        expandedWorkspace,
+        membershipRecord,
+        await countWorkspaceMembers(pb, expandedWorkspace.id)
+      );
     })
-    .filter((workspace): workspace is UserWorkspace => workspace !== null);
+  );
 
-  return workspaces.sort(sortUserWorkspaces);
+  return workspaces
+    .filter((workspace): workspace is UserWorkspace => workspace !== null)
+    .sort(sortUserWorkspaces);
 }

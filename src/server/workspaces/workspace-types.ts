@@ -27,6 +27,7 @@ export type WorkspaceSummary = {
   slug: string;
   kind: WorkspaceKind;
   avatarUrl: string | null;
+  memberCount: number;
 };
 
 export type UserWorkspace = WorkspaceSummary & {

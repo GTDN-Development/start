@@ -8,7 +8,7 @@ import {
   getPendingInviteHashCookie,
 } from "@/server/workspaces/workspace-cookie";
 import {
-  requireOwnerWorkspaceAccessBySlug,
+  requireAdminWorkspaceAccessBySlug,
   requireWorkspaceAccess,
 } from "@/server/workspaces/workspace-access";
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
@@ -30,6 +30,7 @@ import {
 } from "@/server/workspaces/workspace-mappers";
 import { normalizeEmail } from "@/server/workspaces/workspace-normalization";
 import {
+  countWorkspaceMembers,
   ensureWorkspaceMembership,
   findInviteByHash,
   findInviteById,
@@ -44,6 +45,7 @@ import type {
   PendingInviteConsumeResult,
   ServerWorkspaceResponse,
   WorkspaceInviteAcceptResult,
+  WorkspaceInviteRole,
   WorkspaceInviteSummary,
 } from "@/server/workspaces/workspace-types";
 
@@ -51,7 +53,7 @@ export { hashInviteToken };
 export type CreateWorkspaceInviteInput = {
   locale: AppLocale;
   email: string;
-  role: "member";
+  role: WorkspaceInviteRole;
 };
 
 export async function listWorkspaceInvites(
@@ -290,13 +292,13 @@ export async function createWorkspaceInviteForCurrentUser(
   }
 
   try {
-    const ownerAccess = await requireOwnerWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
 
-    if (!ownerAccess.ok) {
-      return ownerAccess.response;
+    if (!adminAccess.ok) {
+      return adminAccess.response;
     }
 
-    if (ownerAccess.context.workspace.kind === "personal") {
+    if (adminAccess.context.workspace.kind === "personal") {
       return {
         ok: false,
         errorCode: "PERSONAL_WORKSPACE_RESTRICTED",
@@ -304,8 +306,8 @@ export async function createWorkspaceInviteForCurrentUser(
     }
 
     const workspaceMembers = await listWorkspaceMemberRecordsByWorkspace(
-      ownerAccess.context.pb,
-      ownerAccess.context.workspace.id
+      adminAccess.context.pb,
+      adminAccess.context.workspace.id
     );
 
     if (hasMemberWithEmail(workspaceMembers, normalizedEmail)) {
@@ -316,8 +318,8 @@ export async function createWorkspaceInviteForCurrentUser(
     }
 
     const existingInviteRecord = await findInviteByWorkspaceAndEmail(
-      ownerAccess.context.pb,
-      ownerAccess.context.workspace.id,
+      adminAccess.context.pb,
+      adminAccess.context.workspace.id,
       normalizedEmail
     );
 
@@ -329,28 +331,28 @@ export async function createWorkspaceInviteForCurrentUser(
     }
 
     if (existingInviteRecord && isDateStringExpired(existingInviteRecord.expires_at)) {
-      await safeDeleteInvite(ownerAccess.context.pb, existingInviteRecord.id);
+      await safeDeleteInvite(adminAccess.context.pb, existingInviteRecord.id);
     }
 
     const inviteToken = createInviteToken();
     const inviteHash = hashInviteToken(inviteToken);
-    const inviteRecord = await ownerAccess.context.pb
+    const inviteRecord = await adminAccess.context.pb
       .collection("workspace_invites")
       .create<WorkspaceInvitesRecord>({
-        workspace: ownerAccess.context.workspace.id,
+        workspace: adminAccess.context.workspace.id,
         email_normalized: normalizedEmail,
         role: input.role,
         token_hash: inviteHash,
         expires_at: createInviteExpiryDate(),
-        invited_by: ownerAccess.context.user.id,
+        invited_by: adminAccess.context.user.id,
       });
 
     try {
       await sendWorkspaceInviteEmail({
         locale: input.locale,
         email: normalizedEmail,
-        workspaceName: ownerAccess.context.workspace.name,
-        inviterName: getNullableTrimmedString(ownerAccess.context.user.name),
+        workspaceName: adminAccess.context.workspace.name,
+        inviterName: getNullableTrimmedString(adminAccess.context.user.name),
         inviteToken,
       });
     } catch (emailError) {
@@ -359,7 +361,7 @@ export async function createWorkspaceInviteForCurrentUser(
         emailError
       );
 
-      await safeDeleteInvite(ownerAccess.context.pb, inviteRecord.id);
+      await safeDeleteInvite(adminAccess.context.pb, inviteRecord.id);
 
       return {
         ok: false,
@@ -419,13 +421,13 @@ export async function resendWorkspaceInviteForCurrentUser(
   }
 
   try {
-    const ownerAccess = await requireOwnerWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
 
-    if (!ownerAccess.ok) {
-      return ownerAccess.response;
+    if (!adminAccess.ok) {
+      return adminAccess.response;
     }
 
-    if (ownerAccess.context.workspace.kind === "personal") {
+    if (adminAccess.context.workspace.kind === "personal") {
       return {
         ok: false,
         errorCode: "PERSONAL_WORKSPACE_RESTRICTED",
@@ -433,8 +435,8 @@ export async function resendWorkspaceInviteForCurrentUser(
     }
 
     const inviteRecord = await findInviteById(
-      ownerAccess.context.pb,
-      ownerAccess.context.workspace.id,
+      adminAccess.context.pb,
+      adminAccess.context.workspace.id,
       inviteId
     );
 
@@ -446,7 +448,7 @@ export async function resendWorkspaceInviteForCurrentUser(
     }
 
     if (isDateStringExpired(inviteRecord.expires_at)) {
-      await safeDeleteInvite(ownerAccess.context.pb, inviteRecord.id);
+      await safeDeleteInvite(adminAccess.context.pb, inviteRecord.id);
 
       return {
         ok: false,
@@ -471,7 +473,7 @@ export async function resendWorkspaceInviteForCurrentUser(
     const previousInviteTokenHash = inviteRecord.token_hash;
     const previousInviteExpiresAt = inviteRecord.expires_at;
 
-    await ownerAccess.context.pb.collection("workspace_invites").update(inviteRecord.id, {
+    await adminAccess.context.pb.collection("workspace_invites").update(inviteRecord.id, {
       token_hash: nextInviteHash,
       expires_at: createInviteExpiryDate(),
     });
@@ -480,8 +482,8 @@ export async function resendWorkspaceInviteForCurrentUser(
       await sendWorkspaceInviteEmail({
         locale,
         email: inviteRecord.email_normalized,
-        workspaceName: ownerAccess.context.workspace.name,
-        inviterName: getNullableTrimmedString(ownerAccess.context.user.name),
+        workspaceName: adminAccess.context.workspace.name,
+        inviterName: getNullableTrimmedString(adminAccess.context.user.name),
         inviteToken: nextInviteToken,
       });
     } catch (emailError) {
@@ -490,7 +492,7 @@ export async function resendWorkspaceInviteForCurrentUser(
         emailError
       );
 
-      await rollbackInviteAfterFailedResend(ownerAccess.context.pb, inviteRecord.id, {
+      await rollbackInviteAfterFailedResend(adminAccess.context.pb, inviteRecord.id, {
         tokenHash: previousInviteTokenHash,
         expiresAt: previousInviteExpiresAt,
       });
@@ -546,13 +548,13 @@ export async function revokeWorkspaceInviteForCurrentUser(
   }
 
   try {
-    const ownerAccess = await requireOwnerWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
 
-    if (!ownerAccess.ok) {
-      return ownerAccess.response;
+    if (!adminAccess.ok) {
+      return adminAccess.response;
     }
 
-    if (ownerAccess.context.workspace.kind === "personal") {
+    if (adminAccess.context.workspace.kind === "personal") {
       return {
         ok: false,
         errorCode: "PERSONAL_WORKSPACE_RESTRICTED",
@@ -560,8 +562,8 @@ export async function revokeWorkspaceInviteForCurrentUser(
     }
 
     const inviteRecord = await findInviteById(
-      ownerAccess.context.pb,
-      ownerAccess.context.workspace.id,
+      adminAccess.context.pb,
+      adminAccess.context.workspace.id,
       inviteId
     );
 
@@ -572,7 +574,7 @@ export async function revokeWorkspaceInviteForCurrentUser(
       };
     }
 
-    await ownerAccess.context.pb.collection("workspace_invites").delete(inviteRecord.id);
+    await adminAccess.context.pb.collection("workspace_invites").delete(inviteRecord.id);
 
     return {
       ok: true,
@@ -673,7 +675,7 @@ async function acceptInviteByHash(
 
     return {
       state: "already_member",
-      workspace: mapWorkspaceSummary(pb, workspace),
+      workspace: mapWorkspaceSummary(pb, workspace, await countWorkspaceMembers(pb, workspace.id)),
     };
   }
 
@@ -682,7 +684,7 @@ async function acceptInviteByHash(
 
   return {
     state: "accepted",
-    workspace: mapWorkspaceSummary(pb, workspace),
+    workspace: mapWorkspaceSummary(pb, workspace, await countWorkspaceMembers(pb, workspace.id)),
   };
 }
 

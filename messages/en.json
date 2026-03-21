@@ -841,6 +841,10 @@
             "label": "Owner",
             "description": "Full access to workspace settings, members, and management."
           },
+          "admin": {
+            "label": "Admin",
+            "description": "Can manage workspace settings, members, and invitations, but not ownership."
+          },
           "member": {
             "label": "Member",
             "description": "Can collaborate in workspace, but cannot manage ownership."

@@ -117,11 +117,12 @@ export function WorkspaceMembersManagementSettingsItem({
   const tCommon = useTranslations("pages.workspace.common");
   const locale = useLocale() as AppLocale;
   const router = useRouter();
-  const isReadOnly = workspace.kind === "personal" || workspace.role !== "owner";
+  const isReadOnly = workspace.kind === "personal" || workspace.role === "member";
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
   const ownerCount = members.filter((member) => member.role === "owner").length;
   const hasPendingInvitations = invites.length > 0;
+  const roleOptions = getAssignableWorkspaceMemberRoleOptions(workspace.role);
   const changeRoleMember =
     actionState?.type === "change-role"
       ? (members.find((member) => member.id === actionState.memberId) ?? null)
@@ -146,7 +147,7 @@ export function WorkspaceMembersManagementSettingsItem({
     : false;
 
   function handleChangeRoleRequest(member: WorkspaceSettingsMember) {
-    if (isReadOnly) {
+    if (isReadOnly || !canManageWorkspaceMember(workspace.role, member.role)) {
       return;
     }
 
@@ -158,7 +159,7 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   function handleRemoveMemberRequest(member: WorkspaceSettingsMember) {
-    if (isReadOnly) {
+    if (isReadOnly || !canManageWorkspaceMember(workspace.role, member.role)) {
       return;
     }
 
@@ -209,6 +210,10 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
+    if (!canAssignWorkspaceMemberRole(workspace.role, value)) {
+      return;
+    }
+
     if (isChangeRoleTargetLastOwner && value !== "owner") {
       return;
     }
@@ -242,6 +247,13 @@ export function WorkspaceMembersManagementSettingsItem({
     setIsActionSubmitting(true);
 
     const nextRole = actionState.selectedRole;
+
+    if (!canChangeWorkspaceMemberRole(workspace.role, changeRoleMember.role, nextRole)) {
+      setIsActionSubmitting(false);
+      toast.error(t("errors.forbidden"));
+      return;
+    }
+
     let actionResponse;
 
     if (nextRole === "owner" && changeRoleMember.role !== "owner") {
@@ -360,6 +372,7 @@ export function WorkspaceMembersManagementSettingsItem({
                 <div className="hidden @lg/members-management:block">
                   <MembersTable
                     rows={members}
+                    actorRole={workspace.role}
                     ownerCount={ownerCount}
                     isReadOnly={isReadOnly}
                     onChangeRoleRequest={handleChangeRoleRequest}
@@ -371,6 +384,7 @@ export function WorkspaceMembersManagementSettingsItem({
                     <MemberDescriptionRow
                       key={member.id}
                       member={member}
+                      actorRole={workspace.role}
                       ownerCount={ownerCount}
                       isReadOnly={isReadOnly}
                       onChangeRoleRequest={handleChangeRoleRequest}
@@ -429,7 +443,7 @@ export function WorkspaceMembersManagementSettingsItem({
               value={actionState?.type === "change-role" ? actionState.selectedRole : undefined}
               onValueChange={handleChangeRoleSelection}
             >
-              {WORKSPACE_MEMBER_ROLE_OPTIONS.map((option) => (
+              {roleOptions.map((option) => (
                 <FieldLabel
                   key={option.value}
                   htmlFor={`workspace-member-role-${changeRoleMember.id}-${option.value}`}
@@ -629,12 +643,14 @@ function getActionErrorMessage(
 
 function MembersTable({
   rows,
+  actorRole,
   ownerCount,
   isReadOnly,
   onChangeRoleRequest,
   onRemoveMemberRequest,
 }: {
   rows: WorkspaceSettingsMember[];
+  actorRole: WorkspaceSettingsWorkspace["role"];
   ownerCount: number;
   isReadOnly: boolean;
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
@@ -663,7 +679,11 @@ function MembersTable({
               <MembersActionMenu
                 member={member}
                 disabled={isReadOnly}
-                isLastOwner={isLastOwnerMember(member, ownerCount)}
+                isChangeRoleDisabled={!canManageWorkspaceMember(actorRole, member.role)}
+                isRemoveDisabled={
+                  !canManageWorkspaceMember(actorRole, member.role) ||
+                  isLastOwnerMember(member, ownerCount)
+                }
                 onChangeRoleRequest={onChangeRoleRequest}
                 onRemoveMemberRequest={onRemoveMemberRequest}
               />
@@ -722,12 +742,14 @@ function PendingInvitationsTable({
 
 function MemberDescriptionRow({
   member,
+  actorRole,
   ownerCount,
   isReadOnly,
   onChangeRoleRequest,
   onRemoveMemberRequest,
 }: {
   member: WorkspaceSettingsMember;
+  actorRole: WorkspaceSettingsWorkspace["role"];
   ownerCount: number;
   isReadOnly: boolean;
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
@@ -752,7 +774,11 @@ function MemberDescriptionRow({
           <MembersActionMenu
             member={member}
             disabled={isReadOnly}
-            isLastOwner={isLastOwnerMember(member, ownerCount)}
+            isChangeRoleDisabled={!canManageWorkspaceMember(actorRole, member.role)}
+            isRemoveDisabled={
+              !canManageWorkspaceMember(actorRole, member.role) ||
+              isLastOwnerMember(member, ownerCount)
+            }
             onChangeRoleRequest={onChangeRoleRequest}
             onRemoveMemberRequest={onRemoveMemberRequest}
           />
@@ -850,13 +876,15 @@ function InvitationSummaryRow({ invitation }: { invitation: WorkspaceSettingsInv
 function MembersActionMenu({
   member,
   disabled,
-  isLastOwner,
+  isChangeRoleDisabled,
+  isRemoveDisabled,
   onChangeRoleRequest,
   onRemoveMemberRequest,
 }: {
   member: WorkspaceSettingsMember;
   disabled: boolean;
-  isLastOwner: boolean;
+  isChangeRoleDisabled: boolean;
+  isRemoveDisabled: boolean;
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
 }) {
@@ -872,20 +900,23 @@ function MembersActionMenu({
             variant="ghost"
             size="icon"
             aria-label={t("menus.members.ariaLabel")}
-            disabled={disabled}
+            disabled={disabled || (isChangeRoleDisabled && isRemoveDisabled)}
           >
             <MoreHorizontalIcon aria-hidden="true" className="size-4" />
           </Button>
         }
       />
       <DropdownMenuContent align="end" className="w-auto min-w-44">
-        <DropdownMenuItem onClick={() => onChangeRoleRequest(member)} disabled={disabled}>
+        <DropdownMenuItem
+          onClick={() => onChangeRoleRequest(member)}
+          disabled={disabled || isChangeRoleDisabled}
+        >
           <PencilLineIcon aria-hidden="true" /> {t("menus.members.changeRole")}
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onRemoveMemberRequest(member)}
           variant="destructive"
-          disabled={disabled || isLastOwner}
+          disabled={disabled || isRemoveDisabled}
         >
           <TrashIcon aria-hidden="true" /> {t("menus.members.removeMember")}
         </DropdownMenuItem>
@@ -952,5 +983,63 @@ function PendingInvitationsEmptyState() {
         <EmptyDescription>{t("description")}</EmptyDescription>
       </EmptyHeader>
     </Empty>
+  );
+}
+
+function canManageWorkspaceMember(
+  actingRole: WorkspaceSettingsWorkspace["role"],
+  targetRole: WorkspaceSettingsMember["role"]
+): boolean {
+  if (actingRole === "owner") {
+    return true;
+  }
+
+  if (actingRole === "admin") {
+    return targetRole !== "owner";
+  }
+
+  return false;
+}
+
+function canAssignWorkspaceMemberRole(
+  actingRole: WorkspaceSettingsWorkspace["role"],
+  nextRole: WorkspaceMemberRole
+): boolean {
+  if (actingRole === "owner") {
+    return true;
+  }
+
+  if (actingRole === "admin") {
+    return nextRole !== "owner";
+  }
+
+  return false;
+}
+
+function canChangeWorkspaceMemberRole(
+  actingRole: WorkspaceSettingsWorkspace["role"],
+  targetRole: WorkspaceSettingsMember["role"],
+  nextRole: WorkspaceMemberRole
+): boolean {
+  if (!canManageWorkspaceMember(actingRole, targetRole)) {
+    return false;
+  }
+
+  if (!canAssignWorkspaceMemberRole(actingRole, nextRole)) {
+    return false;
+  }
+
+  if (nextRole === "owner") {
+    return actingRole === "owner";
+  }
+
+  return true;
+}
+
+function getAssignableWorkspaceMemberRoleOptions(
+  actingRole: WorkspaceSettingsWorkspace["role"]
+) {
+  return WORKSPACE_MEMBER_ROLE_OPTIONS.filter((option) =>
+    canAssignWorkspaceMemberRole(actingRole, option.value)
   );
 }

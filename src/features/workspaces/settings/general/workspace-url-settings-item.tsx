@@ -39,7 +39,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
     (candidateWorkspace) => candidateWorkspace.id === workspace.id
   );
   const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
-  const isReadOnly = workspaceSnapshot.role !== "owner";
+  const isReadOnly = workspaceSnapshot.role === "member";
   const [workspaceUrl, setWorkspaceUrl] = useState(workspace.slug);
   const workspaceUrlSchema = z.object({
     url: z

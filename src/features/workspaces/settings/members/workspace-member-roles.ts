@@ -23,6 +23,11 @@ const WORKSPACE_MEMBER_ROLE_OPTIONS: Array<{
     descriptionKey: "owner.description",
   },
   {
+    value: "admin",
+    labelKey: "admin.label",
+    descriptionKey: "admin.description",
+  },
+  {
     value: "member",
     labelKey: "member.label",
     descriptionKey: "member.description",
@@ -34,6 +39,11 @@ const WORKSPACE_INVITABLE_ROLE_OPTIONS: Array<{
   labelKey: `${WorkspaceInvitableRole}.label`;
   descriptionKey: `${WorkspaceInvitableRole}.description`;
 }> = [
+  {
+    value: "admin",
+    labelKey: "admin.label",
+    descriptionKey: "admin.description",
+  },
   {
     value: "member",
     labelKey: "member.label",
@@ -55,6 +65,10 @@ function getWorkspaceMemberRoleLabel(
 ): string {
   if (role === "owner") {
     return t("owner.label");
+  }
+
+  if (role === "admin") {
+    return t("admin.label");
   }
 
   return t("member.label");

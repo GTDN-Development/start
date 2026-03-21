@@ -40,7 +40,7 @@ export function WorkspaceNameSettingsItem({
     (candidateWorkspace) => candidateWorkspace.id === workspace.id
   );
   const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
-  const isReadOnly = workspaceSnapshot.role !== "owner";
+  const isReadOnly = workspaceSnapshot.role === "member";
   const [workspaceName, setWorkspaceName] = useState(workspace.name);
   const workspaceNameSchema = z.object({
     name: z

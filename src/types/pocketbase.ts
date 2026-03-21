@@ -9,17 +9,6 @@ export interface PocketBaseSystemFields {
   updated: string;
 }
 
-export interface AuthSessionsRecord extends PocketBaseSystemFields {
-  user: string;
-  session_key: string;
-  device_label?: string;
-  user_agent?: string;
-  ip?: string;
-  place?: string;
-  last_seen_at: string;
-  revoked_at?: string;
-}
-
 export interface CookieConsentEventsRecord extends PocketBaseSystemFields {
   subject_key: string;
   event_type: "accept_all" | "reject_all" | "save_preferences" | "withdraw";
@@ -76,7 +65,7 @@ export interface UsersRecord extends PocketBaseSystemFields {
 export interface WorkspaceInvitesRecord extends PocketBaseSystemFields {
   workspace: string;
   email_normalized: string;
-  role: "member";
+  role: "member" | "admin";
   token_hash: string;
   expires_at: string;
   invited_by: string;
@@ -85,7 +74,7 @@ export interface WorkspaceInvitesRecord extends PocketBaseSystemFields {
 export interface WorkspaceMembersRecord extends PocketBaseSystemFields {
   workspace: string;
   user: string;
-  role: "owner" | "member";
+  role: "owner" | "admin" | "member";
 }
 
 export interface WorkspacesRecord extends PocketBaseSystemFields {
@@ -96,7 +85,6 @@ export interface WorkspacesRecord extends PocketBaseSystemFields {
 }
 
 export interface PocketBaseCollections {
-  "auth_sessions": AuthSessionsRecord;
   "cookie_consent_events": CookieConsentEventsRecord;
   "posts": PostsRecord;
   "user_device_sessions": UserDeviceSessionsRecord;

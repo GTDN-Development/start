@@ -1,5 +1,6 @@
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
 import {
+  requireAdminWorkspaceAccessBySlug,
   requireOwnerWorkspaceAccessBySlug,
   requireWorkspaceAccess,
 } from "@/server/workspaces/workspace-access";
@@ -155,15 +156,15 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
   }
 
   try {
-    const ownerAccess = await requireOwnerWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
 
-    if (!ownerAccess.ok) {
-      return ownerAccess.response;
+    if (!adminAccess.ok) {
+      return adminAccess.response;
     }
 
     const memberRecord = await findWorkspaceMemberById(
-      ownerAccess.context.pb,
-      ownerAccess.context.workspace.id,
+      adminAccess.context.pb,
+      adminAccess.context.workspace.id,
       memberId
     );
 
@@ -183,10 +184,21 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
       };
     }
 
+    if (
+      !canManageMemberRole(adminAccess.context.membership.role, memberRecord.role) ||
+      !canAssignMemberRole(adminAccess.context.membership.role, role) ||
+      (role === "owner" && memberRecord.role !== "owner")
+    ) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
+    }
+
     if (memberRecord.role === "owner" && role !== "owner") {
       const ownerCount = await countWorkspaceOwners(
-        ownerAccess.context.pb,
-        ownerAccess.context.workspace.id
+        adminAccess.context.pb,
+        adminAccess.context.workspace.id
       );
 
       if (ownerCount <= 1) {
@@ -197,7 +209,7 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
       }
     }
 
-    await ownerAccess.context.pb.collection("workspace_members").update(memberRecord.id, {
+    await adminAccess.context.pb.collection("workspace_members").update(memberRecord.id, {
       role,
     });
 
@@ -246,15 +258,15 @@ export async function removeWorkspaceMemberForCurrentUser(
   }
 
   try {
-    const ownerAccess = await requireOwnerWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
 
-    if (!ownerAccess.ok) {
-      return ownerAccess.response;
+    if (!adminAccess.ok) {
+      return adminAccess.response;
     }
 
     const memberRecord = await findWorkspaceMemberById(
-      ownerAccess.context.pb,
-      ownerAccess.context.workspace.id,
+      adminAccess.context.pb,
+      adminAccess.context.workspace.id,
       memberId
     );
 
@@ -265,10 +277,17 @@ export async function removeWorkspaceMemberForCurrentUser(
       };
     }
 
+    if (!canManageMemberRole(adminAccess.context.membership.role, memberRecord.role)) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
+    }
+
     if (memberRecord.role === "owner") {
       const ownerCount = await countWorkspaceOwners(
-        ownerAccess.context.pb,
-        ownerAccess.context.workspace.id
+        adminAccess.context.pb,
+        adminAccess.context.workspace.id
       );
 
       if (ownerCount <= 1) {
@@ -279,7 +298,7 @@ export async function removeWorkspaceMemberForCurrentUser(
       }
     }
 
-    await ownerAccess.context.pb.collection("workspace_members").delete(memberRecord.id);
+    await adminAccess.context.pb.collection("workspace_members").delete(memberRecord.id);
 
     return {
       ok: true,
@@ -355,7 +374,7 @@ export async function transferWorkspaceOwnershipForCurrentUser(
 
     const batch = ownerAccess.context.pb.createBatch();
     batch.collection("workspace_members").update(ownerAccess.context.membership.id, {
-      role: "member",
+      role: "admin",
     });
     batch.collection("workspace_members").update(targetMemberRecord.id, {
       role: "owner",
@@ -394,4 +413,34 @@ export async function transferWorkspaceOwnershipForCurrentUser(
       errorCode,
     };
   }
+}
+
+function canManageMemberRole(
+  actingRole: WorkspaceMemberRole,
+  targetRole: WorkspaceMemberRole
+): boolean {
+  if (actingRole === "owner") {
+    return true;
+  }
+
+  if (actingRole === "admin") {
+    return targetRole !== "owner";
+  }
+
+  return false;
+}
+
+function canAssignMemberRole(
+  actingRole: WorkspaceMemberRole,
+  nextRole: WorkspaceMemberRole
+): boolean {
+  if (actingRole === "owner") {
+    return true;
+  }
+
+  if (actingRole === "admin") {
+    return nextRole !== "owner";
+  }
+
+  return false;
 }

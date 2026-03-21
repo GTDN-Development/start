@@ -3,6 +3,7 @@ export type WorkspaceNavigationItem = {
   slug: string;
   name: string;
   kind: "personal" | "organization";
-  role: "owner" | "member";
+  role: "owner" | "admin" | "member";
   avatarUrl: string | null;
+  memberCount: number;
 };

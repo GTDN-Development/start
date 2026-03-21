@@ -3,7 +3,7 @@ export type WorkspaceSettingsWorkspace = {
   slug: string;
   name: string;
   kind: "personal" | "organization";
-  role: "owner" | "member";
+  role: "owner" | "admin" | "member";
   isCurrentUserLastOwner: boolean;
   avatarUrl: string | null;
 };
@@ -14,13 +14,13 @@ export type WorkspaceSettingsMember = {
   email: string;
   name: string | null;
   avatarUrl: string | null;
-  role: "owner" | "member";
+  role: "owner" | "admin" | "member";
 };
 
 export type WorkspaceSettingsInvite = {
   id: string;
   emailNormalized: string;
-  role: "member";
+  role: "admin" | "member";
   expiresAt: string;
   updatedAt: string;
   invitedByName: string | null;

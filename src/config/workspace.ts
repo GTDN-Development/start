@@ -3,6 +3,8 @@ export const workspaceConfig = {
     nameMaxLength: 32,
     slugMaxLength: 48,
     avatarMaxSizeBytes: 1024 * 1024,
+    maxWorkspacesPerUser: null as number | null,
+    maxMembersPerWorkspace: null as number | null,
   },
   validation: {
     slugPattern: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
@@ -23,7 +25,7 @@ export const workspaceConfig = {
     },
   },
   roles: {
-    memberValues: ["owner", "member"] as const,
-    invitableValues: ["member"] as const,
+    memberValues: ["owner", "admin", "member"] as const,
+    invitableValues: ["admin", "member"] as const,
   },
 } as const;
