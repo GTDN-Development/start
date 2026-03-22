@@ -7,11 +7,13 @@ import { SkipToContent } from "@/components/layout/skip-to-content";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
   SidebarInset,
   SidebarProvider,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
@@ -23,6 +25,7 @@ import {
   useWorkspaceNavigation,
 } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
+import { ApplicationSidebarSignOut } from "./application-sidebar-sign-out";
 import { ApplicationMenuTree } from "./application-menu-tree";
 import { WorkspaceSwitcher } from "@/features/workspaces/workspace-switcher";
 
@@ -125,6 +128,10 @@ export function ApplicationLayout({
                     </SidebarGroupContent>
                   </SidebarGroup>
                 </SidebarContent>
+                <SidebarFooter>
+                  <SidebarSeparator />
+                  <ApplicationSidebarSignOut />
+                </SidebarFooter>
               </Sidebar>
 
               <SidebarInset id={contentId} className="min-w-0">

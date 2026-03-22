@@ -12,6 +12,9 @@
       "goToSignIn": "Go to sign in",
       "reference": "Reference code: {reference}"
     },
+    "loading": {
+      "title": "Loading"
+    },
     "localeSwitcher": {
       "label": "Change language",
       "locale": "{locale, select, cs {Čeština} en {English} other {Unknown}}"
@@ -684,6 +687,7 @@
     },
     "workspace": {
       "title": "Settings",
+      "description": "Manage your workspace settings and appearance.",
       "nav": {
         "general": "General",
         "members": "Members"

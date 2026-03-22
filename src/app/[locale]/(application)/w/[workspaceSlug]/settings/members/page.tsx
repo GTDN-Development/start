@@ -1,22 +1,7 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Container } from "@/components/ui/container";
-import { Link, redirect } from "@/i18n/navigation";
-import {
-  getWorkspaceSettingsInnerSidebarItems,
-  mapWorkspaceInnerSidebarItems,
-} from "@/features/application/inner-sidebar/inner-sidebar-items";
-import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
-import { ApplicationPageShell } from "@/features/application/application-page-shell";
+import { redirect } from "@/i18n/navigation";
 import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceInviteMembersSettingsItem } from "@/features/workspaces/settings/members/workspace-invite-members-settings-item";
 import { WorkspaceMembersManagementSettingsItem } from "@/features/workspaces/settings/members/workspace-members-management-settings-item";
@@ -119,122 +104,38 @@ export default async function Page({
     isCurrentUserLastOwner,
     avatarUrl: workspace.avatarUrl,
   } as const;
-  const tNav = await getTranslations({
-    locale: locale as Locale,
-    namespace: "layout.navigation.items",
-  });
-  const tWorkspace = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.workspace",
-  });
-  const tWorkspaceNav = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.workspace.nav",
-  });
   const tWorkspaceMembersPage = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.workspace.members.page",
   });
 
-  const innerSidebarItems = mapWorkspaceInnerSidebarItems(
-    getWorkspaceSettingsInnerSidebarItems(workspaceSettings.kind),
-    workspaceSettings.slug,
-    tWorkspaceNav
-  );
-
   if (workspaceSettings.kind === "personal") {
     return (
-      <ApplicationPageShell
-        breadcrumbs={
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink
-                  render={
-                    <Link
-                      href={{
-                        pathname: "/w/[workspaceSlug]/settings",
-                        params: {
-                          workspaceSlug: workspaceSettings.slug,
-                        },
-                      }}
-                    />
-                  }
-                >
-                  {tWorkspace("title")}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{tWorkspaceNav("members")}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        }
-      >
-        <Container size="xl" className="pt-10 pb-24">
-          <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
-            <SettingsPage title={tWorkspaceMembersPage("title")}>
-              <Alert>
-                <CircleAlertIcon aria-hidden="true" />
-                <AlertTitle>{tWorkspaceMembersPage("personalWorkspace.title")}</AlertTitle>
-                <AlertDescription>
-                  {tWorkspaceMembersPage("personalWorkspace.description")}
-                </AlertDescription>
-              </Alert>
-            </SettingsPage>
-          </InnerSidebarLayout>
-        </Container>
-      </ApplicationPageShell>
+      <SettingsPage title={tWorkspaceMembersPage("title")}>
+        <Alert>
+          <CircleAlertIcon aria-hidden="true" />
+          <AlertTitle>{tWorkspaceMembersPage("personalWorkspace.title")}</AlertTitle>
+          <AlertDescription>
+            {tWorkspaceMembersPage("personalWorkspace.description")}
+          </AlertDescription>
+        </Alert>
+      </SettingsPage>
     );
   }
 
   return (
-    <ApplicationPageShell
-      breadcrumbs={
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                render={
-                  <Link
-                    href={{
-                      pathname: "/w/[workspaceSlug]/settings",
-                      params: {
-                        workspaceSlug: workspaceSettings.slug,
-                      },
-                    }}
-                  />
-                }
-              >
-                {tWorkspace("title")}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{tWorkspaceNav("members")}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      }
+    <SettingsPage
+      title={tWorkspaceMembersPage("title")}
+      description={tWorkspaceMembersPage("description")}
     >
-      <Container size="xl" className="pt-10 pb-24">
-        <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
-          <SettingsPage
-            title={tWorkspaceMembersPage("title")}
-            description={tWorkspaceMembersPage("description")}
-          >
-            <div className="grid gap-8">
-              <WorkspaceInviteMembersSettingsItem workspace={workspaceSettings} />
-              <WorkspaceMembersManagementSettingsItem
-                workspace={workspaceSettings}
-                members={members}
-                invites={invites}
-              />
-            </div>
-          </SettingsPage>
-        </InnerSidebarLayout>
-      </Container>
-    </ApplicationPageShell>
+      <div className="grid gap-8">
+        <WorkspaceInviteMembersSettingsItem workspace={workspaceSettings} />
+        <WorkspaceMembersManagementSettingsItem
+          workspace={workspaceSettings}
+          members={members}
+          invites={invites}
+        />
+      </div>
+    </SettingsPage>
   );
 }

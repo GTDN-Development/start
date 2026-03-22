@@ -1,19 +1,6 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
-import { Container } from "@/components/ui/container";
-import {
-  getWorkspaceSettingsInnerSidebarItems,
-  mapWorkspaceInnerSidebarItems,
-} from "@/features/application/inner-sidebar/inner-sidebar-items";
-import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
-import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceAvatarSettingsItem } from "@/features/workspaces/settings/general/workspace-avatar-settings-item";
 import { WorkspaceDeleteSettingsItem } from "@/features/workspaces/settings/general/workspace-delete-settings-item";
@@ -108,42 +95,16 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
     locale: locale as Locale,
     namespace: "pages.workspace",
   });
-  const tWorkspaceNav = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.workspace.nav",
-  });
-
-  const innerSidebarItems = mapWorkspaceInnerSidebarItems(
-    getWorkspaceSettingsInnerSidebarItems(workspaceSettings.kind),
-    workspaceSettings.slug,
-    tWorkspaceNav
-  );
 
   return (
-    <ApplicationPageShell
-      breadcrumbs={
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbPage>{tWorkspace("title")}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      }
-    >
-      <Container size="xl" className="pt-10 pb-24">
-        <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
-          <SettingsPage title={tWorkspaceNav("general")}>
-            <div className="grid gap-8">
-              <WorkspaceNameSettingsItem workspace={workspaceSettings} />
-              <WorkspaceUrlSettingsItem workspace={workspaceSettings} />
-              <WorkspaceAvatarSettingsItem workspace={workspaceSettings} />
-              <WorkspaceLeaveSettingsItem workspace={workspaceSettings} />
-              <WorkspaceDeleteSettingsItem workspace={workspaceSettings} />
-            </div>
-          </SettingsPage>
-        </InnerSidebarLayout>
-      </Container>
-    </ApplicationPageShell>
+    <SettingsPage title={tNav("workspace")} description={tWorkspace("description")}>
+      <div className="grid gap-8">
+        <WorkspaceNameSettingsItem workspace={workspaceSettings} />
+        <WorkspaceUrlSettingsItem workspace={workspaceSettings} />
+        <WorkspaceAvatarSettingsItem workspace={workspaceSettings} />
+        <WorkspaceLeaveSettingsItem workspace={workspaceSettings} />
+        <WorkspaceDeleteSettingsItem workspace={workspaceSettings} />
+      </div>
+    </SettingsPage>
   );
 }

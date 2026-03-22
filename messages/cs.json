@@ -12,6 +12,9 @@
       "goToSignIn": "Přejít na přihlášení",
       "reference": "Referenční kód: {reference}"
     },
+    "loading": {
+      "title": "Načítám"
+    },
     "localeSwitcher": {
       "label": "Změnit jazyk",
       "locale": "{locale, select, cs {Čeština} en {English} other {Neznámý jazyk}}"
@@ -684,6 +687,7 @@
     },
     "workspace": {
       "title": "Nastavení",
+      "description": "Spravujte základní nastavení workspace a jeho vzhled.",
       "nav": {
         "general": "Obecné",
         "members": "Členové"
