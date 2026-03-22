@@ -77,6 +77,20 @@ export type PendingInviteConsumeResult =
     }
   | WorkspaceInviteAcceptResult;
 
+export type PostAuthWorkspaceDestination =
+  | {
+      state: "workspace_redirect";
+      workspaceSlug: string;
+    }
+  | {
+      state: "email_mismatch";
+      invitedEmail: string;
+      currentEmail: string;
+    }
+  | {
+      state: "invalid_or_expired";
+    };
+
 export type ServerWorkspaceResponse<TData> =
   | {
       ok: true;

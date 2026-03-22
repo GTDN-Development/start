@@ -132,7 +132,10 @@ export async function consumePendingInviteIfPresent(user: {
 
   try {
     const result = await acceptInviteByHash(pb, inviteHash, user);
-    await clearPendingInviteHashCookie();
+
+    if (shouldClearPendingInviteCookie(result)) {
+      await clearPendingInviteHashCookie();
+    }
 
     return {
       ok: true,
@@ -168,6 +171,10 @@ export async function consumePendingInviteIfPresent(user: {
       errorCode,
     };
   }
+}
+
+function shouldClearPendingInviteCookie(result: PendingInviteConsumeResult): boolean {
+  return result.state !== "email_mismatch";
 }
 
 export async function validateInviteToken(

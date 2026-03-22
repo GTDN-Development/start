@@ -8,16 +8,41 @@ type PostAuthRouter = {
 };
 
 export async function replaceToPostAuthDestination(router: PostAuthRouter): Promise<void> {
-  const workspaceResponse = await runAsyncTransition(() => resolvePostAuthWorkspaceAction());
+  const destinationResponse = await runAsyncTransition(() => resolvePostAuthWorkspaceAction());
 
-  if (workspaceResponse.ok) {
+  if (destinationResponse.ok && destinationResponse.data.state === "workspace_redirect") {
+    const workspaceSlug = destinationResponse.data.workspaceSlug;
+
     startTransition(() => {
       router.replace({
         pathname: "/w/[workspaceSlug]/overview",
         params: {
-          workspaceSlug: workspaceResponse.data.workspaceSlug,
+          workspaceSlug,
         },
       });
+    });
+    return;
+  }
+
+  if (destinationResponse.ok && destinationResponse.data.state === "email_mismatch") {
+    const invitedEmail = destinationResponse.data.invitedEmail;
+    const currentEmail = destinationResponse.data.currentEmail;
+
+    startTransition(() => {
+      router.replace(
+        createInviteResultHref({
+          state: "email_mismatch",
+          invitedEmail,
+          currentEmail,
+        })
+      );
+    });
+    return;
+  }
+
+  if (destinationResponse.ok && destinationResponse.data.state === "invalid_or_expired") {
+    startTransition(() => {
+      router.replace(createInviteResultHref({ state: "invalid_or_expired" }));
     });
     return;
   }
@@ -25,4 +50,27 @@ export async function replaceToPostAuthDestination(router: PostAuthRouter): Prom
   startTransition(() => {
     router.replace("/overview");
   });
+}
+
+function createInviteResultHref(
+  input:
+    | {
+        state: "email_mismatch";
+        invitedEmail: string;
+        currentEmail: string;
+      }
+    | {
+        state: "invalid_or_expired";
+      }
+): AppHref {
+  const searchParams = new URLSearchParams({
+    state: input.state,
+  });
+
+  if (input.state === "email_mismatch") {
+    searchParams.set("invitedEmail", input.invitedEmail);
+    searchParams.set("currentEmail", input.currentEmail);
+  }
+
+  return `/invite/result?${searchParams.toString()}` as AppHref;
 }

@@ -10,6 +10,8 @@ import {
   acceptInviteTokenForUser,
   validateInviteToken,
 } from "@/server/workspaces/workspace-invite-service";
+import { InviteSignOutButton } from "../invite-sign-out-button";
+import { InviteStatePanel } from "../invite-state-panel";
 
 type InviteTokenPageProps = {
   params: Promise<{
@@ -48,22 +50,27 @@ export default async function Page({ params }: InviteTokenPageProps) {
     locale: locale as Locale,
     namespace: "pages.inviteToken",
   });
+  const tCommonError = await getTranslations({
+    locale: locale as Locale,
+    namespace: "common.error",
+  });
+  const sessionResponse = await getServerAuthSession();
+  const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   const validationResponse = await validateInviteToken(token);
 
   if (!validationResponse.ok || !validationResponse.data.isValid) {
     return (
-      <InvitePageState
+      <InviteStatePanel
         title={t("states.blocked.title")}
         description={t("states.blocked.description")}
-        actionLabel={t("states.already_member.cta")}
-        actionHref="/sign-in"
+        action={renderInviteLinkAction(
+          session ? tCommonError("goToOverview") : tCommonError("goToSignIn"),
+          session ? "/overview" : "/sign-in"
+        )}
       />
     );
   }
-
-  const sessionResponse = await getServerAuthSession();
-  const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!session) {
     redirect({
@@ -85,11 +92,10 @@ export default async function Page({ params }: InviteTokenPageProps) {
 
   if (!acceptResponse.ok) {
     return (
-      <InvitePageState
+      <InviteStatePanel
         title={t("states.error.title")}
         description={t("states.error.description")}
-        actionLabel={t("states.already_member.cta")}
-        actionHref="/overview"
+        action={renderInviteLinkAction(tCommonError("goToOverview"), "/overview")}
       />
     );
   }
@@ -111,51 +117,56 @@ export default async function Page({ params }: InviteTokenPageProps) {
 
   if (acceptResponse.data.result.state === "email_mismatch") {
     return (
-      <InvitePageState
+      <InviteStatePanel
         title={t("states.email_mismatch.title")}
-        description={t("states.email_mismatch.secondary", {
-          invitedEmail: acceptResponse.data.result.invitedEmail,
-          currentEmail: acceptResponse.data.result.currentEmail,
-        })}
-        actionLabel={t("states.email_mismatch.cta")}
-        actionHref="/sign-in"
+        description={
+          <>
+            <p>{t("states.email_mismatch.description")}</p>
+            <p>
+              {t.rich("states.email_mismatch.secondary", {
+                invitedEmail: acceptResponse.data.result.invitedEmail,
+                currentEmail: acceptResponse.data.result.currentEmail,
+                strong: (chunks) => (
+                  <strong className="text-foreground font-medium">{chunks}</strong>
+                ),
+              })}
+            </p>
+          </>
+        }
+        action={
+          <InviteSignOutButton
+            label={t("states.email_mismatch.cta")}
+            errorMessage={t("actions.signOutError")}
+            redirectHref={{
+              pathname: "/invite/[token]",
+              params: {
+                token,
+              },
+            }}
+          />
+        }
       />
     );
   }
 
   return (
-    <InvitePageState
+    <InviteStatePanel
       title={t("states.blocked.title")}
       description={t("states.blocked.description")}
-      actionLabel={t("states.already_member.cta")}
-      actionHref="/overview"
+      action={renderInviteLinkAction(tCommonError("goToOverview"), "/overview")}
     />
   );
 }
 
-function InvitePageState({
-  title,
-  description,
-  actionLabel,
-  actionHref,
-}: {
-  title: string;
-  description: string;
-  actionLabel: string;
-  actionHref: "/sign-in" | "/overview";
-}) {
+function renderInviteLinkAction(label: string, href: "/overview" | "/sign-in") {
   return (
-    <div className="mx-auto flex min-h-[40vh] w-full max-w-md flex-col justify-center py-8 text-center">
-      <h1 className="font-heading text-2xl font-semibold tracking-tight">{title}</h1>
-      <p className="text-muted-foreground mt-3 text-sm">{description}</p>
-      <Button
-        size="lg"
-        nativeButton={false}
-        className="mt-6 w-full"
-        render={<Link href={actionHref} className="w-full" />}
-      >
-        {actionLabel}
-      </Button>
-    </div>
+    <Button
+      size="lg"
+      nativeButton={false}
+      className="w-full"
+      render={<Link href={href} className="w-full" />}
+    >
+      {label}
+    </Button>
   );
 }

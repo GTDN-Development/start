@@ -244,6 +244,9 @@
     "inviteToken": {
       "title": "Pozvánka do workspace",
       "description": "Zkontrolujte a potvrďte pozvánku do workspace.",
+      "actions": {
+        "signOutError": "Teď se nepodařilo odhlásit. Zkuste to prosím znovu."
+      },
       "shared": {
         "continueAs": "Pokračovat jako <strong>{email}</strong>"
       },

@@ -15,7 +15,11 @@ import {
   findWorkspaceMembershipByWorkspaceAndUser,
   listUserWorkspaceMembershipRecords,
 } from "@/server/workspaces/workspace-repository";
-import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
+import type {
+  PostAuthWorkspaceDestination,
+  ServerWorkspaceResponse,
+  UserWorkspace,
+} from "@/server/workspaces/workspace-types";
 
 export async function listUserWorkspaces(
   userId: string
@@ -185,7 +189,7 @@ export async function resolvePostAuthWorkspace(input: {
   userEmail: string;
   userName: string | null;
   activeWorkspaceSlugCookie: string | null;
-}): Promise<ServerWorkspaceResponse<{ workspaceSlug: string }>> {
+}): Promise<ServerWorkspaceResponse<PostAuthWorkspaceDestination>> {
   const personalWorkspaceResponse = await ensurePersonalWorkspace(
     input.userId,
     input.userEmail,
@@ -211,6 +215,22 @@ export async function resolvePostAuthWorkspace(input: {
     console.warn(
       `[workspace-service] resolvePostAuthWorkspace: pending invite consume failed (${pendingInviteResponse.errorCode})`
     );
+  } else if (pendingInviteResponse.data.result.state === "email_mismatch") {
+    return {
+      ok: true,
+      data: {
+        state: "email_mismatch",
+        invitedEmail: pendingInviteResponse.data.result.invitedEmail,
+        currentEmail: pendingInviteResponse.data.result.currentEmail,
+      },
+    };
+  } else if (pendingInviteResponse.data.result.state === "invalid_or_expired") {
+    return {
+      ok: true,
+      data: {
+        state: "invalid_or_expired",
+      },
+    };
   }
 
   const pickWorkspaceResponse = await pickWorkspaceForOverview(
@@ -230,19 +250,17 @@ export async function resolvePostAuthWorkspace(input: {
     };
   }
 
-  let targetWorkspaceSlug = pickWorkspaceResponse.data.workspace.slug;
-
-  if (
+  const targetWorkspaceSlug =
     pendingInviteResponse.ok &&
     (pendingInviteResponse.data.result.state === "accepted" ||
       pendingInviteResponse.data.result.state === "already_member")
-  ) {
-    targetWorkspaceSlug = pendingInviteResponse.data.result.workspace.slug;
-  }
+      ? pendingInviteResponse.data.result.workspace.slug
+      : pickWorkspaceResponse.data.workspace.slug;
 
   return {
     ok: true,
     data: {
+      state: "workspace_redirect",
       workspaceSlug: targetWorkspaceSlug,
     },
     ...(pendingInviteResponse.ok

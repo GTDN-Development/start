@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
+import { redirect, type AppHref } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { getServerAuthSession } from "@/server/auth/auth-service";
@@ -59,15 +59,45 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
     return null;
   }
 
-  const targetWorkspaceSlug = response.data.workspaceSlug;
+  if (response.data.state === "workspace_redirect") {
+    redirect({
+      href: {
+        pathname: "/w/[workspaceSlug]/overview",
+        params: {
+          workspaceSlug: response.data.workspaceSlug,
+        },
+      },
+      locale: locale as Locale,
+    });
+
+    return null;
+  }
 
   redirect({
-    href: {
-      pathname: "/w/[workspaceSlug]/overview",
-      params: {
-        workspaceSlug: targetWorkspaceSlug,
-      },
-    },
+    href: createInviteResultHref(response.data),
     locale: locale as Locale,
   });
+}
+
+function createInviteResultHref(
+  input:
+    | {
+        state: "email_mismatch";
+        invitedEmail: string;
+        currentEmail: string;
+      }
+    | {
+        state: "invalid_or_expired";
+      }
+) {
+  const searchParams = new URLSearchParams({
+    state: input.state,
+  });
+
+  if (input.state === "email_mismatch") {
+    searchParams.set("invitedEmail", input.invitedEmail);
+    searchParams.set("currentEmail", input.currentEmail);
+  }
+
+  return `/invite/result?${searchParams.toString()}` as AppHref;
 }

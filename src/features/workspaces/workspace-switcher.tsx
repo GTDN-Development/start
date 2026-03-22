@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
+import { resolveSelectedWorkspaceSlug } from "@/features/application/workspace-routing";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { type AppHref, usePathname, useRouter } from "@/i18n/navigation";
@@ -46,8 +47,13 @@ export function WorkspaceSwitcher() {
   const [isCreateWorkspaceDrawerOpen, setIsCreateWorkspaceDrawerOpen] = useState(false);
 
   const workspaceOptions = workspaces.map(createWorkspaceOption);
+  const selectedWorkspaceSlug = resolveSelectedWorkspaceSlug(
+    pathname,
+    activeWorkspaceSlug,
+    workspaces
+  );
   const activeWorkspace =
-    workspaceOptions.find((workspace) => workspace.slug === activeWorkspaceSlug) ??
+    workspaceOptions.find((workspace) => workspace.slug === selectedWorkspaceSlug) ??
     workspaceOptions[0] ??
     null;
   const activeWorkspaceAvatarUrl = activeWorkspace

@@ -244,6 +244,9 @@
     "inviteToken": {
       "title": "Workspace invitation",
       "description": "Review and accept a workspace invitation.",
+      "actions": {
+        "signOutError": "We couldn't sign out right now. Please try again."
+      },
       "shared": {
         "continueAs": "Continue as <strong>{email}</strong>"
       },

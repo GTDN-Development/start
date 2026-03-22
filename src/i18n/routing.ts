@@ -94,6 +94,7 @@ export const routing = defineRouting({
     },
     "/invite/[token]": "/invite/[token]",
     "/invite/[token]/start": "/invite/[token]/start",
+    "/invite/result": "/invite/result",
   },
 });
 

@@ -33,6 +33,7 @@ import {
   revokeWorkspaceInviteForCurrentUser,
 } from "@/server/workspaces/workspace-invite-service";
 import type {
+  PostAuthWorkspaceDestination,
   ServerWorkspaceResponse,
   UserWorkspace,
   WorkspaceInviteSummary,
@@ -272,9 +273,7 @@ export async function removeMemberAction(
 export async function transferOwnershipAction(
   workspaceSlug: string,
   targetMemberId: string
-): Promise<
-  WorkspaceResponse<{ previousOwnerMemberId: string; nextOwnerMemberId: string }>
-> {
+): Promise<WorkspaceResponse<{ previousOwnerMemberId: string; nextOwnerMemberId: string }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedTargetMemberId = workspaceIdSchema.safeParse(targetMemberId);
 
@@ -373,7 +372,7 @@ export async function revokeInviteAction(
 }
 
 export async function resolvePostAuthWorkspaceAction(): Promise<
-  WorkspaceResponse<{ workspaceSlug: string }>
+  WorkspaceResponse<PostAuthWorkspaceDestination>
 > {
   const sessionResponse = await getServerAuthSession();
 
@@ -403,13 +402,13 @@ export async function resolvePostAuthWorkspaceAction(): Promise<
     };
   }
 
-  await setActiveWorkspaceSlugCookie(response.data.workspaceSlug);
+  if (response.data.state === "workspace_redirect") {
+    await setActiveWorkspaceSlugCookie(response.data.workspaceSlug);
+  }
 
   return {
     ok: true,
-    data: {
-      workspaceSlug: response.data.workspaceSlug,
-    },
+    data: response.data,
   };
 }
 
