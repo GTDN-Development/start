@@ -492,8 +492,8 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
       };
     }
 
-    const verifiedRecord = await pb.collection("users").getOne<UsersRecord>(pb.authStore.record.id);
-    const session = createAuthSession(pb, verifiedRecord);
+    const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+    const session = createAuthSession(pb, refreshedAuth.record);
 
     if (!session) {
       return {
@@ -514,6 +514,20 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
     // User record not found (deleted/banned) — expected scenario, not a real error.
     if (error instanceof ClientResponseError && error.status === 404) {
       console.warn("[auth-service] getServerAuthSession: user record not found, clearing session");
+      return {
+        ok: true,
+        data: {
+          session: null,
+        },
+        setCookie: createClearedAuthAndDeviceCookies(),
+      };
+    }
+
+    if (
+      error instanceof ClientResponseError &&
+      (error.status === 400 || error.status === 401 || error.status === 403)
+    ) {
+      console.warn("[auth-service] getServerAuthSession: auth refresh failed, clearing session");
       return {
         ok: true,
         data: {

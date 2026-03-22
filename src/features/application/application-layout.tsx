@@ -18,6 +18,7 @@ import {
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
+import { useSession } from "@/features/auth/auth-client";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
 import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
 import {
@@ -80,7 +81,9 @@ export function ApplicationLayout({
   activeWorkspaceSlug,
   labels,
 }: ApplicationLayoutProps) {
-  const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}:${user.verified ? "1" : "0"}`;
+  const sessionSnapshot = useSession();
+  const currentUser = getCurrentUserSnapshot(user, sessionSnapshot);
+  const profileProviderKey = `${currentUser.email}:${currentUser.name ?? ""}:${currentUser.avatarUrl ?? ""}:${currentUser.verified ? "1" : "0"}`;
   const workspaceNavigationKey = `${activeWorkspaceSlug ?? ""}:${workspaces
     .map((workspace) =>
       [
@@ -95,12 +98,12 @@ export function ApplicationLayout({
     )
     .join("|")}`;
 
-  const renderEmailVerificationBanner = showEmailVerificationBanner(user);
+  const renderEmailVerificationBanner = showEmailVerificationBanner(currentUser);
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
   return (
-    <AccountProfileProvider key={profileProviderKey} initialProfile={user}>
+    <AccountProfileProvider key={profileProviderKey} initialProfile={currentUser}>
       <WorkspaceNavigationProvider
         key={workspaceNavigationKey}
         initialWorkspaces={workspaces}
@@ -108,7 +111,7 @@ export function ApplicationLayout({
       >
         <ApplicationLayoutContext.Provider
           value={{
-            user,
+            user: currentUser,
             locale,
             userMenuLabels: labels.userMenu,
             mobileMenuLabels: labels.mobileMenu,
@@ -153,4 +156,23 @@ export function ApplicationLayout({
       </WorkspaceNavigationProvider>
     </AccountProfileProvider>
   );
+}
+
+function getCurrentUserSnapshot(
+  fallbackUser: AccountProfileSnapshot,
+  sessionSnapshot: ReturnType<typeof useSession>
+) {
+  const sessionUser =
+    sessionSnapshot.status === "authenticated" ? (sessionSnapshot.session?.user ?? null) : null;
+
+  if (!sessionUser) {
+    return fallbackUser;
+  }
+
+  return {
+    email: sessionUser.email,
+    name: sessionUser.name,
+    verified: sessionUser.verified,
+    avatarUrl: sessionUser.avatarUrl,
+  } satisfies AccountProfileSnapshot;
 }
