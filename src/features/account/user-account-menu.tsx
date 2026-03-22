@@ -16,7 +16,7 @@ import { Link, type LinkHref } from "@/components/ui/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthUser } from "@/features/auth/auth-contract";
 import { useSignOut } from "@/features/auth/use-sign-out";
-import { getUserInitials } from "@/lib/app-utils";
+import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 import { ChevronsUpDownIcon, HomeIcon, LogOutIcon } from "lucide-react";
 
@@ -56,6 +56,7 @@ export function UserAccountMenu({
   const isAvatarUpdating = accountProfile?.isAvatarUpdating ?? false;
   const displayName = getUserDisplayName(currentViewer);
   const initials = getUserInitials(displayName ?? currentViewer.email);
+  const avatarColorClass = getAvatarColorClass(currentViewer.email);
 
   const avatarUrl =
     currentViewer.avatarUrl && currentViewer.avatarUrl !== failedAvatarUrl
@@ -79,7 +80,7 @@ export function UserAccountMenu({
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} alt="" onError={() => setFailedAvatarUrl(avatarUrl)} />
             ) : (
-              <AvatarFallback>{initials}</AvatarFallback>
+              <AvatarFallback className={avatarColorClass}>{initials}</AvatarFallback>
             )}
           </Avatar>
         )}
@@ -106,9 +107,7 @@ export function UserAccountMenu({
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          render={<Link href={overviewHref} className="w-full cursor-pointer" />}
-        >
+        <DropdownMenuItem render={<Link href={overviewHref} className="w-full cursor-pointer" />}>
           {labels.overview}
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href="/account" className="w-full cursor-pointer" />}>

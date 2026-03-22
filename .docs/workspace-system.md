@@ -235,11 +235,11 @@ Changing workspace landing behavior:
 
 - check [workspace-resolution-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.ts)
 - check [workspace-cookie.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-cookie.ts)
-- check [overview/page.tsx](/Users/fanda/Dev/start/src/app/[locale]/(application)/overview/page.tsx)
-- check [page.tsx](/Users/fanda/Dev/start/src/app/[locale]/(application)/w/[workspaceSlug]/page.tsx)
+- check [overview/page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(application)/overview/page.tsx>)
+- check [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(application)/w/[workspaceSlug]/page.tsx>)
 
 Changing invite behavior:
 
 - check [workspace-invite-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-invite-service.ts)
-- check [page.tsx](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/page.tsx)
-- check [route.ts](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.ts)
+- check [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/page.tsx>)
+- check [route.ts](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.ts>)

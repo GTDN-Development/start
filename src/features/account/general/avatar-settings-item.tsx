@@ -28,8 +28,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { accountConfig } from "@/config/account";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
-import { getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
-import { runAsyncTransition } from "@/lib/utils";
+import { getAvatarColorClass, getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
+import { cn, runAsyncTransition } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
 const MAX_ACCOUNT_AVATAR_SIZE_BYTES = accountConfig.limits.avatarMaxSizeBytes;
@@ -43,6 +43,7 @@ export function AccountAvatarSettingsItem() {
 
   const displayName = profile.name?.trim() ? profile.name : null;
   const initials = getUserInitials(displayName ?? profile.email);
+  const avatarColorClass = getAvatarColorClass(profile.email);
   const avatarUrl =
     profile.avatarUrl && profile.avatarUrl !== failedAvatarUrl ? profile.avatarUrl : null;
 
@@ -179,7 +180,7 @@ export function AccountAvatarSettingsItem() {
                               onError={() => setFailedAvatarUrl(avatarUrl)}
                             />
                           ) : (
-                            <AvatarFallback className="text-xl font-medium">
+                            <AvatarFallback className={cn(avatarColorClass, "text-xl font-medium")}>
                               {initials}
                             </AvatarFallback>
                           )}

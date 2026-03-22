@@ -70,7 +70,7 @@ import type {
   WorkspaceSettingsMember,
   WorkspaceSettingsWorkspace,
 } from "@/features/workspaces/settings/workspace-settings-types";
-import { getUserInitials } from "@/lib/app-utils";
+import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { runAsyncTransition } from "@/lib/utils";
 import {
   Table,
@@ -891,12 +891,13 @@ function PendingInvitationDescriptionRow({
 function MemberIdentityCell({ member }: { member: WorkspaceSettingsMember }) {
   const displayName = member.name ?? member.email;
   const initials = getUserInitials(displayName);
+  const avatarColorClass = getAvatarColorClass(member.userId);
 
   return (
     <div className="flex items-center gap-3">
       <Avatar>
         {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt="" /> : null}
-        <AvatarFallback>{initials}</AvatarFallback>
+        <AvatarFallback className={avatarColorClass}>{initials}</AvatarFallback>
       </Avatar>
       <div className="flex min-w-0 flex-col">
         <p className="text-sm font-medium">{displayName}</p>

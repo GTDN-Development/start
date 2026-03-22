@@ -22,7 +22,7 @@ import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-a
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { type AppHref, usePathname, useRouter } from "@/i18n/navigation";
-import { getUserInitials } from "@/lib/app-utils";
+import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 import { WorkspaceAvatar, WorkspaceAvatarFallback, WorkspaceAvatarImage } from "./workspace-avatar";
 import { WorkspaceCreateDrawer } from "./workspace-create-drawer";
@@ -118,7 +118,7 @@ export function WorkspaceSwitcher() {
               />
             }
           >
-            <WorkspaceAvatar key={activeWorkspace.id}>
+            <WorkspaceAvatar>
               {activeWorkspaceAvatarUrl ? (
                 <WorkspaceAvatarImage
                   src={activeWorkspaceAvatarUrl}
@@ -215,8 +215,8 @@ function createWorkspaceOption(workspace: WorkspaceNavigationItem): WorkspaceOpt
     initials: getUserInitials(workspace.name),
     chipClassName:
       workspace.kind === "personal"
-        ? "bg-sidebar-primary text-sidebar-primary-foreground hover:text-sidebar-primary-foreground"
-        : "bg-emerald-600 text-white hover:text-white",
+        ? "bg-sidebar-primary text-sidebar-primary-foreground group-focus/dropdown-menu-item:!text-sidebar-primary-foreground"
+        : cn(getAvatarColorClass(workspace.id), "group-focus/dropdown-menu-item:!text-white"),
   };
 }
 

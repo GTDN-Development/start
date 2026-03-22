@@ -31,8 +31,8 @@ import {
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import { workspaceConfig } from "@/config/workspace";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
-import { getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
-import { runAsyncTransition } from "@/lib/utils";
+import { getAvatarColorClass, getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
+import { cn, runAsyncTransition } from "@/lib/utils";
 
 export function WorkspaceAvatarSettingsItem({
   workspace,
@@ -56,6 +56,7 @@ export function WorkspaceAvatarSettingsItem({
   const isReadOnly = workspaceSnapshot.role === "member";
 
   const initials = getUserInitials(workspaceSnapshot.name);
+  const avatarColorClass = getAvatarColorClass(workspaceSnapshot.id);
   const workspaceAvatarUrl =
     workspaceSnapshot.avatarUrl && workspaceSnapshot.avatarUrl !== failedAvatarUrl
       ? workspaceSnapshot.avatarUrl
@@ -202,7 +203,9 @@ export function WorkspaceAvatarSettingsItem({
                               onError={() => setFailedAvatarUrl(workspaceAvatarUrl)}
                             />
                           ) : (
-                            <WorkspaceAvatarFallback className="text-xl font-medium sm:text-2xl">
+                            <WorkspaceAvatarFallback
+                              className={cn(avatarColorClass, "text-xl font-medium sm:text-2xl")}
+                            >
                               {initials}
                             </WorkspaceAvatarFallback>
                           )}
