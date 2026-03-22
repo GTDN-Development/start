@@ -46,10 +46,13 @@ type EmailChangeFormValues = {
 export function AccountEmailSettingsItem() {
   const t = useTranslations("pages.account");
   const { profile } = useAccountProfile();
+
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
   const [emailDialogStatus, setEmailDialogStatus] = useState<InlineStatus>(null);
+
   const normalizedCurrentEmail = profile.email.trim().toLowerCase();
   const emailChangeFormSchema = getEmailChangeFormSchema(t, normalizedCurrentEmail);
+
   const form = useForm({
     defaultValues: {
       newEmail: "",

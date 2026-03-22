@@ -27,6 +27,7 @@ export function AccountLanguageSettingsItem() {
   const locale = useLocale();
   const t = useTranslations("pages.account.preferences");
   const tLocale = useTranslations("common.localeSwitcher");
+
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();

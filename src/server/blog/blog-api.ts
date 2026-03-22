@@ -29,6 +29,7 @@ function getPocketBaseUrl(): string {
   if (!PB_URL) {
     throw new Error("Missing NEXT_PUBLIC_PB_URL environment variable.");
   }
+
   return PB_URL.replace(/\/$/, "");
 }
 
@@ -68,12 +69,18 @@ function mapPost(record: PostsRecord): BlogPost {
 
 async function fetchPosts(params: Record<string, string>): Promise<PostsRecord[]> {
   const searchParams = new URLSearchParams({ ...params, skipTotal: "true" });
+
   const response = await fetch(
     `${getPocketBaseUrl()}/api/collections/posts/records?${searchParams}`,
     { next: { revalidate: 180 } }
   );
-  if (!response.ok) return [];
+
+  if (!response.ok) {
+    return [];
+  }
+
   const data: PBListResponse<PostsRecord> = await response.json();
+
   return data.items;
 }
 
@@ -86,6 +93,7 @@ export async function getAllPosts(locale: "cs" | "en"): Promise<BlogPost[]> {
       fields:
         "id,collectionId,title,slug,excerpt,published_at,created,cover_image,cover_image_alt,locale,translation_shared_id",
     });
+
     return items.map(mapPost);
   } catch {
     return [];
@@ -98,8 +106,13 @@ export async function getPostBySlug(slug: string, locale: "cs" | "en"): Promise<
       filter: `slug="${escapePBValue(slug)}" && status="published" && locale="${locale}"`,
       perPage: "1",
     });
+
     const record = items[0];
-    if (!record) return null;
+
+    if (!record) {
+      return null;
+    }
+
     return mapPost(record);
   } catch {
     return null;

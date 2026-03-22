@@ -71,6 +71,7 @@ export function CookieContextProvider({
 }: CookieContextProviderProps) {
   const router = useRouter();
   const locale = useLocale();
+
   const [consent, setConsent] = useState<ConsentState>(initialConsent);
   const [hasInteracted, setHasInteracted] = useState(
     ENABLE_DEBUG_MODE ? false : initialHasInteracted

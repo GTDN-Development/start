@@ -39,10 +39,12 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     locale: locale as Locale,
     namespace: "pages.contact.sales",
   });
+
   const tContact = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.contact",
   });
+
   const tCommonNavigation = await getTranslations({
     locale: locale as Locale,
     namespace: "common.navigation",

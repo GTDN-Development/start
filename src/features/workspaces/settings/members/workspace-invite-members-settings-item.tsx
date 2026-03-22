@@ -56,8 +56,10 @@ export function WorkspaceInviteMembersSettingsItem({
   const tInvite = useTranslations("pages.workspace.members.invite");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
+
   const locale = useLocale() as AppLocale;
   const isReadOnly = workspace.role === "member";
+
   const [isInviting, setIsInviting] = useState(false);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<InviteRole>("member");

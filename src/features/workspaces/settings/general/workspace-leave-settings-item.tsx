@@ -48,13 +48,16 @@ export function WorkspaceLeaveSettingsItem({
   const t = useTranslations("pages.workspace.general.leave");
   const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
+
   const isPersonalWorkspace = workspace.kind === "personal";
   const isLeaveBlockedByLastOwnerGuard =
     workspace.kind === "organization" &&
     workspace.role === "owner" &&
     workspace.isCurrentUserLastOwner;
   const leaveWorkspaceToastId = useId();
+
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+
   const leaveWorkspaceSchema = z.object({
     confirmationUrl: z
       .string()

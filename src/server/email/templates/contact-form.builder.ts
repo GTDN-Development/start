@@ -18,11 +18,13 @@ export async function buildContactFormEmail(
   input: BuildContactFormEmailInput
 ): Promise<EmailTemplateResult> {
   const messages = await getEmailMessages(input.locale);
+
   const t = createTranslator({
     locale: input.locale,
     messages,
     namespace: "emails.contactForm",
   });
+
   const tShared = createTranslator({
     locale: input.locale,
     messages,

@@ -27,6 +27,7 @@ type SignUpFormValues = SignUpInput & {
 export function SignUpForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.signUp");
   const router = useRouter();
+
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileRef>(null);
 

@@ -26,12 +26,14 @@ type SupportFormValues = {
 
 export function SupportForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.support");
+
   const attachmentSchema = z.object({
     filename: z.string(),
     data: z.string(),
     mimeType: z.string(),
     size: z.number().nonnegative(),
   });
+
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
@@ -54,7 +56,6 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
         }
       ),
   });
-
   const form = useForm({
     defaultValues: {
       message: "",

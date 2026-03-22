@@ -94,6 +94,7 @@ export function ApplicationLayout({
       ].join(":")
     )
     .join("|")}`;
+
   const renderEmailVerificationBanner = showEmailVerificationBanner(user);
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";

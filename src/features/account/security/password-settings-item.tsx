@@ -35,9 +35,11 @@ type PasswordFormValues = {
 export function AccountChangePasswordItem() {
   const t = useTranslations("pages.account");
   const tPasswordVisibility = useTranslations("forms.signIn.passwordVisibility");
+
   const [submitStatus, setSubmitStatus] = useState<InlineStatus>(null);
 
   const passwordFormSchema = getPasswordFormSchema(t);
+
   const form = useForm({
     defaultValues: {
       currentPassword: "",

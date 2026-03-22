@@ -40,6 +40,7 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
   const t = useTranslations("layout.application.workspaceSwitcher.createDrawer");
   const router = useRouter();
   const createToastId = useId();
+
   const createWorkspaceSchema = z.object({
     name: z
       .string()

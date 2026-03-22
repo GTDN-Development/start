@@ -42,6 +42,7 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
 
   const session = sessionResponse.data.session;
   const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
+
   const response = await resolvePostAuthWorkspace({
     userId: session.user.id,
     userEmail: session.user.email,

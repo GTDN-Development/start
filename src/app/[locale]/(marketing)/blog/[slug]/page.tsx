@@ -70,6 +70,7 @@ export default async function Page({ params }: PageProps<"/[locale]/blog/[slug]"
     getTranslations({ locale: locale as Locale, namespace: "pages.blog" }),
     getPostBySlug(slug, locale as "cs" | "en"),
   ]);
+
   const tCommonNavigation = await getTranslations({
     locale: locale as Locale,
     namespace: "common.navigation",

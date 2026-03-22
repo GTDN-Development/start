@@ -22,6 +22,7 @@ type ForgotPasswordFormValues = {
 export function ForgotPasswordForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.forgotPassword");
   const tSignInValidation = useTranslations("forms.signIn.validation");
+
   const turnstileRef = useRef<TurnstileRef>(null);
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;

@@ -42,10 +42,13 @@ export function WorkspaceAvatarSettingsItem({
   const t = useTranslations("pages.workspace.general.avatar");
   const tCommon = useTranslations("pages.workspace.common");
   const { patchWorkspace, workspaces } = useWorkspaceNavigation();
+
   const avatarToastId = useId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const [isAvatarUpdating, setIsAvatarUpdating] = useState(false);
+
   const currentWorkspace = workspaces.find(
     (candidateWorkspace) => candidateWorkspace.id === workspace.id
   );

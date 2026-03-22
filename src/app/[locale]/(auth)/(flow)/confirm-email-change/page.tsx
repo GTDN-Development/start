@@ -47,6 +47,7 @@ export default async function Page({ params, searchParams }: ConfirmEmailChangeP
     locale: locale as Locale,
     namespace: "pages.confirmEmailChange",
   });
+
   const token = parseAuthFlowToken(query.token);
 
   return (

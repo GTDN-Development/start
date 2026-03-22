@@ -53,10 +53,12 @@ export function YourDevicesSettingsItem({
   const t = useTranslations("pages.account");
   const locale = useLocale();
   const router = useRouter();
+
   const [deviceSessions, setDeviceSessions] = useState(initialSessions);
   const [pendingDeviceSessionId, setPendingDeviceSessionId] = useState<string | null>(null);
   const [isSignOutOthersDialogOpen, setIsSignOutOthersDialogOpen] = useState(false);
   const [isSignOutOthersPending, setIsSignOutOthersPending] = useState(false);
+
   const dateTimeFormatter = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {

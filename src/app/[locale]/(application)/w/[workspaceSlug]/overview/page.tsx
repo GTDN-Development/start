@@ -45,8 +45,9 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   setRequestLocale(locale as Locale);
 
   const sessionResponse = await getServerAuthSession();
+  const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
-  if (!sessionResponse.ok || !sessionResponse.data.session) {
+  if (!sessionResponse.ok || !session) {
     redirect({
       href: AUTH_REDIRECTS.unauthenticatedTo,
       locale: locale as Locale,
@@ -56,7 +57,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   }
 
   const workspaceResponse = await resolveWorkspaceForUserBySlug(
-    sessionResponse.data.session.user.id,
+    session.user.id,
     workspaceSlug
   );
 

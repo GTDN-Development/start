@@ -124,9 +124,11 @@ function resolveMenuHref(
 export function ApplicationMenuTree({ className, ...props }: React.ComponentProps<"nav">) {
   const tNav = useTranslations("layout.navigation.items");
   const tWorkspace = useTranslations("pages.workspace");
+
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   const { activeWorkspaceSlug, workspaces } = useSidebarContext();
+
   const selectedWorkspaceSlug = resolveSelectedWorkspaceSlug(
     pathname,
     activeWorkspaceSlug,

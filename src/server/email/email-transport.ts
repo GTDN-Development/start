@@ -26,6 +26,7 @@ export async function sendEmail(message: EmailMessage) {
   const transporter = getOrCreateMailTransporter();
   const fromName = process.env.MAIL_FROM_NAME?.trim() ?? "";
   const fromAddress = process.env.MAIL_FROM_ADDRESS?.trim() ?? "";
+
   const { to, ...messageContent } = message;
 
   await transporter.sendMail({
@@ -41,6 +42,7 @@ function getOrCreateMailTransporter() {
   }
 
   const port = Number.parseInt(process.env.MAIL_PORT || "587", 10);
+
   const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
     port,

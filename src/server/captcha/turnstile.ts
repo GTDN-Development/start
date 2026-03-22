@@ -123,21 +123,27 @@ function getErrorMessage(errorCodes: string[]): string {
   if (errorCodes.includes("timeout-or-duplicate")) {
     return "Verification expired or already used. Please try again.";
   }
+
   if (errorCodes.includes("invalid-input-response")) {
     return "Invalid verification. Please refresh and try again.";
   }
+
   if (errorCodes.includes("invalid-input-secret")) {
     return "Server configuration error. Please contact support.";
   }
+
   if (errorCodes.includes("missing-input-response")) {
     return "Missing verification. Please complete the challenge.";
   }
+
   if (errorCodes.includes("missing-input-secret")) {
     return "Server configuration error. Please contact support.";
   }
+
   if (errorCodes.includes("bad-request")) {
     return "Invalid request. Please try again.";
   }
+
   if (errorCodes.includes("internal-error")) {
     return "Verification service temporarily unavailable. Please try again.";
   }

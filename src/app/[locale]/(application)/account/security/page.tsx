@@ -35,7 +35,9 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
     locale: locale as Locale,
     namespace: "pages.account",
   });
+
   const currentUser = await requireCurrentUser();
+
   const initialSessions = currentUser.ok
     ? await listDeviceSessions({
         pb: currentUser.pb,

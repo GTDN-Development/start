@@ -60,6 +60,7 @@ function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {
 
   const name = baseSegment.slice(0, separatorIndex);
   const value = baseSegment.slice(separatorIndex + 1);
+
   const parsedCookie: ParsedSetCookie = {
     name,
     value,

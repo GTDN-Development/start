@@ -30,8 +30,10 @@ export function ResetPasswordForm({
 }) {
   const t = useTranslations("forms.resetPassword");
   const router = useRouter();
+
   const [submitErrorCode, setSubmitErrorCode] = useState<SubmitErrorCode>(null);
   const submitErrorMessage = getSubmitErrorMessage(submitErrorCode, t);
+
   const resetPasswordFormSchema = z
     .object({
       password: createAuthPasswordSchema({

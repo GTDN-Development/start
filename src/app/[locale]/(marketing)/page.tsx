@@ -73,6 +73,7 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
     locale: locale as Locale,
     namespace: "pages.home",
   });
+
   const changelogLocale = isChangelogLocale(locale) ? locale : "cs";
   const changelogEntries = getChangelogEntries(changelogLocale).slice(0, 5);
 

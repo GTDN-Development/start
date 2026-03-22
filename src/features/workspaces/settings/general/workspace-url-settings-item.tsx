@@ -35,13 +35,17 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
   const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
   const { patchWorkspace, workspaces } = useWorkspaceNavigation();
+
   const urlToastId = useId();
+
   const currentWorkspace = workspaces.find(
     (candidateWorkspace) => candidateWorkspace.id === workspace.id
   );
   const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
   const isReadOnly = workspaceSnapshot.role === "member";
+
   const [workspaceUrl, setWorkspaceUrl] = useState(workspace.slug);
+
   const workspaceUrlSchema = z.object({
     url: z
       .string()

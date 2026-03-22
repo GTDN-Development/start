@@ -19,16 +19,19 @@ export async function buildWorkspaceInviteEmail(
   input: BuildWorkspaceInviteEmailInput
 ): Promise<EmailTemplateResult> {
   const messages = await getEmailMessages(input.locale);
+
   const t = createTranslator({
     locale: input.locale,
     messages,
     namespace: "emails.workspaceInvite",
   });
+
   const tShared = createTranslator({
     locale: input.locale,
     messages,
     namespace: "emails.shared",
   });
+
   const inviteUrl = createWorkspaceInviteUrl(input.inviteToken, input.locale);
 
   return {
@@ -72,6 +75,7 @@ function createWorkspaceInviteUrl(inviteToken: string, locale: AppLocale): strin
     },
     locale,
   });
+
   const baseUrl = app.site.url.replace(/\/+$/g, "");
 
   return `${baseUrl}${pathname}`;

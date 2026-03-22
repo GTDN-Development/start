@@ -25,6 +25,7 @@ type NewsletterFormValues = {
 
 export function NewsletterForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.newsletter");
+
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
@@ -39,7 +40,6 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
       message: t("validation.turnstile"),
     }),
   });
-
   const form = useForm({
     defaultValues: {
       "newsletter-email": "",

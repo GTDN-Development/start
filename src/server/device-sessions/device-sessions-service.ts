@@ -31,8 +31,10 @@ export async function registerOrRefreshDeviceSession(input: {
   const sessionIdHash = hashSessionToken(input.sessionToken);
   const now = new Date();
   const nowIso = now.toISOString();
+
   const userAgent = getUserAgent(input.requestHeaders);
   const parsedDeviceInfo = parseDeviceInfo(userAgent);
+
   const upsertPayload = {
     user: input.userId,
     session_id_hash: sessionIdHash,
@@ -159,6 +161,7 @@ export async function revokeOtherDeviceSessions(input: {
 }): Promise<number> {
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
   const now = new Date();
+
   const sessionsToRevoke = sessions.filter(
     (session) =>
       session.session_id_hash !== input.currentSessionIdHash && isActiveDeviceSession(session, now)

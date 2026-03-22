@@ -128,13 +128,17 @@ export function WorkspaceMembersManagementSettingsItem({
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
+
   const locale = useLocale() as AppLocale;
   const isReadOnly = workspace.role === "member";
+
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
+
   const ownerCount = members.filter((member) => member.role === "owner").length;
   const hasPendingInvitations = invites.length > 0;
   const roleOptions = getAssignableWorkspaceMemberRoleOptions(workspace.role);
+
   const changeRoleMember =
     actionState?.type === "change-role"
       ? (members.find((member) => member.id === actionState.memberId) ?? null)

@@ -42,10 +42,13 @@ type DeleteAccountFormValues = {
 export function AccountDeleteAccountSettingsItem() {
   const t = useTranslations("pages.account");
   const tPasswordVisibility = useTranslations("forms.signIn.passwordVisibility");
+
   const router = useRouter();
   const deleteAccountToastId = useId();
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [passwordServerErrorMessage, setPasswordServerErrorMessage] = useState<string | null>(null);
+
   const deleteAccountSchema = z.object({
     password: z
       .string()
@@ -57,6 +60,7 @@ export function AccountDeleteAccountSettingsItem() {
       message: t("deleteAccount.dialog.fields.acknowledgement.errors.required"),
     }),
   });
+
   const form = useForm({
     defaultValues: {
       password: "",

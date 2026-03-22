@@ -158,9 +158,11 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
   const t = useTranslations("layout.header");
   const tNav = useTranslations("layout.navigation.items");
   const tApplication = useTranslations("layout.application");
+
   const signInMenuItem = authMenu.find((item) => item.labelKey === "signIn");
   const signUpMenuItem = authMenu.find((item) => item.labelKey === "signUp");
   const overviewMenuItem = applicationMenu.find((item) => item.labelKey === "overview");
+
   const applicationButtonLabel = t("goToApplication");
   const viewerDisplayName = getViewerDisplayName(viewer);
 

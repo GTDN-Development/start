@@ -40,18 +40,22 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     locale: locale as Locale,
     namespace: "pages.contact.support",
   });
+
   const tContact = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.contact",
   });
+
   const tCommonNavigation = await getTranslations({
     locale: locale as Locale,
     namespace: "common.navigation",
   });
+
   const tSupportForm = await getTranslations({
     locale: locale as Locale,
     namespace: "forms.support",
   });
+
   const sessionResponse = await getServerAuthSession();
   const isAuthenticated = sessionResponse.ok && Boolean(sessionResponse.data.session);
 

@@ -49,11 +49,14 @@ export function UserAccountMenu({
 }: UserAccountMenuProps) {
   const accountProfile = useOptionalAccountProfile();
   const { handleSignOut, isPending: isSignOutPending } = useSignOut();
+
   const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
+
   const currentViewer = accountProfile?.profile ?? viewer;
   const isAvatarUpdating = accountProfile?.isAvatarUpdating ?? false;
   const displayName = getUserDisplayName(currentViewer);
   const initials = getUserInitials(displayName ?? currentViewer.email);
+
   const avatarUrl =
     currentViewer.avatarUrl && currentViewer.avatarUrl !== failedAvatarUrl
       ? currentViewer.avatarUrl

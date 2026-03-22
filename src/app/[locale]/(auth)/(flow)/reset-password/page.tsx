@@ -40,6 +40,7 @@ export default async function Page({ params, searchParams }: PageProps<"/[locale
     locale: locale as Locale,
     namespace: "pages.resetPassword",
   });
+
   const token = parseAuthFlowToken(query.token);
 
   return (

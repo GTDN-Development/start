@@ -48,10 +48,13 @@ export function WorkspaceDeleteSettingsItem({
   const t = useTranslations("pages.workspace.general.delete");
   const tCommon = useTranslations("pages.workspace.common");
   const router = useRouter();
+
   const isPersonalWorkspace = workspace.kind === "personal";
   const isReadOnly = workspace.role !== "owner";
   const deleteWorkspaceToastId = useId();
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
   const deleteWorkspaceSchema = z.object({
     confirmationUrl: z
       .string()

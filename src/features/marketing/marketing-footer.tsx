@@ -102,10 +102,12 @@ export function MarketingFooter({
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
   const tApplication = useTranslations("layout.application");
+
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
   const accountLinks = viewer
     ? applicationMenu.filter((item) => item.labelKey === "overview" || item.labelKey === "account")
     : authMenu;
+
   const viewerName = viewer?.name?.trim() || null;
 
   return (

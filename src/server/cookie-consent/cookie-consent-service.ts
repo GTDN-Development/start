@@ -74,6 +74,7 @@ export async function recordCookieConsentEvent(
     }
 
     const generatedSubjectKey = randomUUID();
+
     cookieStore.set(COOKIE_CONSENT_SUBJECT_COOKIE_NAME, generatedSubjectKey, {
       httpOnly: true,
       path: "/",

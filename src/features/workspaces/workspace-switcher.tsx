@@ -36,8 +36,10 @@ export function WorkspaceSwitcher() {
   const t = useTranslations("layout.application.workspaceSwitcher");
   const { isMobile } = useSidebar();
   const { activeWorkspaceSlug, workspaces } = useWorkspaceNavigation();
+
   const pathname = usePathname();
   const router = useRouter();
+
   const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);

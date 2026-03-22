@@ -18,16 +18,19 @@ export async function buildSupportFormEmail(
   input: BuildSupportFormEmailInput
 ): Promise<EmailTemplateResult> {
   const messages = await getEmailMessages(input.locale);
+
   const t = createTranslator({
     locale: input.locale,
     messages,
     namespace: "emails.supportForm",
   });
+
   const tShared = createTranslator({
     locale: input.locale,
     messages,
     namespace: "emails.shared",
   });
+
   const attachmentCount = input.attachments?.length ?? 0;
 
   return {

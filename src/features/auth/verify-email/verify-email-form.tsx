@@ -22,6 +22,7 @@ export function VerifyEmailForm({
 }) {
   const t = useTranslations("forms.verifyEmail");
   const router = useRouter();
+
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
 
   const form = useForm({

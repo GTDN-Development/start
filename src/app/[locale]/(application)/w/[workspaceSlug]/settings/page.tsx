@@ -18,10 +18,12 @@ export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings">
 ): Promise<Metadata> {
   const { locale, workspaceSlug } = await props.params;
+
   const tNav = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
   });
+
   const tWorkspaceNav = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.workspace.nav",
@@ -46,8 +48,9 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   setRequestLocale(locale as Locale);
 
   const sessionResponse = await getServerAuthSession();
+  const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
-  if (!sessionResponse.ok || !sessionResponse.data.session) {
+  if (!sessionResponse.ok || !session) {
     redirect({
       href: AUTH_REDIRECTS.unauthenticatedTo,
       locale: locale as Locale,
@@ -57,7 +60,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   }
 
   const workspaceResponse = await resolveWorkspaceForUserBySlug(
-    sessionResponse.data.session.user.id,
+    session.user.id,
     workspaceSlug
   );
 
@@ -71,13 +74,16 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   }
 
   const workspace = workspaceResponse.data.workspace;
+
   const membersResponse =
     workspace.role === "owner" ? await listWorkspaceMembers(workspace.slug) : null;
+
   const isCurrentUserLastOwner =
     workspace.role === "owner" &&
     (membersResponse?.ok
       ? membersResponse.data.members.filter((member) => member.role === "owner").length === 1
       : true);
+
   const workspaceSettings = {
     id: workspace.id,
     slug: workspace.slug,
@@ -87,10 +93,12 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
     isCurrentUserLastOwner,
     avatarUrl: workspace.avatarUrl,
   } as const;
+
   const tNav = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.navigation.items",
   });
+
   const tWorkspace = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.workspace",

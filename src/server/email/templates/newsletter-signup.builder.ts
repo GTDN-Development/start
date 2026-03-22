@@ -15,11 +15,13 @@ export async function buildNewsletterSignupEmail(
   input: BuildNewsletterSignupEmailInput
 ): Promise<EmailTemplateResult> {
   const messages = await getEmailMessages(input.locale);
+
   const t = createTranslator({
     locale: input.locale,
     messages,
     namespace: "emails.newsletterSignup",
   });
+
   const tShared = createTranslator({
     locale: input.locale,
     messages,

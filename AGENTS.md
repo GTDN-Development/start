@@ -8,6 +8,7 @@
 - Use `size-*` utility when width and height are equal — **never** `w-* h-*` together
 - In JSX, prefer `condition && <Element />` over `condition ? <Element /> : null` when there is no else branch
 - Prefer named React hook imports (e.g. `import { useState } from "react"`) over `React.useState`
+- Keep setup sections readable: group related constants/hooks/state/derived values together and separate those groups with a blank line in pages, components, and server helpers
 
 ## Next.js
 
