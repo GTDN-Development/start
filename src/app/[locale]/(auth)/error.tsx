@@ -18,7 +18,7 @@ export default function Error({ error, reset }: Props) {
 
   return (
     <ErrorStateContent
-      className="min-h-[24rem]"
+      className="min-h-96"
       error={error}
       href="/sign-in"
       hrefLabel={t("goToSignIn")}

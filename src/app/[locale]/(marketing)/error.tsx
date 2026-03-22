@@ -21,7 +21,7 @@ export default function Error({ error, reset }: Props) {
     <Hero>
       <HeroContent size="md">
         <ErrorStateContent
-          className="min-h-[24rem]"
+          className="min-h-96"
           error={error}
           href="/"
           hrefLabel={t("goHome")}
