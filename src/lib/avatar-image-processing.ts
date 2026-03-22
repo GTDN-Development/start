@@ -1,5 +1,3 @@
-import imageCompression from "browser-image-compression";
-
 const DEFAULT_TARGET_FILE_SIZE_MB = 0.9;
 const DEFAULT_MAX_IMAGE_DIMENSION = 1024;
 
@@ -43,6 +41,7 @@ export async function prepareAvatarUpload(
   }
 
   try {
+    const imageCompression = await loadImageCompression();
     const optimizedFile = await imageCompression(file, {
       maxSizeMB: options.targetFileSizeMb ?? DEFAULT_TARGET_FILE_SIZE_MB,
       maxWidthOrHeight: options.maxImageDimension ?? DEFAULT_MAX_IMAGE_DIMENSION,
@@ -78,4 +77,10 @@ export async function prepareAvatarUpload(
 
 function isImageFile(file: File) {
   return file.type.startsWith("image/");
+}
+
+async function loadImageCompression() {
+  const imageCompressionModule = await import("browser-image-compression");
+
+  return imageCompressionModule.default;
 }
