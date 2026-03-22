@@ -2,12 +2,12 @@
 
 ## Scope
 
-- Tento dokument plati pro client komponenty, custom hooks a lokalni interaktivni UI v `src/features/*`, `src/components/*` a `src/hooks/*`.
-- Cilem je drzet render cisty, vyhnout se implicitnimu control flow v dependency arrays a pouzivat effecty jen tam, kde React skutecne synchronizujeme s necim mimo React.
+- This document applies to client components, custom hooks, and local interactive UI in `src/features/*`, `src/components/*`, and `src/hooks/*`.
+- The goal is to keep render logic clean, avoid implicit control flow in dependency arrays, and use effects only when React is truly synchronizing with something outside React.
 
 ## Source of truth
 
-- Zaklad vychazi z oficialnich React docs:
+- This guideline is based on the official React docs:
   - `https://react.dev/learn/you-might-not-need-an-effect`
   - `https://react.dev/learn/synchronizing-with-effects`
   - `https://react.dev/learn/removing-effect-dependencies`
@@ -15,191 +15,191 @@
   - `https://react.dev/reference/react/useEffectEvent`
   - `https://react.dev/reference/eslint-plugin-react-hooks/lints/set-state-in-effect`
 
-## Strucny vycuc
+## Short version
 
-- `useEffect` je escape hatch pro synchronizaci Reactu s externim systemem, ne defaultni nastroj pro aplikacni control flow.
-- Pokud v logice neni externi system mimo React, je velmi pravdepodobne, ze effect nepotrebujete.
-- Odvozena data patri do renderu, user-driven akce do event handleru a reset pri zmene identity do `key`/remount boundary.
-- Dependency array ma popisovat synchronizacni vstupy, ne nosit business logiku cele feature.
-- Kazdy zbytecny effect pridava implicitni casovani navic: extra rendery, stale closures, race conditions a hure citelny kod.
+- `useEffect` is an escape hatch for synchronizing React with an external system, not the default tool for application control flow.
+- If there is no external system involved, you very likely do not need an effect.
+- Derived data belongs in render, user-driven actions belong in event handlers, and reset-on-identity-change belongs in `key` or another remount boundary.
+- A dependency array should describe synchronization inputs, not carry the business logic of an entire feature.
+- Every unnecessary effect adds implicit timing: extra renders, stale closures, race conditions, and harder-to-read code.
 
-## Proc tenhle guardrail existuje
+## Why this guardrail exists
 
-- Prakticky benefit z clanku i React docs je stejny: mene infinite loopu, mene race-condition regresi a citelnejsi control flow.
-- Dependency arrays skryvaji coupling. Refactor, ktery vypada unrelated, muze tise zmenit effect behavior.
-- Effect chains (`A` nastavi state, ktery spusti `B`) zavadeji casove rizeny control flow, ktery se spatne trasuje a snadno regreduje.
-- Debugging je horsi, protoze misto jednoho jasneho entrypointu typu render nebo handler resite "proc se to spustilo" a "proc se to nespustilo".
-- U agent-generated kodu je to jeste horsi: `useEffect` se casto prida "just in case" a tim se zalozi dalsi loop nebo race condition.
+- The practical benefit from the articles and React docs is the same: fewer infinite loops, fewer race-condition regressions, and clearer control flow.
+- Dependency arrays hide coupling. A refactor that looks unrelated can silently change effect behavior.
+- Effect chains (`A` sets state, which triggers `B`) introduce time-driven control flow that is hard to trace and easy to regress.
+- Debugging is worse because instead of one clear entry point like render or a handler, you are asking "why did this run" and "why did this not run."
+- In agent-generated code this is even worse: `useEffect` often gets added "just in case," which creates another loop or race condition.
 
-## Pet defaultnich nahrad
+## Five default alternatives
 
 1. Derive state, do not sync it.
-2. Use server/data abstractions instead of effect-based fetching.
+2. Use server or data abstractions instead of effect-based fetching.
 3. Do the work in event handlers, not in effects.
-4. Pouzijte `useMountEffect` jen pro jednorazovy external sync typu setup-on-mount a cleanup-on-unmount.
-5. Reset pri zmene identity resit `key`, ne dependency choreography.
+4. Use `useMountEffect` only for one-time external sync like setup-on-mount and cleanup-on-unmount.
+5. Handle reset-on-identity-change with `key`, not dependency choreography.
 
-## Zakladni pravidlo
+## Core rule
 
-- Raw `useEffect` je v beznem aplikacnim kodu podezrely default.
-- Pokud kod nesynchronizuje komponentu s externim systemem mimo React, `useEffect` je s vysokou pravdepodobnosti spatne primitivum.
-- Pokud je potreba mount/unmount sync s browser API, DOM listenerem, timerem nebo third-party widgetem, preferujte `useMountEffect()` misto ad-hoc `useEffect(..., [])`.
-- `useLayoutEffect()` ma jeste vyssi latku: jen pro DOM measurement nebo pre-paint sync, ktery by ve `useEffect` zpusobil viditelny flicker.
+- Raw `useEffect` is a suspicious default in normal application code.
+- If code is not synchronizing the component with an external system outside React, `useEffect` is very likely the wrong primitive.
+- If you need mount or unmount sync with a browser API, DOM listener, timer, or third-party widget, prefer `useMountEffect()` over ad-hoc `useEffect(..., [])`.
+- `useLayoutEffect()` has an even higher bar: use it only for DOM measurement or pre-paint sync that would visibly flicker in `useEffect`.
 
-## Co neni cil
+## What is not the goal
 
-- Cilem neni mechanicky odstranit kazdy effect za kazdou cenu.
-- Legitimizovane effecty pro external sync, subscriptions nebo mount/unmount lifecycle nejsou automaticky problem.
-- Problem je effect jako nahrada za lepsi model: derivaci, handler, server/data abstraction nebo remount boundary.
+- The goal is not to mechanically remove every effect at all costs.
+- Legitimate effects for external sync, subscriptions, or mount/unmount lifecycle are not automatically a problem.
+- The problem is using an effect as a substitute for a better model: derivation, handler logic, server/data abstraction, or a remount boundary.
 
-## Rozhodovaci strom
+## Decision tree
 
-1. Lze vysledek spocitat z props/state pri renderu?
-   - Derivujte ho pri renderu, nedavejte ho do state + effectu.
-2. Je trigger konkretni user action?
-   - Presunte logiku do event handleru.
-3. Jde o data loading nebo mutaci serverovych dat?
-   - Pouzijte server component, server action nebo existujici data abstraction.
-4. Ma se komponenta pri zmene identity chovat jako nova instance?
-   - Pouzijte `key` nebo posunte remount boundary vyse.
-5. Cte komponenta externi mutable source, ktery ma snapshot + subscribe model?
-   - Preferujte `useSyncExternalStore`.
-6. Jde o mount/unmount synchronizaci s externim systemem?
-   - Pouzijte `useMountEffect`.
-7. Pokud ani pak nevychazi nic jineho:
-   - Pojmenujte externi system, setup, cleanup a proc to nejde deklarativneji.
+1. Can the result be computed from props/state during render?
+   - Derive it during render. Do not put it into state plus an effect.
+2. Is the trigger a specific user action?
+   - Move the logic into the event handler.
+3. Is this data loading or a mutation of server data?
+   - Use a server component, server action, or an existing data abstraction.
+4. Should the component behave like a fresh instance when identity changes?
+   - Use `key` or move the remount boundary higher.
+5. Is the component reading an external mutable source with a snapshot + subscribe model?
+   - Prefer `useSyncExternalStore`.
+6. Is this mount/unmount synchronization with an external system?
+   - Use `useMountEffect`.
+7. If nothing else fits:
+   - Name the external system, setup, cleanup, and why it cannot be handled more declaratively.
 
-## Kdy je `useEffect` spatny signal
+## When `useEffect` is a bad signal
 
-- Effect jen odvozuje state z jineho state nebo props.
-- Effect dela `fetch(...).then(setState)` nebo rucni async orchestration dat.
-- Effect je spousteny kvuli akci uzivatele, ktera ma jasny event entrypoint.
-- Effect nastavuje "flag" state typu `submitted`, `shouldRun`, `isReady`, aby teprve pak provedl skutecnou akci.
-- Effect resetuje lokalni state pri zmene `id`, `slug`, `tab`, `step` nebo podobne identity.
-- Effect udrzuje dva lokalni zdroje pravdy "v syncu" jen proto, aby dependency array ridila business logiku.
-- Effect existuje jen kvuli debug logu nebo `console.log` choreografii.
-- Pri cteni kodu je potreba mentalne simulovat dependency array, aby bylo jasne, proc se neco stalo.
+- The effect only derives state from other state or props.
+- The effect does `fetch(...).then(setState)` or manual async data orchestration.
+- The effect is triggered by a user action that already has a clear event entry point.
+- The effect sets a flag state like `submitted`, `shouldRun`, or `isReady`, and only then performs the real action.
+- The effect resets local state when `id`, `slug`, `tab`, `step`, or similar identity changes.
+- The effect keeps two local sources of truth "in sync" only so the dependency array can drive business logic.
+- The effect exists only for debug logging or `console.log` choreography.
+- Reading the code requires mentally simulating the dependency array to understand why something happened.
 
-## Preferovane alternativy
+## Preferred alternatives
 
-### 1. Derivujte hodnoty pri renderu
+### 1. Derive values during render
 
-- Neschovavejte odvozenou hodnotu do vlastniho state, pokud ji lze spocitat z aktualnich props/state.
-- Typicky anti-pattern: `useEffect(() => setX(deriveFromY(y)), [y])`.
-- Preferujte primy vypocet, pripadne cisty helper.
+- Do not hide a derived value in its own state if it can be computed from current props/state.
+- Typical anti-pattern: `useEffect(() => setX(deriveFromY(y)), [y])`.
+- Prefer a direct calculation or a pure helper.
 
-### 2. Akce provadejte v event handleru
+### 2. Do actions in event handlers
 
-- Pokud uzivatel klikne, submitne form nebo zmeni input, provedte logiku primo v handleru.
-- Nevytvarejte pattern `setShouldRun(true) -> effect -> side effect -> reset flag`.
-- POST request, redirect, toast nebo analytics navazane na konkretnim submitu patri do handleru, ne do dependency array.
+- If the user clicks, submits a form, or changes an input, do the work directly in the handler.
+- Do not create a pattern like `setShouldRun(true) -> effect -> side effect -> reset flag`.
+- POST requests, redirects, toasts, or analytics tied to a specific submit belong in the handler, not in a dependency array.
 
-### 3. Pro data pouzivejte server/data abstractions
+### 3. Use server/data abstractions for data
 
-- Nepisite vlastni fetch orchestration v effectu, pokud uz pro to existuje server component, server action, query hook nebo jina sdilena data vrstva.
-- Effect-based fetching snadno vede k race conditions, duplikaci cache logiky a zbytecnym loading/error stavum.
+- Do not write your own fetch orchestration in an effect when a server component, server action, query hook, or another shared data layer already exists.
+- Effect-based fetching easily leads to race conditions, duplicated cache logic, and unnecessary loading/error state.
 
-### 3a. Page data preferujte server-first
+### 3a. Prefer page data to be server-first
 
-- Pokud jsou data potreba pro otevreni stranky a UX tim netrpi, preferujte server-side nacitani v route/page/server wrapperu.
-- Client komponenta ma idealne dostat initial data pres props a resit hlavne interakce a lokalni UI state.
-- Raw fetch v effectu neni preferovana cesta pro page-level business data.
+- If the data is needed to open the page and UX does not suffer, prefer server-side loading in the route/page/server wrapper.
+- A client component should ideally receive initial data through props and mainly handle interaction and local UI state.
+- Raw fetch in an effect is not the preferred path for page-level business data.
 
-### 3b. Client-side data loading je vyjimka
+### 3b. Client-side data loading is an exception
 
-- Client-side loading je pripustny, pokud je to vedomy UX kompromis a nechceme blokovat prvni render cele stranky.
-- Takova vyjimka ma byt explicitne obhajena v review a pokud mozno kratce zdokumentovana v kodu.
-- `useMountEffect` neni automaticka nahrada za fetch v `useEffect`; samotne prepsani fetchu do mount helperu neresi architektonicky problem.
+- Client-side loading is acceptable when it is a deliberate UX tradeoff and you do not want to block the first render of the entire page.
+- That exception should be explicitly justified in review and, when possible, briefly documented in code.
+- `useMountEffect` is not an automatic replacement for fetch in `useEffect`; rewriting fetch into a mount helper does not solve the architectural problem.
 
-### 3c. Po mutaci neobnovujte cely route strom bez duvodu
+### 3c. Do not refresh the whole route tree after a mutation without a reason
 
-- `router.refresh()` berte jako posledni moznost pro server-driven view, ne jako default po kazde mutaci.
-- Pokud uz mate lokalni nebo sdileny source of truth v Reactu, aktualizujte ten primo (`patch*`, local state, store, provider) a nedublujte to full refreshi.
-- Anti-pattern je: mutace uspeje -> lokalne patchnu data -> hned nato zavolam `router.refresh()`.
-- Tenhle dvojity orchestration casto zbytecne aktivuje `loading.tsx` / Suspense boundaries, zhorsuje UX flicker a muze odhalit React boundary edge-cases.
-- Pokud aktualni view stale stoji na server-rendered props bez client store, je `router.refresh()` pripustny, ale ma byt vedoma vyjimka, ne reflex.
-- Po `router.push()` nebo `router.replace()` bezne nedava smysl pridavat dalsi `router.refresh()`.
+- Treat `router.refresh()` as a last resort for server-driven views, not as the default after every mutation.
+- If you already have a local or shared source of truth in React, update that directly (`patch*`, local state, store, provider) and do not duplicate it with a full refresh.
+- The anti-pattern is: mutation succeeds -> I patch data locally -> I immediately call `router.refresh()`.
+- That double orchestration often needlessly activates `loading.tsx` / Suspense boundaries, worsens UX flicker, and can surface React boundary edge cases.
+- If the current view still depends entirely on server-rendered props with no client store, `router.refresh()` is allowed, but it should be a deliberate exception, not a reflex.
+- After `router.push()` or `router.replace()`, adding another `router.refresh()` usually makes no sense.
 
-### 4. Reset resit remountem
+### 4. Handle reset with remount
 
-- Pokud se komponenta ma pri zmene identity chovat jako nova instance, pouzijte `key`.
-- Neresit "reset pri zmene X" pres effect, ktery rucne nulije state nebo znovu vola init logiku.
-- Parent ma vlastnit orchestration boundary, child ma dostat uz platne preconditions.
-- Pokud je potreba cekat na preconditions, casto je lepsi conditional mounting nez guard uvnitr effectu.
+- If the component should behave like a fresh instance when identity changes, use `key`.
+- Do not handle "reset when X changes" with an effect that manually clears state or reruns init logic.
+- The parent should own the orchestration boundary; the child should receive valid preconditions.
+- If you need to wait for preconditions, conditional mounting is often better than a guard inside an effect.
 
-### 5. Subscriptiony resit pres `useSyncExternalStore`
+### 5. Handle subscriptions with `useSyncExternalStore`
 
-- Pokud jde o externi mutable signal se synchronnim snapshotem a subscribe/unsubscribe API, preferujte `useSyncExternalStore`.
-- Typicke kandidaty: auth session store, `matchMedia`, scroll/visibility/online stav, BroadcastChannel-backed state.
-- Effect pak nepatri do komponenty; komponenta cte snapshot, store resi subscription lifecycle.
+- If you are dealing with an external mutable signal with a synchronous snapshot and subscribe/unsubscribe API, prefer `useSyncExternalStore`.
+- Typical candidates: auth session store, `matchMedia`, scroll/visibility/online state, BroadcastChannel-backed state.
+- The effect should not live inside the component; the component should read a snapshot and the store should own subscription lifecycle.
 
-### 5a. Hydration guard resit pres `useHydrated`
+### 5a. Handle hydration guard with `useHydrated`
 
-- Pokud je problem pouze v tom, ze server neumi znat stejny snapshot jako browser az po hydrataci, preferujte maly hydration guard hook typu `useHydrated()`.
-- To je vhodne hlavne pro client-only UI zavisle na browser runtime, napr. `next-themes`.
-- `useHydrated()` neni prima nahrada za genericky `isMounted` hook.
-- `useHydrated()` neni obecna nahrada za `useEffect`; je to uzky server/client snapshot guard.
+- If the problem is only that the server cannot know the same snapshot as the browser until hydration, prefer a small hydration guard hook like `useHydrated()`.
+- This is most useful for client-only UI tied to browser runtime, for example `next-themes`.
+- `useHydrated()` is not a direct replacement for a generic `isMounted` hook.
+- `useHydrated()` is not a general replacement for `useEffect`; it is a narrow server/client snapshot guard.
 
-### 6. Mount/unmount sync izolujte do `useMountEffect`
+### 6. Isolate mount/unmount sync into `useMountEffect`
 
-- Jedina bezna vyjimka je synchronizace s externim systemem mimo React.
-- Typicke priklady: `addEventListener`/`removeEventListener`, timer setup/cleanup, third-party widget init/destroy, clipboard cleanup, imperative focus nebo scroll po mountu.
-- `useMountEffect` neni univerzalni nahrada za spatny `useEffect`. Pokud tam neni mount/unmount sync s externim systemem, helper nepouzivejte.
+- The one common exception is synchronization with an external system outside React.
+- Typical examples: `addEventListener`/`removeEventListener`, timer setup/cleanup, third-party widget init/destroy, clipboard cleanup, imperative focus, or scroll on mount.
+- `useMountEffect` is not a universal replacement for a bad `useEffect`. If there is no mount/unmount sync with an external system, do not use the helper.
 - Smell test:
-  - opravdu synchronizujete externi system
-  - chovani je prirozene `setup on mount, cleanup on unmount`
+  - are you really synchronizing an external system
+  - is the behavior naturally `setup on mount, cleanup on unmount`
 
-### 7. Legitimizovane effecty drzte male a presne
+### 7. Keep legitimate effects small and precise
 
-- Jeden effect ma reprezentovat jednu synchronizacni zodpovednost.
-- Cleanup musi byt zrcadlem setupu.
-- Pokud legitimizovany effect potrebuje cist nejnovejsi props/state bez zbytecne re-subscription, zvazte `useEffectEvent`.
+- One effect should represent one synchronization responsibility.
+- Cleanup must mirror setup.
+- If a legitimate effect needs to read the latest props/state without unnecessary re-subscription, consider `useEffectEvent`.
 
-## Kdy effect nechat byt
+## When to leave the effect alone
 
-- Browser event subscriptions typu `window.addEventListener(...)`.
-- `matchMedia`, `ResizeObserver`, `IntersectionObserver` a podobne browser subscriptions.
+- Browser event subscriptions like `window.addEventListener(...)`.
+- `matchMedia`, `ResizeObserver`, `IntersectionObserver`, and similar browser subscriptions.
 - Third-party widget lifecycle.
-- Imperativni DOM sync po mountu, pokud nejde resit deklarativne.
-- Male logging/reporting effecty, pokud nejsou zdrojem coupling nebo race conditions.
-- I v techto pripadech ale preferujte male, izolovane effecty s jasnym setup/cleanup kontraktem.
+- Imperative DOM sync after mount when it cannot be handled declaratively.
+- Small logging/reporting effects when they are not a source of coupling or race conditions.
+- Even in these cases, prefer small isolated effects with a clear setup/cleanup contract.
 
-## Co `useMountEffect` neresi
+## What `useMountEffect` does not solve
 
-- `useMountEffect` neni schvaleni pro fetch pri mountu, pokud data patri do server/page vrstvy.
-- `useMountEffect` neni nahrada za event handler.
-- `useMountEffect` neni nahrada za derivaci hodnot pri renderu.
-- `useMountEffect` neni nahrada za sync props do local state.
-- Pokud by prepis `useEffect` -> `useMountEffect` jen zachoval stejny control flow, nejde o skutecny refactor.
+- `useMountEffect` is not permission to fetch on mount when the data belongs in the server/page layer.
+- `useMountEffect` is not a replacement for an event handler.
+- `useMountEffect` is not a replacement for deriving values during render.
+- `useMountEffect` is not a replacement for syncing props into local state.
+- If rewriting `useEffect` -> `useMountEffect` keeps the same control flow, it is not a real refactor.
 
-## Co `useHydrated` neresi
+## What `useHydrated` does not solve
 
-- `useHydrated` neni prima nahrada za `isMounted`.
-- `useHydrated` neni schvaleni pro schovavani app logiky za `if (!hydrated) return null`.
-- `useHydrated` neni nahrada za `useSyncExternalStore` pro realne subscriptiony ani za render-time derivaci.
-- Pokud problem neni server/client snapshot mismatch, `useHydrated` pravdepodobne neni spravne reseni.
+- `useHydrated` is not a direct replacement for `isMounted`.
+- `useHydrated` is not permission to hide app logic behind `if (!hydrated) return null`.
+- `useHydrated` is not a replacement for `useSyncExternalStore` for real subscriptions or for render-time derivation.
+- If the problem is not a server/client snapshot mismatch, `useHydrated` is probably not the right solution.
 
-## Forcing function pro architekturu
+## Forcing function for architecture
 
-- Zakaz raw `useEffect` funguje jako forcing function pro cistsi strom komponent.
-- Parent ma vlastnit orchestration a lifecycle boundaries.
-- Child ma idealne predpokladat, ze preconditions uz plati, a delat jednu vec dobre.
-- To obvykle vede k jednodussim komponentam, mene skrytym side effectum a jasnejsim nesting boundaries.
+- Restricting raw `useEffect` acts as a forcing function for a cleaner component tree.
+- The parent should own orchestration and lifecycle boundaries.
+- The child should ideally assume the preconditions already hold and do one thing well.
+- This usually leads to simpler components, fewer hidden side effects, and clearer nesting boundaries.
 
 ## Review checklist
 
-- Co je skutecny trigger dane logiky: render, user event, zmena identity, subscription nebo mount/unmount?
-- S jakym externim systemem se komponenta synchronizuje?
-- Neslo by to resit pres render, handler, `key`, server/data abstraction nebo `useSyncExternalStore`?
-- Odpovida cleanup presne setupu?
-- Popisuje dependency array jen reaktivni vstupy, nebo se z ni stal nosic business logiky?
-- Pokud exception zustava, je explicitne obhajena a vedena jako docasny dluh?
+- What is the real trigger of the logic: render, user event, identity change, subscription, or mount/unmount?
+- Which external system is the component synchronizing with?
+- Could this be handled with render, a handler, `key`, a server/data abstraction, or `useSyncExternalStore` instead?
+- Does cleanup exactly mirror setup?
+- Does the dependency array describe reactive inputs only, or has it become a carrier for business logic?
+- If an exception remains, is it explicitly justified and treated as temporary debt?
 
-## Prakticky cil pro tento projekt
+## Practical goal for this project
 
-- Postupne odstranit raw `useEffect` z bezneho feature code.
-- ESLint allowlist brat jako docasny seznam auditovanych vyjimek, ne jako precedens pro dalsi kod.
-- `useMountEffect` brat jako escape hatch, ne jako defaultni styl.
-- `useHydrated` brat jako uzky hydration guard, ne jako nove jmeno pro `isMounted`.
-- Pri dalsim refactoringu auditovat i `useMountEffect` consumery, aby se z helperu nestalo jen nove jmeno pro stejny problem.
-- Shadcn-managed `src/components/ui/**/*` a `src/hooks/use-mobile.ts` jsou vedoma upstream kompatibilni vyjimka.
+- Gradually remove raw `useEffect` from normal feature code.
+- Treat the ESLint allowlist as a temporary list of audited exceptions, not as a precedent for more code.
+- Treat `useMountEffect` as an escape hatch, not the default style.
+- Treat `useHydrated` as a narrow hydration guard, not a new name for `isMounted`.
+- During future refactors, audit `useMountEffect` consumers too, so the helper does not become a new name for the same problem.
+- Shadcn-managed `src/components/ui/**/*` and `src/hooks/use-mobile.ts` are deliberate upstream-compatibility exceptions.

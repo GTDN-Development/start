@@ -1,9 +1,9 @@
 # OAuth2 Implementation Plan
 
-Datum: 19. 3. 2026
-Predpoklad: auth-implementation-plan.md a phase-2-auth-server-actions.md jsou dokonceny a v produkci.
+Date: March 19, 2026
+Assumption: `auth-implementation-plan.md` and `phase-2-auth-server-actions.md` are complete and in production.
 
-Zdroje (vyhradne oficiální dokumentace):
+Sources (official documentation only):
 
 - PocketBase OAuth2: https://pocketbase.io/docs/authentication/#authenticate-with-oauth2
 - Next.js Authentication: https://nextjs.org/docs/pages/guides/authentication
@@ -11,161 +11,161 @@ Zdroje (vyhradne oficiální dokumentace):
 - Apple Sign in with Apple: https://developer.apple.com/documentation/sign_in_with_apple
 - Meta / Facebook Login: https://developers.facebook.com/docs/facebook-login/web
 
-## 1. Cil
+## 1. Goal
 
-- Pridat social login providery Google, Apple a Facebook jako aditivni rozsireni existujiciho auth flow.
-- Vyuzit nativni PocketBase SDK metodu authWithOAuth2 — zadna manualni implementace code exchange.
-- Zachovat jednotny AuthResponse<T> kontrakt shodny s existujicim email/password flow.
-- Zachovat cookie model (auth cookie z `authConfig.cookies.authCookieName`, persist cookie z `authConfig.cookies.persistCookieName`, device session cookie z `DEVICE_SESSION_COOKIE_NAME`) a httpOnly bezpecnostni nastaveni.
-- Zachovat device session integraci — OAuth login musi registrovat device session stejne jako email/password login.
-- Zadny existujici flow se nemodifikuje — pouze rozsiruje.
+- Add Google, Apple, and Facebook social login providers as an additive extension of the existing auth flow.
+- Use the native PocketBase SDK `authWithOAuth2` method, with no manual code exchange implementation.
+- Keep a unified `AuthResponse<T>` contract consistent with the existing email/password flow.
+- Keep the cookie model unchanged: auth cookie from `authConfig.cookies.authCookieName`, persist cookie from `authConfig.cookies.persistCookieName`, device session cookie from `DEVICE_SESSION_COOKIE_NAME`, and existing `httpOnly` security settings.
+- Keep device session integration: OAuth login must register a device session the same way email/password login does.
+- Do not modify any existing flow; only extend it.
 
-## 2. Ne-cile
+## 2. Non-goals
 
-- Nativni mobilni OAuth (iOS/Android SDK) — pouze web popup flow.
-- Manualni PKCE implementace — PocketBase JS SDK zajistuje automaticky.
-- Manualni state parametr — PocketBase JS SDK generuje a overuje automaticky.
-- Odlinkovani provideru z uctu (Account Security Settings) — samostatny plan.
-- 2FA po OAuth2 loginu — bez backend integrace v tomto planu.
-- Workspace membership pri prvnim OAuth2 loginu.
+- Native mobile OAuth (iOS/Android SDK), only the web popup flow.
+- Manual PKCE implementation, because the PocketBase JS SDK already handles it automatically.
+- Manual `state` parameter handling, because the PocketBase JS SDK already generates and validates it automatically.
+- Unlinking providers from an account (Account Security Settings), which should be handled in a separate plan.
+- 2FA after OAuth2 login, without backend integration in this plan.
+- Workspace membership behavior on the first OAuth2 login.
 
-## 3. Jak PocketBase OAuth2 funguje (dle oficiální dokumentace)
+## 3. How PocketBase OAuth2 works (based on the official documentation)
 
-Dle https://pocketbase.io/docs/authentication/#authenticate-with-oauth2:
+According to https://pocketbase.io/docs/authentication/#authenticate-with-oauth2:
 
-- pb.collection("users").authWithOAuth2({ provider }) — spusti se vyhradne na klientu (browser).
-- SDK automaticky otevre popup s OAuth URL vcetne automaticky generovanych state a code_challenge parametru.
-- PocketBase server obsluhuje celý code exchange s providerem — klient nikdy nevidi access_token providera.
-- Endpoint pro navrat: {PB_URL}/api/oauth2-redirect — PocketBase zpracuje code a vrati do authStore.
-- Account linking: pokud uzivatel se stejnym emailem jiz existuje, PocketBase jej automaticky propoji pres externalAuths zaznam. Zadna extra logika na aplikacni vrstve.
-- Novy uzivatel: PocketBase vytvoří novy zaznam v users kolekci.
-- Vysledkem je pb.authStore.token a pb.authStore.model — stejny tvar jako po authWithPassword.
+- `pb.collection("users").authWithOAuth2({ provider })` runs only on the client (browser).
+- The SDK automatically opens a popup with the OAuth URL, including automatically generated `state` and `code_challenge` parameters.
+- The PocketBase server handles the full code exchange with the provider, so the client never sees the provider access token.
+- Return endpoint: `{PB_URL}/api/oauth2-redirect` - PocketBase processes the code there and writes the result into `authStore`.
+- Account linking: if a user with the same email already exists, PocketBase automatically links it through an `externalAuths` record. No extra app-layer logic is needed.
+- New user: PocketBase creates a new record in the `users` collection.
+- The result is `pb.authStore.token` and `pb.authStore.model`, with the same shape as after `authWithPassword`.
 
-Dle https://nextjs.org/docs/pages/guides/authentication:
+According to https://nextjs.org/docs/pages/guides/authentication:
 
-- Session stav se spravuje pres httpOnly cookies nastavovanych Server Actions.
-- Klient preda token serveru, ktery jej vzdy validuje a teprve pote nastavi cookie.
+- Session state should be managed through `httpOnly` cookies set by Server Actions.
+- The client passes the token to the server, which always validates it first and only then sets cookies.
 
-Bezpecnostni invariant (konzistentni s .rules/pocketbase-integration.md):
+Security invariant, consistent with `.rules/pocketbase-integration.md`:
 
-- syncOAuth2SessionAction musi provest serverovou validaci pres pb.authRefresh() — nikdy neduverat raw klientskemu tokenu.
-- Zadne OAuth credentials (Client Secret, Apple Private Key) nesmi byt v NEXT_PUBLIC_* env promennych.
+- `syncOAuth2SessionAction` must perform server validation through `pb.authRefresh()`. Never trust a raw client token.
+- No OAuth credentials (Client Secret, Apple Private Key) may live in `NEXT_PUBLIC_*` env vars.
 
-## 4. Pre-requisites — konzolove konfigurace
+## 4. Pre-requisites: console configuration
 
 ### 4.1 Google Cloud Console
 
-Dle https://developers.google.com/identity/protocols/oauth2/web-server:
+According to https://developers.google.com/identity/protocols/oauth2/web-server:
 
-- Google Cloud Console → projekt → APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID, typ Web application.
+- Google Cloud Console -> project -> APIs & Services -> Credentials -> Create Credentials -> OAuth 2.0 Client ID, type Web application.
 - Authorized JavaScript origins:
   - `https://yourdomain.com` (production)
-  - `http://localhost:8090` (lokalni PocketBase pro vyvoj)
+  - `http://localhost:8090` (local PocketBase for development)
 - Authorized redirect URIs:
   - `https://pb.yourdomain.com/api/oauth2-redirect`
   - `http://localhost:8090/api/oauth2-redirect`
-- Ulozit Client ID (`*.apps.googleusercontent.com`) a Client Secret.
+- Save the Client ID (`*.apps.googleusercontent.com`) and Client Secret.
 - OAuth consent screen: External; App name, Privacy Policy URL, Homepage URL.
-- Scopes: `openid`, `email`, `profile` — zakladni, nevyzaduji Google OAuth verification.
-- Pred production nasazenim: projit Google OAuth verification (pokud rozsireny scope).
+- Scopes: `openid`, `email`, `profile` - basic scopes, no Google OAuth verification required.
+- Before production rollout: complete Google OAuth verification if expanded scopes are added.
 
 ### 4.2 Apple Developer Portal
 
-Dle https://developer.apple.com/documentation/sign_in_with_apple:
+According to https://developer.apple.com/documentation/sign_in_with_apple:
 
-Apple vyzaduje vice konfiguracnich objektu nez ostatni provideři:
+Apple requires more configuration objects than the other providers:
 
-1. **App ID**: Identifiers → New Identifier → App IDs; Bundle ID: `com.yourdomain.app`; Capability: Sign in with Apple — Enabled. Pozamenat si Team ID (10 znaku, pravy horni roh uctu).
-2. **Services ID** (toto bude Client ID pro PocketBase): Identifiers → Services IDs; Identifier: `com.yourdomain.web`; Enable Sign in with Apple; Configure:
-   - Primary App ID: App ID z kroku 1
-   - Domains: `pb.yourdomain.com` (bez protokolu)
+1. **App ID**: Identifiers -> New Identifier -> App IDs; Bundle ID: `com.yourdomain.app`; Capability: Sign in with Apple enabled. Note the Team ID (10 characters, top right corner of the account UI).
+2. **Services ID** (this becomes the Client ID for PocketBase): Identifiers -> Services IDs; Identifier: `com.yourdomain.web`; enable Sign in with Apple; Configure:
+   - Primary App ID: the App ID from step 1
+   - Domains: `pb.yourdomain.com` (without protocol)
    - Return URLs: `https://pb.yourdomain.com/api/oauth2-redirect`
-3. **Private Key**: Keys → New Key; Enable Sign in with Apple; priradit App ID. Stahnout `.p8` soubor (lze stahnout pouze jednou). Pozamenat si Key ID (10 znaku).
+3. **Private Key**: Keys -> New Key; enable Sign in with Apple; assign the App ID. Download the `.p8` file. It can only be downloaded once. Note the Key ID (10 characters).
 
-Bezpecne ulozit: Team ID, Client ID (`com.yourdomain.web`), Key ID, obsah `.p8` souboru.
+Store these securely: Team ID, Client ID (`com.yourdomain.web`), Key ID, and the contents of the `.p8` file.
 
-Poznamka: Apple nevystavuje Client Secret klasicky. PocketBase generuje Client Secret dynamicky jako JWT podepsany private key — viz https://developer.apple.com/documentation/sign_in_with_apple/generate_and_validate_tokens. Proto Admin UI ocekava Team ID, Key ID a Private Key — nikoli hotovy Client Secret.
+Note: Apple does not issue a classic Client Secret. PocketBase generates the Client Secret dynamically as a JWT signed by the private key. See https://developer.apple.com/documentation/sign_in_with_apple/generate_and_validate_tokens. That is why the Admin UI expects Team ID, Key ID, and Private Key rather than a pre-generated Client Secret.
 
 ### 4.3 Meta for Developers (Facebook)
 
-Dle https://developers.facebook.com/docs/facebook-login/web:
+According to https://developers.facebook.com/docs/facebook-login/web:
 
-- Meta for Developers → My Apps → Create App → Consumer type.
-- App Dashboard → Add Product → Facebook Login → Web.
+- Meta for Developers -> My Apps -> Create App -> Consumer type.
+- App Dashboard -> Add Product -> Facebook Login -> Web.
 - Valid OAuth Redirect URIs:
   - `https://pb.yourdomain.com/api/oauth2-redirect`
-  - `http://localhost:8090/api/oauth2-redirect` (pouze Development mode)
-- Settings → Basic: App ID, App Secret (viditelny po potvrzeni hesla), App Domains: `yourdomain.com`, Privacy Policy URL, Terms of Service URL, Data Deletion Instructions URL.
-- Facebook Login → Settings: Client OAuth Login: ON; Web OAuth Login: ON; Enforce HTTPS: ON; Embedded Browser OAuth Login: OFF.
-- Scopes: `email`, `public_profile` — zakladni, nevyzaduji Meta App Review.
-- Pro produkci: prepnout App Mode z Development na Live.
+  - `http://localhost:8090/api/oauth2-redirect` (development mode only)
+- Settings -> Basic: App ID, App Secret (shown after password confirmation), App Domains: `yourdomain.com`, Privacy Policy URL, Terms of Service URL, Data Deletion Instructions URL.
+- Facebook Login -> Settings: Client OAuth Login ON; Web OAuth Login ON; Enforce HTTPS ON; Embedded Browser OAuth Login OFF.
+- Scopes: `email`, `public_profile` - basic scopes, no Meta App Review required.
+- For production: switch App Mode from Development to Live.
 
-## 5. PocketBase Admin UI konfigurace
+## 5. PocketBase Admin UI configuration
 
-Navigace: `/_/` → Collections → users → Settings → Auth → sekce OAuth2 providers.
-Vyzaduje PocketBase v0.22+ (projekt pouziva `pocketbase@^0.26.8` — splneno).
+Navigation: `/_/` -> Collections -> users -> Settings -> Auth -> OAuth2 providers section.
+Requires PocketBase v0.22+ (the project uses `pocketbase@^0.26.8`, so this is satisfied).
 
 ### 5.1 Google
 
-| Pole | Hodnota |
+| Field | Value |
 |---|---|
 | Enabled | ON |
 | Client ID | `*.apps.googleusercontent.com` |
-| Client Secret | hodnota z Google Cloud Console |
-| Redirect URL (read-only) | `{PB_URL}/api/oauth2-redirect` — musi shodovat s Google Console |
+| Client Secret | value from Google Cloud Console |
+| Redirect URL (read-only) | `{PB_URL}/api/oauth2-redirect` - must match Google Console |
 
 ### 5.2 Apple
 
-| Pole | Hodnota |
+| Field | Value |
 |---|---|
 | Enabled | ON |
 | Client ID | `com.yourdomain.web` (Services ID) |
-| Client Secret | ponechat prazdne — PocketBase generuje dynamicky |
-| Team ID | 10-znakovy kod z Apple Developer uctu |
-| Key ID | 10-znakovy kod z Apple Developer Portal |
-| Private Key | obsah `.p8` souboru vcetne `-----BEGIN PRIVATE KEY-----` hlavicky |
+| Client Secret | leave empty - PocketBase generates it dynamically |
+| Team ID | 10-character code from the Apple Developer account |
+| Key ID | 10-character code from Apple Developer Portal |
+| Private Key | contents of the `.p8` file including the `-----BEGIN PRIVATE KEY-----` header |
 | Redirect URL (read-only) | `{PB_URL}/api/oauth2-redirect` |
 
 ### 5.3 Facebook
 
-| Pole | Hodnota |
+| Field | Value |
 |---|---|
 | Enabled | ON |
-| Client ID | App ID z Meta Dashboard |
-| Client Secret | App Secret z Meta Dashboard |
+| Client ID | App ID from Meta Dashboard |
+| Client Secret | App Secret from Meta Dashboard |
 | Redirect URL (read-only) | `{PB_URL}/api/oauth2-redirect` |
 
-### 5.4 Collection pravidla
+### 5.4 Collection rules
 
-- `email` field v users collection: Unique constraint (default — overit).
-- Auth rule / createRule: nesmi vylucovat OAuth2-created zaznamy (nemaji password).
+- The `email` field in the `users` collection must keep its unique constraint (default, but verify it).
+- `authRule` / `createRule` must not block OAuth2-created records, which do not have a password.
 
-## 6. Architektura flow
+## 6. Flow architecture
 
-```
-[Klient (Browser)]           [Next.js Server Action]      [PocketBase]        [OAuth Provider]
+```text
+[Client (Browser)]          [Next.js Server Action]      [PocketBase]        [OAuth Provider]
       |                               |                         |                      |
       |-- onClick "Sign in" (user gesture, sync)
       |
       |-- authWithOAuth2({ provider }) --- PocketBase JS SDK
       |          |                                             |                      |
-      |          |--- popup otevren ---------------------------------> redirect na provider
+      |          |--- popup opens ------------------------------------> redirect to provider
       |          |                                             |                      |
       |          |                                             |<-- /api/oauth2-redirect (code)
       |          |                                             |-- code exchange ----->|
       |          |                                             |<-- access_token + id_token
       |          |                                             |
       |          |                                       Account linking:
-      |          |                                       - existujici email -> propojit
-      |          |                                       - novy email -> vytvorit uzivatele
+      |          |                                       - existing email -> link
+      |          |                                       - new email -> create user
       |          |                                             |
       |<-- pb.authStore.token + model (promise resolved)
       |
       |-- syncOAuth2SessionAction({ token, recordId }) ------> |
-      |                               |-- new PocketBase (cista instance, bez cookies)
+      |                               |-- new PocketBase (clean instance, no cookies)
       |                               |-- pb.authStore.save(token, { id: recordId })
-      |                               |-- pb.collection("users").authRefresh() (serverova validace)
-      |                               |<-- cerstvy token + record
+      |                               |-- pb.collection("users").authRefresh() (server validation)
+      |                               |<-- fresh token + record
       |                               |-- createAuthSession(pb, record)
       |                               |-- generateDeviceSessionCookie(rememberMe)
       |                               |-- registerOrRefreshDeviceSession(...)
@@ -178,46 +178,46 @@ Vyzaduje PocketBase v0.22+ (projekt pouziva `pocketbase@^0.26.8` — splneno).
       |-- router.replace("/overview")
 ```
 
-Klicove bezpecnostni body:
+Key security points:
 
-- authWithOAuth2() bezi vyhradne na klientu (PocketBase JS SDK).
-- PocketBase server obsluhuje code exchange — klient nikdy nevidi OAuth access_token.
-- PKCE a state spravuje PocketBase JS SDK automaticky.
-- syncOAuth2SessionAction vzdy provede pb.authRefresh() jako serverovou validaci.
-- Device session se registruje na serveru — bez ni by nasledny request (getServerAuthSession / getApiAuthSession) invalidoval session.
-- Turnstile se u OAuth nepouziva — autentizace probehla pres providera, ktery ma vlastni anti-abuse mechanismy.
+- `authWithOAuth2()` runs only on the client through the PocketBase JS SDK.
+- The PocketBase server handles the code exchange; the client never sees the OAuth access token.
+- PKCE and `state` are handled automatically by the PocketBase JS SDK.
+- `syncOAuth2SessionAction` always performs `pb.authRefresh()` as server validation.
+- The device session is registered on the server. Without it, the next request (`getServerAuthSession` / `getApiAuthSession`) would invalidate the session.
+- Turnstile is not used for OAuth because authentication already happened through a provider with its own anti-abuse mechanisms.
 
-## 7. Rozsireni server vrstvy
+## 7. Server layer extension
 
-### 7.1 auth-contract.ts — Rozsireni AuthErrorCode
+### 7.1 `auth-contract.ts` - extend `AuthErrorCode`
 
-Soubor: `src/features/auth/auth-contract.ts`
+File: `src/features/auth/auth-contract.ts`
 
-Pridat do union typu AuthErrorCode:
+Add these values to the `AuthErrorCode` union:
 
-- `"OAUTH2_PROVIDER_ERROR"` — provider vraci chybu nebo uzivatel odmitl consent / zavrel popup.
-- `"OAUTH2_EMAIL_MISSING"` — provider neposkytl email (Apple bez svoleni ke sdileni).
+- `"OAUTH2_PROVIDER_ERROR"` - the provider returns an error or the user denies consent / closes the popup.
+- `"OAUTH2_EMAIL_MISSING"` - the provider does not supply an email (Apple without email sharing).
 
-Poznamka: `AuthClient` typ (auth-contract.ts) se nerozsiruje — `signInWithOAuth2` neni soucasti `AuthClient` rozhrani, protoze vyzaduje browser-only PocketBase SDK (popup). Exportuje se jako standalone funkce z auth-client.ts.
+Note: the `AuthClient` type in `auth-contract.ts` is not extended. `signInWithOAuth2` should not be part of the `AuthClient` interface because it requires the browser-only PocketBase SDK popup flow. It should be exported as a standalone function from `auth-client.ts`.
 
-### 7.2 auth-service.ts — Nova metoda syncOAuth2Session
+### 7.2 `auth-service.ts` - new `syncOAuth2Session` method
 
-Soubor: `src/server/auth/auth-service.ts`
+File: `src/server/auth/auth-service.ts`
 
-Vstup: `{ token: string; recordId: string; rememberMe?: boolean }`
+Input: `{ token: string; recordId: string; rememberMe?: boolean }`
 
-- `token` — JWT z klientskeho `pb.authStore.token` po uspesnem `authWithOAuth2`.
-- `recordId` — ID uzivatele z klientskeho `pb.authStore.record.id`.
-- `rememberMe` — implicitne `true` pro OAuth (viz sekce 10.5).
+- `token` - JWT from client-side `pb.authStore.token` after successful `authWithOAuth2`.
+- `recordId` - user ID from client-side `pb.authStore.record.id`.
+- `rememberMe` - defaults to `true` for OAuth, see section 10.5.
 
-Sekvence:
+Sequence:
 
-1. Vytvorit cistou PocketBase instanci — **nepouzivat `createPocketBaseServerClient()`**, protoze ta nacita existujici auth cookie z requestu. Pro OAuth sync potrebujeme cistou instanci, do ktere vlozime klientsky token. Pouzit sdileny `getPocketBaseUrl()` (nebo novou helper funkci exportovanou z pocketbase-server.ts) pro konzistentni URL. Nastavit `pb.autoCancellation(false)`.
-2. Nacist token do authStore: `pb.authStore.save(token, { id: recordId })`.
-3. Serverova validace: `const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>()` — pokud selze → UNAUTHORIZED. Toto zaroven obnovi authStore s cerstvym tokenem a record.
-4. Overit ze record je validni: `if (!isUsersRecord(refreshedAuth.record))` → UNAUTHORIZED.
-5. Sestavit AuthSession: `const session = createAuthSession(pb, refreshedAuth.record)` — pouziva existujici private helper (auth-service.ts:663). Pokud vrati `null` → UNKNOWN_ERROR.
-6. Registrovat device session (stejny vzor jako `signInWithPassword`, auth-service.ts:75–92):
+1. Create a clean PocketBase instance. **Do not use `createPocketBaseServerClient()`**, because that loads the existing auth cookie from the request. For OAuth sync we need a clean instance into which we inject the client token. Use the shared `getPocketBaseUrl()` helper or export a new helper from `pocketbase-server.ts` for URL consistency. Set `pb.autoCancellation(false)`.
+2. Load the token into authStore: `pb.authStore.save(token, { id: recordId })`.
+3. Perform server validation: `const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>()`. If this fails, return `UNAUTHORIZED`. This also refreshes the authStore with a fresh token and record.
+4. Verify the record is valid: `if (!isUsersRecord(refreshedAuth.record))` -> `UNAUTHORIZED`.
+5. Build `AuthSession`: `const session = createAuthSession(pb, refreshedAuth.record)`. Use the existing private helper in `auth-service.ts:663`. If it returns `null`, return `UNKNOWN_ERROR`.
+6. Register the device session, using the same pattern as `signInWithPassword` (`auth-service.ts:75-92`):
    ```
    const rememberMe = input.rememberMe ?? true;
    const { token: deviceSessionToken, setCookie: deviceSessionCookie } =
@@ -239,11 +239,11 @@ Sekvence:
      );
    }
    ```
-   Poznamka: device session registrace je non-blocking (try/catch) — selhani nezpusobi selhani celeho loginu, konzistentne s email/password flow.
-7. Sestavit cookies: `[...exportPocketBaseAuthCookies(pb, { sessionOnly: !rememberMe }), deviceSessionCookie]`.
-   - `exportPocketBaseAuthCookies` (pocketbase-server.ts:51–64) vraci `string[]` obsahujici auth cookie + persist cookie.
-   - Device session cookie se prida jako treti polozka.
-8. Vraci `ServerAuthResponse<AuthSessionPayload>`:
+   Note: device session registration is non-blocking (`try/catch`). Failure should not fail the login, consistent with the email/password flow.
+7. Build cookies: `[...exportPocketBaseAuthCookies(pb, { sessionOnly: !rememberMe }), deviceSessionCookie]`.
+   - `exportPocketBaseAuthCookies` (`pocketbase-server.ts:51-64`) returns a `string[]` containing the auth cookie and persist cookie.
+   - The device session cookie is added as the third item.
+8. Return `ServerAuthResponse<AuthSessionPayload>`:
    ```
    return {
      ok: true,
@@ -251,24 +251,24 @@ Sekvence:
      setCookie: [...exportPocketBaseAuthCookies(pb, { sessionOnly: !rememberMe }), deviceSessionCookie],
    };
    ```
-   - Navratovy typ je `ServerAuthResponse<AuthSessionPayload>` (ne `ServerAuthResponse<AuthSession>`), konzistentne s `signInWithPassword`.
+   - The return type is `ServerAuthResponse<AuthSessionPayload>`, not `ServerAuthResponse<AuthSession>`, consistent with `signInWithPassword`.
    - `AuthSessionPayload = { session: AuthSession | null }`.
 
-Mapovani chyb:
+Error mapping:
 
-- authRefresh selze (401/403) → `{ ok: false, errorCode: "UNAUTHORIZED" }`
-- record neni validni UsersRecord → `{ ok: false, errorCode: "UNAUTHORIZED" }`
-- Transient error (status 0 nebo ≥500) → `{ ok: false, errorCode: "UNKNOWN_ERROR" }` (pouzit existujici `isTransientError` helper)
-- Jina ClientResponseError → `{ ok: false, errorCode: "UNKNOWN_ERROR" }`, logovat pres `logAuthServiceError`
+- `authRefresh` fails (`401`/`403`) -> `{ ok: false, errorCode: "UNAUTHORIZED" }`
+- record is not a valid `UsersRecord` -> `{ ok: false, errorCode: "UNAUTHORIZED" }`
+- Transient error (`status 0` or `>=500`) -> `{ ok: false, errorCode: "UNKNOWN_ERROR" }` using the existing `isTransientError` helper
+- Any other `ClientResponseError` -> `{ ok: false, errorCode: "UNKNOWN_ERROR" }`, log through `logAuthServiceError`
 
-### 7.3 auth-actions.ts — Nova Server Action syncOAuth2SessionAction
+### 7.3 `auth-actions.ts` - new Server Action `syncOAuth2SessionAction`
 
-Soubor: `src/features/auth/actions/auth-actions.ts`
+File: `src/features/auth/actions/auth-actions.ts`
 
-Dle `.rules/server-actions-guideline.md` — Server Action je tenky adapter: validace → domain logika → uniformni response.
+According to `.rules/server-actions-guideline.md`, the Server Action should remain a thin adapter: validation -> domain logic -> uniform response.
 
-- `"use server"` direktiva jiz existuje v souboru.
-- Vstupni Zod schema:
+- The `"use server"` directive already exists in the file.
+- Input Zod schema:
   ```
   const syncOAuth2SessionInputSchema = z.object({
     token: z.string().min(1),
@@ -276,214 +276,214 @@ Dle `.rules/server-actions-guideline.md` — Server Action je tenky adapter: val
     rememberMe: z.boolean().optional(),
   });
   ```
-- Validace vstupu → pri selhani vraci `createBadRequestResponse<AuthSessionPayload>()` (existujici helper v souboru).
-- Volat `syncOAuth2Session(parsedInput.data)` z auth-service.
-- Aplikovat cookies pres existujici `finalizeAuthAction(response)` z `src/server/auth/finalize-auth-action.ts`.
-  - `finalizeAuthAction` vola `applyServerAuthCookies(response.setCookie)` z `src/server/auth/auth-cookies.ts`, ktera parsuje Set-Cookie headery a aplikuje je pres Next.js `cookies()` API.
-  - Pote vola `toAuthApiResponse(response)` ktery stripne `setCookie` a vraci cisty `AuthResponse<T>`.
-- Vraci `Promise<AuthResponse<AuthSessionPayload>>`.
-- Turnstile se nevyzaduje — OAuth flow je chraneny providerem.
+- Validate the input. On failure, return `createBadRequestResponse<AuthSessionPayload>()`, using the existing helper in the file.
+- Call `syncOAuth2Session(parsedInput.data)` from `auth-service`.
+- Apply cookies through the existing `finalizeAuthAction(response)` from `src/server/auth/finalize-auth-action.ts`.
+  - `finalizeAuthAction` calls `applyServerAuthCookies(response.setCookie)` from `src/server/auth/auth-cookies.ts`, which parses `Set-Cookie` headers and applies them through the Next.js `cookies()` API.
+  - It then calls `toAuthApiResponse(response)`, which strips `setCookie` and returns a clean `AuthResponse<T>`.
+- Return `Promise<AuthResponse<AuthSessionPayload>>`.
+- Turnstile is not required because the OAuth flow is protected by the provider.
 
-## 8. Rozsireni client vrstvy
+## 8. Client layer extension
 
-### 8.1 auth-client.ts — Nova funkce signInWithOAuth2
+### 8.1 `auth-client.ts` - new `signInWithOAuth2` function
 
-Soubor: `src/features/auth/auth-client.ts`
+File: `src/features/auth/auth-client.ts`
 
-Dle https://pocketbase.io/docs/authentication/#authenticate-with-oauth2:
+According to https://pocketbase.io/docs/authentication/#authenticate-with-oauth2:
 
-Novy typ (exportovany z auth-client.ts):
+New type, exported from `auth-client.ts`:
 
-```
+```ts
 export type OAuthProvider = "google" | "apple" | "facebook";
 ```
 
-Nova exportovana funkce:
+New exported function:
 
-```
+```ts
 export async function signInWithOAuth2(
   provider: OAuthProvider,
   options?: { rememberMe?: boolean }
 ): Promise<SignInResponse>
 ```
 
-Poznamka: navratovy typ je `SignInResponse` (= `AuthResponse<AuthSessionPayload>`), konzistentne s existujici `signIn()` funkci.
+Note: the return type is `SignInResponse` (`AuthResponse<AuthSessionPayload>`), consistent with the existing `signIn()` function.
 
-Sekvence:
+Sequence:
 
-1. Vytvorit docasnou PocketBase instanci pro popup flow: `const pb = new PocketBase(process.env.NEXT_PUBLIC_PB_URL)`. Tato instance se pouzije jen pro `authWithOAuth2` a pak se zahodi.
-2. Volat `pb.collection("users").authWithOAuth2({ provider })` — musi byt primo v onClick handleru (synchronne, bez predchazejicich await volani) — jinak prohlizece blokuji popup.
-3. Cekani na popup vysledek (promise).
-4. Popup zavre bez loginu → zachytit error → vratit `{ ok: false, errorCode: "OAUTH2_PROVIDER_ERROR" }`.
-5. Uspech → volat `syncOAuth2SessionAction({ token: pb.authStore.token, recordId: pb.authStore.record.id, rememberMe: options?.rememberMe })`.
-6. Action selze → propagovat error z action response.
-7. Uspech → nastavit session state primo z response (ne pres `refreshSession()`):
-   ```
+1. Create a temporary PocketBase instance for the popup flow: `const pb = new PocketBase(process.env.NEXT_PUBLIC_PB_URL)`. This instance is used only for `authWithOAuth2` and then discarded.
+2. Call `pb.collection("users").authWithOAuth2({ provider })`. This must happen directly in the `onClick` handler, synchronously, with no preceding `await`, otherwise browsers may block the popup.
+3. Wait for the popup result.
+4. If the popup closes without login, catch the error and return `{ ok: false, errorCode: "OAUTH2_PROVIDER_ERROR" }`.
+5. On success, call `syncOAuth2SessionAction({ token: pb.authStore.token, recordId: pb.authStore.record.id, rememberMe: options?.rememberMe })`.
+6. If the action fails, propagate the error from the action response.
+7. On success, set session state directly from the response, not through `refreshSession()`:
+   ```ts
    setSessionState({
      status: response.data.session ? "authenticated" : "unauthenticated",
      session: response.data.session,
    });
    broadcastSessionChanged();
    ```
-   Toto je shodny vzor s existujici `signIn()` funkci (auth-client.ts:48–60). Pouziva `setSessionState` (ktery ma built-in deduplication pres `isSameSessionSnapshot`) a `broadcastSessionChanged` pro cross-tab sync pres BroadcastChannel.
-8. Vratit response.
+   This matches the existing `signIn()` pattern in `auth-client.ts:48-60`. It uses `setSessionState`, which already has built-in deduplication through `isSameSessionSnapshot`, and `broadcastSessionChanged` for cross-tab sync through `BroadcastChannel`.
+8. Return the response.
 
-Import `syncOAuth2SessionAction` z `@/features/auth/actions/auth-actions`.
+Import `syncOAuth2SessionAction` from `@/features/auth/actions/auth-actions`.
 
-Poznamka: `signInWithOAuth2` se **neprida do `AuthClient` typu** v auth-contract.ts, protoze vyzaduje browser-only PocketBase SDK (popup). Zustava jako standalone export z auth-client.ts.
+Note: `signInWithOAuth2` should **not** be added to the `AuthClient` type in `auth-contract.ts`, because it requires the browser-only PocketBase SDK popup flow. It remains a standalone export from `auth-client.ts`.
 
-### 8.2 Popup vs Redirect fallback
+### 8.2 Popup vs redirect fallback
 
-PocketBase JS SDK podporuje oba mody:
+The PocketBase JS SDK supports both modes:
 
-- Popup je preferovany pro desktop — uzivatel neztraci stav aplikace.
-- Redirect nutny pro prostredi kde popup neni mozny (Safari ITP, nektere mobilni prohlizece).
+- Popup is preferred on desktop because the user keeps app state.
+- Redirect is required in environments where popup is not viable, such as Safari ITP or some mobile browsers.
 
-Fallback logika:
+Fallback logic:
 
-- Pokud `authWithOAuth2()` hodi popup-blocked chybu → informovat uzivatele toastem.
-- Pro redirect flow: ulozt aplikacni stav do `sessionStorage` pred redirect, obnovit po navratu.
+- If `authWithOAuth2()` throws a popup-blocked error, inform the user with a toast.
+- For redirect flow, save app state to `sessionStorage` before redirect and restore it after return.
 
-## 9. UI komponenty
+## 9. UI components
 
-### 9.1 oauth2-buttons.tsx
+### 9.1 `oauth2-buttons.tsx`
 
-Soubor: `src/features/auth/components/oauth2-buttons.tsx`
+File: `src/features/auth/components/oauth2-buttons.tsx`
 
-Tri samostatne komponenty: `GoogleSignInButton`, `AppleSignInButton`, `FacebookSignInButton`.
+Three separate components: `GoogleSignInButton`, `AppleSignInButton`, `FacebookSignInButton`.
 
-Kazde tlacitko:
+Each button should:
 
-- Volat `signInWithOAuth2(provider)` primo v onClick handleru (synchronne — bez await pred tim).
-- Loading stav behem popup flow.
-- `OAUTH2_PROVIDER_ERROR` → zadny toast, pouze obnoveni tlacitka ze loading stavu.
-- `OAUTH2_EMAIL_MISSING` → akcni dialog (viz sekce 10.1).
-- Popup-blocked → sonner toast s lokalizovanou hlasou "Povolte pop-upy pro tento web a zkuste znovu."
-- Jina chyba → lokalizovany error toast (sonner).
-- Uspech → `router.replace("/overview")`.
+- Call `signInWithOAuth2(provider)` directly inside the `onClick` handler, synchronously, with no `await` before it.
+- Show a loading state during the popup flow.
+- For `OAUTH2_PROVIDER_ERROR`, show no toast, only reset the button out of the loading state.
+- For `OAUTH2_EMAIL_MISSING`, show an action dialog, see section 10.1.
+- For popup-blocked behavior, show a localized Sonner toast: "Allow pop-ups for this site and try again."
+- For any other error, show a localized error toast with Sonner.
+- On success, call `router.replace("/overview")`.
 
-Brand compliance (povinne dle officialnich brand guidelines):
+Brand compliance, required by official brand guidelines:
 
-- **Google**: official "Sign in with Google" button design dle Google Identity guidelines.
-- **Apple**: cerny button, Apple symbol + text "Sign in with Apple" — povinne dle Apple HIG (https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple).
-- **Facebook**: official Meta brand barvy a logo dle Meta Brand Resource Center.
+- **Google**: official "Sign in with Google" button design according to Google Identity guidelines.
+- **Apple**: black button, Apple symbol, and text "Sign in with Apple", required by Apple HIG: https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple
+- **Facebook**: official Meta brand colors and logo according to the Meta Brand Resource Center.
 
-### 9.2 Integrace do sign-in a sign-up stranek
+### 9.2 Integrate into sign-in and sign-up pages
 
-Soubory: `src/features/auth/sign-in/sign-in-form.tsx`, `src/features/auth/sign-up/sign-up-form.tsx`
+Files: `src/features/auth/sign-in/sign-in-form.tsx`, `src/features/auth/sign-up/sign-up-form.tsx`
 
-- Pridat vizualni oddelovac pod existujici formular (lokalizovany text `auth.oauth.divider`).
-- Pridat skupinu OAuth tlacitek pod oddelovac.
-- Pridat i18n kliche do `messages/*.json`: `auth.oauth.continueWithGoogle`, `auth.oauth.continueWithApple`, `auth.oauth.continueWithFacebook`.
+- Add a visual divider below the existing form, with localized text `auth.oauth.divider`.
+- Add the OAuth button group below the divider.
+- Add i18n keys to `messages/*.json`: `auth.oauth.continueWithGoogle`, `auth.oauth.continueWithApple`, `auth.oauth.continueWithFacebook`.
 
 ## 10. Edge cases
 
 ### 10.1 Apple Private Email Relay
 
-Dle https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_js/incorporating_sign_in_with_apple_into_other_platforms:
+According to https://developer.apple.com/documentation/sign_in_with_apple/sign_in_with_apple_js/incorporating_sign_in_with_apple_into_other_platforms:
 
-- Apple umoznuje skryt skutecny email — relay adresa tvaru `xxxx@privaterelay.appleid.com`.
-- Relay email je platny unikatni identifikator — PocketBase jej prijme jako email uzivatele.
-- Account linking: relay email a real email jsou ruzne identity — PocketBase je nespoji.
-- Uzivatel odmitne sdilet email vubec → PocketBase neobdrzi email → OAUTH2_EMAIL_MISSING.
-- UX: akcni dialog (ne genericke "Nastala chyba"): "Pro dokonceni registrace je nutny email. Pouzijte prihlaseni e-mailem nebo povolte sdileni emailu v nastaveni Apple ID."
-- `name` field: Apple posilá jméno pouze pri prvnim loginu. Pri dalsich loginech Apple jmeno neodesila.
+- Apple allows users to hide the real email address behind a relay address like `xxxx@privaterelay.appleid.com`.
+- The relay email is a valid unique identifier. PocketBase should accept it as the user email.
+- Account linking: relay email and real email are different identities, so PocketBase will not merge them.
+- If the user does not share an email at all, PocketBase will not receive one, which should map to `OAUTH2_EMAIL_MISSING`.
+- UX should use an action dialog, not a generic "Something went wrong": "An email address is required to finish sign-up. Use email sign-in instead or allow email sharing in your Apple ID settings."
+- Apple sends the `name` field only on the first login. On later logins Apple no longer sends it.
 
-### 10.2 Zruseni loginu uzivatelem
+### 10.2 User cancels login
 
-- Uzivatel zavre popup bez dokonceni → PocketBase JS SDK promise resolvuje s chybou.
-- `signInWithOAuth2` vraci `{ ok: false, errorCode: "OAUTH2_PROVIDER_ERROR" }`.
-- UX: zadny error toast — uzivatel vedome popup zavrel. Pouze obnovit tlacitko ze loading stavu.
+- If the user closes the popup before finishing, the PocketBase JS SDK promise resolves with an error.
+- `signInWithOAuth2` returns `{ ok: false, errorCode: "OAUTH2_PROVIDER_ERROR" }`.
+- UX should show no error toast because the user intentionally closed the popup. Only reset the button out of the loading state.
 
-### 10.3 Account linking (shodny email)
+### 10.3 Account linking (same email)
 
-Dle PocketBase dokumentace:
+According to PocketBase documentation:
 
-- PocketBase automaticky propojuje OAuth ucty s existujicimi ucty dle emailu.
-- Existujici `user@gmail.com` pres email/password + Google login se stejnym emailem → PocketBase prida externalAuths zaznam a vrati existujici AuthModel.
-- Zadna extra logika na aplikacni vrstve neni nutna.
-- Uzivatel bez hesla (prvni login pres OAuth) muze pridat heslo pres account password flow.
+- PocketBase automatically links OAuth accounts to existing accounts by email.
+- Existing `user@gmail.com` account created through email/password plus Google login with the same email -> PocketBase adds an `externalAuths` record and returns the existing `AuthModel`.
+- No extra application-layer logic is needed.
+- A user who first logged in through OAuth and has no password can later add a password through the account password flow.
 
-### 10.4 State a PKCE (automaticke)
+### 10.4 State and PKCE (automatic)
 
-Dle PocketBase JS SDK:
+According to the PocketBase JS SDK:
 
-- **state**: SDK generuje nahodnou hodnotu, uklada do `sessionStorage`, overuje pri navratu. Neshodny state → SDK vyhodi chybu.
-- **PKCE**: SDK automaticky generuje `code_verifier` a `code_challenge`. `code_verifier` odesila PocketBase server pri code exchange. Aplikacni vrstva PKCE neimplementuje manualne.
+- **state**: the SDK generates a random value, stores it in `sessionStorage`, and validates it on return. If the state does not match, the SDK throws an error.
+- **PKCE**: the SDK automatically generates `code_verifier` and `code_challenge`. The `code_verifier` is sent by the PocketBase server during code exchange. The app layer does not implement PKCE manually.
 
 ### 10.5 Security rules
 
-- `syncOAuth2SessionAction` vzdy provadi serverovou validaci tokenu pres `authRefresh` — never trust raw client input.
-- OAuth access_token a code providera nikdy neprochazi aplikacni vrstvou — PocketBase handling internalne.
-- Zadne OAuth credentials (Client Secret, Apple Private Key) nesmi byt v klientskem kodu nebo `NEXT_PUBLIC_*` env promennych.
-- Apple `.p8` private key ulozit jako jednorádkový string (newlines jako `\n`) v secrets manageru nebo `.env.local` (nikdy v gitu).
-- Cookies po OAuth2 loginu maji shodna bezpecnostni nastaveni jako email/password login — zajistuje existujici `exportPocketBaseAuthCookies` helper.
-- Device session cookie se generuje a registruje na serveru — bez ni by `getServerAuthSession` / `getApiAuthSession` invalidovaly session pri dalsim requestu (oba validuji device session pres `validateDeviceSessionOrInvalidate`).
-- `rememberMe`: implicitne `true` pro OAuth (uzivatel si vybral trusted provider). Klient muze prepsat pres `options.rememberMe`.
-- Turnstile se u `syncOAuth2SessionAction` nepouziva — OAuth flow je chraneny providerem (na rozdil od `signUpAction`, ktery Turnstile vyzaduje).
+- `syncOAuth2SessionAction` always validates the token on the server through `authRefresh`. Never trust raw client input.
+- The provider OAuth access token and code never pass through the application layer. PocketBase handles them internally.
+- No OAuth credentials, including Client Secret and Apple Private Key, may exist in client code or `NEXT_PUBLIC_*` env vars.
+- Store the Apple `.p8` private key as a single-line string, with newlines encoded as `\n`, in a secrets manager or `.env.local`, never in git.
+- Cookies after OAuth2 login must use the same security settings as email/password login, handled by the existing `exportPocketBaseAuthCookies` helper.
+- The device session cookie must be generated and registered on the server. Without it, `getServerAuthSession` / `getApiAuthSession` would invalidate the session on the next request because both validate the device session through `validateDeviceSessionOrInvalidate`.
+- `rememberMe` defaults to `true` for OAuth because the user picked a trusted provider. The client can override it through `options.rememberMe`.
+- Turnstile is not used for `syncOAuth2SessionAction` because the OAuth flow is protected by the provider, unlike `signUpAction`, which requires Turnstile.
 
-## 11. Implementacni etapy
+## 11. Implementation stages
 
-### Etapa A — Konzolove konfigurace a PocketBase Admin UI
+### Stage A - console configuration and PocketBase Admin UI
 
-1. Dokoncit konzolove konfigurace pro vsechny 3 providery (sekce 4).
-2. Ulozit credentials bezpecne: `.env.local` pro vyvoj, secrets manager pro produkci, nikdy do gitu.
-3. Konfigurovat PocketBase Admin UI pro vsechny 3 providery (sekce 5).
-4. Rucne overit redirect URI round-trip pro kazdy provider.
+1. Finish console configuration for all 3 providers, see section 4.
+2. Store credentials securely: `.env.local` for development, a secrets manager for production, never in git.
+3. Configure PocketBase Admin UI for all 3 providers, see section 5.
+4. Manually verify redirect URI round-trip for each provider.
 
-### PR B1 — Server vrstva
+### PR B1 - server layer
 
-1. Rozsirit `AuthErrorCode` v `src/features/auth/auth-contract.ts` o 2 nove hodnoty.
-2. Implementovat `syncOAuth2Session()` v `src/server/auth/auth-service.ts` vcetne device session registrace.
-3. Pridat `syncOAuth2SessionAction` do `src/features/auth/actions/auth-actions.ts` s Zod validaci.
-4. Typecheck + lint musi projit.
+1. Extend `AuthErrorCode` in `src/features/auth/auth-contract.ts` with the 2 new values.
+2. Implement `syncOAuth2Session()` in `src/server/auth/auth-service.ts`, including device session registration.
+3. Add `syncOAuth2SessionAction` to `src/features/auth/actions/auth-actions.ts` with Zod validation.
+4. Typecheck and lint must pass.
 
-### PR B2 — Client vrstva
+### PR B2 - client layer
 
-1. Implementovat `signInWithOAuth2()` a `OAuthProvider` typ v `src/features/auth/auth-client.ts`.
-2. Pouzit vzor `setSessionState` + `broadcastSessionChanged` (shodny s existujici `signIn()`).
-3. Overit popup flow lokalne pro vsechny 3 providery.
-4. Overit cookie propagaci pres `syncOAuth2SessionAction` (auth + persist + device session cookies).
-5. Overit ze `useSession` hook reaguje na zmenu stavu po OAuth loginu.
+1. Implement `signInWithOAuth2()` and the `OAuthProvider` type in `src/features/auth/auth-client.ts`.
+2. Reuse the `setSessionState` + `broadcastSessionChanged` pattern, the same as the existing `signIn()`.
+3. Verify popup flow locally for all 3 providers.
+4. Verify cookie propagation through `syncOAuth2SessionAction` for auth, persist, and device session cookies.
+5. Verify that the `useSession` hook reacts to the state change after OAuth login.
 
-### PR B3 — UI komponenty a integrace
+### PR B3 - UI components and integration
 
-1. Implementovat `src/features/auth/components/oauth2-buttons.tsx` s brand-compliant tlacitky.
-2. Integrovat na `/sign-in` a `/sign-up` stranky.
-3. Pridat i18n kliche do `messages/` souboru.
-4. Overit loading/error stavy per-button.
-5. Overit Apple Private Email chybovy dialog.
-6. Overit popup-blocker detekci a informativni toast.
+1. Implement `src/features/auth/components/oauth2-buttons.tsx` with brand-compliant buttons.
+2. Integrate it into the `/sign-in` and `/sign-up` pages.
+3. Add i18n keys to `messages/`.
+4. Verify loading and error states per button.
+5. Verify the Apple Private Email error dialog.
+6. Verify popup blocker detection and the informational toast.
 
-### PR B4 — Edge cases a production readiness
+### PR B4 - edge cases and production readiness
 
-1. Otestovat account linking (existujici email/password ucet + OAuth se stejnym emailem).
-2. Overit redirect fallback flow pro Safari.
-3. Otestovat ze device session se spravne registruje po OAuth loginu (viditelna v /account/sessions).
-4. Otestovat ze signOut po OAuth loginu spravne revokuje device session.
-5. Facebook App: Development → Live.
-6. Google OAuth consent screen: overit stav In Production.
-7. Apple Services ID Return URL: overit na produkci.
-8. Bezpecnostni audit: overit ze zadny OAuth token neopousti PocketBase server (Network tab).
-9. Aktualizovat Privacy Policy a Terms of Service (vyzadovano vsemi providery).
+1. Test account linking: existing email/password account plus OAuth with the same email.
+2. Verify redirect fallback flow in Safari.
+3. Test that the device session is properly registered after OAuth login and visible in `/account/sessions`.
+4. Test that sign-out after OAuth login properly revokes the device session.
+5. Switch Facebook App from Development to Live.
+6. Verify that the Google OAuth consent screen is in production state.
+7. Verify the Apple Services ID Return URL in production.
+8. Run a security audit to verify that no OAuth token leaves the PocketBase server, using the Network tab.
+9. Update Privacy Policy and Terms of Service, required by all providers.
 
-## 12. Kritické soubory
+## 12. Critical files
 
-| Soubor | Zmena |
+| File | Change |
 |---|---|
-| `src/features/auth/auth-contract.ts` | +2 AuthErrorCode hodnoty (`OAUTH2_PROVIDER_ERROR`, `OAUTH2_EMAIL_MISSING`) |
-| `src/server/auth/auth-service.ts` | +`syncOAuth2Session()` vcetne device session registrace |
+| `src/features/auth/auth-contract.ts` | +2 `AuthErrorCode` values (`OAUTH2_PROVIDER_ERROR`, `OAUTH2_EMAIL_MISSING`) |
+| `src/server/auth/auth-service.ts` | +`syncOAuth2Session()` including device session registration |
 | `src/features/auth/actions/auth-actions.ts` | +`syncOAuth2SessionAction` + Zod schema |
-| `src/features/auth/auth-client.ts` | +`signInWithOAuth2()`, +`OAuthProvider` typ |
-| `src/features/auth/components/oauth2-buttons.tsx` | novy soubor |
-| `src/features/auth/sign-in/sign-in-form.tsx` | +oddelovac + OAuth tlacitka |
-| `src/features/auth/sign-up/sign-up-form.tsx` | +oddelovac + OAuth tlacitka |
-| `messages/*.json` | +i18n kliche pro OAuth |
+| `src/features/auth/auth-client.ts` | +`signInWithOAuth2()`, +`OAuthProvider` type |
+| `src/features/auth/components/oauth2-buttons.tsx` | new file |
+| `src/features/auth/sign-in/sign-in-form.tsx` | +divider + OAuth buttons |
+| `src/features/auth/sign-up/sign-up-form.tsx` | +divider + OAuth buttons |
+| `messages/*.json` | +i18n keys for OAuth |
 
-Soubory beze zmen:
+Files used unchanged:
 
-- `src/server/pocketbase/pocketbase-server.ts` — `exportPocketBaseAuthCookies` se pouzije beze zmen
-- `src/server/auth/finalize-auth-action.ts` — `finalizeAuthAction` se pouzije beze zmen (vola `applyServerAuthCookies` z auth-cookies.ts a `toAuthApiResponse` z auth-service.ts)
-- `src/server/auth/auth-cookies.ts` — `applyServerAuthCookies` se pouzije beze zmen (parsuje Set-Cookie headery a aplikuje pres Next.js cookies() API)
-- `src/server/device-sessions/device-sessions-service.ts` — `registerOrRefreshDeviceSession` se pouzije beze zmen
-- `src/server/device-sessions/device-sessions-cookie.ts` — `generateDeviceSessionCookie` se pouzije beze zmen
+- `src/server/pocketbase/pocketbase-server.ts` - `exportPocketBaseAuthCookies` is reused as-is
+- `src/server/auth/finalize-auth-action.ts` - `finalizeAuthAction` is reused as-is; it calls `applyServerAuthCookies` from `auth-cookies.ts` and `toAuthApiResponse` from `auth-service.ts`
+- `src/server/auth/auth-cookies.ts` - `applyServerAuthCookies` is reused as-is; it parses `Set-Cookie` headers and applies them through the Next.js `cookies()` API
+- `src/server/device-sessions/device-sessions-service.ts` - `registerOrRefreshDeviceSession` is reused as-is
+- `src/server/device-sessions/device-sessions-cookie.ts` - `generateDeviceSessionCookie` is reused as-is

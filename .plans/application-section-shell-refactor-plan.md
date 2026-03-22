@@ -1,69 +1,69 @@
 # Application Section Shell Refactor Plan
 
-Datum: 22. 3. 2026
-Predpoklad: aktualni application error/loading/not-found improvement je hotovy a v branchi existuje.
+Date: March 22, 2026
+Assumption: the current application error/loading/not-found improvement is complete and the branch already exists.
 
-## 1. Cil
+## 1. Goal
 
-- Zjednodusit architekturu vnorenych application sekci tak, aby breadcrumbs, title, description, loading a inner sidebar mely jasneho vlastnika.
-- Zachovat dobre UX:
-  - shell zustava stabilni
-  - loading se zobrazuje jen v content oblasti
-  - breadcrumbs pusobi prirozene a nejsou "technicky odvozene"
-- Zlepsit DX:
-  - `page.tsx` resi primarne data a business obsah
-  - layout/section shell resi sekcni kompozici
-  - metadata, title, description, breadcrumbs a sidebar items se mene rozchazeji
-- Drzet KISS: nevytvaret genericky framework pro cely app router, pokud staci maly explicitni section model pro 2 hlavni sekce.
+- Simplify the architecture of nested application sections so breadcrumbs, title, description, loading, and the inner sidebar each have a clear owner.
+- Keep good UX:
+  - the shell stays stable
+  - loading appears only in the content area
+  - breadcrumbs feel natural and are not "technically derived"
+- Improve DX:
+  - `page.tsx` focuses primarily on data and business content
+  - layout/section shell owns section composition
+  - metadata, title, description, breadcrumbs, and sidebar items drift less
+- Keep KISS: do not build a generic framework for the whole app router if a small explicit section model is enough for the two main sections.
 
-## 2. Soucasny stav
+## 2. Current state
 
-### 2.1 Co funguje dobre
+### 2.1 What already works well
 
-- Application shell je uz stabilni a route-group based.
-- `error.tsx`, `not-found.tsx` a `loading.tsx` uz respektuji shell a route hierarchy.
-- `account` a `workspace settings` uz maji layout-driven loading scope, takze se neprekresluje cele page chrome.
+- The application shell is already stable and route-group based.
+- `error.tsx`, `not-found.tsx`, and `loading.tsx` already respect the shell and route hierarchy.
+- `account` and `workspace settings` already have layout-driven loading scope, so the entire page chrome does not rerender.
 
-### 2.2 Kde je problem
+### 2.2 Where the problem is
 
-- Breadcrumbs jsou aktualne hybrid mezi UX vrstvou a technickou derivaci z inner sidebar state.
-- `account` a `workspace settings` maji cast sekcni odpovednosti v:
-  - route layoutu
+- Breadcrumbs are currently a hybrid between a UX layer and technical derivation from inner sidebar state.
+- `account` and `workspace settings` currently split section responsibility across:
+  - route layout
   - `page.tsx`
-  - inner sidebar configu
-  - prekladech
-- Neni uplne jasne, kdo je source of truth pro:
-  - root label sekce
+  - inner sidebar config
+  - translations
+- It is not fully clear what the source of truth is for:
+  - section root label
   - current item label
   - page title
   - page description
   - loading presentation
-- Pri dalsim rustu nested sekci hrozi drift mezi breadcrumby, sidebar itemy a page header copy.
+- As nested sections grow, breadcrumbs, sidebar items, and page header copy may drift apart.
 
-## 3. Ne-cile
+## 3. Non-goals
 
-- Nepreskladavat cely app router.
-- Nezavadet novy globalni navigation framework pro marketing/auth cast.
-- Nedelat generic "state engine" pro loading/error/empty.
-- Neoptimalizovat breadcrumbs pro kazdy edge case v jedne iteraci.
-- Neresit v tomto planu `members` a dalsi future sekce vic nez jako pripravu architektury.
+- Do not reshuffle the entire app router.
+- Do not introduce a new global navigation framework for marketing/auth areas.
+- Do not build a generic "state engine" for loading/error/empty.
+- Do not optimize breadcrumbs for every edge case in a single iteration.
+- Do not solve `members` and other future sections in this plan beyond architecture preparation.
 
-## 4. Design principy
+## 4. Design principles
 
-### 4.1 Source of truth musi byt explicitni
+### 4.1 Source of truth must be explicit
 
-- Breadcrumbs nesmi byt tise odvozeny ze sidebar itemu.
-- Sidebar itemy a breadcrumbs muzou sdilet data, ale ne pres skrytou derivaci.
+- Breadcrumbs must not be silently derived from sidebar items.
+- Sidebar items and breadcrumbs may share data, but not through hidden derivation.
 
-### 4.2 Page soubor ma byt tenky
+### 4.2 Page files should stay thin
 
-- `page.tsx` ma idealne resit:
+- `page.tsx` should ideally handle:
   - metadata
   - server data
-  - vlastni content blocks
-- `page.tsx` nema vlastnit shell composition, pokud jde o sekcni chrome.
+  - content blocks
+- `page.tsx` should not own shell composition when it is section chrome.
 
-### 4.3 Layout nebo section shell vlastni sekcni chrome
+### 4.3 Layout or section shell owns section chrome
 
 - title
 - description
@@ -71,110 +71,110 @@ Predpoklad: aktualni application error/loading/not-found improvement je hotovy a
 - inner sidebar
 - loading scope
 
-### 4.4 UX pravidla
+### 4.4 UX rules
 
-- Breadcrumbs max 2 urovne.
-- Na desktopu musi byt citelne a prirozene.
-- Na mobilu neni nutne breadcrumbs za kazdou cenu zobrazovat.
-- Loading zustava v content oblasti.
-- Skeleton pouze tam, kde je layout dost stabilni.
+- Breadcrumbs should have at most 2 levels.
+- They must be readable and natural on desktop.
+- They do not have to be forced onto mobile at all costs.
+- Loading stays inside the content area.
+- Use skeletons only where the layout is stable enough.
 
-## 5. Mozne pristupy
+## 5. Possible approaches
 
-### Varianta A: Minimal explicit resolver per section
+### Option A: Minimal explicit resolver per section
 
-Popis:
+Description:
 
-- Pro `account` a `workspace settings` vytvorit male explicitni resolvery.
-- Layout cte resolver a podle aktualni route sklada:
+- Create small explicit resolvers for `account` and `workspace settings`.
+- The layout reads the resolver and builds:
   - breadcrumbs
   - title
   - description
   - inner sidebar items
 
-Vyhody:
+Pros:
 
-- Nejmensi zmena.
-- Velmi citelne.
-- Dobry KISS fit.
+- Smallest change.
+- Very readable.
+- Strong KISS fit.
 
-Nevyhody:
+Cons:
 
-- Casem muze rust duplicita.
-- Pri dalsich sekcich vznikne vice ad-hoc resolveru.
+- Duplication may grow over time.
+- More sections would create more ad-hoc resolvers.
 
-### Varianta B: Small section config model
+### Option B: Small section config model
 
-Popis:
+Description:
 
-- Pro kazdou application sekci definovat explicitni config.
-- Config drzi:
+- Define an explicit config for each application section.
+- The config owns:
   - `rootHref`
   - `rootLabelKey`
   - `items`
   - `titleKey`
   - `descriptionKey`
   - `match rules`
-  - pripadne `loadingVariant`
-- Layout i page cti stejny sekcni model.
+  - optionally `loadingVariant`
+- Both layout and page read the same section model.
 
-Vyhody:
+Pros:
 
-- Nejlepsi balans UX/DX.
-- Menne driftu mezi breadcrumby, sidebar a headerem.
-- Dobre rozsireni pro dalsi nested pages.
+- Best UX/DX balance.
+- Less drift between breadcrumbs, sidebar, and header.
+- Good extension path for more nested pages.
 
-Nevyhody:
+Cons:
 
-- O trochu vyssi abstrakce nez varianta A.
-- Je potreba disciplinovane drzet config maly a explicitni.
+- Slightly more abstraction than Option A.
+- The config must stay disciplined, small, and explicit.
 
-### Varianta C: Full section shell components
+### Option C: Full section shell components
 
-Popis:
+Description:
 
 - `AccountSectionShell`
 - `WorkspaceSettingsSectionShell`
-- Route layout je tenka vrstva a vsechno sekcni sklada feature shell komponenta.
+- The route layout becomes a thin layer, and a feature shell component composes everything section-related.
 
-Vyhody:
+Pros:
 
-- Nejlepsi separace odpovednosti.
-- Silna znovupouzitelnost.
+- Best separation of responsibility.
+- Strong reusability.
 
-Nevyhody:
+Cons:
 
-- Dnes zrejme zbytecne drahe.
-- Vyssi pocet souboru a vrstev.
+- Probably too expensive today.
+- Higher number of files and layers.
 
-## 6. Doporučení
+## 6. Recommendation
 
-Doporucena varianta: Varianta B, ale v male verzi.
+Recommended option: Option B, but in a small version.
 
-Prakticky:
+In practice:
 
-- Zavadet sekcni config pouze pro:
+- Introduce section config only for:
   - `account`
   - `workspace settings`
-- Neresit zatim zadny generic engine pro vsechny app sekce.
-- Z configu skladat:
+- Do not build any generic engine for all app sections yet.
+- Build these from the config:
   - breadcrumbs
   - sidebar items
   - page title
   - page description
-- Loading nechavat route-based jako dnes, ale navazat ho na stejnou sekcni vrstvu.
+- Keep loading route-based as it is today, but align it with the same section layer.
 
-To dava:
+This gives:
 
-- velmi dobre UX
-- citelne breadcrumbs
-- stabilni loading scope
-- dobrou dlouhodobou udrzitelnost
-- minimalni overengineering
+- very good UX
+- readable breadcrumbs
+- stable loading scope
+- good long-term maintainability
+- minimal overengineering
 
-## 7. Cilova struktura
+## 7. Target structure
 
-Navrhovana struktura:
+Proposed structure:
 
 ```text
 src/features/application/sections/
@@ -185,7 +185,7 @@ src/features/application/sections/
   application-section-layout.tsx
 ```
 
-Volitelne, pokud by se to ukazalo jako uzitecne:
+Optional, if it turns out useful:
 
 ```text
 src/features/application/sections/
@@ -193,9 +193,9 @@ src/features/application/sections/
   workspace-settings-section-loading.tsx
 ```
 
-## 8. Navrh sekcniho modelu
+## 8. Section model proposal
 
-Minimalni datovy model:
+Minimal data model:
 
 ```ts
 type ApplicationSectionItem = {
@@ -222,30 +222,30 @@ type ApplicationSectionConfig = {
 };
 ```
 
-Dulezite:
+Important:
 
-- `breadcrumbLabelKey` ma byt explicitni.
-- `pageTitleKey` a `pageDescriptionKey` nemaji byt automaticky odvozovany z item labelu.
-- `rootLabelKey` a `rootPageTitleKey` mohou byt ruzne.
+- `breadcrumbLabelKey` should be explicit.
+- `pageTitleKey` and `pageDescriptionKey` should not be automatically derived from item labels.
+- `rootLabelKey` and `rootPageTitleKey` may be different.
 
-Priklad:
+Example:
 
-- sidebar item muze byt `General`
-- breadcrumb current muze byt `Security`
-- page title muze byt `Security`
-- root breadcrumb muze byt `My Account`
+- a sidebar item may be `General`
+- the current breadcrumb may be `Security`
+- the page title may be `Security`
+- the root breadcrumb may be `My Account`
 
-To jsou ctyri ruzne role a nema smysl je nasilne spojovat, pokud to UX nechce.
+These are four different roles, and there is no reason to force them together unless the UX explicitly wants that.
 
-## 9. Navrh odpovednosti
+## 9. Responsibility proposal
 
 ### 9.1 Route layout
 
-Route layout ma:
+The route layout should:
 
-- nacist locale-specific translations
-- nacist section config
-- vyrenderovat:
+- load locale-specific translations
+- load section config
+- render:
   - `ApplicationPageShell`
   - breadcrumbs
   - sidebar
@@ -254,53 +254,53 @@ Route layout ma:
 
 ### 9.2 Section breadcrumbs renderer
 
-Mala komponenta:
+A small component should:
 
-- dostane section config
-- dostane current pathname
-- explicitne rozhodne:
+- receive section config
+- receive current pathname
+- decide explicitly between:
   - root only
   - root + current
 
-Pravidla:
+Rules:
 
-- pokud current route odpovida root itemu, zobrazit jen root breadcrumb page
-- pokud current route odpovida child itemu, zobrazit root link + current page
-- zadna implicitni vazba na loading state
+- if the current route matches the root item, render only the root breadcrumb page
+- if the current route matches a child item, render root link + current page
+- no implicit dependency on loading state
 
 ### 9.3 Page
 
-Page ma:
+The page should:
 
-- nacist data
-- vratit content
-- pripadne dopsat metadata
+- load data
+- return content
+- optionally add metadata
 
-Page nema:
+The page should not:
 
-- renderovat breadcrumbs
-- renderovat inner sidebar
-- renderovat root section title/description, pokud to patri shellu
+- render breadcrumbs
+- render the inner sidebar
+- render the root section title/description if that belongs to the shell
 
 ### 9.4 Loading
 
-Loading ma:
+Loading should:
 
-- zustat route-driven
-- renderovat pouze content fallback
-- nepokouset se menit breadcrumbs visibility
-- pouzivat sekcni skeleton nebo loading variant podle sekce
+- stay route-driven
+- render only the content fallback
+- not try to change breadcrumb visibility
+- use a section skeleton or loading variant by section
 
-## 10. Konkretní refactoring po sekcich
+## 10. Concrete refactor by section
 
 ### 10.1 Account section
 
-Cil:
+Goal:
 
-- `account/layout.tsx` bude plny vlastnik shellu.
-- `account/page.tsx` a `account/security/page.tsx` budou resit hlavne obsah.
+- `account/layout.tsx` becomes the full owner of the shell.
+- `account/page.tsx` and `account/security/page.tsx` focus mainly on content.
 
-Presunout do account section config:
+Move into the account section config:
 
 - root breadcrumb label
 - root page title/description
@@ -310,18 +310,18 @@ Presunout do account section config:
 
 Result:
 
-- jednotne breadcrumbs
-- jednotny loading skeleton
-- jednodussi account pages
+- consistent breadcrumbs
+- consistent loading skeleton
+- simpler account pages
 
 ### 10.2 Workspace settings section
 
-Cil:
+Goal:
 
-- `w/[workspaceSlug]/settings/layout.tsx` bude plny vlastnik shellu.
-- `settings/page.tsx` a `settings/members/page.tsx` budou resit hlavne obsah.
+- `w/[workspaceSlug]/settings/layout.tsx` becomes the full owner of the shell.
+- `settings/page.tsx` and `settings/members/page.tsx` focus mainly on content.
 
-Presunout do workspace section config:
+Move into the workspace section config:
 
 - root breadcrumb label
 - root page title/description
@@ -329,48 +329,48 @@ Presunout do workspace section config:
   - general
   - members
 
-Dulezite:
+Important:
 
-- `members` musi jit jednoduse vypnout pro personal workspace bez toho, aby se rozbil zbytek shellu.
-- To patri do section config resolution vrstvy, ne do breadcrumb rendereru.
+- `members` must be easy to disable for personal workspaces without breaking the rest of the shell.
+- That belongs in the section config resolution layer, not in the breadcrumb renderer.
 
-## 11. Jak resit personal workspace variaci
+## 11. Handling the personal workspace variant
 
-Pro `workspace settings` jsou 2 mozne pristupy:
+For `workspace settings`, there are two reasonable approaches:
 
 ### A. Section config factory
 
 - `createWorkspaceSettingsSectionConfig(workspaceKind, workspaceSlug, t)`
 
-Vyhoda:
+Pros:
 
-- nejcistsi
-- visibility `members` je rozhodnuta hned pri skladani sekce
+- cleanest option
+- `members` visibility is decided immediately when the section is assembled
 
-Nevyhoda:
+Cons:
 
-- config neni uplne staticky
+- the config is not fully static
 
 ### B. Static config + filter layer
 
-- staticky config drzi vsechny items
-- layout nebo helper itemy filtruje podle workspace kind
+- a static config holds all items
+- layout or a helper filters items by workspace kind
 
-Vyhoda:
+Pros:
 
-- jednodussi puvodni config
+- simpler original config
 
-Nevyhoda:
+Cons:
 
-- o krok vic orchestracni logiky
+- one more step of orchestration logic
 
-Doporuceni:
+Recommendation:
 
 - A, section config factory.
 
-## 12. Breadcrumb ergonomie
+## 12. Breadcrumb ergonomics
 
-Doporucena pravidla:
+Recommended rules:
 
 - `account`
   - `/account` -> `My Account`
@@ -380,97 +380,97 @@ Doporucena pravidla:
   - `/w/[workspaceSlug]/settings` -> `Settings`
   - `/w/[workspaceSlug]/settings/members` -> `Settings / Members`
 
-Poznamka:
+Note:
 
-- Root breadcrumb se ma chovat vic jako sekcni kotva nez jako doslovne zkopirovany nav label.
-- Pokud user testing ukaze, ze `Settings / Members` je moc genericke, lze pozdeji zvazit:
+- The root breadcrumb should behave more like a section anchor than a literal copy of the nav label.
+- If user testing later shows that `Settings / Members` is too generic, it can be revisited as:
   - `Workspace / Members`
   - `Workspace Settings / Members`
 
-To ale nema byt technicka derivace, nybrz vedome UX rozhodnuti.
+That should be a deliberate UX decision, not technical derivation.
 
-## 13. Loading strategie
+## 13. Loading strategy
 
-Co nechat:
+Keep:
 
 - route-level loading
 - content-only loading scope
-- skeleton pro stabilni settings layouts
+- skeletons for stable settings layouts
 
-Co nedelat:
+Do not do:
 
-- skrivat breadcrumbs pres globalni context
-- nahrazovat breadcrumbs loading labelem
-- delat odlisny skeleton pro kazdou jednotlivou settings card, pokud to neprinasi realny benefit
+- hide breadcrumbs through a global context
+- replace breadcrumbs with a loading label
+- create a different skeleton for every individual settings card unless it brings real value
 
-Doporuceni:
+Recommendation:
 
-- settings skeleton nechat generic a page-shaped
-- section shell ma drzet title/description area stabilni
-- loading fallback ma jen nahradit obsah pod shell chrome
+- keep settings skeletons generic and page-shaped
+- the section shell should keep the title/description area stable
+- the loading fallback should only replace content below the shell chrome
 
-## 14. Konkretni implementacni faze
+## 14. Concrete implementation phases
 
-### Faze 1: Zavedeni sekcniho configu
+### Phase 1: Introduce section config
 
-- pridat `application-section-types.ts`
-- pridat `account-section.ts`
-- pridat `workspace-settings-section.ts`
-- pridat helper pro preklad labelu a resolve current item
+- add `application-section-types.ts`
+- add `account-section.ts`
+- add `workspace-settings-section.ts`
+- add a helper for translating labels and resolving the current item
 
-### Faze 2: Breadcrumb renderer
+### Phase 2: Breadcrumb renderer
 
-- nahradit aktualni `inner-sidebar-breadcrumbs` novym `application-section-breadcrumbs`
-- explicitne pracovat se section configem
-- odstranit posledni zbytky implicitni derivace breadcrumbs ze sidebar itemu
+- replace the current `inner-sidebar-breadcrumbs` with a new `application-section-breadcrumbs`
+- work explicitly from section config
+- remove the last implicit breadcrumb derivation from sidebar items
 
-### Faze 3: Layout refinement
+### Phase 3: Layout refinement
 
-- `account/layout.tsx` a `settings/layout.tsx` prepnout na section config source of truth
-- title/description/breadcrumbs/sidebar items brat z jedne vrstvy
+- switch `account/layout.tsx` and `settings/layout.tsx` to the section config source of truth
+- source title, description, breadcrumbs, and sidebar items from one layer
 
-### Faze 4: Page thinning
+### Phase 4: Page thinning
 
-- zjednodusit `page.tsx` soubory
-- nechat v nich jen:
+- simplify `page.tsx` files
+- keep only:
   - data loading
   - content blocks
   - metadata
 
-### Faze 5: Loading alignment
+### Phase 5: Loading alignment
 
-- loading soubory navazat na sekcni shell
-- zachovat generic skeleton
-- nevytvaret dalsi globalni loading coordination
+- align loading files with the section shell
+- keep the skeleton generic
+- do not introduce more global loading coordination
 
-## 15. Rizika
+## 15. Risks
 
-- Prilis chytry section config muze byt horsi nez dnesni explicitni kod.
-- Metadata mohou zustat duplicni, pokud se budou title/description resit napul v page a napul v shellu.
-- Workspace-specific route params mohou svadet k tomu, aby se sekcni config smichal s business daty.
+- An overly clever section config could be worse than today's explicit code.
+- Metadata may stay duplicated if title/description are handled half in the page and half in the shell.
+- Workspace-specific route params may tempt the section config to mix with business data.
 
-Mitigace:
+Mitigation:
 
-- config drzet maly
-- business data nenechavat v configu
-- copy keys drzet explicitni
-- route params injectovat jen do href resolveru, ne do celeho UI modelu
+- keep config small
+- keep business data out of config
+- keep copy keys explicit
+- inject route params only into href resolution, not into the whole UI model
 
 ## 16. Acceptance criteria
 
-- Breadcrumbs u `account` a `workspace settings` jsou explicitni a snadno upravitelne.
-- Sidebar items, breadcrumbs, page title a page description jsou skladane z jedne sekcni vrstvy.
-- `page.tsx` soubory jsou kratsi a vic obsahove zamerené.
-- Loading zustava omezeny na content oblast.
-- Neni potreba dalsi globalni context kvuli breadcrumb/loading koordinaci.
-- Personal workspace varianta nevytvari condition spaghetti.
+- Breadcrumbs in `account` and `workspace settings` are explicit and easy to edit.
+- Sidebar items, breadcrumbs, page title, and page description are composed from one section layer.
+- `page.tsx` files are shorter and more content-focused.
+- Loading stays limited to the content area.
+- No additional global context is needed for breadcrumb/loading coordination.
+- The personal workspace variant does not create conditional spaghetti.
 
-## 17. Doporuceny dalsi krok
+## 17. Recommended next step
 
-Prvni konkretni refactor udelat pouze pro `account` sekci a potvrdit, ze model funguje.
+Do the first concrete refactor only for the `account` section and confirm that the model works.
 
-Pokud bude vysledek dobry:
+If the result is good:
 
-- aplikovat stejny vzor na `workspace settings`
+- apply the same pattern to `workspace settings`
 
-To drzi scope maly, umozni porovnat DX pred/po a nevyrobi zbytecne velky refactor jednim skokem.
+That keeps the scope small, makes DX before/after easier to compare, and avoids turning it into one unnecessarily large refactor.
