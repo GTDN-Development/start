@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useId, useState } from "react";
+import { startTransition, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -22,6 +22,7 @@ import { workspaceConfig } from "@/config/workspace";
 import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import { runAsyncTransition } from "@/lib/utils";
 
 type WorkspaceNameFormValues = {
   name: string;
@@ -70,9 +71,11 @@ export function WorkspaceNameSettingsItem({
 
       const nextName = value.name.trim();
 
-      const response = await updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
-        name: nextName,
-      });
+      const response = await runAsyncTransition(() =>
+        updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
+          name: nextName,
+        })
+      );
 
       if (!response.ok) {
         toast.error(t("status.updateFailed"), {
@@ -81,10 +84,12 @@ export function WorkspaceNameSettingsItem({
         return;
       }
 
-      setWorkspaceName(nextName);
-      patchWorkspace(workspaceSnapshot.id, response.data.workspace);
-      form.reset();
-      form.setFieldValue("name", nextName);
+      startTransition(() => {
+        setWorkspaceName(nextName);
+        patchWorkspace(workspaceSnapshot.id, response.data.workspace);
+        form.reset();
+        form.setFieldValue("name", nextName);
+      });
 
       toast.success(t("status.updated"), {
         id: nameToastId,

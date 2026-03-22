@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { useState, useRef } from "react";
+import { startTransition, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 
 import { cn } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/utils";
 
 type NewsletterFormValues = {
   "newsletter-email": string;
@@ -50,17 +51,21 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
     onSubmit: async ({ value }: { value: NewsletterFormValues }) => {
       setSubmitStatus({ type: null, message: "" });
 
-      const response = await submitNewsletterFormAction({
-        email: value["newsletter-email"],
-        turnstileToken: value.turnstileToken,
-      });
+      const response = await runAsyncTransition(() =>
+        submitNewsletterFormAction({
+          email: value["newsletter-email"],
+          turnstileToken: value.turnstileToken,
+        })
+      );
 
       if (response.ok) {
-        setSubmitStatus({
-          type: "success",
-          message: t("status.success.message"),
+        startTransition(() => {
+          setSubmitStatus({
+            type: "success",
+            message: t("status.success.message"),
+          });
+          form.reset();
         });
-        form.reset();
         turnstileRef.current?.reset();
 
         return;

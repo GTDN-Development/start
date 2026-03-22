@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useId, useState } from "react";
+import { startTransition, useId, useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { accountConfig } from "@/config/account";
+import { runAsyncTransition } from "@/lib/utils";
 import { AlertCircleIcon } from "lucide-react";
 
 type ProfileNameFormValues = {
@@ -57,15 +58,19 @@ export function AccountDisplayNameSettingsItem() {
     onSubmit: async ({ value }: { value: ProfileNameFormValues }) => {
       setNameStatus(null);
 
-      const response = await updateAccountProfileAction({
-        name: value.name.trim(),
-      });
+      const response = await runAsyncTransition(() =>
+        updateAccountProfileAction({
+          name: value.name.trim(),
+        })
+      );
 
       if (response.ok) {
         const nextName = response.data.profile.name ?? "";
-        patchProfile(response.data.profile);
-        form.reset();
-        form.setFieldValue("name", nextName);
+        startTransition(() => {
+          patchProfile(response.data.profile);
+          form.reset();
+          form.setFieldValue("name", nextName);
+        });
         toast.success(t("profile.status.savedMessage"), {
           id: nameToastId,
         });

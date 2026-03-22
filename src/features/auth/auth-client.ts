@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { startTransition, useSyncExternalStore } from "react";
 import type {
   ConfirmEmailChangeResponse,
   AuthSession,
@@ -27,6 +27,7 @@ import {
   verifyEmailAction,
 } from "@/features/auth/actions/auth-actions";
 import type { SignInInput } from "@/features/auth/auth-schemas";
+import { runAsyncTransition } from "@/lib/utils";
 
 const SESSION_ENDPOINT_PATH = "/api/auth/session";
 
@@ -46,12 +47,14 @@ let syncChannel: BroadcastChannel | null = null;
 let syncInitialized = false;
 
 export async function signIn(input: SignInInput): Promise<SignInResponse> {
-  const response = await signInAction(input);
+  const response = await runAsyncTransition(() => signInAction(input));
 
   if (response.ok) {
-    setSessionState({
-      status: response.data.session ? "authenticated" : "unauthenticated",
-      session: response.data.session,
+    startTransition(() => {
+      setSessionState({
+        status: response.data.session ? "authenticated" : "unauthenticated",
+        session: response.data.session,
+      });
     });
     broadcastSessionChanged();
   }
@@ -60,12 +63,14 @@ export async function signIn(input: SignInInput): Promise<SignInResponse> {
 }
 
 export async function signUp(input: SignUpActionInput): Promise<SignUpResponse> {
-  const response = await signUpAction(input);
+  const response = await runAsyncTransition(() => signUpAction(input));
 
   if (response.ok) {
-    setSessionState({
-      status: response.data.session ? "authenticated" : "unauthenticated",
-      session: response.data.session,
+    startTransition(() => {
+      setSessionState({
+        status: response.data.session ? "authenticated" : "unauthenticated",
+        session: response.data.session,
+      });
     });
     broadcastSessionChanged();
   }
@@ -74,12 +79,14 @@ export async function signUp(input: SignUpActionInput): Promise<SignUpResponse> 
 }
 
 export async function signOut(): Promise<SignOutResponse> {
-  const response = await signOutAction();
+  const response = await runAsyncTransition(() => signOutAction());
 
   if (response.ok) {
-    setSessionState({
-      status: "unauthenticated",
-      session: null,
+    startTransition(() => {
+      setSessionState({
+        status: "unauthenticated",
+        session: null,
+      });
     });
     broadcastSignedOut();
   }
@@ -88,14 +95,18 @@ export async function signOut(): Promise<SignOutResponse> {
 }
 
 export async function verifyEmailToken(token: string): Promise<VerifyEmailResponse> {
-  const response = await verifyEmailAction({
-    token,
-  });
+  const response = await runAsyncTransition(() =>
+    verifyEmailAction({
+      token,
+    })
+  );
 
   if (response.ok) {
-    setSessionState({
-      status: response.data.session ? "authenticated" : "unauthenticated",
-      session: response.data.session,
+    startTransition(() => {
+      setSessionState({
+        status: response.data.session ? "authenticated" : "unauthenticated",
+        session: response.data.session,
+      });
     });
     broadcastSessionChanged();
   }
@@ -108,12 +119,14 @@ export async function resetPasswordWithToken(input: {
   password: string;
   confirmPassword: string;
 }): Promise<ResetPasswordResponse> {
-  const response = await resetPasswordAction(input);
+  const response = await runAsyncTransition(() => resetPasswordAction(input));
 
   if (response.ok) {
-    setSessionState({
-      status: "unauthenticated",
-      session: null,
+    startTransition(() => {
+      setSessionState({
+        status: "unauthenticated",
+        session: null,
+      });
     });
     broadcastSessionChanged();
   }
@@ -124,23 +137,25 @@ export async function resetPasswordWithToken(input: {
 export async function requestPasswordReset(
   input: RequestPasswordResetInput
 ): Promise<RequestPasswordResetResponse> {
-  return requestPasswordResetAction(input);
+  return await runAsyncTransition(() => requestPasswordResetAction(input));
 }
 
 export async function requestEmailVerification(): Promise<RequestEmailVerificationResponse> {
-  return requestEmailVerificationAction();
+  return await runAsyncTransition(() => requestEmailVerificationAction());
 }
 
 export async function confirmEmailChange(input: {
   token: string;
   password: string;
 }): Promise<ConfirmEmailChangeResponse> {
-  const response = await confirmEmailChangeAction(input);
+  const response = await runAsyncTransition(() => confirmEmailChangeAction(input));
 
   if (response.ok) {
-    setSessionState({
-      status: response.data.session ? "authenticated" : "unauthenticated",
-      session: response.data.session,
+    startTransition(() => {
+      setSessionState({
+        status: response.data.session ? "authenticated" : "unauthenticated",
+        session: response.data.session,
+      });
     });
     broadcastSessionChanged();
   }

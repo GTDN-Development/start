@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { z } from "zod";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -32,8 +31,12 @@ import {
   type WorkspaceInvitableRole,
 } from "@/features/workspaces/settings/members/workspace-member-roles";
 import { createInviteAction } from "@/features/workspaces/actions/workspace-actions";
-import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import type {
+  WorkspaceSettingsInvite,
+  WorkspaceSettingsWorkspace,
+} from "@/features/workspaces/settings/workspace-settings-types";
 import type { AppLocale } from "@/i18n/routing";
+import { runAsyncTransition } from "@/lib/utils";
 
 type InviteRole = WorkspaceInvitableRole;
 
@@ -45,14 +48,15 @@ function getInviteRoleOption(value: string | null) {
 
 export function WorkspaceInviteMembersSettingsItem({
   workspace,
+  onInviteCreated,
 }: {
   workspace: WorkspaceSettingsWorkspace;
+  onInviteCreated: (invite: WorkspaceSettingsInvite) => void;
 }) {
   const tInvite = useTranslations("pages.workspace.members.invite");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
   const locale = useLocale() as AppLocale;
-  const router = useRouter();
   const isReadOnly = workspace.role === "member";
   const [isInviting, setIsInviting] = useState(false);
   const [email, setEmail] = useState("");
@@ -83,11 +87,13 @@ export function WorkspaceInviteMembersSettingsItem({
     setIsInviting(true);
     setSubmitErrorMessage(null);
 
-    const response = await createInviteAction(workspace.slug, {
-      locale,
-      email: normalizedEmail,
-      role,
-    });
+    const response = await runAsyncTransition(() =>
+      createInviteAction(workspace.slug, {
+        locale,
+        email: normalizedEmail,
+        role,
+      })
+    );
 
     setIsInviting(false);
 
@@ -96,10 +102,12 @@ export function WorkspaceInviteMembersSettingsItem({
       return;
     }
 
-    setEmail("");
-    setRole("member");
+    startTransition(() => {
+      setEmail("");
+      setRole("member");
+      onInviteCreated(response.data.invite);
+    });
     toast.success(tInvite("status.sent"));
-    router.refresh();
   }
 
   return (

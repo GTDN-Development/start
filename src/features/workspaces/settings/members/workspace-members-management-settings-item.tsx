@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { InboxIcon, MoreHorizontalIcon, PencilLineIcon, SendIcon, TrashIcon } from "lucide-react";
@@ -70,8 +70,8 @@ import type {
   WorkspaceSettingsMember,
   WorkspaceSettingsWorkspace,
 } from "@/features/workspaces/settings/workspace-settings-types";
-import { useRouter } from "@/i18n/navigation";
 import { getUserInitials } from "@/lib/app-utils";
+import { runAsyncTransition } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -107,16 +107,28 @@ export function WorkspaceMembersManagementSettingsItem({
   workspace,
   members,
   invites,
+  onInviteRemoved,
+  onInviteResent,
+  onMemberRemoved,
+  onMemberRoleChanged,
+  onOwnershipTransferred,
 }: {
   workspace: WorkspaceSettingsWorkspace;
   members: WorkspaceSettingsMember[];
   invites: WorkspaceSettingsInvite[];
+  onInviteRemoved: (inviteId: string) => void;
+  onInviteResent: (
+    inviteId: string,
+    patch: Pick<WorkspaceSettingsInvite, "expiresAt" | "updatedAt">
+  ) => void;
+  onMemberRemoved: (memberId: string) => void;
+  onMemberRoleChanged: (memberId: string, role: WorkspaceSettingsMember["role"]) => void;
+  onOwnershipTransferred: (previousOwnerMemberId: string, nextOwnerMemberId: string) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
   const locale = useLocale() as AppLocale;
-  const router = useRouter();
   const isReadOnly = workspace.role === "member";
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
@@ -254,13 +266,34 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
-    let actionResponse;
-
     if (nextRole === "owner" && changeRoleMember.role !== "owner") {
-      actionResponse = await transferOwnershipAction(workspace.slug, changeRoleMember.id);
-    } else {
-      actionResponse = await changeMemberRoleAction(workspace.slug, changeRoleMember.id, nextRole);
+      const actionResponse = await runAsyncTransition(() =>
+        transferOwnershipAction(workspace.slug, changeRoleMember.id)
+      );
+
+      if (!actionResponse.ok) {
+        setIsActionSubmitting(false);
+        toast.error(
+          getActionErrorMessage(actionResponse.errorCode, t("status.roleChange.error"), t)
+        );
+        return;
+      }
+
+      startTransition(() => {
+        setIsActionSubmitting(false);
+        setActionState(null);
+        onOwnershipTransferred(
+          actionResponse.data.previousOwnerMemberId,
+          actionResponse.data.nextOwnerMemberId
+        );
+      });
+      toast.success(t("status.roleChange.success"));
+      return;
     }
+
+    const actionResponse = await runAsyncTransition(() =>
+      changeMemberRoleAction(workspace.slug, changeRoleMember.id, nextRole)
+    );
 
     if (!actionResponse.ok) {
       setIsActionSubmitting(false);
@@ -268,7 +301,12 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
-    handleActionSuccess(t("status.roleChange.success"));
+    startTransition(() => {
+      setIsActionSubmitting(false);
+      setActionState(null);
+      onMemberRoleChanged(actionResponse.data.memberId, actionResponse.data.role);
+    });
+    toast.success(t("status.roleChange.success"));
   }
 
   async function handleRemoveMemberConfirm() {
@@ -287,7 +325,9 @@ export function WorkspaceMembersManagementSettingsItem({
 
     setIsActionSubmitting(true);
 
-    const response = await removeMemberAction(workspace.slug, removeMemberTarget.id);
+    const response = await runAsyncTransition(() =>
+      removeMemberAction(workspace.slug, removeMemberTarget.id)
+    );
 
     if (!response.ok) {
       setIsActionSubmitting(false);
@@ -295,7 +335,12 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
-    handleActionSuccess(t("status.memberRemove.success"));
+    startTransition(() => {
+      setIsActionSubmitting(false);
+      setActionState(null);
+      onMemberRemoved(response.data.memberId);
+    });
+    toast.success(t("status.memberRemove.success"));
   }
 
   async function handleResendInvitationConfirm() {
@@ -308,7 +353,9 @@ export function WorkspaceMembersManagementSettingsItem({
     }
 
     setIsActionSubmitting(true);
-    const response = await resendInviteAction(workspace.slug, resendInvitationTarget.id, locale);
+    const response = await runAsyncTransition(() =>
+      resendInviteAction(workspace.slug, resendInvitationTarget.id, locale)
+    );
 
     if (!response.ok) {
       setIsActionSubmitting(false);
@@ -316,7 +363,15 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
-    handleActionSuccess(t("status.inviteResend.success"));
+    startTransition(() => {
+      setIsActionSubmitting(false);
+      setActionState(null);
+      onInviteResent(response.data.inviteId, {
+        expiresAt: response.data.expiresAt,
+        updatedAt: response.data.updatedAt,
+      });
+    });
+    toast.success(t("status.inviteResend.success"));
   }
 
   async function handleRemoveInvitationConfirm() {
@@ -329,7 +384,9 @@ export function WorkspaceMembersManagementSettingsItem({
     }
 
     setIsActionSubmitting(true);
-    const response = await revokeInviteAction(workspace.slug, removeInvitationTarget.id);
+    const response = await runAsyncTransition(() =>
+      revokeInviteAction(workspace.slug, removeInvitationTarget.id)
+    );
 
     if (!response.ok) {
       setIsActionSubmitting(false);
@@ -337,14 +394,12 @@ export function WorkspaceMembersManagementSettingsItem({
       return;
     }
 
-    handleActionSuccess(t("status.inviteRemove.success"));
-  }
-
-  function handleActionSuccess(message: string) {
-    setIsActionSubmitting(false);
-    setActionState(null);
-    toast.success(message);
-    router.refresh();
+    startTransition(() => {
+      setIsActionSubmitting(false);
+      setActionState(null);
+      onInviteRemoved(response.data.inviteId);
+    });
+    toast.success(t("status.inviteRemove.success"));
   }
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { signOut } from "@/features/auth/auth-client";
 import { useRouter } from "@/i18n/navigation";
@@ -24,7 +24,9 @@ export function useSignOut(): UseSignOutReturn {
     const response = await signOut();
 
     if (response.ok) {
-      router.replace(AUTH_REDIRECTS.unauthenticatedTo);
+      startTransition(() => {
+        router.replace(AUTH_REDIRECTS.unauthenticatedTo);
+      });
       return;
     }
 

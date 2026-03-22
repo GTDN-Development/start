@@ -34,6 +34,7 @@ import { Spinner } from "@/components/ui/spinner";
 import type { InlineStatus } from "@/features/account/account-types";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { runAsyncTransition } from "@/lib/utils";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
 type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;
@@ -74,9 +75,11 @@ export function AccountEmailSettingsItem() {
 
       const normalizedNewEmail = parsedEmail.data;
 
-      const response = await requestAccountEmailChangeAction({
-        newEmail: normalizedNewEmail,
-      });
+      const response = await runAsyncTransition(() =>
+        requestAccountEmailChangeAction({
+          newEmail: normalizedNewEmail,
+        })
+      );
 
       if (response.ok) {
         setEmailDialogStatus({

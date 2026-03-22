@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { startTransition, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,7 @@ import {
   signOutOtherDevicesAction,
 } from "@/features/account/actions/device-session-actions";
 import { useRouter } from "@/i18n/navigation";
+import { runAsyncTransition } from "@/lib/utils";
 import type { DeviceSessionListItem } from "@/server/device-sessions/device-sessions-types";
 import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 
@@ -68,13 +69,15 @@ export function YourDevicesSettingsItem({
   async function handleSignOutOtherDevices(): Promise<void> {
     setIsSignOutOthersPending(true);
 
-    const response = await signOutOtherDevicesAction();
+    const response = await runAsyncTransition(() => signOutOtherDevicesAction());
 
     if (response.ok) {
-      setDeviceSessions((previousSessions) =>
-        previousSessions.filter((session) => session.isCurrentDevice)
-      );
-      setIsSignOutOthersDialogOpen(false);
+      startTransition(() => {
+        setDeviceSessions((previousSessions) =>
+          previousSessions.filter((session) => session.isCurrentDevice)
+        );
+        setIsSignOutOthersDialogOpen(false);
+      });
       toast.success(t("security.devices.status.signOutAllSuccess"));
       setIsSignOutOthersPending(false);
       return;
@@ -87,23 +90,29 @@ export function YourDevicesSettingsItem({
   async function handleSignOutDevice(deviceSessionId: string): Promise<void> {
     setPendingDeviceSessionId(deviceSessionId);
 
-    const response = await signOutDeviceAction({
-      deviceSessionId,
-    });
+    const response = await runAsyncTransition(() =>
+      signOutDeviceAction({
+        deviceSessionId,
+      })
+    );
 
     if (response.ok) {
-      setDeviceSessions((previousSessions) =>
-        previousSessions.filter((session) => session.id !== deviceSessionId)
-      );
+      startTransition(() => {
+        setDeviceSessions((previousSessions) =>
+          previousSessions.filter((session) => session.id !== deviceSessionId)
+        );
+      });
       toast.success(t("security.devices.status.signOutSuccess"));
       setPendingDeviceSessionId(null);
       return;
     }
 
     if (response.errorCode === "NOT_FOUND") {
-      setDeviceSessions((previousSessions) =>
-        previousSessions.filter((session) => session.id !== deviceSessionId)
-      );
+      startTransition(() => {
+        setDeviceSessions((previousSessions) =>
+          previousSessions.filter((session) => session.id !== deviceSessionId)
+        );
+      });
       toast.error(t("security.devices.status.notFound"));
       setPendingDeviceSessionId(null);
       return;

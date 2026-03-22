@@ -333,7 +333,9 @@ export async function removeWorkspaceMemberForCurrentUser(
 export async function transferWorkspaceOwnershipForCurrentUser(
   workspaceSlug: string,
   targetMemberId: string
-): Promise<ServerWorkspaceResponse<{ transferred: true }>> {
+): Promise<
+  ServerWorkspaceResponse<{ previousOwnerMemberId: string; nextOwnerMemberId: string }>
+> {
   const currentUser = await requireWorkspaceAuthContext();
 
   if (!currentUser.ok) {
@@ -367,7 +369,8 @@ export async function transferWorkspaceOwnershipForCurrentUser(
       return {
         ok: true,
         data: {
-          transferred: true,
+          previousOwnerMemberId: ownerAccess.context.membership.id,
+          nextOwnerMemberId: targetMemberRecord.id,
         },
       };
     }
@@ -384,7 +387,8 @@ export async function transferWorkspaceOwnershipForCurrentUser(
     return {
       ok: true,
       data: {
-        transferred: true,
+        previousOwnerMemberId: ownerAccess.context.membership.id,
+        nextOwnerMemberId: targetMemberRecord.id,
       },
     };
   } catch (error) {

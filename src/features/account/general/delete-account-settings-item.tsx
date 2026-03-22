@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useId, useState } from "react";
+import { startTransition, useId, useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -31,6 +31,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
+import { runAsyncTransition } from "@/lib/utils";
 import { Trash2Icon } from "lucide-react";
 
 type DeleteAccountFormValues = {
@@ -67,18 +68,22 @@ export function AccountDeleteAccountSettingsItem() {
     onSubmit: async ({ value }: { value: DeleteAccountFormValues }) => {
       setPasswordServerErrorMessage(null);
 
-      const response = await deleteAccountAction({
-        password: value.password,
-      });
+      const response = await runAsyncTransition(() =>
+        deleteAccountAction({
+          password: value.password,
+        })
+      );
 
       if (response.ok) {
         toast.success(t("deleteAccount.status.success"), {
           id: deleteAccountToastId,
         });
 
-        setIsDeleteDialogOpen(false);
-        form.reset();
-        router.replace("/sign-in");
+        startTransition(() => {
+          setIsDeleteDialogOpen(false);
+          form.reset();
+          router.replace("/sign-in");
+        });
         return;
       }
 
@@ -91,9 +96,11 @@ export function AccountDeleteAccountSettingsItem() {
         toast.error(t("deleteAccount.status.unauthorized"), {
           id: deleteAccountToastId,
         });
-        setIsDeleteDialogOpen(false);
-        form.reset();
-        router.replace("/sign-in");
+        startTransition(() => {
+          setIsDeleteDialogOpen(false);
+          form.reset();
+          router.replace("/sign-in");
+        });
         return;
       }
 

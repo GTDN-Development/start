@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { useRef, useState } from "react";
+import { startTransition, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +17,7 @@ import {
 } from "@/features/marketing/contact/support-attachments";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/utils";
 
 type SupportFormValues = {
   message: string;
@@ -64,12 +65,14 @@ export function SupportForm({ className, ...props }: React.ComponentProps<"div">
       setSubmitStatus({ type: null, message: "" });
       setAttachmentError(null);
 
-      const response = await submitSupportFormAction(value);
+      const response = await runAsyncTransition(() => submitSupportFormAction(value));
 
       if (response.ok) {
-        setSubmitStatus({ type: "success", message: t("status.success.message") });
-        form.reset();
-        setAttachmentError(null);
+        startTransition(() => {
+          setSubmitStatus({ type: "success", message: t("status.success.message") });
+          form.reset();
+          setAttachmentError(null);
+        });
         if (fileInputRef.current) fileInputRef.current.value = "";
         return;
       }

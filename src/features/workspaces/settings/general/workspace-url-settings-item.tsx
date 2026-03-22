@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useId, useState } from "react";
+import { startTransition, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -24,6 +24,7 @@ import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/work
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
+import { runAsyncTransition } from "@/lib/utils";
 
 type WorkspaceUrlFormValues = {
   url: string;
@@ -69,9 +70,11 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
 
       const nextUrl = value.url.trim();
 
-      const response = await updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
-        slug: nextUrl,
-      });
+      const response = await runAsyncTransition(() =>
+        updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
+          slug: nextUrl,
+        })
+      );
 
       if (!response.ok) {
         if (response.errorCode === "SLUG_NOT_AVAILABLE") {
@@ -87,21 +90,25 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
         return;
       }
 
-      setWorkspaceUrl(response.data.workspaceSlug);
-      patchWorkspace(workspaceSnapshot.id, response.data.workspace);
-      form.reset();
-      form.setFieldValue("url", response.data.workspaceSlug);
+      startTransition(() => {
+        setWorkspaceUrl(response.data.workspaceSlug);
+        patchWorkspace(workspaceSnapshot.id, response.data.workspace);
+        form.reset();
+        form.setFieldValue("url", response.data.workspaceSlug);
+      });
 
       toast.success(t("status.updated"), {
         id: urlToastId,
       });
 
       if (response.data.workspaceSlug !== workspaceSnapshot.slug) {
-        router.replace({
-          pathname: "/w/[workspaceSlug]/settings",
-          params: {
-            workspaceSlug: response.data.workspaceSlug,
-          },
+        startTransition(() => {
+          router.replace({
+            pathname: "/w/[workspaceSlug]/settings",
+            params: {
+              workspaceSlug: response.data.workspaceSlug,
+            },
+          });
         });
       }
     },

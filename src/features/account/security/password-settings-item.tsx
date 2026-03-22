@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
+import { runAsyncTransition } from "@/lib/utils";
 import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
 
 type SecurityTranslationFn = (key: string, values?: Record<string, string>) => string;
@@ -49,7 +50,7 @@ export function AccountChangePasswordItem() {
     onSubmit: async ({ value }: { value: PasswordFormValues }) => {
       setSubmitStatus(null);
 
-      const response = await updateAccountPasswordAction(value);
+      const response = await runAsyncTransition(() => updateAccountPasswordAction(value));
 
       if (response.ok) {
         form.reset();

@@ -275,7 +275,7 @@ export async function acceptInviteTokenForUser(
 export async function createWorkspaceInviteForCurrentUser(
   workspaceSlug: string,
   input: CreateWorkspaceInviteInput
-): Promise<ServerWorkspaceResponse<{ created: true }>> {
+): Promise<ServerWorkspaceResponse<{ invite: WorkspaceInviteSummary }>> {
   const currentUser = await requireWorkspaceAuthContext();
 
   if (!currentUser.ok) {
@@ -372,7 +372,14 @@ export async function createWorkspaceInviteForCurrentUser(
     return {
       ok: true,
       data: {
-        created: true,
+        invite: {
+          id: inviteRecord.id,
+          emailNormalized: inviteRecord.email_normalized,
+          role: inviteRecord.role,
+          expiresAt: inviteRecord.expires_at,
+          updatedAt: inviteRecord.updated,
+          invitedByName: getNullableTrimmedString(adminAccess.context.user.name),
+        },
       },
     };
   } catch (error) {
@@ -413,7 +420,7 @@ export async function resendWorkspaceInviteForCurrentUser(
   workspaceSlug: string,
   inviteId: string,
   locale: AppLocale
-): Promise<ServerWorkspaceResponse<{ resent: true }>> {
+): Promise<ServerWorkspaceResponse<{ inviteId: string; expiresAt: string; updatedAt: string }>> {
   const currentUser = await requireWorkspaceAuthContext();
 
   if (!currentUser.ok) {
@@ -473,10 +480,12 @@ export async function resendWorkspaceInviteForCurrentUser(
     const previousInviteTokenHash = inviteRecord.token_hash;
     const previousInviteExpiresAt = inviteRecord.expires_at;
 
-    await adminAccess.context.pb.collection("workspace_invites").update(inviteRecord.id, {
-      token_hash: nextInviteHash,
-      expires_at: createInviteExpiryDate(),
-    });
+    const updatedInviteRecord = await adminAccess.context.pb
+      .collection("workspace_invites")
+      .update<WorkspaceInvitesRecord>(inviteRecord.id, {
+        token_hash: nextInviteHash,
+        expires_at: createInviteExpiryDate(),
+      });
 
     try {
       await sendWorkspaceInviteEmail({
@@ -506,7 +515,9 @@ export async function resendWorkspaceInviteForCurrentUser(
     return {
       ok: true,
       data: {
-        resent: true,
+        inviteId: updatedInviteRecord.id,
+        expiresAt: updatedInviteRecord.expires_at,
+        updatedAt: updatedInviteRecord.updated,
       },
     };
   } catch (error) {

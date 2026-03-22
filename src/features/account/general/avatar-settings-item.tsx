@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, useId, useRef, useState } from "react";
+import { type ChangeEvent, startTransition, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
@@ -29,6 +29,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { accountConfig } from "@/config/account";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import { getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
+import { runAsyncTransition } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
 
 const MAX_ACCOUNT_AVATAR_SIZE_BYTES = accountConfig.limits.avatarMaxSizeBytes;
@@ -79,11 +80,13 @@ export function AccountAvatarSettingsItem() {
       const avatarFormData = new FormData();
       avatarFormData.set("avatar", preparedAvatarFileResult.file);
 
-      const response = await uploadAccountAvatarAction(avatarFormData);
+      const response = await runAsyncTransition(() => uploadAccountAvatarAction(avatarFormData));
 
       if (response.ok) {
-        patchProfile(response.data.profile);
-        setFailedAvatarUrl(null);
+        startTransition(() => {
+          patchProfile(response.data.profile);
+          setFailedAvatarUrl(null);
+        });
         toast.success(t("avatar.status.updated"), {
           id: avatarToastId,
         });
@@ -110,11 +113,13 @@ export function AccountAvatarSettingsItem() {
 
     setIsAvatarUpdating(true);
 
-    const response = await removeAccountAvatarAction();
+    const response = await runAsyncTransition(() => removeAccountAvatarAction());
 
     if (response.ok) {
-      patchProfile(response.data.profile);
-      setFailedAvatarUrl(null);
+      startTransition(() => {
+        patchProfile(response.data.profile);
+        setFailedAvatarUrl(null);
+      });
       toast.success(t("avatar.status.removed"), {
         id: avatarToastId,
       });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useId } from "react";
+import { startTransition, useId } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -24,6 +24,7 @@ import { workspaceConfig } from "@/config/workspace";
 import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { useRouter } from "@/i18n/navigation";
 import { resolveErrorMessage } from "@/lib/app-utils";
+import { runAsyncTransition } from "@/lib/utils";
 
 type WorkspaceCreateFormValues = {
   name: string;
@@ -84,10 +85,12 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
     onSubmit: async ({ value }: { value: WorkspaceCreateFormValues }) => {
       const trimmedName = value.name.trim();
       const trimmedSlug = value.slug.trim();
-      const response = await createOrganizationWorkspaceAction({
-        name: trimmedName,
-        ...(trimmedSlug ? { slug: trimmedSlug } : {}),
-      });
+      const response = await runAsyncTransition(() =>
+        createOrganizationWorkspaceAction({
+          name: trimmedName,
+          ...(trimmedSlug ? { slug: trimmedSlug } : {}),
+        })
+      );
 
       if (!response.ok) {
         toast.error(
@@ -106,14 +109,15 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
         id: createToastId,
       });
 
-      form.reset();
-      onOpenChange(false);
-
-      router.replace({
-        pathname: "/w/[workspaceSlug]/overview",
-        params: {
-          workspaceSlug: response.data.workspaceSlug,
-        },
+      startTransition(() => {
+        form.reset();
+        onOpenChange(false);
+        router.replace({
+          pathname: "/w/[workspaceSlug]/overview",
+          params: {
+            workspaceSlug: response.data.workspaceSlug,
+          },
+        });
       });
     },
   });

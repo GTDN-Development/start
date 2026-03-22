@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import { useState, useRef } from "react";
+import { startTransition, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { Spinner } from "@/components/ui/spinner";
 
 import { cn } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/utils";
 
 type ContactFormValues = {
   fullName: string;
@@ -87,14 +88,16 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
     onSubmit: async ({ value }: { value: ContactFormValues }) => {
       setSubmitStatus({ type: null, message: "" });
 
-      const response = await submitContactFormAction(value);
+      const response = await runAsyncTransition(() => submitContactFormAction(value));
 
       if (response.ok) {
-        setSubmitStatus({
-          type: "success",
-          message: t("status.success.message"),
+        startTransition(() => {
+          setSubmitStatus({
+            type: "success",
+            message: t("status.success.message"),
+          });
+          form.reset();
         });
-        form.reset();
         turnstileRef.current?.reset();
 
         return;

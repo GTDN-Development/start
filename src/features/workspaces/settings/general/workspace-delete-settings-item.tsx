@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { useId, useState } from "react";
+import { startTransition, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -33,6 +33,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { deleteOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
+import { runAsyncTransition } from "@/lib/utils";
 
 type DeleteWorkspaceFormValues = {
   confirmationUrl: string;
@@ -81,7 +82,9 @@ export function WorkspaceDeleteSettingsItem({
         return;
       }
 
-      const response = await deleteOrganizationWorkspaceAction(workspace.slug);
+      const response = await runAsyncTransition(() =>
+        deleteOrganizationWorkspaceAction(workspace.slug)
+      );
 
       if (!response.ok) {
         toast.error(t("status.failed"), {
@@ -94,9 +97,11 @@ export function WorkspaceDeleteSettingsItem({
         id: deleteWorkspaceToastId,
       });
 
-      setIsDeleteDialogOpen(false);
-      form.reset();
-      router.replace("/overview");
+      startTransition(() => {
+        setIsDeleteDialogOpen(false);
+        form.reset();
+        router.replace("/overview");
+      });
     },
   });
 

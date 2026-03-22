@@ -3,8 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { SettingsPage } from "@/features/application/settings-page";
-import { WorkspaceInviteMembersSettingsItem } from "@/features/workspaces/settings/members/workspace-invite-members-settings-item";
-import { WorkspaceMembersManagementSettingsItem } from "@/features/workspaces/settings/members/workspace-members-management-settings-item";
+import { WorkspaceMembersSettingsSection } from "@/features/workspaces/settings/members/workspace-members-settings-section";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/config/auth";
@@ -128,14 +127,12 @@ export default async function Page({
       title={tWorkspaceMembersPage("title")}
       description={tWorkspaceMembersPage("description")}
     >
-      <div className="grid gap-8">
-        <WorkspaceInviteMembersSettingsItem workspace={workspaceSettings} />
-        <WorkspaceMembersManagementSettingsItem
-          workspace={workspaceSettings}
-          members={members}
-          invites={invites}
-        />
-      </div>
+      {/* Keep members and invites under one client owner to avoid broad refreshes/remounts. */}
+      <WorkspaceMembersSettingsSection
+        workspace={workspaceSettings}
+        initialMembers={members}
+        initialInvites={invites}
+      />
     </SettingsPage>
   );
 }

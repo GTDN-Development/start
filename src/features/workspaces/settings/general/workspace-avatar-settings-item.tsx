@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, useId, useRef, useState } from "react";
+import { type ChangeEvent, startTransition, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { PencilIcon, Trash2Icon } from "lucide-react";
@@ -32,6 +32,7 @@ import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigati
 import { workspaceConfig } from "@/config/workspace";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import { getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
+import { runAsyncTransition } from "@/lib/utils";
 
 export function WorkspaceAvatarSettingsItem({
   workspace,
@@ -92,9 +93,11 @@ export function WorkspaceAvatarSettingsItem({
         return;
       }
 
-      const response = await updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
-        avatarFile: preparedAvatarFileResult.file,
-      });
+      const response = await runAsyncTransition(() =>
+        updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
+          avatarFile: preparedAvatarFileResult.file,
+        })
+      );
 
       if (!response.ok) {
         toast.error(
@@ -109,11 +112,13 @@ export function WorkspaceAvatarSettingsItem({
         return;
       }
 
-      patchWorkspace(workspaceSnapshot.id, response.data.workspace);
+      startTransition(() => {
+        patchWorkspace(workspaceSnapshot.id, response.data.workspace);
+        setFailedAvatarUrl(null);
+      });
       toast.success(t("status.updated"), {
         id: avatarToastId,
       });
-      setFailedAvatarUrl(null);
     } finally {
       setIsAvatarUpdating(false);
     }
@@ -127,9 +132,11 @@ export function WorkspaceAvatarSettingsItem({
     setIsAvatarUpdating(true);
 
     try {
-      const response = await updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
-        removeAvatar: true,
-      });
+      const response = await runAsyncTransition(() =>
+        updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
+          removeAvatar: true,
+        })
+      );
 
       if (!response.ok) {
         toast.error(t("status.removeFailed"), {
@@ -138,11 +145,13 @@ export function WorkspaceAvatarSettingsItem({
         return;
       }
 
-      patchWorkspace(workspaceSnapshot.id, response.data.workspace);
+      startTransition(() => {
+        patchWorkspace(workspaceSnapshot.id, response.data.workspace);
+        setFailedAvatarUrl(null);
+      });
       toast.success(t("status.removed"), {
         id: avatarToastId,
       });
-      setFailedAvatarUrl(null);
     } finally {
       setIsAvatarUpdating(false);
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, startTransition, useContext, useState, type ReactNode } from "react";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
   COOKIE_NAME,
@@ -112,7 +112,9 @@ export function CookieContextProvider({
     });
 
     if (!isSameConsent(consent, nextConsent)) {
-      router.refresh();
+      startTransition(() => {
+        router.refresh();
+      });
     }
   }
 

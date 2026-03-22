@@ -35,6 +35,7 @@ import {
 import type {
   ServerWorkspaceResponse,
   UserWorkspace,
+  WorkspaceInviteSummary,
   WorkspaceResponse,
 } from "@/server/workspaces/workspace-types";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
@@ -157,8 +158,17 @@ export async function updateWorkspaceGeneralAction(
   );
 
   if (response.ok) {
-    await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    revalidateWorkspaceGeneralPaths(response.data.previousSlug, response.data.workspace.slug);
+    const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
+    const workspaceSlugChanged = response.data.previousSlug !== response.data.workspace.slug;
+    const shouldUpdateActiveWorkspaceCookie = activeWorkspaceSlug !== response.data.workspace.slug;
+
+    if (shouldUpdateActiveWorkspaceCookie) {
+      await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
+    }
+
+    if (workspaceSlugChanged) {
+      revalidateWorkspaceGeneralPaths(response.data.previousSlug, response.data.workspace.slug);
+    }
   }
 
   return finalizeWorkspaceAction(response, (data) => ({
@@ -209,7 +219,7 @@ export async function changeMemberRoleAction(
   workspaceSlug: string,
   memberId: string,
   role: "owner" | "admin" | "member"
-): Promise<WorkspaceResponse<{ updated: true }>> {
+): Promise<WorkspaceResponse<{ memberId: string; role: "owner" | "admin" | "member" }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedMemberId = workspaceIdSchema.safeParse(memberId);
   const parsedRole = workspaceMemberRoleSchema.safeParse(role);
@@ -228,13 +238,16 @@ export async function changeMemberRoleAction(
     revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
   }
 
-  return finalizeWorkspaceAction(response);
+  return finalizeWorkspaceAction(response, () => ({
+    memberId: parsedMemberId.data,
+    role: parsedRole.data,
+  }));
 }
 
 export async function removeMemberAction(
   workspaceSlug: string,
   memberId: string
-): Promise<WorkspaceResponse<{ removed: true }>> {
+): Promise<WorkspaceResponse<{ memberId: string }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedMemberId = workspaceIdSchema.safeParse(memberId);
 
@@ -251,13 +264,17 @@ export async function removeMemberAction(
     revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
   }
 
-  return finalizeWorkspaceAction(response);
+  return finalizeWorkspaceAction(response, () => ({
+    memberId: parsedMemberId.data,
+  }));
 }
 
 export async function transferOwnershipAction(
   workspaceSlug: string,
   targetMemberId: string
-): Promise<WorkspaceResponse<{ transferred: true }>> {
+): Promise<
+  WorkspaceResponse<{ previousOwnerMemberId: string; nextOwnerMemberId: string }>
+> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedTargetMemberId = workspaceIdSchema.safeParse(targetMemberId);
 
@@ -284,7 +301,7 @@ export async function createInviteAction(
     email: string;
     role: "admin" | "member";
   }
-): Promise<WorkspaceResponse<{ created: true }>> {
+): Promise<WorkspaceResponse<{ invite: WorkspaceInviteSummary }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedInput = createInviteInputSchema.safeParse(input);
 
@@ -308,7 +325,7 @@ export async function resendInviteAction(
   workspaceSlug: string,
   inviteId: string,
   locale: AppLocale
-): Promise<WorkspaceResponse<{ resent: true }>> {
+): Promise<WorkspaceResponse<{ inviteId: string; expiresAt: string; updatedAt: string }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedInviteId = workspaceIdSchema.safeParse(inviteId);
   const parsedLocale = z.enum(routing.locales).safeParse(locale);
@@ -333,7 +350,7 @@ export async function resendInviteAction(
 export async function revokeInviteAction(
   workspaceSlug: string,
   inviteId: string
-): Promise<WorkspaceResponse<{ revoked: true }>> {
+): Promise<WorkspaceResponse<{ inviteId: string }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedInviteId = workspaceIdSchema.safeParse(inviteId);
 
@@ -350,7 +367,9 @@ export async function revokeInviteAction(
     revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
   }
 
-  return finalizeWorkspaceAction(response);
+  return finalizeWorkspaceAction(response, () => ({
+    inviteId: parsedInviteId.data,
+  }));
 }
 
 export async function resolvePostAuthWorkspaceAction(): Promise<
