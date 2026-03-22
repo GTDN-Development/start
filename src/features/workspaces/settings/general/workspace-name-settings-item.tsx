@@ -36,16 +36,14 @@ export function WorkspaceNameSettingsItem({
   const t = useTranslations("pages.workspace.general.name");
   const tCommon = useTranslations("pages.workspace.common");
   const { patchWorkspace, workspaces } = useWorkspaceNavigation();
-
   const nameToastId = useId();
+  const [workspaceName, setWorkspaceName] = useState(workspace.name);
 
   const currentWorkspace = workspaces.find(
     (candidateWorkspace) => candidateWorkspace.id === workspace.id
   );
   const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
   const isReadOnly = workspaceSnapshot.role === "member";
-
-  const [workspaceName, setWorkspaceName] = useState(workspace.name);
 
   const workspaceNameSchema = z.object({
     name: z

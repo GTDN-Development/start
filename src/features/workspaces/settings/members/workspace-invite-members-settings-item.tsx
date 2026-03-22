@@ -1,5 +1,3 @@
-"use client";
-
 import { startTransition, useState } from "react";
 import { z } from "zod";
 import { useLocale, useTranslations } from "next-intl";
@@ -56,14 +54,14 @@ export function WorkspaceInviteMembersSettingsItem({
   const tInvite = useTranslations("pages.workspace.members.invite");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
-
   const locale = useLocale() as AppLocale;
-  const isReadOnly = workspace.role === "member";
 
   const [isInviting, setIsInviting] = useState(false);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<InviteRole>("member");
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
+
+  const isReadOnly = workspace.role === "member";
 
   function handleRoleChange(nextRole: string | null) {
     if (!nextRole || !isWorkspaceInvitableRole(nextRole)) {

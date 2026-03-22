@@ -58,7 +58,6 @@ export function YourDevicesSettingsItem({
   const [pendingDeviceSessionId, setPendingDeviceSessionId] = useState<string | null>(null);
   const [isSignOutOthersDialogOpen, setIsSignOutOthersDialogOpen] = useState(false);
   const [isSignOutOthersPending, setIsSignOutOthersPending] = useState(false);
-
   const dateTimeFormatter = useMemo(
     () =>
       new Intl.DateTimeFormat(locale, {
@@ -67,6 +66,9 @@ export function YourDevicesSettingsItem({
       }),
     [locale]
   );
+  const hasOtherDeviceSessions = deviceSessions.some((session) => !session.isCurrentDevice);
+  const isSignOutOthersDisabled =
+    isSignOutOthersPending || pendingDeviceSessionId !== null || !hasOtherDeviceSessions;
 
   async function handleSignOutOtherDevices(): Promise<void> {
     setIsSignOutOthersPending(true);
@@ -123,10 +125,6 @@ export function YourDevicesSettingsItem({
     handleAuthError(response.errorCode, t, router, "security.devices.status.signOutError");
     setPendingDeviceSessionId(null);
   }
-
-  const hasOtherDeviceSessions = deviceSessions.some((session) => !session.isCurrentDevice);
-  const isSignOutOthersDisabled =
-    isSignOutOthersPending || pendingDeviceSessionId !== null || !hasOtherDeviceSessions;
 
   return (
     <SettingsItem>

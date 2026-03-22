@@ -1,13 +1,13 @@
-"use client";
-
 import { startTransition } from "react";
 import { resolvePostAuthWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
-import { useRouter } from "@/i18n/navigation";
+import type { AppHref } from "@/i18n/navigation";
 import { runAsyncTransition } from "@/lib/utils";
 
-type AppRouter = ReturnType<typeof useRouter>;
+type PostAuthRouter = {
+  replace: (href: AppHref) => void;
+};
 
-export async function replaceToPostAuthDestination(router: AppRouter): Promise<void> {
+export async function replaceToPostAuthDestination(router: PostAuthRouter): Promise<void> {
   const workspaceResponse = await runAsyncTransition(() => resolvePostAuthWorkspaceAction());
 
   if (workspaceResponse.ok) {

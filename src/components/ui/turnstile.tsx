@@ -1,5 +1,3 @@
-"use client";
-
 import { Turnstile as TurnstilePrimitive, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { useImperativeHandle, useRef } from "react";
 
