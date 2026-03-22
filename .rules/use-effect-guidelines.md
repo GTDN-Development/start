@@ -111,6 +111,15 @@
 - Takova vyjimka ma byt explicitne obhajena v review a pokud mozno kratce zdokumentovana v kodu.
 - `useMountEffect` neni automaticka nahrada za fetch v `useEffect`; samotne prepsani fetchu do mount helperu neresi architektonicky problem.
 
+### 3c. Po mutaci neobnovujte cely route strom bez duvodu
+
+- `router.refresh()` berte jako posledni moznost pro server-driven view, ne jako default po kazde mutaci.
+- Pokud uz mate lokalni nebo sdileny source of truth v Reactu, aktualizujte ten primo (`patch*`, local state, store, provider) a nedublujte to full refreshi.
+- Anti-pattern je: mutace uspeje -> lokalne patchnu data -> hned nato zavolam `router.refresh()`.
+- Tenhle dvojity orchestration casto zbytecne aktivuje `loading.tsx` / Suspense boundaries, zhorsuje UX flicker a muze odhalit React boundary edge-cases.
+- Pokud aktualni view stale stoji na server-rendered props bez client store, je `router.refresh()` pripustny, ale ma byt vedoma vyjimka, ne reflex.
+- Po `router.push()` nebo `router.replace()` bezne nedava smysl pridavat dalsi `router.refresh()`.
+
 ### 4. Reset resit remountem
 
 - Pokud se komponenta ma pri zmene identity chovat jako nova instance, pouzijte `key`.

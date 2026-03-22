@@ -79,7 +79,6 @@ export function AccountDeleteAccountSettingsItem() {
         setIsDeleteDialogOpen(false);
         form.reset();
         router.replace("/sign-in");
-        router.refresh();
         return;
       }
 
@@ -95,7 +94,6 @@ export function AccountDeleteAccountSettingsItem() {
         setIsDeleteDialogOpen(false);
         form.reset();
         router.replace("/sign-in");
-        router.refresh();
         return;
       }
 

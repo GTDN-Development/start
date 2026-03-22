@@ -20,6 +20,10 @@
 - Use `"use cache"` directive for caching — not the old `fetch` cache options
 - `revalidateTag(tag, cacheLifeProfile)` requires a cacheLife profile as the 2nd argument
 - Parallel route slots require explicit `default.tsx` files
+- Treat `router.refresh()` as a last resort for server-driven views; if the UI already has a shared/local source of truth, update that directly instead
+- Do not pair `router.refresh()` with an already-applied local/context patch for the same mutation
+- Do not call `router.refresh()` immediately after `router.push()` or `router.replace()`
+- Be extra careful with `router.refresh()` on routes with `loading.tsx` or nested Suspense boundaries — it can remount large route segments, cause loading flicker, and surface React boundary bugs
 
 ## Architecture
 
@@ -65,6 +69,7 @@
 
 - Default to no raw `useEffect` in app code — follow `.rules/use-effect-guidelines.md`
 - Prefer render-time derivation, event handlers, server/data abstractions, `key`, and `useSyncExternalStore` over `useEffect`
+- Prefer one source of truth per interactive surface; if a mutation must update multiple visible components, use shared client state or return the updated payload instead of relying on a broad `router.refresh()`
 - `useMountEffect()` is only for mount/unmount sync with external systems — do not move business logic into it just to satisfy lint
 - `useLayoutEffect()` is only for DOM measurement or pre-paint sync that would visibly break in `useEffect`
 

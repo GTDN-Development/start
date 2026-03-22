@@ -30,7 +30,6 @@ import {
 } from "@/features/workspaces/workspace-avatar";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import { workspaceConfig } from "@/config/workspace";
-import { useRouter } from "@/i18n/navigation";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import { getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
 
@@ -41,7 +40,6 @@ export function WorkspaceAvatarSettingsItem({
 }) {
   const t = useTranslations("pages.workspace.general.avatar");
   const tCommon = useTranslations("pages.workspace.common");
-  const router = useRouter();
   const { patchWorkspace, workspaces } = useWorkspaceNavigation();
   const avatarToastId = useId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -116,7 +114,6 @@ export function WorkspaceAvatarSettingsItem({
         id: avatarToastId,
       });
       setFailedAvatarUrl(null);
-      router.refresh();
     } finally {
       setIsAvatarUpdating(false);
     }
@@ -146,7 +143,6 @@ export function WorkspaceAvatarSettingsItem({
         id: avatarToastId,
       });
       setFailedAvatarUrl(null);
-      router.refresh();
     } finally {
       setIsAvatarUpdating(false);
     }

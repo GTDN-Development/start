@@ -306,7 +306,6 @@ function handleAuthError(
   if (errorCode === "UNAUTHORIZED") {
     toast.error(t("security.devices.status.unauthorized"));
     router.replace("/sign-in");
-    router.refresh();
     return;
   }
 
