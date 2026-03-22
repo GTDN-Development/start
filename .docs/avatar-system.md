@@ -64,6 +64,9 @@ Current seeds:
 - all workspace avatars: `workspace.id`
 - workspace member avatars: `member.userId`
 
+For user avatars, account settings, header/account menus, and workspace member lists should all use the
+same `user.id` seed so the fallback color stays synced across surfaces.
+
 This keeps colors stable across reloads without storing any extra color field in the database.
 
 ## Current Constraints
