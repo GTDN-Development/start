@@ -128,19 +128,12 @@
             "name": {
               "label": "Název",
               "placeholder": "Zadejte název workspace",
-              "description": "Používá se v navigaci a přepínači workspace."
-            },
-            "slug": {
-              "label": "URL",
-              "placeholder": "nazev-tymu",
-              "description": "Volitelné. Pokud necháte prázdné, URL se vygeneruje z názvu workspace."
+              "description": "Používá se v navigaci a přepínači workspace. URL vygenerujeme automaticky z názvu."
             }
           },
           "validation": {
             "nameRequired": "Název workspace je povinný.",
-            "nameMax": "Název workspace může mít maximálně {max} znaků.",
-            "slugMax": "URL workspace může mít maximálně {max} znaků.",
-            "slugPattern": "Použijte pouze malá písmena, čísla a pomlčky."
+            "nameMax": "Název workspace může mít maximálně {max} znaků."
           },
           "submit": {
             "default": "Vytvořit workspace",

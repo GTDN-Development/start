@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type PocketBase from "pocketbase";
+import { toWorkspaceSlug, trimWorkspaceSlugLength } from "@/features/workspaces/workspace-slug";
 import { getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 import {
   MAX_WORKSPACE_NAME_LENGTH,
@@ -42,25 +43,7 @@ export function createPersonalWorkspaceSlug(userId: string, value: string): stri
   const baseSlug = toWorkspaceSlug(value, MAX_WORKSPACE_SLUG_LENGTH - 7);
   const suffix = userId.slice(0, 6).toLowerCase();
 
-  return trimSlugLength(`${baseSlug}-${suffix}`, MAX_WORKSPACE_SLUG_LENGTH);
-}
-
-export function toWorkspaceSlug(value: string, maxLength = MAX_WORKSPACE_SLUG_LENGTH): string {
-  const normalizedValue = value
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  const fallbackValue = normalizedValue || "workspace";
-
-  return trimSlugLength(fallbackValue, maxLength);
-}
-
-export function trimSlugLength(value: string, maxLength: number): string {
-  const normalizedValue = value.slice(0, maxLength).replace(/-+$/g, "");
-
-  return normalizedValue || "workspace";
+  return trimWorkspaceSlugLength(`${baseSlug}-${suffix}`, MAX_WORKSPACE_SLUG_LENGTH);
 }
 
 export async function resolveUniqueWorkspaceSlug(
@@ -72,7 +55,10 @@ export async function resolveUniqueWorkspaceSlug(
 
   for (let index = 0; index < 20; index += 1) {
     const suffix = index === 0 ? "" : `-${index + 1}`;
-    const candidateBase = trimSlugLength(baseSlug, MAX_WORKSPACE_SLUG_LENGTH - suffix.length);
+    const candidateBase = trimWorkspaceSlugLength(
+      baseSlug,
+      MAX_WORKSPACE_SLUG_LENGTH - suffix.length
+    );
     const candidateSlug = `${candidateBase}${suffix}`;
     const existingWorkspace = await findWorkspaceBySlug(pb, candidateSlug);
 
@@ -82,7 +68,7 @@ export async function resolveUniqueWorkspaceSlug(
   }
 
   const fallbackSuffix = randomBytes(2).toString("hex");
-  const fallbackBase = trimSlugLength(
+  const fallbackBase = trimWorkspaceSlugLength(
     baseSlug,
     MAX_WORKSPACE_SLUG_LENGTH - fallbackSuffix.length - 1
   );

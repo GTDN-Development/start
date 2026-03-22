@@ -8,7 +8,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import {
   Drawer,
   DrawerClose,
@@ -19,7 +18,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
-import { app } from "@/config/app";
 import { workspaceConfig } from "@/config/workspace";
 import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { useRouter } from "@/i18n/navigation";
@@ -28,7 +26,6 @@ import { runAsyncTransition } from "@/lib/utils";
 
 type WorkspaceCreateFormValues = {
   name: string;
-  slug: string;
 };
 
 type WorkspaceCreateDrawerProps = {
@@ -53,43 +50,20 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
           max: String(workspaceConfig.limits.nameMaxLength),
         }),
       }),
-    slug: z
-      .string()
-      .trim()
-      .max(workspaceConfig.limits.slugMaxLength, {
-        message: t("validation.slugMax", {
-          max: String(workspaceConfig.limits.slugMaxLength),
-        }),
-      })
-      .refine(
-        (value) => {
-          if (!value) {
-            return true;
-          }
-
-          return workspaceConfig.validation.slugPattern.test(value);
-        },
-        {
-          message: t("validation.slugPattern"),
-        }
-      ),
   });
 
   const form = useForm({
     defaultValues: {
       name: "",
-      slug: "",
     },
     validators: {
       onSubmit: createWorkspaceSchema,
     },
     onSubmit: async ({ value }: { value: WorkspaceCreateFormValues }) => {
       const trimmedName = value.name.trim();
-      const trimmedSlug = value.slug.trim();
       const response = await runAsyncTransition(() =>
         createOrganizationWorkspaceAction({
           name: trimmedName,
-          ...(trimmedSlug ? { slug: trimmedSlug } : {}),
         })
       );
 
@@ -176,37 +150,6 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
                             autoComplete="off"
                           />
                           <FieldDescription>{t("fields.name.description")}</FieldDescription>
-                          {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                        </Field>
-                      );
-                    }}
-                  </form.Field>
-
-                  <form.Field name="slug">
-                    {(field) => {
-                      const isInvalid =
-                        (field.state.meta.isTouched || submissionAttempts > 0) &&
-                        !field.state.meta.isValid;
-
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={`workspace-create-${field.name}`}>
-                            {t("fields.slug.label")}
-                          </FieldLabel>
-                          <InputGroup>
-                            <InputGroupAddon>{app.site.domain}/w/</InputGroupAddon>
-                            <InputGroupInput
-                              id={`workspace-create-${field.name}`}
-                              name={`workspace-create-${field.name}`}
-                              value={field.state.value}
-                              onBlur={field.handleBlur}
-                              onChange={(event) => field.handleChange(event.target.value)}
-                              placeholder={t("fields.slug.placeholder")}
-                              aria-invalid={isInvalid}
-                              autoComplete="off"
-                            />
-                          </InputGroup>
-                          <FieldDescription>{t("fields.slug.description")}</FieldDescription>
                           {isInvalid && <FieldError errors={field.state.meta.errors} />}
                         </Field>
                       );

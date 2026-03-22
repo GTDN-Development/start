@@ -128,19 +128,12 @@
             "name": {
               "label": "Name",
               "placeholder": "Enter workspace name",
-              "description": "Used in navigation and workspace switcher."
-            },
-            "slug": {
-              "label": "URL",
-              "placeholder": "team-name",
-              "description": "Optional. Leave empty to generate it from the workspace name."
+              "description": "Used in navigation and workspace switcher. We generate the URL automatically from the name."
             }
           },
           "validation": {
             "nameRequired": "Workspace name is required.",
-            "nameMax": "Workspace name must be at most {max} characters long.",
-            "slugMax": "Workspace URL must be at most {max} characters long.",
-            "slugPattern": "Use only lowercase letters, numbers, and hyphens."
+            "nameMax": "Workspace name must be at most {max} characters long."
           },
           "submit": {
             "default": "Create workspace",

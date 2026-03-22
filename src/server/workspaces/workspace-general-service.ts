@@ -1,3 +1,4 @@
+import { toWorkspaceSlug } from "@/features/workspaces/workspace-slug";
 import type PocketBase from "pocketbase";
 import type { WorkspacesRecord } from "@/types/pocketbase";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
@@ -17,7 +18,6 @@ import {
   getPersonalWorkspaceName,
   normalizeWorkspaceName,
   resolveUniqueWorkspaceSlug,
-  toWorkspaceSlug,
 } from "@/server/workspaces/workspace-normalization";
 import {
   countWorkspaceMembers,
