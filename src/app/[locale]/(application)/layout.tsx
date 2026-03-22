@@ -4,9 +4,10 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { ApplicationLayout } from "@/features/application/application-layout";
 import { AUTH_REDIRECTS } from "@/config/auth";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { requireCurrentUser } from "@/server/auth/current-user";
+import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { listUserWorkspaces } from "@/server/workspaces/workspace-resolution-service";
+import { listUserWorkspacesWithClient } from "@/server/workspaces/workspace-resolution-service";
 
 type ApplicationRouteLayoutProps = {
   children: React.ReactNode;
@@ -24,21 +25,9 @@ export const metadata: Metadata = {
 
 export default async function Layout({ children, params }: ApplicationRouteLayoutProps) {
   const { locale } = await params;
-  const authSession = await getServerAuthSession();
+  const currentUser = await requireCurrentUser();
 
-  if (!authSession.ok) {
-    redirect({
-      href: AUTH_REDIRECTS.unauthenticatedTo,
-      locale: locale as Locale,
-    });
-
-    return null;
-  }
-
-  const sessionPayload = authSession.ok ? authSession.data : null;
-  const session = sessionPayload?.session;
-
-  if (!session) {
+  if (!currentUser.ok) {
     redirect({
       href: AUTH_REDIRECTS.unauthenticatedTo,
       locale: locale as Locale,
@@ -48,12 +37,15 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
   }
 
   const user = {
-    email: session.user.email,
-    name: session.user.name,
-    verified: session.user.verified,
-    avatarUrl: session.user.avatarUrl,
+    email: currentUser.user.email,
+    name: getNullableTrimmedString(currentUser.user.name),
+    verified: currentUser.user.verified === true,
+    avatarUrl: getAvatarUrl(currentUser.pb, currentUser.user),
   };
-  const userWorkspacesResponse = await listUserWorkspaces(session.user.id);
+  const userWorkspacesResponse = await listUserWorkspacesWithClient(
+    currentUser.pb,
+    currentUser.user.id
+  );
 
   if (!userWorkspacesResponse.ok) {
     if (

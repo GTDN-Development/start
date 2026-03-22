@@ -10,8 +10,8 @@ import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-s
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
-import { getServerAuthSession } from "@/server/auth/auth-service";
-import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
+import { requireCurrentUser } from "@/server/auth/current-user";
+import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
 
 export default async function Layout({
   children,
@@ -19,10 +19,9 @@ export default async function Layout({
 }: LayoutProps<"/[locale]/w/[workspaceSlug]/settings">) {
   const { locale, workspaceSlug } = await params;
   const currentLocale = locale as Locale;
-  const sessionResponse = await getServerAuthSession();
-  const session = sessionResponse.ok ? sessionResponse.data.session : null;
+  const currentUser = await requireCurrentUser();
 
-  if (!sessionResponse.ok || !session) {
+  if (!currentUser.ok) {
     redirect({
       href: AUTH_REDIRECTS.unauthenticatedTo,
       locale: currentLocale,
@@ -31,7 +30,11 @@ export default async function Layout({
     return null;
   }
 
-  const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
+  const workspaceResponse = await resolveWorkspaceForUserBySlugWithClient(
+    currentUser.pb,
+    currentUser.user.id,
+    workspaceSlug
+  );
 
   if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
     redirect({

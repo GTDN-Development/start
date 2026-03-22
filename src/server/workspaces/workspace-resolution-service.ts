@@ -22,6 +22,13 @@ export async function listUserWorkspaces(
 ): Promise<ServerWorkspaceResponse<{ workspaces: UserWorkspace[] }>> {
   const { pb } = await createPocketBaseServerClient();
 
+  return listUserWorkspacesWithClient(pb, userId);
+}
+
+export async function listUserWorkspacesWithClient(
+  pb: PocketBase,
+  userId: string
+): Promise<ServerWorkspaceResponse<{ workspaces: UserWorkspace[] }>> {
   try {
     const workspaces = await listUserWorkspaceMemberships(pb, userId);
 
@@ -65,6 +72,14 @@ export async function resolveWorkspaceForUserBySlug(
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>> {
   const { pb } = await createPocketBaseServerClient();
 
+  return resolveWorkspaceForUserBySlugWithClient(pb, userId, slug);
+}
+
+export async function resolveWorkspaceForUserBySlugWithClient(
+  pb: PocketBase,
+  userId: string,
+  slug: string
+): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>> {
   try {
     const workspace = await findWorkspaceBySlug(pb, slug);
 

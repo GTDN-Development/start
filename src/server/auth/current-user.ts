@@ -1,4 +1,4 @@
-import type PocketBase from "pocketbase";
+import PocketBase, { ClientResponseError } from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
 import {
   createClearedAuthAndDeviceCookies,
@@ -6,7 +6,11 @@ import {
 } from "@/server/device-sessions/device-sessions-cookie";
 import { validateDeviceSessionOrInvalidate } from "@/server/device-sessions/device-sessions-service";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
-import { isUsersRecord, logServiceError } from "@/server/pocketbase/pocketbase-utils";
+import {
+  formatServiceError,
+  isUsersRecord,
+  logServiceError,
+} from "@/server/pocketbase/pocketbase-utils";
 
 type RequireCurrentUserErrorCode = "UNAUTHORIZED" | "UNKNOWN_ERROR";
 
@@ -31,7 +35,9 @@ export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
   }
 
   if (!pb.authStore.isValid || !pb.authStore.record) {
-    return createUnauthorizedResult(hasAuthCookie ? createClearedAuthAndDeviceCookies() : undefined);
+    return createUnauthorizedResult(
+      hasAuthCookie ? createClearedAuthAndDeviceCookies() : undefined
+    );
   }
 
   if (!isUsersRecord(pb.authStore.record)) {
@@ -51,13 +57,28 @@ export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
       return createUnauthorizedResult(deviceSessionCheck.clearCookies);
     }
 
+    const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+
+    if (!isUsersRecord(refreshedAuth.record)) {
+      return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
+    }
+
     return {
       ok: true,
       pb,
-      user: pb.authStore.record,
+      user: refreshedAuth.record,
       currentSessionIdHash: deviceSessionCheck.sessionIdHash,
     };
   } catch (error) {
+    if (isAuthRefreshUnauthorizedError(error)) {
+      console.warn(
+        "[auth-current-user] requireCurrentUser.authRefreshUnauthorized",
+        formatServiceError(error)
+      );
+
+      return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
+    }
+
     logServiceError("auth-current-user", "requireCurrentUser.deviceValidation", error);
 
     return {
@@ -73,4 +94,11 @@ function createUnauthorizedResult(setCookie?: string[]): RequireCurrentUserResul
     errorCode: "UNAUTHORIZED",
     ...(setCookie ? { setCookie } : {}),
   };
+}
+
+function isAuthRefreshUnauthorizedError(error: unknown) {
+  return (
+    error instanceof ClientResponseError &&
+    (error.status === 400 || error.status === 401 || error.status === 403 || error.status === 404)
+  );
 }

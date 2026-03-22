@@ -7,8 +7,8 @@ import { WorkspaceMembersSettingsSection } from "@/features/workspaces/settings/
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/config/auth";
-import { getServerAuthSession } from "@/server/auth/auth-service";
-import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
+import { requireCurrentUser } from "@/server/auth/current-user";
+import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
 import { listWorkspaceInvites } from "@/server/workspaces/workspace-invite-service";
 import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
 import { CircleAlertIcon } from "lucide-react";
@@ -48,10 +48,9 @@ export default async function Page({
 
   setRequestLocale(locale as Locale);
 
-  const sessionResponse = await getServerAuthSession();
-  const session = sessionResponse.ok ? sessionResponse.data.session : null;
+  const currentUser = await requireCurrentUser();
 
-  if (!sessionResponse.ok || !session) {
+  if (!currentUser.ok) {
     redirect({
       href: AUTH_REDIRECTS.unauthenticatedTo,
       locale: locale as Locale,
@@ -60,7 +59,11 @@ export default async function Page({
     return null;
   }
 
-  const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
+  const workspaceResponse = await resolveWorkspaceForUserBySlugWithClient(
+    currentUser.pb,
+    currentUser.user.id,
+    workspaceSlug
+  );
 
   if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
     redirect({
@@ -96,7 +99,7 @@ export default async function Page({
   const invites = invitesResponse.data.invites;
 
   const ownerCount = members.filter((member) => member.role === "owner").length;
-  const currentUserMember = members.find((member) => member.userId === session.user.id) ?? null;
+  const currentUserMember = members.find((member) => member.userId === currentUser.user.id) ?? null;
   const isCurrentUserLastOwner = currentUserMember?.role === "owner" && ownerCount === 1;
 
   const workspaceSettings = {

@@ -236,34 +236,19 @@ export async function confirmEmailVerificationToken(
 ): Promise<ServerAuthResponse<VerifyEmailPayload>> {
   const { pb, hadInvalidAuthCookie, shouldPersistSession } = await createPocketBaseServerClient();
 
+  const verifiedSessionResponse = await getVerifiedSessionResponse(pb, shouldPersistSession);
+
+  if (verifiedSessionResponse) {
+    return verifiedSessionResponse;
+  }
+
   try {
     await pb.collection("users").confirmVerification(token);
 
-    if (pb.authStore.isValid && isUsersRecord(pb.authStore.record)) {
-      const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
-      const session = createAuthSession(pb, refreshedAuth.record);
+    const confirmedSessionResponse = await getVerifiedSessionResponse(pb, shouldPersistSession);
 
-      if (!session) {
-        return {
-          ok: true,
-          data: {
-            verified: true,
-            session: null,
-          },
-          setCookie: createClearedPocketBaseAuthCookies(),
-        };
-      }
-
-      return {
-        ok: true,
-        data: {
-          verified: true,
-          session,
-        },
-        setCookie: exportPocketBaseAuthCookies(pb, {
-          sessionOnly: !shouldPersistSession,
-        }),
-      };
+    if (confirmedSessionResponse) {
+      return confirmedSessionResponse;
     }
 
     return {
@@ -275,6 +260,14 @@ export async function confirmEmailVerificationToken(
       ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
     };
   } catch (error) {
+    if (mapVerifyEmailErrorCode(error) === "BAD_REQUEST") {
+      const verifiedAfterRetryResponse = await getVerifiedSessionResponse(pb, shouldPersistSession);
+
+      if (verifiedAfterRetryResponse) {
+        return verifiedAfterRetryResponse;
+      }
+    }
+
     const errorCode = mapVerifyEmailErrorCode(error);
 
     if (errorCode === "UNKNOWN_ERROR") {
@@ -286,6 +279,56 @@ export async function confirmEmailVerificationToken(
       errorCode,
       ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
     };
+  }
+}
+
+async function getVerifiedSessionResponse(
+  pb: PocketBase,
+  shouldPersistSession: boolean
+): Promise<ServerAuthResponse<VerifyEmailPayload> | null> {
+  if (!pb.authStore.isValid || !isUsersRecord(pb.authStore.record)) {
+    return null;
+  }
+
+  try {
+    const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+
+    if (refreshedAuth.record.verified !== true) {
+      return null;
+    }
+
+    const session = createAuthSession(pb, refreshedAuth.record);
+
+    if (!session) {
+      return {
+        ok: true,
+        data: {
+          verified: true,
+          session: null,
+        },
+        setCookie: createClearedPocketBaseAuthCookies(),
+      };
+    }
+
+    return {
+      ok: true,
+      data: {
+        verified: true,
+        session,
+      },
+      setCookie: exportPocketBaseAuthCookies(pb, {
+        sessionOnly: !shouldPersistSession,
+      }),
+    };
+  } catch (error) {
+    if (
+      error instanceof ClientResponseError &&
+      (error.status === 400 || error.status === 401 || error.status === 403 || error.status === 404)
+    ) {
+      return null;
+    }
+
+    throw error;
   }
 }
 
