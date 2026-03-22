@@ -22,7 +22,7 @@ export function parseDeviceInfo(userAgent: string): ParsedDeviceInfo {
 }
 
 function parseBrowser(userAgent: string): string {
-  if (userAgent.includes("edg/") || userAgent.includes("edge/")) {
+  if (userAgent.includes("edg/") || userAgent.includes("edge/") || userAgent.includes("edgios")) {
     return "Edge";
   }
 
@@ -30,16 +30,8 @@ function parseBrowser(userAgent: string): string {
     return "Firefox";
   }
 
-  if (userAgent.includes("opr/") || userAgent.includes("opera")) {
+  if (userAgent.includes("opr/") || userAgent.includes("opera") || userAgent.includes("opios")) {
     return "Opera";
-  }
-
-  if (
-    userAgent.includes("safari") &&
-    !userAgent.includes("chrome") &&
-    !userAgent.includes("chromium")
-  ) {
-    return "Safari";
   }
 
   if (
@@ -48,6 +40,10 @@ function parseBrowser(userAgent: string): string {
     userAgent.includes("crios")
   ) {
     return "Chrome";
+  }
+
+  if (userAgent.includes("safari")) {
+    return "Safari";
   }
 
   return "Unknown browser";
@@ -70,8 +66,16 @@ function parseOperatingSystem(userAgent: string): string {
     return "iPadOS";
   }
 
+  if (userAgent.includes("macintosh") && userAgent.includes("mobile")) {
+    return "iPadOS";
+  }
+
   if (userAgent.includes("mac os") || userAgent.includes("macintosh")) {
     return "macOS";
+  }
+
+  if (userAgent.includes("cros")) {
+    return "Chrome OS";
   }
 
   if (userAgent.includes("linux")) {
@@ -104,7 +108,7 @@ function parseDeviceType(userAgent: string, os: string): DeviceSessionDeviceType
 
   const combined = `${userAgent} ${os}`.toLowerCase();
 
-  if (/ipad|tablet|sm-t|tab\s/.test(combined)) {
+  if (os === "iPadOS" || /ipad|tablet|sm-t|tab\s/.test(combined)) {
     return "tablet";
   }
 
@@ -112,7 +116,11 @@ function parseDeviceType(userAgent: string, os: string): DeviceSessionDeviceType
     return "phone";
   }
 
-  if (/android|windows|mac|linux|cros|desktop/.test(combined)) {
+  if (os === "Android") {
+    return "tablet";
+  }
+
+  if (/windows|mac|linux|cros|desktop|chrome os/.test(combined)) {
     return "desktop";
   }
 

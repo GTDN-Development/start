@@ -39,7 +39,7 @@ import {
   signOutOtherDevicesAction,
 } from "@/features/account/actions/device-session-actions";
 import { useRouter } from "@/i18n/navigation";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 import type { DeviceSessionListItem } from "@/server/device-sessions/device-sessions-types";
 import { LaptopIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 

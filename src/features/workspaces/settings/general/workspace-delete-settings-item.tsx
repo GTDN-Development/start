@@ -33,7 +33,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { deleteOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 
 type DeleteWorkspaceFormValues = {
   confirmationUrl: string;

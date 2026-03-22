@@ -15,8 +15,8 @@ import { submitNewsletterFormAction } from "@/features/marketing/actions/marketi
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 
+import { runAsyncTransition } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
-import { runAsyncTransition } from "@/lib/utils";
 
 type NewsletterFormValues = {
   "newsletter-email": string;

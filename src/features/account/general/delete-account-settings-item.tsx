@@ -31,7 +31,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 import { Trash2Icon } from "lucide-react";
 
 type DeleteAccountFormValues = {

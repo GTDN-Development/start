@@ -22,7 +22,7 @@ import { workspaceConfig } from "@/config/workspace";
 import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 
 type WorkspaceNameFormValues = {
   name: string;

@@ -1,3 +1,4 @@
+import { ShieldIcon, SlidersHorizontalIcon, UserIcon, UsersIcon } from "lucide-react";
 import type { InnerSidebarNavItem } from "./inner-sidebar-layout";
 
 type InnerSidebarItemDefinition<TLabelKey extends string> = Omit<InnerSidebarNavItem, "label"> & {
@@ -19,17 +20,17 @@ export const accountInnerSidebarItems = [
   {
     href: "/account",
     labelKey: "nav.profile",
-    icon: "user",
+    icon: UserIcon,
   },
   {
     href: "/account/preferences",
     labelKey: "nav.general",
-    icon: "sliders",
+    icon: SlidersHorizontalIcon,
   },
   {
     href: "/account/security",
     labelKey: "nav.security",
-    icon: "shield",
+    icon: ShieldIcon,
     matchNested: true,
   },
 ] as const satisfies ReadonlyArray<
@@ -40,12 +41,12 @@ export const workspaceSettingsInnerSidebarItems = [
   {
     href: "/w/[workspaceSlug]/settings",
     labelKey: "general",
-    icon: "sliders",
+    icon: SlidersHorizontalIcon,
   },
   {
     href: "/w/[workspaceSlug]/settings/members",
     labelKey: "members",
-    icon: "users",
+    icon: UsersIcon,
   },
 ] as const satisfies ReadonlyArray<WorkspaceInnerSidebarItemDefinition<"general" | "members">>;
 

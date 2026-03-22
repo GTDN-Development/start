@@ -1,17 +1,5 @@
-const AVATAR_COLOR_CLASS_NAMES = [
-  "bg-rose-600 text-white",
-  "bg-red-600 text-white",
-  "bg-orange-600 text-white",
-  "bg-amber-700 text-white",
-  "bg-emerald-600 text-white",
-  "bg-teal-600 text-white",
-  "bg-cyan-700 text-white",
-  "bg-blue-600 text-white",
-  "bg-indigo-600 text-white",
-  "bg-violet-600 text-white",
-  "bg-purple-600 text-white",
-  "bg-pink-600 text-white",
-] as const;
+import { startTransition } from "react";
+import { avatarColorClassNames } from "@/config/brand";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -50,11 +38,19 @@ export function getUserInitials(value: string) {
 }
 
 export function getAvatarColorClass(seed: string) {
-  return AVATAR_COLOR_CLASS_NAMES[hashString(seed) % AVATAR_COLOR_CLASS_NAMES.length];
+  return avatarColorClassNames[hashString(seed) % avatarColorClassNames.length];
 }
 
 export function formatPhoneNumber(phone: string): string {
   return phone.replace(/(\d{3})(\d{3})(\d{3})(\d{3})/, "$1 $2 $3 $4");
+}
+
+export async function runAsyncTransition<T>(action: () => Promise<T>): Promise<T> {
+  return await new Promise<T>((resolve, reject) => {
+    startTransition(() => {
+      action().then(resolve).catch(reject);
+    });
+  });
 }
 
 function hashString(value: string) {

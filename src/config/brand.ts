@@ -1,3 +1,4 @@
+import type { AppIcon } from "@/types/icons";
 import { GitHubIcon, InstagramIcon, TwitterXIcon, YoutubeIcon } from "@/components/ui/icon-brand";
 
 export type ExternalLink = {
@@ -6,8 +7,23 @@ export type ExternalLink = {
 };
 
 export type SocialMediaLink = ExternalLink & {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: AppIcon;
 };
+
+export const avatarColorClassNames = [
+  "bg-rose-600 text-white",
+  "bg-red-600 text-white",
+  "bg-orange-600 text-white",
+  "bg-amber-700 text-white",
+  "bg-emerald-600 text-white",
+  "bg-teal-600 text-white",
+  "bg-cyan-700 text-white",
+  "bg-blue-600 text-white",
+  "bg-indigo-600 text-white",
+  "bg-violet-600 text-white",
+  "bg-purple-600 text-white",
+  "bg-pink-600 text-white",
+] as const;
 
 export const socialMediaLinks = {
   instagram: {

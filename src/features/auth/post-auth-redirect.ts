@@ -1,7 +1,7 @@
 import { startTransition } from "react";
 import { resolvePostAuthWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import type { AppHref } from "@/i18n/navigation";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 
 type PostAuthRouter = {
   replace: (href: AppHref) => void;

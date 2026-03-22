@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
 
 type SecurityTranslationFn = (key: string, values?: Record<string, string>) => string;
@@ -239,7 +239,9 @@ export function AccountChangePasswordItem() {
               </SettingsItemContent>
 
               <SettingsItemFooter>
-                <SettingsItemDescription>{t("security.password.footerHint")}</SettingsItemDescription>
+                <SettingsItemDescription>
+                  {t("security.password.footerHint")}
+                </SettingsItemDescription>
                 <Button type="submit" size="lg" disabled={isSubmitting} className="sm:self-end">
                   {isSubmitting ? <Spinner /> : null}
                   {isSubmitting

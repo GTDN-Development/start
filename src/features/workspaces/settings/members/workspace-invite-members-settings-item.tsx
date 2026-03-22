@@ -34,7 +34,7 @@ import type {
   WorkspaceSettingsWorkspace,
 } from "@/features/workspaces/settings/workspace-settings-types";
 import type { AppLocale } from "@/i18n/routing";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 
 type InviteRole = WorkspaceInvitableRole;
 

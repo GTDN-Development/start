@@ -1,4 +1,6 @@
 import type { AppPathname } from "@/i18n/navigation";
+import type { AppIcon } from "@/types/icons";
+import { LayoutDashboardIcon, LifeBuoyIcon, SettingsIcon, UserIcon } from "lucide-react";
 
 type MenuHref = AppPathname;
 
@@ -28,6 +30,10 @@ export type MenuLabelKey = MenuLinkLabelKey | MenuNestedLabelKey;
 export type MenuLink = {
   labelKey: MenuLinkLabelKey;
   href: MenuHref;
+};
+
+export type ApplicationMenuLink = MenuLink & {
+  icon: AppIcon;
 };
 
 export type MenuNested = {
@@ -61,11 +67,11 @@ export const marketingMenu: MenuItem[] = [
   { labelKey: "contact", href: "/contact" },
 ];
 
-export const applicationMenu: MenuLink[] = [
-  { labelKey: "overview", href: "/overview" },
-  { labelKey: "workspace", href: "/overview" },
-  { labelKey: "account", href: "/account" },
-  { labelKey: "support", href: "/contact/support" },
+export const applicationMenu: ApplicationMenuLink[] = [
+  { labelKey: "overview", href: "/overview", icon: LayoutDashboardIcon },
+  { labelKey: "workspace", href: "/overview", icon: SettingsIcon },
+  { labelKey: "account", href: "/account", icon: UserIcon },
+  { labelKey: "support", href: "/contact/support", icon: LifeBuoyIcon },
 ];
 
 export const applicationFooterMenu: MenuLink[] = [

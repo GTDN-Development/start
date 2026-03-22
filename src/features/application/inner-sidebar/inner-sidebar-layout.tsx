@@ -9,20 +9,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { type AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import {
-  CircleIcon,
-  ChevronDownIcon,
-  ShieldIcon,
-  SlidersHorizontalIcon,
-  UserIcon,
-  UsersIcon,
-} from "lucide-react";
+import type { AppIcon } from "@/types/icons";
+import { CircleIcon, ChevronDownIcon } from "lucide-react";
 import { useMemo } from "react";
 
 export type InnerSidebarNavItem = {
   href: AppHref;
   label: string;
-  icon?: string;
+  icon?: AppIcon;
   matchNested?: boolean;
   activePathnames?: string[];
   activePathPrefixes?: string[];
@@ -59,7 +53,9 @@ function InnerSidebarMobileNav({ className, title, items }: InnerSidebarMobileNa
             />
           }
         >
-          {currentItem && <InnerSidebarItemIcon icon={currentItem.icon} className="size-4 shrink-0" />}
+          {currentItem && (
+            <InnerSidebarItemIcon icon={currentItem.icon} className="size-4 shrink-0" />
+          )}
           {currentItem ? currentItem.label : title}
           <ChevronDownIcon aria-hidden="true" className="ml-auto size-4 shrink-0" />
         </DropdownMenuTrigger>
@@ -131,27 +127,10 @@ export function InnerSidebarLayout({ children, title, items, className }: InnerS
   );
 }
 
-function InnerSidebarItemIcon({
-  icon,
-  className,
-}: {
-  icon?: string;
-  className?: string;
-}) {
-  if (icon === "user") {
-    return <UserIcon aria-hidden="true" className={className} />;
-  }
-
-  if (icon === "shield") {
-    return <ShieldIcon aria-hidden="true" className={className} />;
-  }
-
-  if (icon === "sliders") {
-    return <SlidersHorizontalIcon aria-hidden="true" className={className} />;
-  }
-
-  if (icon === "users") {
-    return <UsersIcon aria-hidden="true" className={className} />;
+function InnerSidebarItemIcon({ icon, className }: { icon?: AppIcon; className?: string }) {
+  if (icon) {
+    const Icon = icon;
+    return <Icon aria-hidden="true" className={className} />;
   }
 
   return <CircleIcon aria-hidden="true" className={className} />;

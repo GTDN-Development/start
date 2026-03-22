@@ -36,8 +36,9 @@
 - **Never** introduce barrel files (`index.ts` / `index.tsx`) in features
 - **Never** add `shared/` folders inside features; place feature-wide types/helpers at feature root
 - Keep `src/components/ui` shadcn-compatible (safe target for shadcn CLI generated components)
-- Keep shared utility helpers centralized in `src/lib/utils.ts`; avoid splitting into many micro utility files
-- Before adding a new helper/utility, check whether an existing one already exists in `src/lib/utils.ts`, the relevant feature root, or `src/server/*`, and reuse/extend it when practical
+- Keep `src/lib/utils.ts` shadcn-managed and limited to preset-safe utilities (for example `cn()`); put app-specific shared helpers in `src/lib/app-utils.ts`
+- Never add app-specific helpers to `src/lib/utils.ts`. Reason: changing or reapplying a shadcn preset can restore `src/lib/utils.ts` to the default shadcn version, which removes custom helpers and breaks imports
+- Before adding a new helper/utility, check whether an existing one already exists in `src/lib/app-utils.ts`, `src/lib/utils.ts` for shadcn-safe helpers only, the relevant feature root, or `src/server/*`, and reuse/extend it when practical
 - Do not introduce shared helpers/components too early just to deduplicate markup; two instances are not enough on their own to justify an abstraction
 - Three instances is still a judgment call and depends on context; prefer duplication unless the abstraction has clear semantic value, ownership, or behavioral reuse
 - Usually only extract a shared helper/component when the same pattern appears in four or more places, or when there is a strong reason beyond deduplication

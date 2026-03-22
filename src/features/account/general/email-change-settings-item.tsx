@@ -34,7 +34,7 @@ import { Spinner } from "@/components/ui/spinner";
 import type { InlineStatus } from "@/features/account/account-types";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
 type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;

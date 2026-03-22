@@ -24,7 +24,7 @@ import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/work
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 
 type WorkspaceUrlFormValues = {
   url: string;

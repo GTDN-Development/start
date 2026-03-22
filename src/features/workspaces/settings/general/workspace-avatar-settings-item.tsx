@@ -31,8 +31,13 @@ import {
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import { workspaceConfig } from "@/config/workspace";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
-import { getAvatarColorClass, getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
-import { cn, runAsyncTransition } from "@/lib/utils";
+import {
+  getAvatarColorClass,
+  getUserInitials,
+  resolveErrorMessage,
+  runAsyncTransition,
+} from "@/lib/app-utils";
+import { cn } from "@/lib/utils";
 
 export function WorkspaceAvatarSettingsItem({
   workspace,

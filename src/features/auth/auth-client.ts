@@ -27,7 +27,7 @@ import {
   verifyEmailAction,
 } from "@/features/auth/actions/auth-actions";
 import type { SignInInput } from "@/features/auth/auth-schemas";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 
 const SESSION_ENDPOINT_PATH = "/api/auth/session";
 

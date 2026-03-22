@@ -68,8 +68,7 @@ import type {
   WorkspaceSettingsMember,
   WorkspaceSettingsWorkspace,
 } from "@/features/workspaces/settings/workspace-settings-types";
-import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
-import { runAsyncTransition } from "@/lib/utils";
+import { getAvatarColorClass, getUserInitials, runAsyncTransition } from "@/lib/app-utils";
 import {
   Table,
   TableBody,

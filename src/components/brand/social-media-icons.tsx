@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 export function SocialMediaIcons(props: React.ComponentProps<"ul">) {
   return (
     <ul {...props} className={cn("flex flex-wrap gap-3", props.className)}>
-      {socialMediaLinksArray.map((item, index) => (
-        <li key={index}>
+      {socialMediaLinksArray.map((item) => (
+        <li key={item.href}>
           <Button
             size="icon-lg"
             variant="ghost"

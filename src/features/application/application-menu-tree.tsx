@@ -1,18 +1,15 @@
 "use client";
 
 import { NavLink } from "@/components/layout/nav-link";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { applicationMenu } from "@/config/navigation";
 import { AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import {
-  CircleIcon,
-  LayoutDashboardIcon,
-  LifeBuoyIcon,
-  SettingsIcon,
-  type LucideIcon,
-  UserIcon,
-} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSidebarContext } from "./application-layout";
 import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
@@ -62,26 +59,6 @@ function isMenuItemActive(pathname: string, item: (typeof applicationMenu)[numbe
 
 function shouldMatchNested(item: (typeof applicationMenu)[number]) {
   return item.labelKey !== "overview";
-}
-
-function getMainMenuItemIcon(item: (typeof applicationMenu)[number]): LucideIcon {
-  if (item.labelKey === "overview") {
-    return LayoutDashboardIcon;
-  }
-
-  if (item.labelKey === "workspace") {
-    return SettingsIcon;
-  }
-
-  if (item.labelKey === "account") {
-    return UserIcon;
-  }
-
-  if (item.labelKey === "support") {
-    return LifeBuoyIcon;
-  }
-
-  return CircleIcon;
 }
 
 function resolveMenuHref(
@@ -147,8 +124,9 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
         {applicationMenu.map((item) => {
           const isActive = isMenuItemActive(pathname, item);
           const itemHref = resolveMenuHref(item, selectedWorkspaceSlug);
-          const itemLabel = item.labelKey === "workspace" ? tWorkspace("title") : tNav(item.labelKey);
-          const ItemIcon = getMainMenuItemIcon(item);
+          const itemLabel =
+            item.labelKey === "workspace" ? tWorkspace("title") : tNav(item.labelKey);
+          const ItemIcon = item.icon;
 
           return (
             <SidebarMenuItem key={item.labelKey}>

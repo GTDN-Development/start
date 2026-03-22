@@ -23,7 +23,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { accountConfig } from "@/config/account";
-import { runAsyncTransition } from "@/lib/utils";
+import { runAsyncTransition } from "@/lib/app-utils";
 import { AlertCircleIcon } from "lucide-react";
 
 type ProfileNameFormValues = {

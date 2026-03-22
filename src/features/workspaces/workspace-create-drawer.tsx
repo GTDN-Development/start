@@ -19,8 +19,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { workspaceConfig } from "@/config/workspace";
 import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { useRouter } from "@/i18n/navigation";
-import { resolveErrorMessage } from "@/lib/app-utils";
-import { runAsyncTransition } from "@/lib/utils";
+import { resolveErrorMessage, runAsyncTransition } from "@/lib/app-utils";
 
 type WorkspaceCreateFormValues = {
   name: string;
