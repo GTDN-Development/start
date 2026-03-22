@@ -167,7 +167,7 @@ export function useSession(): AuthSessionSnapshot {
   return useSyncExternalStore(subscribeToSessionStore, getSessionSnapshot, getSessionSnapshot);
 }
 
-export async function refreshSession(): Promise<SessionResponse> {
+export async function refreshSession(options?: { force?: boolean }): Promise<SessionResponse> {
   if (pendingSessionRequest) {
     await pendingSessionRequest;
 
@@ -179,7 +179,7 @@ export async function refreshSession(): Promise<SessionResponse> {
     session: sessionState.session,
   });
 
-  pendingSessionRequest = executeSessionRefresh();
+  pendingSessionRequest = executeSessionRefresh(options);
 
   try {
     await pendingSessionRequest;
@@ -190,7 +190,7 @@ export async function refreshSession(): Promise<SessionResponse> {
   return createSessionResponseFromSnapshot(getSessionSnapshot());
 }
 
-async function executeSessionRefresh() {
+async function executeSessionRefresh(_options?: { force?: boolean }) {
   lastSessionRequestAt = Date.now();
 
   const response = await requestSessionEndpoint();
@@ -298,6 +298,7 @@ function ensureSessionSyncInitialized() {
 
   initSessionSync();
   initVisibilityRefresh();
+  initWindowFocusRefresh();
   initOnlineRecovery();
 }
 
@@ -358,7 +359,15 @@ function isOnline() {
   return typeof navigator === "undefined" || navigator.onLine;
 }
 
-function isRefetchAllowed() {
+function isRefetchAllowed(options?: { allowUnverifiedBypass?: boolean }) {
+  if (
+    options?.allowUnverifiedBypass !== false &&
+    sessionState.status === "authenticated" &&
+    sessionState.session?.user.verified !== true
+  ) {
+    return true;
+  }
+
   return Date.now() - lastSessionRequestAt >= REFETCH_RATE_LIMIT_MS;
 }
 
@@ -379,11 +388,47 @@ function handleVisibilityChange() {
     return;
   }
 
-  if (!isOnline() || !isRefetchAllowed()) {
+  if (!isOnline()) {
     return;
   }
 
-  void refreshSession();
+  const shouldForceRefresh = shouldForceSessionRevalidation();
+
+  if (!shouldForceRefresh && !isRefetchAllowed({ allowUnverifiedBypass: false })) {
+    return;
+  }
+
+  void refreshSession({
+    force: shouldForceRefresh,
+  });
+}
+
+function initWindowFocusRefresh() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.addEventListener("focus", handleWindowFocus);
+}
+
+function handleWindowFocus() {
+  if (sessionState.status !== "authenticated") {
+    return;
+  }
+
+  if (!isOnline()) {
+    return;
+  }
+
+  const shouldForceRefresh = shouldForceSessionRevalidation();
+
+  if (!shouldForceRefresh && !isRefetchAllowed({ allowUnverifiedBypass: false })) {
+    return;
+  }
+
+  void refreshSession({
+    force: shouldForceRefresh,
+  });
 }
 
 function initOnlineRecovery() {
@@ -404,6 +449,10 @@ function handleOnlineRecovery() {
   }
 
   void refreshSession();
+}
+
+function shouldForceSessionRevalidation() {
+  return sessionState.status === "authenticated" && sessionState.session?.user.verified !== true;
 }
 
 async function requestSessionEndpoint(): Promise<SessionResponse> {

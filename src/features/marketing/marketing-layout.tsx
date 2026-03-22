@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
+import { useSession } from "@/features/auth/auth-client";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
 import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
 import { MarketingFooter } from "./marketing-footer";
@@ -17,9 +18,16 @@ export function MarketingLayout({
   children: React.ReactNode;
   viewer: UserAccountMenuViewer | null;
 }) {
+  const sessionSnapshot = useSession();
+  const currentViewer =
+    sessionSnapshot.status === "authenticated"
+      ? (sessionSnapshot.session?.user ?? viewer)
+      : sessionSnapshot.status === "unauthenticated"
+        ? null
+        : viewer;
   const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
-  const renderEmailVerificationBanner = showEmailVerificationBanner(viewer);
+  const renderEmailVerificationBanner = showEmailVerificationBanner(currentViewer);
 
   return (
     <div
@@ -39,13 +47,13 @@ export function MarketingLayout({
         ]}
       />
 
-      <MarketingHeader viewer={viewer} />
+      <MarketingHeader viewer={currentViewer} />
 
       <main id={contentId} data-slot="main" className="min-w-0">
         {children}
       </main>
 
-      <MarketingFooter viewer={viewer} />
+      <MarketingFooter viewer={currentViewer} />
     </div>
   );
 }

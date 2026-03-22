@@ -235,12 +235,10 @@ export async function confirmEmailVerificationToken(
   token: string
 ): Promise<ServerAuthResponse<VerifyEmailPayload>> {
   const { pb, hadInvalidAuthCookie, shouldPersistSession } = await createPocketBaseServerClient();
-
-  const verifiedSessionResponse = await getVerifiedSessionResponse(pb, shouldPersistSession);
-
-  if (verifiedSessionResponse) {
-    return verifiedSessionResponse;
-  }
+  const hadUnverifiedAuthenticatedSession =
+    pb.authStore.isValid &&
+    isUsersRecord(pb.authStore.record) &&
+    pb.authStore.record.verified !== true;
 
   try {
     await pb.collection("users").confirmVerification(token);
@@ -260,7 +258,7 @@ export async function confirmEmailVerificationToken(
       ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
     };
   } catch (error) {
-    if (mapVerifyEmailErrorCode(error) === "BAD_REQUEST") {
+    if (mapVerifyEmailErrorCode(error) === "BAD_REQUEST" && hadUnverifiedAuthenticatedSession) {
       const verifiedAfterRetryResponse = await getVerifiedSessionResponse(pb, shouldPersistSession);
 
       if (verifiedAfterRetryResponse) {

@@ -15,12 +15,15 @@ import {
   SidebarProvider,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { AUTH_REDIRECTS } from "@/config/auth";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
 import { useSession } from "@/features/auth/auth-client";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
 import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
+import { useMountEffect } from "@/hooks/use-mount-effect";
+import { useRouter } from "@/i18n/navigation";
 import {
   WorkspaceNavigationProvider,
   useWorkspaceNavigation,
@@ -82,7 +85,15 @@ export function ApplicationLayout({
   labels,
 }: ApplicationLayoutProps) {
   const sessionSnapshot = useSession();
-  const currentUser = getCurrentUserSnapshot(user, sessionSnapshot);
+  const t = useTranslations("layout");
+  const contentId = "gtdn-app-content";
+
+  if (sessionSnapshot.status === "unauthenticated") {
+    return <UnauthenticatedApplicationRedirect />;
+  }
+
+  const currentUser =
+    sessionSnapshot.status === "authenticated" ? (sessionSnapshot.session?.user ?? user) : user;
   const profileProviderKey = `${currentUser.email}:${currentUser.name ?? ""}:${currentUser.avatarUrl ?? ""}:${currentUser.verified ? "1" : "0"}`;
   const workspaceNavigationKey = `${activeWorkspaceSlug ?? ""}:${workspaces
     .map((workspace) =>
@@ -99,8 +110,6 @@ export function ApplicationLayout({
     .join("|")}`;
 
   const renderEmailVerificationBanner = showEmailVerificationBanner(currentUser);
-  const t = useTranslations("layout");
-  const contentId = "gtdn-app-content";
 
   return (
     <AccountProfileProvider key={profileProviderKey} initialProfile={currentUser}>
@@ -158,21 +167,12 @@ export function ApplicationLayout({
   );
 }
 
-function getCurrentUserSnapshot(
-  fallbackUser: AccountProfileSnapshot,
-  sessionSnapshot: ReturnType<typeof useSession>
-) {
-  const sessionUser =
-    sessionSnapshot.status === "authenticated" ? (sessionSnapshot.session?.user ?? null) : null;
+function UnauthenticatedApplicationRedirect() {
+  const router = useRouter();
 
-  if (!sessionUser) {
-    return fallbackUser;
-  }
+  useMountEffect(() => {
+    router.replace(AUTH_REDIRECTS.unauthenticatedTo);
+  });
 
-  return {
-    email: sessionUser.email,
-    name: sessionUser.name,
-    verified: sessionUser.verified,
-    avatarUrl: sessionUser.avatarUrl,
-  } satisfies AccountProfileSnapshot;
+  return null;
 }
