@@ -213,10 +213,10 @@ function createWorkspaceOption(workspace: WorkspaceNavigationItem): WorkspaceOpt
   return {
     ...workspace,
     initials: getUserInitials(workspace.name),
-    chipClassName:
-      workspace.kind === "personal"
-        ? "bg-sidebar-primary text-sidebar-primary-foreground group-focus/dropdown-menu-item:!text-sidebar-primary-foreground"
-        : cn(getAvatarColorClass(workspace.id), "group-focus/dropdown-menu-item:!text-white"),
+    chipClassName: cn(
+      getAvatarColorClass(workspace.id),
+      "group-focus/dropdown-menu-item:!text-white"
+    ),
   };
 }
 

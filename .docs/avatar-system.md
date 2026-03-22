@@ -61,12 +61,8 @@ Fallback colors come from `getAvatarColorClass()` in the same file. The helper h
 Current seeds:
 
 - user account avatars: `email`
-- organization workspace avatars: `workspace.id`
+- all workspace avatars: `workspace.id`
 - workspace member avatars: `member.userId`
-
-Special case:
-
-- personal workspace avatars in the workspace switcher keep the `sidebar-primary` styling instead of using the hashed color palette
 
 This keeps colors stable across reloads without storing any extra color field in the database.
 
