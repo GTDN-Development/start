@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Link, type LinkHref } from "@/components/ui/link";
 import { usePathname } from "@/i18n/navigation";
-import type { InnerSidebarNavItem } from "./inner-sidebar-layout";
+import type { InnerSidebarNavItem } from "./inner-sidebar-types";
 
 type InnerSidebarBreadcrumbsProps = {
   items: InnerSidebarNavItem[];

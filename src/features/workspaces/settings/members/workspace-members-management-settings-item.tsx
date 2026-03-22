@@ -1,3 +1,5 @@
+"use client";
+
 import { startTransition, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";

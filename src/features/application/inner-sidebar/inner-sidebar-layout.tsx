@@ -9,18 +9,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { type AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import type { AppIcon } from "@/types/icons";
-import { CircleIcon, ChevronDownIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  CircleIcon,
+  ShieldIcon,
+  SlidersHorizontalIcon,
+  UserIcon,
+  UsersIcon,
+} from "lucide-react";
 import { useMemo } from "react";
-
-export type InnerSidebarNavItem = {
-  href: AppHref;
-  label: string;
-  icon?: AppIcon;
-  matchNested?: boolean;
-  activePathnames?: string[];
-  activePathPrefixes?: string[];
-};
+import type { InnerSidebarIconKey, InnerSidebarNavItem } from "./inner-sidebar-types";
 
 type InnerSidebarLayoutProps = {
   children: React.ReactNode;
@@ -127,10 +125,27 @@ export function InnerSidebarLayout({ children, title, items, className }: InnerS
   );
 }
 
-function InnerSidebarItemIcon({ icon, className }: { icon?: AppIcon; className?: string }) {
-  if (icon) {
-    const Icon = icon;
-    return <Icon aria-hidden="true" className={className} />;
+function InnerSidebarItemIcon({
+  icon,
+  className,
+}: {
+  icon?: InnerSidebarIconKey;
+  className?: string;
+}) {
+  if (icon === "user") {
+    return <UserIcon aria-hidden="true" className={className} />;
+  }
+
+  if (icon === "slidersHorizontal") {
+    return <SlidersHorizontalIcon aria-hidden="true" className={className} />;
+  }
+
+  if (icon === "shield") {
+    return <ShieldIcon aria-hidden="true" className={className} />;
+  }
+
+  if (icon === "users") {
+    return <UsersIcon aria-hidden="true" className={className} />;
   }
 
   return <CircleIcon aria-hidden="true" className={className} />;

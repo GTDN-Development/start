@@ -1,3 +1,5 @@
+"use client";
+
 import { Link } from "@/components/ui/link";
 import { LogoStart } from "@/components/brand/logo-start";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";

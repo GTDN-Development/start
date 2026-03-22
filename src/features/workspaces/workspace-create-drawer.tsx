@@ -1,3 +1,5 @@
+"use client";
+
 import { useForm } from "@tanstack/react-form";
 import { startTransition, useId } from "react";
 import { useTranslations } from "next-intl";

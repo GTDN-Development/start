@@ -1,3 +1,5 @@
+"use client";
+
 import { startTransition, useState } from "react";
 import { z } from "zod";
 import { useLocale, useTranslations } from "next-intl";
