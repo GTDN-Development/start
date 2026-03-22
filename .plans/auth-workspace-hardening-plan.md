@@ -2,418 +2,307 @@
 
 ## Goal
 
-Bring all currently existing auth and workspace flows to a state where they are:
+Bring the current auth and workspace implementation to a state where it is:
 
 - functionally consistent end-to-end,
-- predictable for users,
-- covered by meaningful testing,
-- and still implemented directly in line with `.rules/project-architecture-principles.md`.
+- predictable for users in invite and post-auth flows,
+- still implemented directly in line with `.rules/project-architecture-principles.md`,
+- and verified through focused manual checks for this phase.
 
-This plan covers the current project scope:
+This plan covers the current scope:
 
 - sign-in
 - sign-up
-- sign-out
+- sign-out only where required for truthful invite recovery
 - verify-email
-- forgot-password
-- reset-password
 - confirm-email-change
 - post-auth redirect
 - personal + organization workspaces
-- workspace switch
-- workspace general settings
+- workspace switching
 - workspace members + invites
-- workspace overview entry flow
 
-Out of scope:
+Out of scope for this implementation phase:
 
-- OAuth implementation itself
+- Playwright or any other automated test infrastructure
+- PocketBase seed/reset tooling
+- mail capture tooling
 - billing
 - teams
-- generic plugin/provider infrastructure
+- OAuth implementation itself
+- plugin/provider infrastructure
+- generic auth/workflow abstractions
+- dashboard/widget systems for workspace overview
 
 ## Architectural Guardrails
 
-The solution must preserve these principles:
+The implementation must preserve these repo rules:
 
 - Keep behavior traceable as `route/page -> action -> service -> repository/helper`.
-- Prefer direct imports and explicit composition.
-- Do not introduce a generic "flow engine", "auth manager", "workspace orchestrator", or provider-neutral abstractions.
+- Prefer direct imports and explicit composition over indirection.
+- Do not introduce a generic "flow engine", "auth manager", "workspace orchestrator", or provider-neutral abstraction.
 - Add new files only where a real seam already exists.
 - Do not hide simple control flow behind helpers that only rename logic.
-- Keep feature-local solutions close to the actual routes and domains.
+- Keep route-local orchestration close to the affected auth/workspace surfaces.
 
 Practical consequence:
 
-- invite flow fixes should live inside `src/server/workspaces/*`, `src/features/auth/*`, and route-local invite surfaces,
-- not inside a new general workflow layer.
+- invite hardening belongs in `src/app/[locale]/(auth)/(flow)/invite/*`, `src/features/auth/*`, and `src/server/workspaces/*`,
+- active workspace hardening should reuse existing workspace routing helpers,
+- not in a new cross-domain flow layer.
 
-## Existing Surface Area
-
-### Auth routes
-
-- `src/app/[locale]/(auth)/(guest)/sign-in/page.tsx`
-- `src/app/[locale]/(auth)/(guest)/sign-up/page.tsx`
-- `src/app/[locale]/(auth)/(guest)/forgot-password/page.tsx`
-- `src/app/[locale]/(auth)/(flow)/reset-password/page.tsx`
-- `src/app/[locale]/(auth)/(flow)/verify-email/page.tsx`
-- `src/app/[locale]/(auth)/(flow)/confirm-email-change/page.tsx`
-- `src/app/[locale]/(auth)/(flow)/invite/[token]/page.tsx`
-- `src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.ts`
-
-### Workspace routes
-
-- `src/app/[locale]/(application)/overview/page.tsx`
-- `src/app/[locale]/(application)/w/[workspaceSlug]/page.tsx`
-- `src/app/[locale]/(application)/w/[workspaceSlug]/overview/page.tsx`
-- `src/app/[locale]/(application)/w/[workspaceSlug]/settings/page.tsx`
-- `src/app/[locale]/(application)/w/[workspaceSlug]/settings/members/page.tsx`
-
-### Core auth modules
-
-- `src/features/auth/actions/auth-actions.ts`
-- `src/features/auth/auth-client.ts`
-- `src/features/auth/post-auth-redirect.ts`
-- `src/server/auth/auth-service.ts`
-- `src/server/auth/current-user.ts`
-- `src/features/auth/use-sign-out.ts`
-- `src/features/auth/auth-proxy.ts`
-
-### Core workspace modules
-
-- `src/features/workspaces/actions/workspace-actions.ts`
-- `src/server/workspaces/workspace-resolution-service.ts`
-- `src/server/workspaces/workspace-general-service.ts`
-- `src/server/workspaces/workspace-members-service.ts`
-- `src/server/workspaces/workspace-invite-service.ts`
-- `src/server/workspaces/workspace-cookie.ts`
-- `src/features/workspaces/workspace-switcher.tsx`
-- `src/features/workspaces/workspace-navigation-context.tsx`
-- `src/features/application/workspace-routing.ts`
-
-## Research Summary
+## Current Reality
 
 ### What is already solid
 
-- The repo builds and lints cleanly.
-- Auth is structured directly through `auth-actions -> auth-service`.
-- The workspace domain already has reasonable services, guards, and repository boundaries.
-- Invite creation / resend / revoke / accept are real server flows, not UI mocks.
-- Post-auth workspace bootstrap exists and centrally ensures the personal workspace.
-- Workspace settings and member management already have real server actions.
+- `build` and `lint` pass on the current tree.
+- Auth already follows a direct `action -> service` structure.
+- Workspace domain code already has usable service and repository boundaries.
+- Invite create/resend/revoke/accept are real server flows, not mocks.
+- Post-auth bootstrap already ensures the personal workspace exists.
+- Header and menu already use pathname-first workspace selection.
 
-### Confirmed gaps
+### Confirmed implementation gaps
 
-1. Cold invite flow and direct invite flow are not equivalent.
-   - Direct `/invite/[token]` can explicitly render some terminal states.
-   - `start -> sign-in/sign-up -> post-auth` currently cannot surface those states properly.
+1. Direct invite flow and cold invite flow are not equivalent.
+   - Direct `/invite/[token]` can show terminal states.
+   - `/invite/[token]/start -> sign-in/sign-up -> post-auth` cannot currently re-surface them.
 
-2. `email_mismatch` gets lost after post-auth.
+2. Invite outcomes already exist in the domain, but they are not propagated through post-auth.
+   - `accepted`, `already_member`, `invalid_or_expired`, and `email_mismatch` already exist as concrete invite states.
+   - The real gap is that post-auth resolution collapses them into a single `workspaceSlug` redirect or a generic fallback.
+
+3. `email_mismatch` gets swallowed after post-auth.
    - The flow falls through to normal workspace selection instead of surfacing an explicit result.
 
-3. Active workspace UI is not robust enough when redirects happen outside the standard switch action.
-   - Sidebar/workspace switcher primarily rely on cookie/context state.
-   - Direct invite accept can open a new workspace route without synchronously updating the active workspace visible in the UI.
+4. The direct invite mismatch CTA is not truthful today.
+   - The page says "sign out and continue with another account".
+   - The implementation only links to `/sign-in`.
+   - Auth guest layout redirects authenticated users away from `/sign-in`, so the CTA does not do what it promises.
 
-4. The direct invite mismatch CTA is not trustworthy today.
-   - Guest auth layout redirects authenticated users back to `/overview`.
-   - So a CTA like "sign in with another account" is not enough unless it performs a real sign-out step first.
+5. The direct invite page still has route-level UI defects.
+   - `email_mismatch.secondary` uses rich markup in messages, but the page renders it as plain text.
+   - Blocked/error states reuse CTAs that are not semantically precise.
 
-5. Workspace overview is still a placeholder.
-   - A flow can end technically correctly, but the user still lands on an unfinished destination page.
+6. Active workspace selection is mostly hardened, but the visible switcher can still lag behind route-driven state.
+   - Pathname-first selection already exists in shared workspace routing helpers and in the application header/menu.
+   - The remaining visible problem is the workspace switcher, which still reads `activeWorkspaceSlug` too literally.
 
-6. There is no automated auth/workspace flow coverage.
-   - The repo does not currently include a test runner or E2E suite.
-   - Quality currently depends on static checks and manual verification.
+## Strategy
 
-### Important nuance
-
-The existing `.plans/workspace-invite-flow-audit-plan.md` is useful as a focused audit, but it is not sufficient as the main integration plan for overall auth + workspace behavior. This document should be treated as the primary implementation plan for the broader hardening effort.
-
-## Recommended Strategy
-
-### Workstream 1: Define Explicit Flow Outcomes
+### Workstream 1: Propagate Invite Outcomes Through Post-Auth
 
 #### Objective
 
-Make each auth/workspace transition return an explicit outcome instead of relying on silent fallbacks.
+Carry existing invite outcomes all the way through post-auth instead of flattening everything into `workspaceSlug | fallback`.
 
 #### Why
 
-Without explicit outcome types, terminal states get lost between route, action, and redirect layers.
+The domain already knows the difference between `accepted`, `already_member`, `invalid_or_expired`, and `email_mismatch`. The loss happens later in the flow.
 
 #### Scope
 
 - `src/server/workspaces/workspace-resolution-service.ts`
 - `src/features/workspaces/actions/workspace-actions.ts`
 - `src/features/auth/post-auth-redirect.ts`
-- invite route-local surfaces where needed
 
 #### Plan
 
-- Introduce a clear outcome contract for post-auth workspace resolution.
-- At minimum distinguish:
-  - workspace redirect success
+- Extend post-auth workspace resolution to return an explicit union outcome.
+- Distinguish at minimum:
+  - normal workspace redirect
   - invite accepted
   - invite already_member
   - invite email_mismatch
   - invite invalid_or_expired
-- Do not let `replaceToPostAuthDestination()` keep deciding only between `workspace` and fallback `/overview`.
+- Keep the implementation direct:
+  - route/form submits
+  - server action resolves
+  - redirect helper branches
 
 #### Constraint
 
-Do not introduce a generic auth flow state machine. Extending existing explicit return types and direct branching is enough.
+Do not introduce a generic auth state machine. This should remain a direct extension of the existing return types and branching.
 
-### Workstream 2: Make Invite Flow Parity Real
+### Workstream 2: Fix The Direct Invite Route First
 
 #### Objective
 
-Unify direct and cold invite flow so the same invite produces the same user-facing result regardless of whether the user was already signed in.
+Make `/invite/[token]` truthful, complete, and internally consistent before solving cold-flow parity.
+
+#### Why
+
+These are already-confirmed defects on the current route, and they are low-risk, local fixes.
 
 #### Scope
 
 - `src/app/[locale]/(auth)/(flow)/invite/[token]/page.tsx`
-- `src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.ts`
-- `src/server/workspaces/workspace-invite-service.ts`
-- `src/server/workspaces/workspace-cookie.ts`
-- `src/features/auth/post-auth-redirect.ts`
-
-#### Design decision to make
-
-We need to decide how post-auth flow should re-surface invite-specific results:
-
-Option A:
-- keep only the hash cookie,
-- show a separate result screen for mismatch/expired states,
-- require the user to reopen the invite link manually if needed.
-
-Option B:
-- add a short-lived invite recovery cookie with the raw token only for this flow,
-- send terminal post-auth states back to `/invite/[token]`,
-- preserve full parity with the direct flow.
-
-#### Recommendation
-
-Prefer Option B.
-
-Rationale:
-
-- it remains invite-specific,
-- it does not require generic infrastructure,
-- it gives the best UX,
-- it keeps logic local to the invite domain.
-
-#### Additional work
-
-- Add a real sign-out-and-retry CTA for the mismatch scenario.
-- Ensure deterministic cleanup of invite-related cookies after terminal states.
-- Unify copy, icon states, and CTA behavior across direct and cold invite flows.
-
-### Workstream 3: Normalize Active Workspace Resolution
-
-#### Objective
-
-Ensure that "active workspace" in the UI is never derived only from stale cookie state when the current pathname already clearly identifies the real workspace.
-
-#### Scope
-
-- `src/app/[locale]/(application)/layout.tsx`
-- `src/features/workspaces/workspace-switcher.tsx`
-- `src/features/workspaces/workspace-navigation-context.tsx`
-- `src/features/application/workspace-routing.ts`
-- relevant redirect/action paths
-
-#### Recommendation
-
-Use this precedence order:
-
-1. workspace slug from the current pathname, when the route is `/w/[workspaceSlug]/...`
-2. `active_workspace` cookie as fallback
-3. first available workspace
-
-#### Why
-
-This is the simplest robust model, and the repo already has helpers in `src/features/application/workspace-routing.ts` that point in this direction.
-
-#### Additional work
-
-- Continue setting the cookie on switch/create/post-auth/direct invite accept.
-- But the UI must not break even when the cookie is temporarily stale.
-
-### Workstream 4: Make Workspace Entry Actually Functional
-
-#### Objective
-
-Replace the placeholder workspace overview with a minimal but genuinely functional entry page.
-
-#### Scope
-
-- `src/app/[locale]/(application)/w/[workspaceSlug]/overview/page.tsx`
-- route-local feature files near the overview route
-
-#### Recommendation
-
-Do not invent a dashboard framework. Build a small, route-local workspace home surface:
-
-- workspace name
-- workspace kind
-- current role
-- member count
-- quick actions:
-  - open settings
-  - open members
-  - create workspace
-
-#### Why
-
-Without this, auth/workspace flows may be technically correct but still product-incomplete.
-
-### Workstream 5: Audit All Auth Flow Redirects
-
-#### Objective
-
-Unify redirect and success/error behavior across all auth flows.
-
-#### Scope
-
-- sign-in
-- sign-up
-- sign-out
-- verify-email
-- forgot-password
-- reset-password
-- confirm-email-change
-- invite
+- invite-related copy in `messages/*.json`
+- a route-local or invite-local sign-out CTA
 
 #### Plan
 
-- For each flow, define:
-  - entry state
-  - success target
-  - terminal error states
-  - authenticated vs unauthenticated behavior
-  - cookie/session side effects
-- Fix places where the user-facing copy promises a different action than the code actually performs.
-- Restrict "go to sign-in" style CTAs to cases where they really work.
+- Render rich invite mismatch copy correctly.
+- Replace the fake "sign in with another account" behavior with a real sign-out-and-retry path.
+- Tighten blocked/error CTA semantics so the copy matches the actual behavior.
+- Keep all invite-specific UI logic local to the invite route or a small invite-local component.
 
 #### Constraint
 
-Do not introduce a shared redirect registry for all flows. Use existing direct calls and local helpers.
+Do not create a shared global flash/result system for this.
 
-### Workstream 6: Add End-To-End Test Coverage
+### Workstream 3: Reach Cold Invite Parity With The Smallest Possible State Surface
 
 #### Objective
 
-Stop relying on build + lint alone for auth/workspace behavior.
+Make cold invite flow produce an explicit user-facing result equivalent enough to the direct invite flow without introducing extra token persistence.
 
-#### Recommendation
+#### Why
 
-Add Playwright as the main testing layer for these flows.
+This is the main functional gap in the current auth/workspace integration.
 
-#### Why Playwright
+#### Scope
 
-- the flows cross routes, cookies, and session state,
-- unit tests alone will not catch redirect/cookie/UI inconsistencies,
-- Playwright is the shortest path to realistic confidence.
+- `src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.ts`
+- `src/server/workspaces/workspace-resolution-service.ts`
+- `src/features/workspaces/actions/workspace-actions.ts`
+- `src/features/auth/post-auth-redirect.ts`
+- invite route-local surfaces as needed
 
-#### Supporting pieces
+#### Plan
 
-- add a simple PocketBase test seed/reset script,
-- define a mail testing strategy:
-  - ideally a local SMTP capture inbox,
-  - fallback: in test mode, write invite URLs into a local test sink just for E2E,
-  - without introducing a generic email provider abstraction.
+- Keep the current hash cookie approach.
+- Do not add a recovery-token cookie with the raw invite token in this phase.
+- Surface terminal post-auth invite outcomes through an explicit invite-local result screen or route.
+- Map `accepted` and `already_member` to the target workspace redirect.
+- Map `email_mismatch` and `invalid_or_expired` to explicit user-facing result states.
 
-#### Minimum critical suite
+#### Constraint
 
-1. sign-up -> post-auth -> personal workspace exists
-2. sign-in -> post-auth -> selected workspace is correct
-3. sign-out -> protected route redirects to sign-in
-4. verify-email with active session -> returns to workspace flow
-5. reset-password -> sign-in works with the new password
-6. confirm-email-change -> session and redirect remain coherent
-7. direct invite accept while signed in
-8. cold invite accept after sign-in
-9. cold invite accept after sign-up
-10. invite mismatch after sign-in surfaces an explicit state
-11. already_member invite path lands deterministically
-12. expired invite path surfaces an explicit state
-13. admin can invite/resend/revoke; member cannot mutate
-14. ownership transfer / last-owner guard / leave / delete organization workspace
+Do not add a second invite cookie or a generic result-routing framework unless the minimal approach is proven insufficient.
 
-### Workstream 7: Manual QA Matrix For Pre-Launch Verification
+### Workstream 4: Finish The Visible Active Workspace Consumer
 
-Automated tests are not enough. Prepare a short manual checklist for:
+#### Objective
 
-- locale variants (`cs`, `en`)
-- remembered vs session-only auth
-- cross-tab sign-out/session refresh
-- stale invite links from email
-- workspace slug change while that workspace is active
-- invite accept on an account that already has multiple workspaces
+Ensure the visible workspace switcher follows the real route or explicit fallback rules.
+
+#### Why
+
+The shared precedence model already exists. The remaining work is to apply it in the one consumer that still relies too much on `activeWorkspaceSlug`.
+
+#### Scope
+
+- `src/features/workspaces/workspace-switcher.tsx`
+- `src/features/application/workspace-routing.ts` only if a tiny helper extension is needed
+
+#### Plan
+
+- Keep the precedence model:
+  1. workspace slug from pathname on `/w/[workspaceSlug]/...`
+  2. `active_workspace` cookie
+  3. first available workspace
+- Reuse the existing workspace routing helper instead of rebuilding layout state management.
+- Fix only the visible lag in the switcher after non-standard redirects such as direct invite accept.
+
+#### Constraint
+
+Do not rebuild application layout state management. This is a consumer-hardening task, not a new navigation architecture.
 
 ## Implementation Order
 
-### Phase 1: Flow Contract Hardening
+### Phase 1: Route Truthfulness
 
-- explicit outcomes for post-auth workspace resolution
-- invite parity design decision
-- mismatch / invalid invite surface
-- real sign-out-and-retry path
+- fix direct invite route defects
+- add a real sign-out-and-retry path
 
-### Phase 2: Workspace Selection Consistency
+### Phase 2: Outcome Plumbing
 
-- pathname-first active workspace resolution
-- cookie synchronization fixes
-- direct invite accept consistency
+- propagate explicit invite outcomes through post-auth
+- keep accepted/already_member as workspace redirects
+- surface mismatch/invalid outcomes explicitly
 
-### Phase 3: Functional Workspace Entry
+### Phase 3: Cold Invite Parity
 
-- replace placeholder overview with a minimal real workspace home
+- complete the post-auth result route or invite-local result screen
+- keep the existing hash-cookie approach
+- do not add a recovery-token cookie in this phase
 
-### Phase 4: Test Infrastructure
+### Phase 4: Visible Workspace Consumer Hardening
 
-- Playwright setup
-- PocketBase test seeding/reset
-- mail test capture strategy
+- align the workspace switcher with pathname-first selection
 
-### Phase 5: E2E Suite + Manual QA
+## Estimated Implementation Size
 
-- automate the critical matrix
-- run the manual edge-case checklist
+Estimated size for this narrowed implementation phase, without automated tests:
+
+- roughly `220-340 changed LoC`
+- roughly `120-220 new LoC`
+
+Working estimate by area:
+
+- direct invite route truthfulness, rich text rendering, and real sign-out-and-retry path: `70-110 changed LoC`
+- post-auth invite outcome plumbing across service, action, and redirect helper: `80-130 changed LoC`
+- cold invite parity surface without a recovery-token cookie: `50-90 changed LoC`
+- workspace switcher pathname-first hardening: `20-40 changed LoC`
+
+Lower-bound variant:
+
+- if the implementation reuses a single invite-local result surface and avoids adding a separate result route, the total can likely stay closer to `180-280 changed LoC`
 
 ## Acceptance Criteria
 
-Auth + workspace implementation is done when:
+Auth + workspace hardening is done for this phase when:
 
-- direct invite and cold invite flow end in equivalent user-facing states,
-- no terminal invite state is silently swallowed,
-- active workspace shown in the UI always matches the current route or explicit fallback rules,
-- sign-out and switch-account paths actually do what the UI says,
-- workspace overview is no longer placeholder-only,
-- all existing auth flows have explicit success/error/redirect behavior,
-- critical flows are covered by E2E tests,
+- direct invite and cold invite flow end in equivalent user-facing outcomes for accepted, already-member, mismatch, and invalid/expired cases,
+- no terminal invite state is silently swallowed after post-auth,
+- direct invite copy and CTA behavior are truthful,
+- the visible workspace switcher matches the current route or explicit fallback rules,
 - no new generic orchestration layer was introduced,
-- code remains easy to trace from route to service.
+- code remains easy to trace from route to service,
+- the narrowed flow matrix has been manually verified.
+
+## Manual Verification For This Phase
+
+Run these flows manually before calling the hardening complete:
+
+1. direct invite accept while already signed in
+2. direct invite mismatch while signed in
+3. cold invite accept after sign-in
+4. cold invite accept after sign-up
+5. cold invite mismatch after sign-in
+6. expired or invalid invite path surfaces an explicit state
+7. post-auth without pending invite still lands deterministically
+8. workspace switcher reflects the route after invite-driven redirects
+
+## Deferred Follow-Ups
+
+These are intentionally not part of this implementation branch:
+
+- replace the placeholder workspace overview with a richer route-local home surface
+- add Playwright
+- add PocketBase seed/reset support
+- add mail capture tooling
+- automate the auth/workspace regression matrix
+
+If the correctness fixes land cleanly and the overview still feels too placeholder-heavy, handle that as a separate small follow-up rather than expanding this branch.
 
 ## Non-Goals
 
-- Rebuilding auth into a provider-agnostic architecture
-- Creating a generic notifications/flash system for future domains
-- Adding future-facing plugin points for unknown flows
-- Solving OAuth in the same implementation branch
+- rebuilding auth into a provider-agnostic architecture
+- introducing a generic notification/result framework
+- adding future-facing plugin points for unknown flows
+- solving OAuth in the same implementation branch
+- introducing test infrastructure in this phase
+- inventing a dashboard framework for workspace overview
 
 ## Expected File Touch Pattern
 
-Implementation should remain concentrated roughly in these places:
+Implementation should stay concentrated roughly in:
 
 - `src/features/auth/*`
-- `src/server/auth/*`
 - `src/features/workspaces/*`
 - `src/server/workspaces/*`
 - `src/app/[locale]/(auth)/(flow)/invite/*`
-- `src/app/[locale]/(application)/overview/page.tsx`
-- `src/app/[locale]/(application)/w/[workspaceSlug]/overview/page.tsx`
-- test setup + E2E files
+- `messages/*.json`
 
-If the design starts requiring a new general orchestration layer outside these areas, that is a signal to return to the project principles and simplify it.
+If the solution starts requiring a new general orchestration layer outside these areas, or new persistent invite-token infrastructure, that is a signal to simplify and return to the project principles.
