@@ -2,7 +2,7 @@ import { workspaceConfig } from "@/config/workspace";
 
 export function toWorkspaceSlug(
   value: string,
-  maxLength = workspaceConfig.limits.slugMaxLength
+  maxLength: number = workspaceConfig.limits.slugMaxLength
 ): string {
   const normalizedValue = value
     .toLowerCase()
@@ -17,7 +17,7 @@ export function toWorkspaceSlug(
 
 export function trimWorkspaceSlugLength(
   value: string,
-  maxLength = workspaceConfig.limits.slugMaxLength
+  maxLength: number = workspaceConfig.limits.slugMaxLength
 ): string {
   const normalizedValue = value.slice(0, maxLength).replace(/-+$/g, "");
 
