@@ -185,7 +185,10 @@ The goal is to keep client auth state small and server-sourced, not duplicated a
 
 Auth itself does not decide the final application destination.
 
-After successful auth, the UI uses [post-auth-redirect.ts](/Users/fanda/Dev/start/src/features/auth/post-auth-redirect.ts), which calls the workspace post-auth resolver and redirects to the correct workspace overview route.
+After successful auth, the UI uses [post-auth-redirect.ts](/Users/fanda/Dev/start/src/features/auth/post-auth-redirect.ts), which calls the workspace post-auth resolver and then either:
+
+- redirects to the resolved workspace overview route
+- routes to an explicit invite result state for mismatch or invalid/expired invites
 
 This keeps auth focused on auth, while workspace selection stays in the workspace domain.
 

@@ -125,6 +125,7 @@ Used by:
 - workspace switcher flow
 - `/overview` resolution
 - application layout active workspace state
+- direct signed-in invite accept
 
 ### Pending Invite Cookie
 
@@ -144,18 +145,25 @@ This is one of the main workspace flows.
 
 1. ensure the user's personal workspace exists
 2. consume a pending invite cookie if present
-3. pick the landing workspace
+3. return an explicit post-auth destination
 
-Landing priority is:
+Workspace redirect priority is:
 
 1. accepted/already-member invite workspace
 2. active workspace cookie match
 3. first workspace in the user's sorted workspace list
 
+Possible destination outcomes are:
+
+- workspace redirect
+- invite email mismatch
+- invite invalid/expired
+
 This is what powers:
 
 - `/overview`
 - post-auth client redirect after sign-in/sign-up
+- explicit invite result handling after auth
 
 ## Invite Flow
 
@@ -166,13 +174,16 @@ Current invite flow:
 3. invite page validates the token
 4. if the visitor is signed out, `/invite/[token]/start` stores the hashed token in `pending_invite` and redirects to sign-in
 5. after auth, `resolvePostAuthWorkspace()` consumes that pending invite
-6. accepted invites send the user to the invited workspace overview
+6. accepted invites send the user to the invited workspace overview and persist `active_workspace`
+7. mismatch/invalid outcomes after auth are surfaced through `/invite/result`
 
 Signed-in invite handling also supports:
 
 - already-member result
 - email mismatch result
 - invalid/expired token result
+
+Direct signed-in accept now also persists the invited workspace as `active_workspace` before redirecting.
 
 ## Members And Role Rules
 
@@ -197,6 +208,7 @@ The main workspace-facing routes are:
 - `/w/[workspaceSlug]/settings`
 - `/w/[workspaceSlug]/settings/members`
 - `/invite/[token]`
+- `/invite/result`
 
 Important behavior:
 
@@ -207,6 +219,7 @@ Important behavior:
 - invalid workspace slugs redirect back to `/overview`
 - unknown nested routes inside a valid workspace render a scoped not-found page inside the application shell
 - `/w/[workspaceSlug]/settings/members` shows an informational state for personal workspaces instead of member management UI
+- the visible workspace switcher follows pathname-first selection, then `active_workspace`, then the first available workspace
 
 ## Current Constraints
 
@@ -242,4 +255,5 @@ Changing invite behavior:
 
 - check [workspace-invite-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-invite-service.ts)
 - check [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/page.tsx>)
+- check [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/result/page.tsx>)
 - check [route.ts](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.ts>)

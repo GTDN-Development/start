@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";
+import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   acceptInviteTokenForUser,
   validateInviteToken,
@@ -104,6 +105,8 @@ export default async function Page({ params }: InviteTokenPageProps) {
     acceptResponse.data.result.state === "accepted" ||
     acceptResponse.data.result.state === "already_member"
   ) {
+    await setActiveWorkspaceSlugCookie(acceptResponse.data.result.workspace.slug);
+
     redirect({
       href: {
         pathname: "/w/[workspaceSlug]/overview",
