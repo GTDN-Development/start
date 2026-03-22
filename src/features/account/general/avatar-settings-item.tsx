@@ -48,7 +48,7 @@ export function AccountAvatarSettingsItem() {
 
   const displayName = profile.name?.trim() ? profile.name : null;
   const initials = getUserInitials(displayName ?? profile.email);
-  const avatarColorClass = getAvatarColorClass(profile.email);
+  const avatarColorClass = getAvatarColorClass(profile.id);
   const avatarUrl =
     profile.avatarUrl && profile.avatarUrl !== failedAvatarUrl ? profile.avatarUrl : null;
 

@@ -10,6 +10,7 @@ export default async function Layout({ children }: MarketingRouteLayoutProps) {
   const viewer = sessionResponse.ok
     ? sessionResponse.data.session?.user
       ? {
+          id: sessionResponse.data.session.user.id,
           email: sessionResponse.data.session.user.email,
           name: sessionResponse.data.session.user.name,
           verified: sessionResponse.data.session.user.verified,

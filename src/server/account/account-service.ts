@@ -341,6 +341,7 @@ function normalizeProfileName(value: string) {
 
 function createAccountProfileSnapshot(pb: PocketBase, record: UsersRecord) {
   return {
+    id: record.id,
     email: record.email,
     name: getNullableTrimmedString(record.name),
     verified: record.verified === true,

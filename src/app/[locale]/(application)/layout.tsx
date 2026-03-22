@@ -37,6 +37,7 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
   }
 
   const user = {
+    id: currentUser.user.id,
     email: currentUser.user.email,
     name: getNullableTrimmedString(currentUser.user.name),
     verified: currentUser.user.verified === true,

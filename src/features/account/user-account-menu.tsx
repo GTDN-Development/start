@@ -20,7 +20,7 @@ import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 import { ChevronsUpDownIcon, HomeIcon, LogOutIcon } from "lucide-react";
 
-export type UserAccountMenuViewer = Pick<AuthUser, "email" | "name" | "verified" | "avatarUrl">;
+export type UserAccountMenuViewer = Pick<AuthUser, "id" | "email" | "name" | "verified" | "avatarUrl">;
 
 export type UserAccountMenuLabels = {
   account: string;
@@ -56,7 +56,7 @@ export function UserAccountMenu({
   const isAvatarUpdating = accountProfile?.isAvatarUpdating ?? false;
   const displayName = getUserDisplayName(currentViewer);
   const initials = getUserInitials(displayName ?? currentViewer.email);
-  const avatarColorClass = getAvatarColorClass(currentViewer.email);
+  const avatarColorClass = getAvatarColorClass(currentViewer.id);
 
   const avatarUrl =
     currentViewer.avatarUrl && currentViewer.avatarUrl !== failedAvatarUrl

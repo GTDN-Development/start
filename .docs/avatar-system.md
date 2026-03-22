@@ -60,7 +60,7 @@ Fallback colors come from `getAvatarColorClass()` in the same file. The helper h
 
 Current seeds:
 
-- user account avatars: `email`
+- user account avatars: `user.id`
 - all workspace avatars: `workspace.id`
 - workspace member avatars: `member.userId`
 
