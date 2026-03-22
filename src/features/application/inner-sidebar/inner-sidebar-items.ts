@@ -18,8 +18,13 @@ type WorkspaceInnerSidebarItemDefinition<TLabelKey extends string> = Omit<
 export const accountInnerSidebarItems = [
   {
     href: "/account",
-    labelKey: "nav.general",
+    labelKey: "nav.profile",
     icon: "user",
+  },
+  {
+    href: "/account/preferences",
+    labelKey: "nav.general",
+    icon: "sliders",
   },
   {
     href: "/account/security",
@@ -27,7 +32,9 @@ export const accountInnerSidebarItems = [
     icon: "shield",
     matchNested: true,
   },
-] as const satisfies ReadonlyArray<InnerSidebarItemDefinition<"nav.general" | "nav.security">>;
+] as const satisfies ReadonlyArray<
+  InnerSidebarItemDefinition<"nav.general" | "nav.profile" | "nav.security">
+>;
 
 export const workspaceSettingsInnerSidebarItems = [
   {

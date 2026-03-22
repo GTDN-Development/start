@@ -480,18 +480,51 @@
     },
     "account": {
       "title": "Nastavení účtu",
-      "description": "Spravujte profil, e-mail a zabezpečení svého účtu.",
+      "description": "Spravujte profil, preference aplikace, e-mail a zabezpečení svého účtu.",
       "nav": {
-        "general": "Obecné",
+        "general": "Preference",
+        "profile": "Profil",
         "security": "Zabezpečení"
       },
       "generalPage": {
-        "title": "Obecné",
-        "description": "Upravte profilové údaje, avatar, e-mailovou adresu a základní nastavení účtu."
+        "title": "Preference",
+        "description": "Nastavte jazyk a motiv aplikace podle svých preferencí."
+      },
+      "profilePage": {
+        "title": "Profil",
+        "description": "Upravte avatar, zobrazované jméno, e-mailovou adresu a údaje svého účtu."
       },
       "securityPage": {
         "title": "Zabezpečení",
         "description": "Změňte heslo a posilte zabezpečení svého účtu."
+      },
+      "preferences": {
+        "title": "Preference aplikace",
+        "description": "Nastavte, jak aplikace vypadá a jaký jazyk používá.",
+        "language": {
+          "title": "Jazyk",
+          "description": "Přepněte jazyk rozhraní pro aktuální stránku i další navigaci.",
+          "footerHint": "Toto nastavení se ukládá pouze na tomto zařízení a nesdílí se s vašimi dalšími zařízeními."
+        },
+        "theme": {
+          "title": "Vzhled",
+          "description": "Vyberte světlý, tmavý nebo systémový vzhled.",
+          "footerHint": "Toto nastavení se ukládá pouze na tomto zařízení a nesdílí se s vašimi dalšími zařízeními.",
+          "options": {
+            "light": {
+              "title": "Světlý",
+              "description": "Jasný vzhled vhodný pro denní použití."
+            },
+            "system": {
+              "title": "Systémový",
+              "description": "Automaticky přebírá vzhled vašeho zařízení."
+            },
+            "dark": {
+              "title": "Tmavý",
+              "description": "Tlumený vzhled vhodný do prostředí s méně světlem."
+            }
+          }
+        }
       },
       "common": {
         "successTitle": "Hotovo",

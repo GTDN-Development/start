@@ -17,8 +17,8 @@ export async function generateMetadata(props: PageProps<"/[locale]/account">): P
   });
 
   return createPageMetadata({
-    title: t("generalPage.title"),
-    description: t("generalPage.description"),
+    title: t("profilePage.title"),
+    description: t("profilePage.description"),
     locale: locale as Locale,
     pathname: "/account",
   });
@@ -36,8 +36,8 @@ export default async function Page({ params }: PageProps<"/[locale]/account">) {
 
   return (
     <SettingsPage
-      title={tAccount("generalPage.title")}
-      description={tAccount("generalPage.description")}
+      title={tAccount("profilePage.title")}
+      description={tAccount("profilePage.description")}
     >
       <div className="grid gap-8">
         <AccountAvatarSettingsItem />

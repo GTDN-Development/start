@@ -37,6 +37,9 @@
 - Keep `src/components/ui` shadcn-compatible (safe target for shadcn CLI generated components)
 - Keep shared utility helpers centralized in `src/lib/utils.ts`; avoid splitting into many micro utility files
 - Before adding a new helper/utility, check whether an existing one already exists in `src/lib/utils.ts`, the relevant feature root, or `src/server/*`, and reuse/extend it when practical
+- Do not introduce shared helpers/components too early just to deduplicate markup; two instances are not enough on their own to justify an abstraction
+- Three instances is still a judgment call and depends on context; prefer duplication unless the abstraction has clear semantic value, ownership, or behavioral reuse
+- Usually only extract a shared helper/component when the same pattern appears in four or more places, or when there is a strong reason beyond deduplication
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
 - API route groups:
   - marketing: `src/app/api/marketing/*`

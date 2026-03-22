@@ -480,18 +480,51 @@
     },
     "account": {
       "title": "Account settings",
-      "description": "Manage your account profile, email, and security settings.",
+      "description": "Manage your profile, app preferences, email, and security settings.",
       "nav": {
-        "general": "General",
+        "general": "Preferences",
+        "profile": "Profile",
         "security": "Security"
       },
       "generalPage": {
-        "title": "General",
-        "description": "Update your profile details, avatar, email address, and account preferences."
+        "title": "Preferences",
+        "description": "Manage your language and theme preferences for the app."
+      },
+      "profilePage": {
+        "title": "Profile",
+        "description": "Update your avatar, display name, email address, and account details."
       },
       "securityPage": {
         "title": "Security",
         "description": "Change your password and keep your account secure."
+      },
+      "preferences": {
+        "title": "App preferences",
+        "description": "Choose how the app looks and which language it uses.",
+        "language": {
+          "title": "Language",
+          "description": "Switch the interface language for the current route and future navigation.",
+          "footerHint": "This setting is stored only on this device and is not shared across your other devices."
+        },
+        "theme": {
+          "title": "Theme",
+          "description": "Choose between light, dark, or system theme.",
+          "footerHint": "This setting is stored only on this device and is not shared across your other devices.",
+          "options": {
+            "light": {
+              "title": "Light",
+              "description": "Bright appearance for daytime use."
+            },
+            "system": {
+              "title": "System",
+              "description": "Matches your device appearance automatically."
+            },
+            "dark": {
+              "title": "Dark",
+              "description": "Dimmed appearance for lower-light environments."
+            }
+          }
+        }
       },
       "common": {
         "successTitle": "Done",
