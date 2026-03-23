@@ -70,16 +70,16 @@ export function UserAccountMenu({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          "hover:bg-muted/50 rounded-full p-0 lg:flex lg:w-48 lg:items-center lg:justify-start lg:gap-2 lg:rounded-md lg:p-1"
+          "hover:bg-muted/50 rounded-full p-0 lg:flex lg:w-48 lg:items-center lg:justify-start lg:gap-2 lg:rounded-md lg:p-2"
         )}
         aria-label={labels.account}
       >
         {isAvatarUpdating ? (
-          <span className="inline-flex size-8 shrink-0 items-center justify-center">
-            <Skeleton className="size-8 rounded-full" />
+          <span className="inline-flex size-6 shrink-0 items-center justify-center">
+            <Skeleton className="size-6 rounded-full" />
           </span>
         ) : (
-          <Avatar className={className}>
+          <Avatar size="sm" className={className}>
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} alt="" onError={() => setFailedAvatarUrl(avatarUrl)} />
             ) : (

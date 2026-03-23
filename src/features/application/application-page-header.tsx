@@ -55,7 +55,7 @@ export function ApplicationPageHeader({ breadcrumbs }: ApplicationPageHeaderProp
         {/* Left side */}
         <div className="flex min-w-0 flex-1 items-center gap-x-4">
           <SidebarTrigger
-            variant="secondary"
+            variant="ghost"
             size="icon-lg"
             aria-label={mobileMenuLabels.openAriaLabel}
             className="shrink-0"
