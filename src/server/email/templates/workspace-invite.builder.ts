@@ -1,12 +1,11 @@
 import { createElement } from "react";
 import { createTranslator } from "next-intl";
-import { app } from "@/config/app";
-import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { getEmailMessages } from "@/server/email/email-messages";
 import type { EmailTemplateResult } from "@/server/email/render-email";
 import { WorkspaceInviteEmail } from "@/server/email/templates/workspace-invite";
 import { INVITE_TTL_DAYS } from "@/server/workspaces/workspace-constants";
+import { createWorkspaceInviteUrl } from "@/server/workspaces/workspace-invite-url";
 
 type BuildWorkspaceInviteEmailInput = {
   locale: AppLocale;
@@ -63,20 +62,4 @@ export async function buildWorkspaceInviteEmail(
       }),
     }),
   };
-}
-
-function createWorkspaceInviteUrl(inviteToken: string, locale: AppLocale): string {
-  const pathname = getPathname({
-    href: {
-      pathname: "/invite/[token]",
-      params: {
-        token: inviteToken,
-      },
-    },
-    locale,
-  });
-
-  const baseUrl = app.site.url.replace(/\/+$/g, "");
-
-  return `${baseUrl}${pathname}`;
 }

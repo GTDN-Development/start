@@ -71,6 +71,7 @@ export function mapWorkspaceInviteSummary(
     expiresAt: inviteRecord.expires_at,
     updatedAt: inviteRecord.updated,
     invitedByName: getNullableTrimmedString(inviteRecord.expand?.invited_by?.name),
+    inviteUrl: null,
   };
 }
 

@@ -1,7 +1,4 @@
-import type {
-  WorkspaceInvitesRecord,
-  WorkspaceMembersRecord,
-} from "@/types/pocketbase";
+import type { WorkspaceInvitesRecord, WorkspaceMembersRecord } from "@/types/pocketbase";
 
 export type WorkspaceMemberRole = WorkspaceMembersRecord["role"];
 export type WorkspaceInviteRole = WorkspaceInvitesRecord["role"];
@@ -47,6 +44,7 @@ export type WorkspaceInviteSummary = {
   expiresAt: string;
   updatedAt: string;
   invitedByName: string | null;
+  inviteUrl: string | null;
 };
 
 export type WorkspaceInviteInspectResult =

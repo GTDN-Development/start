@@ -25,22 +25,20 @@ export function WorkspaceMembersSettingsSection({
     setInvites((currentInvites) => [invite, ...currentInvites]);
   }
 
-  function handleInviteResent(inviteId: string, patch: Pick<WorkspaceSettingsInvite, "expiresAt" | "updatedAt">) {
+  function handleInviteResent(
+    inviteId: string,
+    patch: Pick<WorkspaceSettingsInvite, "expiresAt" | "updatedAt" | "inviteUrl">
+  ) {
     setInvites((currentInvites) =>
       currentInvites.map((invite) => (invite.id === inviteId ? { ...invite, ...patch } : invite))
     );
   }
 
   function handleInviteRemoved(inviteId: string) {
-    setInvites((currentInvites) =>
-      currentInvites.filter((invite) => invite.id !== inviteId)
-    );
+    setInvites((currentInvites) => currentInvites.filter((invite) => invite.id !== inviteId));
   }
 
-  function handleMemberRoleChanged(
-    memberId: string,
-    role: WorkspaceSettingsMember["role"]
-  ) {
+  function handleMemberRoleChanged(memberId: string, role: WorkspaceSettingsMember["role"]) {
     setMembers((currentMembers) =>
       sortWorkspaceSettingsMembers(
         currentMembers.map((member) => (member.id === memberId ? { ...member, role } : member))

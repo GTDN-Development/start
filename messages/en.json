@@ -1039,6 +1039,11 @@
               "error": "Invite could not be resent.",
               "success": "Invite link resent."
             },
+            "inviteCopy": {
+              "error": "Invite link could not be prepared.",
+              "success": "Invite link copied.",
+              "copyFailed": "Invite link could not be copied to the clipboard."
+            },
             "inviteRemove": {
               "error": "Invitation could not be removed.",
               "success": "Invitation removed."
@@ -1070,6 +1075,7 @@
             },
             "invites": {
               "ariaLabel": "Open invitation actions",
+              "copyLink": "Copy invite link",
               "resend": "Resend invite link",
               "remove": "Remove invitation"
             }

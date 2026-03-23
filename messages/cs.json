@@ -1039,6 +1039,11 @@
               "error": "Pozvánku se nepodařilo znovu odeslat.",
               "success": "Odkaz pozvánky byl znovu odeslán."
             },
+            "inviteCopy": {
+              "error": "Odkaz pozvánky se nepodařilo připravit.",
+              "success": "Odkaz pozvánky byl zkopírován.",
+              "copyFailed": "Odkaz se nepodařilo zkopírovat do schránky."
+            },
             "inviteRemove": {
               "error": "Pozvánku se nepodařilo odebrat.",
               "success": "Pozvánka byla odebrána."
@@ -1070,6 +1075,7 @@
             },
             "invites": {
               "ariaLabel": "Otevřít akce pozvánky",
+              "copyLink": "Zkopírovat odkaz",
               "resend": "Znovu odeslat odkaz",
               "remove": "Odebrat pozvánku"
             }

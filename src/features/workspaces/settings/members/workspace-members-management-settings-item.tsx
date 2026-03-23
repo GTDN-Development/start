@@ -3,7 +3,14 @@
 import { startTransition, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { InboxIcon, MoreHorizontalIcon, PencilLineIcon, SendIcon, TrashIcon } from "lucide-react";
+import {
+  CopyIcon,
+  InboxIcon,
+  MoreHorizontalIcon,
+  PencilLineIcon,
+  SendIcon,
+  TrashIcon,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -60,6 +67,7 @@ import {
 } from "@/features/workspaces/settings/members/workspace-member-roles";
 import {
   changeMemberRoleAction,
+  refreshInviteLinkAction,
   removeMemberAction,
   resendInviteAction,
   revokeInviteAction,
@@ -118,7 +126,7 @@ export function WorkspaceMembersManagementSettingsItem({
   onInviteRemoved: (inviteId: string) => void;
   onInviteResent: (
     inviteId: string,
-    patch: Pick<WorkspaceSettingsInvite, "expiresAt" | "updatedAt">
+    patch: Pick<WorkspaceSettingsInvite, "expiresAt" | "updatedAt" | "inviteUrl">
   ) => void;
   onMemberRemoved: (memberId: string) => void;
   onMemberRoleChanged: (memberId: string, role: WorkspaceSettingsMember["role"]) => void;
@@ -207,6 +215,37 @@ export function WorkspaceMembersManagementSettingsItem({
       type: "remove-invitation",
       invitationId: invitation.id,
     });
+  }
+
+  async function handleCopyInvitationLink(invitation: WorkspaceSettingsInvite) {
+    if (isReadOnly) {
+      return;
+    }
+
+    const response = await runAsyncTransition(() =>
+      refreshInviteLinkAction(workspace.slug, invitation.id, locale)
+    );
+
+    if (!response.ok) {
+      toast.error(getActionErrorMessage(response.errorCode, t("status.inviteCopy.error"), t));
+      return;
+    }
+
+    startTransition(() => {
+      onInviteResent(response.data.inviteId, {
+        expiresAt: response.data.expiresAt,
+        updatedAt: response.data.updatedAt,
+        inviteUrl: response.data.inviteUrl,
+      });
+    });
+
+    try {
+      await window.navigator.clipboard.writeText(response.data.inviteUrl);
+      toast.success(t("status.inviteCopy.success"));
+    } catch (error) {
+      console.error("Failed to copy invitation link:", error);
+      toast.error(t("status.inviteCopy.copyFailed"));
+    }
   }
 
   function handleActionDialogOpenChange(open: boolean) {
@@ -371,6 +410,7 @@ export function WorkspaceMembersManagementSettingsItem({
       onInviteResent(response.data.inviteId, {
         expiresAt: response.data.expiresAt,
         updatedAt: response.data.updatedAt,
+        inviteUrl: response.data.inviteUrl,
       });
     });
     toast.success(t("status.inviteResend.success"));
@@ -458,6 +498,7 @@ export function WorkspaceMembersManagementSettingsItem({
                       <PendingInvitationsTable
                         rows={invites}
                         isReadOnly={isReadOnly}
+                        onCopyInvitationLink={handleCopyInvitationLink}
                         onResendInvitationRequest={handleResendInvitationRequest}
                         onRemoveInvitationRequest={handleRemoveInvitationRequest}
                       />
@@ -468,6 +509,7 @@ export function WorkspaceMembersManagementSettingsItem({
                           key={invitation.id}
                           invitation={invitation}
                           isReadOnly={isReadOnly}
+                          onCopyInvitationLink={handleCopyInvitationLink}
                           onResendInvitationRequest={handleResendInvitationRequest}
                           onRemoveInvitationRequest={handleRemoveInvitationRequest}
                         />
@@ -755,11 +797,13 @@ function MembersTable({
 function PendingInvitationsTable({
   rows,
   isReadOnly,
+  onCopyInvitationLink,
   onResendInvitationRequest,
   onRemoveInvitationRequest,
 }: {
   rows: WorkspaceSettingsInvite[];
   isReadOnly: boolean;
+  onCopyInvitationLink: (invitation: WorkspaceSettingsInvite) => void;
   onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
 }) {
@@ -786,6 +830,7 @@ function PendingInvitationsTable({
               <PendingInvitationActionMenu
                 invitation={invitation}
                 disabled={isReadOnly}
+                onCopyInvitationLink={onCopyInvitationLink}
                 onResendInvitationRequest={onResendInvitationRequest}
                 onRemoveInvitationRequest={onRemoveInvitationRequest}
               />
@@ -848,11 +893,13 @@ function MemberDescriptionRow({
 function PendingInvitationDescriptionRow({
   invitation,
   isReadOnly,
+  onCopyInvitationLink,
   onResendInvitationRequest,
   onRemoveInvitationRequest,
 }: {
   invitation: WorkspaceSettingsInvite;
   isReadOnly: boolean;
+  onCopyInvitationLink: (invitation: WorkspaceSettingsInvite) => void;
   onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
 }) {
@@ -877,6 +924,7 @@ function PendingInvitationDescriptionRow({
           <PendingInvitationActionMenu
             invitation={invitation}
             disabled={isReadOnly}
+            onCopyInvitationLink={onCopyInvitationLink}
             onResendInvitationRequest={onResendInvitationRequest}
             onRemoveInvitationRequest={onRemoveInvitationRequest}
           />
@@ -986,11 +1034,13 @@ function MembersActionMenu({
 function PendingInvitationActionMenu({
   invitation,
   disabled,
+  onCopyInvitationLink,
   onResendInvitationRequest,
   onRemoveInvitationRequest,
 }: {
   invitation: WorkspaceSettingsInvite;
   disabled: boolean;
+  onCopyInvitationLink: (invitation: WorkspaceSettingsInvite) => void;
   onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
 }) {
@@ -1013,6 +1063,9 @@ function PendingInvitationActionMenu({
         }
       />
       <DropdownMenuContent align="end" className="w-auto min-w-44">
+        <DropdownMenuItem onClick={() => onCopyInvitationLink(invitation)} disabled={disabled}>
+          <CopyIcon aria-hidden="true" /> {t("menus.invites.copyLink")}
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onResendInvitationRequest(invitation)} disabled={disabled}>
           <SendIcon aria-hidden="true" /> {t("menus.invites.resend")}
         </DropdownMenuItem>
