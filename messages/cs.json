@@ -120,7 +120,7 @@
       "scopeSwitcher": {
         "personal": {
           "label": "Osobní",
-          "description": "Domů a účet"
+          "description": "Osobní prostor"
         },
         "workspace": {
           "summary": "{role} / {members}",

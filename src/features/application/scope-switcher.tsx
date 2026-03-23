@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { CheckIcon, ChevronsUpDownIcon, PlusIcon, UserIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useOptionalAccountProfile } from "@/features/account/account-profile-context";
 import { resolveApplicationScope } from "@/features/application/application-scope";
 import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
@@ -42,6 +44,7 @@ export function ScopeSwitcher() {
   const t = useTranslations("layout.application.scopeSwitcher");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const { isMobile } = useSidebar();
+  const accountProfile = useOptionalAccountProfile();
   const { activeWorkspaceSlug, workspaces } = useWorkspaceNavigation();
 
   const pathname = usePathname();
@@ -50,9 +53,22 @@ export function ScopeSwitcher() {
   const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
   const [isScopeMenuOpen, setIsScopeMenuOpen] = useState(false);
   const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);
+  const [failedPersonalAvatarUrl, setFailedPersonalAvatarUrl] = useState<string | null>(null);
   const [isCreateWorkspaceDrawerOpen, setIsCreateWorkspaceDrawerOpen] = useState(false);
 
   const workspaceOptions = workspaces.map(createWorkspaceOption);
+  const currentUser = accountProfile?.profile ?? null;
+  const personalLabel = getPersonalScopeLabel(currentUser?.name ?? null, currentUser?.email ?? null);
+  const personalInitials = getUserInitials(personalLabel);
+  const personalAvatarColorClass = currentUser ? getAvatarColorClass(currentUser.id) : "";
+  const personalAvatarFallbackClassName = cn(
+    personalAvatarColorClass,
+    "group-focus/dropdown-menu-item:!text-white"
+  );
+  const personalAvatarUrl =
+    currentUser?.avatarUrl && currentUser.avatarUrl !== failedPersonalAvatarUrl
+      ? currentUser.avatarUrl
+      : null;
   const selectedWorkspaceSlug = resolveSelectedWorkspaceSlug(
     pathname,
     activeWorkspaceSlug,
@@ -143,9 +159,19 @@ export function ScopeSwitcher() {
             }
           >
             {isPersonalScope || !selectedWorkspace ? (
-              <div className="bg-background border-border flex size-8 items-center justify-center rounded-md border">
-                <UserIcon aria-hidden="true" className="size-4" />
-              </div>
+              <Avatar key={personalAvatarUrl ?? "fallback"}>
+                {personalAvatarUrl ? (
+                  <AvatarImage
+                    src={personalAvatarUrl}
+                    alt=""
+                    onError={() => setFailedPersonalAvatarUrl(personalAvatarUrl)}
+                  />
+                ) : (
+                  <AvatarFallback className={personalAvatarFallbackClassName}>
+                    {personalInitials}
+                  </AvatarFallback>
+                )}
+              </Avatar>
             ) : (
               <WorkspaceAvatar
                 key={getWorkspaceAvatarStateKey(selectedWorkspace, activeWorkspaceAvatarUrl)}
@@ -168,7 +194,7 @@ export function ScopeSwitcher() {
             <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">
                 {isPersonalScope || !selectedWorkspace
-                  ? t("personal.label")
+                  ? personalLabel
                   : selectedWorkspace.name}
               </span>
               <span className="text-sidebar-foreground/70 truncate text-xs">
@@ -192,11 +218,21 @@ export function ScopeSwitcher() {
                 disabled={isSwitchingWorkspace}
                 onClick={handlePersonalScopeClick}
               >
-                <div className="bg-background border-border flex size-6 items-center justify-center rounded-md border">
-                  <UserIcon aria-hidden="true" className="size-4" />
-                </div>
+                <Avatar key={`personal:${personalAvatarUrl ?? "fallback"}`} size="sm">
+                  {personalAvatarUrl ? (
+                    <AvatarImage
+                      src={personalAvatarUrl}
+                      alt=""
+                      onError={() => setFailedPersonalAvatarUrl(personalAvatarUrl)}
+                    />
+                  ) : (
+                    <AvatarFallback className={personalAvatarFallbackClassName}>
+                      {personalInitials}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
                 <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{t("personal.label")}</span>
+                  <span className="truncate font-medium">{personalLabel}</span>
                   <span className="text-muted-foreground truncate text-xs">
                     {t("personal.description")}
                   </span>
@@ -305,6 +341,16 @@ function getWorkspaceAvatarUrl(workspace: WorkspaceOption, failedAvatarUrls: str
 
 function getWorkspaceAvatarStateKey(workspace: WorkspaceOption, avatarUrl: string | null) {
   return `${workspace.id}:${avatarUrl ?? "fallback"}`;
+}
+
+function getPersonalScopeLabel(name: string | null, email: string | null) {
+  const normalizedName = name?.trim();
+
+  if (normalizedName) {
+    return normalizedName;
+  }
+
+  return email ?? "";
 }
 
 function getWorkspaceSummary(

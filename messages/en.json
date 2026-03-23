@@ -120,7 +120,7 @@
       "scopeSwitcher": {
         "personal": {
           "label": "Personal",
-          "description": "Home and account"
+          "description": "Personal space"
         },
         "workspace": {
           "summary": "{role} / {members}",
