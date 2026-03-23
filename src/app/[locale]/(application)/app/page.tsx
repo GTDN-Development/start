@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Container } from "@/components/ui/container";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,8 +9,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
-import { PersonalHomePage } from "@/features/application/personal-home-page";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/app">): Promise<Metadata> {
@@ -58,7 +59,23 @@ export default async function Page({ params }: PageProps<"/[locale]/app">) {
         </Breadcrumb>
       }
     >
-      <PersonalHomePage />
+      <Container size="xl" className="space-y-16 pt-10 pb-24">
+        <Placeholder>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+        </Placeholder>
+
+        <Placeholder>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+        </Placeholder>
+
+        <Placeholder>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+        </Placeholder>
+
+        <Placeholder>
+          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+        </Placeholder>
+      </Container>
     </ApplicationPageShell>
   );
 }
