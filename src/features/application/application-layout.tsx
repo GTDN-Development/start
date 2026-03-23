@@ -29,6 +29,7 @@ import {
   useWorkspaceNavigation,
 } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
+import { ApplicationSidebarFooterNavigation } from "./application-sidebar-footer-navigation";
 import { ApplicationSidebarSignOut } from "./application-sidebar-sign-out";
 import { ApplicationMenuTree } from "./application-menu-tree";
 import { ScopeSwitcher } from "./scope-switcher";
@@ -142,6 +143,7 @@ export function ApplicationLayout({
                 </SidebarContent>
                 <SidebarFooter>
                   <SidebarSeparator />
+                  <ApplicationSidebarFooterNavigation />
                   <ApplicationSidebarSignOut />
                 </SidebarFooter>
               </Sidebar>

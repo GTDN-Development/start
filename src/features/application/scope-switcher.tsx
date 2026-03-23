@@ -13,12 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { useOptionalAccountProfile } from "@/features/account/account-profile-context";
 import { resolveApplicationScope } from "@/features/application/application-scope";
 import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
@@ -43,7 +38,6 @@ type WorkspaceOption = WorkspaceNavigationItem & {
 export function ScopeSwitcher() {
   const t = useTranslations("layout.application.scopeSwitcher");
   const tRoles = useTranslations("pages.workspace.members.roles");
-  const { isMobile } = useSidebar();
   const accountProfile = useOptionalAccountProfile();
   const { activeWorkspaceSlug, workspaces } = useWorkspaceNavigation();
 
@@ -58,7 +52,10 @@ export function ScopeSwitcher() {
 
   const workspaceOptions = workspaces.map(createWorkspaceOption);
   const currentUser = accountProfile?.profile ?? null;
-  const personalLabel = getPersonalScopeLabel(currentUser?.name ?? null, currentUser?.email ?? null);
+  const personalLabel = getPersonalScopeLabel(
+    currentUser?.name ?? null,
+    currentUser?.email ?? null
+  );
   const personalInitials = getUserInitials(personalLabel);
   const personalAvatarColorClass = currentUser ? getAvatarColorClass(currentUser.id) : "";
   const personalAvatarFallbackClassName = cn(
@@ -193,9 +190,7 @@ export function ScopeSwitcher() {
             )}
             <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">
-                {isPersonalScope || !selectedWorkspace
-                  ? personalLabel
-                  : selectedWorkspace.name}
+                {isPersonalScope || !selectedWorkspace ? personalLabel : selectedWorkspace.name}
               </span>
               <span className="text-sidebar-foreground/70 truncate text-xs">
                 {isPersonalScope || !selectedWorkspace
@@ -209,7 +204,7 @@ export function ScopeSwitcher() {
           <DropdownMenuContent
             className="min-w-56 rounded-lg"
             align="start"
-            side={isMobile ? "bottom" : "right"}
+            side="bottom"
             sideOffset={4}
           >
             <DropdownMenuGroup>
@@ -245,7 +240,6 @@ export function ScopeSwitcher() {
 
             <DropdownMenuGroup>
               <DropdownMenuLabel className="text-xs">{t("labels.workspaces")}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
               {workspaceOptions.length === 0 && (
                 <DropdownMenuItem className="pointer-events-none p-2 opacity-100">
                   <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
