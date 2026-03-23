@@ -1761,9 +1761,13 @@
     "consent": {
       "banner": {
         "description": "We use cookies to enhance your browsing experience, analyze site traffic, and provide personalized content. You can choose to accept all cookies or customize your preferences.",
-        "deny": "Deny",
+        "deny": "Reject all",
         "acceptAll": "Accept all",
-        "settings": "Consent settings"
+        "settings": "Consent settings",
+        "footer": {
+          "termsOfService": "Terms of Service",
+          "privacyPolicy": "Privacy Policy"
+        }
       },
       "dialog": {
         "title": "Cookie Consent Settings",
@@ -1793,9 +1797,9 @@
         "moreInfo": "For more information about how we use cookies, please read our",
         "cookiesPolicy": "cookies policy.",
         "actions": {
-          "deny": "Deny",
+          "deny": "Reject all",
           "acceptAll": "Accept all",
-          "save": "Save"
+          "save": "Save preferences"
         }
       }
     }

@@ -1761,9 +1761,13 @@
     "consent": {
       "banner": {
         "description": "Používáme cookies ke zlepšení vašeho prohlížení, analýze návštěvnosti a poskytování personalizovaného obsahu. Můžete přijmout všechny cookies nebo upravit své preference.",
-        "deny": "Odmítnout",
+        "deny": "Odmítnout vše",
         "acceptAll": "Přijmout vše",
-        "settings": "Nastavení souhlasu"
+        "settings": "Nastavení souhlasu",
+        "footer": {
+          "termsOfService": "Obchodní podmínky",
+          "privacyPolicy": "Zásady ochrany osobních údajů"
+        }
       },
       "dialog": {
         "title": "Nastavení souhlasu s cookies",
@@ -1793,9 +1797,9 @@
         "moreInfo": "Více informací o používání cookies najdete v našich",
         "cookiesPolicy": "zásadách cookies.",
         "actions": {
-          "deny": "Odmítnout",
+          "deny": "Odmítnout vše",
           "acceptAll": "Přijmout vše",
-          "save": "Uložit"
+          "save": "Uložit preference"
         }
       }
     }
