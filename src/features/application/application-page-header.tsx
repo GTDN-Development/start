@@ -61,7 +61,7 @@ export function ApplicationPageHeader({ breadcrumbs }: ApplicationPageHeaderProp
             className="shrink-0"
           />
 
-          <span className="bg-muted text-muted-foreground inline-flex max-w-40 items-center rounded-full px-2.5 py-1 text-xs font-medium lg:hidden">
+          <span className="bg-muted text-muted-foreground inline-flex max-w-40 items-center rounded-full px-2.5 py-1 text-xs font-medium">
             <span className="truncate">{scopeLabel}</span>
           </span>
 

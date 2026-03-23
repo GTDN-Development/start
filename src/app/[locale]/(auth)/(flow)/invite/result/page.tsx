@@ -3,10 +3,12 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
+import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { InviteSignOutButton } from "../invite-sign-out-button";
 import { InviteStatePanel } from "../invite-state-panel";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { createPageMetadata } from "@/lib/metadata";
+import type { AppHref } from "@/i18n/navigation";
 
 type InviteResultPageProps = {
   params: Promise<{
@@ -51,6 +53,7 @@ export default async function Page({ params, searchParams }: InviteResultPagePro
   });
   const sessionResponse = await getServerAuthSession();
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
+  const applicationEntryHref = session ? await resolveApplicationEntryHref(session.user.id) : null;
   const inviteResultState = parseInviteResultState(query.state);
   const invitedEmail = getSingleQueryValue(query.invitedEmail);
   const currentEmail = getSingleQueryValue(query.currentEmail);
@@ -97,7 +100,7 @@ export default async function Page({ params, searchParams }: InviteResultPagePro
         description={t("states.error.description")}
         action={renderInviteLinkAction(
           session ? tCommonError("goToApp") : tCommonError("goToSignIn"),
-          session ? "/app" : "/sign-in"
+          session ? (applicationEntryHref ?? "/app") : "/sign-in"
         )}
       />
     );
@@ -109,7 +112,7 @@ export default async function Page({ params, searchParams }: InviteResultPagePro
       description={t("states.blocked.description")}
       action={renderInviteLinkAction(
         session ? tCommonError("goToApp") : tCommonError("goToSignIn"),
-        session ? "/app" : "/sign-in"
+        session ? (applicationEntryHref ?? "/app") : "/sign-in"
       )}
     />
   );
@@ -141,7 +144,7 @@ function parseInviteResultState(
   return null;
 }
 
-function renderInviteLinkAction(label: string, href: "/app" | "/sign-in") {
+function renderInviteLinkAction(label: string, href: AppHref) {
   return (
     <Button
       size="lg"

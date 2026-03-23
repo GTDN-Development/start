@@ -1,4 +1,5 @@
 import { MarketingLayout } from "@/features/marketing/marketing-layout";
+import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 
 type MarketingRouteLayoutProps = {
@@ -7,17 +8,23 @@ type MarketingRouteLayoutProps = {
 
 export default async function Layout({ children }: MarketingRouteLayoutProps) {
   const sessionResponse = await getServerAuthSession();
-  const viewer = sessionResponse.ok
-    ? sessionResponse.data.session?.user
-      ? {
-          id: sessionResponse.data.session.user.id,
-          email: sessionResponse.data.session.user.email,
-          name: sessionResponse.data.session.user.name,
-          verified: sessionResponse.data.session.user.verified,
-          avatarUrl: sessionResponse.data.session.user.avatarUrl,
-        }
-      : null
+  const sessionUser = sessionResponse.ok ? sessionResponse.data.session?.user ?? null : null;
+  const viewer = sessionUser
+    ? {
+        id: sessionUser.id,
+        email: sessionUser.email,
+        name: sessionUser.name,
+        verified: sessionUser.verified,
+        avatarUrl: sessionUser.avatarUrl,
+      }
     : null;
+  const applicationEntryHref = sessionUser
+    ? await resolveApplicationEntryHref(sessionUser.id)
+    : "/app";
 
-  return <MarketingLayout viewer={viewer}>{children}</MarketingLayout>;
+  return (
+    <MarketingLayout viewer={viewer} applicationEntryHref={applicationEntryHref}>
+      {children}
+    </MarketingLayout>
+  );
 }

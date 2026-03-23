@@ -3,6 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
+import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { type AppHref, redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";
@@ -102,13 +103,14 @@ export default async function Page({ params }: InviteTokenPageProps) {
     id: session.user.id,
     email: session.user.email,
   });
+  const applicationEntryHref = await resolveApplicationEntryHref(session.user.id);
 
   if (!inspectResponse.ok) {
     return (
       <InviteStatePanel
         title={t("states.error.title")}
         description={t("states.error.description")}
-        action={renderInviteLinkAction(tCommonError("goToApp"), "/app")}
+        action={renderInviteLinkAction(tCommonError("goToApp"), applicationEntryHref)}
       />
     );
   }
@@ -194,7 +196,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
     <InviteStatePanel
       title={t("states.blocked.title")}
       description={t("states.blocked.description")}
-      action={renderInviteLinkAction(tCommonError("goToApp"), "/app")}
+      action={renderInviteLinkAction(tCommonError("goToApp"), applicationEntryHref)}
     />
   );
 }

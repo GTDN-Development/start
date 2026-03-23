@@ -33,10 +33,7 @@ That means:
 
 Workspace kinds currently supported by the data model:
 
-- `personal`
 - `organization`
-
-Personal workspaces are still supported if they already exist, but they are no longer a required post-auth invariant.
 
 Member roles:
 
@@ -143,6 +140,9 @@ Important rule:
 
 - `active_workspace` is a UI preference, not a requirement for auth or app entry
 
+It may also be used to resume the user's last valid app context from non-shell surfaces such as
+marketing CTA links.
+
 ### Pending Invite Cookie
 
 - name: `pending_invite`
@@ -158,6 +158,11 @@ Used by:
 The default authenticated destination is `/app`.
 
 Post-auth workspace handling only changes the destination when a pending workspace invite exists.
+
+Outside auth flows, non-shell `Go to app` entry points should restore the last valid app context:
+
+- valid `active_workspace` -> `/w/[workspaceSlug]/overview`
+- missing or stale `active_workspace` -> `/app`
 
 Outcome priority:
 
@@ -243,10 +248,25 @@ Current behavior:
 - admin or owner is required for invite management and most member management
 - only owner can transfer ownership
 - owner removal or leave is blocked when it would remove the last owner
-- personal workspaces cannot be left, deleted, or used for member invites
-- personal workspaces do not expose the `Members` settings item
 
 Rules stay explicit in service files instead of being moved into a policy engine.
+
+## Billing Compatibility
+
+The workspace layer is intentionally billing-compatible, not billing-opinionated.
+
+Current guardrails:
+
+- workspace ownership is represented by stable internal IDs, not slugs
+- workspace routes are collaboration routes, not billing routes
+- the workspace domain does not assume seats, credits, or subscriptions
+- billing can later attach to either personal scope or workspace scope without changing the shell model
+
+Non-goals for this layer:
+
+- no provider-neutral billing abstraction before the first real provider exists
+- no assumption that member count automatically equals billable quantity
+- no billing side effects inside generic workspace navigation logic
 
 ## Removal Path
 

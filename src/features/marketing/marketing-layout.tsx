@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { useTranslations } from "next-intl";
 import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
+import type { LinkHref } from "@/components/ui/link";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
 import { useSession } from "@/features/auth/auth-client";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
@@ -14,9 +15,11 @@ import { MarketingHeader } from "./marketing-header";
 export function MarketingLayout({
   children,
   viewer,
+  applicationEntryHref,
 }: {
   children: React.ReactNode;
   viewer: UserAccountMenuViewer | null;
+  applicationEntryHref: LinkHref;
 }) {
   const sessionSnapshot = useSession();
   const currentViewer =
@@ -47,7 +50,7 @@ export function MarketingLayout({
         ]}
       />
 
-      <MarketingHeader viewer={currentViewer} />
+      <MarketingHeader viewer={currentViewer} applicationEntryHref={applicationEntryHref} />
 
       <main id={contentId} data-slot="main" className="min-w-0">
         {children}

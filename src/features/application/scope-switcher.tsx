@@ -40,6 +40,7 @@ type WorkspaceOption = WorkspaceNavigationItem & {
 
 export function ScopeSwitcher() {
   const t = useTranslations("layout.application.scopeSwitcher");
+  const tRoles = useTranslations("pages.workspace.members.roles");
   const { isMobile } = useSidebar();
   const { activeWorkspaceSlug, workspaces } = useWorkspaceNavigation();
 
@@ -171,7 +172,7 @@ export function ScopeSwitcher() {
               <span className="text-sidebar-foreground/70 truncate text-xs">
                 {isPersonalScope || !selectedWorkspace
                   ? t("personal.description")
-                  : selectedWorkspace.slug}
+                  : getWorkspaceSummary(selectedWorkspace, t, tRoles)}
               </span>
             </div>
             <ChevronsUpDownIcon aria-hidden="true" className="ml-auto size-4" />
@@ -245,7 +246,7 @@ export function ScopeSwitcher() {
                     <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">{workspace.name}</span>
                       <span className="text-muted-foreground truncate text-xs">
-                        {workspace.slug}
+                        {getWorkspaceSummary(workspace, t, tRoles)}
                       </span>
                     </div>
                     {workspace.slug === selectedWorkspace?.slug &&
@@ -295,4 +296,17 @@ function getWorkspaceAvatarUrl(workspace: WorkspaceOption, failedAvatarUrls: str
   }
 
   return failedAvatarUrls.includes(workspace.avatarUrl) ? null : workspace.avatarUrl;
+}
+
+function getWorkspaceSummary(
+  workspace: WorkspaceOption,
+  t: (key: string, values?: Record<string, string | number>) => string,
+  tRoles: (key: string) => string
+) {
+  return t("workspace.summary", {
+    role: tRoles(`${workspace.role}.label`),
+    members: t("workspace.members", {
+      count: workspace.memberCount,
+    }),
+  });
 }

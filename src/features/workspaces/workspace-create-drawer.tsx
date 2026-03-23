@@ -33,7 +33,7 @@ type WorkspaceCreateDrawerProps = {
 };
 
 export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDrawerProps) {
-  const t = useTranslations("layout.application.workspaceSwitcher.createDrawer");
+  const t = useTranslations("layout.application.scopeSwitcher.createDrawer");
   const router = useRouter();
   const createToastId = useId();
 

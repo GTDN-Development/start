@@ -10,7 +10,7 @@ import {
   MobileMenuTrigger,
 } from "@/components/ui/mobile-menu";
 import { FloatingBar } from "@/components/layout/floating-bar";
-import { Link } from "@/components/ui/link";
+import { Link, type LinkHref } from "@/components/ui/link";
 import { Container } from "@/components/ui/container";
 import { ChevronDownIcon, ChevronRightIcon, MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,6 @@ import {
   authMenu,
   isNested,
   marketingMenu,
-  personalApplicationMenu,
   type MenuItem,
   type MenuLabelKey,
 } from "@/config/navigation";
@@ -154,14 +153,19 @@ function MobileNavigation({
   );
 }
 
-export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
+export function MarketingHeader({
+  viewer,
+  applicationEntryHref,
+}: {
+  viewer: HeaderViewer;
+  applicationEntryHref: LinkHref;
+}) {
   const t = useTranslations("layout.header");
   const tNav = useTranslations("layout.navigation.items");
   const tApplication = useTranslations("layout.application");
 
   const signInMenuItem = authMenu.find((item) => item.labelKey === "signIn");
   const signUpMenuItem = authMenu.find((item) => item.labelKey === "signUp");
-  const appMenuItem = personalApplicationMenu.find((item) => item.labelKey === "home");
 
   const applicationButtonLabel = t("goToApplication");
   const viewerDisplayName = getViewerDisplayName(viewer);
@@ -202,18 +206,16 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
           {/* Call to action */}
           <ul className="ml-auto hidden items-center gap-2 lg:flex">
             {viewer ? (
-              appMenuItem && (
-                <li>
-                  <Button size="lg" nativeButton={false} render={<Link href={appMenuItem.href} />}>
-                    {applicationButtonLabel}
-                    <ChevronRightIcon
-                      aria-hidden="true"
-                      className="size-4"
-                      data-icon="inline-end"
-                    />
-                  </Button>
-                </li>
-              )
+              <li>
+                <Button size="lg" nativeButton={false} render={<Link href={applicationEntryHref} />}>
+                  {applicationButtonLabel}
+                  <ChevronRightIcon
+                    aria-hidden="true"
+                    className="size-4"
+                    data-icon="inline-end"
+                  />
+                </Button>
+              </li>
             ) : (
               <>
                 {signInMenuItem && (
@@ -245,12 +247,12 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
 
           {/* Mobile menu */}
           <div className="flex items-center gap-2 lg:hidden">
-            {viewer && appMenuItem && (
+            {viewer && (
               <Button
                 size="lg"
                 className="shrink-0"
                 nativeButton={false}
-                render={<Link href={appMenuItem.href} />}
+                render={<Link href={applicationEntryHref} />}
               >
                 {applicationButtonLabel}
                 <ChevronRightIcon aria-hidden="true" className="size-4" data-icon="inline-end" />
@@ -291,12 +293,12 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
                   </div>
 
                   <MobileMenuFooter>
-                    {viewer && appMenuItem && (
+                    {viewer && (
                       <Button
                         size="lg"
                         className="w-full"
                         nativeButton={false}
-                        render={<MobileMenuClose render={<Link href={appMenuItem.href} />} />}
+                        render={<MobileMenuClose render={<Link href={applicationEntryHref} />} />}
                       >
                         {applicationButtonLabel}
                         <ChevronRightIcon aria-hidden="true" data-icon="inline-end" />

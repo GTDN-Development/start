@@ -122,6 +122,10 @@
           "label": "Personal",
           "description": "Home and account"
         },
+        "workspace": {
+          "summary": "{role} / {members}",
+          "members": "{count, plural, one {# member} other {# members}}"
+        },
         "labels": {
           "workspaces": "Workspaces"
         },
@@ -131,22 +135,10 @@
         "empty": {
           "title": "No workspaces yet",
           "description": "Create one when you need collaboration."
-        }
-      },
-      "workspaceSwitcher": {
-        "labels": {
-          "workspaces": "Workspaces"
-        },
-        "actions": {
-          "create": "Create workspace"
-        },
-        "empty": {
-          "title": "No workspaces yet",
-          "description": "Create your first workspace."
         },
         "createDrawer": {
           "title": "Create a workspace",
-          "description": "Unlock collaboration and more with organisation workspace.",
+          "description": "Create a shared workspace when you need collaboration with your team.",
           "fields": {
             "name": {
               "label": "Name",
@@ -168,23 +160,6 @@
             "failed": "Workspace could not be created.",
             "badRequest": "Please check entered values and try again.",
             "unauthorized": "Your session expired. Please sign in again."
-          }
-        },
-        "workspaces": {
-          "current": {
-            "name": "Workspace Name",
-            "plan": "Pro",
-            "initials": "WS"
-          },
-          "alpha": {
-            "name": "Product Team",
-            "plan": "Business",
-            "initials": "PT"
-          },
-          "beta": {
-            "name": "Design Studio",
-            "plan": "Starter",
-            "initials": "DS"
           }
         }
       }

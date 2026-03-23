@@ -122,6 +122,10 @@
           "label": "Osobní",
           "description": "Domů a účet"
         },
+        "workspace": {
+          "summary": "{role} / {members}",
+          "members": "{count, plural, one {# člen} few {# členové} other {# členů}}"
+        },
         "labels": {
           "workspaces": "Pracovní prostory"
         },
@@ -131,22 +135,10 @@
         "empty": {
           "title": "Zatím nemáte workspace",
           "description": "Vytvořte ho až ve chvíli, kdy potřebujete spolupráci."
-        }
-      },
-      "workspaceSwitcher": {
-        "labels": {
-          "workspaces": "Pracovní prostory"
-        },
-        "actions": {
-          "create": "Vytvořit pracovní prostor"
-        },
-        "empty": {
-          "title": "Zatím nemáte workspace",
-          "description": "Vytvořte svůj první workspace."
         },
         "createDrawer": {
-          "title": "Vytvořit workspace",
-          "description": "Odemkněte spolupráci a další možnosti s organizačním workspace.",
+          "title": "Vytvořit pracovní prostor",
+          "description": "Vytvořte sdílený pracovní prostor, až budete chtít spolupracovat s týmem.",
           "fields": {
             "name": {
               "label": "Název",
@@ -168,23 +160,6 @@
             "failed": "Workspace se nepodařilo vytvořit.",
             "badRequest": "Zkontrolujte prosím zadané hodnoty a zkuste to znovu.",
             "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
-          }
-        },
-        "workspaces": {
-          "current": {
-            "name": "Název pracovního prostoru",
-            "plan": "Pro",
-            "initials": "PP"
-          },
-          "alpha": {
-            "name": "Produktový tým",
-            "plan": "Business",
-            "initials": "PT"
-          },
-          "beta": {
-            "name": "Design studio",
-            "plan": "Starter",
-            "initials": "DS"
           }
         }
       }
