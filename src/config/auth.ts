@@ -8,11 +8,11 @@ const emailLinkActionTargets = {
 
 export type AuthEmailLinkAction = keyof typeof emailLinkActionTargets;
 
-export const AUTH_PROTECTED_ROUTE_PREFIXES = ["/overview", "/w", "/account"] as const;
+export const AUTH_PROTECTED_ROUTE_PREFIXES = ["/app", "/w", "/account"] as const;
 
 export const AUTH_REDIRECTS = {
   unauthenticatedTo: "/sign-in",
-  authenticatedTo: "/overview",
+  authenticatedTo: "/app",
 } as const;
 
 export const authConfig = {

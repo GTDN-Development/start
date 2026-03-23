@@ -365,13 +365,6 @@ export async function createWorkspaceInviteForCurrentUser(
       return adminAccess.response;
     }
 
-    if (adminAccess.context.workspace.kind === "personal") {
-      return {
-        ok: false,
-        errorCode: "PERSONAL_WORKSPACE_RESTRICTED",
-      };
-    }
-
     const workspaceMembers = await listWorkspaceMemberRecordsByWorkspace(
       adminAccess.context.pb,
       adminAccess.context.workspace.id
@@ -501,13 +494,6 @@ export async function resendWorkspaceInviteForCurrentUser(
       return adminAccess.response;
     }
 
-    if (adminAccess.context.workspace.kind === "personal") {
-      return {
-        ok: false,
-        errorCode: "PERSONAL_WORKSPACE_RESTRICTED",
-      };
-    }
-
     const inviteRecord = await findInviteById(
       adminAccess.context.pb,
       adminAccess.context.workspace.id,
@@ -630,13 +616,6 @@ export async function revokeWorkspaceInviteForCurrentUser(
 
     if (!adminAccess.ok) {
       return adminAccess.response;
-    }
-
-    if (adminAccess.context.workspace.kind === "personal") {
-      return {
-        ok: false,
-        errorCode: "PERSONAL_WORKSPACE_RESTRICTED",
-      };
     }
 
     const inviteRecord = await findInviteById(

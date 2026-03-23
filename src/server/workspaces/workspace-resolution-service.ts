@@ -7,7 +7,6 @@ import {
   logWorkspaceServiceError,
 } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary, sortUserWorkspaces } from "@/server/workspaces/workspace-mappers";
-import { ensurePersonalWorkspace } from "@/server/workspaces/workspace-general-service";
 import { consumePendingInviteIfPresent } from "@/server/workspaces/workspace-invite-service";
 import {
   countWorkspaceMembers,
@@ -16,7 +15,7 @@ import {
   listUserWorkspaceMembershipRecords,
 } from "@/server/workspaces/workspace-repository";
 import type {
-  PostAuthWorkspaceDestination,
+  PostAuthDestination,
   ServerWorkspaceResponse,
   UserWorkspace,
 } from "@/server/workspaces/workspace-types";
@@ -146,66 +145,10 @@ export async function resolveWorkspaceForUserBySlugWithClient(
   }
 }
 
-export async function pickWorkspaceForOverview(
-  userId: string,
-  activeWorkspaceSlugCookie: string | null
-): Promise<
-  ServerWorkspaceResponse<{ workspace: UserWorkspace | null; workspaces: UserWorkspace[] }>
-> {
-  const workspaceListResponse = await listUserWorkspaces(userId);
-
-  if (!workspaceListResponse.ok) {
-    return workspaceListResponse;
-  }
-
-  const workspaces = workspaceListResponse.data.workspaces;
-
-  if (workspaces.length === 0) {
-    return {
-      ok: true,
-      data: {
-        workspace: null,
-        workspaces,
-      },
-    };
-  }
-
-  const preferredWorkspace =
-    (activeWorkspaceSlugCookie
-      ? workspaces.find((workspace) => workspace.slug === activeWorkspaceSlugCookie)
-      : null) ?? workspaces[0];
-
-  return {
-    ok: true,
-    data: {
-      workspace: preferredWorkspace,
-      workspaces,
-    },
-  };
-}
-
-export async function resolvePostAuthWorkspace(input: {
+export async function resolvePostAuthDestination(input: {
   userId: string;
   userEmail: string;
-  userName: string | null;
-  activeWorkspaceSlugCookie: string | null;
-}): Promise<ServerWorkspaceResponse<PostAuthWorkspaceDestination>> {
-  const personalWorkspaceResponse = await ensurePersonalWorkspace(
-    input.userId,
-    input.userEmail,
-    input.userName
-  );
-
-  if (!personalWorkspaceResponse.ok) {
-    return {
-      ok: false,
-      errorCode: personalWorkspaceResponse.errorCode,
-      ...(personalWorkspaceResponse.setCookie
-        ? { setCookie: personalWorkspaceResponse.setCookie }
-        : {}),
-    };
-  }
-
+}): Promise<ServerWorkspaceResponse<PostAuthDestination>> {
   const pendingInviteResponse = await consumePendingInviteIfPresent({
     id: input.userId,
     email: input.userEmail,
@@ -213,9 +156,39 @@ export async function resolvePostAuthWorkspace(input: {
 
   if (!pendingInviteResponse.ok) {
     console.warn(
-      `[workspace-service] resolvePostAuthWorkspace: pending invite consume failed (${pendingInviteResponse.errorCode})`
+      `[workspace-service] resolvePostAuthDestination: pending invite consume failed (${pendingInviteResponse.errorCode})`
     );
-  } else if (pendingInviteResponse.data.result.state === "email_mismatch") {
+
+    return {
+      ok: true,
+      data: {
+        state: "error",
+      },
+      ...(pendingInviteResponse.setCookie ? { setCookie: pendingInviteResponse.setCookie } : {}),
+    };
+  }
+
+  if (pendingInviteResponse.data.result.state === "accepted") {
+    return {
+      ok: true,
+      data: {
+        state: "workspace_redirect",
+        workspaceSlug: pendingInviteResponse.data.result.workspace.slug,
+      },
+    };
+  }
+
+  if (pendingInviteResponse.data.result.state === "already_member") {
+    return {
+      ok: true,
+      data: {
+        state: "workspace_redirect",
+        workspaceSlug: pendingInviteResponse.data.result.workspace.slug,
+      },
+    };
+  }
+
+  if (pendingInviteResponse.data.result.state === "email_mismatch") {
     return {
       ok: true,
       data: {
@@ -224,7 +197,9 @@ export async function resolvePostAuthWorkspace(input: {
         currentEmail: pendingInviteResponse.data.result.currentEmail,
       },
     };
-  } else if (pendingInviteResponse.data.result.state === "invalid_or_expired") {
+  }
+
+  if (pendingInviteResponse.data.result.state === "invalid_or_expired") {
     return {
       ok: true,
       data: {
@@ -233,41 +208,11 @@ export async function resolvePostAuthWorkspace(input: {
     };
   }
 
-  const pickWorkspaceResponse = await pickWorkspaceForOverview(
-    input.userId,
-    input.activeWorkspaceSlugCookie
-  );
-
-  if (!pickWorkspaceResponse.ok || !pickWorkspaceResponse.data.workspace) {
-    return {
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-      ...(pickWorkspaceResponse.ok
-        ? {}
-        : pickWorkspaceResponse.setCookie
-          ? { setCookie: pickWorkspaceResponse.setCookie }
-          : {}),
-    };
-  }
-
-  const targetWorkspaceSlug =
-    pendingInviteResponse.ok &&
-    (pendingInviteResponse.data.result.state === "accepted" ||
-      pendingInviteResponse.data.result.state === "already_member")
-      ? pendingInviteResponse.data.result.workspace.slug
-      : pickWorkspaceResponse.data.workspace.slug;
-
   return {
     ok: true,
     data: {
-      state: "workspace_redirect",
-      workspaceSlug: targetWorkspaceSlug,
+      state: "app",
     },
-    ...(pendingInviteResponse.ok
-      ? {}
-      : pendingInviteResponse.setCookie
-        ? { setCookie: pendingInviteResponse.setCookie }
-        : {}),
   };
 }
 

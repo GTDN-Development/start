@@ -8,7 +8,7 @@
       "description": "An unexpected error interrupted this page.",
       "retry": "Try again",
       "goHome": "Go to Home page",
-      "goToOverview": "Go to overview",
+      "goToApp": "Go to app",
       "goToSignIn": "Go to sign in",
       "reference": "Reference code: {reference}"
     },
@@ -47,6 +47,7 @@
     "navigation": {
       "items": {
         "home": "Home",
+        "app": "App",
         "contact": "Contact",
         "support": "Contact & support",
         "pricing": "Pricing",
@@ -120,6 +121,10 @@
         },
         "actions": {
           "create": "Create workspace"
+        },
+        "empty": {
+          "title": "No workspaces yet",
+          "description": "Create your first workspace."
         },
         "createDrawer": {
           "title": "Create a workspace",
@@ -289,7 +294,7 @@
         "blocked": {
           "title": "Invitation unavailable",
           "description": "This invitation can't be used. It may be invalid, expired, revoked, unavailable, or already accepted.",
-          "cta": "Go to overview",
+          "cta": "Go to app",
           "alert": {
             "title": "Invitation is blocked",
             "description": "The invitation may be invalid, expired, revoked, unavailable, or already accepted."
@@ -490,9 +495,31 @@
       "description": "Learn about how we use cookies on our website, what types of cookies we use, and how you can manage your cookie preferences.",
       "effectiveDate": "January 1, 2025"
     },
-    "overview": {
-      "title": "Overview",
-      "description": "Welcome to your overview. Manage your account, view analytics, and access all your tools in one place."
+    "app": {
+      "title": "App home",
+      "description": "Start from your account, review your preferences, and move into workspace collaboration only when you need it.",
+      "cards": {
+        "account": {
+          "title": "Profile",
+          "description": "Manage your avatar, display name, and account details.",
+          "cta": "Open profile"
+        },
+        "preferences": {
+          "title": "Preferences",
+          "description": "Adjust language and theme settings for this device.",
+          "cta": "Open preferences"
+        },
+        "security": {
+          "title": "Security",
+          "description": "Review your password and active device sessions.",
+          "cta": "Open security"
+        },
+        "support": {
+          "title": "Support",
+          "description": "Get help with setup, issues, or product questions.",
+          "cta": "Contact support"
+        }
+      }
     },
     "account": {
       "title": "Account settings",
@@ -737,6 +764,10 @@
     "workspace": {
       "title": "Settings",
       "description": "Manage your workspace settings and appearance.",
+      "overview": {
+        "title": "Overview",
+        "description": "Welcome to your workspace overview. Review collaboration activity and access workspace tools."
+      },
       "nav": {
         "general": "General",
         "members": "Members"
@@ -817,7 +848,6 @@
         "leave": {
           "title": "Leave workspace",
           "description": "Leave {workspaceName} and remove your access to this workspace.",
-          "personalHint": "Personal workspace cannot be left. It always stays connected to your account.",
           "ownerGuardHint": "At least two owners are required before you can leave this workspace.",
           "trigger": "Leave workspace",
           "dialog": {
@@ -855,7 +885,6 @@
         "delete": {
           "title": "Delete workspace",
           "description": "Permanently remove {workspaceName} and all workspace data.",
-          "personalHint": "Personal workspace cannot be deleted. It is required for your account.",
           "trigger": "Delete workspace",
           "dialog": {
             "title": "Delete workspace?",
@@ -892,11 +921,7 @@
       "members": {
         "page": {
           "title": "Members",
-          "description": "Manage team members and invitations.",
-          "personalWorkspace": {
-            "title": "Members are unavailable in personal workspaces",
-            "description": "You can't add members or send invitations in a personal workspace. Switch to or create an organization workspace to collaborate with others."
-          }
+          "description": "Manage team members and invitations."
         },
         "roles": {
           "owner": {
@@ -915,10 +940,6 @@
         "invite": {
           "title": "Invite members",
           "description": "Invite a person and choose their access role.",
-          "personalWorkspace": {
-            "description": "Personal workspace {workspaceName} is limited to a single member.",
-            "hint": "Invites are available only in organization workspaces."
-          },
           "fields": {
             "email": {
               "label": "Email",

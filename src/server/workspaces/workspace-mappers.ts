@@ -23,7 +23,6 @@ export function mapWorkspaceSummary(
     id: workspace.id,
     name: workspace.name,
     slug: workspace.slug,
-    kind: workspace.kind,
     avatarUrl: getWorkspaceAvatarUrl(pb, workspace),
     memberCount,
   };
@@ -90,11 +89,7 @@ export function sortUserWorkspaces(
   firstWorkspace: UserWorkspace,
   secondWorkspace: UserWorkspace
 ): number {
-  if (firstWorkspace.kind === secondWorkspace.kind) {
-    return firstWorkspace.name.localeCompare(secondWorkspace.name);
-  }
-
-  return firstWorkspace.kind === "personal" ? -1 : 1;
+  return firstWorkspace.name.localeCompare(secondWorkspace.name);
 }
 
 function getWorkspaceAvatarUrl(pb: PocketBase, workspace: WorkspacesRecord): string | null {

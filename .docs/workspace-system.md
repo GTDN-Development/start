@@ -1,24 +1,40 @@
 # Workspace System
 
+Planning note:
+
+- the implementation plan for this target state lives in [workspace-refactor-plan.md](/Users/fanda/Dev/start/.plans/workspace-refactor-plan.md)
+
 ## What This Solves
 
-This layer handles the app's workspace model.
+This layer handles optional workspace-based collaboration inside an account-first SaaS starter.
 
-- personal workspace bootstrap
-- organization workspace creation and deletion
-- workspace selection and post-auth landing
-- workspace member management
-- workspace invite lifecycle
-- workspace-scoped access checks
+It owns:
 
-The goal is a simple workspace-first SaaS model without billing, entitlements, or generic policy layers.
+- workspace creation, update, leave, and deletion
+- workspace selection and shell switcher behavior
+- workspace-scoped routes and access checks
+- workspace members and invites
+- signed-out invite handoff into post-auth routing
+
+It does not define the default authenticated application entrypoint.
 
 ## Current Model
 
-Workspace kinds:
+The app is account-first.
+
+That means:
+
+- auth lands users in `/app`
+- account pages are user-scoped
+- workspace pages only exist where page identity depends on workspace
+- the shell remains usable when the user has zero workspaces
+
+Workspace kinds currently supported by the data model:
 
 - `personal`
 - `organization`
+
+Personal workspaces are still supported if they already exist, but they are no longer a required post-auth invariant.
 
 Member roles:
 
@@ -31,178 +47,14 @@ Invite roles:
 - `admin`
 - `member`
 
-Current assumptions:
+## Route Model
 
-- every user should end up with a personal workspace
-- users can belong to multiple workspaces
-- one active workspace slug can be remembered in a cookie
+The main application routes are:
 
-## How It Works
-
-The workspace flow is split into a few explicit layers:
-
-- auth context guard
-- workspace access guard
-- focused workspace services
-- server actions for UI mutations
-- application routes reading from the services directly
-
-Short version:
-
-- `workspace-auth-context.ts` turns auth into a workspace-safe server context
-- `workspace-access.ts` resolves workspace membership and role checks
-- service files each own one workspace concern
-- actions apply cookies and revalidation after successful mutations
-
-## File Map
-
-- auth bridge: [workspace-auth-context.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-auth-context.ts)
-- access checks: [workspace-access.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-access.ts)
-- write/lifecycle service: [workspace-general-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-general-service.ts)
-- read/resolution service: [workspace-resolution-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.ts)
-- members service: [workspace-members-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-members-service.ts)
-- invite service: [workspace-invite-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-invite-service.ts)
-- repository layer: [workspace-repository.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-repository.ts)
-- cookie helpers: [workspace-cookie.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-cookie.ts)
-- server actions: [workspace-actions.ts](/Users/fanda/Dev/start/src/features/workspaces/actions/workspace-actions.ts)
-
-## Service Split
-
-The current split is intentional.
-
-`workspace-general-service.ts` owns write and lifecycle operations:
-
-- `ensurePersonalWorkspace()`
-- `createOrganizationWorkspaceForCurrentUser()`
-- `updateWorkspaceGeneralForCurrentUser()`
-- `deleteOrganizationWorkspaceForCurrentUser()`
-
-`workspace-resolution-service.ts` owns read and resolution operations:
-
-- `listUserWorkspaces()`
-- `resolveWorkspaceForUserBySlug()`
-- `pickWorkspaceForOverview()`
-- `resolvePostAuthWorkspace()`
-- `switchWorkspaceForCurrentUser()`
-
-`workspace-members-service.ts` owns membership changes.
-
-`workspace-invite-service.ts` owns invite validation, acceptance, creation, resend, revoke, and pending invite consumption.
-
-## Access Model
-
-There are two explicit gates.
-
-### Auth Gate
-
-[workspace-auth-context.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-auth-context.ts) requires a valid authenticated user and converts auth failures into workspace response errors.
-
-### Workspace Gate
-
-[workspace-access.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-access.ts) resolves:
-
-- workspace by slug
-- current user's membership in that workspace
-- optional owner/admin role enforcement
-
-This keeps service files direct:
-
-- get auth context
-- get workspace access
-- run the domain operation
-
-## Cookies
-
-The workspace layer currently uses two cookies.
-
-### Active Workspace Cookie
-
-- name: `active_workspace`
-- purpose: remember the user's preferred current workspace slug
-
-Used by:
-
-- workspace switcher flow
-- `/overview` resolution
-- application layout active workspace state
-- direct signed-in invite accept
-
-### Pending Invite Cookie
-
-- name: `pending_invite`
-- purpose: store the hashed invite token for a guest who opened an invite link before signing in
-
-Used by:
-
-- `/invite/[token]/start`
-- post-auth workspace resolution
-
-## Post-Auth Workspace Resolution
-
-This is one of the main workspace flows.
-
-`resolvePostAuthWorkspace()` currently does three things in order:
-
-1. ensure the user's personal workspace exists
-2. consume a pending invite cookie if present
-3. return an explicit post-auth destination
-
-Workspace redirect priority is:
-
-1. accepted/already-member invite workspace
-2. active workspace cookie match
-3. first workspace in the user's sorted workspace list
-
-Possible destination outcomes are:
-
-- workspace redirect
-- invite email mismatch
-- invite invalid/expired
-
-This is what powers:
-
-- `/overview`
-- post-auth client redirect after sign-in/sign-up
-- explicit invite result handling after auth
-
-## Invite Flow
-
-Current invite flow:
-
-1. admin creates an invite
-2. email contains `/invite/[token]`
-3. invite page validates the token
-4. if the visitor is signed out, `/invite/[token]/start` stores the hashed token in `pending_invite` and redirects to sign-in
-5. after auth, `resolvePostAuthWorkspace()` consumes that pending invite
-6. accepted invites send the user to the invited workspace overview and persist `active_workspace`
-7. mismatch/invalid outcomes after auth are surfaced through `/invite/result`
-
-Signed-in invite handling also supports:
-
-- already-member result
-- email mismatch result
-- invalid/expired token result
-
-Direct signed-in accept now also persists the invited workspace as `active_workspace` before redirecting.
-
-## Members And Role Rules
-
-Current behavior:
-
-- any workspace member can list workspace members and invites through an access-checked workspace
-- admin or owner is required for invite management and most member management
-- only owner can transfer ownership
-- owner removal/demotion is blocked when it would remove the last owner
-- personal workspaces cannot be left, deleted, or used for member invites
-- personal workspaces do not expose the `Members` item in workspace settings navigation
-
-This keeps the rules explicit in the service layer instead of hiding them in a separate policy engine.
-
-## Current Routes
-
-The main workspace-facing routes are:
-
-- `/overview`
+- `/app`
+- `/account`
+- `/account/preferences`
+- `/account/security`
 - `/w/[workspaceSlug]`
 - `/w/[workspaceSlug]/overview`
 - `/w/[workspaceSlug]/settings`
@@ -210,50 +62,154 @@ The main workspace-facing routes are:
 - `/invite/[token]`
 - `/invite/result`
 
-Important behavior:
+Important route rules:
 
-- the application layout loads the current user's workspace list
-- `/overview` is a resolver route, not a permanent content page
-- `/w/[workspaceSlug]` is an entry route that redirects to the workspace overview when the workspace is valid
-- concrete workspace pages resolve the workspace again by slug and membership
-- invalid workspace slugs redirect back to `/overview`
-- unknown nested routes inside a valid workspace render a scoped not-found page inside the application shell
-- `/w/[workspaceSlug]/settings/members` shows an informational state for personal workspaces instead of member management UI
-- the visible workspace switcher follows pathname-first selection, then `active_workspace`, then the first available workspace
+- `/app` is the authenticated home page
+- `/account*` is always user-scoped
+- `/w/[workspaceSlug]/*` is always workspace-scoped
+- `/w/[workspaceSlug]` is an entry route that redirects to workspace overview when valid
+- concrete workspace pages resolve access directly from pathname slug
+- invalid or inaccessible workspace routes render scoped not-found states instead of bouncing through `/overview`
 
-## Current Constraints
+## File Map
 
-Not currently implemented:
+- shell route selection helpers: [workspace-routing.ts](/Users/fanda/Dev/start/src/features/application/workspace-routing.ts)
+- access checks: [workspace-access.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-access.ts)
+- write and lifecycle service: [workspace-general-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-general-service.ts)
+- read and resolution service: [workspace-resolution-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.ts)
+- members service: [workspace-members-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-members-service.ts)
+- invite service: [workspace-invite-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-invite-service.ts)
+- repository layer: [workspace-repository.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-repository.ts)
+- cookie helpers: [workspace-cookie.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-cookie.ts)
+- server actions: [workspace-actions.ts](/Users/fanda/Dev/start/src/features/workspaces/actions/workspace-actions.ts)
+- switcher UI: [workspace-switcher.tsx](/Users/fanda/Dev/start/src/features/workspaces/workspace-switcher.tsx)
 
-- billing-based workspace limits
-- feature flags or entitlements
-- workspace suspension / disabled states
-- plugin hooks around workspace lifecycle
+## Service Split
 
-The current system is intentionally direct:
+The split remains direct and domain-based.
 
-- PocketBase data access in the repository layer
-- business rules in focused service files
-- UI mutations in server actions
+`workspace-general-service.ts` owns write and lifecycle operations:
 
-## Common Changes
+- `createOrganizationWorkspaceForCurrentUser()`
+- `updateWorkspaceGeneralForCurrentUser()`
+- `deleteOrganizationWorkspaceForCurrentUser()`
 
-Adding a new workspace capability:
+`workspace-resolution-service.ts` owns read and route-selection operations:
 
-- prefer a new focused service file in `src/server/workspaces/` when the concern is genuinely new
-- keep imports direct
-- keep role checks in the service that owns the operation
+- `listUserWorkspaces()`
+- `resolveWorkspaceForUserBySlug()`
+- `resolvePostAuthDestination()`
+- `switchWorkspaceForCurrentUser()`
 
-Changing workspace landing behavior:
+`workspace-members-service.ts` owns membership changes.
 
-- check [workspace-resolution-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.ts)
-- check [workspace-cookie.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-cookie.ts)
-- check [overview/page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(application)/overview/page.tsx>)
-- check [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(application)/w/[workspaceSlug]/page.tsx>)
+`workspace-invite-service.ts` owns invite validation, acceptance, creation, resend, revoke, and pending invite consumption.
 
-Changing invite behavior:
+## Explicit Integration Points
 
-- check [workspace-invite-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-invite-service.ts)
-- check [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/page.tsx>)
-- check [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/result/page.tsx>)
-- check [route.ts](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.ts>)
+Workspace-specific code is intentionally localized. The main app core touches it only in a few places:
+
+- app shell workspace switcher mount in [application-layout.tsx](/Users/fanda/Dev/start/src/features/application/application-layout.tsx)
+- workspace menu item resolution in [application-menu-tree.tsx](/Users/fanda/Dev/start/src/features/application/application-menu-tree.tsx)
+- post-auth invite handoff in [auth-actions.ts](/Users/fanda/Dev/start/src/features/auth/actions/auth-actions.ts) and [post-auth-redirect.ts](/Users/fanda/Dev/start/src/features/auth/post-auth-redirect.ts)
+- invite routes under [src/app/[locale]/(auth)/(flow)/invite](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite>)
+
+That keeps the removal path bounded without adding a runtime feature system.
+
+## Cookies
+
+The workspace layer uses two cookies.
+
+### Active Workspace Cookie
+
+- name: `active_workspace`
+- purpose: remember the user's preferred workspace for shell shortcuts and switcher state
+
+Used by:
+
+- workspace switcher selection
+- workspace-aware shell links
+- direct invite acceptance
+- application layout repair of stale workspace preference
+
+Important rule:
+
+- `active_workspace` is a UI preference, not a requirement for auth or app entry
+
+### Pending Invite Cookie
+
+- name: `pending_invite`
+- purpose: store the hashed invite token for a guest who opened a workspace invite before signing in
+
+Used by:
+
+- `/invite/[token]/start`
+- post-auth invite handoff
+
+## Post-Auth Behavior
+
+The default authenticated destination is `/app`.
+
+Post-auth workspace handling only changes the destination when a pending workspace invite exists.
+
+Outcome priority:
+
+1. accepted invite -> workspace overview
+2. already-member invite -> workspace overview
+3. invite email mismatch -> `/invite/result`
+4. invite invalid or expired -> `/invite/result`
+5. pending invite transient failure -> explicit `/invite/result?state=error`
+6. no workspace-specific outcome -> `/app`
+
+The app no longer bootstraps a personal workspace as part of the universal auth path.
+
+## Workspace Switcher Behavior
+
+The workspace switcher is a shell feature, not a route resolver.
+
+Behavior inside workspace routes:
+
+- pathname workspace slug has priority
+- if the slug is valid and available, that workspace is shown as selected
+
+Behavior outside workspace routes:
+
+- the selected workspace comes from `active_workspace`
+- if the cookie is stale, the shell repairs it to the first available workspace
+- switching from `/app` or `/account*` navigates to `/w/[workspaceSlug]/overview`
+- if no workspace exists, the switcher shows an explicit create-only empty state
+
+## Zero-Workspace State
+
+Zero workspaces is a valid authenticated state.
+
+Current shell behavior:
+
+- `/app` remains usable
+- `/account`, `/account/preferences`, and `/account/security` remain usable
+- the workspace menu item is hidden
+- the workspace switcher shows a create-only empty state
+
+## Members And Role Rules
+
+Current behavior:
+
+- admin or owner is required for invite management and most member management
+- only owner can transfer ownership
+- owner removal or leave is blocked when it would remove the last owner
+- personal workspaces cannot be left, deleted, or used for member invites
+- personal workspaces do not expose the `Members` settings item
+
+Rules stay explicit in service files instead of being moved into a policy engine.
+
+## Removal Path
+
+If a fork removes workspaces later, the intended bounded deletion path is:
+
+1. remove workspace PocketBase collections
+2. delete [src/server/workspaces](/Users/fanda/Dev/start/src/server/workspaces)
+3. delete [src/features/workspaces](/Users/fanda/Dev/start/src/features/workspaces)
+4. delete [src/app/[locale]/(application)/w/[workspaceSlug]](</Users/fanda/Dev/start/src/app/[locale]/(application)/w/[workspaceSlug]>)
+5. remove workspace shell integrations from navigation, layout, and post-auth invite handoff
+
+No runtime feature registry or provider-neutral abstraction is required for that future change.

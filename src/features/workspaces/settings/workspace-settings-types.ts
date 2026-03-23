@@ -2,7 +2,6 @@ export type WorkspaceSettingsWorkspace = {
   id: string;
   slug: string;
   name: string;
-  kind: "personal" | "organization";
   role: "owner" | "admin" | "member";
   isCurrentUserLastOwner: boolean;
   avatarUrl: string | null;

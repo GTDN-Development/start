@@ -51,11 +51,8 @@ export function WorkspaceLeaveSettingsItem({
   const leaveWorkspaceToastId = useId();
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
 
-  const isPersonalWorkspace = workspace.kind === "personal";
   const isLeaveBlockedByLastOwnerGuard =
-    workspace.kind === "organization" &&
-    workspace.role === "owner" &&
-    workspace.isCurrentUserLastOwner;
+    workspace.role === "owner" && workspace.isCurrentUserLastOwner;
 
   const leaveWorkspaceSchema = z.object({
     confirmationUrl: z
@@ -108,7 +105,7 @@ export function WorkspaceLeaveSettingsItem({
       startTransition(() => {
         setIsLeaveDialogOpen(false);
         form.reset();
-        router.replace("/overview");
+        router.replace("/app");
       });
     },
   });
@@ -139,137 +136,132 @@ export function WorkspaceLeaveSettingsItem({
       </SettingsItemContent>
 
       <SettingsItemFooter>
-        {isPersonalWorkspace && (
-          <SettingsItemDescription>{t("personalHint")}</SettingsItemDescription>
-        )}
         {isLeaveBlockedByLastOwnerGuard && (
           <SettingsItemDescription>{t("ownerGuardHint")}</SettingsItemDescription>
         )}
-        {!isPersonalWorkspace && (
-          <AlertDialog open={isLeaveDialogOpen} onOpenChange={handleLeaveDialogOpenChange}>
-            <AlertDialogTrigger
-              nativeButton={true}
-              render={
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="lg"
-                  className="sm:ml-auto"
-                  disabled={isLeaveBlockedByLastOwnerGuard}
-                >
-                  {t("trigger")}
-                </Button>
-              }
-            />
-            <AlertDialogContent className="sm:max-w-lg">
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  form.handleSubmit();
-                }}
-                className="contents"
+        <AlertDialog open={isLeaveDialogOpen} onOpenChange={handleLeaveDialogOpenChange}>
+          <AlertDialogTrigger
+            nativeButton={true}
+            render={
+              <Button
+                type="button"
+                variant="destructive"
+                size="lg"
+                className="sm:ml-auto"
+                disabled={isLeaveBlockedByLastOwnerGuard}
               >
-                <form.Subscribe
-                  selector={(state) => ({
-                    isSubmitting: state.isSubmitting,
-                    submissionAttempts: state.submissionAttempts,
-                  })}
-                >
-                  {({ isSubmitting, submissionAttempts }) => (
-                    <>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
-                        <AlertDialogDescription>{t("dialog.description")}</AlertDialogDescription>
-                      </AlertDialogHeader>
+                {t("trigger")}
+              </Button>
+            }
+          />
+          <AlertDialogContent className="sm:max-w-lg">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                form.handleSubmit();
+              }}
+              className="contents"
+            >
+              <form.Subscribe
+                selector={(state) => ({
+                  isSubmitting: state.isSubmitting,
+                  submissionAttempts: state.submissionAttempts,
+                })}
+              >
+                {({ isSubmitting, submissionAttempts }) => (
+                  <>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
+                      <AlertDialogDescription>{t("dialog.description")}</AlertDialogDescription>
+                    </AlertDialogHeader>
 
-                      <FieldGroup className="mt-4 flex flex-col gap-6 pb-2">
-                        <form.Field name="confirmationUrl">
-                          {(field) => {
-                            const isInvalid =
-                              (field.state.meta.isTouched || submissionAttempts > 0) &&
-                              !field.state.meta.isValid;
+                    <FieldGroup className="mt-4 flex flex-col gap-6 pb-2">
+                      <form.Field name="confirmationUrl">
+                        {(field) => {
+                          const isInvalid =
+                            (field.state.meta.isTouched || submissionAttempts > 0) &&
+                            !field.state.meta.isValid;
 
-                            return (
-                              <Field data-invalid={isInvalid}>
-                                <FieldLabel htmlFor={`workspace-leave-${field.name}`}>
-                                  {t("dialog.fields.confirmationUrl.label")}
-                                </FieldLabel>
-                                <Input
+                          return (
+                            <Field data-invalid={isInvalid}>
+                              <FieldLabel htmlFor={`workspace-leave-${field.name}`}>
+                                {t("dialog.fields.confirmationUrl.label")}
+                              </FieldLabel>
+                              <Input
+                                id={`workspace-leave-${field.name}`}
+                                name={`workspace-leave-${field.name}`}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(event) => field.handleChange(event.target.value)}
+                                autoComplete="off"
+                                placeholder={workspace.slug}
+                                aria-invalid={isInvalid}
+                              />
+                              <FieldDescription>
+                                {t("dialog.fields.confirmationUrl.description", {
+                                  workspaceSlug: workspace.slug,
+                                })}
+                              </FieldDescription>
+                              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                            </Field>
+                          );
+                        }}
+                      </form.Field>
+
+                      <form.Field name="isLeavingAcknowledged">
+                        {(field) => {
+                          const isInvalid =
+                            (field.state.meta.isTouched || submissionAttempts > 0) &&
+                            !field.state.meta.isValid;
+
+                          return (
+                            <div className="flex flex-col gap-2">
+                              <Field orientation="horizontal" data-invalid={isInvalid}>
+                                <Checkbox
                                   id={`workspace-leave-${field.name}`}
                                   name={`workspace-leave-${field.name}`}
-                                  value={field.state.value}
+                                  checked={field.state.value}
                                   onBlur={field.handleBlur}
-                                  onChange={(event) => field.handleChange(event.target.value)}
-                                  autoComplete="off"
-                                  placeholder={workspace.slug}
+                                  onCheckedChange={(checked) =>
+                                    field.handleChange(checked === true)
+                                  }
                                   aria-invalid={isInvalid}
                                 />
-                                <FieldDescription>
-                                  {t("dialog.fields.confirmationUrl.description", {
-                                    workspaceSlug: workspace.slug,
-                                  })}
-                                </FieldDescription>
-                                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                                <FieldLabel htmlFor={`workspace-leave-${field.name}`}>
+                                  {t("dialog.fields.acknowledged.label")}
+                                </FieldLabel>
                               </Field>
-                            );
-                          }}
-                        </form.Field>
+                              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                            </div>
+                          );
+                        }}
+                      </form.Field>
+                    </FieldGroup>
 
-                        <form.Field name="isLeavingAcknowledged">
-                          {(field) => {
-                            const isInvalid =
-                              (field.state.meta.isTouched || submissionAttempts > 0) &&
-                              !field.state.meta.isValid;
-
-                            return (
-                              <div className="flex flex-col gap-2">
-                                <Field orientation="horizontal" data-invalid={isInvalid}>
-                                  <Checkbox
-                                    id={`workspace-leave-${field.name}`}
-                                    name={`workspace-leave-${field.name}`}
-                                    checked={field.state.value}
-                                    onBlur={field.handleBlur}
-                                    onCheckedChange={(checked) =>
-                                      field.handleChange(checked === true)
-                                    }
-                                    aria-invalid={isInvalid}
-                                  />
-                                  <FieldLabel htmlFor={`workspace-leave-${field.name}`}>
-                                    {t("dialog.fields.acknowledged.label")}
-                                  </FieldLabel>
-                                </Field>
-                                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                              </div>
-                            );
-                          }}
-                        </form.Field>
-                      </FieldGroup>
-
-                      <AlertDialogFooter>
-                        <AlertDialogCancel type="button" size="lg" disabled={isSubmitting}>
-                          {tCommon("cancel")}
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          type="submit"
-                          size="lg"
-                          variant="destructive"
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? (
-                            <Spinner />
-                          ) : (
-                            <LogOutIcon aria-hidden="true" className="size-4" />
-                          )}
-                          {isSubmitting ? t("dialog.submit.pending") : t("dialog.submit.default")}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </>
-                  )}
-                </form.Subscribe>
-              </form>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+                    <AlertDialogFooter>
+                      <AlertDialogCancel type="button" size="lg" disabled={isSubmitting}>
+                        {tCommon("cancel")}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        type="submit"
+                        size="lg"
+                        variant="destructive"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <Spinner />
+                        ) : (
+                          <LogOutIcon aria-hidden="true" className="size-4" />
+                        )}
+                        {isSubmitting ? t("dialog.submit.pending") : t("dialog.submit.default")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </>
+                )}
+              </form.Subscribe>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
       </SettingsItemFooter>
     </SettingsItem>
   );

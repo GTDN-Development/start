@@ -80,7 +80,7 @@ export interface WorkspaceMembersRecord extends PocketBaseSystemFields {
 export interface WorkspacesRecord extends PocketBaseSystemFields {
   name: string;
   slug: string;
-  kind: "personal" | "organization";
+  kind: "organization";
   avatar?: string;
 }
 

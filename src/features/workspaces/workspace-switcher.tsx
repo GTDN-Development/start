@@ -109,7 +109,31 @@ export function WorkspaceSwitcher() {
   }
 
   if (!activeWorkspace) {
-    return null;
+    return (
+      <>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              onClick={handleCreateWorkspaceClick}
+              disabled={isSwitchingWorkspace}
+            >
+              <div className="bg-background border-border flex size-8 items-center justify-center rounded-md border">
+                <PlusIcon aria-hidden="true" className="size-4" />
+              </div>
+              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">{t("empty.title")}</span>
+                <span className="truncate text-xs">{t("empty.description")}</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <WorkspaceCreateDrawer
+          open={isCreateWorkspaceDrawerOpen}
+          onOpenChange={handleCreateWorkspaceDrawerOpenChange}
+        />
+      </>
+    );
   }
 
   return (

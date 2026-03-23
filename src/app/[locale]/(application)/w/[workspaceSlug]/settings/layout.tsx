@@ -1,5 +1,6 @@
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import {
   getWorkspaceSettingsInnerSidebarItems,
@@ -37,12 +38,7 @@ export default async function Layout({
   );
 
   if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    redirect({
-      href: "/overview",
-      locale: currentLocale,
-    });
-
-    return null;
+    notFound();
   }
 
   const workspace = workspaceResponse.data.workspace;
@@ -60,7 +56,7 @@ export default async function Layout({
   });
 
   const innerSidebarItems = mapWorkspaceInnerSidebarItems(
-    getWorkspaceSettingsInnerSidebarItems(workspace.kind),
+    getWorkspaceSettingsInnerSidebarItems(),
     workspace.slug,
     tWorkspaceNav
   );

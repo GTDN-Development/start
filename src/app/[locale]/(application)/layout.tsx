@@ -3,6 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { ApplicationLayout } from "@/features/application/application-layout";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { requireCurrentUser } from "@/server/auth/current-user";
@@ -74,13 +75,13 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
         id: workspace.id,
         slug: workspace.slug,
         name: workspace.name,
-        kind: workspace.kind,
         role: workspace.role,
         avatarUrl: workspace.avatarUrl,
         memberCount: workspace.memberCount,
       }))
     : [];
   const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
+  const repairedActiveWorkspaceSlug = resolveActiveWorkspaceSlug(activeWorkspaceSlug, workspaces);
 
   const tApplication = await getTranslations({
     locale: locale as Locale,
@@ -100,13 +101,13 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
       user={user}
       locale={locale}
       workspaces={workspaces}
-      activeWorkspaceSlug={activeWorkspaceSlug}
+      activeWorkspaceSlug={repairedActiveWorkspaceSlug}
       labels={{
         userMenu: {
           account: tNavigation("account"),
           accountPage: tNavigation("account"),
+          app: tNavigation("app"),
           home: tNavigation("home"),
-          overview: tNavigation("overview"),
           emailNotVerified: tApplication("emailNotVerified"),
           emailVerified: tApplication("emailVerified"),
           signOut: tApplication("signOut"),
@@ -121,4 +122,22 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
       {children}
     </ApplicationLayout>
   );
+}
+
+function resolveActiveWorkspaceSlug(
+  activeWorkspaceSlug: string | null,
+  workspaces: WorkspaceNavigationItem[]
+): string | null {
+  if (workspaces.length === 0) {
+    return null;
+  }
+
+  if (
+    activeWorkspaceSlug &&
+    workspaces.some((workspace) => workspace.slug === activeWorkspaceSlug)
+  ) {
+    return activeWorkspaceSlug;
+  }
+
+  return workspaces[0]?.slug ?? null;
 }

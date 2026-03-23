@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import {
   Breadcrumb,
@@ -23,7 +24,7 @@ export async function generateMetadata(
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.overview",
+    namespace: "pages.workspace.overview",
   });
 
   return createPageMetadata({
@@ -56,18 +57,10 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
     return null;
   }
 
-  const workspaceResponse = await resolveWorkspaceForUserBySlug(
-    session.user.id,
-    workspaceSlug
-  );
+  const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
 
   if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    redirect({
-      href: "/overview",
-      locale: locale as Locale,
-    });
-
-    return null;
+    notFound();
   }
 
   const tNav = await getTranslations({

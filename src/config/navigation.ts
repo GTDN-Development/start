@@ -6,6 +6,7 @@ type MenuHref = AppPathname;
 
 export type MenuLinkLabelKey =
   | "home"
+  | "app"
   | "contact"
   | "support"
   | "pricing"
@@ -16,7 +17,6 @@ export type MenuLinkLabelKey =
   | "roadmap"
   | "signIn"
   | "signUp"
-  | "overview"
   | "workspace"
   | "account"
   | "privacyPolicy"
@@ -68,8 +68,8 @@ export const marketingMenu: MenuItem[] = [
 ];
 
 export const applicationMenu: ApplicationMenuLink[] = [
-  { labelKey: "overview", href: "/overview", icon: LayoutDashboardIcon },
-  { labelKey: "workspace", href: "/overview", icon: SettingsIcon },
+  { labelKey: "app", href: "/app", icon: LayoutDashboardIcon },
+  { labelKey: "workspace", href: "/app", icon: SettingsIcon },
   { labelKey: "account", href: "/account", icon: UserIcon },
   { labelKey: "support", href: "/contact/support", icon: LifeBuoyIcon },
 ];

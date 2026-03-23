@@ -26,12 +26,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
 
   if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    redirect({
-      href: "/overview",
-      locale: locale as Locale,
-    });
-
-    return null;
+    notFound();
   }
 
   notFound();

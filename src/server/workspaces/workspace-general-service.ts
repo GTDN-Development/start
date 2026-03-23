@@ -1,7 +1,5 @@
 import { toWorkspaceSlug } from "@/features/workspaces/workspace-slug";
-import type PocketBase from "pocketbase";
 import type { WorkspacesRecord } from "@/types/pocketbase";
-import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
 import {
@@ -14,8 +12,6 @@ import {
 } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
 import {
-  createPersonalWorkspaceSlug,
-  getPersonalWorkspaceName,
   normalizeWorkspaceName,
   resolveUniqueWorkspaceSlug,
 } from "@/server/workspaces/workspace-normalization";
@@ -23,7 +19,6 @@ import {
   countWorkspaceMembers,
   ensureWorkspaceMembership,
   findWorkspaceBySlug,
-  listUserWorkspaceMembershipRecords,
 } from "@/server/workspaces/workspace-repository";
 import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
 
@@ -38,66 +33,6 @@ export type UpdateWorkspaceGeneralInput = {
   avatarFile?: File | null;
   removeAvatar?: boolean;
 };
-
-export async function ensurePersonalWorkspace(
-  userId: string,
-  userEmail: string,
-  displayName: string | null
-): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace }>> {
-  const { pb } = await createPocketBaseServerClient();
-
-  try {
-    const existingPersonalWorkspace = await findExistingPersonalWorkspace(pb, userId);
-
-    if (existingPersonalWorkspace) {
-      return {
-        ok: true,
-        data: {
-          workspace: existingPersonalWorkspace,
-        },
-      };
-    }
-
-    const personalWorkspaceName = getPersonalWorkspaceName(displayName, userEmail);
-    const personalWorkspaceSlug = createPersonalWorkspaceSlug(userId, personalWorkspaceName);
-    const workspace =
-      (await findWorkspaceBySlug(pb, personalWorkspaceSlug)) ??
-      (await pb.collection("workspaces").create<WorkspacesRecord>({
-        name: personalWorkspaceName,
-        slug: personalWorkspaceSlug,
-        kind: "personal",
-      }));
-    const membership = await ensureWorkspaceMembership(pb, workspace.id, userId, "owner");
-
-    return {
-      ok: true,
-      data: {
-        workspace: mapUserWorkspaceSummary(pb, workspace, membership, 1),
-      },
-    };
-  } catch (error) {
-    const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
-      if (pocketBaseError.status === 400) {
-        return "BAD_REQUEST";
-      }
-
-      if (pocketBaseError.status === 403) {
-        return "FORBIDDEN";
-      }
-
-      return null;
-    });
-
-    if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("ensurePersonalWorkspace", error);
-    }
-
-    return {
-      ok: false,
-      errorCode,
-    };
-  }
-}
 
 export async function createOrganizationWorkspaceForCurrentUser(
   input: CreateOrganizationWorkspaceInput
@@ -296,13 +231,6 @@ export async function deleteOrganizationWorkspaceForCurrentUser(
       return ownerAccess.response;
     }
 
-    if (ownerAccess.context.workspace.kind === "personal") {
-      return {
-        ok: false,
-        errorCode: "PERSONAL_WORKSPACE_RESTRICTED",
-      };
-    }
-
     await ownerAccess.context.pb.collection("workspaces").delete(ownerAccess.context.workspace.id);
 
     return {
@@ -333,26 +261,4 @@ export async function deleteOrganizationWorkspaceForCurrentUser(
       errorCode,
     };
   }
-}
-
-async function findExistingPersonalWorkspace(
-  pb: PocketBase,
-  userId: string
-): Promise<UserWorkspace | null> {
-  const memberships = await listUserWorkspaceMembershipRecords(pb, userId);
-  const personalMembership = memberships.find(
-    (membership) => membership.expand?.workspace?.kind === "personal"
-  );
-  const personalWorkspace = personalMembership?.expand?.workspace;
-
-  if (!personalMembership || !personalWorkspace) {
-    return null;
-  }
-
-  return mapUserWorkspaceSummary(
-    pb,
-    personalWorkspace,
-    personalMembership,
-    await countWorkspaceMembers(pb, personalWorkspace.id)
-  );
 }

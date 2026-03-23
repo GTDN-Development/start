@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceAvatarSettingsItem } from "@/features/workspaces/settings/general/workspace-avatar-settings-item";
 import { WorkspaceDeleteSettingsItem } from "@/features/workspaces/settings/general/workspace-delete-settings-item";
@@ -65,12 +66,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   );
 
   if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    redirect({
-      href: "/overview",
-      locale: locale as Locale,
-    });
-
-    return null;
+    notFound();
   }
 
   const workspace = workspaceResponse.data.workspace;
@@ -88,7 +84,6 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
     id: workspace.id,
     slug: workspace.slug,
     name: workspace.name,
-    kind: workspace.kind,
     role: workspace.role,
     isCurrentUserLastOwner,
     avatarUrl: workspace.avatarUrl,

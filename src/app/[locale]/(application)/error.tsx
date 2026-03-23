@@ -41,8 +41,8 @@ export default function Error({ error, reset }: Props) {
         <ErrorStateContent
           className="h-full min-h-96"
           error={error}
-          href="/overview"
-          hrefLabel={t("goToOverview")}
+          href="/app"
+          hrefLabel={t("goToApp")}
           reset={reset}
         />
       </Container>

@@ -107,7 +107,7 @@ export function MarketingFooter({
 
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
   const accountLinks = viewer
-    ? applicationMenu.filter((item) => item.labelKey === "overview" || item.labelKey === "account")
+    ? applicationMenu.filter((item) => item.labelKey === "app" || item.labelKey === "account")
     : authMenu;
 
   const viewerName = viewer?.name?.trim() || null;

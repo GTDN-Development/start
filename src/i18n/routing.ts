@@ -41,8 +41,8 @@ export const routing = defineRouting({
     "/cookies": {
       cs: "/cookies",
     },
-    "/overview": {
-      cs: "/prehled",
+    "/app": {
+      cs: "/aplikace",
     },
     "/w/[workspaceSlug]": {
       cs: "/w/[workspaceSlug]",

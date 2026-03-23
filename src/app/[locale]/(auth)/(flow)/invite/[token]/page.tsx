@@ -108,7 +108,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
       <InviteStatePanel
         title={t("states.error.title")}
         description={t("states.error.description")}
-        action={renderInviteLinkAction(tCommonError("goToOverview"), "/overview")}
+        action={renderInviteLinkAction(tCommonError("goToApp"), "/app")}
       />
     );
   }
@@ -194,7 +194,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
     <InviteStatePanel
       title={t("states.blocked.title")}
       description={t("states.blocked.description")}
-      action={renderInviteLinkAction(tCommonError("goToOverview"), "/overview")}
+      action={renderInviteLinkAction(tCommonError("goToApp"), "/app")}
     />
   );
 }

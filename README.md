@@ -70,7 +70,7 @@ PocketBase typegen requires:
 ## i18n Routing (EN keys + CS aliases)
 
 - Default locale is `cs`
-- Internal route keys stay in English (e.g. `"/sign-in"`, `"/overview"`)
+- Internal route keys stay in English (e.g. `"/sign-in"`, `"/app"`)
 - Public Czech pathname aliases are configured in `src/i18n/routing.ts` via `pathnames`
 
 Examples:

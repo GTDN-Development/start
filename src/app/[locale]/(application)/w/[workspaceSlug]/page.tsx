@@ -1,5 +1,6 @@
 import { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
 import { getServerAuthSession } from "@/server/auth/auth-service";
@@ -25,12 +26,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
 
   if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    redirect({
-      href: "/overview",
-      locale: locale as Locale,
-    });
-
-    return null;
+    notFound();
   }
 
   redirect({

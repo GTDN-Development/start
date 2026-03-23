@@ -101,7 +101,6 @@ export function ApplicationLayout({
         workspace.id,
         workspace.slug,
         workspace.name,
-        workspace.kind,
         workspace.role,
         workspace.avatarUrl ?? "",
         String(workspace.memberCount),

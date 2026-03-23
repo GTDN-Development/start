@@ -161,7 +161,7 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
 
   const signInMenuItem = authMenu.find((item) => item.labelKey === "signIn");
   const signUpMenuItem = authMenu.find((item) => item.labelKey === "signUp");
-  const overviewMenuItem = applicationMenu.find((item) => item.labelKey === "overview");
+  const appMenuItem = applicationMenu.find((item) => item.labelKey === "app");
 
   const applicationButtonLabel = t("goToApplication");
   const viewerDisplayName = getViewerDisplayName(viewer);
@@ -202,13 +202,9 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
           {/* Call to action */}
           <ul className="ml-auto hidden items-center gap-2 lg:flex">
             {viewer ? (
-              overviewMenuItem && (
+              appMenuItem && (
                 <li>
-                  <Button
-                    size="lg"
-                    nativeButton={false}
-                    render={<Link href={overviewMenuItem.href} />}
-                  >
+                  <Button size="lg" nativeButton={false} render={<Link href={appMenuItem.href} />}>
                     {applicationButtonLabel}
                     <ChevronRightIcon
                       aria-hidden="true"
@@ -249,12 +245,12 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
 
           {/* Mobile menu */}
           <div className="flex items-center gap-2 lg:hidden">
-            {viewer && overviewMenuItem && (
+            {viewer && appMenuItem && (
               <Button
                 size="lg"
                 className="shrink-0"
                 nativeButton={false}
-                render={<Link href={overviewMenuItem.href} />}
+                render={<Link href={appMenuItem.href} />}
               >
                 {applicationButtonLabel}
                 <ChevronRightIcon aria-hidden="true" className="size-4" data-icon="inline-end" />
@@ -295,12 +291,12 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
                   </div>
 
                   <MobileMenuFooter>
-                    {viewer && overviewMenuItem && (
+                    {viewer && appMenuItem && (
                       <Button
                         size="lg"
                         className="w-full"
                         nativeButton={false}
-                        render={<MobileMenuClose render={<Link href={overviewMenuItem.href} />} />}
+                        render={<MobileMenuClose render={<Link href={appMenuItem.href} />} />}
                       >
                         {applicationButtonLabel}
                         <ChevronRightIcon aria-hidden="true" data-icon="inline-end" />

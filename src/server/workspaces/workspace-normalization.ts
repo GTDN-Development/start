@@ -1,7 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type PocketBase from "pocketbase";
 import { toWorkspaceSlug, trimWorkspaceSlugLength } from "@/features/workspaces/workspace-slug";
-import { getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 import {
   MAX_WORKSPACE_NAME_LENGTH,
   MAX_WORKSPACE_SLUG_LENGTH,
@@ -24,26 +23,6 @@ export function normalizeWorkspaceName(value: string): string | null {
 
 export function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
-}
-
-export function getPersonalWorkspaceName(displayName: string | null, userEmail: string): string {
-  const normalizedDisplayName = getNullableTrimmedString(displayName);
-
-  if (normalizedDisplayName) {
-    return normalizedDisplayName;
-  }
-
-  const normalizedEmail = normalizeEmail(userEmail);
-  const emailLocalPart = normalizedEmail.split("@")[0] ?? "workspace";
-
-  return emailLocalPart || "workspace";
-}
-
-export function createPersonalWorkspaceSlug(userId: string, value: string): string {
-  const baseSlug = toWorkspaceSlug(value, MAX_WORKSPACE_SLUG_LENGTH - 7);
-  const suffix = userId.slice(0, 6).toLowerCase();
-
-  return trimWorkspaceSlugLength(`${baseSlug}-${suffix}`, MAX_WORKSPACE_SLUG_LENGTH);
 }
 
 export async function resolveUniqueWorkspaceSlug(

@@ -33,12 +33,16 @@ import {
   confirmEmailChangeToken,
   confirmEmailVerificationToken,
   confirmPasswordResetToken,
+  getServerAuthSession,
   requestEmailVerificationForCurrentUser,
   requestPasswordResetForEmail,
   signInWithPassword,
   signOutServerSession,
   signUpWithPassword,
 } from "@/server/auth/auth-service";
+import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
+import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
+import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 
 const verifyEmailInputSchema = z.object({
   token: requiredTokenSchema(),
@@ -65,6 +69,26 @@ const confirmEmailChangeInputSchema = z.object({
   token: requiredTokenSchema(),
   password: requiredPasswordSchema(),
 });
+
+export type PostAuthDestinationActionResult =
+  | {
+      state: "app";
+    }
+  | {
+      state: "workspace_redirect";
+      workspaceSlug: string;
+    }
+  | {
+      state: "email_mismatch";
+      invitedEmail: string;
+      currentEmail: string;
+    }
+  | {
+      state: "invalid_or_expired";
+    }
+  | {
+      state: "error";
+    };
 
 export async function signInAction(input: SignInInput): Promise<AuthResponse<AuthSessionPayload>> {
   const parsedInput = signInInputSchema.safeParse(input);
@@ -103,6 +127,45 @@ export async function signOutAction(): Promise<AuthResponse<AuthSignOutPayload>>
   const response = await signOutServerSession();
 
   return finalizeAuthAction(response);
+}
+
+export async function resolvePostAuthDestinationAction(): Promise<
+  AuthResponse<PostAuthDestinationActionResult>
+> {
+  const sessionResponse = await getServerAuthSession();
+
+  if (!sessionResponse.ok || !sessionResponse.data.session) {
+    await applyServerAuthCookies(sessionResponse.setCookie);
+
+    return {
+      ok: false,
+      errorCode: "UNAUTHORIZED",
+    };
+  }
+
+  const session = sessionResponse.data.session;
+  const response = await resolvePostAuthDestination({
+    userId: session.user.id,
+    userEmail: session.user.email,
+  });
+
+  await applyServerAuthCookies(response.setCookie);
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+    };
+  }
+
+  if (response.data.state === "workspace_redirect") {
+    await setActiveWorkspaceSlugCookie(response.data.workspaceSlug);
+  }
+
+  return {
+    ok: true,
+    data: response.data,
+  };
 }
 
 export async function verifyEmailAction(input: {

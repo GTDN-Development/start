@@ -90,13 +90,26 @@ export default async function Page({ params, searchParams }: InviteResultPagePro
     );
   }
 
+  if (inviteResultState === "error") {
+    return (
+      <InviteStatePanel
+        title={t("states.error.title")}
+        description={t("states.error.description")}
+        action={renderInviteLinkAction(
+          session ? tCommonError("goToApp") : tCommonError("goToSignIn"),
+          session ? "/app" : "/sign-in"
+        )}
+      />
+    );
+  }
+
   return (
     <InviteStatePanel
       title={t("states.blocked.title")}
       description={t("states.blocked.description")}
       action={renderInviteLinkAction(
-        session ? tCommonError("goToOverview") : tCommonError("goToSignIn"),
-        session ? "/overview" : "/sign-in"
+        session ? tCommonError("goToApp") : tCommonError("goToSignIn"),
+        session ? "/app" : "/sign-in"
       )}
     />
   );
@@ -114,17 +127,21 @@ function getSingleQueryValue(value: string | string[] | undefined): string | nul
 
 function parseInviteResultState(
   value: string | string[] | undefined
-): "email_mismatch" | "invalid_or_expired" | null {
+): "email_mismatch" | "invalid_or_expired" | "error" | null {
   const normalizedValue = getSingleQueryValue(value);
 
-  if (normalizedValue === "email_mismatch" || normalizedValue === "invalid_or_expired") {
+  if (
+    normalizedValue === "email_mismatch" ||
+    normalizedValue === "invalid_or_expired" ||
+    normalizedValue === "error"
+  ) {
     return normalizedValue;
   }
 
   return null;
 }
 
-function renderInviteLinkAction(label: string, href: "/overview" | "/sign-in") {
+function renderInviteLinkAction(label: string, href: "/app" | "/sign-in") {
   return (
     <Button
       size="lg"

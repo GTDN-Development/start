@@ -8,7 +8,7 @@
       "description": "Na této stránce došlo k neočekávané chybě.",
       "retry": "Zkusit znovu",
       "goHome": "Přejít na domovskou stránku",
-      "goToOverview": "Přejít na přehled",
+      "goToApp": "Přejít do aplikace",
       "goToSignIn": "Přejít na přihlášení",
       "reference": "Referenční kód: {reference}"
     },
@@ -47,6 +47,7 @@
     "navigation": {
       "items": {
         "home": "Hlavní strana",
+        "app": "Aplikace",
         "contact": "Kontakt",
         "support": "Kontakt a podpora",
         "pricing": "Ceník",
@@ -120,6 +121,10 @@
         },
         "actions": {
           "create": "Vytvořit pracovní prostor"
+        },
+        "empty": {
+          "title": "Zatím nemáte workspace",
+          "description": "Vytvořte svůj první workspace."
         },
         "createDrawer": {
           "title": "Vytvořit workspace",
@@ -289,7 +294,7 @@
         "blocked": {
           "title": "Pozvánka není dostupná",
           "description": "Tuto pozvánku už nelze použít. Může být neplatná, expirovaná, zrušená, nedostupná nebo už použitá.",
-          "cta": "Přejít na přehled",
+          "cta": "Přejít do aplikace",
           "alert": {
             "title": "Pozvánka je zablokovaná",
             "description": "Pozvánka může být neplatná, expirovaná, zrušená, nedostupná nebo už použitá."
@@ -490,9 +495,31 @@
       "description": "Zjistěte, jak používáme soubory cookies na našem webu, jaké typy cookies používáme a jak můžete spravovat své preference týkající se cookies.",
       "effectiveDate": "1. ledna 2025"
     },
-    "overview": {
-      "title": "Nástěnka",
-      "description": "Vítejte ve svém osobním přehledu. Spravujte svůj účet a sledujte svou aktivitu."
+    "app": {
+      "title": "Domov aplikace",
+      "description": "Začněte od svého účtu, upravte preference a do workspace spolupráce přejděte až ve chvíli, kdy ji opravdu potřebujete.",
+      "cards": {
+        "account": {
+          "title": "Profil",
+          "description": "Spravujte avatar, zobrazované jméno a údaje svého účtu.",
+          "cta": "Otevřít profil"
+        },
+        "preferences": {
+          "title": "Preference",
+          "description": "Upravte jazyk a vzhled aplikace pro toto zařízení.",
+          "cta": "Otevřít preference"
+        },
+        "security": {
+          "title": "Zabezpečení",
+          "description": "Zkontrolujte heslo a aktivní relace na zařízeních.",
+          "cta": "Otevřít zabezpečení"
+        },
+        "support": {
+          "title": "Podpora",
+          "description": "Získejte pomoc se zprovozněním, problémy nebo dotazy k produktu.",
+          "cta": "Kontaktovat podporu"
+        }
+      }
     },
     "account": {
       "title": "Nastavení účtu",
@@ -737,6 +764,10 @@
     "workspace": {
       "title": "Nastavení",
       "description": "Spravujte základní nastavení workspace a jeho vzhled.",
+      "overview": {
+        "title": "Přehled",
+        "description": "Vítejte v přehledu workspace. Zkontrolujte aktivitu spolupráce a přístup k nástrojům workspace."
+      },
       "nav": {
         "general": "Obecné",
         "members": "Členové"
@@ -817,7 +848,6 @@
         "leave": {
           "title": "Opustit workspace",
           "description": "Opusťte {workspaceName} a odeberte si přístup do tohoto workspace.",
-          "personalHint": "Osobní workspace nelze opustit. Je trvale propojený s vaším účtem.",
           "ownerGuardHint": "Pro opuštění workspace musí mít workspace alespoň dva vlastníky.",
           "trigger": "Opustit workspace",
           "dialog": {
@@ -855,7 +885,6 @@
         "delete": {
           "title": "Smazat workspace",
           "description": "Trvale odstraňte {workspaceName} a všechna data tohoto workspace.",
-          "personalHint": "Osobní workspace nelze smazat. Je povinný pro váš účet.",
           "trigger": "Smazat workspace",
           "dialog": {
             "title": "Smazat workspace?",
@@ -892,11 +921,7 @@
       "members": {
         "page": {
           "title": "Členové",
-          "description": "Spravujte členy týmu a pozvánky.",
-          "personalWorkspace": {
-            "title": "Členové nejsou v osobním workspace dostupní",
-            "description": "V osobním workspace není možné přidávat členy ani posílat pozvánky. Pro spolupráci s ostatními se přepněte na organizační workspace nebo si jej vytvořte."
-          }
+          "description": "Spravujte členy týmu a pozvánky."
         },
         "roles": {
           "owner": {
@@ -915,10 +940,6 @@
         "invite": {
           "title": "Pozvat členy",
           "description": "Pozvěte jednu osobu a vyberte její roli.",
-          "personalWorkspace": {
-            "description": "Osobní workspace {workspaceName} je omezen na jednoho člena.",
-            "hint": "Pozvánky jsou dostupné pouze v organizačních workspace."
-          },
           "fields": {
             "email": {
               "label": "E-mail",

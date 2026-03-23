@@ -20,13 +20,16 @@ import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 import { ChevronsUpDownIcon, HomeIcon, LogOutIcon } from "lucide-react";
 
-export type UserAccountMenuViewer = Pick<AuthUser, "id" | "email" | "name" | "verified" | "avatarUrl">;
+export type UserAccountMenuViewer = Pick<
+  AuthUser,
+  "id" | "email" | "name" | "verified" | "avatarUrl"
+>;
 
 export type UserAccountMenuLabels = {
   account: string;
   accountPage: string;
+  app: string;
   home: string;
-  overview: string;
   emailNotVerified: string;
   emailVerified: string;
   signOut: string;
@@ -36,7 +39,7 @@ type UserAccountMenuProps = {
   viewer: UserAccountMenuViewer;
   locale: string;
   labels: UserAccountMenuLabels;
-  overviewHref?: LinkHref;
+  appHref?: LinkHref;
   className?: string;
 };
 
@@ -44,7 +47,7 @@ export function UserAccountMenu({
   viewer,
   locale: _locale,
   labels,
-  overviewHref = "/overview",
+  appHref = "/app",
   className,
 }: UserAccountMenuProps) {
   const accountProfile = useOptionalAccountProfile();
@@ -107,8 +110,8 @@ export function UserAccountMenu({
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href={overviewHref} className="w-full cursor-pointer" />}>
-          {labels.overview}
+        <DropdownMenuItem render={<Link href={appHref} className="w-full cursor-pointer" />}>
+          {labels.app}
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href="/account" className="w-full cursor-pointer" />}>
           {labels.accountPage}

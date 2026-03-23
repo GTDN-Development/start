@@ -31,14 +31,8 @@ function getWorkspaceSegments(pathname: string) {
   };
 }
 
-function isWorkspaceSettingsRoute(pathname: string) {
-  const workspacePath = getWorkspaceSegments(pathname);
-  return workspacePath?.scope === "settings";
-}
-
-function isWorkspaceOverviewRoute(pathname: string) {
-  const workspacePath = getWorkspaceSegments(pathname);
-  return workspacePath?.scope === "overview";
+function isWorkspaceRoute(pathname: string) {
+  return getWorkspaceSegments(pathname) !== null;
 }
 
 function isMenuItemActive(pathname: string, item: (typeof applicationMenu)[number]) {
@@ -47,18 +41,18 @@ function isMenuItemActive(pathname: string, item: (typeof applicationMenu)[numbe
   }
 
   if (item.labelKey === "workspace") {
-    return isWorkspaceSettingsRoute(pathname);
+    return isWorkspaceRoute(pathname);
   }
 
-  if (item.labelKey === "overview") {
-    return pathname === "/overview" || isWorkspaceOverviewRoute(pathname);
+  if (item.labelKey === "app") {
+    return pathname === "/app";
   }
 
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
 function shouldMatchNested(item: (typeof applicationMenu)[number]) {
-  return item.labelKey !== "overview";
+  return item.labelKey !== "app";
 }
 
 function resolveMenuHref(
@@ -69,22 +63,13 @@ function resolveMenuHref(
     return item.href;
   }
 
-  if (item.labelKey === "overview") {
-    if (!selectedWorkspaceSlug) {
-      return "/overview";
-    }
-
-    return {
-      pathname: "/w/[workspaceSlug]/overview",
-      params: {
-        workspaceSlug: selectedWorkspaceSlug,
-      },
-    };
+  if (item.labelKey === "app") {
+    return item.href;
   }
 
   if (item.labelKey === "workspace") {
     if (!selectedWorkspaceSlug) {
-      return "/overview";
+      return "/app";
     }
 
     return {
@@ -111,6 +96,13 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
     activeWorkspaceSlug,
     workspaces
   );
+  const visibleApplicationMenu = applicationMenu.filter((item) => {
+    if (item.labelKey !== "workspace") {
+      return true;
+    }
+
+    return selectedWorkspaceSlug !== null;
+  });
 
   function handleItemClick() {
     if (isMobile) {
@@ -121,7 +113,7 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
   return (
     <nav {...props} className={cn(className)}>
       <SidebarMenu className="gap-1">
-        {applicationMenu.map((item) => {
+        {visibleApplicationMenu.map((item) => {
           const isActive = isMenuItemActive(pathname, item);
           const itemHref = resolveMenuHref(item, selectedWorkspaceSlug);
           const itemLabel =

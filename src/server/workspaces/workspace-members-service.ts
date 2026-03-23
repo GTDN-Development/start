@@ -94,13 +94,6 @@ export async function leaveWorkspaceForCurrentUser(
       return access.response;
     }
 
-    if (access.context.workspace.kind === "personal") {
-      return {
-        ok: false,
-        errorCode: "PERSONAL_WORKSPACE_RESTRICTED",
-      };
-    }
-
     if (access.context.membership.role === "owner") {
       const ownerCount = await countWorkspaceOwners(access.context.pb, access.context.workspace.id);
 

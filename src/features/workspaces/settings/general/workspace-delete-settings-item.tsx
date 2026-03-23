@@ -51,7 +51,6 @@ export function WorkspaceDeleteSettingsItem({
   const deleteWorkspaceToastId = useId();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const isPersonalWorkspace = workspace.kind === "personal";
   const isReadOnly = workspace.role !== "owner";
 
   const deleteWorkspaceSchema = z.object({
@@ -102,7 +101,7 @@ export function WorkspaceDeleteSettingsItem({
       startTransition(() => {
         setIsDeleteDialogOpen(false);
         form.reset();
-        router.replace("/overview");
+        router.replace("/app");
       });
     },
   });
@@ -129,137 +128,132 @@ export function WorkspaceDeleteSettingsItem({
       </SettingsItemContent>
 
       <SettingsItemFooter>
-        {isPersonalWorkspace && (
-          <SettingsItemDescription>{t("personalHint")}</SettingsItemDescription>
-        )}
-        {!isPersonalWorkspace && isReadOnly && (
+        {isReadOnly && (
           <SettingsItemDescription>{tCommon("readOnlyHint")}</SettingsItemDescription>
         )}
-        {!isPersonalWorkspace && (
-          <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
-            <AlertDialogTrigger
-              nativeButton={true}
-              render={
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="lg"
-                  className="sm:ml-auto"
-                  disabled={isReadOnly}
-                >
-                  {t("trigger")}
-                </Button>
-              }
-            />
-            <AlertDialogContent className="sm:max-w-lg">
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  form.handleSubmit();
-                }}
-                className="contents"
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
+          <AlertDialogTrigger
+            nativeButton={true}
+            render={
+              <Button
+                type="button"
+                variant="destructive"
+                size="lg"
+                className="sm:ml-auto"
+                disabled={isReadOnly}
               >
-                <form.Subscribe
-                  selector={(state) => ({
-                    isSubmitting: state.isSubmitting,
-                    submissionAttempts: state.submissionAttempts,
-                  })}
-                >
-                  {({ isSubmitting, submissionAttempts }) => (
-                    <>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
-                        <AlertDialogDescription>{t("dialog.description")}</AlertDialogDescription>
-                      </AlertDialogHeader>
+                {t("trigger")}
+              </Button>
+            }
+          />
+          <AlertDialogContent className="sm:max-w-lg">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                form.handleSubmit();
+              }}
+              className="contents"
+            >
+              <form.Subscribe
+                selector={(state) => ({
+                  isSubmitting: state.isSubmitting,
+                  submissionAttempts: state.submissionAttempts,
+                })}
+              >
+                {({ isSubmitting, submissionAttempts }) => (
+                  <>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t("dialog.title")}</AlertDialogTitle>
+                      <AlertDialogDescription>{t("dialog.description")}</AlertDialogDescription>
+                    </AlertDialogHeader>
 
-                      <FieldGroup className="mt-4 flex flex-col gap-6 pb-2">
-                        <form.Field name="confirmationUrl">
-                          {(field) => {
-                            const isInvalid =
-                              (field.state.meta.isTouched || submissionAttempts > 0) &&
-                              !field.state.meta.isValid;
+                    <FieldGroup className="mt-4 flex flex-col gap-6 pb-2">
+                      <form.Field name="confirmationUrl">
+                        {(field) => {
+                          const isInvalid =
+                            (field.state.meta.isTouched || submissionAttempts > 0) &&
+                            !field.state.meta.isValid;
 
-                            return (
-                              <Field data-invalid={isInvalid}>
-                                <FieldLabel htmlFor={`workspace-delete-${field.name}`}>
-                                  {t("dialog.fields.confirmationUrl.label")}
-                                </FieldLabel>
-                                <Input
+                          return (
+                            <Field data-invalid={isInvalid}>
+                              <FieldLabel htmlFor={`workspace-delete-${field.name}`}>
+                                {t("dialog.fields.confirmationUrl.label")}
+                              </FieldLabel>
+                              <Input
+                                id={`workspace-delete-${field.name}`}
+                                name={`workspace-delete-${field.name}`}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(event) => field.handleChange(event.target.value)}
+                                autoComplete="off"
+                                placeholder={workspace.slug}
+                                aria-invalid={isInvalid}
+                              />
+                              <FieldDescription>
+                                {t("dialog.fields.confirmationUrl.description", {
+                                  workspaceSlug: workspace.slug,
+                                })}
+                              </FieldDescription>
+                              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                            </Field>
+                          );
+                        }}
+                      </form.Field>
+
+                      <form.Field name="isDeletionAcknowledged">
+                        {(field) => {
+                          const isInvalid =
+                            (field.state.meta.isTouched || submissionAttempts > 0) &&
+                            !field.state.meta.isValid;
+
+                          return (
+                            <div className="flex flex-col gap-2">
+                              <Field orientation="horizontal" data-invalid={isInvalid}>
+                                <Checkbox
                                   id={`workspace-delete-${field.name}`}
                                   name={`workspace-delete-${field.name}`}
-                                  value={field.state.value}
+                                  checked={field.state.value}
                                   onBlur={field.handleBlur}
-                                  onChange={(event) => field.handleChange(event.target.value)}
-                                  autoComplete="off"
-                                  placeholder={workspace.slug}
+                                  onCheckedChange={(checked) =>
+                                    field.handleChange(checked === true)
+                                  }
                                   aria-invalid={isInvalid}
                                 />
-                                <FieldDescription>
-                                  {t("dialog.fields.confirmationUrl.description", {
-                                    workspaceSlug: workspace.slug,
-                                  })}
-                                </FieldDescription>
-                                {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                                <FieldLabel htmlFor={`workspace-delete-${field.name}`}>
+                                  {t("dialog.fields.acknowledged.label")}
+                                </FieldLabel>
                               </Field>
-                            );
-                          }}
-                        </form.Field>
+                              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                            </div>
+                          );
+                        }}
+                      </form.Field>
+                    </FieldGroup>
 
-                        <form.Field name="isDeletionAcknowledged">
-                          {(field) => {
-                            const isInvalid =
-                              (field.state.meta.isTouched || submissionAttempts > 0) &&
-                              !field.state.meta.isValid;
-
-                            return (
-                              <div className="flex flex-col gap-2">
-                                <Field orientation="horizontal" data-invalid={isInvalid}>
-                                  <Checkbox
-                                    id={`workspace-delete-${field.name}`}
-                                    name={`workspace-delete-${field.name}`}
-                                    checked={field.state.value}
-                                    onBlur={field.handleBlur}
-                                    onCheckedChange={(checked) =>
-                                      field.handleChange(checked === true)
-                                    }
-                                    aria-invalid={isInvalid}
-                                  />
-                                  <FieldLabel htmlFor={`workspace-delete-${field.name}`}>
-                                    {t("dialog.fields.acknowledged.label")}
-                                  </FieldLabel>
-                                </Field>
-                                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                              </div>
-                            );
-                          }}
-                        </form.Field>
-                      </FieldGroup>
-
-                      <AlertDialogFooter>
-                        <AlertDialogCancel type="button" size="lg" disabled={isSubmitting}>
-                          {tCommon("cancel")}
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          type="submit"
-                          size="lg"
-                          variant="destructive"
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? (
-                            <Spinner />
-                          ) : (
-                            <Trash2Icon aria-hidden="true" className="size-4" />
-                          )}
-                          {isSubmitting ? t("dialog.submit.pending") : t("dialog.submit.default")}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </>
-                  )}
-                </form.Subscribe>
-              </form>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+                    <AlertDialogFooter>
+                      <AlertDialogCancel type="button" size="lg" disabled={isSubmitting}>
+                        {tCommon("cancel")}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        type="submit"
+                        size="lg"
+                        variant="destructive"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <Spinner />
+                        ) : (
+                          <Trash2Icon aria-hidden="true" className="size-4" />
+                        )}
+                        {isSubmitting ? t("dialog.submit.pending") : t("dialog.submit.default")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </>
+                )}
+              </form.Subscribe>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
       </SettingsItemFooter>
     </SettingsItem>
   );

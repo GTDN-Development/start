@@ -6,7 +6,6 @@ import { workspaceConfig } from "@/config/workspace";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { normalizedEmailSchema } from "@/lib/schemas";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
 import {
   clearActiveWorkspaceSlugCookie,
   getActiveWorkspaceSlugCookie,
@@ -17,10 +16,7 @@ import {
   deleteOrganizationWorkspaceForCurrentUser,
   updateWorkspaceGeneralForCurrentUser,
 } from "@/server/workspaces/workspace-general-service";
-import {
-  resolvePostAuthWorkspace,
-  switchWorkspaceForCurrentUser,
-} from "@/server/workspaces/workspace-resolution-service";
+import { switchWorkspaceForCurrentUser } from "@/server/workspaces/workspace-resolution-service";
 import {
   changeWorkspaceMemberRoleForCurrentUser,
   leaveWorkspaceForCurrentUser,
@@ -33,7 +29,6 @@ import {
   revokeWorkspaceInviteForCurrentUser,
 } from "@/server/workspaces/workspace-invite-service";
 import type {
-  PostAuthWorkspaceDestination,
   ServerWorkspaceResponse,
   UserWorkspace,
   WorkspaceInviteSummary,
@@ -103,7 +98,7 @@ export async function createOrganizationWorkspaceAction(input: {
 
   if (response.ok) {
     await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    revalidatePath("/overview");
+    revalidatePath("/app");
   }
 
   return finalizeWorkspaceAction(response, (data) => ({
@@ -124,7 +119,7 @@ export async function switchWorkspaceAction(
 
   if (response.ok) {
     await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    revalidatePath("/overview");
+    revalidatePath("/app");
   }
 
   return finalizeWorkspaceAction(response, (data) => ({
@@ -191,7 +186,7 @@ export async function leaveWorkspaceAction(
 
   if (response.ok) {
     await clearActiveWorkspaceSlugCookie();
-    revalidatePath("/overview");
+    revalidatePath("/app");
   }
 
   return finalizeWorkspaceAction(response);
@@ -210,7 +205,7 @@ export async function deleteOrganizationWorkspaceAction(
 
   if (response.ok) {
     await clearActiveWorkspaceSlugCookie();
-    revalidatePath("/overview");
+    revalidatePath("/app");
   }
 
   return finalizeWorkspaceAction(response);
@@ -371,47 +366,6 @@ export async function revokeInviteAction(
   }));
 }
 
-export async function resolvePostAuthWorkspaceAction(): Promise<
-  WorkspaceResponse<PostAuthWorkspaceDestination>
-> {
-  const sessionResponse = await getServerAuthSession();
-
-  if (!sessionResponse.ok || !sessionResponse.data.session) {
-    await applyServerAuthCookies(sessionResponse.setCookie);
-
-    return {
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-    };
-  }
-
-  const session = sessionResponse.data.session;
-  const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
-  const response = await resolvePostAuthWorkspace({
-    userId: session.user.id,
-    userEmail: session.user.email,
-    userName: session.user.name,
-    activeWorkspaceSlugCookie: activeWorkspaceSlug,
-  });
-  await applyServerAuthCookies(response.setCookie);
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      errorCode: response.errorCode,
-    };
-  }
-
-  if (response.data.state === "workspace_redirect") {
-    await setActiveWorkspaceSlugCookie(response.data.workspaceSlug);
-  }
-
-  return {
-    ok: true,
-    data: response.data,
-  };
-}
-
 async function finalizeWorkspaceAction<TData, TResult = TData>(
   response: ServerWorkspaceResponse<TData>,
   mapData?: (data: TData) => TResult
@@ -469,7 +423,6 @@ function mapWorkspaceNavigationItem(workspace: UserWorkspace): WorkspaceNavigati
     id: workspace.id,
     slug: workspace.slug,
     name: workspace.name,
-    kind: workspace.kind,
     role: workspace.role,
     avatarUrl: workspace.avatarUrl,
     memberCount: workspace.memberCount,

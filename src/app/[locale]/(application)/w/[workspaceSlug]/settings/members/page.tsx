@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 import { redirect } from "@/i18n/navigation";
-import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceMembersSettingsSection } from "@/features/workspaces/settings/members/workspace-members-settings-section";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
 import { listWorkspaceInvites } from "@/server/workspaces/workspace-invite-service";
 import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
-import { CircleAlertIcon } from "lucide-react";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings/members">
@@ -66,12 +65,7 @@ export default async function Page({
   );
 
   if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    redirect({
-      href: "/overview",
-      locale: locale as Locale,
-    });
-
-    return null;
+    notFound();
   }
 
   const workspace = workspaceResponse.data.workspace;
@@ -79,20 +73,6 @@ export default async function Page({
     locale: locale as Locale,
     namespace: "pages.workspace.members.page",
   });
-
-  if (workspace.kind === "personal") {
-    return (
-      <SettingsPage title={tWorkspaceMembersPage("title")}>
-        <Alert>
-          <CircleAlertIcon aria-hidden="true" />
-          <AlertTitle>{tWorkspaceMembersPage("personalWorkspace.title")}</AlertTitle>
-          <AlertDescription>
-            {tWorkspaceMembersPage("personalWorkspace.description")}
-          </AlertDescription>
-        </Alert>
-      </SettingsPage>
-    );
-  }
 
   const membersResponse = await listWorkspaceMembers(workspace.slug);
 
@@ -145,7 +125,6 @@ export default async function Page({
     id: workspace.id,
     slug: workspace.slug,
     name: workspace.name,
-    kind: workspace.kind,
     role: workspace.role,
     isCurrentUserLastOwner,
     avatarUrl: workspace.avatarUrl,
