@@ -3,12 +3,12 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
-import { redirect } from "@/i18n/navigation";
+import { type AppHref, redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
-  acceptInviteTokenForUser,
+  getInviteTokenForUser,
   validateInviteToken,
 } from "@/server/workspaces/workspace-invite-service";
 import { InviteSignOutButton } from "../invite-sign-out-button";
@@ -58,22 +58,34 @@ export default async function Page({ params }: InviteTokenPageProps) {
   const sessionResponse = await getServerAuthSession();
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
-  const validationResponse = await validateInviteToken(token);
-
-  if (!validationResponse.ok || !validationResponse.data.isValid) {
-    return (
-      <InviteStatePanel
-        title={t("states.blocked.title")}
-        description={t("states.blocked.description")}
-        action={renderInviteLinkAction(
-          session ? tCommonError("goToOverview") : tCommonError("goToSignIn"),
-          session ? "/overview" : "/sign-in"
-        )}
-      />
-    );
-  }
-
   if (!session) {
+    const validationResponse = await validateInviteToken(token);
+
+    if (!validationResponse.ok) {
+      return (
+        <InviteStatePanel
+          title={t("states.error.title")}
+          description={t("states.error.description")}
+          action={renderInviteLinkAction(t("states.error.cta"), {
+            pathname: "/invite/[token]",
+            params: {
+              token,
+            },
+          })}
+        />
+      );
+    }
+
+    if (!validationResponse.data.isValid) {
+      return (
+        <InviteStatePanel
+          title={t("states.blocked.title")}
+          description={t("states.blocked.description")}
+          action={renderInviteLinkAction(tCommonError("goToSignIn"), "/sign-in")}
+        />
+      );
+    }
+
     redirect({
       href: {
         pathname: "/invite/[token]/start",
@@ -86,12 +98,12 @@ export default async function Page({ params }: InviteTokenPageProps) {
     return null;
   }
 
-  const acceptResponse = await acceptInviteTokenForUser(token, {
+  const inspectResponse = await getInviteTokenForUser(token, {
     id: session.user.id,
     email: session.user.email,
   });
 
-  if (!acceptResponse.ok) {
+  if (!inspectResponse.ok) {
     return (
       <InviteStatePanel
         title={t("states.error.title")}
@@ -101,24 +113,50 @@ export default async function Page({ params }: InviteTokenPageProps) {
     );
   }
 
-  if (
-    acceptResponse.data.result.state === "accepted" ||
-    acceptResponse.data.result.state === "already_member"
-  ) {
-    await setActiveWorkspaceSlugCookie(acceptResponse.data.result.workspace.slug);
+  if (inspectResponse.data.result.state === "already_member") {
+    await setActiveWorkspaceSlugCookie(inspectResponse.data.result.workspace.slug);
 
     redirect({
       href: {
         pathname: "/w/[workspaceSlug]/overview",
         params: {
-          workspaceSlug: acceptResponse.data.result.workspace.slug,
+          workspaceSlug: inspectResponse.data.result.workspace.slug,
         },
       },
       locale: locale as Locale,
     });
   }
 
-  if (acceptResponse.data.result.state === "email_mismatch") {
+  if (inspectResponse.data.result.state === "pending") {
+    return (
+      <InviteStatePanel
+        title={t("states.pending.title")}
+        description={
+          <>
+            <p>
+              {t.rich("states.pending.description", {
+                workspace: inspectResponse.data.result.workspace.name,
+                strong: (chunks) => (
+                  <strong className="text-foreground font-medium">{chunks}</strong>
+                ),
+              })}
+            </p>
+            <p>
+              {t.rich("shared.continueAs", {
+                email: session.user.email,
+                strong: (chunks) => (
+                  <strong className="text-foreground font-medium">{chunks}</strong>
+                ),
+              })}
+            </p>
+          </>
+        }
+        action={renderInviteAcceptAction(t("actions.accept"))}
+      />
+    );
+  }
+
+  if (inspectResponse.data.result.state === "email_mismatch") {
     return (
       <InviteStatePanel
         title={t("states.email_mismatch.title")}
@@ -127,8 +165,8 @@ export default async function Page({ params }: InviteTokenPageProps) {
             <p>{t("states.email_mismatch.description")}</p>
             <p>
               {t.rich("states.email_mismatch.secondary", {
-                invitedEmail: acceptResponse.data.result.invitedEmail,
-                currentEmail: acceptResponse.data.result.currentEmail,
+                invitedEmail: inspectResponse.data.result.invitedEmail,
+                currentEmail: inspectResponse.data.result.currentEmail,
                 strong: (chunks) => (
                   <strong className="text-foreground font-medium">{chunks}</strong>
                 ),
@@ -161,7 +199,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
   );
 }
 
-function renderInviteLinkAction(label: string, href: "/overview" | "/sign-in") {
+function renderInviteLinkAction(label: string, href: AppHref) {
   return (
     <Button
       size="lg"
@@ -171,5 +209,15 @@ function renderInviteLinkAction(label: string, href: "/overview" | "/sign-in") {
     >
       {label}
     </Button>
+  );
+}
+
+function renderInviteAcceptAction(label: string) {
+  return (
+    <form action="accept" method="post">
+      <Button type="submit" size="lg" className="w-full">
+        {label}
+      </Button>
+    </form>
   );
 }

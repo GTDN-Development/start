@@ -53,6 +53,24 @@ export type WorkspaceInviteSummary = {
   invitedByName: string | null;
 };
 
+export type WorkspaceInviteInspectResult =
+  | {
+      state: "pending";
+      workspace: WorkspaceSummary;
+    }
+  | {
+      state: "already_member";
+      workspace: WorkspaceSummary;
+    }
+  | {
+      state: "invalid_or_expired";
+    }
+  | {
+      state: "email_mismatch";
+      invitedEmail: string;
+      currentEmail: string;
+    };
+
 export type WorkspaceInviteAcceptResult =
   | {
       state: "accepted";

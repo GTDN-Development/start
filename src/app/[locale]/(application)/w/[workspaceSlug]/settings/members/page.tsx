@@ -75,13 +75,52 @@ export default async function Page({
   }
 
   const workspace = workspaceResponse.data.workspace;
+  const tWorkspaceMembersPage = await getTranslations({
+    locale: locale as Locale,
+    namespace: "pages.workspace.members.page",
+  });
 
-  const [membersResponse, invitesResponse] = await Promise.all([
-    listWorkspaceMembers(workspace.slug),
-    listWorkspaceInvites(workspace.slug),
-  ]);
+  if (workspace.kind === "personal") {
+    return (
+      <SettingsPage title={tWorkspaceMembersPage("title")}>
+        <Alert>
+          <CircleAlertIcon aria-hidden="true" />
+          <AlertTitle>{tWorkspaceMembersPage("personalWorkspace.title")}</AlertTitle>
+          <AlertDescription>
+            {tWorkspaceMembersPage("personalWorkspace.description")}
+          </AlertDescription>
+        </Alert>
+      </SettingsPage>
+    );
+  }
 
-  if (!membersResponse.ok || !invitesResponse.ok) {
+  const membersResponse = await listWorkspaceMembers(workspace.slug);
+
+  if (!membersResponse.ok) {
+    redirect({
+      href: {
+        pathname: "/w/[workspaceSlug]/settings",
+        params: {
+          workspaceSlug: workspace.slug,
+        },
+      },
+      locale: locale as Locale,
+    });
+
+    return null;
+  }
+
+  const invitesResponse =
+    workspace.role === "member"
+      ? {
+          ok: true,
+          data: {
+            invites: [],
+          },
+        }
+      : await listWorkspaceInvites(workspace.slug);
+
+  if (!invitesResponse.ok) {
     redirect({
       href: {
         pathname: "/w/[workspaceSlug]/settings",
@@ -111,25 +150,6 @@ export default async function Page({
     isCurrentUserLastOwner,
     avatarUrl: workspace.avatarUrl,
   } as const;
-
-  const tWorkspaceMembersPage = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.workspace.members.page",
-  });
-
-  if (workspaceSettings.kind === "personal") {
-    return (
-      <SettingsPage title={tWorkspaceMembersPage("title")}>
-        <Alert>
-          <CircleAlertIcon aria-hidden="true" />
-          <AlertTitle>{tWorkspaceMembersPage("personalWorkspace.title")}</AlertTitle>
-          <AlertDescription>
-            {tWorkspaceMembersPage("personalWorkspace.description")}
-          </AlertDescription>
-        </Alert>
-      </SettingsPage>
-    );
-  }
 
   return (
     <SettingsPage

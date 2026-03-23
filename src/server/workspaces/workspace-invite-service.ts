@@ -1,5 +1,5 @@
 import type PocketBase from "pocketbase";
-import type { WorkspaceInvitesRecord } from "@/types/pocketbase";
+import type { WorkspaceInvitesRecord, WorkspacesRecord } from "@/types/pocketbase";
 import type { AppLocale } from "@/i18n/routing";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
@@ -7,10 +7,7 @@ import {
   clearPendingInviteHashCookie,
   getPendingInviteHashCookie,
 } from "@/server/workspaces/workspace-cookie";
-import {
-  requireAdminWorkspaceAccessBySlug,
-  requireWorkspaceAccess,
-} from "@/server/workspaces/workspace-access";
+import { requireAdminWorkspaceAccessBySlug } from "@/server/workspaces/workspace-access";
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
 import { INVITE_RESEND_COOLDOWN_SECONDS } from "@/server/workspaces/workspace-constants";
 import {
@@ -45,6 +42,7 @@ import type {
   PendingInviteConsumeResult,
   ServerWorkspaceResponse,
   WorkspaceInviteAcceptResult,
+  WorkspaceInviteInspectResult,
   WorkspaceInviteRole,
   WorkspaceInviteSummary,
 } from "@/server/workspaces/workspace-types";
@@ -66,15 +64,15 @@ export async function listWorkspaceInvites(
   }
 
   try {
-    const access = await requireWorkspaceAccess(currentUser.context, workspaceSlug);
+    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
 
-    if (!access.ok) {
-      return access.response;
+    if (!adminAccess.ok) {
+      return adminAccess.response;
     }
 
     const inviteRecords = await listWorkspaceInviteRecordsByWorkspace(
-      access.context.pb,
-      access.context.workspace.id
+      adminAccess.context.pb,
+      adminAccess.context.workspace.id
     );
     const now = Date.now();
     const invites = inviteRecords
@@ -227,6 +225,68 @@ export async function validateInviteToken(
 
     if (errorCode === "UNKNOWN_ERROR") {
       logWorkspaceServiceError("validateInviteToken", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+    };
+  }
+}
+
+export async function getInviteTokenForUser(
+  inviteToken: string,
+  user: {
+    id: string;
+    email: string;
+  }
+): Promise<ServerWorkspaceResponse<{ result: WorkspaceInviteInspectResult }>> {
+  const { pb } = await createPocketBaseServerClient();
+
+  try {
+    const inviteHash = hashInviteToken(inviteToken);
+    const result = await validateInviteByHashForUser(pb, inviteHash, user);
+
+    if (result.state === "invalid_or_expired" || result.state === "email_mismatch") {
+      return {
+        ok: true,
+        data: {
+          result,
+        },
+      };
+    }
+
+    const workspace = await mapWorkspaceSummaryWithMemberCount(pb, result.workspace);
+
+    return {
+      ok: true,
+      data: {
+        result: result.alreadyMember
+          ? {
+              state: "already_member",
+              workspace,
+            }
+          : {
+              state: "pending",
+              workspace,
+            },
+      },
+    };
+  } catch (error) {
+    const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
+      if (pocketBaseError.status === 404) {
+        return "INVITE_INVALID_OR_EXPIRED";
+      }
+
+      if (pocketBaseError.status === 403) {
+        return "FORBIDDEN";
+      }
+
+      return null;
+    });
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logWorkspaceServiceError("getInviteTokenForUser", error);
     }
 
     return {
@@ -650,6 +710,38 @@ async function acceptInviteByHash(
     email: string;
   }
 ): Promise<WorkspaceInviteAcceptResult> {
+  const result = await validateInviteByHashForUser(pb, inviteHash, user);
+
+  if (result.state === "invalid_or_expired" || result.state === "email_mismatch") {
+    return result;
+  }
+
+  if (result.alreadyMember) {
+    await safeDeleteInvite(pb, result.inviteRecord.id);
+
+    return {
+      state: "already_member",
+      workspace: await mapWorkspaceSummaryWithMemberCount(pb, result.workspace),
+    };
+  }
+
+  await ensureWorkspaceMembership(pb, result.workspace.id, user.id, result.inviteRecord.role);
+  await safeDeleteInvite(pb, result.inviteRecord.id);
+
+  return {
+    state: "accepted",
+    workspace: await mapWorkspaceSummaryWithMemberCount(pb, result.workspace),
+  };
+}
+
+async function validateInviteByHashForUser(
+  pb: PocketBase,
+  inviteHash: string,
+  user: {
+    id: string;
+    email: string;
+  }
+): Promise<ValidatedInviteForUserResult> {
   const inviteRecord = await findInviteByHash(pb, inviteHash);
 
   if (!inviteRecord) {
@@ -688,22 +780,16 @@ async function acceptInviteByHash(
 
   const membership = await findWorkspaceMembershipByWorkspaceAndUser(pb, workspace.id, user.id);
 
-  if (membership) {
-    await safeDeleteInvite(pb, inviteRecord.id);
-
-    return {
-      state: "already_member",
-      workspace: mapWorkspaceSummary(pb, workspace, await countWorkspaceMembers(pb, workspace.id)),
-    };
-  }
-
-  await ensureWorkspaceMembership(pb, workspace.id, user.id, inviteRecord.role);
-  await safeDeleteInvite(pb, inviteRecord.id);
-
   return {
-    state: "accepted",
-    workspace: mapWorkspaceSummary(pb, workspace, await countWorkspaceMembers(pb, workspace.id)),
+    state: "ready",
+    inviteRecord,
+    workspace,
+    alreadyMember: membership !== null,
   };
+}
+
+async function mapWorkspaceSummaryWithMemberCount(pb: PocketBase, workspace: WorkspacesRecord) {
+  return mapWorkspaceSummary(pb, workspace, await countWorkspaceMembers(pb, workspace.id));
 }
 
 function hasMemberWithEmail(
@@ -720,3 +806,19 @@ function hasMemberWithEmail(
     return normalizeEmail(memberEmail) === normalizedEmail;
   });
 }
+
+type ValidatedInviteForUserResult =
+  | {
+      state: "invalid_or_expired";
+    }
+  | {
+      state: "email_mismatch";
+      invitedEmail: string;
+      currentEmail: string;
+    }
+  | {
+      state: "ready";
+      inviteRecord: WorkspaceInvitesRecord;
+      workspace: WorkspacesRecord;
+      alreadyMember: boolean;
+    };
