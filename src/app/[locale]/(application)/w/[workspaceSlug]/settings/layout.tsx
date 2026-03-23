@@ -46,10 +46,6 @@ export default async function Layout({
     locale: currentLocale,
     namespace: "layout.navigation.items",
   });
-  const tWorkspace = await getTranslations({
-    locale: currentLocale,
-    namespace: "pages.workspace",
-  });
   const tWorkspaceNav = await getTranslations({
     locale: currentLocale,
     namespace: "pages.workspace.nav",
@@ -66,18 +62,25 @@ export default async function Layout({
       breadcrumbs={
         <InnerSidebarBreadcrumbs
           items={innerSidebarItems}
+          scopeHref={{
+            pathname: "/w/[workspaceSlug]/overview",
+            params: {
+              workspaceSlug: workspace.slug,
+            },
+          }}
+          scopeLabel={workspace.name}
           rootHref={{
             pathname: "/w/[workspaceSlug]/settings",
             params: {
               workspaceSlug: workspace.slug,
             },
           }}
-          rootLabel={tWorkspace("title")}
+          rootLabel={tNav("settings")}
         />
       }
     >
       <Container size="xl" className="pt-10 pb-24">
-        <InnerSidebarLayout title={tNav("workspace")} items={innerSidebarItems}>
+        <InnerSidebarLayout title={tNav("settings")} items={innerSidebarItems}>
           {children}
         </InnerSidebarLayout>
       </Container>

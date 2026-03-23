@@ -26,7 +26,7 @@ Currently implemented:
 - device session validation on protected server flows
 - client session store with server refresh
 - localized auth routes and forms
-- app-first post-auth navigation with invite-aware workspace handoff
+- personal-home-first post-auth navigation with invite-aware workspace handoff
 
 Not currently implemented:
 
@@ -166,6 +166,8 @@ That action:
 - verifies the authenticated session
 - asks the workspace domain only for pending invite outcome resolution
 - defaults to `/app` when there is no workspace-specific outcome
+
+In the current shell model, `/app` is the personal home scope, not a workspace surrogate.
 
 Possible post-auth outcomes are:
 

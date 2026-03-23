@@ -23,10 +23,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  applicationMenu,
   authMenu,
   isNested,
   marketingMenu,
+  personalApplicationMenu,
   type MenuItem,
   type MenuLabelKey,
 } from "@/config/navigation";
@@ -161,7 +161,7 @@ export function MarketingHeader({ viewer }: { viewer: HeaderViewer }) {
 
   const signInMenuItem = authMenu.find((item) => item.labelKey === "signIn");
   const signUpMenuItem = authMenu.find((item) => item.labelKey === "signUp");
-  const appMenuItem = applicationMenu.find((item) => item.labelKey === "app");
+  const appMenuItem = personalApplicationMenu.find((item) => item.labelKey === "home");
 
   const applicationButtonLabel = t("goToApplication");
   const viewerDisplayName = getViewerDisplayName(viewer);

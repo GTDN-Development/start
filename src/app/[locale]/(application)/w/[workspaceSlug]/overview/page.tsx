@@ -8,6 +8,7 @@ import {
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
@@ -73,6 +74,10 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
       breadcrumbs={
         <Breadcrumb>
           <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbPage>{workspaceResponse.data.workspace.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage>{tNav("overview")}</BreadcrumbPage>
             </BreadcrumbItem>

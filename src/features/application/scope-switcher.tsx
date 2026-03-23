@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
+import { CheckIcon, ChevronsUpDownIcon, PlusIcon, UserIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,23 +18,28 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { resolveApplicationScope } from "@/features/application/application-scope";
 import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
-import { resolveSelectedWorkspaceSlug } from "@/features/application/workspace-routing";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
-import { type AppHref, usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
-import { WorkspaceAvatar, WorkspaceAvatarFallback, WorkspaceAvatarImage } from "./workspace-avatar";
-import { WorkspaceCreateDrawer } from "./workspace-create-drawer";
+import {
+  WorkspaceAvatar,
+  WorkspaceAvatarFallback,
+  WorkspaceAvatarImage,
+} from "@/features/workspaces/workspace-avatar";
+import { WorkspaceCreateDrawer } from "@/features/workspaces/workspace-create-drawer";
+import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
 
 type WorkspaceOption = WorkspaceNavigationItem & {
   initials: string;
   chipClassName: string;
 };
 
-export function WorkspaceSwitcher() {
-  const t = useTranslations("layout.application.workspaceSwitcher");
+export function ScopeSwitcher() {
+  const t = useTranslations("layout.application.scopeSwitcher");
   const { isMobile } = useSidebar();
   const { activeWorkspaceSlug, workspaces } = useWorkspaceNavigation();
 
@@ -42,7 +47,7 @@ export function WorkspaceSwitcher() {
   const router = useRouter();
 
   const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
-  const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
+  const [isScopeMenuOpen, setIsScopeMenuOpen] = useState(false);
   const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);
   const [isCreateWorkspaceDrawerOpen, setIsCreateWorkspaceDrawerOpen] = useState(false);
 
@@ -52,13 +57,13 @@ export function WorkspaceSwitcher() {
     activeWorkspaceSlug,
     workspaces
   );
-  const activeWorkspace =
-    workspaceOptions.find((workspace) => workspace.slug === selectedWorkspaceSlug) ??
-    workspaceOptions[0] ??
-    null;
-  const activeWorkspaceAvatarUrl = activeWorkspace
-    ? getWorkspaceAvatarUrl(activeWorkspace, failedAvatarUrls)
+  const selectedWorkspace =
+    workspaceOptions.find((workspace) => workspace.slug === selectedWorkspaceSlug) ?? null;
+  const applicationScope = resolveApplicationScope(pathname);
+  const activeWorkspaceAvatarUrl = selectedWorkspace
+    ? getWorkspaceAvatarUrl(selectedWorkspace, failedAvatarUrls)
     : null;
+  const isPersonalScope = applicationScope !== "workspace";
 
   function handleWorkspaceAvatarError(avatarUrl: string) {
     setFailedAvatarUrls((currentUrls) => {
@@ -70,12 +75,24 @@ export function WorkspaceSwitcher() {
     });
   }
 
-  function handleWorkspaceSwitch(workspace: WorkspaceOption) {
-    if (isSwitchingWorkspace || activeWorkspace?.slug === workspace.slug) {
+  function handlePersonalScopeClick() {
+    if (isSwitchingWorkspace) {
       return;
     }
 
-    setIsWorkspaceMenuOpen(false);
+    setIsScopeMenuOpen(false);
+    router.replace("/app");
+  }
+
+  function handleWorkspaceSwitch(workspace: WorkspaceOption) {
+    if (
+      isSwitchingWorkspace ||
+      (applicationScope === "workspace" && selectedWorkspace?.slug === workspace.slug)
+    ) {
+      return;
+    }
+
+    setIsScopeMenuOpen(false);
 
     startSwitchWorkspaceTransition(async () => {
       const response = await switchWorkspaceAction(workspace.slug);
@@ -84,8 +101,12 @@ export function WorkspaceSwitcher() {
         return;
       }
 
-      const targetHref = resolveWorkspaceSwitchHref(pathname, response.data.workspaceSlug);
-      router.replace(targetHref);
+      router.replace({
+        pathname: "/w/[workspaceSlug]/overview",
+        params: {
+          workspaceSlug: response.data.workspaceSlug,
+        },
+      });
     });
   }
 
@@ -94,7 +115,7 @@ export function WorkspaceSwitcher() {
       return;
     }
 
-    setIsWorkspaceMenuOpen(false);
+    setIsScopeMenuOpen(false);
     requestAnimationFrame(() => {
       setIsCreateWorkspaceDrawerOpen(true);
     });
@@ -102,44 +123,16 @@ export function WorkspaceSwitcher() {
 
   function handleCreateWorkspaceDrawerOpenChange(open: boolean) {
     if (open) {
-      setIsWorkspaceMenuOpen(false);
+      setIsScopeMenuOpen(false);
     }
 
     setIsCreateWorkspaceDrawerOpen(open);
   }
 
-  if (!activeWorkspace) {
-    return (
-      <>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              onClick={handleCreateWorkspaceClick}
-              disabled={isSwitchingWorkspace}
-            >
-              <div className="bg-background border-border flex size-8 items-center justify-center rounded-md border">
-                <PlusIcon aria-hidden="true" className="size-4" />
-              </div>
-              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{t("empty.title")}</span>
-                <span className="truncate text-xs">{t("empty.description")}</span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <WorkspaceCreateDrawer
-          open={isCreateWorkspaceDrawerOpen}
-          onOpenChange={handleCreateWorkspaceDrawerOpenChange}
-        />
-      </>
-    );
-  }
-
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu open={isWorkspaceMenuOpen} onOpenChange={setIsWorkspaceMenuOpen}>
+        <DropdownMenu open={isScopeMenuOpen} onOpenChange={setIsScopeMenuOpen}>
           <DropdownMenuTrigger
             render={
               <SidebarMenuButton
@@ -148,24 +141,38 @@ export function WorkspaceSwitcher() {
               />
             }
           >
-            <WorkspaceAvatar>
-              {activeWorkspaceAvatarUrl ? (
-                <WorkspaceAvatarImage
-                  src={activeWorkspaceAvatarUrl}
-                  alt=""
-                  onError={() => handleWorkspaceAvatarError(activeWorkspaceAvatarUrl)}
-                />
-              ) : (
-                <WorkspaceAvatarFallback
-                  className={cn(activeWorkspace.chipClassName, "text-xs font-semibold")}
-                >
-                  {activeWorkspace.initials}
-                </WorkspaceAvatarFallback>
-              )}
-            </WorkspaceAvatar>
+            {isPersonalScope || !selectedWorkspace ? (
+              <div className="bg-background border-border flex size-8 items-center justify-center rounded-md border">
+                <UserIcon aria-hidden="true" className="size-4" />
+              </div>
+            ) : (
+              <WorkspaceAvatar>
+                {activeWorkspaceAvatarUrl ? (
+                  <WorkspaceAvatarImage
+                    src={activeWorkspaceAvatarUrl}
+                    alt=""
+                    onError={() => handleWorkspaceAvatarError(activeWorkspaceAvatarUrl)}
+                  />
+                ) : (
+                  <WorkspaceAvatarFallback
+                    className={cn(selectedWorkspace.chipClassName, "text-xs font-semibold")}
+                  >
+                    {selectedWorkspace.initials}
+                  </WorkspaceAvatarFallback>
+                )}
+              </WorkspaceAvatar>
+            )}
             <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">{activeWorkspace.name}</span>
-              <span className="truncate text-xs">{activeWorkspace.slug}</span>
+              <span className="truncate font-semibold">
+                {isPersonalScope || !selectedWorkspace
+                  ? t("personal.label")
+                  : selectedWorkspace.name}
+              </span>
+              <span className="text-sidebar-foreground/70 truncate text-xs">
+                {isPersonalScope || !selectedWorkspace
+                  ? t("personal.description")
+                  : selectedWorkspace.slug}
+              </span>
             </div>
             <ChevronsUpDownIcon aria-hidden="true" className="ml-auto size-4" />
           </DropdownMenuTrigger>
@@ -177,8 +184,39 @@ export function WorkspaceSwitcher() {
             sideOffset={4}
           >
             <DropdownMenuGroup>
+              <DropdownMenuItem
+                className="gap-2 p-2"
+                disabled={isSwitchingWorkspace}
+                onClick={handlePersonalScopeClick}
+              >
+                <div className="bg-background border-border flex size-6 items-center justify-center rounded-md border">
+                  <UserIcon aria-hidden="true" className="size-4" />
+                </div>
+                <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{t("personal.label")}</span>
+                  <span className="text-muted-foreground truncate text-xs">
+                    {t("personal.description")}
+                  </span>
+                </div>
+                {isPersonalScope && <CheckIcon aria-hidden="true" className="size-4" />}
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuGroup>
               <DropdownMenuLabel className="text-xs">{t("labels.workspaces")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              {workspaceOptions.length === 0 && (
+                <DropdownMenuItem className="pointer-events-none p-2 opacity-100">
+                  <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{t("empty.title")}</span>
+                    <span className="text-muted-foreground truncate text-xs">
+                      {t("empty.description")}
+                    </span>
+                  </div>
+                </DropdownMenuItem>
+              )}
               {workspaceOptions.map((workspace) => {
                 const workspaceAvatarUrl = getWorkspaceAvatarUrl(workspace, failedAvatarUrls);
 
@@ -210,9 +248,10 @@ export function WorkspaceSwitcher() {
                         {workspace.slug}
                       </span>
                     </div>
-                    {workspace.slug === activeWorkspace.slug && (
-                      <CheckIcon aria-hidden="true" className="size-4" />
-                    )}
+                    {workspace.slug === selectedWorkspace?.slug &&
+                      applicationScope === "workspace" && (
+                        <CheckIcon aria-hidden="true" className="size-4" />
+                      )}
                   </DropdownMenuItem>
                 );
               })}
@@ -256,21 +295,4 @@ function getWorkspaceAvatarUrl(workspace: WorkspaceOption, failedAvatarUrls: str
   }
 
   return failedAvatarUrls.includes(workspace.avatarUrl) ? null : workspace.avatarUrl;
-}
-
-function resolveWorkspaceSwitchHref(pathname: string, workspaceSlug: string): AppHref {
-  const segments = pathname.split("/").filter(Boolean);
-
-  if (segments[0] !== "w" || segments.length < 2) {
-    return {
-      pathname: "/w/[workspaceSlug]/overview",
-      params: {
-        workspaceSlug,
-      },
-    };
-  }
-
-  const nextWorkspacePath = `/${["w", workspaceSlug, ...segments.slice(2)].join("/")}`;
-
-  return nextWorkspacePath as AppHref;
 }

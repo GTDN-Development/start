@@ -1,31 +1,8 @@
+import {
+  getWorkspaceSlugFromPathname,
+  normalizeWorkspaceSlug,
+} from "@/features/application/application-scope";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
-
-export function normalizeWorkspaceSlug(workspaceSlug: string | null | undefined): string | null {
-  const normalizedWorkspaceSlug = workspaceSlug?.trim() ?? "";
-
-  if (!normalizedWorkspaceSlug) {
-    return null;
-  }
-
-  if (
-    normalizedWorkspaceSlug.startsWith("[") &&
-    normalizedWorkspaceSlug.endsWith("]")
-  ) {
-    return null;
-  }
-
-  return normalizedWorkspaceSlug;
-}
-
-export function getWorkspaceSlugFromPathname(pathname: string): string | null {
-  const segments = pathname.split("/").filter(Boolean);
-
-  if (segments.length < 3 || segments[0] !== "w") {
-    return null;
-  }
-
-  return normalizeWorkspaceSlug(segments[1] ?? "");
-}
 
 export function resolveSelectedWorkspaceSlug(
   pathname: string,

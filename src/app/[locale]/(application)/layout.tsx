@@ -106,8 +106,8 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
         userMenu: {
           account: tNavigation("account"),
           accountPage: tNavigation("account"),
-          app: tNavigation("app"),
-          home: tNavigation("home"),
+          personalHome: tNavigation("home"),
+          website: tNavigation("website"),
           emailNotVerified: tApplication("emailNotVerified"),
           emailVerified: tApplication("emailVerified"),
           signOut: tApplication("signOut"),

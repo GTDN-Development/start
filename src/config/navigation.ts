@@ -3,6 +3,7 @@ import type { AppIcon } from "@/types/icons";
 import { LayoutDashboardIcon, LifeBuoyIcon, SettingsIcon, UserIcon } from "lucide-react";
 
 type MenuHref = AppPathname;
+type ApplicationMenuHref = MenuHref | "/w/[workspaceSlug]/overview" | "/w/[workspaceSlug]/settings";
 
 export type MenuLinkLabelKey =
   | "home"
@@ -18,6 +19,8 @@ export type MenuLinkLabelKey =
   | "signIn"
   | "signUp"
   | "workspace"
+  | "overview"
+  | "settings"
   | "account"
   | "privacyPolicy"
   | "termsOfService"
@@ -30,10 +33,6 @@ export type MenuLabelKey = MenuLinkLabelKey | MenuNestedLabelKey;
 export type MenuLink = {
   labelKey: MenuLinkLabelKey;
   href: MenuHref;
-};
-
-export type ApplicationMenuLink = MenuLink & {
-  icon: AppIcon;
 };
 
 export type MenuNested = {
@@ -67,12 +66,36 @@ export const marketingMenu: MenuItem[] = [
   { labelKey: "contact", href: "/contact" },
 ];
 
-export const applicationMenu: ApplicationMenuLink[] = [
-  { labelKey: "app", href: "/app", icon: LayoutDashboardIcon },
-  { labelKey: "workspace", href: "/app", icon: SettingsIcon },
-  { labelKey: "account", href: "/account", icon: UserIcon },
+export const personalApplicationMenu = [
+  { labelKey: "home", href: "/app", icon: LayoutDashboardIcon },
+  { labelKey: "account", href: "/account", icon: UserIcon, matchNested: true },
   { labelKey: "support", href: "/contact/support", icon: LifeBuoyIcon },
-];
+] as const satisfies ReadonlyArray<{
+  labelKey: "home" | "account" | "support";
+  href: MenuHref;
+  icon: AppIcon;
+  matchNested?: boolean;
+}>;
+
+export const workspaceApplicationMenu = [
+  { labelKey: "overview", href: "/w/[workspaceSlug]/overview", icon: LayoutDashboardIcon },
+  {
+    labelKey: "settings",
+    href: "/w/[workspaceSlug]/settings",
+    icon: SettingsIcon,
+    matchNested: true,
+  },
+  { labelKey: "support", href: "/contact/support", icon: LifeBuoyIcon },
+] as const satisfies ReadonlyArray<{
+  labelKey: "overview" | "settings" | "support";
+  href: ApplicationMenuHref;
+  icon: AppIcon;
+  matchNested?: boolean;
+}>;
+
+export type PersonalApplicationMenuLink = (typeof personalApplicationMenu)[number];
+export type WorkspaceApplicationMenuLink = (typeof workspaceApplicationMenu)[number];
+export type ApplicationMenuLink = PersonalApplicationMenuLink | WorkspaceApplicationMenuLink;
 
 export const applicationFooterMenu: MenuLink[] = [
   { labelKey: "home", href: "/" },

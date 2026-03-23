@@ -18,7 +18,7 @@ import type { AuthUser } from "@/features/auth/auth-contract";
 import { useSignOut } from "@/features/auth/use-sign-out";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDownIcon, HomeIcon, LogOutIcon } from "lucide-react";
+import { ChevronsUpDownIcon, GlobeIcon, LogOutIcon } from "lucide-react";
 
 export type UserAccountMenuViewer = Pick<
   AuthUser,
@@ -28,8 +28,8 @@ export type UserAccountMenuViewer = Pick<
 export type UserAccountMenuLabels = {
   account: string;
   accountPage: string;
-  app: string;
-  home: string;
+  personalHome: string;
+  website: string;
   emailNotVerified: string;
   emailVerified: string;
   signOut: string;
@@ -111,7 +111,7 @@ export function UserAccountMenu({
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href={appHref} className="w-full cursor-pointer" />}>
-          {labels.app}
+          {labels.personalHome}
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href="/account" className="w-full cursor-pointer" />}>
           {labels.accountPage}
@@ -122,8 +122,8 @@ export function UserAccountMenu({
             <Link href="/" className="flex w-full cursor-pointer justify-between text-left" />
           }
         >
-          {labels.home}
-          <HomeIcon aria-hidden="true" className="size-4" />
+          {labels.website}
+          <GlobeIcon aria-hidden="true" className="size-4" />
         </DropdownMenuItem>
         <DropdownMenuItem
           disabled={isSignOutPending}

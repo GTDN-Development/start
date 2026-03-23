@@ -7,7 +7,7 @@ Last implementation pass verified:
 - `npm run lint`
 - `npm run build`
 
-These checks validate route typing, message typing, and production build integrity after the `/app` cutover.
+These checks validate route typing, message typing, and production build integrity after the `/app` cutover and scope-switcher clarification.
 
 ## Manual QA Matrix
 
@@ -69,15 +69,36 @@ These checks validate route typing, message typing, and production build integri
 - Sign in as a user with zero workspaces.
 - Open `/app`, `/account`, `/account/preferences`, and `/account/security`.
 - Expected result: all remain usable.
-- Expected result: workspace menu item is hidden.
-- Expected result: workspace switcher shows create-only empty state.
+- Expected result: scope switcher shows `Personal` as the active option.
+- Expected result: sidebar shows personal navigation only.
+- Expected result: workspace section shows empty-state copy without a duplicate leading icon.
+- Expected result: create workspace action remains separately visible.
 
-### Switcher Outside Workspace Routes
+### Scope Switcher Outside Workspace Routes
 
 - Start signed in with multiple workspaces.
 - Open `/app`.
 - Switch workspaces from the shell.
-- Expected result: switcher uses the preferred workspace state and navigation goes to `/w/[workspaceSlug]/overview`.
+- Expected result: selecting a workspace navigates to `/w/[workspaceSlug]/overview`.
+- Expected result: the selected workspace stays available even after returning to `Personal`.
+
+### Return From Workspace To Personal
+
+- Start signed in with at least one workspace.
+- Open `/w/[workspaceSlug]/overview`.
+- Use the scope switcher to move to `Personal`.
+- Expected result: navigation goes to `/app`.
+- Expected result: `Personal` is shown as the active scope.
+
+### Return From Personal Back To Workspace
+
+- Start signed in with at least one workspace.
+- Open `/app`.
+- Use the scope switcher to open a workspace.
+- Return to `Personal`.
+- Open the scope switcher again and click the same workspace.
+- Expected result: navigation goes back to `/w/[workspaceSlug]/overview`.
+- Expected non-goal: clicking the previously active workspace from personal scope must not be treated as a no-op.
 
 ### Membership Revoked Or Workspace Deleted In Another Session
 
@@ -94,4 +115,5 @@ When re-checking this refactor later, prioritize:
 - invite outcome explicitness
 - stale cookie repair
 - zero-workspace shell behavior
+- personal/workspace scope switching behavior
 - workspace route failure behavior

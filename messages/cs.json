@@ -46,8 +46,9 @@
     },
     "navigation": {
       "items": {
-        "home": "Hlavní strana",
-        "app": "Aplikace",
+        "home": "Domů",
+        "app": "Domů",
+        "website": "Web",
         "contact": "Kontakt",
         "support": "Kontakt a podpora",
         "pricing": "Ceník",
@@ -58,7 +59,8 @@
         "changelog": "Nové funkce",
         "roadmap": "Plán vývoje",
         "workspace": "Workspace",
-        "account": "Můj účet",
+        "settings": "Nastavení",
+        "account": "Účet",
         "signIn": "Přihlášení",
         "signUp": "Registrace",
         "overview": "Přehled",
@@ -115,6 +117,22 @@
       "emailVerified": "E-mail ověřen",
       "emailNotVerified": "E-mail není ověřen",
       "signOut": "Odhlásit se",
+      "scopeSwitcher": {
+        "personal": {
+          "label": "Osobní",
+          "description": "Domů a účet"
+        },
+        "labels": {
+          "workspaces": "Pracovní prostory"
+        },
+        "actions": {
+          "create": "Vytvořit pracovní prostor"
+        },
+        "empty": {
+          "title": "Zatím nemáte workspace",
+          "description": "Vytvořte ho až ve chvíli, kdy potřebujete spolupráci."
+        }
+      },
       "workspaceSwitcher": {
         "labels": {
           "workspaces": "Pracovní prostory"
@@ -133,7 +151,7 @@
             "name": {
               "label": "Název",
               "placeholder": "Zadejte název workspace",
-              "description": "Používá se v navigaci a přepínači workspace. URL vygenerujeme automaticky z názvu."
+              "description": "Používá se v navigaci a scope switcheru. URL vygenerujeme automaticky z názvu."
             }
           },
           "validation": {
@@ -496,8 +514,11 @@
       "effectiveDate": "1. ledna 2025"
     },
     "app": {
-      "title": "Domov aplikace",
-      "description": "Začněte od svého účtu, upravte preference a do workspace spolupráce přejděte až ve chvíli, kdy ji opravdu potřebujete.",
+      "title": "Domů",
+      "description": "Vaše osobní část je připravená hned. Tady spravujete svůj účet a workspace přidáte až ve chvíli, kdy potřebujete spolupráci.",
+      "personal": {
+        "eyebrow": "Osobní část"
+      },
       "cards": {
         "account": {
           "title": "Profil",
@@ -518,6 +539,20 @@
           "title": "Podpora",
           "description": "Získejte pomoc se zprovozněním, problémy nebo dotazy k produktu.",
           "cta": "Kontaktovat podporu"
+        }
+      },
+      "workspace": {
+        "title": "Spolupráce pro váš tým",
+        "description": "Workspace je volitelný. Vytvořte ho ve chvíli, kdy chcete sdílet přístup, nastavení a pracovat s dalšími lidmi.",
+        "create": "Vytvořit workspace pro tým",
+        "empty": {
+          "title": "Produkt můžete používat i bez workspace",
+          "description": "Workspace si vytvořte, až budete potřebovat sdílenou spolupráci."
+        },
+        "list": {
+          "title": "Vaše workspaces",
+          "description": "Do sdíleného prostoru se můžete kdykoli vrátit.",
+          "cta": "Otevřít přehled"
         }
       }
     },

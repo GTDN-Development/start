@@ -31,7 +31,7 @@ import {
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { ApplicationSidebarSignOut } from "./application-sidebar-sign-out";
 import { ApplicationMenuTree } from "./application-menu-tree";
-import { WorkspaceSwitcher } from "@/features/workspaces/workspace-switcher";
+import { ScopeSwitcher } from "./scope-switcher";
 
 type ApplicationMobileMenuLabels = {
   openAriaLabel: string;
@@ -131,7 +131,7 @@ export function ApplicationLayout({
             <SidebarProvider>
               <Sidebar collapsible="offcanvas">
                 <SidebarHeader>
-                  <WorkspaceSwitcher />
+                  <ScopeSwitcher />
                 </SidebarHeader>
                 <SidebarContent>
                   <SidebarGroup>

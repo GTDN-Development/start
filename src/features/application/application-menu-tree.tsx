@@ -7,102 +7,99 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { applicationMenu } from "@/config/navigation";
+import {
+  personalApplicationMenu,
+  workspaceApplicationMenu,
+  type ApplicationMenuLink,
+} from "@/config/navigation";
 import { AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useSidebarContext } from "./application-layout";
+import { getWorkspaceSlugFromPathname, resolveApplicationScope } from "./application-scope";
 import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
 
 function isAccountRoute(pathname: string) {
   return pathname === "/account" || pathname.startsWith("/account/");
 }
 
-function getWorkspaceSegments(pathname: string) {
-  const segments = pathname.split("/").filter(Boolean);
+function isMenuItemActive(pathname: string, item: ApplicationMenuLink) {
+  const pathnameWorkspaceSlug = getWorkspaceSlugFromPathname(pathname);
+  const workspaceBasePath = pathnameWorkspaceSlug ? `/w/${pathnameWorkspaceSlug}` : null;
 
-  if (segments.length < 3 || segments[0] !== "w") {
-    return null;
-  }
-
-  return {
-    scope: segments[2],
-    section: segments[3] ?? null,
-  };
-}
-
-function isWorkspaceRoute(pathname: string) {
-  return getWorkspaceSegments(pathname) !== null;
-}
-
-function isMenuItemActive(pathname: string, item: (typeof applicationMenu)[number]) {
   if (item.labelKey === "account") {
     return isAccountRoute(pathname);
   }
 
-  if (item.labelKey === "workspace") {
-    return isWorkspaceRoute(pathname);
+  if (item.labelKey === "home") {
+    return pathname === "/app";
   }
 
-  if (item.labelKey === "app") {
-    return pathname === "/app";
+  if (item.labelKey === "overview") {
+    if (!workspaceBasePath) {
+      return false;
+    }
+
+    return pathname === workspaceBasePath || pathname === `${workspaceBasePath}/overview`;
+  }
+
+  if (item.labelKey === "settings") {
+    if (!workspaceBasePath) {
+      return false;
+    }
+
+    return (
+      pathname === `${workspaceBasePath}/settings` ||
+      pathname.startsWith(`${workspaceBasePath}/settings/`)
+    );
   }
 
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }
 
-function shouldMatchNested(item: (typeof applicationMenu)[number]) {
-  return item.labelKey !== "app";
-}
-
-function resolveMenuHref(
-  item: (typeof applicationMenu)[number],
-  selectedWorkspaceSlug: string | null
-): AppHref {
-  if (item.labelKey === "account") {
+function resolveMenuHref(item: ApplicationMenuLink, selectedWorkspaceSlug: string | null): AppHref {
+  if (item.labelKey !== "overview" && item.labelKey !== "settings") {
     return item.href;
   }
 
-  if (item.labelKey === "app") {
-    return item.href;
+  if (!selectedWorkspaceSlug) {
+    return "/app";
   }
 
-  if (item.labelKey === "workspace") {
-    if (!selectedWorkspaceSlug) {
-      return "/app";
-    }
-
+  if (item.labelKey === "overview") {
     return {
-      pathname: "/w/[workspaceSlug]/settings",
+      pathname: "/w/[workspaceSlug]/overview",
       params: {
         workspaceSlug: selectedWorkspaceSlug,
       },
     };
   }
 
-  return item.href;
+  return {
+    pathname: "/w/[workspaceSlug]/settings",
+    params: {
+      workspaceSlug: selectedWorkspaceSlug,
+    },
+  };
 }
 
 export function ApplicationMenuTree({ className, ...props }: React.ComponentProps<"nav">) {
   const tNav = useTranslations("layout.navigation.items");
-  const tWorkspace = useTranslations("pages.workspace");
 
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   const { activeWorkspaceSlug, workspaces } = useSidebarContext();
+  const applicationScope = resolveApplicationScope(pathname);
 
   const selectedWorkspaceSlug = resolveSelectedWorkspaceSlug(
     pathname,
     activeWorkspaceSlug,
     workspaces
   );
-  const visibleApplicationMenu = applicationMenu.filter((item) => {
-    if (item.labelKey !== "workspace") {
-      return true;
-    }
-
-    return selectedWorkspaceSlug !== null;
-  });
+  const visibleApplicationMenu =
+    applicationScope === "workspace" && selectedWorkspaceSlug
+      ? workspaceApplicationMenu
+      : personalApplicationMenu;
 
   function handleItemClick() {
     if (isMobile) {
@@ -116,8 +113,7 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
         {visibleApplicationMenu.map((item) => {
           const isActive = isMenuItemActive(pathname, item);
           const itemHref = resolveMenuHref(item, selectedWorkspaceSlug);
-          const itemLabel =
-            item.labelKey === "workspace" ? tWorkspace("title") : tNav(item.labelKey);
+          const itemLabel = tNav(item.labelKey);
           const ItemIcon = item.icon;
 
           return (
@@ -128,7 +124,7 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
                 render={
                   <NavLink
                     href={itemHref}
-                    matchNested={shouldMatchNested(item)}
+                    matchNested={"matchNested" in item && item.matchNested === true}
                     onClick={handleItemClick}
                   />
                 }

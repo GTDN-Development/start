@@ -12,7 +12,7 @@ import {
   isNested,
   legalItems,
   marketingMenu,
-  applicationMenu,
+  personalApplicationMenu,
   type MenuItem,
   type MenuLabelKey,
 } from "@/config/navigation";
@@ -107,7 +107,9 @@ export function MarketingFooter({
 
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
   const accountLinks = viewer
-    ? applicationMenu.filter((item) => item.labelKey === "app" || item.labelKey === "account")
+    ? personalApplicationMenu.filter(
+        (item) => item.labelKey === "home" || item.labelKey === "account"
+      )
     : authMenu;
 
   const viewerName = viewer?.name?.trim() || null;
