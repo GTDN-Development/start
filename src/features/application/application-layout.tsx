@@ -4,6 +4,8 @@ import { createContext, useContext } from "react";
 import { useTranslations } from "next-intl";
 import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
+import { LogoStart } from "@/components/brand/logo-start";
+import { Link } from "@/components/ui/link";
 import {
   Sidebar,
   SidebarContent,
@@ -42,7 +44,6 @@ type ApplicationMobileMenuLabels = {
 
 type ApplicationLayoutContextValue = {
   user: AccountProfileSnapshot;
-  locale: string;
   userMenuLabels: UserAccountMenuLabels;
   mobileMenuLabels: ApplicationMobileMenuLabels;
 };
@@ -55,7 +56,6 @@ export type ApplicationLayoutLabels = {
 type ApplicationLayoutProps = {
   children: React.ReactNode;
   user: AccountProfileSnapshot;
-  locale: string;
   workspaces: WorkspaceNavigationItem[];
   activeWorkspaceSlug: string | null;
   labels: ApplicationLayoutLabels;
@@ -80,7 +80,6 @@ export function useSidebarContext() {
 export function ApplicationLayout({
   children,
   user,
-  locale,
   workspaces,
   activeWorkspaceSlug,
   labels,
@@ -121,7 +120,6 @@ export function ApplicationLayout({
         <ApplicationLayoutContext.Provider
           value={{
             user: currentUser,
-            locale,
             userMenuLabels: labels.userMenu,
             mobileMenuLabels: labels.mobileMenu,
           }}
@@ -132,7 +130,19 @@ export function ApplicationLayout({
             <SidebarProvider>
               <Sidebar collapsible="offcanvas">
                 <SidebarHeader>
-                  <ScopeSwitcher />
+                  <div className="pt-3.5 pl-2.5 lg:pb-2.5">
+                    <Link
+                      href="/"
+                      aria-label={t("header.homeAriaLabel")}
+                      className="inline-flex w-fit"
+                    >
+                      <LogoStart aria-hidden="true" className="w-18" />
+                    </Link>
+                  </div>
+
+                  <div className="max-w-full lg:hidden">
+                    <ScopeSwitcher />
+                  </div>
                 </SidebarHeader>
                 <SidebarContent>
                   <SidebarGroup>

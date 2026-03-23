@@ -35,9 +35,12 @@ type WorkspaceOption = WorkspaceNavigationItem & {
   chipClassName: string;
 };
 
-export function ScopeSwitcher() {
+type ScopeSwitcherProps = {
+  className?: string;
+};
+
+export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   const t = useTranslations("layout.application.scopeSwitcher");
-  const tRoles = useTranslations("pages.workspace.members.roles");
   const accountProfile = useOptionalAccountProfile();
   const { activeWorkspaceSlug, workspaces } = useWorkspaceNavigation();
 
@@ -151,7 +154,10 @@ export function ScopeSwitcher() {
             render={
               <SidebarMenuButton
                 size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                className={cn(
+                  "data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground",
+                  className
+                )}
               />
             }
           >
@@ -192,11 +198,6 @@ export function ScopeSwitcher() {
               <span className="truncate font-semibold">
                 {isPersonalScope || !selectedWorkspace ? personalLabel : selectedWorkspace.name}
               </span>
-              <span className="text-sidebar-foreground/70 truncate text-xs">
-                {isPersonalScope || !selectedWorkspace
-                  ? t("personal.description")
-                  : getWorkspaceSummary(selectedWorkspace, t, tRoles)}
-              </span>
             </div>
             <ChevronsUpDownIcon aria-hidden="true" className="ml-auto size-4" />
           </DropdownMenuTrigger>
@@ -228,9 +229,6 @@ export function ScopeSwitcher() {
                 </Avatar>
                 <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{personalLabel}</span>
-                  <span className="text-muted-foreground truncate text-xs">
-                    {t("personal.description")}
-                  </span>
                 </div>
                 {isPersonalScope && <CheckIcon aria-hidden="true" className="size-4" />}
               </DropdownMenuItem>
@@ -280,9 +278,6 @@ export function ScopeSwitcher() {
                     </WorkspaceAvatar>
                     <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-medium">{workspace.name}</span>
-                      <span className="text-muted-foreground truncate text-xs">
-                        {getWorkspaceSummary(workspace, t, tRoles)}
-                      </span>
                     </div>
                     {workspace.slug === selectedWorkspace?.slug &&
                       applicationScope === "workspace" && (
@@ -345,17 +340,4 @@ function getPersonalScopeLabel(name: string | null, email: string | null) {
   }
 
   return email ?? "";
-}
-
-function getWorkspaceSummary(
-  workspace: WorkspaceOption,
-  t: (key: string, values?: Record<string, string | number>) => string,
-  tRoles: (key: string) => string
-) {
-  return t("workspace.summary", {
-    role: tRoles(`${workspace.role}.label`),
-    members: t("workspace.members", {
-      count: workspace.memberCount,
-    }),
-  });
 }

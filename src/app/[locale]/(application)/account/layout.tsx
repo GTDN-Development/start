@@ -20,10 +20,6 @@ export default async function Layout({ children, params }: LayoutProps<"/[locale
     locale: currentLocale,
     namespace: "layout.navigation.items",
   });
-  const tScopeSwitcher = await getTranslations({
-    locale: currentLocale,
-    namespace: "layout.application.scopeSwitcher",
-  });
 
   const innerSidebarItems = mapInnerSidebarItems(accountInnerSidebarItems, tAccount);
 
@@ -34,8 +30,6 @@ export default async function Layout({ children, params }: LayoutProps<"/[locale
           items={innerSidebarItems}
           rootHref="/account"
           rootLabel={tNav("account")}
-          scopeHref="/app"
-          scopeLabel={tScopeSwitcher("personal.label")}
         />
       }
     >

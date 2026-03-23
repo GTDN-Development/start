@@ -114,17 +114,10 @@
     },
     "application": {
       "signedInAs": "Signed in as",
-      "emailVerified": "Email verified",
-      "emailNotVerified": "Email not verified",
       "signOut": "Sign out",
       "scopeSwitcher": {
         "personal": {
-          "label": "Personal",
-          "description": "Personal space"
-        },
-        "workspace": {
-          "summary": "{role} / {members}",
-          "members": "{count, plural, one {# member} other {# members}}"
+          "label": "Personal"
         },
         "labels": {
           "workspaces": "Workspaces"

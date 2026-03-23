@@ -16,40 +16,23 @@ type InnerSidebarBreadcrumbsProps = {
   items: InnerSidebarNavItem[];
   rootHref: LinkHref;
   rootLabel: string;
-  scopeLabel?: string;
-  scopeHref?: LinkHref;
 };
 
 export function InnerSidebarBreadcrumbs({
   items,
   rootHref,
   rootLabel,
-  scopeLabel,
-  scopeHref,
 }: InnerSidebarBreadcrumbsProps) {
   const pathname = usePathname();
   const currentItem = getCurrentInnerSidebarNavItem(pathname, items);
   const rootPathname = getHrefPathname(rootHref);
   const currentPathname = currentItem ? getHrefPathname(currentItem.href) : null;
   const showCurrentItem = currentItem !== null && currentPathname !== rootPathname;
-  const showScope = Boolean(scopeLabel);
 
   if (!showCurrentItem) {
     return (
       <Breadcrumb>
         <BreadcrumbList>
-          {showScope && scopeLabel && (
-            <>
-              <BreadcrumbItem>
-                {scopeHref ? (
-                  <BreadcrumbLink render={<Link href={scopeHref} />}>{scopeLabel}</BreadcrumbLink>
-                ) : (
-                  <BreadcrumbPage>{scopeLabel}</BreadcrumbPage>
-                )}
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-            </>
-          )}
           <BreadcrumbItem>
             <BreadcrumbPage>{rootLabel}</BreadcrumbPage>
           </BreadcrumbItem>
@@ -61,18 +44,6 @@ export function InnerSidebarBreadcrumbs({
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {showScope && scopeLabel && (
-          <>
-            <BreadcrumbItem>
-              {scopeHref ? (
-                <BreadcrumbLink render={<Link href={scopeHref} />}>{scopeLabel}</BreadcrumbLink>
-              ) : (
-                <BreadcrumbPage>{scopeLabel}</BreadcrumbPage>
-              )}
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-          </>
-        )}
         <BreadcrumbItem>
           <BreadcrumbLink render={<Link href={rootHref} />}>{rootLabel}</BreadcrumbLink>
         </BreadcrumbItem>

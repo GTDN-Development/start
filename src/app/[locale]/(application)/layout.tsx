@@ -99,7 +99,6 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
   return (
     <ApplicationLayout
       user={user}
-      locale={locale}
       workspaces={workspaces}
       activeWorkspaceSlug={repairedActiveWorkspaceSlug}
       labels={{
@@ -108,8 +107,6 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
           accountPage: tNavigation("account"),
           personalHome: tNavigation("home"),
           website: tNavigation("website"),
-          emailNotVerified: tApplication("emailNotVerified"),
-          emailVerified: tApplication("emailVerified"),
           signOut: tApplication("signOut"),
         },
         mobileMenu: {

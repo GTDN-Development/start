@@ -62,13 +62,6 @@ export default async function Layout({
       breadcrumbs={
         <InnerSidebarBreadcrumbs
           items={innerSidebarItems}
-          scopeHref={{
-            pathname: "/w/[workspaceSlug]/overview",
-            params: {
-              workspaceSlug: workspace.slug,
-            },
-          }}
-          scopeLabel={workspace.name}
           rootHref={{
             pathname: "/w/[workspaceSlug]/settings",
             params: {

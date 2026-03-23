@@ -114,17 +114,10 @@
     },
     "application": {
       "signedInAs": "Přihlášen jako",
-      "emailVerified": "E-mail ověřen",
-      "emailNotVerified": "E-mail není ověřen",
       "signOut": "Odhlásit se",
       "scopeSwitcher": {
         "personal": {
-          "label": "Osobní",
-          "description": "Osobní prostor"
-        },
-        "workspace": {
-          "summary": "{role} / {members}",
-          "members": "{count, plural, one {# člen} few {# členové} other {# členů}}"
+          "label": "Osobní"
         },
         "labels": {
           "workspaces": "Pracovní prostory"

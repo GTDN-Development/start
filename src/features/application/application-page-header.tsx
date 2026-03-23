@@ -1,41 +1,20 @@
 "use client";
 
 import { FloatingBar } from "@/components/layout/floating-bar";
+import { BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserAccountMenu } from "@/features/account/user-account-menu";
-import { usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
-import { getWorkspaceSlugFromPathname, resolveApplicationScope } from "./application-scope";
 import { useSidebarContext } from "./application-layout";
-import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
+import { ScopeSwitcher } from "./scope-switcher";
 
 export type ApplicationPageHeaderProps = {
   breadcrumbs: React.ReactNode;
 };
 
 export function ApplicationPageHeader({ breadcrumbs }: ApplicationPageHeaderProps) {
-  const { user, locale, userMenuLabels, mobileMenuLabels, activeWorkspaceSlug, workspaces } =
-    useSidebarContext();
-  const pathname = usePathname();
-  const tNav = useTranslations("layout.navigation.items");
-  const tScopeSwitcher = useTranslations("layout.application.scopeSwitcher");
-  const applicationScope = resolveApplicationScope(pathname);
-  const pathnameWorkspaceSlug = getWorkspaceSlugFromPathname(pathname);
-  const selectedWorkspaceSlug = resolveSelectedWorkspaceSlug(
-    pathname,
-    activeWorkspaceSlug,
-    workspaces
-  );
-  const currentWorkspace =
-    workspaces.find((workspace) => workspace.slug === pathnameWorkspaceSlug) ??
-    workspaces.find((workspace) => workspace.slug === selectedWorkspaceSlug) ??
-    null;
-  const scopeLabel =
-    applicationScope === "workspace"
-      ? (currentWorkspace?.name ?? tNav("workspace"))
-      : tScopeSwitcher("personal.label");
+  const { user, userMenuLabels, mobileMenuLabels } = useSidebarContext();
 
   return (
     <FloatingBar
@@ -48,29 +27,30 @@ export function ApplicationPageHeader({ breadcrumbs }: ApplicationPageHeaderProp
         // Transition and initial state
         "transform-gpu transition duration-300",
         // Initial state
-        "bg-background/75 border-b backdrop-blur-2xl"
+        "bg-background/75 backdrop-blur-2xl"
       )}
     >
       <Container size="full" className="flex h-full min-w-0 shrink items-center gap-x-4">
         {/* Left side */}
-        <div className="flex min-w-0 flex-1 items-center gap-x-4">
+        <div className="flex min-w-0 flex-1 items-center gap-x-2">
           <SidebarTrigger
             variant="ghost"
-            size="icon-lg"
             aria-label={mobileMenuLabels.openAriaLabel}
             className="shrink-0"
           />
 
-          <span className="bg-muted text-muted-foreground inline-flex max-w-40 items-center rounded-full px-2.5 py-1 text-xs font-medium">
-            <span className="truncate">{scopeLabel}</span>
-          </span>
+          <div className="hidden w-48 min-w-0 lg:block">
+            <ScopeSwitcher />
+          </div>
 
-          <div className="min-w-0 max-lg:hidden">{breadcrumbs}</div>
+          <BreadcrumbSeparator className="hidden shrink-0 lg:block" />
+
+          <div className="min-w-0">{breadcrumbs}</div>
         </div>
 
         {/* Right side */}
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-x-4">
-          <UserAccountMenu viewer={user} locale={locale} labels={userMenuLabels} appHref="/app" />
+        <div className="flex min-w-0 items-center justify-end gap-x-4">
+          <UserAccountMenu viewer={user} labels={userMenuLabels} appHref="/app" />
         </div>
       </Container>
     </FloatingBar>
