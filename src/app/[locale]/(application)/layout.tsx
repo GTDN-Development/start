@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { ApplicationLayout } from "@/features/application/application-layout";
 import { AUTH_REDIRECTS } from "@/config/auth";
+import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
@@ -26,6 +27,8 @@ export const metadata: Metadata = {
 export default async function Layout({ children, params }: ApplicationRouteLayoutProps) {
   const { locale } = await params;
   const currentUser = await requireCurrentUser();
+
+  await applyServerAuthCookies(currentUser.ok ? undefined : currentUser.setCookie);
 
   if (!currentUser.ok) {
     redirect({

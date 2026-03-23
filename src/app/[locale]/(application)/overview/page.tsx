@@ -4,9 +4,13 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect, type AppHref } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { AUTH_REDIRECTS } from "@/config/auth";
+import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { resolvePostAuthWorkspace } from "@/server/workspaces/workspace-resolution-service";
-import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import {
+  getActiveWorkspaceSlugCookie,
+  setActiveWorkspaceSlugCookie,
+} from "@/server/workspaces/workspace-cookie";
 
 export async function generateMetadata(props: PageProps<"/[locale]/overview">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -31,6 +35,8 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
 
   const sessionResponse = await getServerAuthSession();
 
+  await applyServerAuthCookies(sessionResponse.setCookie);
+
   if (!sessionResponse.ok || !sessionResponse.data.session) {
     redirect({
       href: AUTH_REDIRECTS.unauthenticatedTo,
@@ -50,6 +56,8 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
     activeWorkspaceSlugCookie: activeWorkspaceSlug,
   });
 
+  await applyServerAuthCookies(response.setCookie);
+
   if (!response.ok) {
     redirect({
       href: AUTH_REDIRECTS.unauthenticatedTo,
@@ -60,6 +68,8 @@ export default async function Page({ params }: PageProps<"/[locale]/overview">) 
   }
 
   if (response.data.state === "workspace_redirect") {
+    await setActiveWorkspaceSlugCookie(response.data.workspaceSlug);
+
     redirect({
       href: {
         pathname: "/w/[workspaceSlug]/overview",
