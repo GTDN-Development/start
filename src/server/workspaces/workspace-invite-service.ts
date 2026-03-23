@@ -21,6 +21,7 @@ import {
   hashInviteToken,
   isDateStringExpired,
 } from "@/server/workspaces/workspace-invite-utils";
+import { createWorkspaceInviteUrl } from "@/server/workspaces/workspace-invite-url";
 import {
   mapWorkspaceInviteSummary,
   mapWorkspaceSummary,
@@ -439,6 +440,7 @@ export async function createWorkspaceInviteForCurrentUser(
           expiresAt: inviteRecord.expires_at,
           updatedAt: inviteRecord.updated,
           invitedByName: getNullableTrimmedString(adminAccess.context.user.name),
+          inviteUrl: createWorkspaceInviteUrl(inviteToken, input.locale),
         },
       },
     };
@@ -480,7 +482,14 @@ export async function resendWorkspaceInviteForCurrentUser(
   workspaceSlug: string,
   inviteId: string,
   locale: AppLocale
-): Promise<ServerWorkspaceResponse<{ inviteId: string; expiresAt: string; updatedAt: string }>> {
+): Promise<
+  ServerWorkspaceResponse<{
+    inviteId: string;
+    expiresAt: string;
+    updatedAt: string;
+    inviteUrl: string;
+  }>
+> {
   const currentUser = await requireWorkspaceAuthContext();
 
   if (!currentUser.ok) {
@@ -571,6 +580,7 @@ export async function resendWorkspaceInviteForCurrentUser(
         inviteId: updatedInviteRecord.id,
         expiresAt: updatedInviteRecord.expires_at,
         updatedAt: updatedInviteRecord.updated,
+        inviteUrl: createWorkspaceInviteUrl(nextInviteToken, locale),
       },
     };
   } catch (error) {
@@ -592,6 +602,99 @@ export async function resendWorkspaceInviteForCurrentUser(
 
     if (errorCode === "UNKNOWN_ERROR") {
       logWorkspaceServiceError("resendWorkspaceInviteForCurrentUser", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+    };
+  }
+}
+
+export async function refreshWorkspaceInviteLinkForCurrentUser(
+  workspaceSlug: string,
+  inviteId: string,
+  locale: AppLocale
+): Promise<
+  ServerWorkspaceResponse<{
+    inviteId: string;
+    expiresAt: string;
+    updatedAt: string;
+    inviteUrl: string;
+  }>
+> {
+  const currentUser = await requireWorkspaceAuthContext();
+
+  if (!currentUser.ok) {
+    return currentUser.response;
+  }
+
+  try {
+    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+
+    if (!adminAccess.ok) {
+      return adminAccess.response;
+    }
+
+    const inviteRecord = await findInviteById(
+      adminAccess.context.pb,
+      adminAccess.context.workspace.id,
+      inviteId
+    );
+
+    if (!inviteRecord) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    if (isDateStringExpired(inviteRecord.expires_at)) {
+      await safeDeleteInvite(adminAccess.context.pb, inviteRecord.id);
+
+      return {
+        ok: false,
+        errorCode: "INVITE_INVALID_OR_EXPIRED",
+      };
+    }
+
+    const nextInviteToken = createInviteToken();
+    const nextInviteHash = hashInviteToken(nextInviteToken);
+    const updatedInviteRecord = await adminAccess.context.pb
+      .collection("workspace_invites")
+      .update<WorkspaceInvitesRecord>(inviteRecord.id, {
+        token_hash: nextInviteHash,
+        expires_at: createInviteExpiryDate(),
+      });
+
+    return {
+      ok: true,
+      data: {
+        inviteId: updatedInviteRecord.id,
+        expiresAt: updatedInviteRecord.expires_at,
+        updatedAt: updatedInviteRecord.updated,
+        inviteUrl: createWorkspaceInviteUrl(nextInviteToken, locale),
+      },
+    };
+  } catch (error) {
+    const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
+      if (pocketBaseError.status === 400) {
+        return "BAD_REQUEST";
+      }
+
+      if (pocketBaseError.status === 403) {
+        return "FORBIDDEN";
+      }
+
+      if (pocketBaseError.status === 404) {
+        return "NOT_FOUND";
+      }
+
+      return null;
+    });
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logWorkspaceServiceError("refreshWorkspaceInviteLinkForCurrentUser", error);
     }
 
     return {

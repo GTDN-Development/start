@@ -23,4 +23,5 @@ export type WorkspaceSettingsInvite = {
   expiresAt: string;
   updatedAt: string;
   invitedByName: string | null;
+  inviteUrl: string | null;
 };
