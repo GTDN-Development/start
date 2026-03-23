@@ -147,7 +147,9 @@ export function ScopeSwitcher() {
                 <UserIcon aria-hidden="true" className="size-4" />
               </div>
             ) : (
-              <WorkspaceAvatar>
+              <WorkspaceAvatar
+                key={getWorkspaceAvatarStateKey(selectedWorkspace, activeWorkspaceAvatarUrl)}
+              >
                 {activeWorkspaceAvatarUrl ? (
                   <WorkspaceAvatarImage
                     src={activeWorkspaceAvatarUrl}
@@ -228,7 +230,10 @@ export function ScopeSwitcher() {
                     onClick={() => handleWorkspaceSwitch(workspace)}
                     disabled={isSwitchingWorkspace}
                   >
-                    <WorkspaceAvatar size="sm">
+                    <WorkspaceAvatar
+                      key={getWorkspaceAvatarStateKey(workspace, workspaceAvatarUrl)}
+                      size="sm"
+                    >
                       {workspaceAvatarUrl ? (
                         <WorkspaceAvatarImage
                           src={workspaceAvatarUrl}
@@ -296,6 +301,10 @@ function getWorkspaceAvatarUrl(workspace: WorkspaceOption, failedAvatarUrls: str
   }
 
   return failedAvatarUrls.includes(workspace.avatarUrl) ? null : workspace.avatarUrl;
+}
+
+function getWorkspaceAvatarStateKey(workspace: WorkspaceOption, avatarUrl: string | null) {
+  return `${workspace.id}:${avatarUrl ?? "fallback"}`;
 }
 
 function getWorkspaceSummary(
