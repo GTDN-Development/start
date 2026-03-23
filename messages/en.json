@@ -1417,20 +1417,57 @@
       "title": "Cookie Policy",
       "effectiveFrom": "Effective from:",
       "lastUpdated": "Last updated:",
-      "introduction": {
-        "title": "1. Introduction",
-        "description": "This Cookie Policy explains what cookies are and how we use them on our website"
-      },
       "whatAreCookies": {
-        "title": "2. What are cookies?",
-        "description": "Cookies are small text files that are stored on your device (computer, mobile phone) when you visit a website. In addition to cookies, we may also use localStorage and sessionStorage to store data directly in your browser. They help us ensure the website functions correctly, make it more secure, understand how it performs, and analyze what works and where it needs improvement."
+        "title": "What cookies are",
+        "description": "Cookies and similar technologies are small data files stored on or read from your device when you visit the website or use the application. They may include cookies, local storage, session storage, pixel tags, and similar identifiers."
       },
-      "howWeUseCookies": {
-        "title": "3. How we use cookies",
-        "description": "Our website uses first-party and third-party cookies for several purposes. First-party cookies are mostly necessary for the website to function the right way, and they do not collect any of your personally identifiable data. The third-party cookies used on our website are mainly for understanding how the website performs, how you interact with our website, keeping our services secure, and providing better user experience."
+      "categories": {
+        "title": "Categories we use",
+        "description": "We may use the following categories:",
+        "items": {
+          "essential": "essential cookies for technical operation, security, and consent management,",
+          "functional": "functional cookies to remember settings and preferences,",
+          "analytics": "analytics cookies to measure traffic, performance, and use of the Service,",
+          "marketing": "marketing cookies for personalization and campaign measurement, where deployed."
+        }
       },
-      "typesOfCookies": {
-        "title": "4. Types of cookies we use"
+      "legalBasis": {
+        "title": "Legal basis for cookie use",
+        "description": "We use necessary cookies because they are required for the functioning of the website or based on our legitimate interest in secure and proper operation. Optional cookies, especially functional, analytics, and marketing cookies, are used only on the basis of your consent unless law provides otherwise."
+      },
+      "purposes": {
+        "title": "Purposes of cookie use",
+        "description": "We use cookies in particular for:",
+        "items": {
+          "login": "ensuring sign-in and session handling,",
+          "preferences": "remembering settings,",
+          "consent": "managing consent,",
+          "security": "website security and abuse prevention,",
+          "analytics": "analysis of traffic and use of the Service,",
+          "marketing": "where applicable, marketing and campaign measurement."
+        }
+      },
+      "thirdParties": {
+        "title": "Third parties",
+        "description": "If we activate third-party services, cookies of those providers may be stored on or read from your device. This may typically include:",
+        "note": "The exact scope of cookies used may change over time depending on the tools actually activated."
+      },
+      "retention": {
+        "title": "Retention period",
+        "description": "Cookies may be session-based, meaning they are deleted after the browser is closed, or persistent, meaning they are stored for a certain period depending on purpose or provider settings. The specific retention period is stated in the cookie overview or cookie settings."
+      },
+      "consentManagement": {
+        "title": "How you can manage consent",
+        "description": "You can change your preferences or withdraw consent at any time through the “Cookie settings” link available on the website. Withdrawal of consent does not affect the lawfulness of prior processing.",
+        "button": "Cookie settings"
+      },
+      "browserSettings": {
+        "title": "Browser settings",
+        "description": "You may also block or delete cookies through your browser. Some parts of the website or Service may then not function properly."
+      },
+      "contact": {
+        "title": "Contact",
+        "description": "If you have questions about our use of cookies, you can contact us at {email}."
       },
       "table": {
         "name": "Name",
@@ -1461,76 +1498,133 @@
           "year": "{count, plural, one {# year} other {# years}}"
         }
       },
-      "purposes": {
+      "purposesCatalog": {
         "cookieConsent": "Stores cookie consent preferences.",
         "theme": "Stores theme preference (system/light/dark mode).",
         "ga": "Distinguishes users for analytics (with consent).",
-        "gaWildcard": "Persists GA4 session state (with consent).",
+        "gaWildcard": "Stores GA4 session state (with consent).",
         "gid": "Distinguishes users for 24 hours (with consent).",
-        "gat": "Throttles GA request rate (with consent).",
-        "gclAu": "AdSense efficiency experiments (with consent)."
-      },
-      "management": {
-        "title": "5. How to manage your storage preferences",
-        "description": "You can manage your preferences at any time using the button below or through your browser settings. You can block or delete cookies, localStorage, and sessionStorage data. Restricting these technologies may impact the functionality of this website.",
-        "button": "Change cookie settings"
-      },
-      "contact": {
-        "title": "6. Contact us",
-        "description": "If you have any questions about this policy, you can contact us at:",
-        "phone": "or by phone:"
+        "gat": "Limits GA request rate (with consent).",
+        "gclAu": "Ad measurement experiments (with consent)."
       }
     },
     "gdprPolicy": {
-      "title": "Privacy policy",
+      "title": "Privacy Policy",
       "effectiveFrom": "Effective from:",
-      "principles": "This Personal Data Processing Policy (hereinafter referred to as the \"Policy\") describes how",
-      "companyId": "ID:",
-      "headquartered": "headquartered at",
-      "controller": "(hereinafter also referred to as the \"Controller\"), processes and protects personal data of its customers, partners, and other individuals (hereinafter referred to as \"data subjects\").",
-      "websiteInfo": "This Policy applies to the processing of personal data on the website",
-      "dataCollectedTitle": "1. Personal data collected",
-      "dataCollectedDescription": "The Controller, in accordance with applicable legislation, collects and processes the following personal data:",
-      "purposesTitle": "2. Purposes of personal data processing",
-      "purposesDescription": "Personal data is processed on a lawful basis (e.g., contract performance, consent, legal obligation), especially for these purposes:",
-      "retentionTitle": "3. Personal data retention period",
-      "retentionDescription": "We retain personal data for the period necessary to achieve the purpose of processing, but no longer than",
-      "additionalInfoTitle": "Additional information",
-      "rightsTitle": "Rights of data subjects",
-      "rightsDescription": "Data subjects have the following rights under the GDPR:",
-      "defaultRights": "In accordance with GDPR, data subjects have the right to access personal data, the right to rectification, erasure, restriction of processing, data portability, and the right to object to processing. They may also withdraw their consent at any time if processing is based on consent.",
-      "contactTitle": "Contact for exercising rights",
-      "contactDescription": "To exercise your rights and for further information regarding the processing of personal data, you can contact the Controller at:",
-      "contactPhone": "or by phone:",
-      "complaintDescription": "If you believe your rights are being violated, you also have the right to file a complaint with the supervisory authority in the Czech Republic:",
-      "supervisoryAuthority": "The Office for Personal Data Protection",
-      "website": "www.uoou.cz",
-      "thirdPartiesTitle": "4. Sharing personal data with third parties",
-      "thirdPartiesDescription": "Your personal data may be accessed by the following processors and third parties:",
-      "thirdPartyService": "Service provided:",
-      "thirdPartyCountry": "Country of operation:",
+      "controller": {
+        "title": "Who is the data controller",
+        "description": "The controller of personal data is {company}, company ID {companyId}, with its registered office at {address}, email {email}, which operates the Service available at {domain}."
+      },
+      "dataCategories": {
+        "title": "What personal data we process",
+        "description": "We may process in particular:",
+        "items": {
+          "identification": "identification data, such as first name, last name, company name, and company ID,",
+          "contact": "contact data, such as email, phone number, delivery, and billing details,",
+          "account": "access and account data,",
+          "billing": "data about orders, payments, and subscriptions,",
+          "technical": "technical data, such as IP address, logs, and information about device, system, and browser,",
+          "usage": "data about use of the website and application,",
+          "support": "communications with customer support,",
+          "marketing": "marketing preferences,",
+          "cookies": "data obtained through cookies and similar technologies."
+        }
+      },
+      "sources": {
+        "title": "Sources of the data",
+        "description": "We obtain personal data:",
+        "items": {
+          "directlyFromUser": "directly from you when registering, ordering, communicating, or using the Service,",
+          "automaticCollection": "automatically when using the website and application,",
+          "partners": "from our contractual partners and service providers, such as payment or analytics tools, where necessary for contract performance, security, or legitimate interest."
+        }
+      },
+      "purposesAndLegalBases": {
+        "title": "Purposes and legal bases of processing",
+        "description": "We process personal data for the following purposes:",
+        "items": {
+          "accountAndService": "account registration and provision of the Service,",
+          "subscriptionManagement": "contract performance and subscription management,",
+          "billing": "billing and accounting,",
+          "support": "customer support and communication,",
+          "security": "security, prevention of fraud, misuse, and incidents,",
+          "productImprovement": "development, operation, diagnostics, and improvement of the Service,",
+          "legalObligations": "compliance with legal obligations,",
+          "claims": "protection and enforcement of legal claims,",
+          "marketing": "sending commercial communications where permitted by law,",
+          "analytics": "analytics, personalization, or marketing based on consent where required."
+        },
+        "legalBases": "The legal basis is in particular:",
+        "bases": {
+          "contract": "performance of a contract,",
+          "legalObligation": "compliance with a legal obligation,",
+          "legitimateInterest": "the controller’s legitimate interest,",
+          "consent": "the data subject’s consent."
+        }
+      },
+      "legitimateInterests": {
+        "title": "Legitimate interests",
+        "description": "On the basis of legitimate interest, we may process personal data in particular for:",
+        "items": {
+          "security": "ensuring the security and stability of the Service,",
+          "fraudPrevention": "prevention of fraud and misuse,",
+          "claims": "defense and assertion of legal claims,",
+          "directMarketing": "direct marketing to existing customers to the extent permitted by law,",
+          "analytics": "internal analytics and improvement of the Service."
+        }
+      },
+      "recipients": {
+        "title": "Who may access the data",
+        "description": "Personal data may be made available to our processors and other recipients, in particular:"
+      },
+      "thirdCountryTransfers": {
+        "title": "Transfers to third countries",
+        "description": "If personal data is transferred outside the European Economic Area, we do so only when the conditions set by GDPR are met, in particular on the basis of an adequacy decision, standard contractual clauses, or other appropriate safeguards."
+      },
+      "retention": {
+        "title": "How long we retain data",
+        "description": "We retain personal data only for as long as necessary to fulfill the processing purpose. Typically:",
+        "items": {
+          "account": "account data for the duration of the account and a reasonable period afterwards,",
+          "contractual": "contractual and billing data for the period required by law,",
+          "support": "communications and support requests for the time needed to resolve them and defend legal rights,",
+          "logs": "operational and security logs for a reasonable period corresponding to their purpose,",
+          "consent": "data processed on the basis of consent until the consent is withdrawn or the declared period expires."
+        }
+      },
+      "rights": {
+        "title": "Your rights",
+        "description": "You have the right to:",
+        "items": {
+          "access": "request access to your personal data,",
+          "rectification": "request rectification of inaccurate or incomplete data,",
+          "erasure": "request erasure where legal conditions are met,",
+          "restriction": "request restriction of processing,",
+          "objection": "object to processing based on legitimate interest,",
+          "portability": "data portability,",
+          "withdrawConsent": "withdraw consent at any time where processing is based on consent,",
+          "complaint": "lodge a complaint with a supervisory authority."
+        }
+      },
+      "automatedDecisionMaking": {
+        "title": "Automated decision-making",
+        "disabled": "We do not carry out decision-making based solely on automated processing that would have legal effects on you or similarly significantly affect you unless we expressly inform you otherwise.",
+        "enabled": "If decision-making based solely on automated processing with legal or similarly significant effects were to occur, you would be informed in accordance with GDPR, including the related rights."
+      },
+      "security": {
+        "title": "Security",
+        "description": "We have adopted appropriate technical and organizational measures to protect personal data, in particular access control management, transmission security, logging, backups, monitoring, and internal incident response processes."
+      },
+      "cookies": {
+        "title": "Cookies and similar technologies",
+        "description": "Details about the use of cookies and similar technologies are set out in a separate Cookie Policy."
+      },
+      "contact": {
+        "title": "Contact and complaint",
+        "description": "For data protection matters, you can contact us at {email}.",
+        "authority": "You also have the right to lodge a complaint with the Czech Data Protection Authority at www.uoou.cz."
+      },
       "defaults": {
-        "dataCollected": [
-          "First and last name",
-          "Email address",
-          "Phone number",
-          "IP address and device information",
-          "Communication history",
-          "Cookies and similar technologies",
-          "Website usage data"
-        ],
-        "dataPurposes": [
-          "Providing services and fulfilling contractual obligations",
-          "Responding to inquiries and communicating with prospective clients",
-          "Managing user accounts and customer support",
-          "Improving the quality of our services and developing new features",
-          "Marketing and promotion of our products and services (based on consent)",
-          "Compliance with legal and regulatory obligations",
-          "Fraud prevention, security, and abuse prevention",
-          "Analysis and statistical processing for internal purposes",
-          "Protecting our legitimate interests and legal claims"
-        ],
-        "dataRetention": "5 years from the end of the contractual relationship or withdrawal of consent, unless otherwise required by law",
         "thirdParties": [
           {
             "name": "FBLS Tech s.r.o.",
@@ -1579,130 +1673,169 @@
       "title": "Terms of Service",
       "effectiveFrom": "Effective from:",
       "lastUpdated": "Last updated:",
-      "introduction": "These Terms of Service govern access to and use of our software services and related websites. By creating an account, purchasing a subscription, or using the service, you agree to these Terms.",
-      "providerIdentification": {
-        "title": "1. Service provider and contact",
-        "description": "The service is provided by the following company:",
-        "companyLabel": "Company:",
-        "companyIdLabel": "Company ID:",
-        "vatIdLabel": "VAT ID:",
-        "addressLabel": "Registered address:",
-        "domainLabel": "Website:",
-        "registerLabel": "Commercial register:",
-        "registerValue": "{court}, file number {fileNumber}",
-        "supportLabel": "Support email:",
-        "phoneLabel": "Phone:"
+      "introduction": {
+        "title": "Introductory provisions",
+        "body": "These Terms govern the rights and obligations between {company}, company ID {companyId}, with its registered office at {address}, as the operator and provider of the service, and any natural or legal person using the web application, related websites, interfaces, features, content, and related services available primarily at {domain} (the “Service”).",
+        "registeredIn": "The company is registered in {register}.",
+        "contractPart": "These Terms form an integral part of every agreement concluded between the provider and the user unless expressly agreed otherwise in writing."
       },
-      "acceptance": {
-        "title": "2. Acceptance and eligibility",
-        "description": "You may use the service only in compliance with these Terms and applicable law. If you use the service on behalf of an organization, you confirm that you are authorized to bind that organization.",
-        "ageRequirement": "You must be at least {minimumAge} years old (or have valid parental/legal guardian consent where required by law)."
+      "definitions": {
+        "title": "Definitions",
+        "user": "“User” means any person who uses the Service.",
+        "customer": "“Customer” means a user who has entered into an agreement for a paid version of the Service.",
+        "account": "“Account” means the user access created for the purpose of using the Service.",
+        "userContent": "“User Content” means any data, documents, inputs, texts, files, instructions, settings, and other information uploaded by the user to the Service or otherwise processed through the Service.",
+        "output": "“Output” means any result generated or made available by the Service based on the user’s inputs, data, or activities."
+      },
+      "contractFormation": {
+        "title": "Contract formation and binding effect",
+        "description": "The contractual relationship arises in particular through:",
+        "items": {
+          "accountRegistration": "account registration,",
+          "orderConfirmation": "order confirmation,",
+          "paidPlanActivation": "activation of a paid plan,",
+          "individualOffer": "acceptance of an individual offer,",
+          "otherUse": "or any other demonstrable commencement of use of the Service after becoming familiar with these Terms."
+        },
+        "acceptance": "By using the Service, the user confirms that they have read, understood, and agree to these Terms.",
+        "authority": "If the user uses the Service on behalf of a legal entity or other organization, the user represents that they are authorized to bind that entity."
+      },
+      "serviceNature": {
+        "title": "Nature of the Service and its development",
+        "description": "The Service is provided as a SaaS solution, i.e. as a continuously provided digital service accessible online. The provider may develop, modify, and change the technical solution, user interface, features, integrations, architecture, data models, limits, security elements, and method of providing the Service, provided that this does not breach obligations arising from mandatory law or individually agreed commitments.",
+        "noSpecificFeatureGuarantee": "The provider is not obliged to preserve any specific feature, integration, or parameter of the Service for an unlimited period unless expressly guaranteed on an individual basis."
+      },
+      "providerIdentification": {
+        "registerValue": "{court}, file number {fileNumber}"
       },
       "accountSecurity": {
-        "title": "3. Account, credentials, and security",
-        "description": "You are responsible for safeguarding your login credentials and for all activity under your account. You must promptly notify us of any unauthorized access or security incident."
+        "title": "User account and security",
+        "description": "The user is required in particular to:",
+        "items": {
+          "accurateInformation": "provide complete, truthful, and up-to-date information,",
+          "credentialsProtection": "protect their login credentials and access means,",
+          "unauthorizedAccess": "ensure that unauthorized persons do not access the Service,",
+          "incidentReporting": "promptly report any suspicion of account misuse or any security incident."
+        },
+        "liability": "The user is responsible for all activity performed through their account unless they prove that the account was used solely as a result of the provider’s breach of obligations.",
+        "securityMeasures": "The provider may implement multi-factor authentication, access limits, security checks, and other protective measures."
       },
       "licenseScope": {
-        "title": "4. License and scope of use",
-        "description": "Subject to these Terms, we grant you a limited, non-exclusive, non-transferable, and revocable right to use the service for your internal lawful purposes."
-      },
-      "acceptableUse": {
-        "title": "5. Permitted use",
-        "description": "You agree to use the service responsibly, especially as follows:"
-      },
-      "prohibitedUse": {
-        "title": "6. Prohibited use",
-        "description": "You must not misuse the service. In particular, you must not:"
+        "title": "License and scope of authorization",
+        "description": "For the duration of the contractual relationship, the provider grants the user a limited, non-exclusive, non-transferable, and revocable right to use the Service to the extent corresponding to the agreed plan and intended purpose of the Service.",
+        "restrictionsIntro": "The user is not entitled in particular to:",
+        "items": {
+          "copying": "copy, sell, rent, sublicense, or otherwise commercially make the Service available to third parties unless expressly permitted,",
+          "circumvention": "circumvent technical restrictions or security mechanisms,",
+          "reverseEngineering": "perform reverse engineering, decompilation, or attempts to obtain source code unless expressly permitted by law,",
+          "harmfulUse": "use the Service in a way that could harm the provider, other users, or third parties."
+        },
+        "ipReservation": "All rights to the Service, its software, design, databases, documentation, know-how, and related elements belong to the provider or its licensors."
       },
       "userContent": {
-        "title": "7. User content and output responsibility",
-        "description": "You retain responsibility for your data, prompts, uploads, generated outputs, and how they are used."
-      },
-      "providerRights": {
-        "title": "8. Enforcement rights",
-        "description": "To protect users, infrastructure, and legal compliance, we may take measures such as:"
-      },
-      "thirdPartyServices": {
-        "title": "9. Third-party services",
-        "description": "The service may integrate third-party services (for example hosting, analytics, payments, and communication tools). Their terms and privacy policies apply to their respective services."
-      },
-      "subscriptions": {
-        "title": "10. Plans, billing, and cancellation",
-        "description": "Paid plans, billing periods, renewals, taxes, and pricing are governed by the offer shown at checkout or in your account. Unless stated otherwise, fees are non-refundable for the active billing period to the extent permitted by law."
-      },
-      "consumerRights": {
-        "title": "11. Consumer rights (EU/CZ)",
-        "description": "If you act as a consumer under applicable law, mandatory consumer protections apply in addition to these Terms.",
-        "withdrawal": "For distance contracts, consumers generally have a {withdrawalDays}-day right of withdrawal.",
-        "withdrawalException": "For digital content/services delivered before the withdrawal period ends, you may be asked to give explicit consent to immediate performance and acknowledge that this can end the right of withdrawal once performance starts.",
-        "adr": "Out-of-court consumer dispute resolution in the Czech Republic: {authority}, website {website}, email {email}, address {address}.",
-        "odrDiscontinued": "The EU Online Dispute Resolution (ODR) service was discontinued on July 20, 2025 under Regulation (EU) 2024/3228, therefore no ODR service link is provided."
-      },
-      "availabilityChanges": {
-        "title": "12. Availability, updates, and changes",
-        "description": "We may modify, update, or discontinue parts of the service for operational, security, legal, or product reasons. For material adverse changes, we aim to provide at least {noticeDays} days' prior notice where feasible."
-      },
-      "liability": {
-        "title": "13. Warranty disclaimer and limitation of liability",
-        "description": "To the maximum extent permitted by law, the service is provided \"as is\" and \"as available\". We do not guarantee uninterrupted or error-free operation. Our aggregate liability arising out of or related to these Terms is limited to the higher of (a) fees paid by you for the service in the previous {lookbackMonths} months and (b) {capAmount} {capCurrency}.",
-        "legalRightsReserved": "Nothing in these Terms limits liability that cannot be excluded under mandatory law, including liability for willful misconduct, gross negligence, or mandatory consumer rights."
-      },
-      "indemnification": {
-        "title": "14. Indemnification",
-        "description": "You agree to indemnify and hold us harmless from third-party claims, losses, damages, liabilities, costs, and expenses (including reasonable legal fees) arising from your breach of these Terms, unlawful conduct, or misuse of the service."
-      },
-      "termination": {
-        "title": "15. Suspension and termination",
-        "description": "You may stop using the service at any time. We may suspend or terminate access immediately if required by law, due to security risk, non-payment, or serious/repeated breach of these Terms."
-      },
-      "governingLaw": {
-        "title": "16. Governing law and jurisdiction",
-        "description": "Unless mandatory consumer law provides otherwise, disputes are governed and resolved as follows:",
-        "lawLabel": "Governing law:",
-        "courtLabel": "Jurisdiction:",
-        "laws": {
-          "czechRepublic": "Law of the Czech Republic"
-        },
-        "courts": {
-          "czechRepublic": "Courts of the Czech Republic"
+        "title": "User Content, data, and responsibility for use",
+        "description": "The user bears full responsibility for User Content, for the legal basis for its processing, and for the way in which the Service is used.",
+        "representationsIntro": "The user especially represents and undertakes that:",
+        "items": {
+          "rightsAndConsents": "they have all necessary rights, licenses, consents, and other authorizations for the uploaded data and content,",
+          "thirdPartyRights": "they do not infringe the rights of third parties, especially copyright, personality, contractual, competition, or data protection rights,",
+          "lawfulProcessing": "they will not process through the Service any content whose processing is unlawful or for which they lack the necessary authorization,",
+          "outputReview": "they are responsible for reviewing, validating, and assessing the suitability of any Output before using it in practice."
         }
       },
-      "additionalInfoTitle": "Additional information",
+      "prohibitedUse": {
+        "title": "Prohibited use",
+        "description": "The user may not use the Service in particular for:",
+        "items": {
+          "unlawfulConduct": "unlawful, fraudulent, deceptive, or abusive conduct,",
+          "malware": "distribution of malicious code, malware, spam, or phishing,",
+          "unauthorizedInterference": "unauthorized interference with systems, accounts, or infrastructure,",
+          "thirdPartyRights": "violating the rights of third parties,",
+          "scraping": "scraping, extraction, or automated access contrary to documentation or the reasonable purpose of the Service,",
+          "infrastructureLoad": "activities that could place an unreasonable load on infrastructure,",
+          "highImpactAutomation": "use of outputs for fully automated decision-making with significant impact on individuals’ rights without adequate human oversight and legal assessment."
+        }
+      },
+      "pricing": {
+        "title": "Pricing, invoicing, and payments",
+        "description": "The price of the Service is governed by the current price list, order, plan, or individual offer. Prices are stated without VAT unless expressly stated otherwise.",
+        "items": {
+          "prepaid": "paid services are charged in advance,",
+          "autoRenewal": "subscriptions renew automatically for the next billing period,",
+          "disableRenewal": "the user may disable renewal before the next period starts,",
+          "nonRefundable": "fees paid are non-refundable except where mandatory law or expressly agreed conditions require otherwise."
+        },
+        "thirdPartyPayments": "If payment is processed by a third party, such as Stripe, the payment transaction is also governed by that provider’s terms."
+      },
+      "trialAndBeta": {
+        "title": "Trial versions, beta features, and free plans",
+        "trials": "The provider may offer trial periods or free plans. These modes may be limited, temporary, and provided without any guarantee of availability, accuracy, or continuity.",
+        "beta": "The provider may make beta features available. They may be changed, limited, or discontinued at any time and may be subject to a different support or stability regime."
+      },
+      "availability": {
+        "title": "Availability, maintenance, and Service changes",
+        "description": "The provider uses reasonable efforts to ensure the availability, security, and functionality of the Service. However, the provider does not guarantee that the Service will be continuously available, error-free, or entirely free of vulnerabilities.",
+        "actionsIntro": "The provider is entitled in particular to:",
+        "items": {
+          "maintenance": "perform maintenance, updates, and security interventions,",
+          "restrictions": "temporarily restrict operation if necessary for technical, security, or legal reasons,",
+          "partners": "change technology partners, hosting environments, or integration layers."
+        }
+      },
+      "liability": {
+        "title": "Liability and limitation of liability",
+        "description": "To the maximum extent permitted by law, the Service is provided “as is” and “as available”.",
+        "items": {
+          "thirdPartyOutages": "outages caused by third parties, internet connectivity, or events beyond the provider’s reasonable control,",
+          "indirectDamage": "loss of profit, loss of opportunity, indirect or consequential damage,",
+          "outputUse": "damage arising from the use of Output without adequate review,",
+          "misuse": "damage caused by improper use of the Service or the user’s breach of these Terms,",
+          "thirdPartyServices": "third-party content and services."
+        },
+        "cap": "The provider’s aggregate liability for all harm arising from one or more related breaches is limited to the amount corresponding to the sum of payments made by the user during the {lookbackMonths} months preceding the claim, but at least {capAmount} {capCurrency}.",
+        "mandatoryLaw": "This limitation does not apply where liability cannot be excluded or limited under mandatory law, especially in cases of intent, gross negligence, or where mandatory consumer rights would be affected."
+      },
+      "indemnification": {
+        "title": "Indemnification by the user",
+        "description": "The user agrees to compensate the provider for damages, costs, penalties, fines, third-party claims, and reasonably incurred legal representation costs arising as a result of:",
+        "items": {
+          "termsBreach": "the user’s breach of these Terms,",
+          "unlawfulUse": "unlawful use of the Service,",
+          "userContentRights": "infringement of third-party rights by User Content,",
+          "falseStatements": "the inaccuracy of the user’s representations under these Terms."
+        }
+      },
+      "termination": {
+        "title": "Suspension and termination",
+        "description": "The provider may immediately limit or suspend access to the Service if:",
+        "items": {
+          "breach": "the user materially or repeatedly breaches these Terms,",
+          "nonPayment": "payment is overdue,",
+          "harmRisk": "harm to the provider, other users, or third parties is threatened,",
+          "securityReasons": "such intervention is necessary for security or legal reasons."
+        },
+        "dataDeletion": "After termination of the contractual relationship, the provider may delete or anonymize the account and related data after a reasonable period unless legal regulations require longer retention."
+      },
+      "confidentiality": {
+        "title": "Protection of confidential information",
+        "description": "Non-public information obtained in connection with the use of the Service is considered confidential. Each party must protect it and not use it otherwise than for the purpose of performing the contractual relationship unless statutory or contractual authorization exists."
+      },
+      "consumerRights": {
+        "title": "Consumers",
+        "description": "If the user is a consumer, the relevant mandatory provisions of consumer protection law apply in addition to these Terms.",
+        "withdrawal": "If the Service is provided as a digital service before the withdrawal period expires, the consumer may be asked before activation to give explicit consent to the start of performance and confirm that this may result in losing the right of withdrawal to the extent provided by law.",
+        "executionConsent": "Out-of-court consumer dispute resolution is provided by the Czech Trade Inspection Authority at www.coi.gov.cz.",
+        "adr": "The general withdrawal period for distance contracts is {withdrawalDays} days unless a statutory exception for digital content or digital services applies."
+      },
       "changes": {
-        "title": "Changes to these Terms",
-        "description": "We may update these Terms from time to time. Updated versions become effective on the date shown above. If changes materially affect your rights, we aim to provide at least {noticeDays} days' prior notice."
+        "title": "Changes to the Terms",
+        "description": "The provider may amend these Terms to a reasonable extent, especially when laws, technology, the scope of the Service, pricing model, or security requirements change. Users will be informed in advance of material changes in an appropriate manner. Continued use of the Service after the effective date of a change constitutes acceptance unless mandatory law requires a different procedure."
       },
-      "contact": {
-        "title": "Contact",
-        "description": "For legal and contractual matters, contact us at",
-        "phone": "or by phone:"
-      },
-      "defaults": {
-        "acceptableUse": [
-          "Use the service in accordance with applicable law and these Terms.",
-          "Provide accurate account and billing information.",
-          "Keep your credentials confidential and maintain appropriate account security.",
-          "Review and validate outputs before relying on them in legal, financial, medical, or other high-risk contexts."
-        ],
-        "prohibitedUse": [
-          "Use the service for unlawful, fraudulent, infringing, harassing, or abusive activity.",
-          "Upload or distribute malware, malicious code, or content intended to disrupt systems.",
-          "Attempt unauthorized access to the service, other accounts, or related infrastructure.",
-          "Scrape, benchmark, reverse engineer, or overload the service beyond permitted usage.",
-          "Use outputs to violate third-party rights or for fully automated high-impact decisions without meaningful human review."
-        ],
-        "userResponsibilities": [
-          "You are solely responsible for the legality, accuracy, and suitability of content you upload, generate, or share.",
-          "You represent that you have all rights, licenses, and legal bases needed for your content and processing activities.",
-          "You are responsible for how generated outputs are used and for verifying factual, legal, and technical correctness.",
-          "You bear responsibility for claims, damages, fines, and losses caused by your content, instructions, or use of the service."
-        ],
-        "providerRights": [
-          "We may remove, restrict, or disable content and accounts where required by law or where we reasonably suspect a Terms violation.",
-          "We may suspend access to mitigate security incidents, abuse, fraud, or legal risk.",
-          "Where required by law, we will provide notice and reasons for significant enforcement actions.",
-          "We may cooperate with competent authorities when legally required."
-        ]
+      "governingLaw": {
+        "title": "Governing law and jurisdiction",
+        "description": "Legal relationships arising under these Terms are governed by the laws of the Czech Republic.",
+        "consumerFallback": "If the user is a consumer, this does not affect the protection provided by the mandatory provisions of the law of the country of their habitual residence.",
+        "courts": "Disputes will be resolved by the competent courts of the Czech Republic unless mandatory law provides otherwise."
       }
     }
   },

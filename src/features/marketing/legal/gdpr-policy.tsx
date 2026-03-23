@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import type { GdprPolicyConfig } from "@/config/legal";
 
 type ThirdParty = {
   name: string;
@@ -7,40 +8,28 @@ type ThirdParty = {
 };
 
 type GdprPolicyProps = React.ComponentProps<"div"> & {
-  /** Company information */
   company: {
     name: string;
     address: string;
     id: string;
     domain: string;
   };
-  /** Contact information */
   contact: {
     email: string;
     phone?: string;
   };
-  /** Types of personal data collected (optional - defaults provided) */
-  dataCollected?: string[];
-  /** Purposes for which data is processed (optional - defaults provided) */
-  dataPurposes?: string[];
-  /** Period for which data is retained (optional - defaults provided) */
-  dataRetention?: string;
-  /** Third-party data processors who may have access to the data (optional - defaults provided) */
+  policy: GdprPolicyConfig;
   thirdParties?: ThirdParty[];
-  /** Effective date of the document */
   effectiveDate?: string;
-  /** Data subject rights (if not provided, default rights will be shown) */
-  subjectRights?: string[];
-  /** Any additional information or paragraphs */
-  additionalInfo?: React.ReactNode;
 };
 
-function toStringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+type Section = {
+  key: string;
+  content: React.ReactNode;
+};
 
-  return value.filter((item): item is string => typeof item === "string");
+function isSection(section: Section | null): section is Section {
+  return section !== null;
 }
 
 function toThirdPartiesArray(value: unknown): ThirdParty[] {
@@ -70,29 +59,218 @@ function toThirdPartiesArray(value: unknown): ThirdParty[] {
   return result;
 }
 
+function PolicySection({
+  index,
+  title,
+  children,
+}: {
+  index: number;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <h2>
+        {index}. {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
 export function GdprPolicy({
   company,
   contact,
-  dataCollected,
-  dataPurposes,
-  dataRetention,
+  policy,
   thirdParties,
   effectiveDate,
-  subjectRights,
-  additionalInfo,
   ...props
 }: GdprPolicyProps) {
   const t = useTranslations("legal.gdprPolicy");
-
-  const actualDataCollected = dataCollected ?? toStringArray(t.raw("defaults.dataCollected"));
-  const actualDataPurposes = dataPurposes ?? toStringArray(t.raw("defaults.dataPurposes"));
-  const actualDataRetention = dataRetention ?? t("defaults.dataRetention");
   const actualThirdParties = thirdParties ?? toThirdPartiesArray(t.raw("defaults.thirdParties"));
 
-  const hasThirdParties = actualThirdParties.length > 0;
-  const additionalInfoSection = hasThirdParties ? 5 : 4;
-  const rightsSection = hasThirdParties ? (additionalInfo ? 6 : 5) : additionalInfo ? 5 : 4;
-  const contactSection = hasThirdParties ? (additionalInfo ? 7 : 6) : additionalInfo ? 6 : 5;
+  const sections = [
+    {
+      key: "controller",
+      content: (
+        <p>
+          {t("controller.description", {
+            company: company.name,
+            companyId: company.id,
+            address: company.address,
+            email: contact.email,
+            domain: company.domain,
+          })}
+        </p>
+      ),
+    },
+    {
+      key: "dataCategories",
+      content: (
+        <>
+          <p>{t("dataCategories.description")}</p>
+          <ul>
+            <li>{t("dataCategories.items.identification")}</li>
+            <li>{t("dataCategories.items.contact")}</li>
+            <li>{t("dataCategories.items.account")}</li>
+            <li>{t("dataCategories.items.billing")}</li>
+            <li>{t("dataCategories.items.technical")}</li>
+            <li>{t("dataCategories.items.usage")}</li>
+            <li>{t("dataCategories.items.support")}</li>
+            {policy.features.marketingCommunications && (
+              <li>{t("dataCategories.items.marketing")}</li>
+            )}
+            {policy.features.cookies && <li>{t("dataCategories.items.cookies")}</li>}
+          </ul>
+        </>
+      ),
+    },
+    {
+      key: "sources",
+      content: (
+        <>
+          <p>{t("sources.description")}</p>
+          <ul>
+            <li>{t("sources.items.directlyFromUser")}</li>
+            <li>{t("sources.items.automaticCollection")}</li>
+            <li>{t("sources.items.partners")}</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      key: "purposesAndLegalBases",
+      content: (
+        <>
+          <p>{t("purposesAndLegalBases.description")}</p>
+          <ul>
+            <li>{t("purposesAndLegalBases.items.accountAndService")}</li>
+            <li>{t("purposesAndLegalBases.items.subscriptionManagement")}</li>
+            <li>{t("purposesAndLegalBases.items.billing")}</li>
+            <li>{t("purposesAndLegalBases.items.support")}</li>
+            <li>{t("purposesAndLegalBases.items.security")}</li>
+            <li>{t("purposesAndLegalBases.items.productImprovement")}</li>
+            <li>{t("purposesAndLegalBases.items.legalObligations")}</li>
+            <li>{t("purposesAndLegalBases.items.claims")}</li>
+            {policy.features.marketingCommunications && (
+              <li>{t("purposesAndLegalBases.items.marketing")}</li>
+            )}
+            {policy.features.analytics && <li>{t("purposesAndLegalBases.items.analytics")}</li>}
+          </ul>
+          <p>{t("purposesAndLegalBases.legalBases")}</p>
+          <ul>
+            <li>{t("purposesAndLegalBases.bases.contract")}</li>
+            <li>{t("purposesAndLegalBases.bases.legalObligation")}</li>
+            <li>{t("purposesAndLegalBases.bases.legitimateInterest")}</li>
+            <li>{t("purposesAndLegalBases.bases.consent")}</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      key: "legitimateInterests",
+      content: (
+        <>
+          <p>{t("legitimateInterests.description")}</p>
+          <ul>
+            <li>{t("legitimateInterests.items.security")}</li>
+            <li>{t("legitimateInterests.items.fraudPrevention")}</li>
+            <li>{t("legitimateInterests.items.claims")}</li>
+            {policy.features.marketingCommunications && (
+              <li>{t("legitimateInterests.items.directMarketing")}</li>
+            )}
+            <li>{t("legitimateInterests.items.analytics")}</li>
+          </ul>
+        </>
+      ),
+    },
+    actualThirdParties.length > 0
+      ? {
+          key: "recipients",
+          content: (
+            <>
+              <p>{t("recipients.description")}</p>
+              <ul>
+                {actualThirdParties.map((party) => (
+                  <li key={`${party.name}-${party.service}`}>
+                    <strong>{party.name}</strong> - {party.service}
+                    {party.country && ` (${party.country})`}
+                  </li>
+                ))}
+              </ul>
+            </>
+          ),
+        }
+      : null,
+    policy.features.thirdCountryTransfers
+      ? {
+          key: "thirdCountryTransfers",
+          content: <p>{t("thirdCountryTransfers.description")}</p>,
+        }
+      : null,
+    {
+      key: "retention",
+      content: (
+        <>
+          <p>{t("retention.description")}</p>
+          <ul>
+            <li>{t("retention.items.account")}</li>
+            <li>{t("retention.items.contractual")}</li>
+            <li>{t("retention.items.support")}</li>
+            <li>{t("retention.items.logs")}</li>
+            <li>{t("retention.items.consent")}</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      key: "rights",
+      content: (
+        <>
+          <p>{t("rights.description")}</p>
+          <ul>
+            <li>{t("rights.items.access")}</li>
+            <li>{t("rights.items.rectification")}</li>
+            <li>{t("rights.items.erasure")}</li>
+            <li>{t("rights.items.restriction")}</li>
+            <li>{t("rights.items.objection")}</li>
+            <li>{t("rights.items.portability")}</li>
+            <li>{t("rights.items.withdrawConsent")}</li>
+            <li>{t("rights.items.complaint")}</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      key: "automatedDecisionMaking",
+      content: (
+        <p>
+          {policy.automatedDecisionMaking.enabled
+            ? t("automatedDecisionMaking.enabled")
+            : t("automatedDecisionMaking.disabled")}
+        </p>
+      ),
+    },
+    {
+      key: "security",
+      content: <p>{t("security.description")}</p>,
+    },
+    policy.features.cookies
+      ? {
+          key: "cookies",
+          content: <p>{t("cookies.description")}</p>,
+        }
+      : null,
+    {
+      key: "contact",
+      content: (
+        <>
+          <p>{t("contact.description", { email: contact.email })}</p>
+          <p>{t("contact.authority")}</p>
+        </>
+      ),
+    },
+  ].filter(isSection) as Section[];
 
   return (
     <div {...props}>
@@ -104,112 +282,11 @@ export function GdprPolicy({
         </p>
       )}
 
-      <p>
-        {t("principles")} <strong>{company.name}</strong>
-        {company.id && (
-          <>
-            {" "}
-            ({t("companyId")} {company.id})
-          </>
-        )}{" "}
-        {t("headquartered")} <strong>{company.address}</strong> {t("controller")}
-      </p>
-
-      <p>
-        {t("websiteInfo")} <strong>{company.domain}</strong>.
-      </p>
-
-      <section>
-        <h2>{t("dataCollectedTitle")}</h2>
-        <p>{t("dataCollectedDescription")}</p>
-        <ul>
-          {actualDataCollected.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-        <h2>{t("purposesTitle")}</h2>
-        <p>{t("purposesDescription")}</p>
-        <ul>
-          {actualDataPurposes.map((purpose) => (
-            <li key={purpose}>{purpose}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-        <h2>{t("retentionTitle")}</h2>
-        <p>
-          {t("retentionDescription")} <strong>{actualDataRetention}</strong>.
-        </p>
-      </section>
-
-      {hasThirdParties && (
-        <section>
-          <h2>{t("thirdPartiesTitle")}</h2>
-          <p>{t("thirdPartiesDescription")}</p>
-          <ul>
-            {actualThirdParties.map((party) => (
-              <li key={`${party.name}-${party.service}`}>
-                <strong>{party.name}</strong> - {t("thirdPartyService")} {party.service}
-                {party.country && (
-                  <span>
-                    {", "} {t("thirdPartyCountry")} {party.country}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {additionalInfo && (
-        <section>
-          <h2>
-            {additionalInfoSection}. {t("additionalInfoTitle")}
-          </h2>
-          <div>{additionalInfo}</div>
-        </section>
-      )}
-
-      <section>
-        <h2>
-          {rightsSection}. {t("rightsTitle")}
-        </h2>
-        {subjectRights && subjectRights.length > 0 ? (
-          <>
-            <p>{t("rightsDescription")}</p>
-            <ul>
-              {subjectRights.map((right) => (
-                <li key={right}>{right}</li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p>{t("defaultRights")}</p>
-        )}
-      </section>
-
-      <section>
-        <h2>
-          {contactSection}. {t("contactTitle")}
-        </h2>
-        <p>
-          {t("contactDescription")} <strong>{contact.email}</strong>
-          {contact.phone && (
-            <>
-              {" "}
-              {t("contactPhone")} <strong>{contact.phone}</strong>
-            </>
-          )}
-          .
-        </p>
-        <p>
-          {t("complaintDescription")} <strong>{t("supervisoryAuthority")}</strong> ({t("website")}).
-        </p>
-      </section>
+      {sections.map((section, index) => (
+        <PolicySection key={section.key} index={index + 1} title={t(`${section.key}.title`)}>
+          {section.content}
+        </PolicySection>
+      ))}
     </div>
   );
 }

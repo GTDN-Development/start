@@ -3,7 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CookiePolicy } from "@/features/marketing/legal/cookie-policy";
 import { Container } from "@/components/ui/container";
-import { cookieCatalog, legal } from "@/config/legal";
+import { cookieCatalog, cookiePolicy, legal } from "@/config/legal";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/cookies">): Promise<Metadata> {
@@ -51,6 +51,7 @@ export default async function Page({ params }: PageProps<"/[locale]/cookies">) {
             email: legal.contact.email,
             phone: legal.contact.phone,
           }}
+          policy={cookiePolicy}
           cookies={cookieCatalog}
           effectiveDate={t("effectiveDate")}
         />

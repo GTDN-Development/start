@@ -25,45 +25,303 @@ type TermsOfServiceProps = React.ComponentProps<"div"> & {
   terms: TermsOfServiceConfig;
   effectiveDate?: string;
   lastUpdated?: string;
-  acceptableUse?: string[];
-  prohibitedUse?: string[];
-  userResponsibilities?: string[];
-  providerRights?: string[];
-  additionalInfo?: React.ReactNode;
 };
 
-function toStringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+type Section = {
+  key: string;
+  content: React.ReactNode;
+};
 
-  return value.filter((item): item is string => typeof item === "string");
+function isSection(section: Section | null): section is Section {
+  return section !== null;
+}
+
+function TermsSection({
+  index,
+  title,
+  children,
+}: {
+  index: number;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <h2>
+        {index}. {title}
+      </h2>
+      {children}
+    </section>
+  );
 }
 
 export function TermsOfService({
   company,
-  contact,
+  contact: _contact,
   terms,
   effectiveDate,
   lastUpdated,
-  acceptableUse,
-  prohibitedUse,
-  userResponsibilities,
-  providerRights,
-  additionalInfo,
   ...props
 }: TermsOfServiceProps) {
   const t = useTranslations("legal.termsOfService");
   const legalName = company.legalName ?? company.name;
 
-  const actualAcceptableUse = acceptableUse ?? toStringArray(t.raw("defaults.acceptableUse"));
-  const actualProhibitedUse = prohibitedUse ?? toStringArray(t.raw("defaults.prohibitedUse"));
-  const actualUserResponsibilities =
-    userResponsibilities ?? toStringArray(t.raw("defaults.userResponsibilities"));
-  const actualProviderRights = providerRights ?? toStringArray(t.raw("defaults.providerRights"));
-
-  const governingLaw = t(`governingLaw.laws.${terms.governingLawKey}`);
-  const governingCourt = t(`governingLaw.courts.${terms.courtVenueKey}`);
+  const sections = [
+    {
+      key: "introduction",
+      content: (
+        <>
+          <p>
+            {t("introduction.body", {
+              company: legalName,
+              companyId: company.id,
+              address: company.address,
+              domain: company.domain,
+            })}
+            {company.registration && (
+              <>
+                {" "}
+                {t("introduction.registeredIn", {
+                  register: t("providerIdentification.registerValue", {
+                    court: company.registration.court,
+                    fileNumber: company.registration.fileNumber,
+                  }),
+                })}
+              </>
+            )}
+          </p>
+          <p>{t("introduction.contractPart")}</p>
+        </>
+      ),
+    },
+    {
+      key: "definitions",
+      content: (
+        <ul>
+          <li>{t("definitions.user")}</li>
+          <li>{t("definitions.customer")}</li>
+          <li>{t("definitions.account")}</li>
+          <li>{t("definitions.userContent")}</li>
+          <li>{t("definitions.output")}</li>
+        </ul>
+      ),
+    },
+    {
+      key: "contractFormation",
+      content: (
+        <>
+          <p>{t("contractFormation.description")}</p>
+          <ul>
+            <li>{t("contractFormation.items.accountRegistration")}</li>
+            {terms.features.paidPlans && <li>{t("contractFormation.items.orderConfirmation")}</li>}
+            {terms.features.paidPlans && <li>{t("contractFormation.items.paidPlanActivation")}</li>}
+            <li>{t("contractFormation.items.individualOffer")}</li>
+            <li>{t("contractFormation.items.otherUse")}</li>
+          </ul>
+          <p>{t("contractFormation.acceptance")}</p>
+          <p>{t("contractFormation.authority")}</p>
+        </>
+      ),
+    },
+    {
+      key: "serviceNature",
+      content: (
+        <>
+          <p>{t("serviceNature.description")}</p>
+          <p>{t("serviceNature.noSpecificFeatureGuarantee")}</p>
+        </>
+      ),
+    },
+    {
+      key: "accountSecurity",
+      content: (
+        <>
+          <p>{t("accountSecurity.description")}</p>
+          <ul>
+            <li>{t("accountSecurity.items.accurateInformation")}</li>
+            <li>{t("accountSecurity.items.credentialsProtection")}</li>
+            <li>{t("accountSecurity.items.unauthorizedAccess")}</li>
+            <li>{t("accountSecurity.items.incidentReporting")}</li>
+          </ul>
+          <p>{t("accountSecurity.liability")}</p>
+          <p>{t("accountSecurity.securityMeasures")}</p>
+        </>
+      ),
+    },
+    {
+      key: "licenseScope",
+      content: (
+        <>
+          <p>{t("licenseScope.description")}</p>
+          <p>{t("licenseScope.restrictionsIntro")}</p>
+          <ul>
+            <li>{t("licenseScope.items.copying")}</li>
+            <li>{t("licenseScope.items.circumvention")}</li>
+            <li>{t("licenseScope.items.reverseEngineering")}</li>
+            <li>{t("licenseScope.items.harmfulUse")}</li>
+          </ul>
+          <p>{t("licenseScope.ipReservation")}</p>
+        </>
+      ),
+    },
+    {
+      key: "userContent",
+      content: (
+        <>
+          <p>{t("userContent.description")}</p>
+          <p>{t("userContent.representationsIntro")}</p>
+          <ul>
+            <li>{t("userContent.items.rightsAndConsents")}</li>
+            <li>{t("userContent.items.thirdPartyRights")}</li>
+            <li>{t("userContent.items.lawfulProcessing")}</li>
+            <li>{t("userContent.items.outputReview")}</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      key: "prohibitedUse",
+      content: (
+        <>
+          <p>{t("prohibitedUse.description")}</p>
+          <ul>
+            <li>{t("prohibitedUse.items.unlawfulConduct")}</li>
+            <li>{t("prohibitedUse.items.malware")}</li>
+            <li>{t("prohibitedUse.items.unauthorizedInterference")}</li>
+            <li>{t("prohibitedUse.items.thirdPartyRights")}</li>
+            <li>{t("prohibitedUse.items.scraping")}</li>
+            <li>{t("prohibitedUse.items.infrastructureLoad")}</li>
+            <li>{t("prohibitedUse.items.highImpactAutomation")}</li>
+          </ul>
+        </>
+      ),
+    },
+    terms.features.paidPlans
+      ? {
+          key: "pricing",
+          content: (
+            <>
+              <p>{t("pricing.description")}</p>
+              <ul>
+                <li>{t("pricing.items.prepaid")}</li>
+                {terms.features.autoRenewal && <li>{t("pricing.items.autoRenewal")}</li>}
+                {terms.features.autoRenewal && <li>{t("pricing.items.disableRenewal")}</li>}
+                <li>{t("pricing.items.nonRefundable")}</li>
+              </ul>
+              {terms.features.thirdPartyPayments && <p>{t("pricing.thirdPartyPayments")}</p>}
+            </>
+          ),
+        }
+      : null,
+    terms.features.trials || terms.features.betaFeatures
+      ? {
+          key: "trialAndBeta",
+          content: (
+            <>
+              {terms.features.trials && <p>{t("trialAndBeta.trials")}</p>}
+              {terms.features.betaFeatures && <p>{t("trialAndBeta.beta")}</p>}
+            </>
+          ),
+        }
+      : null,
+    {
+      key: "availability",
+      content: (
+        <>
+          <p>{t("availability.description")}</p>
+          <p>{t("availability.actionsIntro")}</p>
+          <ul>
+            <li>{t("availability.items.maintenance")}</li>
+            <li>{t("availability.items.restrictions")}</li>
+            <li>{t("availability.items.partners")}</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      key: "liability",
+      content: (
+        <>
+          <p>{t("liability.description")}</p>
+          <ul>
+            <li>{t("liability.items.thirdPartyOutages")}</li>
+            <li>{t("liability.items.indirectDamage")}</li>
+            <li>{t("liability.items.outputUse")}</li>
+            <li>{t("liability.items.misuse")}</li>
+            <li>{t("liability.items.thirdPartyServices")}</li>
+          </ul>
+          <p>
+            {t("liability.cap", {
+              lookbackMonths: terms.liabilityLookbackMonths,
+              capAmount: terms.liabilityCapAmount,
+              capCurrency: terms.liabilityCapCurrency,
+            })}
+          </p>
+          <p>{t("liability.mandatoryLaw")}</p>
+        </>
+      ),
+    },
+    {
+      key: "indemnification",
+      content: (
+        <>
+          <p>{t("indemnification.description")}</p>
+          <ul>
+            <li>{t("indemnification.items.termsBreach")}</li>
+            <li>{t("indemnification.items.unlawfulUse")}</li>
+            <li>{t("indemnification.items.userContentRights")}</li>
+            <li>{t("indemnification.items.falseStatements")}</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      key: "termination",
+      content: (
+        <>
+          <p>{t("termination.description")}</p>
+          <ul>
+            <li>{t("termination.items.breach")}</li>
+            {terms.features.paidPlans && <li>{t("termination.items.nonPayment")}</li>}
+            <li>{t("termination.items.harmRisk")}</li>
+            <li>{t("termination.items.securityReasons")}</li>
+          </ul>
+          <p>{t("termination.dataDeletion")}</p>
+        </>
+      ),
+    },
+    {
+      key: "confidentiality",
+      content: <p>{t("confidentiality.description")}</p>,
+    },
+    terms.features.consumers
+      ? {
+          key: "consumerRights",
+          content: (
+            <>
+              <p>{t("consumerRights.description")}</p>
+              <p>{t("consumerRights.adr", { withdrawalDays: terms.withdrawalPeriodDays })}</p>
+              <p>{t("consumerRights.executionConsent")}</p>
+              <p>{t("consumerRights.withdrawal")}</p>
+            </>
+          ),
+        }
+      : null,
+    {
+      key: "changes",
+      content: <p>{t("changes.description", { noticeDays: terms.changeNoticeDays })}</p>,
+    },
+    {
+      key: "governingLaw",
+      content: (
+        <>
+          <p>{t("governingLaw.description")}</p>
+          <p>{t("governingLaw.consumerFallback")}</p>
+          <p>{t("governingLaw.courts")}</p>
+        </>
+      ),
+    },
+  ].filter(isSection) as Section[];
 
   return (
     <div {...props}>
@@ -81,198 +339,11 @@ export function TermsOfService({
         </p>
       )}
 
-      <p>{t("introduction")}</p>
-
-      <section>
-        <h2>{t("providerIdentification.title")}</h2>
-        <p>{t("providerIdentification.description")}</p>
-        <ul>
-          <li>
-            <strong>{t("providerIdentification.companyLabel")}</strong> {legalName}
-          </li>
-          {company.id && (
-            <li>
-              <strong>{t("providerIdentification.companyIdLabel")}</strong> {company.id}
-            </li>
-          )}
-          {company.vatId && (
-            <li>
-              <strong>{t("providerIdentification.vatIdLabel")}</strong> {company.vatId}
-            </li>
-          )}
-          <li>
-            <strong>{t("providerIdentification.addressLabel")}</strong> {company.address}
-          </li>
-          <li>
-            <strong>{t("providerIdentification.domainLabel")}</strong> {company.domain}
-          </li>
-          {company.registration && (
-            <li>
-              <strong>{t("providerIdentification.registerLabel")}</strong>{" "}
-              {t("providerIdentification.registerValue", {
-                court: company.registration.court,
-                fileNumber: company.registration.fileNumber,
-              })}
-            </li>
-          )}
-          <li>
-            <strong>{t("providerIdentification.supportLabel")}</strong> {contact.email}
-          </li>
-          {contact.phone && (
-            <li>
-              <strong>{t("providerIdentification.phoneLabel")}</strong> {contact.phone}
-            </li>
-          )}
-        </ul>
-      </section>
-
-      <section>
-        <h2>{t("acceptance.title")}</h2>
-        <p>{t("acceptance.description")}</p>
-        <p>{t("acceptance.ageRequirement", { minimumAge: terms.minimumAge })}</p>
-      </section>
-
-      <section>
-        <h2>{t("accountSecurity.title")}</h2>
-        <p>{t("accountSecurity.description")}</p>
-      </section>
-
-      <section>
-        <h2>{t("licenseScope.title")}</h2>
-        <p>{t("licenseScope.description")}</p>
-      </section>
-
-      <section>
-        <h2>{t("acceptableUse.title")}</h2>
-        <p>{t("acceptableUse.description")}</p>
-        <ul>
-          {actualAcceptableUse.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-        <h2>{t("prohibitedUse.title")}</h2>
-        <p>{t("prohibitedUse.description")}</p>
-        <ul>
-          {actualProhibitedUse.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-        <h2>{t("userContent.title")}</h2>
-        <p>{t("userContent.description")}</p>
-        <ul>
-          {actualUserResponsibilities.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-        <h2>{t("providerRights.title")}</h2>
-        <p>{t("providerRights.description")}</p>
-        <ul>
-          {actualProviderRights.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-        <h2>{t("thirdPartyServices.title")}</h2>
-        <p>{t("thirdPartyServices.description")}</p>
-      </section>
-
-      <section>
-        <h2>{t("subscriptions.title")}</h2>
-        <p>{t("subscriptions.description")}</p>
-      </section>
-
-      <section>
-        <h2>{t("consumerRights.title")}</h2>
-        <p>{t("consumerRights.description")}</p>
-        <p>{t("consumerRights.withdrawal", { withdrawalDays: terms.withdrawalPeriodDays })}</p>
-        <p>{t("consumerRights.withdrawalException")}</p>
-        <p>
-          {t("consumerRights.adr", {
-            authority: terms.adr.authority,
-            website: terms.adr.website,
-            email: terms.adr.email,
-            address: terms.adr.address,
-          })}
-        </p>
-        <p>{t("consumerRights.odrDiscontinued")}</p>
-      </section>
-
-      <section>
-        <h2>{t("availabilityChanges.title")}</h2>
-        <p>{t("availabilityChanges.description", { noticeDays: terms.changeNoticeDays })}</p>
-      </section>
-
-      <section>
-        <h2>{t("liability.title")}</h2>
-        <p>
-          {t("liability.description", {
-            capAmount: terms.liabilityCapAmount,
-            capCurrency: terms.liabilityCapCurrency,
-            lookbackMonths: terms.liabilityLookbackMonths,
-          })}
-        </p>
-        <p>{t("liability.legalRightsReserved")}</p>
-      </section>
-
-      <section>
-        <h2>{t("indemnification.title")}</h2>
-        <p>{t("indemnification.description")}</p>
-      </section>
-
-      <section>
-        <h2>{t("termination.title")}</h2>
-        <p>{t("termination.description")}</p>
-      </section>
-
-      <section>
-        <h2>{t("governingLaw.title")}</h2>
-        <p>{t("governingLaw.description")}</p>
-        <ul>
-          <li>
-            <strong>{t("governingLaw.lawLabel")}</strong> {governingLaw}
-          </li>
-          <li>
-            <strong>{t("governingLaw.courtLabel")}</strong> {governingCourt}
-          </li>
-        </ul>
-      </section>
-
-      {additionalInfo && (
-        <section>
-          <h2>{t("additionalInfoTitle")}</h2>
-          <div>{additionalInfo}</div>
-        </section>
-      )}
-
-      <section>
-        <h2>{t("changes.title")}</h2>
-        <p>{t("changes.description", { noticeDays: terms.changeNoticeDays })}</p>
-      </section>
-
-      <section>
-        <h2>{t("contact.title")}</h2>
-        <p>
-          {t("contact.description")} <strong>{contact.email}</strong>
-          {contact.phone && (
-            <>
-              {" "}
-              {t("contact.phone")} <strong>{contact.phone}</strong>
-            </>
-          )}
-          .
-        </p>
-      </section>
+      {sections.map((section, index) => (
+        <TermsSection key={section.key} index={index + 1} title={t(`${section.key}.title`)}>
+          {section.content}
+        </TermsSection>
+      ))}
     </div>
   );
 }

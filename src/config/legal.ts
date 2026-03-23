@@ -9,11 +9,39 @@ export type TermsOfServiceConfig = {
   liabilityLookbackMonths: number;
   governingLawKey: "czechRepublic";
   courtVenueKey: "czechRepublic";
+  features: {
+    paidPlans: boolean;
+    autoRenewal: boolean;
+    trials: boolean;
+    betaFeatures: boolean;
+    consumers: boolean;
+    thirdPartyPayments: boolean;
+  };
   adr: {
     authority: string;
     website: string;
     email: string;
     address: string;
+  };
+};
+
+export type GdprPolicyConfig = {
+  features: {
+    marketingCommunications: boolean;
+    analytics: boolean;
+    cookies: boolean;
+    thirdCountryTransfers: boolean;
+  };
+  automatedDecisionMaking: {
+    enabled: boolean;
+  };
+};
+
+export type CookiePolicyConfig = {
+  features: {
+    functionalStorage: boolean;
+    analytics: boolean;
+    marketing: boolean;
   };
 };
 
@@ -69,11 +97,39 @@ export const termsOfService: TermsOfServiceConfig = {
   liabilityLookbackMonths: 12,
   governingLawKey: "czechRepublic",
   courtVenueKey: "czechRepublic",
+  features: {
+    paidPlans: true,
+    autoRenewal: true,
+    trials: true,
+    betaFeatures: true,
+    consumers: true,
+    thirdPartyPayments: true,
+  },
   adr: {
     authority: "Česká obchodní inspekce",
     website: "www.coi.gov.cz",
     email: "adr@coi.gov.cz",
     address: "Štěpánská 567/15, 120 00 Praha 2",
+  },
+};
+
+export const gdprPolicy: GdprPolicyConfig = {
+  features: {
+    marketingCommunications: true,
+    analytics: true,
+    cookies: true,
+    thirdCountryTransfers: true,
+  },
+  automatedDecisionMaking: {
+    enabled: false,
+  },
+};
+
+export const cookiePolicy: CookiePolicyConfig = {
+  features: {
+    functionalStorage: true,
+    analytics: true,
+    marketing: false,
   },
 };
 

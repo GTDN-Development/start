@@ -3,7 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { GdprPolicy } from "@/features/marketing/legal/gdpr-policy";
 import { Container } from "@/components/ui/container";
-import { legal } from "@/config/legal";
+import { gdprPolicy, legal } from "@/config/legal";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Promise<Metadata> {
@@ -51,6 +51,7 @@ export default async function Page({ params }: PageProps<"/[locale]/gdpr">) {
             email: legal.contact.email,
             phone: legal.contact.phone,
           }}
+          policy={gdprPolicy}
           effectiveDate={t("effectiveDate")}
         />
       </Container>

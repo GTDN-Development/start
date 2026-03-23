@@ -1417,20 +1417,57 @@
       "title": "Zásady cookies",
       "effectiveFrom": "Účinné od:",
       "lastUpdated": "Poslední aktualizace:",
-      "introduction": {
-        "title": "1. Úvod",
-        "description": "Tyto zásady cookies vysvětlují, co jsou cookies a jak je používáme na našem webu"
-      },
       "whatAreCookies": {
-        "title": "2. Co jsou cookies?",
-        "description": "Cookies jsou malé textové soubory, které se ukládají do vašeho zařízení (počítače, mobilního telefonu) při návštěvě webové stránky. Kromě cookies můžeme používat i localStorage a sessionStorage pro ukládání dat přímo ve vašem prohlížeči. Pomáhají nám zajistit správné fungování webu, zvýšit jeho bezpečnost, pochopit jeho výkon a zlepšovat uživatelský zážitek."
+        "title": "Co jsou cookies",
+        "description": "Cookies a obdobné technologie jsou malé datové soubory ukládané nebo čtené ve vašem zařízení při návštěvě webu nebo používání aplikace. Mohou zahrnovat zejména cookies, local storage, session storage, pixelové značky a obdobné identifikátory."
       },
-      "howWeUseCookies": {
-        "title": "3. Jak používáme cookies",
-        "description": "Náš web používá cookies první i třetí strany pro několik účelů. Cookies první strany jsou většinou nezbytné pro správné fungování webu a neshromažďují vaše osobní údaje. Cookies třetích stran používáme hlavně pro analýzu výkonu webu, interakce uživatelů, zabezpečení služeb a zlepšení uživatelského zážitku."
+      "categories": {
+        "title": "Jaké kategorie používáme",
+        "description": "Můžeme používat tyto kategorie:",
+        "items": {
+          "essential": "nezbytné cookies pro technický provoz, bezpečnost a správu souhlasu,",
+          "functional": "funkční cookies pro zapamatování nastavení a preferencí,",
+          "analytics": "analytické cookies pro měření návštěvnosti, výkonu a používání Služby,",
+          "marketing": "marketingové cookies pro personalizaci a vyhodnocení kampaní, pokud jsou nasazeny."
+        }
       },
-      "typesOfCookies": {
-        "title": "4. Typy cookies, které používáme"
+      "legalBasis": {
+        "title": "Na jakém základě cookies používáme",
+        "description": "Nezbytné cookies používáme proto, že jsou nutné pro fungování webu nebo na základě našeho oprávněného zájmu na bezpečném a řádném provozu. Nepovinné cookies, zejména funkční, analytické a marketingové, používáme pouze na základě vašeho souhlasu, pokud právní předpisy nestanoví jinak."
+      },
+      "purposes": {
+        "title": "K jakým účelům cookies používáme",
+        "description": "Cookies používáme zejména za účelem:",
+        "items": {
+          "login": "zajištění přihlášení a relace,",
+          "preferences": "zapamatování nastavení,",
+          "consent": "správy souhlasu,",
+          "security": "zabezpečení webu a prevence zneužití,",
+          "analytics": "analýzy návštěvnosti a používání Služby,",
+          "marketing": "případně marketingu a měření kampaní."
+        }
+      },
+      "thirdParties": {
+        "title": "Třetí strany",
+        "description": "Pokud aktivujeme služby třetích stran, mohou být do zařízení ukládány nebo z něj čteny cookies těchto poskytovatelů. Typicky může jít o:",
+        "note": "Konkrétní rozsah použitých cookies se může v čase měnit podle skutečně aktivovaných nástrojů."
+      },
+      "retention": {
+        "title": "Doba uložení",
+        "description": "Cookies mohou být relační, tedy mazány po zavření prohlížeče, nebo trvalé, tedy uložené po určitou dobu podle účelu nebo nastavení poskytovatele. Konkrétní délka uchování se uvádí v přehledu cookies nebo v nastavení cookies."
+      },
+      "consentManagement": {
+        "title": "Jak můžete souhlas spravovat",
+        "description": "Své preference můžete kdykoli změnit nebo souhlas odvolat prostřednictvím odkazu „Nastavení cookies“ dostupného na webu. Odvolání souhlasu nemá vliv na zákonnost předchozího zpracování.",
+        "button": "Nastavení cookies"
+      },
+      "browserSettings": {
+        "title": "Nastavení prohlížeče",
+        "description": "Cookies můžete rovněž blokovat nebo mazat prostřednictvím svého prohlížeče. Některé části webu nebo Služby však poté nemusí fungovat správně."
+      },
+      "contact": {
+        "title": "Kontakt",
+        "description": "V případě dotazů k používání cookies nás můžete kontaktovat na {email}."
       },
       "table": {
         "name": "Název",
@@ -1461,7 +1498,7 @@
           "year": "{count, plural, one {# rok} few {# roky} other {# let}}"
         }
       },
-      "purposes": {
+      "purposesCatalog": {
         "cookieConsent": "Ukládá preference souhlasu s cookies.",
         "theme": "Ukládá preferenci motivu (systémový/světlý/tmavý režim).",
         "ga": "Rozlišuje uživatele pro analytiku (se souhlasem).",
@@ -1469,68 +1506,125 @@
         "gid": "Rozlišuje uživatele po dobu 24 hodin (se souhlasem).",
         "gat": "Omezuje četnost požadavků GA (se souhlasem).",
         "gclAu": "Experimenty efektivity AdSense (se souhlasem)."
-      },
-      "management": {
-        "title": "5. Jak spravovat preference úložiště",
-        "description": "Své preference můžete kdykoli upravit pomocí tlačítka níže nebo v nastavení prohlížeče. Můžete blokovat nebo mazat cookies, localStorage i sessionStorage data. Omezení těchto technologií může ovlivnit funkčnost webu.",
-        "button": "Změnit nastavení cookies"
-      },
-      "contact": {
-        "title": "6. Kontaktujte nás",
-        "description": "Pokud máte jakékoli dotazy k těmto zásadám, můžete nás kontaktovat na:",
-        "phone": "nebo telefonicky:"
       }
     },
     "gdprPolicy": {
       "title": "Zásady ochrany osobních údajů",
       "effectiveFrom": "Účinné od:",
-      "principles": "Tyto zásady zpracování osobních údajů (dále jen \"Zásady\") popisují, jak společnost",
-      "companyId": "IČO:",
-      "headquartered": "se sídlem",
-      "controller": "(dále jen \"Správce\") zpracovává a chrání osobní údaje svých zákazníků, partnerů a dalších osob (dále jen \"subjekty údajů\").",
-      "websiteInfo": "Tyto zásady se vztahují na zpracování osobních údajů na webové stránce",
-      "dataCollectedTitle": "1. Shromažďované osobní údaje",
-      "dataCollectedDescription": "Správce v souladu s platnou legislativou shromažďuje a zpracovává zejména následující osobní údaje:",
-      "purposesTitle": "2. Účely zpracování osobních údajů",
-      "purposesDescription": "Osobní údaje jsou zpracovávány na zákonném základě (např. plnění smlouvy, souhlas, zákonná povinnost), zejména pro tyto účely:",
-      "retentionTitle": "3. Doba uchování osobních údajů",
-      "retentionDescription": "Osobní údaje uchováváme po dobu nezbytně nutnou pro dosažení účelu zpracování, nejdéle však",
-      "additionalInfoTitle": "Další informace",
-      "rightsTitle": "Práva subjektů údajů",
-      "rightsDescription": "Subjekty údajů mají podle GDPR následující práva:",
-      "defaultRights": "Subjekty údajů mají v souladu s GDPR právo na přístup k osobním údajům, opravu, výmaz, omezení zpracování, přenositelnost a právo vznést námitku proti zpracování. Pokud je zpracování založeno na souhlasu, mohou jej kdykoli odvolat.",
-      "contactTitle": "Kontakt pro uplatnění práv",
-      "contactDescription": "Pro uplatnění vašich práv a další informace o zpracování osobních údajů můžete kontaktovat Správce na:",
-      "contactPhone": "nebo telefonicky:",
-      "complaintDescription": "Pokud se domníváte, že jsou vaše práva porušována, máte právo podat stížnost u dozorového úřadu v ČR:",
-      "supervisoryAuthority": "Úřad pro ochranu osobních údajů",
-      "website": "www.uoou.cz",
-      "thirdPartiesTitle": "4. Předávání osobních údajů třetím stranám",
-      "thirdPartiesDescription": "Vaše osobní údaje mohou být zpřístupněny následujícím zpracovatelům a třetím stranám:",
-      "thirdPartyService": "Poskytovaná služba:",
-      "thirdPartyCountry": "Země působení:",
+      "controller": {
+        "title": "Kdo je správcem osobních údajů",
+        "description": "Správcem osobních údajů je {company}, IČO {companyId}, se sídlem {address}, e-mail {email}, která provozuje Službu dostupnou na {domain}."
+      },
+      "dataCategories": {
+        "title": "Jaké osobní údaje zpracováváme",
+        "description": "Můžeme zpracovávat zejména:",
+        "items": {
+          "identification": "identifikační údaje, například jméno, příjmení, název společnosti, IČO,",
+          "contact": "kontaktní údaje, například e-mail, telefon, doručovací a fakturační údaje,",
+          "account": "přístupové a účtové údaje,",
+          "billing": "údaje o objednávkách, platbách a předplatném,",
+          "technical": "technické údaje, například IP adresu, logy, informace o zařízení, systému a prohlížeči,",
+          "usage": "údaje o používání webu a aplikace,",
+          "support": "komunikaci se zákaznickou podporou,",
+          "marketing": "marketingové preference,",
+          "cookies": "údaje získané prostřednictvím cookies a obdobných technologií."
+        }
+      },
+      "sources": {
+        "title": "Z jakých zdrojů údaje získáváme",
+        "description": "Osobní údaje získáváme:",
+        "items": {
+          "directlyFromUser": "přímo od vás při registraci, objednávce, komunikaci nebo používání Služby,",
+          "automaticCollection": "automaticky při používání webu a aplikace,",
+          "partners": "od našich smluvních partnerů a poskytovatelů služeb, například platebních nebo analytických nástrojů, pokud je to nutné pro plnění smlouvy, bezpečnost nebo oprávněný zájem."
+        }
+      },
+      "purposesAndLegalBases": {
+        "title": "Pro jaké účely a na jakém právním základě údaje zpracováváme",
+        "description": "Osobní údaje zpracováváme za těmito účely:",
+        "items": {
+          "accountAndService": "registrace účtu a poskytování Služby,",
+          "subscriptionManagement": "plnění smlouvy a správa předplatného,",
+          "billing": "fakturace a účetní agenda,",
+          "support": "zákaznická podpora a komunikace,",
+          "security": "zabezpečení, prevence podvodů, zneužití a incidentů,",
+          "productImprovement": "vývoj, provoz, diagnostika a zlepšování Služby,",
+          "legalObligations": "plnění právních povinností,",
+          "claims": "ochrana a vymáhání právních nároků,",
+          "marketing": "zasílání obchodních sdělení, pokud to právní předpisy umožňují,",
+          "analytics": "analytika, personalizace nebo marketing na základě souhlasu, je-li vyžadován."
+        },
+        "legalBases": "Právním základem je zejména:",
+        "bases": {
+          "contract": "plnění smlouvy,",
+          "legalObligation": "plnění právní povinnosti,",
+          "legitimateInterest": "oprávněný zájem správce,",
+          "consent": "souhlas subjektu údajů."
+        }
+      },
+      "legitimateInterests": {
+        "title": "Oprávněné zájmy",
+        "description": "Na základě oprávněného zájmu můžeme zpracovávat osobní údaje zejména za účelem:",
+        "items": {
+          "security": "zajištění bezpečnosti a stability Služby,",
+          "fraudPrevention": "prevence podvodů a zneužití,",
+          "claims": "obrany a uplatňování právních nároků,",
+          "directMarketing": "přímého marketingu vůči stávajícím zákazníkům v rozsahu dovoleném právními předpisy,",
+          "analytics": "interní analytiky a zlepšování fungování Služby."
+        }
+      },
+      "recipients": {
+        "title": "Komu mohou být údaje zpřístupněny",
+        "description": "Osobní údaje mohou být zpřístupněny našim zpracovatelům a dalším příjemcům, zejména:"
+      },
+      "thirdCountryTransfers": {
+        "title": "Předávání do třetích zemí",
+        "description": "Pokud dochází k předání osobních údajů mimo Evropský hospodářský prostor, činíme tak pouze při splnění podmínek stanovených GDPR, zejména na základě rozhodnutí o odpovídající ochraně, standardních smluvních doložek nebo jiných vhodných záruk."
+      },
+      "retention": {
+        "title": "Jak dlouho údaje uchováváme",
+        "description": "Osobní údaje uchováváme pouze po dobu nezbytnou pro naplnění účelu zpracování. Typicky:",
+        "items": {
+          "account": "údaje o účtu po dobu trvání účtu a přiměřenou dobu poté,",
+          "contractual": "smluvní a fakturační údaje po dobu vyžadovanou právními předpisy,",
+          "support": "komunikaci a supportní požadavky po dobu nutnou k vyřízení a obraně práv,",
+          "logs": "provozní a bezpečnostní logy po přiměřenou dobu odpovídající jejich účelu,",
+          "consent": "údaje zpracovávané na základě souhlasu do odvolání souhlasu nebo do uplynutí deklarované doby."
+        }
+      },
+      "rights": {
+        "title": "Jaká máte práva",
+        "description": "Máte právo:",
+        "items": {
+          "access": "požadovat přístup ke svým osobním údajům,",
+          "rectification": "požadovat opravu nepřesných nebo neúplných údajů,",
+          "erasure": "požadovat výmaz, jsou-li splněny zákonné podmínky,",
+          "restriction": "požadovat omezení zpracování,",
+          "objection": "vznést námitku proti zpracování založenému na oprávněném zájmu,",
+          "portability": "na přenositelnost údajů,",
+          "withdrawConsent": "kdykoli odvolat souhlas, pokud je zpracování na souhlasu založeno,",
+          "complaint": "podat stížnost u dozorového úřadu."
+        }
+      },
+      "automatedDecisionMaking": {
+        "title": "Automatizované rozhodování",
+        "disabled": "Neprovádíme rozhodování založené výhradně na automatizovaném zpracování, které by pro vás mělo právní účinky nebo se vás obdobně významně dotýkalo, pokud vás o tom výslovně neinformujeme.",
+        "enabled": "Pokud by docházelo k rozhodování založenému výhradně na automatizovaném zpracování s právními nebo obdobně významnými účinky, budete o tom informováni v souladu s GDPR, včetně souvisejících práv."
+      },
+      "security": {
+        "title": "Zabezpečení",
+        "description": "Přijali jsme přiměřená technická a organizační opatření k ochraně osobních údajů, zejména řízení přístupových oprávnění, zabezpečení přenosu, logování, zálohování, monitoring a interní procesy pro řešení incidentů."
+      },
+      "cookies": {
+        "title": "Cookies a obdobné technologie",
+        "description": "Podrobnosti o používání cookies a obdobných technologií jsou uvedeny v samostatných Zásadách cookies."
+      },
+      "contact": {
+        "title": "Kontakt a stížnost",
+        "description": "Ve věcech ochrany osobních údajů nás můžete kontaktovat na {email}.",
+        "authority": "Máte také právo podat stížnost u Úřadu pro ochranu osobních údajů, www.uoou.cz."
+      },
       "defaults": {
-        "dataCollected": [
-          "Jméno a příjmení",
-          "E-mailová adresa",
-          "Telefonní číslo",
-          "IP adresa a informace o zařízení",
-          "Historie vzájemné komunikace",
-          "Cookies a podobné technologie",
-          "Údaje o používání webových stránek"
-        ],
-        "dataPurposes": [
-          "Poskytování služeb a plnění smluvních závazků",
-          "Odpovědi na dotazy a komunikace se zájemci o služby",
-          "Správa uživatelských účtů a zákaznická podpora",
-          "Zlepšování kvality našich služeb a vývoj nových funkcí",
-          "Marketing a propagace našich produktů a služeb (na základě souhlasu)",
-          "Plnění zákonných a regulatorních povinností",
-          "Ochrana před podvody, zabezpečení a prevence zneužití",
-          "Analýza a statistické zpracování pro interní účely",
-          "Ochrana našich oprávněných zájmů a právních nároků"
-        ],
-        "dataRetention": "5 let od ukončení smluvního vztahu nebo odvolání souhlasu, není-li zákonem stanoveno jinak",
         "thirdParties": [
           {
             "name": "FBLS Tech s.r.o.",
@@ -1579,130 +1673,169 @@
       "title": "Obchodní podmínky",
       "effectiveFrom": "Účinné od:",
       "lastUpdated": "Poslední aktualizace:",
-      "introduction": "Tyto obchodní podmínky upravují přístup k našim softwarovým službám a souvisejícím webům a jejich používání. Vytvořením účtu, zakoupením předplatného nebo používáním služby vyjadřujete souhlas s těmito podmínkami.",
-      "providerIdentification": {
-        "title": "1. Poskytovatel služby a kontakt",
-        "description": "Službu poskytuje následující společnost:",
-        "companyLabel": "Společnost:",
-        "companyIdLabel": "IČO:",
-        "vatIdLabel": "DIČ:",
-        "addressLabel": "Sídlo:",
-        "domainLabel": "Web:",
-        "registerLabel": "Obchodní rejstřík:",
-        "registerValue": "{court}, spisová značka {fileNumber}",
-        "supportLabel": "Kontaktní e-mail:",
-        "phoneLabel": "Telefon:"
+      "introduction": {
+        "title": "Úvodní ustanovení",
+        "body": "Tyto obchodní podmínky upravují práva a povinnosti mezi společností {company}, IČO {companyId}, se sídlem {address}, jako provozovatelem a poskytovatelem služby, a fyzickou nebo právnickou osobou, která využívá webovou aplikaci, související webové stránky, rozhraní, funkce, obsah a související služby dostupné zejména na adrese {domain} dále jen „Služba“.",
+        "registeredIn": "Společnost je zapsaná v {register}.",
+        "contractPart": "Tyto obchodní podmínky tvoří nedílnou součást každé smlouvy uzavřené mezi poskytovatelem a uživatelem, není-li výslovně písemně sjednáno jinak."
       },
-      "acceptance": {
-        "title": "2. Přijetí podmínek a způsobilost",
-        "description": "Službu můžete používat pouze v souladu s těmito podmínkami a platnými právními předpisy. Pokud službu používáte jménem organizace, potvrzujete, že jste oprávněni tuto organizaci zavázat.",
-        "ageRequirement": "Musíte být starší {minimumAge} let (nebo mít platný souhlas rodiče/zákonného zástupce, pokud to vyžaduje zákon)."
+      "definitions": {
+        "title": "Vymezení pojmů",
+        "user": "„Uživatel“ je osoba, která Službu používá.",
+        "customer": "„Zákazník“ je uživatel, který uzavřel smlouvu o poskytování placené varianty Služby.",
+        "account": "„Účet“ je uživatelský přístup vytvořený za účelem používání Služby.",
+        "userContent": "„Obsah uživatele“ jsou veškerá data, dokumenty, vstupy, texty, soubory, pokyny, nastavení a jiné informace vložené uživatelem do Služby nebo prostřednictvím Služby zpracovávané.",
+        "output": "„Výstup“ je jakýkoli výsledek vytvořený nebo zpřístupněný Službou na základě vstupů, dat nebo aktivit uživatele."
+      },
+      "contractFormation": {
+        "title": "Uzavření smlouvy a závaznost podmínek",
+        "description": "Smluvní vztah vzniká zejména:",
+        "items": {
+          "accountRegistration": "registrací účtu,",
+          "orderConfirmation": "potvrzením objednávky,",
+          "paidPlanActivation": "aktivací placeného tarifu,",
+          "individualOffer": "přijetím individuální nabídky,",
+          "otherUse": "nebo jiným prokazatelným zahájením používání Služby po seznámení s těmito podmínkami."
+        },
+        "acceptance": "Používáním Služby uživatel potvrzuje, že se s těmito podmínkami seznámil, rozumí jim a souhlasí s nimi.",
+        "authority": "Používá-li uživatel Službu jménem právnické osoby nebo jiné organizace, prohlašuje, že je oprávněn tuto osobu zavázat."
+      },
+      "serviceNature": {
+        "title": "Charakter Služby a její vývoj",
+        "description": "Služba je poskytována jako SaaS řešení, tedy jako průběžně poskytovaná digitální služba přístupná online. Poskytovatel je oprávněn Službu rozvíjet, upravovat, měnit její technické řešení, uživatelské rozhraní, funkce, integrace, architekturu, datové modely, limity, bezpečnostní prvky a způsob poskytování, pokud tím neporuší své povinnosti vyplývající z kogentních právních předpisů nebo individuálně sjednaných závazků.",
+        "noSpecificFeatureGuarantee": "Poskytovatel není povinen zachovat konkrétní funkci, integraci nebo parametr Služby po neomezenou dobu, pokud nebyl výslovně individuálně garantován."
+      },
+      "providerIdentification": {
+        "registerValue": "{court}, spisová značka {fileNumber}"
       },
       "accountSecurity": {
-        "title": "3. Účet, přístupové údaje a zabezpečení",
-        "description": "Odpovídáte za ochranu přístupových údajů a za veškerou aktivitu provedenou pod vaším účtem. Jakýkoli podezřelý přístup nebo bezpečnostní incident nám musíte bez zbytečného odkladu nahlásit."
+        "title": "Uživatelský účet a zabezpečení",
+        "description": "Uživatel je povinen zejména:",
+        "items": {
+          "accurateInformation": "uvádět úplné, pravdivé a aktuální údaje,",
+          "credentialsProtection": "chránit své přihlašovací údaje a přístupové prostředky,",
+          "unauthorizedAccess": "zajistit, aby ke Službě nepřistupovaly neoprávněné osoby,",
+          "incidentReporting": "bezodkladně oznámit jakékoli podezření na zneužití účtu nebo bezpečnostní incident."
+        },
+        "liability": "Uživatel odpovídá za veškerou činnost provedenou prostřednictvím svého účtu, ledaže prokáže, že došlo k použití účtu výlučně v důsledku porušení povinností poskytovatele.",
+        "securityMeasures": "Poskytovatel je oprávněn zavést vícefaktorové ověřování, limity přístupů, bezpečnostní kontroly a další ochranná opatření."
       },
       "licenseScope": {
-        "title": "4. Licence a rozsah použití",
-        "description": "Za podmínek uvedených v tomto dokumentu vám udělujeme omezené, nevýhradní, nepřevoditelné a odvolatelné oprávnění službu používat pro vaše interní a zákonné účely."
-      },
-      "acceptableUse": {
-        "title": "5. Povolené používání",
-        "description": "Službu jste povinni používat odpovědně, zejména následujícím způsobem:"
-      },
-      "prohibitedUse": {
-        "title": "6. Zakázané používání",
-        "description": "Službu nesmíte zneužívat. Zejména nesmíte:"
+        "title": "Licence a rozsah oprávnění",
+        "description": "Poskytovatel uděluje uživateli po dobu trvání smluvního vztahu omezené, nevýhradní, nepřevoditelné a odvolatelné oprávnění užívat Službu v rozsahu odpovídajícím sjednanému tarifu a účelu, pro který je Služba určena.",
+        "restrictionsIntro": "Uživatel není oprávněn zejména:",
+        "items": {
+          "copying": "Službu kopírovat, prodávat, pronajímat, sublicencovat nebo jinak komerčně zpřístupňovat třetím osobám, pokud to není výslovně umožněno,",
+          "circumvention": "obcházet technická omezení nebo bezpečnostní mechanismy,",
+          "reverseEngineering": "provádět reverzní inženýrství, dekompilaci nebo pokusy o získání zdrojového kódu, pokud to právní předpisy výslovně neumožňují,",
+          "harmfulUse": "používat Službu způsobem, který by mohl poškodit poskytovatele, jiné uživatele nebo třetí osoby."
+        },
+        "ipReservation": "Veškerá práva ke Službě, jejímu software, designu, databázím, dokumentaci, know-how a souvisejícím prvkům náleží poskytovateli nebo jeho licenčním partnerům."
       },
       "userContent": {
-        "title": "7. Uživatelský obsah a odpovědnost za výstupy",
-        "description": "Za svá data, zadání, nahraný obsah, vygenerované výstupy i způsob jejich použití odpovídáte vy."
-      },
-      "providerRights": {
-        "title": "8. Oprávnění k zásahu",
-        "description": "Za účelem ochrany uživatelů, infrastruktury a souladu s právem můžeme provést zejména následující kroky:"
-      },
-      "thirdPartyServices": {
-        "title": "9. Služby třetích stran",
-        "description": "Služba může využívat integrace třetích stran (např. hosting, analytiku, platby nebo komunikační nástroje). Na tyto služby se vztahují jejich vlastní podmínky a zásady ochrany soukromí."
-      },
-      "subscriptions": {
-        "title": "10. Tarify, platby a zrušení",
-        "description": "Placené tarify, fakturační období, automatická obnova, daně a ceny se řídí nabídkou uvedenou při objednávce nebo v účtu. Není-li uvedeno jinak, poplatky za aktivní fakturační období jsou v rozsahu dovoleném právem nevratné."
-      },
-      "consumerRights": {
-        "title": "11. Práva spotřebitele (EU/ČR)",
-        "description": "Pokud vystupujete jako spotřebitel, použijí se kromě těchto podmínek také kogentní ustanovení na ochranu spotřebitele.",
-        "withdrawal": "U smluv uzavřených na dálku má spotřebitel obecně právo odstoupit od smlouvy ve lhůtě {withdrawalDays} dnů.",
-        "withdrawalException": "U digitálního obsahu/služeb poskytovaných před uplynutím lhůty pro odstoupení vás můžeme požádat o výslovný souhlas se zahájením plnění a o potvrzení, že tím může právo na odstoupení zaniknout po zahájení plnění.",
-        "adr": "Mimosoudní řešení spotřebitelských sporů v ČR: {authority}, web {website}, e-mail {email}, adresa {address}.",
-        "odrDiscontinued": "Evropská služba online řešení sporů (ODR) byla k 20. červenci 2025 zrušena nařízením (EU) 2024/3228, proto zde odkaz na ODR službu není uveden."
-      },
-      "availabilityChanges": {
-        "title": "12. Dostupnost, aktualizace a změny služby",
-        "description": "Službu můžeme měnit, aktualizovat nebo ukončit z provozních, bezpečnostních, právních nebo produktových důvodů. U podstatných změn s negativním dopadem se budeme, pokud to bude možné, snažit poskytnout upozornění alespoň {noticeDays} dní předem."
-      },
-      "liability": {
-        "title": "13. Vyloučení záruk a omezení odpovědnosti",
-        "description": "V maximálním rozsahu dovoleném právem je služba poskytována \"tak jak je\" a \"jak je dostupná\". Nezaručujeme nepřerušený nebo bezchybný provoz. Souhrnná odpovědnost poskytovatele z těchto podmínek nebo v souvislosti s nimi je omezena na vyšší z částek: (a) částka uhrazená uživatelem za službu za předchozích {lookbackMonths} měsíců a (b) {capAmount} {capCurrency}.",
-        "legalRightsReserved": "Nic v těchto podmínkách neomezuje odpovědnost, kterou nelze podle kogentních právních předpisů vyloučit, zejména odpovědnost za úmysl, hrubou nedbalost nebo zákonná práva spotřebitele."
-      },
-      "indemnification": {
-        "title": "14. Náhrada újmy (odškodnění)",
-        "description": "Zavazujete se nahradit nám škodu a účelně vynaložené náklady (včetně přiměřených nákladů na právní zastoupení), které vzniknou v důsledku porušení těchto podmínek, protiprávního jednání nebo zneužití služby z vaší strany."
-      },
-      "termination": {
-        "title": "15. Pozastavení a ukončení",
-        "description": "Službu můžete kdykoli přestat používat. My můžeme přístup okamžitě pozastavit nebo ukončit, pokud to vyžaduje zákon, hrozí bezpečnostní riziko, dojde k neuhrazení plateb nebo k závažnému/opakovanému porušení těchto podmínek."
-      },
-      "governingLaw": {
-        "title": "16. Rozhodné právo a příslušnost",
-        "description": "Není-li kogentním právem na ochranu spotřebitele stanoveno jinak, spory se řídí a řeší následovně:",
-        "lawLabel": "Rozhodné právo:",
-        "courtLabel": "Příslušnost soudů:",
-        "laws": {
-          "czechRepublic": "Právní řád České republiky"
-        },
-        "courts": {
-          "czechRepublic": "Soudy České republiky"
+        "title": "Obsah uživatele, data a odpovědnost za použití",
+        "description": "Uživatel nese plnou odpovědnost za Obsah uživatele, za právní titul k jeho zpracování a za způsob, jakým Službu používá.",
+        "representationsIntro": "Uživatel zejména prohlašuje a zavazuje se, že:",
+        "items": {
+          "rightsAndConsents": "má všechna potřebná práva, licence, souhlasy a jiná oprávnění k vloženým datům a obsahu,",
+          "thirdPartyRights": "neporušuje práva třetích osob, zejména práva autorská, osobnostní, smluvní, soutěžní nebo práva na ochranu osobních údajů,",
+          "lawfulProcessing": "nebude prostřednictvím Služby zpracovávat obsah, jehož zpracování je protiprávní nebo k němuž nemá potřebné oprávnění,",
+          "outputReview": "odpovídá za kontrolu, validaci a vhodnost jakýchkoli Výstupů před jejich použitím v praxi."
         }
       },
-      "additionalInfoTitle": "Doplňující informace",
+      "prohibitedUse": {
+        "title": "Zakázané použití",
+        "description": "Uživatel nesmí Službu používat zejména k:",
+        "items": {
+          "unlawfulConduct": "protiprávnímu, podvodnému, klamavému nebo zneužívajícímu jednání,",
+          "malware": "šíření škodlivého kódu, malware, spamu nebo phishingu,",
+          "unauthorizedInterference": "neoprávněným zásahům do systémů, účtů nebo infrastruktury,",
+          "thirdPartyRights": "porušování práv třetích osob,",
+          "scraping": "vytěžování, scrapingu nebo automatizovanému přístupu v rozporu s dokumentací nebo přiměřeným účelem Služby,",
+          "infrastructureLoad": "činnostem, které by mohly nepřiměřeně zatěžovat infrastrukturu,",
+          "highImpactAutomation": "použití výstupů pro plně automatizované rozhodování s významným dopadem na práva osob bez odpovídající lidské kontroly a právního posouzení."
+        }
+      },
+      "pricing": {
+        "title": "Ceny, fakturace a platby",
+        "description": "Cena Služby se řídí aktuálním ceníkem, objednávkou, tarifem nebo individuální nabídkou. Ceny jsou uvedeny bez DPH, není-li výslovně uvedeno jinak.",
+        "items": {
+          "prepaid": "placené služby jsou hrazeny předem,",
+          "autoRenewal": "předplatné se obnovuje automaticky na další fakturační období,",
+          "disableRenewal": "uživatel může obnovu vypnout před začátkem dalšího období,",
+          "nonRefundable": "uhrazené poplatky jsou nevratné, s výjimkou případů, kdy to vyžaduje kogentní právo nebo výslovně sjednané podmínky."
+        },
+        "thirdPartyPayments": "Je-li platba zprostředkována třetí stranou, například společností Stripe, řídí se platební transakce také podmínkami tohoto poskytovatele."
+      },
+      "trialAndBeta": {
+        "title": "Zkušební verze, beta funkce a bezplatné plány",
+        "trials": "Poskytovatel může nabízet zkušební období nebo bezplatné tarify. Tyto režimy mohou být omezené, dočasné a poskytované bez záruky dostupnosti, přesnosti nebo kontinuity.",
+        "beta": "Poskytovatel může zpřístupňovat beta funkce. Ty mohou být kdykoli změněny, omezeny nebo ukončeny a mohou podléhat odlišnému režimu podpory nebo stability."
+      },
+      "availability": {
+        "title": "Dostupnost, údržba a změny Služby",
+        "description": "Poskytovatel vyvíjí přiměřené úsilí k zajištění dostupnosti, bezpečnosti a funkčnosti Služby. Nezaručuje však, že Služba bude nepřetržitě dostupná, bezchybná nebo zcela prostá zranitelností.",
+        "actionsIntro": "Poskytovatel je oprávněn zejména:",
+        "items": {
+          "maintenance": "provádět údržbu, aktualizace a bezpečnostní zásahy,",
+          "restrictions": "dočasně omezit provoz, pokud je to nutné z technických, bezpečnostních nebo právních důvodů,",
+          "partners": "změnit technologické partnery, hostingové prostředí nebo integrační vrstvy."
+        }
+      },
+      "liability": {
+        "title": "Odpovědnost a omezení odpovědnosti",
+        "description": "V maximálním rozsahu dovoleném právem se Služba poskytuje „tak jak je“ a „jak je dostupná“.",
+        "items": {
+          "thirdPartyOutages": "výpadky způsobené třetími stranami, internetovou konektivitou nebo zásahy mimo jeho přiměřenou kontrolu,",
+          "indirectDamage": "ztrátu zisku, ztrátu příležitosti, nepřímou nebo následnou škodu,",
+          "outputUse": "škodu vzniklou použitím Výstupů bez odpovídající kontroly,",
+          "misuse": "škodu způsobenou nesprávným použitím Služby nebo porušením těchto podmínek uživatelem,",
+          "thirdPartyServices": "obsah a služby třetích stran."
+        },
+        "cap": "Celková souhrnná odpovědnost poskytovatele za veškerou újmu vzniklou z jednoho nebo více souvisejících porušení je omezena do výše částky odpovídající součtu plateb uhrazených uživatelem za posledních {lookbackMonths} měsíců před vznikem nároku, nejméně však do částky {capAmount} {capCurrency}.",
+        "mandatoryLaw": "Toto omezení se nepoužije tam, kde nelze odpovědnost vyloučit nebo omezit podle kogentního práva, zejména v případě úmyslu, hrubé nedbalosti nebo tam, kde by tím byla dotčena nepominutelná práva spotřebitele."
+      },
+      "indemnification": {
+        "title": "Náhrada újmy ze strany uživatele",
+        "description": "Uživatel se zavazuje nahradit poskytovateli škodu, náklady, sankce, pokuty, nároky třetích stran a účelně vynaložené náklady právního zastoupení, pokud vzniknou v důsledku:",
+        "items": {
+          "termsBreach": "porušení těchto podmínek uživatelem,",
+          "unlawfulUse": "protiprávního použití Služby,",
+          "userContentRights": "porušení práv třetích osob Obsahem uživatele,",
+          "falseStatements": "nepravdivosti prohlášení uživatele podle těchto podmínek."
+        }
+      },
+      "termination": {
+        "title": "Pozastavení a ukončení",
+        "description": "Poskytovatel může okamžitě omezit nebo pozastavit přístup ke Službě, pokud:",
+        "items": {
+          "breach": "uživatel závažně nebo opakovaně porušuje tyto podmínky,",
+          "nonPayment": "je v prodlení s platbou,",
+          "harmRisk": "hrozí újma poskytovateli, jiným uživatelům nebo třetím osobám,",
+          "securityReasons": "je takový zásah nutný z bezpečnostních nebo právních důvodů."
+        },
+        "dataDeletion": "Po ukončení smluvního vztahu může poskytovatel po uplynutí přiměřené lhůty účet a související data smazat nebo anonymizovat, pokud právní předpisy nevyžadují jejich delší uchování."
+      },
+      "confidentiality": {
+        "title": "Ochrana důvěrných informací",
+        "description": "Neveřejné informace získané v souvislosti s používáním Služby se považují za důvěrné. Každá strana je povinna je chránit a nepoužít je jinak než pro účel plnění smluvního vztahu, není-li dáno zákonné nebo smluvní oprávnění."
+      },
+      "consumerRights": {
+        "title": "Spotřebitelé",
+        "description": "Je-li uživatel spotřebitelem, použijí se vedle těchto podmínek i příslušná kogentní ustanovení právních předpisů na ochranu spotřebitele.",
+        "withdrawal": "Je-li Služba poskytována jako digitální služba před uplynutím lhůty pro odstoupení od smlouvy, může být spotřebitel před aktivací služby vyzván k udělení výslovného souhlasu se zahájením plnění a k potvrzení, že tím může ztratit právo na odstoupení v rozsahu stanoveném právními předpisy.",
+        "executionConsent": "Mimosoudní řešení spotřebitelských sporů zajišťuje Česká obchodní inspekce, www.coi.gov.cz.",
+        "adr": "Obecná lhůta pro odstoupení od smlouvy uzavřené na dálku činí {withdrawalDays} dnů, pokud se nepoužije zákonná výjimka pro digitální obsah nebo digitální služby."
+      },
       "changes": {
-        "title": "Změny obchodních podmínek",
-        "description": "Tyto podmínky můžeme průběžně měnit. Nové znění je účinné dnem uvedeným výše. Pokud změna podstatně ovlivní vaše práva, budeme se snažit poskytnout upozornění alespoň {noticeDays} dní předem."
+        "title": "Změny podmínek",
+        "description": "Poskytovatel je oprávněn tyto podmínky v přiměřeném rozsahu měnit, zejména při změně právních předpisů, technologie, rozsahu Služby, cenového modelu nebo bezpečnostních požadavků. O podstatných změnách bude uživatel informován předem vhodným způsobem. Pokračováním v používání Služby po účinnosti změny uživatel se změnou souhlasí, pokud kogentní právo nevyžaduje jiný postup."
       },
-      "contact": {
-        "title": "Kontakt",
-        "description": "Pro právní a smluvní záležitosti nás kontaktujte na",
-        "phone": "nebo telefonicky:"
-      },
-      "defaults": {
-        "acceptableUse": [
-          "Používejte službu v souladu s právními předpisy a těmito podmínkami.",
-          "Uvádějte pravdivé a aktuální údaje o účtu a fakturaci.",
-          "Chraňte své přihlašovací údaje a udržujte odpovídající úroveň zabezpečení účtu.",
-          "Před použitím v právních, finančních, zdravotních nebo jiných rizikových situacích výstupy vždy zkontrolujte a ověřte."
-        ],
-        "prohibitedUse": [
-          "Používat službu k protiprávní, podvodné, obtěžující, škodlivé nebo jinak zneužívající činnosti.",
-          "Nahrávat nebo šířit malware, škodlivý kód nebo obsah určený k narušení systémů.",
-          "Pokoušet se o neoprávněný přístup ke službě, cizím účtům nebo související infrastruktuře.",
-          "Provádět scraping, benchmarky, reverzní inženýrství nebo nadměrně zatěžovat službu mimo povolené použití.",
-          "Používat výstupy k porušování práv třetích osob nebo k plně automatizovaným vysoce dopadovým rozhodnutím bez smysluplného lidského přezkumu."
-        ],
-        "userResponsibilities": [
-          "Za zákonnost, přesnost a vhodnost obsahu, který nahrajete, vygenerujete nebo sdílíte, nesete výhradní odpovědnost.",
-          "Prohlašujete, že máte všechna potřebná práva, licence a právní tituly pro svůj obsah a způsob jeho zpracování.",
-          "Za způsob použití výstupů odpovídáte vy, včetně ověření jejich věcné, právní a technické správnosti.",
-          "Nesete odpovědnost za nároky třetích stran, škody, sankce a jiné ztráty způsobené vaším obsahem, instrukcemi nebo používáním služby."
-        ],
-        "providerRights": [
-          "Můžeme odstranit, omezit nebo znepřístupnit obsah či účty, pokud to vyžaduje zákon nebo máme důvodné podezření na porušení podmínek.",
-          "Můžeme pozastavit přístup za účelem omezení bezpečnostních incidentů, zneužití, podvodu nebo právních rizik.",
-          "Pokud to vyžaduje právo, poskytneme oznámení a odůvodnění významných zásahů.",
-          "Pokud to vyžaduje právo, můžeme spolupracovat s příslušnými orgány veřejné moci."
-        ]
+      "governingLaw": {
+        "title": "Rozhodné právo a soudní příslušnost",
+        "description": "Právní vztahy vzniklé na základě těchto podmínek se řídí právním řádem České republiky.",
+        "consumerFallback": "Je-li uživatel spotřebitelem, není tím dotčena ochrana poskytovaná kogentními ustanoveními práva státu jeho obvyklého pobytu.",
+        "courts": "Spory budou řešeny příslušnými soudy České republiky, není-li kogentním právem stanoveno jinak."
       }
     }
   },
