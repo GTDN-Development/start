@@ -524,15 +524,15 @@
         }
       }
     },
-    "account": {
-      "title": "Nastavení účtu",
+    "settings": {
+      "title": "Nastavení",
       "description": "Spravujte profil, preference aplikace, e-mail a zabezpečení svého účtu.",
       "nav": {
-        "general": "Preference",
+        "preferences": "Preference",
         "profile": "Profil",
         "security": "Zabezpečení"
       },
-      "generalPage": {
+      "preferencesPage": {
         "title": "Preference",
         "description": "Nastavte jazyk a motiv aplikace podle svých preferencí."
       },

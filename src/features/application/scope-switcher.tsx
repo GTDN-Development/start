@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { useOptionalAccountProfile } from "@/features/account/account-profile-context";
+import { useOptionalSettingsProfile } from "@/features/settings/settings-profile-context";
 import { resolveApplicationScope } from "@/features/application/application-scope";
 import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
@@ -41,7 +41,7 @@ type ScopeSwitcherProps = {
 
 export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   const t = useTranslations("layout.application.scopeSwitcher");
-  const accountProfile = useOptionalAccountProfile();
+  const settingsProfile = useOptionalSettingsProfile();
   const { activeWorkspaceSlug, workspaces } = useWorkspaceNavigation();
 
   const pathname = usePathname();
@@ -54,7 +54,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   const [isCreateWorkspaceDrawerOpen, setIsCreateWorkspaceDrawerOpen] = useState(false);
 
   const workspaceOptions = workspaces.map(createWorkspaceOption);
-  const currentUser = accountProfile?.profile ?? null;
+  const currentUser = settingsProfile?.profile ?? null;
   const personalLabel = getPersonalScopeLabel(
     currentUser?.name ?? null,
     currentUser?.email ?? null

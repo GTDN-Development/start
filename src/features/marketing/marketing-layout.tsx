@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import type { LinkHref } from "@/components/ui/link";
-import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
+import type { UserSettingsMenuViewer } from "@/features/settings/user-settings-menu";
 import { useSession } from "@/features/auth/auth-client";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
 import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
@@ -18,7 +18,7 @@ export function MarketingLayout({
   applicationEntryHref,
 }: {
   children: React.ReactNode;
-  viewer: UserAccountMenuViewer | null;
+  viewer: UserSettingsMenuViewer | null;
   applicationEntryHref: LinkHref;
 }) {
   const sessionSnapshot = useSession();

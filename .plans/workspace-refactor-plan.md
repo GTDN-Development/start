@@ -79,14 +79,14 @@ The target model is:
 
   /(application)
     /app
-    /account
-    /account/preferences
-    /account/security
+    /settings/profile
+    /settings/preferences
+    /settings/security
     /support
 
     /w/[workspaceSlug]
     /w/[workspaceSlug]/overview
-    /w/[workspaceSlug]/settings
+    /w/[workspaceSlug]/settings/general
     /w/[workspaceSlug]/settings/members
 ```
 
@@ -161,7 +161,7 @@ As of the current runtime, `/overview` is wired into multiple behavior classes.
 - `src/config/navigation.ts`
 - `src/features/application/application-menu-tree.tsx`
 - `src/features/application/application-page-header.tsx`
-- `src/features/account/user-account-menu.tsx`
+- `src/features/settings/user-settings-menu.tsx`
 - `src/app/[locale]/(application)/error.tsx`
 
 ### Auth And Invite Flows
@@ -211,7 +211,7 @@ Today `/overview` pretends to be content but actually performs dispatch logic. T
 A real `/app` route makes the app shell honest:
 
 - `/app` is the authenticated home
-- `/account` is user-scoped settings
+- `/settings/profile` is the canonical user-scoped profile/settings entry
 - `/w/[workspaceSlug]/*` is workspace-scoped content
 
 ### Work
@@ -224,7 +224,7 @@ A real `/app` route makes the app shell honest:
 4. Update app navigation in [navigation.ts](/Users/fanda/Dev/start/src/config/navigation.ts):
    - replace the current "overview" app entry with a real "app" or "home" app entry
    - keep workspace settings as a separate workspace-scoped entry
-5. Update [application-page-header.tsx](/Users/fanda/Dev/start/src/features/application/application-page-header.tsx) and [user-account-menu.tsx](/Users/fanda/Dev/start/src/features/account/user-account-menu.tsx) so their primary app link points to `/app`.
+5. Update [application-page-header.tsx](/Users/fanda/Dev/start/src/features/application/application-page-header.tsx) and [user-settings-menu.tsx](/Users/fanda/Dev/start/src/features/settings/user-settings-menu.tsx) so their primary app link points to `/app`.
 6. Update route guards and localization maps:
    - add `/app` to protected route prefixes
    - remove `/overview` from default auth target behavior
@@ -246,7 +246,7 @@ A real `/app` route makes the app shell honest:
 - `src/app/[locale]/(auth)/(flow)/invite/result/page.tsx`
 - `src/features/application/application-menu-tree.tsx`
 - `src/features/application/application-page-header.tsx`
-- `src/features/account/user-account-menu.tsx`
+- `src/features/settings/user-settings-menu.tsx`
 - `messages/en.json`
 - `messages/cs.json`
 
@@ -396,7 +396,7 @@ This must be explicit for the starter because B2C and early-stage B2B forks may 
 Required behavior when the authenticated user has zero workspaces:
 
 - `/app` remains fully usable
-- `/account`, `/account/preferences`, `/account/security`, and `/support` remain fully usable
+- `/settings/profile`, `/settings/preferences`, `/settings/security`, and `/support` remain fully usable
 - the main app menu must not route the user to workspace pages as a fallback
 - the workspace menu item is hidden when no workspace exists
 - the switcher does not disappear silently; it shows an explicit create-only empty state when the workspace feature is present
@@ -410,7 +410,7 @@ Outside `/w/[workspaceSlug]/*`, the switcher should show the selected workspace,
 
 Rules:
 
-- on `/app`, `/account`, `/support`, the switcher uses `active_workspace`
+- on `/app`, `/settings/profile`, `/support`, the switcher uses `active_workspace`
 - if the cookie is invalid, it falls back to the first available workspace
 - switching workspace from a non-workspace page navigates to `/w/[workspaceSlug]/overview`
 - if no workspace exists, the switcher shows create-only empty state
@@ -426,6 +426,7 @@ Rules:
 - `src/app/[locale]/(application)/w/[workspaceSlug]/page.tsx`
 - `src/app/[locale]/(application)/w/[workspaceSlug]/overview/page.tsx`
 - `src/app/[locale]/(application)/w/[workspaceSlug]/settings/page.tsx`
+- `src/app/[locale]/(application)/w/[workspaceSlug]/settings/general/page.tsx`
 - `src/app/[locale]/(application)/w/[workspaceSlug]/settings/layout.tsx`
 - `src/app/[locale]/(application)/w/[workspaceSlug]/settings/members/page.tsx`
 - `src/app/[locale]/(application)/w/[workspaceSlug]/[...rest]/page.tsx`

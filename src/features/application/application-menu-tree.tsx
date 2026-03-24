@@ -19,39 +19,42 @@ import { useSidebarContext } from "./application-layout";
 import { getWorkspaceSlugFromPathname, resolveApplicationScope } from "./application-scope";
 import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
 
-function isAccountRoute(pathname: string) {
-  return pathname === "/account" || pathname.startsWith("/account/");
+function isSettingsRoute(pathname: string) {
+  return pathname === "/settings" || pathname.startsWith("/settings/");
 }
 
 function isMenuItemActive(pathname: string, item: ApplicationMenuLink) {
   const pathnameWorkspaceSlug = getWorkspaceSlugFromPathname(pathname);
   const workspaceBasePath = pathnameWorkspaceSlug ? `/w/${pathnameWorkspaceSlug}` : null;
 
-  switch (item.labelKey) {
-    case "account":
-      return isAccountRoute(pathname);
-    case "home":
-      return pathname === "/app";
-    case "overview":
-      if (!workspaceBasePath) {
-        return false;
-      }
-
-      return pathname === workspaceBasePath || pathname === `${workspaceBasePath}/overview`;
-    case "settings":
-      if (!workspaceBasePath) {
-        return false;
-      }
-
-      return (
-        pathname === `${workspaceBasePath}/settings` ||
-        pathname.startsWith(`${workspaceBasePath}/settings/`)
-      );
+  if (item.href === "/settings/profile") {
+    return isSettingsRoute(pathname);
   }
+
+  if (item.href === "/app") {
+    return pathname === "/app";
+  }
+
+  if (item.href === "/w/[workspaceSlug]/overview") {
+    if (!workspaceBasePath) {
+      return false;
+    }
+
+    return pathname === workspaceBasePath || pathname === `${workspaceBasePath}/overview`;
+  }
+
+  if (!workspaceBasePath) {
+    return false;
+  }
+
+  return (
+    pathname === `${workspaceBasePath}/settings` ||
+    pathname.startsWith(`${workspaceBasePath}/settings/`)
+  );
 }
 
 function resolveMenuHref(item: ApplicationMenuLink, selectedWorkspaceSlug: string | null): AppHref {
-  if (item.labelKey !== "overview" && item.labelKey !== "settings") {
+  if (item.href === "/app" || item.href === "/settings/profile") {
     return item.href;
   }
 
@@ -59,7 +62,7 @@ function resolveMenuHref(item: ApplicationMenuLink, selectedWorkspaceSlug: strin
     return "/app";
   }
 
-  if (item.labelKey === "overview") {
+  if (item.href === "/w/[workspaceSlug]/overview") {
     return {
       pathname: "/w/[workspaceSlug]/overview",
       params: {
@@ -69,7 +72,7 @@ function resolveMenuHref(item: ApplicationMenuLink, selectedWorkspaceSlug: strin
   }
 
   return {
-    pathname: "/w/[workspaceSlug]/settings",
+    pathname: "/w/[workspaceSlug]/settings/general",
     params: {
       workspaceSlug: selectedWorkspaceSlug,
     },

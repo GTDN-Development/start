@@ -40,7 +40,7 @@ The current architecture is correct, but the shell still leaves one ambiguity:
 
 That creates a UX mismatch:
 
-- technically, personal scope is `/app` and `/account`
+- technically, personal scope is `/app` and `/settings/*`
 - visually, the top shell suggests that "context switching" only means workspaces
 
 The result is subtle confusion:
@@ -61,7 +61,7 @@ The starter should keep this mental model:
 Canonical route model:
 
 - `/app` = personal app home
-- `/account/*` = personal settings
+- `/settings/*` = personal settings
 - `/w/[workspaceSlug]/*` = collaborative scope
 
 Important:
@@ -112,7 +112,7 @@ The current label `App` is too abstract for a starter.
 Recommended user-facing labels:
 
 - `Home` for `/app`
-- `Account` for `/account`
+- `Settings` for `/settings/profile`
 - `Support` for `/contact/support`
 
 Contextual rule:
@@ -125,7 +125,7 @@ Recommended shape:
 #### Personal Scope
 
 - `Home`
-- `Account`
+- `Settings`
 - `Support`
 
 #### Workspace Scope
@@ -142,14 +142,14 @@ The current page shell should always make scope legible.
 
 Recommendations:
 
-- show `Personal` as the active scope label when on `/app` or `/account/*`
+- show `Personal` as the active scope label when on `/app` or `/settings/*`
 - show workspace name when on `/w/[workspaceSlug]/*`
 - breadcrumbs should reflect scope first, then page
 
 Examples:
 
 - `Personal / Home`
-- `Personal / Account`
+- `Personal / Settings`
 - `Acme / Overview`
 - `Acme / Settings / Members`
 
@@ -281,7 +281,7 @@ No `getMenu`, no menu registry, no runtime configuration engine.
 
 - `src/config/navigation.ts`
 - `src/features/application/application-menu-tree.tsx`
-- `src/features/account/user-account-menu.tsx`
+- `src/features/settings/user-settings-menu.tsx`
 - `src/features/application/application-page-header.tsx`
 - `messages/en.json`
 - `messages/cs.json`
@@ -433,4 +433,3 @@ That gives the starter:
 - cleaner mental model
 - lower coupling
 - easier future removal of workspaces
-

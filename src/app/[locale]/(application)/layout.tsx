@@ -103,8 +103,8 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
       activeWorkspaceSlug={repairedActiveWorkspaceSlug}
       labels={{
         userMenu: {
-          account: tNavigation("account"),
-          accountPage: tNavigation("account"),
+          settings: tNavigation("settings"),
+          settingsPage: tNavigation("settings"),
           personalHome: tNavigation("home"),
           website: tNavigation("website"),
           signOut: tApplication("signOut"),

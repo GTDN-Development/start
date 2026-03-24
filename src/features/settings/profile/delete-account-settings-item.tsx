@@ -1,0 +1,277 @@
+"use client";
+
+import { useForm } from "@tanstack/react-form";
+import { startTransition, useId, useState } from "react";
+import { z } from "zod";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { useRouter } from "@/i18n/navigation";
+import { deleteAccountAction } from "@/features/settings/actions/settings-actions";
+import {
+  SettingsItem,
+  SettingsItemContent,
+  SettingsItemContentHeader,
+  SettingsItemDescription,
+  SettingsItemFooter,
+  SettingsItemTitle,
+} from "@/components/ui/settings-item";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Spinner } from "@/components/ui/spinner";
+import { runAsyncTransition } from "@/lib/app-utils";
+import { Trash2Icon } from "lucide-react";
+
+type DeleteAccountFormValues = {
+  password: string;
+  isDeletionAcknowledged: boolean;
+};
+
+export function SettingsDeleteAccountSettingsItem() {
+  const t = useTranslations("pages.settings");
+  const tPasswordVisibility = useTranslations("forms.signIn.passwordVisibility");
+
+  const router = useRouter();
+  const deleteAccountToastId = useId();
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [passwordServerErrorMessage, setPasswordServerErrorMessage] = useState<string | null>(null);
+
+  const deleteAccountSchema = z.object({
+    password: z
+      .string()
+      .trim()
+      .min(1, {
+        message: t("deleteAccount.dialog.fields.password.errors.required"),
+      }),
+    isDeletionAcknowledged: z.boolean().refine((value) => value === true, {
+      message: t("deleteAccount.dialog.fields.acknowledgement.errors.required"),
+    }),
+  });
+
+  const form = useForm({
+    defaultValues: {
+      password: "",
+      isDeletionAcknowledged: false,
+    },
+    validators: {
+      onSubmit: deleteAccountSchema,
+    },
+    onSubmit: async ({ value }: { value: DeleteAccountFormValues }) => {
+      setPasswordServerErrorMessage(null);
+
+      const response = await runAsyncTransition(() =>
+        deleteAccountAction({
+          password: value.password,
+        })
+      );
+
+      if (response.ok) {
+        toast.success(t("deleteAccount.status.success"), {
+          id: deleteAccountToastId,
+        });
+
+        startTransition(() => {
+          setIsDeleteDialogOpen(false);
+          form.reset();
+          router.replace("/sign-in");
+        });
+        return;
+      }
+
+      if (response.errorCode === "INVALID_CREDENTIALS") {
+        setPasswordServerErrorMessage(t("deleteAccount.status.invalidCredentials"));
+        return;
+      }
+
+      if (response.errorCode === "UNAUTHORIZED") {
+        toast.error(t("deleteAccount.status.unauthorized"), {
+          id: deleteAccountToastId,
+        });
+        startTransition(() => {
+          setIsDeleteDialogOpen(false);
+          form.reset();
+          router.replace("/sign-in");
+        });
+        return;
+      }
+
+      if (response.errorCode === "BAD_REQUEST") {
+        toast.error(t("deleteAccount.status.deleteNotAllowed"), {
+          id: deleteAccountToastId,
+        });
+        return;
+      }
+
+      toast.error(t("deleteAccount.status.error"), {
+        id: deleteAccountToastId,
+      });
+    },
+  });
+
+  function handleDeleteDialogOpenChange(open: boolean) {
+    setIsDeleteDialogOpen(open);
+
+    if (open) {
+      form.reset();
+      setPasswordServerErrorMessage(null);
+    }
+  }
+
+  function clearPasswordServerError() {
+    if (passwordServerErrorMessage) {
+      setPasswordServerErrorMessage(null);
+    }
+  }
+
+  return (
+    <SettingsItem variant="destructive">
+      <SettingsItemContent>
+        <SettingsItemContentHeader>
+          <SettingsItemTitle>{t("deleteAccount.title")}</SettingsItemTitle>
+          <SettingsItemDescription>{t("deleteAccount.description")}</SettingsItemDescription>
+        </SettingsItemContentHeader>
+      </SettingsItemContent>
+
+      <SettingsItemFooter>
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
+          <AlertDialogTrigger
+            nativeButton={true}
+            render={
+              <Button type="button" variant="destructive" size="lg" className="sm:ml-auto">
+                {t("deleteAccount.trigger")}
+              </Button>
+            }
+          />
+          <AlertDialogContent className="sm:max-w-lg">
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                form.handleSubmit();
+              }}
+              className="contents"
+            >
+              <form.Subscribe
+                selector={(state) => ({
+                  isSubmitting: state.isSubmitting,
+                  submissionAttempts: state.submissionAttempts,
+                })}
+              >
+                {({ isSubmitting, submissionAttempts }) => (
+                  <>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t("deleteAccount.dialog.title")}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t("deleteAccount.dialog.description")}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <FieldGroup className="mt-4 flex flex-col gap-6 pb-2">
+                      <form.Field name="password">
+                        {(field) => {
+                          const hasFieldError =
+                            (field.state.meta.isTouched || submissionAttempts > 0) &&
+                            !field.state.meta.isValid;
+                          const isInvalid = hasFieldError || Boolean(passwordServerErrorMessage);
+
+                          return (
+                            <Field data-invalid={isInvalid}>
+                              <FieldLabel htmlFor={`settings-delete-${field.name}`}>
+                                {t("deleteAccount.dialog.fields.password.label")}
+                              </FieldLabel>
+                              <PasswordInput
+                                id={`settings-delete-${field.name}`}
+                                name={`settings-delete-${field.name}`}
+                                autoComplete="current-password"
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(event) => {
+                                  clearPasswordServerError();
+                                  field.handleChange(event.target.value);
+                                }}
+                                aria-invalid={isInvalid}
+                                placeholder={t("deleteAccount.dialog.fields.password.placeholder")}
+                                showPasswordLabel={tPasswordVisibility("show")}
+                                hidePasswordLabel={tPasswordVisibility("hide")}
+                              />
+                              {hasFieldError && <FieldError errors={field.state.meta.errors} />}
+                              {!hasFieldError && passwordServerErrorMessage && (
+                                <FieldError>{passwordServerErrorMessage}</FieldError>
+                              )}
+                            </Field>
+                          );
+                        }}
+                      </form.Field>
+
+                      <form.Field name="isDeletionAcknowledged">
+                        {(field) => {
+                          const isInvalid =
+                            (field.state.meta.isTouched || submissionAttempts > 0) &&
+                            !field.state.meta.isValid;
+
+                          return (
+                            <div className="flex flex-col gap-2">
+                              <Field orientation="horizontal" data-invalid={isInvalid}>
+                                <Checkbox
+                                  id={`settings-delete-${field.name}`}
+                                  name={`settings-delete-${field.name}`}
+                                  checked={field.state.value}
+                                  onBlur={field.handleBlur}
+                                  onCheckedChange={(checked) =>
+                                    field.handleChange(checked === true)
+                                  }
+                                  aria-invalid={isInvalid}
+                                />
+                                <FieldLabel htmlFor={`settings-delete-${field.name}`}>
+                                  {t("deleteAccount.dialog.fields.acknowledgement.label")}
+                                </FieldLabel>
+                              </Field>
+                              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                            </div>
+                          );
+                        }}
+                      </form.Field>
+                    </FieldGroup>
+
+                    <AlertDialogFooter>
+                      <AlertDialogCancel type="button" size="lg" disabled={isSubmitting}>
+                        {t("common.cancel")}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        type="submit"
+                        size="lg"
+                        variant="destructive"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <Spinner />
+                        ) : (
+                          <Trash2Icon aria-hidden="true" className="size-4" />
+                        )}
+                        {isSubmitting
+                          ? t("deleteAccount.dialog.confirmPending")
+                          : t("deleteAccount.dialog.confirm")}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </>
+                )}
+              </form.Subscribe>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
+      </SettingsItemFooter>
+    </SettingsItem>
+  );
+}

@@ -53,6 +53,9 @@ export const routing = defineRouting({
     "/w/[workspaceSlug]/settings": {
       cs: "/w/[workspaceSlug]/nastaveni",
     },
+    "/w/[workspaceSlug]/settings/general": {
+      cs: "/w/[workspaceSlug]/nastaveni/obecne",
+    },
     "/w/[workspaceSlug]/settings/members": {
       cs: "/w/[workspaceSlug]/nastaveni/clenove",
     },
@@ -74,17 +77,20 @@ export const routing = defineRouting({
     "/reset-password": {
       cs: "/obnovit-heslo",
     },
-    "/account": {
-      cs: "/ucet",
+    "/settings": {
+      cs: "/nastaveni",
     },
-    "/account/[...rest]": {
-      cs: "/ucet/[...rest]",
+    "/settings/profile": {
+      cs: "/nastaveni/profil",
     },
-    "/account/preferences": {
-      cs: "/ucet/preference",
+    "/settings/[...rest]": {
+      cs: "/nastaveni/[...rest]",
     },
-    "/account/security": {
-      cs: "/ucet/zabezpeceni",
+    "/settings/preferences": {
+      cs: "/nastaveni/preference",
+    },
+    "/settings/security": {
+      cs: "/nastaveni/zabezpeceni",
     },
     "/sign-up": {
       cs: "/registrace",

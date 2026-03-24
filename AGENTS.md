@@ -14,7 +14,7 @@
 
 - **Never** import from `next/link` directly — use `@/components/ui/link` for internal localized links
 - For external URLs and hash/mailto/tel links use a native `<a>` (do not force `@/components/ui/link`)
-- Mirror route-specific feature folders to the actual app route/route-group structure when practical (e.g. `src/features/.../account/security/*` for `/account/security`)
+- Mirror route-specific feature folders to the actual app route/route-group structure when practical (e.g. `src/features/.../settings/security/*` for `/settings/security`)
 - **Never** use `middleware.ts` — use `proxy.ts` for request interception (no edge runtime)
 - `params` and `searchParams` must be awaited — they are async in Next.js 16
 - `cookies()`, `headers()`, `draftMode()` must be awaited
@@ -30,7 +30,7 @@
 
 - Primary app/domain code lives in `src/features/*`
 - `src/components/*` is for shared cross-feature UI infrastructure only (`ui`, `layout`, `brand`, `providers`, `dev`)
-- Keep application shell/composition in `src/features/application`; keep account domain in `src/features/account`
+- Keep application shell/composition in `src/features/application`; keep settings domain in `src/features/settings`
 - Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
 - Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
 - **Never** introduce barrel files (`index.ts` / `index.tsx`) in features
@@ -95,7 +95,7 @@
 - For internal navigation use `@/i18n/navigation` (`Link`, `useRouter`, `redirect`, `getPathname`) — avoid `next/navigation` for localized redirects/push/replace
 - **Never** build localized app URLs manually with `/${locale}/...` for redirects, hidden form inputs, metadata, or links — use `redirect({href, locale})` / `getPathname({href, locale})`
 - API `redirectTo` values must be internal path-only route keys (English), preferably typed/allowlisted
-- Auth and account routes are currently static UI flows (no backend integration)
+- Auth and settings routes are currently static UI flows (no backend integration)
 
 ## PocketBase / Typegen
 

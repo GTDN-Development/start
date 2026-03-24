@@ -106,7 +106,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
       if (response.data.workspaceSlug !== workspaceSnapshot.slug) {
         startTransition(() => {
           router.replace({
-            pathname: "/w/[workspaceSlug]/settings",
+            pathname: "/w/[workspaceSlug]/settings/general",
             params: {
               workspaceSlug: response.data.workspaceSlug,
             },

@@ -90,7 +90,7 @@ function getAvatarColorClass(seed: string): string {
 ### 3.4 Seed Choice
 
 - For workspaces: `workspace.id` (stable, unique, available in `WorkspaceNavigationItem`)
-- For users: `user.email` (stable, unique, available in `UserAccountMenuViewer` / `AuthUser`)
+- For users: `user.email` (stable, unique, available in `UserSettingsMenuViewer` / `AuthUser`)
 - For workspace members: `member.email` or `member.userId` (whatever is available at the call site)
 
 The seed does not need to be an ID specifically — any stable unique string works. The point is that two different entities will most likely get different colors.
@@ -130,7 +130,7 @@ Personal workspaces keep their current `bg-sidebar-primary` treatment — they a
 
 ### 5.3 User Account Menu
 
-File: `src/features/account/user-account-menu.tsx`
+File: `src/features/settings/user-settings-menu.tsx`
 
 Pass the derived color class to `AvatarFallback`:
 
@@ -150,7 +150,7 @@ Same pattern — derive color from member identity and pass it to `AvatarFallbac
 
 Files:
 
-- `src/features/account/general/avatar-settings-item.tsx`
+- `src/features/settings/profile/avatar-settings-item.tsx`
 - `src/features/workspaces/settings/general/workspace-avatar-settings-item.tsx`
 
 Same pattern — pass derived color class to the fallback component's `className`.
@@ -174,7 +174,7 @@ This avoids changing the shared component API or adding a required `seed` prop.
 
 1. Add `getAvatarColorClass` to `src/lib/app-utils.ts` with the hash function and color palette.
 2. Update `workspace-switcher.tsx` to use `getAvatarColorClass(workspace.id)` for organization workspaces.
-3. Update `user-account-menu.tsx` to pass the derived color class to `AvatarFallback`.
+3. Update `user-settings-menu.tsx` to pass the derived color class to `AvatarFallback`.
 4. Update `workspace-members-management-settings-item.tsx` for member avatars.
 5. Update `avatar-settings-item.tsx` and `workspace-avatar-settings-item.tsx` for settings previews.
 6. Visually verify the palette works well in both light and dark themes and adjust specific color shades if needed.

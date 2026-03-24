@@ -524,15 +524,15 @@
         }
       }
     },
-    "account": {
-      "title": "Account settings",
+    "settings": {
+      "title": "Settings",
       "description": "Manage your profile, app preferences, email, and security settings.",
       "nav": {
-        "general": "Preferences",
+        "preferences": "Preferences",
         "profile": "Profile",
         "security": "Security"
       },
-      "generalPage": {
+      "preferencesPage": {
         "title": "Preferences",
         "description": "Manage your language and theme preferences for the app."
       },

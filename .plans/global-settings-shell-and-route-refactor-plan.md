@@ -13,9 +13,9 @@ The current product model is already close to the right one:
 
 - `/app` is personal app space
 - `/w/[workspaceSlug]/*` is collaborative workspace space
-- `/account/*` already behaves like a settings center
+- `/settings/*` already behaves like a settings center
 
-The UX problem is that the current shell still treats `/account/*` as part of the personal application scope, even though users experience it more like global settings.
+The UX problem is that the current shell still treats `/settings/*` as part of the personal application scope, even though users experience it more like global settings.
 
 This plan should solve that mismatch without:
 
@@ -47,17 +47,17 @@ This one shell currently wraps:
 
 - `/app`
 - `/w/[workspaceSlug]/*`
-- `/account/*`
+- `/settings/*`
 
 That is the core architectural tension.
 
-### 2. `/account/*` is modeled as personal scope in shell logic
+### 2. `/settings/*` is modeled as personal scope in shell logic
 
 In `src/features/application/application-scope.ts`:
 
 - `/app`
-- `/account`
-- `/account/*`
+- `/settings`
+- `/settings/*`
 
 all count as `personal` scope.
 
@@ -67,7 +67,7 @@ Even if the selected workspace is still remembered in cookies/context, the UI su
 
 ### 3. The user menu behavior is standard, but the destination shell is not
 
-`src/features/account/user-account-menu.tsx` currently links directly to `/account`.
+`src/features/settings/user-settings-menu.tsx` currently links directly to `/settings/profile`.
 
 That is not the UX mistake.
 
@@ -81,11 +81,12 @@ The problem is the destination shell, not the existence of the link.
 
 ### 4. Account pages are already a settings area in all but name
 
-The current `/account/*` area already has settings-style information architecture:
+The current `/settings/*` area already has settings-style information architecture:
 
-- `/account` = profile
-- `/account/preferences`
-- `/account/security`
+- `/settings` -> redirect to `/settings/profile`
+- `/settings/profile`
+- `/settings/preferences`
+- `/settings/security`
 
 It also already uses:
 
@@ -103,7 +104,7 @@ The current route naming creates this ambiguity:
 - but the section also contains preferences and security
 - and eventually it could reasonably contain notifications, billing, API keys, sessions, etc.
 
-That makes `/account/*` a poor long-term URL namespace.
+That makes `/settings/*` a poor long-term URL namespace.
 
 ## UX Problem To Solve
 
@@ -138,10 +139,10 @@ Right now those layers are blended together.
 
 If the product grows, the current `account` namespace gets awkward fast:
 
-- `/account/preferences`
-- `/account/security`
-- `/account/billing`
-- `/account/api-keys`
+- `/settings/preferences`
+- `/settings/security`
+- `/settings/billing`
+- `/settings/api-keys`
 
 This is workable, but not ideal. A `settings` namespace scales much better.
 
@@ -161,7 +162,7 @@ This creates three distinct navigation modes:
 
 That matches user intent much better.
 
-## Should `/settings/profile` Replace `/account`?
+## Should `/settings/profile` Replace `/settings`?
 
 Yes. This is a strong improvement.
 
@@ -181,9 +182,9 @@ Why this is a good fit:
 
 Important implementation note:
 
-- keep the internal domain folder as `src/features/account/*`
+- keep the internal domain folder as `src/features/settings/*`
 
-That preserves the current domain boundary and respects the existing architecture rule that account domain code lives in `src/features/account`.
+That preserves the current domain boundary and respects the existing architecture rule that account domain code lives in `src/features/settings`.
 
 In other words:
 
@@ -283,7 +284,7 @@ Recommended ownership:
 - protected route gate and shared providers: `src/app/[locale]/(application)/layout.tsx`
 - contextual shell composition: `src/features/application/*`
 - global settings shell composition: `src/features/application/*`
-- account/settings content and actions: `src/features/account/*`
+- account/settings content and actions: `src/features/settings/*`
 
 That keeps shell composition in the application feature and leaves account domain logic in the account feature.
 
@@ -344,9 +345,9 @@ If you want a secondary in-app shortcut later, add it deliberately as a utility 
 
 Update the route model from:
 
-- `/account`
-- `/account/preferences`
-- `/account/security`
+- `/settings`
+- `/settings/preferences`
+- `/settings/security`
 
 to:
 
@@ -356,7 +357,7 @@ to:
 
 Recommended migration support:
 
-- keep temporary redirects from `/account/*` to `/settings/*`
+- keep temporary redirects from `/settings/*` to `/settings/*`
 - keep redirects long enough to protect bookmarks and internal stale links
 
 ### Localized Pathnames
@@ -381,7 +382,7 @@ For Czech, a reasonable direction would be:
 
 - `/app`
 - `/w`
-- `/account`
+- `/settings`
 
 This should become:
 
@@ -430,13 +431,13 @@ No fake `Personal` state for settings pages.
 
 ### Phase 3. Add temporary legacy redirects
 
-- redirect `/account` to `/settings/profile`
-- redirect `/account/preferences` to `/settings/preferences`
-- redirect `/account/security` to `/settings/security`
+- redirect `/settings` to `/settings/profile`
+- redirect `/settings/preferences` to `/settings/preferences`
+- redirect `/settings/security` to `/settings/security`
 
 ### Phase 4. Simplify contextual shell logic
 
-- remove `/account` handling from `application-scope.ts`
+- remove `/settings` handling from `application-scope.ts`
 - update any breadcrumb/scope assumptions
 - ensure the app shell now only reasons about `/app` and `/w/*`
 
@@ -448,7 +449,7 @@ No fake `Personal` state for settings pages.
 
 ## Risks To Avoid
 
-- do not rename `src/features/account/*` immediately; it adds churn without solving UX
+- do not rename `src/features/settings/*` immediately; it adds churn without solving UX
 - do not keep `/settings/*` inside the workspace/personal shell and hide pieces conditionally
 - do not preserve `Account` as a “personal scope” concept after the route split
 - do not make settings depend on the currently selected workspace
@@ -461,7 +462,7 @@ The best long-term architecture is:
 - global settings shell for `/settings/*`
 - avatar menu entry labeled `Settings`
 - route model based on `/settings/profile`, `/settings/preferences`, `/settings/security`
-- temporary redirects from legacy `/account/*`
+- temporary redirects from legacy `/settings/*`
 - internal account domain code kept stable
 
 This solves the real problem:

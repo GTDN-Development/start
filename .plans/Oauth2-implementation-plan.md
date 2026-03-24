@@ -459,7 +459,7 @@ According to the PocketBase JS SDK:
 
 1. Test account linking: existing email/password account plus OAuth with the same email.
 2. Verify redirect fallback flow in Safari.
-3. Test that the device session is properly registered after OAuth login and visible in `/account/sessions`.
+3. Test that the device session is properly registered after OAuth login and visible in `/settings/security`.
 4. Test that sign-out after OAuth login properly revokes the device session.
 5. Switch Facebook App from Development to Live.
 6. Verify that the Google OAuth consent screen is in production state.

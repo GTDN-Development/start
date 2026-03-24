@@ -1,9 +1,12 @@
 import type { AppPathname } from "@/i18n/navigation";
 import type { AppIcon } from "@/types/icons";
-import { LayoutDashboardIcon, LifeBuoyIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { LayoutDashboardIcon, LifeBuoyIcon, SettingsIcon } from "lucide-react";
 
 type MenuHref = AppPathname;
-type ApplicationMenuHref = MenuHref | "/w/[workspaceSlug]/overview" | "/w/[workspaceSlug]/settings";
+type ApplicationMenuHref =
+  | MenuHref
+  | "/w/[workspaceSlug]/overview"
+  | "/w/[workspaceSlug]/settings/general";
 
 export type MenuLinkLabelKey =
   | "home"
@@ -21,7 +24,6 @@ export type MenuLinkLabelKey =
   | "workspace"
   | "overview"
   | "settings"
-  | "account"
   | "privacyPolicy"
   | "termsOfService"
   | "cookiePolicy";
@@ -68,9 +70,9 @@ export const marketingMenu: MenuItem[] = [
 
 export const personalApplicationMenu = [
   { labelKey: "home", href: "/app", icon: LayoutDashboardIcon },
-  { labelKey: "account", href: "/account", icon: UserIcon, matchNested: true },
+  { labelKey: "settings", href: "/settings/profile", icon: SettingsIcon, matchNested: true },
 ] as const satisfies ReadonlyArray<{
-  labelKey: "home" | "account";
+  labelKey: "home" | "settings";
   href: MenuHref;
   icon: AppIcon;
   matchNested?: boolean;
@@ -80,7 +82,7 @@ export const workspaceApplicationMenu = [
   { labelKey: "overview", href: "/w/[workspaceSlug]/overview", icon: LayoutDashboardIcon },
   {
     labelKey: "settings",
-    href: "/w/[workspaceSlug]/settings",
+    href: "/w/[workspaceSlug]/settings/general",
     icon: SettingsIcon,
     matchNested: true,
   },

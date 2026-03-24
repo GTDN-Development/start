@@ -204,19 +204,19 @@ Tyto soubory mají zřetelné odchylky od doporučeného pořadí sekcí a měly
 12. `src/features/auth/confirm-email-change/confirm-email-change-form.tsx`
     - stejné srovnání schema/form setupu
 
-13. `src/features/account/general/display-name-settings-item.tsx`
+13. `src/features/settings/profile/display-name-settings-item.tsx`
     - srovnat hooks/state/derived/form sekce
 
-14. `src/features/account/general/email-change-settings-item.tsx`
+14. `src/features/settings/profile/email-change-settings-item.tsx`
     - srovnat hooks/state/derived/form sekce
 
-15. `src/features/account/general/delete-account-settings-item.tsx`
+15. `src/features/settings/profile/delete-account-settings-item.tsx`
     - srovnat hooks/state/derived/form sekce
 
-16. `src/features/account/security/password-settings-item.tsx`
+16. `src/features/settings/security/password-settings-item.tsx`
     - srovnat hooks/state/derived/form sekce
 
-17. `src/features/account/security/your-devices-settings-item.tsx`
+17. `src/features/settings/security/your-devices-settings-item.tsx`
     - derived values `hasOtherDeviceSessions` a `isSignOutOthersDisabled` přesunout před handlers
     - zachovat akce v jedné souvislé sekci
 
@@ -253,7 +253,7 @@ Poznámka:
 
 ### Phase 2: Normalize component setup order
 
-1. Začít high-confidence kandidáty ve `src/features/workspaces/*`, `src/features/auth/*`, `src/features/account/*`, `src/features/marketing/*`.
+1. Začít high-confidence kandidáty ve `src/features/workspaces/*`, `src/features/auth/*`, `src/features/settings/*`, `src/features/marketing/*`.
 2. Dělat jen lokální reorder a malé rename uvnitř souborů.
 3. Nezavádět shared helpers jen kvůli deduplikaci několika řádků JSX.
 4. Nerozdělovat koherentní soubory jen kvůli délce.
