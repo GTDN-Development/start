@@ -12,11 +12,15 @@ import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog
 import { useCookieContext } from "./cookie-context";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Link } from "@/components/ui/link";
+import { Badge } from "@/components/ui/badge";
 import { legalLinks } from "@/config/navigation";
 import { useTranslations } from "next-intl";
 import type { ConsentState } from "./cookie-consent";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDownIcon } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 type CookieCategoryConfig = {
   key: keyof ConsentState;
@@ -32,6 +36,12 @@ const COOKIE_CATEGORY_CONFIG: CookieCategoryConfig[] = [
 
 export function CookieSettingsDialog() {
   const t = useTranslations("cookies.consent.dialog");
+  const [openCategoryKeys, setOpenCategoryKeys] = useState<Record<keyof ConsentState, boolean>>({
+    necessary: true,
+    functional: false,
+    analytics: false,
+    marketing: false,
+  });
   const {
     consent,
     updateConsent,
@@ -79,45 +89,64 @@ export function CookieSettingsDialog() {
           <AlertDialogDescription>{t("description")}</AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="border-border divide-border mt-4 divide-y rounded-lg border">
+        <div className="border-border divide-border mt-3 divide-y rounded-lg border">
           {COOKIE_CATEGORY_CONFIG.map((category) => {
             const categoryTranslationKey = `categories.${category.key}`;
             const categoryInputId = `cookie-category-${category.key}`;
+            const categoryLabelId = `${categoryInputId}-label`;
+            const isOpen = openCategoryKeys[category.key];
 
             return (
-              <div key={category.key} className="flex flex-col gap-2 p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <Label
-                    htmlFor={categoryInputId}
-                    className={
-                      category.isEditable ? "cursor-pointer" : "cursor-not-allowed opacity-70"
-                    }
-                  >
-                    {t(`${categoryTranslationKey}.label`)}
-                  </Label>
-                  <Switch
-                    id={categoryInputId}
-                    checked={consent[category.key]}
-                    disabled={!category.isEditable}
-                    onCheckedChange={(checked) => handleCategoryCheckedChange(category, checked)}
-                    aria-label={t(`${categoryTranslationKey}.ariaLabel`)}
-                  />
+              <Collapsible
+                key={category.key}
+                open={isOpen}
+                onOpenChange={(open) =>
+                  setOpenCategoryKeys((currentState) => ({
+                    ...currentState,
+                    [category.key]: open,
+                  }))
+                }
+              >
+                <div className="flex flex-col gap-2 p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <CollapsibleTrigger className="flex min-w-0 items-center gap-2">
+                      <ChevronDownIcon
+                        aria-hidden="true"
+                        className={cn("size-4 shrink-0", isOpen && "rotate-180")}
+                      />
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span id={categoryLabelId} className="block text-sm font-medium">
+                          {t(`${categoryTranslationKey}.label`)}
+                        </span>
+                        {!category.isEditable && (
+                          <Badge variant="default">
+                            {t(`${categoryTranslationKey}.alwaysEnabled`)}
+                          </Badge>
+                        )}
+                      </div>
+                    </CollapsibleTrigger>
+                    <Switch
+                      id={categoryInputId}
+                      checked={consent[category.key]}
+                      disabled={!category.isEditable}
+                      onCheckedChange={(checked) => handleCategoryCheckedChange(category, checked)}
+                      aria-labelledby={categoryLabelId}
+                      aria-label={t(`${categoryTranslationKey}.ariaLabel`)}
+                    />
+                  </div>
+
+                  <CollapsibleContent className="overflow-hidden">
+                    <p className="text-muted-foreground pt-1 text-sm">
+                      {t(`${categoryTranslationKey}.description`)}
+                    </p>
+                  </CollapsibleContent>
                 </div>
-                <p
-                  className={
-                    category.isEditable
-                      ? "text-muted-foreground text-sm"
-                      : "text-muted-foreground text-sm opacity-70"
-                  }
-                >
-                  {t(`${categoryTranslationKey}.description`)}
-                </p>
-              </div>
+              </Collapsible>
             );
           })}
         </div>
 
-        <div className="mt-4">
+        <div>
           <p className="text-muted-foreground text-sm">
             {t("moreInfo")}{" "}
             <Link

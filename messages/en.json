@@ -2180,6 +2180,7 @@
         "categories": {
           "necessary": {
             "label": "Necessary",
+            "alwaysEnabled": "Always enabled",
             "ariaLabel": "Necessary cookies (always enabled)",
             "description": "Required for the website and app to function, including security, session handling and storing your cookie choices."
           },

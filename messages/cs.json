@@ -2179,6 +2179,7 @@
         "categories": {
           "necessary": {
             "label": "Nezbytné",
+            "alwaysEnabled": "Vždy zapnuté",
             "ariaLabel": "Nezbytné cookies (vždy povolené)",
             "description": "Jsou nutné pro fungování webu a aplikace, zabezpečení, udržení relace a uložení vašich voleb ohledně cookies."
           },
