@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { createPageMetadata } from "@/lib/metadata";
 import { ContactCopyItem } from "@/features/marketing/contact/contact-copy-item";
+import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { legal } from "@/config/legal";
 
@@ -57,6 +58,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   });
 
   const sessionResponse = await getServerAuthSession();
+
+  await applyServerAuthCookies(sessionResponse.setCookie);
+
   const isAuthenticated = sessionResponse.ok && Boolean(sessionResponse.data.session);
 
   return (

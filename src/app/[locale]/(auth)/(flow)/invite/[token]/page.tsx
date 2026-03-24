@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { type AppHref, redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
+import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
@@ -57,6 +58,9 @@ export default async function Page({ params }: InviteTokenPageProps) {
     namespace: "common.error",
   });
   const sessionResponse = await getServerAuthSession();
+
+  await applyServerAuthCookies(sessionResponse.setCookie);
+
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!session) {

@@ -14,6 +14,7 @@ import { ApplicationPageShell } from "@/features/application/application-page-sh
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
+import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
 
@@ -46,6 +47,9 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   setRequestLocale(locale as Locale);
 
   const sessionResponse = await getServerAuthSession();
+
+  await applyServerAuthCookies(sessionResponse.setCookie);
+
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!sessionResponse.ok || !session) {

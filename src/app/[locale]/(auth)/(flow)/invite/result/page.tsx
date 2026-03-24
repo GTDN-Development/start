@@ -6,6 +6,7 @@ import { Link } from "@/components/ui/link";
 import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { InviteSignOutButton } from "../invite-sign-out-button";
 import { InviteStatePanel } from "../invite-state-panel";
+import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { createPageMetadata } from "@/lib/metadata";
 import type { AppHref } from "@/i18n/navigation";
@@ -52,6 +53,9 @@ export default async function Page({ params, searchParams }: InviteResultPagePro
     namespace: "common.error",
   });
   const sessionResponse = await getServerAuthSession();
+
+  await applyServerAuthCookies(sessionResponse.setCookie);
+
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
   const applicationEntryHref = session ? await resolveApplicationEntryHref(session.user.id) : null;
   const inviteResultState = parseInviteResultState(query.state);
