@@ -1,4 +1,8 @@
-# Project Architecture Principles
+# KISS Project Architecture Principles
+
+This project aims to keep technical debt as low as reasonably possible.
+We follow a KISS approach with as little ceremony and accidental complexity as possible, while still treating this repository as a production-grade starter for PocketBase-based SaaS applications.
+Simplicity here does not mean cutting corners. It means choosing clear, durable, maintainable solutions that hold up to real product use without introducing unnecessary architecture.
 
 This project is a forkable SaaS starter, not a framework, plugin platform, or internal SDK.
 
