@@ -27,7 +27,6 @@ import {
   changeWorkspaceMemberRoleForCurrentUser,
   leaveWorkspaceForCurrentUser,
   removeWorkspaceMemberForCurrentUser,
-  transferWorkspaceOwnershipForCurrentUser,
 } from "@/server/workspaces/workspace-members-service";
 import {
   createWorkspaceInviteForCurrentUser,
@@ -270,29 +269,6 @@ export async function removeMemberAction(
   return finalizeWorkspaceAction(response, () => ({
     memberId: parsedMemberId.data,
   }));
-}
-
-export async function transferOwnershipAction(
-  workspaceSlug: string,
-  targetMemberId: string
-): Promise<WorkspaceResponse<{ previousOwnerMemberId: string; nextOwnerMemberId: string }>> {
-  const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
-  const parsedTargetMemberId = workspaceIdSchema.safeParse(targetMemberId);
-
-  if (!parsedWorkspaceSlug.success || !parsedTargetMemberId.success) {
-    return createBadRequestResponse();
-  }
-
-  const response = await transferWorkspaceOwnershipForCurrentUser(
-    parsedWorkspaceSlug.data,
-    parsedTargetMemberId.data
-  );
-
-  if (response.ok) {
-    revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
-  }
-
-  return finalizeWorkspaceAction(response);
 }
 
 export async function createInviteAction(

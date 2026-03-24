@@ -84,6 +84,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
     id: workspace.id,
     slug: workspace.slug,
     name: workspace.name,
+    currentUserId: currentUser.user.id,
     role: workspace.role,
     isCurrentUserLastOwner,
     avatarUrl: workspace.avatarUrl,

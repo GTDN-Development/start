@@ -1072,6 +1072,7 @@
             "members": {
               "ariaLabel": "Otevřít akce člena",
               "changeRole": "Změnit roli",
+              "leaveWorkspace": "Opustit workspace",
               "removeMember": "Odebrat z workspace"
             },
             "invites": {

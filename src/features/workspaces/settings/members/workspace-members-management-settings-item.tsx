@@ -3,9 +3,11 @@
 import { startTransition, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { APP_HOME_PATH } from "@/config/routes";
 import {
   CopyIcon,
   InboxIcon,
+  LogOutIcon,
   MoreHorizontalIcon,
   PencilLineIcon,
   SendIcon,
@@ -67,17 +69,18 @@ import {
 } from "@/features/workspaces/settings/members/workspace-member-roles";
 import {
   changeMemberRoleAction,
+  leaveWorkspaceAction,
   refreshInviteLinkAction,
   removeMemberAction,
   resendInviteAction,
   revokeInviteAction,
-  transferOwnershipAction,
 } from "@/features/workspaces/actions/workspace-actions";
 import type {
   WorkspaceSettingsInvite,
   WorkspaceSettingsMember,
   WorkspaceSettingsWorkspace,
 } from "@/features/workspaces/settings/workspace-settings-types";
+import { useRouter } from "@/i18n/navigation";
 import { getAvatarColorClass, getUserInitials, runAsyncTransition } from "@/lib/app-utils";
 import {
   Table,
@@ -101,6 +104,9 @@ type ManagementActionState =
       memberId: string;
     }
   | {
+      type: "leave-workspace";
+    }
+  | {
       type: "resend-invitation";
       invitationId: string;
     }
@@ -118,7 +124,6 @@ export function WorkspaceMembersManagementSettingsItem({
   onInviteResent,
   onMemberRemoved,
   onMemberRoleChanged,
-  onOwnershipTransferred,
 }: {
   workspace: WorkspaceSettingsWorkspace;
   members: WorkspaceSettingsMember[];
@@ -130,18 +135,24 @@ export function WorkspaceMembersManagementSettingsItem({
   ) => void;
   onMemberRemoved: (memberId: string) => void;
   onMemberRoleChanged: (memberId: string, role: WorkspaceSettingsMember["role"]) => void;
-  onOwnershipTransferred: (previousOwnerMemberId: string, nextOwnerMemberId: string) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const tCommon = useTranslations("pages.workspace.common");
+  const tLeave = useTranslations("pages.workspace.general.leave");
   const locale = useLocale() as AppLocale;
+  const router = useRouter();
 
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
 
-  const isReadOnly = workspace.role === "member";
+  const isInviteManagementReadOnly = workspace.role === "member";
   const ownerCount = members.filter((member) => member.role === "owner").length;
+  const currentUserMember =
+    members.find((member) => member.userId === workspace.currentUserId) ?? null;
+  const isCurrentUserLastOwner = currentUserMember
+    ? isLastOwnerMember(currentUserMember, ownerCount)
+    : false;
   const hasPendingInvitations = invites.length > 0;
   const roleOptions = getAssignableWorkspaceMemberRoleOptions(workspace.role);
 
@@ -153,6 +164,7 @@ export function WorkspaceMembersManagementSettingsItem({
     actionState?.type === "remove-member"
       ? (members.find((member) => member.id === actionState.memberId) ?? null)
       : null;
+  const leaveWorkspaceTarget = actionState?.type === "leave-workspace" ? currentUserMember : null;
   const resendInvitationTarget =
     actionState?.type === "resend-invitation"
       ? (invites.find((invitation) => invitation.id === actionState.invitationId) ?? null)
@@ -169,7 +181,7 @@ export function WorkspaceMembersManagementSettingsItem({
     : false;
 
   function handleChangeRoleRequest(member: WorkspaceSettingsMember) {
-    if (isReadOnly || !canManageWorkspaceMember(workspace.role, member.role)) {
+    if (!canManageWorkspaceMember(workspace.role, member.role)) {
       return;
     }
 
@@ -181,7 +193,7 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   function handleRemoveMemberRequest(member: WorkspaceSettingsMember) {
-    if (isReadOnly || !canManageWorkspaceMember(workspace.role, member.role)) {
+    if (!canManageWorkspaceMember(workspace.role, member.role)) {
       return;
     }
 
@@ -195,8 +207,18 @@ export function WorkspaceMembersManagementSettingsItem({
     });
   }
 
+  function handleLeaveWorkspaceRequest() {
+    if (!currentUserMember) {
+      return;
+    }
+
+    setActionState({
+      type: "leave-workspace",
+    });
+  }
+
   function handleResendInvitationRequest(invitation: WorkspaceSettingsInvite) {
-    if (isReadOnly) {
+    if (isInviteManagementReadOnly) {
       return;
     }
 
@@ -207,7 +229,7 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   function handleRemoveInvitationRequest(invitation: WorkspaceSettingsInvite) {
-    if (isReadOnly) {
+    if (isInviteManagementReadOnly) {
       return;
     }
 
@@ -218,7 +240,7 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   async function handleCopyInvitationLink(invitation: WorkspaceSettingsInvite) {
-    if (isReadOnly) {
+    if (isInviteManagementReadOnly) {
       return;
     }
 
@@ -284,10 +306,6 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   async function handleChangeRoleConfirm() {
-    if (isReadOnly) {
-      return;
-    }
-
     if (!changeRoleMember || actionState?.type !== "change-role") {
       return;
     }
@@ -304,31 +322,6 @@ export function WorkspaceMembersManagementSettingsItem({
     if (!canChangeWorkspaceMemberRole(workspace.role, changeRoleMember.role, nextRole)) {
       setIsActionSubmitting(false);
       toast.error(t("errors.forbidden"));
-      return;
-    }
-
-    if (nextRole === "owner" && changeRoleMember.role !== "owner") {
-      const actionResponse = await runAsyncTransition(() =>
-        transferOwnershipAction(workspace.slug, changeRoleMember.id)
-      );
-
-      if (!actionResponse.ok) {
-        setIsActionSubmitting(false);
-        toast.error(
-          getActionErrorMessage(actionResponse.errorCode, t("status.roleChange.error"), t)
-        );
-        return;
-      }
-
-      startTransition(() => {
-        setIsActionSubmitting(false);
-        setActionState(null);
-        onOwnershipTransferred(
-          actionResponse.data.previousOwnerMemberId,
-          actionResponse.data.nextOwnerMemberId
-        );
-      });
-      toast.success(t("status.roleChange.success"));
       return;
     }
 
@@ -350,11 +343,40 @@ export function WorkspaceMembersManagementSettingsItem({
     toast.success(t("status.roleChange.success"));
   }
 
-  async function handleRemoveMemberConfirm() {
-    if (isReadOnly) {
+  async function handleLeaveWorkspaceConfirm() {
+    if (!leaveWorkspaceTarget) {
       return;
     }
 
+    if (isCurrentUserLastOwner) {
+      toast.error(tLeave("status.lastOwnerGuard"));
+      return;
+    }
+
+    setIsActionSubmitting(true);
+
+    const response = await runAsyncTransition(() => leaveWorkspaceAction(workspace.slug));
+
+    if (!response.ok) {
+      setIsActionSubmitting(false);
+      toast.error(
+        response.errorCode === "LAST_OWNER_GUARD"
+          ? tLeave("status.lastOwnerGuard")
+          : tLeave("status.failed")
+      );
+      return;
+    }
+
+    toast.success(tLeave("status.success"));
+
+    startTransition(() => {
+      setIsActionSubmitting(false);
+      setActionState(null);
+      router.replace(APP_HOME_PATH);
+    });
+  }
+
+  async function handleRemoveMemberConfirm() {
     if (!removeMemberTarget) {
       return;
     }
@@ -385,7 +407,7 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   async function handleResendInvitationConfirm() {
-    if (isReadOnly) {
+    if (isInviteManagementReadOnly) {
       return;
     }
 
@@ -417,7 +439,7 @@ export function WorkspaceMembersManagementSettingsItem({
   }
 
   async function handleRemoveInvitationConfirm() {
-    if (isReadOnly) {
+    if (isInviteManagementReadOnly) {
       return;
     }
 
@@ -446,14 +468,11 @@ export function WorkspaceMembersManagementSettingsItem({
 
   return (
     <div className="pt-6">
-      <SettingsItem disabled={isReadOnly}>
+      <SettingsItem>
         <SettingsItemContent className="flex flex-col gap-6">
           <SettingsItemContentHeader>
             <SettingsItemTitle>{t("title")}</SettingsItemTitle>
             <SettingsItemDescription>{t("description")}</SettingsItemDescription>
-            {isReadOnly && (
-              <SettingsItemDescription>{tCommon("readOnlyHint")}</SettingsItemDescription>
-            )}
           </SettingsItemContentHeader>
 
           <SettingsItemContentBody className="@container/members-management grid gap-4">
@@ -469,10 +488,11 @@ export function WorkspaceMembersManagementSettingsItem({
                 <div className="hidden @lg/members-management:block">
                   <MembersTable
                     rows={members}
+                    currentUserId={workspace.currentUserId}
                     actorRole={workspace.role}
                     ownerCount={ownerCount}
-                    isReadOnly={isReadOnly}
                     onChangeRoleRequest={handleChangeRoleRequest}
+                    onLeaveWorkspaceRequest={handleLeaveWorkspaceRequest}
                     onRemoveMemberRequest={handleRemoveMemberRequest}
                   />
                 </div>
@@ -481,10 +501,11 @@ export function WorkspaceMembersManagementSettingsItem({
                     <MemberDescriptionRow
                       key={member.id}
                       member={member}
+                      currentUserId={workspace.currentUserId}
                       actorRole={workspace.role}
                       ownerCount={ownerCount}
-                      isReadOnly={isReadOnly}
                       onChangeRoleRequest={handleChangeRoleRequest}
+                      onLeaveWorkspaceRequest={handleLeaveWorkspaceRequest}
                       onRemoveMemberRequest={handleRemoveMemberRequest}
                     />
                   ))}
@@ -497,7 +518,7 @@ export function WorkspaceMembersManagementSettingsItem({
                     <div className="hidden @lg/members-management:block">
                       <PendingInvitationsTable
                         rows={invites}
-                        isReadOnly={isReadOnly}
+                        isReadOnly={isInviteManagementReadOnly}
                         onCopyInvitationLink={handleCopyInvitationLink}
                         onResendInvitationRequest={handleResendInvitationRequest}
                         onRemoveInvitationRequest={handleRemoveInvitationRequest}
@@ -508,7 +529,7 @@ export function WorkspaceMembersManagementSettingsItem({
                         <PendingInvitationDescriptionRow
                           key={invitation.id}
                           invitation={invitation}
-                          isReadOnly={isReadOnly}
+                          isReadOnly={isInviteManagementReadOnly}
                           onCopyInvitationLink={handleCopyInvitationLink}
                           onResendInvitationRequest={handleResendInvitationRequest}
                           onRemoveInvitationRequest={handleRemoveInvitationRequest}
@@ -593,6 +614,46 @@ export function WorkspaceMembersManagementSettingsItem({
               {isActionSubmitting
                 ? t("dialogs.changeRole.submit.pending")
                 : t("dialogs.changeRole.submit.default")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={Boolean(leaveWorkspaceTarget)} onOpenChange={handleActionDialogOpenChange}>
+        <AlertDialogContent className="sm:max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tLeave("dialog.title")}</AlertDialogTitle>
+            <AlertDialogDescription>{tLeave("dialog.description")}</AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {leaveWorkspaceTarget && <MemberSummaryRow member={leaveWorkspaceTarget} />}
+
+          {isCurrentUserLastOwner && (
+            <Alert>
+              <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
+              <AlertDescription>{tLeave("ownerGuardHint")}</AlertDescription>
+            </Alert>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
+              {tCommon("cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              type="button"
+              size="lg"
+              variant="destructive"
+              disabled={isActionSubmitting || !leaveWorkspaceTarget || isCurrentUserLastOwner}
+              onClick={handleLeaveWorkspaceConfirm}
+            >
+              {isActionSubmitting ? (
+                <Spinner />
+              ) : (
+                <LogOutIcon aria-hidden="true" className="size-4" />
+              )}
+              {isActionSubmitting
+                ? tLeave("dialog.submit.pending")
+                : tLeave("dialog.submit.default")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -742,17 +803,19 @@ function getActionErrorMessage(
 
 function MembersTable({
   rows,
+  currentUserId,
   actorRole,
   ownerCount,
-  isReadOnly,
   onChangeRoleRequest,
+  onLeaveWorkspaceRequest,
   onRemoveMemberRequest,
 }: {
   rows: WorkspaceSettingsMember[];
+  currentUserId: string;
   actorRole: WorkspaceSettingsWorkspace["role"];
   ownerCount: number;
-  isReadOnly: boolean;
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
+  onLeaveWorkspaceRequest: () => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
@@ -777,13 +840,14 @@ function MembersTable({
             <TableCell className="text-right">
               <MembersActionMenu
                 member={member}
-                disabled={isReadOnly}
+                currentUserId={currentUserId}
                 isChangeRoleDisabled={!canManageWorkspaceMember(actorRole, member.role)}
                 isRemoveDisabled={
                   !canManageWorkspaceMember(actorRole, member.role) ||
                   isLastOwnerMember(member, ownerCount)
                 }
                 onChangeRoleRequest={onChangeRoleRequest}
+                onLeaveWorkspaceRequest={onLeaveWorkspaceRequest}
                 onRemoveMemberRequest={onRemoveMemberRequest}
               />
             </TableCell>
@@ -844,17 +908,19 @@ function PendingInvitationsTable({
 
 function MemberDescriptionRow({
   member,
+  currentUserId,
   actorRole,
   ownerCount,
-  isReadOnly,
   onChangeRoleRequest,
+  onLeaveWorkspaceRequest,
   onRemoveMemberRequest,
 }: {
   member: WorkspaceSettingsMember;
+  currentUserId: string;
   actorRole: WorkspaceSettingsWorkspace["role"];
   ownerCount: number;
-  isReadOnly: boolean;
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
+  onLeaveWorkspaceRequest: () => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
@@ -875,13 +941,14 @@ function MemberDescriptionRow({
         <DescriptionDetails>
           <MembersActionMenu
             member={member}
-            disabled={isReadOnly}
+            currentUserId={currentUserId}
             isChangeRoleDisabled={!canManageWorkspaceMember(actorRole, member.role)}
             isRemoveDisabled={
               !canManageWorkspaceMember(actorRole, member.role) ||
               isLastOwnerMember(member, ownerCount)
             }
             onChangeRoleRequest={onChangeRoleRequest}
+            onLeaveWorkspaceRequest={onLeaveWorkspaceRequest}
             onRemoveMemberRequest={onRemoveMemberRequest}
           />
         </DescriptionDetails>
@@ -981,20 +1048,24 @@ function InvitationSummaryRow({ invitation }: { invitation: WorkspaceSettingsInv
 
 function MembersActionMenu({
   member,
-  disabled,
+  currentUserId,
   isChangeRoleDisabled,
   isRemoveDisabled,
   onChangeRoleRequest,
+  onLeaveWorkspaceRequest,
   onRemoveMemberRequest,
 }: {
   member: WorkspaceSettingsMember;
-  disabled: boolean;
+  currentUserId: string;
   isChangeRoleDisabled: boolean;
   isRemoveDisabled: boolean;
   onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
+  onLeaveWorkspaceRequest: () => void;
   onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
+  const isCurrentUser = member.userId === currentUserId;
+  const isActionMenuDisabled = isCurrentUser ? false : isChangeRoleDisabled && isRemoveDisabled;
 
   return (
     <DropdownMenu>
@@ -1006,7 +1077,7 @@ function MembersActionMenu({
             variant="ghost"
             size="icon"
             aria-label={t("menus.members.ariaLabel")}
-            disabled={disabled || (isChangeRoleDisabled && isRemoveDisabled)}
+            disabled={isActionMenuDisabled}
           >
             <MoreHorizontalIcon aria-hidden="true" className="size-4" />
           </Button>
@@ -1015,17 +1086,23 @@ function MembersActionMenu({
       <DropdownMenuContent align="end" className="w-auto min-w-44">
         <DropdownMenuItem
           onClick={() => onChangeRoleRequest(member)}
-          disabled={disabled || isChangeRoleDisabled}
+          disabled={isChangeRoleDisabled}
         >
           <PencilLineIcon aria-hidden="true" /> {t("menus.members.changeRole")}
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => onRemoveMemberRequest(member)}
-          variant="destructive"
-          disabled={disabled || isRemoveDisabled}
-        >
-          <TrashIcon aria-hidden="true" /> {t("menus.members.removeMember")}
-        </DropdownMenuItem>
+        {isCurrentUser ? (
+          <DropdownMenuItem onClick={onLeaveWorkspaceRequest} variant="destructive">
+            <LogOutIcon aria-hidden="true" /> {t("menus.members.leaveWorkspace")}
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            onClick={() => onRemoveMemberRequest(member)}
+            variant="destructive"
+            disabled={isRemoveDisabled}
+          >
+            <TrashIcon aria-hidden="true" /> {t("menus.members.removeMember")}
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

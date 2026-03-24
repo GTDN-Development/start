@@ -1072,6 +1072,7 @@
             "members": {
               "ariaLabel": "Open member actions",
               "changeRole": "Change role",
+              "leaveWorkspace": "Leave workspace",
               "removeMember": "Remove from workspace"
             },
             "invites": {

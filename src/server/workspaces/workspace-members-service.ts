@@ -1,7 +1,6 @@
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
 import {
   requireAdminWorkspaceAccessBySlug,
-  requireOwnerWorkspaceAccessBySlug,
   requireWorkspaceAccess,
 } from "@/server/workspaces/workspace-access";
 import {
@@ -179,8 +178,7 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
 
     if (
       !canManageMemberRole(adminAccess.context.membership.role, memberRecord.role) ||
-      !canAssignMemberRole(adminAccess.context.membership.role, role) ||
-      (role === "owner" && memberRecord.role !== "owner")
+      !canAssignMemberRole(adminAccess.context.membership.role, role)
     ) {
       return {
         ok: false,
@@ -270,6 +268,13 @@ export async function removeWorkspaceMemberForCurrentUser(
       };
     }
 
+    if (memberRecord.id === adminAccess.context.membership.id) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
+    }
+
     if (!canManageMemberRole(adminAccess.context.membership.role, memberRecord.role)) {
       return {
         ok: false,
@@ -314,95 +319,6 @@ export async function removeWorkspaceMemberForCurrentUser(
 
     if (errorCode === "UNKNOWN_ERROR") {
       logWorkspaceServiceError("removeWorkspaceMemberForCurrentUser", error);
-    }
-
-    return {
-      ok: false,
-      errorCode,
-    };
-  }
-}
-
-export async function transferWorkspaceOwnershipForCurrentUser(
-  workspaceSlug: string,
-  targetMemberId: string
-): Promise<
-  ServerWorkspaceResponse<{ previousOwnerMemberId: string; nextOwnerMemberId: string }>
-> {
-  const currentUser = await requireWorkspaceAuthContext();
-
-  if (!currentUser.ok) {
-    return currentUser.response;
-  }
-
-  try {
-    const ownerAccess = await requireOwnerWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
-
-    if (!ownerAccess.ok) {
-      return ownerAccess.response;
-    }
-
-    const targetMemberRecord = await findWorkspaceMemberById(
-      ownerAccess.context.pb,
-      ownerAccess.context.workspace.id,
-      targetMemberId
-    );
-
-    if (!targetMemberRecord) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    if (
-      targetMemberRecord.id === ownerAccess.context.membership.id ||
-      targetMemberRecord.role === "owner"
-    ) {
-      return {
-        ok: true,
-        data: {
-          previousOwnerMemberId: ownerAccess.context.membership.id,
-          nextOwnerMemberId: targetMemberRecord.id,
-        },
-      };
-    }
-
-    const batch = ownerAccess.context.pb.createBatch();
-    batch.collection("workspace_members").update(ownerAccess.context.membership.id, {
-      role: "admin",
-    });
-    batch.collection("workspace_members").update(targetMemberRecord.id, {
-      role: "owner",
-    });
-    await batch.send();
-
-    return {
-      ok: true,
-      data: {
-        previousOwnerMemberId: ownerAccess.context.membership.id,
-        nextOwnerMemberId: targetMemberRecord.id,
-      },
-    };
-  } catch (error) {
-    const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
-      if (pocketBaseError.status === 400) {
-        return "BAD_REQUEST";
-      }
-
-      if (pocketBaseError.status === 403) {
-        return "FORBIDDEN";
-      }
-
-      if (pocketBaseError.status === 404) {
-        return "NOT_FOUND";
-      }
-
-      return null;
-    });
-
-    if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("transferWorkspaceOwnershipForCurrentUser", error);
     }
 
     return {

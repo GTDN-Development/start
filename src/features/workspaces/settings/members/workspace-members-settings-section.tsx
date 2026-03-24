@@ -18,6 +18,7 @@ export function WorkspaceMembersSettingsSection({
   initialMembers: WorkspaceSettingsMember[];
   initialInvites: WorkspaceSettingsInvite[];
 }) {
+  const [workspaceState, setWorkspaceState] = useState(workspace);
   const [members, setMembers] = useState(initialMembers);
   const [invites, setInvites] = useState(initialInvites);
 
@@ -39,59 +40,67 @@ export function WorkspaceMembersSettingsSection({
   }
 
   function handleMemberRoleChanged(memberId: string, role: WorkspaceSettingsMember["role"]) {
-    setMembers((currentMembers) =>
-      sortWorkspaceSettingsMembers(
+    setMembers((currentMembers) => {
+      const nextMembers = sortWorkspaceSettingsMembers(
         currentMembers.map((member) => (member.id === memberId ? { ...member, role } : member))
-      )
-    );
-  }
+      );
 
-  function handleOwnershipTransferred(previousOwnerMemberId: string, nextOwnerMemberId: string) {
-    setMembers((currentMembers) =>
-      sortWorkspaceSettingsMembers(
-        currentMembers.map((member) => {
-          if (member.id === previousOwnerMemberId) {
-            return {
-              ...member,
-              role: "admin",
-            };
-          }
+      setWorkspaceState((currentWorkspace) =>
+        deriveWorkspaceStateFromMembers(currentWorkspace, nextMembers)
+      );
 
-          if (member.id === nextOwnerMemberId) {
-            return {
-              ...member,
-              role: "owner",
-            };
-          }
-
-          return member;
-        })
-      )
-    );
+      return nextMembers;
+    });
   }
 
   function handleMemberRemoved(memberId: string) {
-    setMembers((currentMembers) => currentMembers.filter((member) => member.id !== memberId));
+    setMembers((currentMembers) => {
+      const nextMembers = currentMembers.filter((member) => member.id !== memberId);
+
+      setWorkspaceState((currentWorkspace) =>
+        deriveWorkspaceStateFromMembers(currentWorkspace, nextMembers)
+      );
+
+      return nextMembers;
+    });
   }
 
   return (
     <div className="grid gap-8">
       <WorkspaceInviteMembersSettingsItem
-        workspace={workspace}
+        workspace={workspaceState}
         onInviteCreated={handleInviteCreated}
       />
       <WorkspaceMembersManagementSettingsItem
-        workspace={workspace}
+        workspace={workspaceState}
         members={members}
         invites={invites}
         onInviteRemoved={handleInviteRemoved}
         onInviteResent={handleInviteResent}
         onMemberRemoved={handleMemberRemoved}
         onMemberRoleChanged={handleMemberRoleChanged}
-        onOwnershipTransferred={handleOwnershipTransferred}
       />
     </div>
   );
+}
+
+function deriveWorkspaceStateFromMembers(
+  workspace: WorkspaceSettingsWorkspace,
+  members: WorkspaceSettingsMember[]
+): WorkspaceSettingsWorkspace {
+  const currentUserMember =
+    members.find((member) => member.userId === workspace.currentUserId) ?? null;
+  const ownerCount = members.filter((member) => member.role === "owner").length;
+
+  if (!currentUserMember) {
+    return workspace;
+  }
+
+  return {
+    ...workspace,
+    role: currentUserMember.role,
+    isCurrentUserLastOwner: currentUserMember.role === "owner" && ownerCount === 1,
+  };
 }
 
 function sortWorkspaceSettingsMembers(members: WorkspaceSettingsMember[]) {
