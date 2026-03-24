@@ -1275,9 +1275,7 @@
         "email": "Please enter a valid email address.",
         "passwordMin": "Password must be at least 8 characters.",
         "passwordMax": "Password must not exceed 100 characters.",
-        "confirmPassword": "Please confirm your password.",
         "termsAccepted": "You must accept the privacy policy.",
-        "passwordMismatch": "Passwords do not match.",
         "turnstile": "Please complete the verification."
       },
       "passwordVisibility": {
@@ -1301,10 +1299,6 @@
           "label": "Password",
           "placeholder": "Create a strong password",
           "description": "Use at least 8 characters."
-        },
-        "confirmPassword": {
-          "label": "Confirm password",
-          "placeholder": "Repeat your password"
         },
         "termsAccepted": {
           "label": "I agree to the <link>privacy policy</link>."

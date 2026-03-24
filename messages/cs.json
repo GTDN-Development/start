@@ -1275,9 +1275,7 @@
         "email": "Zadejte prosím platnou e-mailovou adresu.",
         "passwordMin": "Heslo musí mít alespoň 8 znaků.",
         "passwordMax": "Heslo nesmí být delší než 100 znaků.",
-        "confirmPassword": "Potvrďte prosím své heslo.",
         "termsAccepted": "Musíte přijmout zásady ochrany osobních údajů.",
-        "passwordMismatch": "Hesla se neshodují.",
         "turnstile": "Dokončete prosím ověření."
       },
       "passwordVisibility": {
@@ -1301,10 +1299,6 @@
           "label": "Heslo",
           "placeholder": "Vytvořte silné heslo",
           "description": "Použijte alespoň 8 znaků."
-        },
-        "confirmPassword": {
-          "label": "Potvrzení hesla",
-          "placeholder": "Zopakujte své heslo"
         },
         "termsAccepted": {
           "label": "Souhlasím se <link>zásadami ochrany osobních údajů</link>."

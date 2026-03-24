@@ -147,7 +147,7 @@ export async function signUpWithPassword(
     await pb.collection("users").create<UsersRecord>({
       email: input.email,
       password: input.password,
-      passwordConfirm: input.confirmPassword,
+      passwordConfirm: input.password,
       name: createDisplayName(input.firstName, input.lastName),
     });
 

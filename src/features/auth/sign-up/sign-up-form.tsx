@@ -39,8 +39,6 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     email: t("validation.email"),
     passwordMin: t("validation.passwordMin"),
     passwordMax: t("validation.passwordMax"),
-    confirmPassword: t("validation.confirmPassword"),
-    passwordMismatch: t("validation.passwordMismatch"),
   });
   const turnstileSchema = z.object({
     turnstileToken: z.string().min(1, {
@@ -54,7 +52,6 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       lastName: "",
       email: "",
       password: "",
-      confirmPassword: "",
       turnstileToken: "",
     },
     validators: {
@@ -112,7 +109,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
         >
           {({ isSubmitting, submissionAttempts }) => (
             <FieldGroup>
-              <div className="grid gap-4 @md:grid-cols-2">
+              <div className="grid gap-4 @sm:grid-cols-2">
                 <form.Field name="firstName">
                   {(field) => {
                     const isInvalid =
@@ -216,34 +213,6 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                         hidePasswordLabel={t("passwordVisibility.hide")}
                       />
                       <FieldDescription>{t("fields.password.description")}</FieldDescription>
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                    </Field>
-                  );
-                }}
-              </form.Field>
-
-              <form.Field name="confirmPassword">
-                {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={`signup-${field.name}`}>
-                        {t("fields.confirmPassword.label")}
-                      </FieldLabel>
-                      <PasswordInput
-                        id={`signup-${field.name}`}
-                        name={`signup-${field.name}`}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        autoComplete="new-password"
-                        placeholder={t("fields.confirmPassword.placeholder")}
-                        showPasswordLabel={t("passwordVisibility.show")}
-                        hidePasswordLabel={t("passwordVisibility.hide")}
-                      />
                       {isInvalid && <FieldError errors={field.state.meta.errors} />}
                     </Field>
                   );
