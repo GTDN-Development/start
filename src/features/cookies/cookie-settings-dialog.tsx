@@ -4,7 +4,6 @@ import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -89,7 +88,9 @@ export function CookieSettingsDialog() {
                   <div className="flex items-center justify-between gap-2">
                     <Label
                       htmlFor={categoryInputId}
-                      className={category.isEditable ? "cursor-pointer" : "cursor-not-allowed opacity-70"}
+                      className={
+                        category.isEditable ? "cursor-pointer" : "cursor-not-allowed opacity-70"
+                      }
                     >
                       {t(`${categoryTranslationKey}.label`)}
                     </Label>
@@ -129,20 +130,23 @@ export function CookieSettingsDialog() {
             </p>
           </div>
         </div>
-        <AlertDialogFooter className="mt-4">
-          <AlertDialogPrimitive.Close render={<Button variant="secondary" />} onClick={handleDeny}>
-            {t("actions.deny")}
-          </AlertDialogPrimitive.Close>
-          <AlertDialogPrimitive.Close
-            render={<Button variant="secondary" />}
-            onClick={handleAcceptAll}
-          >
-            {t("actions.acceptAll")}
-          </AlertDialogPrimitive.Close>
-          <AlertDialogPrimitive.Close render={<Button />} onClick={handleSave}>
+
+        <div className="mt-4 flex items-center gap-2">
+          <AlertDialogPrimitive.Close render={<Button variant="secondary" />} onClick={handleSave}>
             {t("actions.save")}
           </AlertDialogPrimitive.Close>
-        </AlertDialogFooter>
+          <div className="ml-auto flex gap-2">
+            <AlertDialogPrimitive.Close
+              render={<Button variant="secondary" />}
+              onClick={handleDeny}
+            >
+              {t("actions.deny")}
+            </AlertDialogPrimitive.Close>
+            <AlertDialogPrimitive.Close render={<Button />} onClick={handleAcceptAll}>
+              {t("actions.acceptAll")}
+            </AlertDialogPrimitive.Close>
+          </div>
+        </div>
       </AlertDialogContent>
     </AlertDialog>
   );

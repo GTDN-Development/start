@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Link } from "@/components/ui/link";
+import { legalLinks } from "@/config/navigation";
 import { useCookieContext } from "./cookie-context";
 import { useTranslations } from "next-intl";
 
@@ -13,21 +15,36 @@ export function CookieConsentBanner() {
   }
 
   return (
-    <div className="pointer-events-none fixed bottom-0 left-0 z-50 w-screen max-w-lg px-5 pb-3">
-      <div className="bg-background text-foreground border-border pointer-events-auto grid w-full gap-5 rounded-xl border p-4 shadow-md dark:shadow-none">
-        <div>
-          <p>{t("description")}</p>
-        </div>
-        <div className="flex flex-wrap items-center justify-start gap-3">
-          <Button variant="secondary" size="sm" onClick={rejectAll}>
-            {t("deny")}
-          </Button>
-          <Button variant="secondary" size="sm" onClick={acceptAll}>
-            {t("acceptAll")}
-          </Button>
-          <Button size="sm" className="sm:ml-auto sm:justify-self-end" onClick={openSettingsDialog}>
-            {t("settings")}
-          </Button>
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 px-6 pb-3">
+      <div className="mx-auto w-full max-w-7xl">
+        <div className="bg-background text-foreground border-border pointer-events-auto w-full overflow-hidden rounded-xl border shadow-md dark:shadow-none">
+          <div className="grid gap-5 p-8">
+            <div>
+              <p>{t("description")}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button size="lg" variant="secondary" onClick={openSettingsDialog}>
+                {t("settings")}
+              </Button>
+              <div className="ml-auto flex gap-2">
+                <Button variant="secondary" size="lg" onClick={rejectAll}>
+                  {t("deny")}
+                </Button>
+                <Button variant="default" size="lg" onClick={acceptAll}>
+                  {t("acceptAll")}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-muted border-border flex items-center gap-4 px-8 py-2">
+            <Link
+              href={legalLinks.cookies.href}
+              className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+            >
+              {t("cookiesPolicy")}
+            </Link>
+          </div>
         </div>
       </div>
     </div>
