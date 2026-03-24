@@ -9,7 +9,7 @@ import {
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
 import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
-import { redirect, type AppHref } from "@/i18n/navigation";
+import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { confirmEmailVerificationToken } from "@/server/auth/auth-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
@@ -145,35 +145,14 @@ async function redirectToPostAuthDestination(locale: Locale, userId: string, use
     return;
   }
 
-  if (destination.state === "email_mismatch") {
+  if (destination.state === "invite_redirect") {
     redirect({
-      href: createInviteResultHref({
-        state: "email_mismatch",
-        invitedEmail: destination.invitedEmail,
-        currentEmail: destination.currentEmail,
-      }),
-      locale,
-    });
-
-    return;
-  }
-
-  if (destination.state === "invalid_or_expired") {
-    redirect({
-      href: createInviteResultHref({
-        state: "invalid_or_expired",
-      }),
-      locale,
-    });
-
-    return;
-  }
-
-  if (destination.state === "error") {
-    redirect({
-      href: createInviteResultHref({
-        state: "error",
-      }),
+      href: {
+        pathname: "/invite/[token]",
+        params: {
+          token: destination.inviteToken,
+        },
+      },
       locale,
     });
 
@@ -184,32 +163,6 @@ async function redirectToPostAuthDestination(locale: Locale, userId: string, use
     href: APP_HOME_PATH,
     locale,
   });
-}
-
-function createInviteResultHref(
-  input:
-    | {
-        state: "email_mismatch";
-        invitedEmail: string;
-        currentEmail: string;
-      }
-    | {
-        state: "invalid_or_expired";
-      }
-    | {
-        state: "error";
-      }
-): AppHref {
-  const searchParams = new URLSearchParams({
-    state: input.state,
-  });
-
-  if (input.state === "email_mismatch") {
-    searchParams.set("invitedEmail", input.invitedEmail);
-    searchParams.set("currentEmail", input.currentEmail);
-  }
-
-  return `/invite/result?${searchParams.toString()}` as AppHref;
 }
 
 function getPageCopyState(state: VerifyEmailPageState) {

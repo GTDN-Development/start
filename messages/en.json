@@ -287,12 +287,12 @@
         },
         "email_mismatch": {
           "title": "Email mismatch",
-          "description": "Use the invited email address.",
-          "secondary": "Invited: <strong>{invitedEmail}</strong>. Current: <strong>{currentEmail}</strong>.",
+          "description": "This invitation was sent to a different email address.",
+          "secondary": "Sign out and continue with <strong>{invitedEmail}</strong>. You're currently signed in as <strong>{currentEmail}</strong>.",
           "cta": "Sign out and continue with another account",
           "alert": {
             "title": "Use the invited account",
-            "description": "Invited: <strong>{invitedEmail}</strong>. Current: <strong>{currentEmail}</strong>."
+            "description": "Sign out and continue with <strong>{invitedEmail}</strong>. You're currently signed in as <strong>{currentEmail}</strong>."
           }
         },
         "error": {

@@ -93,8 +93,8 @@ export const routing = defineRouting({
       cs: "/overit-email",
     },
     "/invite/[token]": "/invite/[token]",
+    "/invite/[token]/accept": "/invite/[token]/accept",
     "/invite/[token]/start": "/invite/[token]/start",
-    "/invite/result": "/invite/result",
   },
 });
 

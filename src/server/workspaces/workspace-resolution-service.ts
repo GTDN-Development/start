@@ -2,12 +2,12 @@ import type PocketBase from "pocketbase";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
 import { requireWorkspaceAccess } from "@/server/workspaces/workspace-access";
+import { consumePendingInviteTokenCookie } from "@/server/workspaces/workspace-cookie";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
 } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary, sortUserWorkspaces } from "@/server/workspaces/workspace-mappers";
-import { consumePendingInviteIfPresent } from "@/server/workspaces/workspace-invite-service";
 import {
   countWorkspaceMembers,
   findWorkspaceBySlug,
@@ -145,65 +145,18 @@ export async function resolveWorkspaceForUserBySlugWithClient(
   }
 }
 
-export async function resolvePostAuthDestination(input: {
+export async function resolvePostAuthDestination(_input: {
   userId: string;
   userEmail: string;
 }): Promise<ServerWorkspaceResponse<PostAuthDestination>> {
-  const pendingInviteResponse = await consumePendingInviteIfPresent({
-    id: input.userId,
-    email: input.userEmail,
-  });
+  const pendingInviteToken = await consumePendingInviteTokenCookie();
 
-  if (!pendingInviteResponse.ok) {
-    console.warn(
-      `[workspace-service] resolvePostAuthDestination: pending invite consume failed (${pendingInviteResponse.errorCode})`
-    );
-
+  if (pendingInviteToken) {
     return {
       ok: true,
       data: {
-        state: "error",
-      },
-      ...(pendingInviteResponse.setCookie ? { setCookie: pendingInviteResponse.setCookie } : {}),
-    };
-  }
-
-  if (pendingInviteResponse.data.result.state === "accepted") {
-    return {
-      ok: true,
-      data: {
-        state: "workspace_redirect",
-        workspaceSlug: pendingInviteResponse.data.result.workspace.slug,
-      },
-    };
-  }
-
-  if (pendingInviteResponse.data.result.state === "already_member") {
-    return {
-      ok: true,
-      data: {
-        state: "workspace_redirect",
-        workspaceSlug: pendingInviteResponse.data.result.workspace.slug,
-      },
-    };
-  }
-
-  if (pendingInviteResponse.data.result.state === "email_mismatch") {
-    return {
-      ok: true,
-      data: {
-        state: "email_mismatch",
-        invitedEmail: pendingInviteResponse.data.result.invitedEmail,
-        currentEmail: pendingInviteResponse.data.result.currentEmail,
-      },
-    };
-  }
-
-  if (pendingInviteResponse.data.result.state === "invalid_or_expired") {
-    return {
-      ok: true,
-      data: {
-        state: "invalid_or_expired",
+        state: "invite_redirect",
+        inviteToken: pendingInviteToken,
       },
     };
   }

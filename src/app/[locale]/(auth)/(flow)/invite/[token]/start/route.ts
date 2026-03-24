@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { setPendingInviteHashCookie } from "@/server/workspaces/workspace-cookie";
-import {
-  hashInviteToken,
-  validateInviteToken,
-} from "@/server/workspaces/workspace-invite-service";
+import { setPendingInviteTokenCookie } from "@/server/workspaces/workspace-cookie";
+import { validateInviteToken } from "@/server/workspaces/workspace-invite-recipient-service";
 
 type InviteStartRouteContext = {
   params: Promise<{
@@ -36,7 +33,7 @@ export async function GET(request: NextRequest, context: InviteStartRouteContext
     );
   }
 
-  await setPendingInviteHashCookie(hashInviteToken(token));
+  await setPendingInviteTokenCookie(token);
 
   return NextResponse.redirect(
     createLocalizedUrl(

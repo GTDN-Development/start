@@ -83,12 +83,6 @@ export type WorkspaceInviteAcceptResult =
       currentEmail: string;
     };
 
-export type PendingInviteConsumeResult =
-  | {
-      state: "none";
-    }
-  | WorkspaceInviteAcceptResult;
-
 export type PostAuthDestination =
   | {
       state: "app";
@@ -98,15 +92,8 @@ export type PostAuthDestination =
       workspaceSlug: string;
     }
   | {
-      state: "email_mismatch";
-      invitedEmail: string;
-      currentEmail: string;
-    }
-  | {
-      state: "invalid_or_expired";
-    }
-  | {
-      state: "error";
+      state: "invite_redirect";
+      inviteToken: string;
     };
 
 export type ServerWorkspaceResponse<TData> =

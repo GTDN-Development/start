@@ -5,8 +5,7 @@ import type { AppLocale } from "@/i18n/routing";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { acceptInviteTokenForUser } from "@/server/workspaces/workspace-invite-service";
-import type { WorkspaceInviteAcceptResult } from "@/server/workspaces/workspace-types";
+import { acceptInviteTokenForUser } from "@/server/workspaces/workspace-invite-recipient-service";
 
 type InviteAcceptRouteContext = {
   params: Promise<{
@@ -84,37 +83,20 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
   }
 
   return NextResponse.redirect(
-    createInviteResultUrl(request, appLocale, acceptResponse.data.result),
-    {
-      status: 303,
-    }
+    createLocalizedUrl(
+      request,
+      getPathname({
+        href: {
+          pathname: "/invite/[token]",
+          params: {
+            token,
+          },
+        },
+        locale: appLocale,
+      })
+    ),
+    { status: 303 }
   );
-}
-
-function createInviteResultUrl(
-  request: NextRequest,
-  locale: AppLocale,
-  result: Extract<
-    WorkspaceInviteAcceptResult,
-    { state: "email_mismatch" } | { state: "invalid_or_expired" }
-  >
-) {
-  const inviteResultUrl = createLocalizedUrl(
-    request,
-    getPathname({
-      href: "/invite/result",
-      locale,
-    })
-  );
-
-  inviteResultUrl.searchParams.set("state", result.state);
-
-  if (result.state === "email_mismatch") {
-    inviteResultUrl.searchParams.set("invitedEmail", result.invitedEmail);
-    inviteResultUrl.searchParams.set("currentEmail", result.currentEmail);
-  }
-
-  return inviteResultUrl;
 }
 
 function createLocalizedUrl(request: NextRequest, pathname: string): URL {

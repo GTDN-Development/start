@@ -27,32 +27,16 @@ export async function replaceToPostAuthDestination(router: PostAuthRouter): Prom
     return;
   }
 
-  if (destinationResponse.data.state === "email_mismatch") {
-    const invitedEmail = destinationResponse.data.invitedEmail;
-    const currentEmail = destinationResponse.data.currentEmail;
+  if (destinationResponse.data.state === "invite_redirect") {
+    const inviteToken = destinationResponse.data.inviteToken;
 
     startTransition(() => {
-      router.replace(
-        createInviteResultHref({
-          state: "email_mismatch",
-          invitedEmail,
-          currentEmail,
-        })
-      );
-    });
-    return;
-  }
-
-  if (destinationResponse.data.state === "invalid_or_expired") {
-    startTransition(() => {
-      router.replace(createInviteResultHref({ state: "invalid_or_expired" }));
-    });
-    return;
-  }
-
-  if (destinationResponse.data.state === "error") {
-    startTransition(() => {
-      router.replace(createInviteResultHref({ state: "error" }));
+      router.replace({
+        pathname: "/invite/[token]",
+        params: {
+          token: inviteToken,
+        },
+      });
     });
     return;
   }
@@ -60,30 +44,4 @@ export async function replaceToPostAuthDestination(router: PostAuthRouter): Prom
   startTransition(() => {
     router.replace(APP_HOME_PATH);
   });
-}
-
-function createInviteResultHref(
-  input:
-    | {
-        state: "email_mismatch";
-        invitedEmail: string;
-        currentEmail: string;
-      }
-    | {
-        state: "invalid_or_expired";
-      }
-    | {
-        state: "error";
-      }
-): AppHref {
-  const searchParams = new URLSearchParams({
-    state: input.state,
-  });
-
-  if (input.state === "email_mismatch") {
-    searchParams.set("invitedEmail", input.invitedEmail);
-    searchParams.set("currentEmail", input.currentEmail);
-  }
-
-  return `/invite/result?${searchParams.toString()}` as AppHref;
 }

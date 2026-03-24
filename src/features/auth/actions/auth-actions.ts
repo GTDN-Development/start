@@ -79,15 +79,8 @@ export type PostAuthDestinationActionResult =
       workspaceSlug: string;
     }
   | {
-      state: "email_mismatch";
-      invitedEmail: string;
-      currentEmail: string;
-    }
-  | {
-      state: "invalid_or_expired";
-    }
-  | {
-      state: "error";
+      state: "invite_redirect";
+      inviteToken: string;
     };
 
 export async function signInAction(input: SignInInput): Promise<AuthResponse<AuthSessionPayload>> {

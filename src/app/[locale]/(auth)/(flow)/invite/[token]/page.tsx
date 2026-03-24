@@ -5,7 +5,8 @@ import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import { SIGN_IN_PATH, getWorkspaceOverviewHref } from "@/config/routes";
 import { resolveApplicationEntryHref } from "@/features/application/application-entry";
-import { type AppHref, redirect } from "@/i18n/navigation";
+import { type AppHref, getPathname, redirect } from "@/i18n/navigation";
+import type { AppLocale } from "@/i18n/routing";
 import { createPageMetadata } from "@/lib/metadata";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
@@ -13,7 +14,7 @@ import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cook
 import {
   getInviteTokenForUser,
   validateInviteToken,
-} from "@/server/workspaces/workspace-invite-service";
+} from "@/server/workspaces/workspace-invite-recipient-service";
 import { InviteSignOutButton } from "../invite-sign-out-button";
 import { InviteStatePanel } from "../invite-state-panel";
 
@@ -47,6 +48,7 @@ export async function generateMetadata(props: InviteTokenPageProps): Promise<Met
 
 export default async function Page({ params }: InviteTokenPageProps) {
   const { locale, token } = await params;
+  const appLocale = locale as AppLocale;
 
   setRequestLocale(locale as Locale);
 
@@ -109,13 +111,27 @@ export default async function Page({ params }: InviteTokenPageProps) {
     email: session.user.email,
   });
   const applicationEntryHref = await resolveApplicationEntryHref(session.user.id);
+  const acceptAction = getPathname({
+    href: {
+      pathname: "/invite/[token]/accept",
+      params: {
+        token,
+      },
+    },
+    locale: appLocale,
+  });
 
   if (!inspectResponse.ok) {
     return (
       <InviteStatePanel
         title={t("states.error.title")}
         description={t("states.error.description")}
-        action={renderInviteLinkAction(tCommonError("goToApp"), applicationEntryHref)}
+        action={renderInviteLinkAction(t("states.error.cta"), {
+          pathname: "/invite/[token]",
+          params: {
+            token,
+          },
+        })}
       />
     );
   }
@@ -153,7 +169,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
             </p>
           </>
         }
-        action={renderInviteAcceptAction(t("actions.accept"))}
+        action={renderInviteAcceptAction(t("actions.accept"), acceptAction)}
       />
     );
   }
@@ -214,9 +230,9 @@ function renderInviteLinkAction(label: string, href: AppHref) {
   );
 }
 
-function renderInviteAcceptAction(label: string) {
+function renderInviteAcceptAction(label: string, action: string) {
   return (
-    <form action="accept" method="post">
+    <form action={action} method="post">
       <Button type="submit" size="lg" className="w-full">
         {label}
       </Button>

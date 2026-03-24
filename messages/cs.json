@@ -287,12 +287,12 @@
         },
         "email_mismatch": {
           "title": "E-mail nesouhlasí",
-          "description": "Použijte pozvanou e-mailovou adresu.",
-          "secondary": "Pozvánka: <strong>{invitedEmail}</strong>. Aktuální účet: <strong>{currentEmail}</strong>.",
+          "description": "Tato pozvánka byla odeslána na jinou e-mailovou adresu.",
+          "secondary": "Odhlaste se a pokračujte účtem <strong>{invitedEmail}</strong>. Teď jste přihlášeni jako <strong>{currentEmail}</strong>.",
           "cta": "Odhlásit se a pokračovat jiným účtem",
           "alert": {
             "title": "Použijte pozvaný účet",
-            "description": "Pozvánka: <strong>{invitedEmail}</strong>. Aktuálně přihlášený účet: <strong>{currentEmail}</strong>."
+            "description": "Odhlaste se a pokračujte účtem <strong>{invitedEmail}</strong>. Teď jste přihlášeni jako <strong>{currentEmail}</strong>."
           }
         },
         "error": {

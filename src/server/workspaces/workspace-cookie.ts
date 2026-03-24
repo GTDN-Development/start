@@ -31,27 +31,39 @@ export async function clearActiveWorkspaceSlugCookie(): Promise<void> {
   cookieStore.delete(ACTIVE_WORKSPACE_COOKIE_NAME);
 }
 
-export async function getPendingInviteHashCookie(): Promise<string | null> {
+export async function getPendingInviteTokenCookie(): Promise<string | null> {
   const cookieStore = await cookies();
   const value = cookieStore.get(PENDING_INVITE_COOKIE_NAME)?.value ?? "";
 
   return normalizeCookieToken(value);
 }
 
-export async function setPendingInviteHashCookie(inviteHash: string): Promise<void> {
+export async function setPendingInviteTokenCookie(inviteToken: string): Promise<void> {
   const cookieStore = await cookies();
 
   cookieStore.set({
     name: PENDING_INVITE_COOKIE_NAME,
-    value: inviteHash,
+    value: inviteToken,
     maxAge: PENDING_INVITE_COOKIE_MAX_AGE_SECONDS,
     ...getBaseCookieOptions(),
   });
 }
 
-export async function clearPendingInviteHashCookie(): Promise<void> {
+export async function clearPendingInviteTokenCookie(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(PENDING_INVITE_COOKIE_NAME);
+}
+
+export async function consumePendingInviteTokenCookie(): Promise<string | null> {
+  const inviteToken = await getPendingInviteTokenCookie();
+
+  if (!inviteToken) {
+    return null;
+  }
+
+  await clearPendingInviteTokenCookie();
+
+  return inviteToken;
 }
 
 function getBaseCookieOptions() {
