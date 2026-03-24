@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { AccountCookieSettingsItem } from "@/features/account/preferences/account-cookie-settings-item";
 import { AccountLanguageSettingsItem } from "@/features/account/preferences/account-language-settings-item";
 import { AccountThemeSettingsItem } from "@/features/account/preferences/account-theme-settings-item";
 import { SettingsPage } from "@/features/application/settings-page";
@@ -17,8 +18,8 @@ export async function generateMetadata(
   });
 
   return createPageMetadata({
-    title: t("generalPage.title"),
-    description: t("generalPage.description"),
+    title: t("preferencesPage.title"),
+    description: t("preferencesPage.description"),
     locale: locale as Locale,
     pathname: "/account/preferences",
   });
@@ -36,12 +37,13 @@ export default async function Page({ params }: PageProps<"/[locale]/account/pref
 
   return (
     <SettingsPage
-      title={tAccount("generalPage.title")}
-      description={tAccount("generalPage.description")}
+      title={tAccount("preferencesPage.title")}
+      description={tAccount("preferencesPage.description")}
     >
       <div className="grid gap-8">
         <AccountLanguageSettingsItem />
         <AccountThemeSettingsItem />
+        <AccountCookieSettingsItem />
       </div>
     </SettingsPage>
   );

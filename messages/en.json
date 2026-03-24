@@ -530,13 +530,13 @@
       "title": "Account settings",
       "description": "Manage your profile, app preferences, email, and security settings.",
       "nav": {
-        "general": "Preferences",
+        "preferences": "Preferences",
         "profile": "Profile",
         "security": "Security"
       },
-      "generalPage": {
+      "preferencesPage": {
         "title": "Preferences",
-        "description": "Manage your language and theme preferences for the app."
+        "description": "Manage your language, theme, and cookie preferences for the app."
       },
       "profilePage": {
         "title": "Profile",
@@ -548,7 +548,7 @@
       },
       "preferences": {
         "title": "App preferences",
-        "description": "Choose how the app looks and which language it uses.",
+        "description": "Choose how the app looks, which language it uses, and how this browser handles website cookies.",
         "language": {
           "title": "Language",
           "description": "Switch the interface language for the current route and future navigation.",
@@ -572,6 +572,12 @@
               "description": "Dimmed appearance for lower-light environments."
             }
           }
+        },
+        "cookies": {
+          "title": "Cookie preferences",
+          "description": "Review and update how this browser stores cookie preferences for the website.",
+          "cta": "Manage cookies",
+          "footerHint": "Cookie preferences are stored per browser and device."
         }
       },
       "common": {

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { AccountAvatarSettingsItem } from "@/features/account/general/avatar-settings-item";
-import { AccountDeleteAccountSettingsItem } from "@/features/account/general/delete-account-settings-item";
-import { AccountDisplayNameSettingsItem } from "@/features/account/general/display-name-settings-item";
-import { AccountEmailSettingsItem } from "@/features/account/general/email-change-settings-item";
+import { AccountAvatarSettingsItem } from "@/features/account/profile/avatar-settings-item";
+import { AccountDeleteAccountSettingsItem } from "@/features/account/profile/delete-account-settings-item";
+import { AccountDisplayNameSettingsItem } from "@/features/account/profile/display-name-settings-item";
+import { AccountEmailSettingsItem } from "@/features/account/profile/email-change-settings-item";
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
 

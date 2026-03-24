@@ -530,13 +530,13 @@
       "title": "Nastavení účtu",
       "description": "Spravujte profil, preference aplikace, e-mail a zabezpečení svého účtu.",
       "nav": {
-        "general": "Preference",
+        "preferences": "Preference",
         "profile": "Profil",
         "security": "Zabezpečení"
       },
-      "generalPage": {
+      "preferencesPage": {
         "title": "Preference",
-        "description": "Nastavte jazyk a motiv aplikace podle svých preferencí."
+        "description": "Nastavte jazyk, vzhled a preference cookies pro aplikaci."
       },
       "profilePage": {
         "title": "Profil",
@@ -548,7 +548,7 @@
       },
       "preferences": {
         "title": "Preference aplikace",
-        "description": "Nastavte, jak aplikace vypadá a jaký jazyk používá.",
+        "description": "Nastavte, jak aplikace vypadá, jaký jazyk používá a jak tento prohlížeč pracuje s cookies webu.",
         "language": {
           "title": "Jazyk",
           "description": "Přepněte jazyk rozhraní pro aktuální stránku i další navigaci.",
@@ -572,6 +572,12 @@
               "description": "Tlumený vzhled vhodný do prostředí s méně světlem."
             }
           }
+        },
+        "cookies": {
+          "title": "Nastavení cookies",
+          "description": "Zobrazte a upravte, jak tento prohlížeč ukládá preference cookies pro web.",
+          "cta": "Spravovat cookies",
+          "footerHint": "Preference cookies se ukládají samostatně pro každý prohlížeč a zařízení."
         }
       },
       "common": {

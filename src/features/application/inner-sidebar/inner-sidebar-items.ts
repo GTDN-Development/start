@@ -23,7 +23,7 @@ export const accountInnerSidebarItems = [
   },
   {
     href: "/account/preferences",
-    labelKey: "nav.general",
+    labelKey: "nav.preferences",
     icon: "slidersHorizontal",
   },
   {
@@ -33,7 +33,7 @@ export const accountInnerSidebarItems = [
     matchNested: true,
   },
 ] as const satisfies ReadonlyArray<
-  InnerSidebarItemDefinition<"nav.general" | "nav.profile" | "nav.security">
+  InnerSidebarItemDefinition<"nav.preferences" | "nav.profile" | "nav.security">
 >;
 
 export const workspaceSettingsInnerSidebarItems = [

@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { CookieIcon } from "lucide-react";
 import { NavLink } from "@/components/layout/nav-link";
 import {
@@ -43,39 +44,43 @@ export function ApplicationSidebarFooterNavigation({
         {applicationSidebarFooterMenu.map((item) => {
           const itemLabel = tNav(item.labelKey);
           const ItemIcon = item.icon;
+          const shouldRenderCookieSettingsAfterItem = item.labelKey === "myAccount";
 
           return (
-            <SidebarMenuItem key={item.labelKey}>
-              <SidebarMenuButton
-                isActive={isFooterItemActive(pathname, item.href, item.matchNested)}
-                tooltip={itemLabel}
-                render={
-                  <NavLink
-                    href={item.href}
-                    matchNested={item.matchNested === true}
-                    onClick={handleItemClick}
-                  />
-                }
-                className="text-sidebar-foreground/80 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-[current=true]:bg-sidebar-accent data-[current=true]:text-sidebar-accent-foreground"
-              >
-                <ItemIcon aria-hidden="true" />
-                {itemLabel}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <Fragment key={item.labelKey}>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={isFooterItemActive(pathname, item.href, item.matchNested)}
+                  tooltip={itemLabel}
+                  render={
+                    <NavLink
+                      href={item.href}
+                      matchNested={item.matchNested === true}
+                      onClick={handleItemClick}
+                    />
+                  }
+                  className="text-sidebar-foreground/80 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-[current=true]:bg-sidebar-accent data-[current=true]:text-sidebar-accent-foreground"
+                >
+                  <ItemIcon aria-hidden="true" />
+                  {itemLabel}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {shouldRenderCookieSettingsAfterItem && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    tooltip={tFooter("cookieSettings")}
+                    render={<CookieSettingsTrigger type="button" onClick={handleItemClick} />}
+                    className="text-sidebar-foreground/80 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-[current=true]:bg-sidebar-accent data-[current=true]:text-sidebar-accent-foreground"
+                  >
+                    <CookieIcon aria-hidden="true" />
+                    {tFooter("cookieSettings")}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+            </Fragment>
           );
         })}
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            tooltip={tFooter("cookieSettings")}
-            render={
-              <CookieSettingsTrigger type="button" onClick={handleItemClick} />
-            }
-            className="text-sidebar-foreground/80 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-[current=true]:bg-sidebar-accent data-[current=true]:text-sidebar-accent-foreground"
-          >
-            <CookieIcon aria-hidden="true" />
-            {tFooter("cookieSettings")}
-          </SidebarMenuButton>
-        </SidebarMenuItem>
       </SidebarMenu>
     </nav>
   );
