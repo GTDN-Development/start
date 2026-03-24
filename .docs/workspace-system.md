@@ -26,7 +26,7 @@ The app is account-first.
 That means:
 
 - auth lands users in `/app`
-- `/app` and `/settings*` are personal scope
+- `/app` and `/account*` are personal scope
 - workspace pages only exist where page identity depends on workspace
 - the shell remains usable when the user has zero workspaces
 - switching between personal and collaborative scope happens in one shell surface
@@ -51,12 +51,12 @@ Invite roles:
 The main application routes are:
 
 - `/app`
-- `/settings/profile`
-- `/settings/preferences`
-- `/settings/security`
+- `/account`
+- `/account/preferences`
+- `/account/security`
 - `/w/[workspaceSlug]`
 - `/w/[workspaceSlug]/overview`
-- `/w/[workspaceSlug]/settings/general`
+- `/w/[workspaceSlug]/settings`
 - `/w/[workspaceSlug]/settings/members`
 - `/invite/[token]`
 - `/invite/result`
@@ -64,7 +64,7 @@ The main application routes are:
 Important route rules:
 
 - `/app` is the authenticated home page
-- `/settings*` is always user-scoped
+- `/account*` is always user-scoped
 - `/w/[workspaceSlug]/*` is always workspace-scoped
 - `/w/[workspaceSlug]` is an entry route that redirects to workspace overview when valid
 - concrete workspace pages resolve access directly from pathname slug
@@ -202,7 +202,7 @@ Behavior outside workspace routes but still inside the application shell:
 
 - the selected workspace comes from `active_workspace`
 - if the cookie is stale, the shell repairs it to the first available workspace
-- switching from `/app` or `/settings*` to a workspace navigates to `/w/[workspaceSlug]/overview`
+- switching from `/app` or `/account*` to a workspace navigates to `/w/[workspaceSlug]/overview`
 - selecting `Personal` always navigates to `/app`
 - if no workspace exists, the switcher still renders with explicit empty copy plus a separate create action
 
@@ -213,7 +213,7 @@ Zero workspaces is a valid authenticated state.
 Current shell behavior:
 
 - `/app` remains usable
-- `/settings/profile`, `/settings/preferences`, and `/settings/security` remain usable
+- `/account`, `/account/preferences`, and `/account/security` remain usable
 - the scope switcher still shows `Personal`
 - the sidebar uses personal navigation only
 - the switcher shows explicit empty workspace copy and a separate create action

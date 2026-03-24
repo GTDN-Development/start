@@ -63,7 +63,7 @@ export default async function Layout({
         <InnerSidebarBreadcrumbs
           items={innerSidebarItems}
           rootHref={{
-            pathname: "/w/[workspaceSlug]/settings/general",
+            pathname: "/w/[workspaceSlug]/settings",
             params: {
               workspaceSlug: workspace.slug,
             },

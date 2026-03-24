@@ -18,9 +18,9 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { AUTH_REDIRECTS } from "@/config/auth";
-import { SettingsProfileProvider } from "@/features/settings/settings-profile-context";
-import type { SettingsProfileSnapshot } from "@/features/settings/settings-profile";
-import { type UserSettingsMenuLabels } from "@/features/settings/user-settings-menu";
+import { AccountProfileProvider } from "@/features/account/account-profile-context";
+import type { AccountProfileSnapshot } from "@/features/account/account-profile";
+import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
 import { useSession } from "@/features/auth/auth-client";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
 import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
@@ -43,19 +43,19 @@ type ApplicationMobileMenuLabels = {
 };
 
 type ApplicationLayoutContextValue = {
-  user: SettingsProfileSnapshot;
-  userMenuLabels: UserSettingsMenuLabels;
+  user: AccountProfileSnapshot;
+  userMenuLabels: UserAccountMenuLabels;
   mobileMenuLabels: ApplicationMobileMenuLabels;
 };
 
 export type ApplicationLayoutLabels = {
-  userMenu: UserSettingsMenuLabels;
+  userMenu: UserAccountMenuLabels;
   mobileMenu: ApplicationMobileMenuLabels;
 };
 
 type ApplicationLayoutProps = {
   children: React.ReactNode;
-  user: SettingsProfileSnapshot;
+  user: AccountProfileSnapshot;
   workspaces: WorkspaceNavigationItem[];
   activeWorkspaceSlug: string | null;
   labels: ApplicationLayoutLabels;
@@ -111,7 +111,7 @@ export function ApplicationLayout({
   const renderEmailVerificationBanner = showEmailVerificationBanner(currentUser);
 
   return (
-    <SettingsProfileProvider key={profileProviderKey} initialProfile={currentUser}>
+    <AccountProfileProvider key={profileProviderKey} initialProfile={currentUser}>
       <WorkspaceNavigationProvider
         key={workspaceNavigationKey}
         initialWorkspaces={workspaces}
@@ -174,7 +174,7 @@ export function ApplicationLayout({
           </div>
         </ApplicationLayoutContext.Provider>
       </WorkspaceNavigationProvider>
-    </SettingsProfileProvider>
+    </AccountProfileProvider>
   );
 }
 

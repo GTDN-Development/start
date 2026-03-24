@@ -30,11 +30,11 @@ import {
   type MenuLabelKey,
 } from "@/config/navigation";
 import { SocialMediaIcons } from "@/components/brand/social-media-icons";
-import type { UserSettingsMenuViewer } from "@/features/settings/user-settings-menu";
+import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
 import { useTranslations } from "next-intl";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
-type HeaderViewer = UserSettingsMenuViewer | null;
+type HeaderViewer = UserAccountMenuViewer | null;
 
 function Navigation({
   items,

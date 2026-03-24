@@ -26,9 +26,9 @@ Short version:
 Main entrypoints:
 
 - client image preparation: [avatar-image-processing.ts](/Users/fanda/Dev/start/src/lib/avatar-image-processing.ts)
-- profile avatar UI: [avatar-settings-item.tsx](/Users/fanda/Dev/start/src/features/settings/profile/avatar-settings-item.tsx)
+- account avatar UI: [avatar-settings-item.tsx](/Users/fanda/Dev/start/src/features/account/general/avatar-settings-item.tsx)
 - workspace avatar UI: [workspace-avatar-settings-item.tsx](/Users/fanda/Dev/start/src/features/workspaces/settings/general/workspace-avatar-settings-item.tsx)
-- settings server handling: [settings-service.ts](/Users/fanda/Dev/start/src/server/settings/settings-service.ts)
+- account server handling: [account-service.ts](/Users/fanda/Dev/start/src/server/account/account-service.ts)
 - workspace server handling: [workspace-general-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-general-service.ts)
 
 ## Client-Side Image Processing
@@ -64,7 +64,7 @@ Current seeds:
 - all workspace avatars: `workspace.id`
 - workspace member avatars: `member.userId`
 
-For user avatars, account settings, header/settings menus, and workspace member lists should all use the
+For user avatars, account settings, header/account menus, and workspace member lists should all use the
 same `user.id` seed so the fallback color stays synced across surfaces.
 
 This keeps colors stable across reloads without storing any extra color field in the database.

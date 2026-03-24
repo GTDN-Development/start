@@ -43,7 +43,7 @@ PocketBase typegen requires:
 ## Structure
 
 - `src/app` - routes, layouts, metadata, API route adapters
-- `src/features` - feature-first modules (`auth`, `settings`, `marketing`, `cookies`, `application`)
+- `src/features` - feature-first modules (`auth`, `account`, `marketing`, `cookies`, `application`)
 - `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `providers`, `dev`)
 - `src/server` - server-only infrastructure (`captcha`, `email`)
 - `src/config` - structural config (menus, links, site data)
@@ -59,7 +59,7 @@ PocketBase typegen requires:
 - No barrel exports (`index.ts` / `index.tsx`) in feature modules
 - No `shared/` folders inside features; feature-wide types/helpers live at feature root
 - Keep `src/components/ui` as the shadcn CLI target
-- Application shell/composition belongs to `src/features/application`; settings domain stays in `src/features/settings`
+- Application shell/composition belongs to `src/features/application`; account domain stays in `src/features/account`
 - Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
 - Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
 - Keep common helpers centralized in `src/lib/utils.ts`; avoid splitting utility helpers into many micro files

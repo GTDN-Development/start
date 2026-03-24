@@ -31,11 +31,11 @@ import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { formatPhoneNumber } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
-import type { UserSettingsMenuViewer } from "@/features/settings/user-settings-menu";
+import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
 import { useSignOut } from "@/features/auth/use-sign-out";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
-type FooterViewer = UserSettingsMenuViewer | null;
+type FooterViewer = UserAccountMenuViewer | null;
 
 function FooterNavigation({
   items,
@@ -106,9 +106,9 @@ export function MarketingFooter({
   const tApplication = useTranslations("layout.application");
 
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
-  const settingsLinks = viewer
+  const accountLinks = viewer
     ? personalApplicationMenu.filter(
-        (item) => item.labelKey === "home" || item.labelKey === "settings"
+        (item) => item.labelKey === "home" || item.labelKey === "account"
       )
     : authMenu;
 
@@ -135,7 +135,7 @@ export function MarketingFooter({
         </div>
 
         <div className="flex flex-col items-start justify-start gap-7">
-          <p className="font-heading text-sm font-semibold">{tNav("settings")}</p>
+          <p className="font-heading text-sm font-semibold">{tNav("account")}</p>
           {viewer && (
             <div className="space-y-1">
               <p className="text-muted-foreground text-xs">{tApplication("signedInAs")}</p>
@@ -148,7 +148,7 @@ export function MarketingFooter({
             </div>
           )}
           <ul className="flex flex-col gap-2">
-            {settingsLinks.map((item) => (
+            {accountLinks.map((item) => (
               <li key={item.href}>
                 <NavLink
                   href={item.href}

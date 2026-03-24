@@ -25,7 +25,7 @@ export function getWorkspaceSlugFromPathname(pathname: string): string | null {
 }
 
 export function isPersonalScopePath(pathname: string): boolean {
-  return pathname === "/app" || pathname === "/settings" || pathname.startsWith("/settings/");
+  return pathname === "/app" || pathname === "/account" || pathname.startsWith("/account/");
 }
 
 export function isWorkspaceScopePath(pathname: string): boolean {

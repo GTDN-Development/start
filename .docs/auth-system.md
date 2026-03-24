@@ -125,7 +125,7 @@ Protection is intentionally two-layered.
 
 - `/app`
 - `/w`
-- `/settings`
+- `/account`
 
 ### Server Guard
 

@@ -4,7 +4,7 @@ import { FloatingBar } from "@/components/layout/floating-bar";
 import { BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { UserSettingsMenu } from "@/features/settings/user-settings-menu";
+import { UserAccountMenu } from "@/features/account/user-account-menu";
 import { cn } from "@/lib/utils";
 import { useSidebarContext } from "./application-layout";
 import { ScopeSwitcher } from "./scope-switcher";
@@ -50,7 +50,7 @@ export function ApplicationPageHeader({ breadcrumbs }: ApplicationPageHeaderProp
 
         {/* Right side */}
         <div className="flex min-w-0 items-center justify-end gap-x-4">
-          <UserSettingsMenu viewer={user} labels={userMenuLabels} appHref="/app" />
+          <UserAccountMenu viewer={user} labels={userMenuLabels} appHref="/app" />
         </div>
       </Container>
     </FloatingBar>

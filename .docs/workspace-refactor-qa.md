@@ -53,7 +53,7 @@ These checks validate route typing, message typing, and production build integri
 ### Invalid Workspace Concrete Route
 
 - Open `/w/nonexistent/overview`.
-- Open `/w/nonexistent/settings/general`.
+- Open `/w/nonexistent/settings`.
 - Open `/w/nonexistent/settings/members`.
 - Expected result: scoped not-found behavior.
 - Expected non-goal: no redirect loop and no fallback through `/overview`.
@@ -67,7 +67,7 @@ These checks validate route typing, message typing, and production build integri
 ### Zero-Workspace Authenticated Shell State
 
 - Sign in as a user with zero workspaces.
-- Open `/app`, `/settings/profile`, `/settings/preferences`, and `/settings/security`.
+- Open `/app`, `/account`, `/account/preferences`, and `/account/security`.
 - Expected result: all remain usable.
 - Expected result: scope switcher shows `Personal` as the active option.
 - Expected result: sidebar shows personal navigation only.

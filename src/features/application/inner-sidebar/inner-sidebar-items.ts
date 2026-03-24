@@ -5,7 +5,7 @@ type InnerSidebarItemDefinition<TLabelKey extends string> = Omit<InnerSidebarNav
 };
 
 type WorkspaceInnerSidebarPathname =
-  | "/w/[workspaceSlug]/settings/general"
+  | "/w/[workspaceSlug]/settings"
   | "/w/[workspaceSlug]/settings/members";
 
 type WorkspaceInnerSidebarItemDefinition<TLabelKey extends string> = Omit<
@@ -15,30 +15,30 @@ type WorkspaceInnerSidebarItemDefinition<TLabelKey extends string> = Omit<
   href: WorkspaceInnerSidebarPathname;
 };
 
-export const settingsInnerSidebarItems = [
+export const accountInnerSidebarItems = [
   {
-    href: "/settings/profile",
+    href: "/account",
     labelKey: "nav.profile",
     icon: "user",
   },
   {
-    href: "/settings/preferences",
-    labelKey: "nav.preferences",
+    href: "/account/preferences",
+    labelKey: "nav.general",
     icon: "slidersHorizontal",
   },
   {
-    href: "/settings/security",
+    href: "/account/security",
     labelKey: "nav.security",
     icon: "shield",
     matchNested: true,
   },
 ] as const satisfies ReadonlyArray<
-  InnerSidebarItemDefinition<"nav.preferences" | "nav.profile" | "nav.security">
+  InnerSidebarItemDefinition<"nav.general" | "nav.profile" | "nav.security">
 >;
 
 export const workspaceSettingsInnerSidebarItems = [
   {
-    href: "/w/[workspaceSlug]/settings/general",
+    href: "/w/[workspaceSlug]/settings",
     labelKey: "general",
     icon: "slidersHorizontal",
   },

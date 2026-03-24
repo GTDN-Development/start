@@ -53,7 +53,7 @@ To je správně.
 Aktuální model:
 
 - `/app` je osobní home
-- `/settings*` je osobní settings scope
+- `/account*` je osobní settings scope
 - `/w/[workspaceSlug]/*` je workspace scope
 - zero-workspace state je validní
 
@@ -412,7 +412,7 @@ Co si ale pevně rozhodnout už teď:
 - membership count a billing seats nejsou automaticky totéž
 - billing permissions nemusí být totéž co `admin`
 - v budoucnu bude existovat oddělený billing surface:
-  - personal: `/settings/billing`
+  - personal: `/account/billing`
   - workspace: `/w/[workspaceSlug]/settings/billing`
 
 Tohle lze držet jen jako produktové rozhodnutí a dokumentaci, bez předčasného kódu.

@@ -79,7 +79,7 @@ export default async function Page({
   if (!membersResponse.ok) {
     redirect({
       href: {
-        pathname: "/w/[workspaceSlug]/settings/general",
+        pathname: "/w/[workspaceSlug]/settings",
         params: {
           workspaceSlug: workspace.slug,
         },
@@ -103,7 +103,7 @@ export default async function Page({
   if (!invitesResponse.ok) {
     redirect({
       href: {
-        pathname: "/w/[workspaceSlug]/settings/general",
+        pathname: "/w/[workspaceSlug]/settings",
         params: {
           workspaceSlug: workspace.slug,
         },
