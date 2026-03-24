@@ -9,7 +9,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserAccountMenu } from "@/features/account/user-account-menu";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { useSidebarContext } from "./application-layout";
+import { useSidebarContext } from "./application-root";
 import { ScopeSwitcher } from "./scope-switcher";
 
 export type ApplicationPageHeaderProps = {

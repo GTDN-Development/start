@@ -1,197 +1,43 @@
 "use client";
 
-import { createContext, useContext } from "react";
 import { useTranslations } from "next-intl";
 import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
-import { LogoStart } from "@/components/brand/logo-start";
-import { Link, type LinkHref } from "@/components/ui/link";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarInset,
-  SidebarProvider,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
-import { AUTH_REDIRECTS } from "@/config/auth";
-import { AccountProfileProvider } from "@/features/account/account-profile-context";
-import type { AccountProfileSnapshot } from "@/features/account/account-profile";
-import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
-import { useSession } from "@/features/auth/auth-client";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
 import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
-import { useMountEffect } from "@/hooks/use-mount-effect";
-import { usePathname, useRouter } from "@/i18n/navigation";
-import {
-  WorkspaceNavigationProvider,
-  useWorkspaceNavigation,
-} from "@/features/workspaces/workspace-navigation-context";
-import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
-import { ApplicationSidebarFooterNavigation } from "./application-sidebar-footer-navigation";
-import { ApplicationSidebarSignOut } from "./application-sidebar-sign-out";
-import { ApplicationMenuTree } from "./application-menu-tree";
-import { isAccountScopePath } from "./application-scope";
-import { ScopeSwitcher } from "./scope-switcher";
-
-type ApplicationMobileMenuLabels = {
-  openAriaLabel: string;
-  title: string;
-  close: string;
-};
-
-type ApplicationLayoutContextValue = {
-  user: AccountProfileSnapshot;
-  userMenuLabels: UserAccountMenuLabels;
-  mobileMenuLabels: ApplicationMobileMenuLabels;
-  applicationEntryHref: LinkHref;
-};
-
-export type ApplicationLayoutLabels = {
-  userMenu: UserAccountMenuLabels;
-  mobileMenu: ApplicationMobileMenuLabels;
-};
+import { useSidebarContext } from "./application-root";
 
 type ApplicationLayoutProps = {
   children: React.ReactNode;
-  user: AccountProfileSnapshot;
-  workspaces: WorkspaceNavigationItem[];
-  activeWorkspaceSlug: string | null;
-  applicationEntryHref: LinkHref;
-  labels: ApplicationLayoutLabels;
+  sidebar?: React.ReactNode;
 };
 
-const ApplicationLayoutContext = createContext<ApplicationLayoutContextValue | null>(null);
-
-export function useSidebarContext() {
-  const applicationLayoutContext = useContext(ApplicationLayoutContext);
-  const workspaceNavigationContext = useWorkspaceNavigation();
-
-  if (!applicationLayoutContext) {
-    throw new Error("useSidebarContext must be used within ApplicationLayout.");
-  }
-
-  return {
-    ...applicationLayoutContext,
-    ...workspaceNavigationContext,
-  };
-}
-
-export function ApplicationLayout({
-  children,
-  user,
-  workspaces,
-  activeWorkspaceSlug,
-  applicationEntryHref,
-  labels,
-}: ApplicationLayoutProps) {
-  const sessionSnapshot = useSession();
+export function ApplicationLayout({ children, sidebar }: ApplicationLayoutProps) {
   const t = useTranslations("layout");
-  const pathname = usePathname();
+  const { user } = useSidebarContext();
   const contentId = "gtdn-app-content";
-  const isAccountSurface = isAccountScopePath(pathname);
-
-  if (sessionSnapshot.status === "unauthenticated") {
-    return <UnauthenticatedApplicationRedirect />;
-  }
-
-  const currentUser =
-    sessionSnapshot.status === "authenticated" ? (sessionSnapshot.session?.user ?? user) : user;
-  const profileProviderKey = `${currentUser.email}:${currentUser.name ?? ""}:${currentUser.avatarUrl ?? ""}:${currentUser.verified ? "1" : "0"}`;
-  const workspaceNavigationKey = `${activeWorkspaceSlug ?? ""}:${workspaces
-    .map((workspace) =>
-      [
-        workspace.id,
-        workspace.slug,
-        workspace.name,
-        workspace.role,
-        workspace.avatarUrl ?? "",
-        String(workspace.memberCount),
-      ].join(":")
-    )
-    .join("|")}`;
-
-  const renderEmailVerificationBanner = showEmailVerificationBanner(currentUser);
+  const renderEmailVerificationBanner = showEmailVerificationBanner(user);
 
   return (
-    <AccountProfileProvider key={profileProviderKey} initialProfile={currentUser}>
-      <WorkspaceNavigationProvider
-        key={workspaceNavigationKey}
-        initialWorkspaces={workspaces}
-        initialActiveWorkspaceSlug={activeWorkspaceSlug}
-      >
-        <ApplicationLayoutContext.Provider
-          value={{
-            user: currentUser,
-            userMenuLabels: labels.userMenu,
-            mobileMenuLabels: labels.mobileMenu,
-            applicationEntryHref,
-          }}
-        >
-          <div className="relative isolate [--navbar-height:--spacing(16)]">
-            <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
-            <SidebarProvider>
-              {!isAccountSurface && (
-                <Sidebar collapsible="offcanvas">
-                  <SidebarHeader>
-                    <div className="pt-3.5 pl-2.5 lg:pb-2.5">
-                      <Link
-                        href={applicationEntryHref}
-                        aria-label={t("header.homeAriaLabel")}
-                        className="inline-flex w-fit"
-                      >
-                        <LogoStart aria-hidden="true" className="w-18" />
-                      </Link>
-                    </div>
+    <div className="relative isolate [--navbar-height:--spacing(16)]">
+      <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
+      <SidebarProvider>
+        {sidebar}
 
-                    <div className="max-w-full lg:hidden">
-                      <ScopeSwitcher />
-                    </div>
-                  </SidebarHeader>
-                  <SidebarContent>
-                    <SidebarGroup>
-                      <SidebarGroupContent>
-                        <ApplicationMenuTree aria-label={labels.mobileMenu.title} />
-                      </SidebarGroupContent>
-                    </SidebarGroup>
-                  </SidebarContent>
-                  <SidebarFooter>
-                    <SidebarSeparator />
-                    <ApplicationSidebarFooterNavigation />
-                    <ApplicationSidebarSignOut />
-                  </SidebarFooter>
-                </Sidebar>
-              )}
+        <SidebarInset id={contentId} className="min-w-0">
+          <LayoutBanners
+            banners={[
+              {
+                isVisible: renderEmailVerificationBanner,
+                content: <EmailVerificationBanner />,
+              },
+            ]}
+          />
 
-              <SidebarInset id={contentId} className="min-w-0">
-                <LayoutBanners
-                  banners={[
-                    {
-                      isVisible: renderEmailVerificationBanner,
-                      content: <EmailVerificationBanner />,
-                    },
-                  ]}
-                />
-
-                {children}
-              </SidebarInset>
-            </SidebarProvider>
-          </div>
-        </ApplicationLayoutContext.Provider>
-      </WorkspaceNavigationProvider>
-    </AccountProfileProvider>
+          {children}
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
   );
-}
-
-function UnauthenticatedApplicationRedirect() {
-  const router = useRouter();
-
-  useMountEffect(() => {
-    router.replace(AUTH_REDIRECTS.unauthenticatedTo);
-  });
-
-  return null;
 }

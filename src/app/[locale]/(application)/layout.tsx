@@ -3,7 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { resolveApplicationEntryHref } from "@/features/application/application-entry";
-import { ApplicationLayout } from "@/features/application/application-layout";
+import { ApplicationRoot } from "@/features/application/application-root";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
@@ -67,7 +67,7 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
     }
 
     console.error(
-      `[application-layout] Failed to load workspaces: ${userWorkspacesResponse.errorCode}`
+      `[application-root] Failed to load workspaces: ${userWorkspacesResponse.errorCode}`
     );
   }
 
@@ -103,7 +103,7 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
   });
 
   return (
-    <ApplicationLayout
+    <ApplicationRoot
       user={user}
       workspaces={workspaces}
       activeWorkspaceSlug={repairedActiveWorkspaceSlug}
@@ -124,7 +124,7 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
       }}
     >
       {children}
-    </ApplicationLayout>
+    </ApplicationRoot>
   );
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { CookieIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import {
   SettingsItem,
@@ -30,6 +31,7 @@ export function AccountCookieSettingsItem() {
             type="button"
             className={cn(buttonVariants({ size: "lg" }), "w-full sm:w-fit")}
           >
+            <CookieIcon aria-hidden="true" />
             {t("cookies.cta")}
           </CookieSettingsTrigger>
         </SettingsItemContentBody>

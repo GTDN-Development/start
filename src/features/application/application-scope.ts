@@ -1,4 +1,4 @@
-export type ApplicationScope = "personal" | "workspace" | "account" | "other";
+export type ApplicationScope = "personal" | "workspace" | "other";
 
 export function normalizeWorkspaceSlug(workspaceSlug: string | null | undefined): string | null {
   const normalizedWorkspaceSlug = workspaceSlug?.trim() ?? "";
@@ -28,10 +28,6 @@ export function isPersonalScopePath(pathname: string): boolean {
   return pathname === "/app";
 }
 
-export function isAccountScopePath(pathname: string): boolean {
-  return pathname === "/account" || pathname.startsWith("/account/");
-}
-
 export function isWorkspaceScopePath(pathname: string): boolean {
   return pathname === "/w" || pathname.startsWith("/w/");
 }
@@ -39,10 +35,6 @@ export function isWorkspaceScopePath(pathname: string): boolean {
 export function resolveApplicationScope(pathname: string): ApplicationScope {
   if (isWorkspaceScopePath(pathname)) {
     return "workspace";
-  }
-
-  if (isAccountScopePath(pathname)) {
-    return "account";
   }
 
   if (isPersonalScopePath(pathname)) {

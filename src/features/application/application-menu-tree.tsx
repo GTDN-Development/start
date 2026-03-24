@@ -15,7 +15,7 @@ import {
 import { AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { useSidebarContext } from "./application-layout";
+import { useSidebarContext } from "./application-root";
 import { getWorkspaceSlugFromPathname, resolveApplicationScope } from "./application-scope";
 import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
 

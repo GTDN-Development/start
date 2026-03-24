@@ -8,7 +8,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useSignOut } from "@/features/auth/use-sign-out";
-import { useSidebarContext } from "./application-layout";
+import { useSidebarContext } from "./application-root";
 
 export function ApplicationSidebarSignOut() {
   const { isMobile, setOpenMobile } = useSidebar();
