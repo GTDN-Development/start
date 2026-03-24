@@ -3,7 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CookiePolicy } from "@/features/marketing/legal/cookie-policy";
 import { Container } from "@/components/ui/container";
-import { cookieCatalog, cookiePolicy, legal } from "@/config/legal";
+import { cookieCatalog, cookiePolicy, legal, legalDocumentDates } from "@/config/legal";
 import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/cookies">): Promise<Metadata> {
@@ -28,14 +28,12 @@ export async function generateMetadata(props: PageProps<"/[locale]/cookies">): P
 
 export default async function Page({ params }: PageProps<"/[locale]/cookies">) {
   const { locale } = await params;
+  const formattedEffectiveDate = new Intl.DateTimeFormat(locale as Locale, {
+    dateStyle: "long",
+  }).format(new Date(legalDocumentDates.cookiePolicy));
 
   // Enable static rendering
   setRequestLocale(locale as Locale);
-
-  const t = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.cookies",
-  });
 
   return (
     <div className="relative">
@@ -53,7 +51,7 @@ export default async function Page({ params }: PageProps<"/[locale]/cookies">) {
           }}
           policy={cookiePolicy}
           cookies={cookieCatalog}
-          effectiveDate={t("effectiveDate")}
+          effectiveDate={formattedEffectiveDate}
         />
       </Container>
     </div>

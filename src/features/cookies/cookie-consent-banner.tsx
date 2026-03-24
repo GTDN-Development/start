@@ -37,18 +37,12 @@ export function CookieConsentBanner() {
             </div>
           </div>
 
-          <div className="bg-muted border-border flex items-center gap-4 px-4 py-2">
+          <div className="bg-muted border-border flex items-center gap-4 px-8 py-2">
             <Link
-              href={legalLinks.termsOfService.href}
+              href={legalLinks.cookies.href}
               className="text-muted-foreground hover:text-foreground text-sm transition-colors"
             >
-              {t("footer.termsOfService")}
-            </Link>
-            <Link
-              href={legalLinks.gdpr.href}
-              className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-            >
-              {t("footer.privacyPolicy")}
+              {t("cookiesPolicy")}
             </Link>
           </div>
         </div>

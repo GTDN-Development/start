@@ -1417,57 +1417,136 @@
       "title": "Cookie Policy",
       "effectiveFrom": "Effective from:",
       "lastUpdated": "Last updated:",
+      "introduction": {
+        "title": "Introduction",
+        "article1": "These cookie principles explain how {companyLegalName}, company ID {companyId}, with its registered office at {companyAddress}, e-mail {contactEmail}, website {domain} (collectively “we”) uses cookies and similar technologies on its website, in the application, and in related services.",
+        "article2": "These principles supplement our Terms of Service and Privacy Policy.",
+        "article3": "In some places, we may use not only classic cookies but also similar technologies, such as local storage, session storage, pixel tags, SDKs, or other identifiers where required by the nature of the service. For simplicity, we collectively refer to them in this document as “cookies”."
+      },
       "whatAreCookies": {
         "title": "What cookies are",
-        "description": "Cookies and similar technologies are small data files stored on or read from your device when you visit the website or use the application. They may include cookies, local storage, session storage, pixel tags, and similar identifiers."
+        "article1": "Cookies are small data files or similar technical records that are stored on your device or read from it when you visit a website, use the application, or interact with a specific feature.",
+        "article2": "Cookies help us for example to:",
+        "items": {
+          "operation": "ensure the basic operation of the website and application,",
+          "preferences": "remember your settings and preferences,",
+          "consent": "recognize your consent choices,",
+          "analytics": "measure traffic and use of the Service,",
+          "performance": "improve performance, security, and user experience,",
+          "marketing": "display or evaluate marketing communications where relevant and permitted."
+        }
       },
       "categories": {
-        "title": "Categories we use",
-        "description": "We may use the following categories:",
-        "items": {
-          "essential": "essential cookies for technical operation, security, and consent management,",
-          "functional": "functional cookies to remember settings and preferences,",
-          "analytics": "analytics cookies to measure traffic, performance, and use of the Service,",
-          "marketing": "marketing cookies for personalization and campaign measurement, where deployed."
+        "title": "What cookie categories we use",
+        "article1": "We may use in particular the following categories of cookies:",
+        "essential": {
+          "title": "Essential cookies",
+          "article1": "These cookies are necessary for the basic operation of the website, application, and security features. Without them, some parts of the service may not function properly.",
+          "article2": "Essential cookies generally do not require consent because they are used for the purpose of providing the service you requested or to meet our legitimate technical and security needs."
+        },
+        "functional": {
+          "title": "Functional cookies",
+          "article1": "Functional cookies allow us to remember your settings, preferences, and choices, such as language, appearance, active workspace, or other personalization elements.",
+          "article2": "These cookies may be used only where they are active in the specific implementation."
+        },
+        "analytics": {
+          "title": "Analytics cookies",
+          "article1": "Analytics cookies help us understand how visitors and users use the website and application, which pages or features are most used, and what should be improved.",
+          "article2": "These cookies may be used only where they are active in the specific implementation."
+        },
+        "marketing": {
+          "title": "Marketing cookies",
+          "article1": "Marketing cookies may be used to evaluate campaigns, measure advertising effectiveness, personalize communications, or support remarketing where we use such features.",
+          "article2": "These cookies may be used only where they are active in the specific implementation."
         }
       },
       "legalBasis": {
         "title": "Legal basis for cookie use",
-        "description": "We use necessary cookies because they are required for the functioning of the website or based on our legitimate interest in secure and proper operation. Optional cookies, especially functional, analytics, and marketing cookies, are used only on the basis of your consent unless law provides otherwise."
+        "article1": "We use essential cookies on the basis of our legitimate interest or because they are necessary for providing the service you requested.",
+        "article2": "Functional, analytics, and marketing cookies are generally used only on the basis of your consent unless legal regulations or the nature of the specific technology allow another regime.",
+        "article3": "You may change or withdraw the consent you have given at any time through cookie settings."
       },
       "purposes": {
-        "title": "Purposes of cookie use",
-        "description": "We use cookies in particular for:",
+        "title": "What we use cookies for",
+        "article1": "We may use cookies in particular for the following purposes:",
         "items": {
-          "login": "ensuring sign-in and session handling,",
-          "preferences": "remembering settings,",
-          "consent": "managing consent,",
-          "security": "website security and abuse prevention,",
-          "analytics": "analysis of traffic and use of the Service,",
-          "marketing": "where applicable, marketing and campaign measurement."
+          "consent": "storing information about granted or rejected consent,",
+          "session": "sign-in and session management,",
+          "security": "ensuring security and abuse protection,",
+          "settings": "remembering user settings,",
+          "personalization": "personalizing the environment and preferences,",
+          "analytics": "measuring traffic and user behavior,",
+          "performance": "evaluating the performance of pages and features,",
+          "marketing": "measuring campaigns and marketing activities,",
+          "integrations": "managing technical integrations of third parties."
         }
       },
+      "consentManagement": {
+        "title": "How you can manage cookies",
+        "article1": "On your first visit, we may show you a cookie banner or another consent management interface through which you can set your preferences.",
+        "article2": "You can change or update your cookie settings at any time through:",
+        "items": {
+          "banner": "the cookie banner,",
+          "settingsButton": "the “Cookie settings” link or button,",
+          "browser": "or your browser settings where technically possible."
+        },
+        "article3": "If you reject certain cookies or block them in your browser, some parts of the website or application may not function properly.",
+        "button": "Cookie settings"
+      },
       "thirdParties": {
-        "title": "Third parties",
-        "description": "If we activate third-party services, cookies of those providers may be stored on or read from your device. This may typically include:",
-        "note": "The exact scope of cookies used may change over time depending on the tools actually activated."
+        "title": "Third-party cookies",
+        "article1": "Third-party cookies may also be used on our website or in the application where we use external tools or integrations.",
+        "article2": "Third parties may use cookies in accordance with their own terms and privacy policies.",
+        "article3": "The list of third parties, providers, and related cookies may change over time depending on which tools we use.",
+        "article4": "For this reason, we recommend keeping the catalog of third parties and cookies as a separately maintained list of variables."
+      },
+      "catalog": {
+        "title": "Cookie catalog",
+        "article1": "An overview of the cookies in use may contain in particular the following data:",
+        "items": {
+          "name": "cookie or identifier name,",
+          "provider": "provider,",
+          "category": "category,",
+          "purpose": "purpose,",
+          "duration": "duration,",
+          "storageType": "storage type,",
+          "thirdParty": "information whether it is first-party or third-party."
+        },
+        "article2": "The cookie catalog may be published directly on this page or dynamically generated from the current configuration.",
+        "article3": "A typical catalog record may include fields such as `name`, `provider`, `category`, `purposeKey`, `duration`, `storageType`, `thirdParty`, and `requiresConsent`."
       },
       "retention": {
         "title": "Retention period",
-        "description": "Cookies may be session-based, meaning they are deleted after the browser is closed, or persistent, meaning they are stored for a certain period depending on purpose or provider settings. The specific retention period is stated in the cookie overview or cookie settings."
+        "article1": "The retention period of cookies varies depending on their type and purpose.",
+        "article2": "Some cookies are:",
+        "items": {
+          "session": "session-based, meaning valid only during a visit or until the browser is closed,",
+          "shortTerm": "short-term, with a limited validity period,",
+          "longTerm": "long-term, remaining on your device for a longer period or until deleted."
+        },
+        "article3": "The specific retention period should be stated in the cookie catalog."
       },
-      "consentManagement": {
-        "title": "How you can manage consent",
-        "description": "You can change your preferences or withdraw consent at any time through the “Cookie settings” link available on the website. Withdrawal of consent does not affect the lawfulness of prior processing.",
-        "button": "Cookie settings"
+      "transfers": {
+        "title": "Transfers of data through cookies",
+        "article1": "Where personal data are processed through cookies or similar technologies, such processing is also governed by our Privacy Policy.",
+        "article2": "If we use providers outside the European Economic Area, data transfers to third countries may also occur in connection with cookies, in compliance with GDPR."
       },
-      "browserSettings": {
-        "title": "Browser settings",
-        "description": "You may also block or delete cookies through your browser. Some parts of the website or Service may then not function properly."
+      "changes": {
+        "title": "Changes to these principles",
+        "article1": "We may amend or update these cookie principles from time to time, especially if:",
+        "items": {
+          "tools": "we change the tools we use,",
+          "providers": "we add new providers,",
+          "legalRequirements": "legal requirements change,",
+          "consentManagement": "we modify the way consent is managed."
+        },
+        "article2": "The current version is always published on our website or in the application.",
+        "article3": "These principles are effective from {effectiveDate}."
       },
       "contact": {
         "title": "Contact",
-        "description": "If you have questions about our use of cookies, you can contact us at {email}."
+        "article1": "If you have questions about the use of cookies, you can contact us at:",
+        "email": "{email}"
       },
       "table": {
         "name": "Name",
@@ -1511,118 +1590,219 @@
     "gdprPolicy": {
       "title": "Privacy Policy",
       "effectiveFrom": "Effective from:",
+      "common": {
+        "companyRegisterFallback": "the relevant commercial register"
+      },
       "controller": {
-        "title": "Who is the data controller",
-        "description": "The controller of personal data is {company}, company ID {companyId}, with its registered office at {address}, email {email}, which operates the Service available at {domain}."
+        "title": "Who processes your data",
+        "article1": "The controller of personal data is {companyLegalName}, company ID {companyId}, with its registered office at {companyAddress}, registered in {companyRegister}, e-mail {contactEmail}, website {domain} (the “Controller” or “we”).",
+        "article2": "These principles explain how we process personal data of natural persons when using our website, application, workspace environment, contact forms, support, commercial communications, and related services.",
+        "article3": "These principles apply mainly where we act as controller of personal data. In some situations, we may also act as processor; these situations are described below."
       },
       "dataCategories": {
         "title": "What personal data we process",
-        "description": "We may process in particular:",
+        "article1": "We may process in particular these categories of personal data:",
         "items": {
-          "identification": "identification data, such as first name, last name, company name, and company ID,",
-          "contact": "contact data, such as email, phone number, delivery, and billing details,",
-          "account": "access and account data,",
-          "billing": "data about orders, payments, and subscriptions,",
-          "technical": "technical data, such as IP address, logs, and information about device, system, and browser,",
-          "usage": "data about use of the website and application,",
-          "support": "communications with customer support,",
-          "marketing": "marketing preferences,",
-          "cookies": "data obtained through cookies and similar technologies."
-        }
+          "identification": "identification data, such as first and last name,",
+          "contact": "contact data, such as e-mail, phone number, or contact address,",
+          "account": "account data, such as login credentials, user ID, language, role, account status, and settings,",
+          "workspace": "workspace data, such as workspace name, membership, roles, invitations, and related metadata,",
+          "billing": "payment and billing data, such as billing address, company ID, VAT ID, plan information, orders, and payments,",
+          "technical": "technical data, such as IP address, information about device, browser, operating system, logs, and security records,",
+          "usage": "service usage data, such as feature interactions, navigation within the app, settings, preferences, and activity history,",
+          "communication": "communication data, such as the content of messages sent to support, sales, or through forms,",
+          "cookies": "data related to cookies and similar technologies, where used,",
+          "other": "other data that you provide to us yourself or that arise when using the Service."
+        },
+        "article2": "The scope of data processed depends on which parts of the Service you use, which plan is active, and how you communicate with us."
       },
       "sources": {
-        "title": "Sources of the data",
-        "description": "We obtain personal data:",
+        "title": "Where we obtain personal data",
+        "article1": "We obtain personal data in particular:",
         "items": {
-          "directlyFromUser": "directly from you when registering, ordering, communicating, or using the Service,",
-          "automaticCollection": "automatically when using the website and application,",
-          "partners": "from our contractual partners and service providers, such as payment or analytics tools, where necessary for contract performance, security, or legitimate interest."
+          "directlyFromUser": "directly from you during registration, ordering, form submission, or communication,",
+          "automaticCollection": "automatically through technical means when using the website and application,",
+          "otherWorkspaceUsers": "from other workspace users, for example if they invite you to a workspace or assign you a role,",
+          "partners": "from providers of payment, technical, analytics, or communication services,",
+          "publicSources": "from public sources or registers where reasonable and lawful."
         }
       },
-      "purposesAndLegalBases": {
-        "title": "Purposes and legal bases of processing",
-        "description": "We process personal data for the following purposes:",
+      "purposes": {
+        "title": "Purposes of processing",
+        "article1": "We process personal data in particular for the following purposes:",
         "items": {
-          "accountAndService": "account registration and provision of the Service,",
-          "subscriptionManagement": "contract performance and subscription management,",
-          "billing": "billing and accounting,",
-          "support": "customer support and communication,",
-          "security": "security, prevention of fraud, misuse, and incidents,",
-          "productImprovement": "development, operation, diagnostics, and improvement of the Service,",
+          "account": "account creation and management,",
+          "service": "provision and operation of the Service,",
+          "workspace": "management of workspaces, members, roles, and access,",
+          "contract": "conclusion and performance of a contract,",
+          "billing": "billing, payment records, and accounting,",
+          "security": "ensuring technical operation, security, and misuse prevention,",
+          "support": "handling user requests, support, complaints, and claims,",
+          "operationalMessages": "sending operational and service notifications,",
+          "improvement": "development, testing, measuring, and improving the Service,",
+          "marketing": "marketing communications where permitted,",
           "legalObligations": "compliance with legal obligations,",
-          "claims": "protection and enforcement of legal claims,",
-          "marketing": "sending commercial communications where permitted by law,",
-          "analytics": "analytics, personalization, or marketing based on consent where required."
-        },
-        "legalBases": "The legal basis is in particular:",
-        "bases": {
-          "contract": "performance of a contract,",
-          "legalObligation": "compliance with a legal obligation,",
-          "legitimateInterest": "the controller’s legitimate interest,",
-          "consent": "the data subject’s consent."
+          "claims": "protection of our legal claims and legitimate interests,",
+          "cookies": "working with cookies and related preferences."
         }
       },
-      "legitimateInterests": {
-        "title": "Legitimate interests",
-        "description": "On the basis of legitimate interest, we may process personal data in particular for:",
+      "legalBases": {
+        "title": "Legal bases of processing",
+        "article1": "We process personal data on the basis of the following legal grounds:",
         "items": {
-          "security": "ensuring the security and stability of the Service,",
-          "fraudPrevention": "prevention of fraud and misuse,",
-          "claims": "defense and assertion of legal claims,",
-          "directMarketing": "direct marketing to existing customers to the extent permitted by law,",
-          "analytics": "internal analytics and improvement of the Service."
+          "contract": "performance of a contract or steps taken before entering into a contract,",
+          "legalObligation": "compliance with a legal obligation,",
+          "legitimateInterest": "our legitimate interest,",
+          "consent": "your consent where required."
+        },
+        "article2": "Performance of a contract typically applies to:",
+        "contractItems": {
+          "account": "account registration and management,",
+          "service": "provision of app functionality,",
+          "workspace": "management of workspaces and membership,",
+          "order": "processing orders and activating plans,",
+          "communication": "communications related to provision of the Service."
+        },
+        "article3": "Legal obligation typically applies to:",
+        "legalObligationItems": {
+          "accounting": "accounting,",
+          "tax": "tax records,",
+          "regulatory": "regulatory and statutory obligations,",
+          "authorities": "cooperation with public authorities."
+        },
+        "article4": "Legitimate interest typically applies to:",
+        "legitimateInterestItems": {
+          "security": "ensuring security and protection of systems,",
+          "fraud": "prevention of fraud and misuse,",
+          "logs": "maintaining internal logs and audit records,",
+          "claims": "defending and asserting legal claims,",
+          "analytics": "basic analytics and product development,",
+          "customerCommunication": "reasonable communication with customers,",
+          "marketing": "sending commercial communications where permitted by law."
+        },
+        "article5": "Consent typically applies to:",
+        "consentItems": {
+          "cookies": "use of optional cookies,",
+          "marketing": "certain marketing activities,",
+          "other": "other cases where required by law."
         }
+      },
+      "roles": {
+        "title": "When we are controller and when we are processor",
+        "article1": "We act as controller mainly when processing personal data of our users and customers, website visitors, persons who contact us, persons subscribed to newsletters or commercial communications, and persons listed in billing and order details.",
+        "article2": "We may act as processor when users store personal data of third parties in a workspace and we process those data on their behalf while providing the Service.",
+        "article3": "Typically, this may concern data stored in the workspace within:",
+        "items": {
+          "tasks": "tasks,",
+          "notes": "internal notes,",
+          "files": "files,",
+          "contacts": "contacts,",
+          "teamMembers": "team members,",
+          "otherRecords": "other records created by the user."
+        },
+        "article4": "In these cases, the relevant user or their organization as controller is responsible for the lawfulness of the processing and the legal basis.",
+        "article5": "Where Article 28 GDPR applies to such processing, we conclude or offer a separate data processing agreement (DPA)."
       },
       "recipients": {
-        "title": "Who may access the data",
-        "description": "Personal data may be made available to our processors and other recipients, in particular:"
+        "title": "Who we share personal data with",
+        "article1": "We may make personal data available in particular to the following categories of recipients:",
+        "items": {
+          "hosting": "providers of hosting and cloud infrastructure,",
+          "analytics": "providers of analytics, communication, and technical tools,",
+          "support": "providers of e-mail, support, and ticketing services,",
+          "payments": "providers of payment and accounting services,",
+          "security": "providers of security, monitoring, and administration services,",
+          "advisors": "legal, tax, or other professional advisors,",
+          "authorities": "public authorities where required by law,",
+          "other": "other recipients where necessary for provision of the Service or protection of our rights."
+        },
+        "article2": "An up-to-date list of processors or categories of processors may be stated in a separate list or another part of our legal documentation."
       },
       "thirdCountryTransfers": {
         "title": "Transfers to third countries",
-        "description": "If personal data is transferred outside the European Economic Area, we do so only when the conditions set by GDPR are met, in particular on the basis of an adequacy decision, standard contractual clauses, or other appropriate safeguards."
+        "article1": "If we use suppliers or infrastructure outside the European Economic Area when providing the Service, personal data may be transferred to third countries.",
+        "article2": "In such a case, we ensure that the transfer takes place in compliance with GDPR, in particular on the basis of:",
+        "items": {
+          "adequacy": "an adequacy decision,",
+          "scc": "standard contractual clauses,",
+          "otherMechanism": "or another appropriate mechanism under GDPR."
+        }
       },
       "retention": {
-        "title": "How long we retain data",
-        "description": "We retain personal data only for as long as necessary to fulfill the processing purpose. Typically:",
+        "title": "How long we keep data",
+        "article1": "We retain personal data only for as long as necessary to fulfill the purpose of processing, unless law requires a longer period.",
+        "article2": "Typically, we retain data:",
         "items": {
-          "account": "account data for the duration of the account and a reasonable period afterwards,",
-          "contractual": "contractual and billing data for the period required by law,",
-          "support": "communications and support requests for the time needed to resolve them and defend legal rights,",
-          "logs": "operational and security logs for a reasonable period corresponding to their purpose,",
-          "consent": "data processed on the basis of consent until the consent is withdrawn or the declared period expires."
-        }
+          "account": "for the duration of the account and contractual relationship,",
+          "workspace": "for the duration of the workspace and related use of the Service,",
+          "legalObligations": "for the period necessary to comply with legal obligations,",
+          "claims": "for the time needed to protect legal claims,",
+          "consent": "for the duration of granted consent where processing is based on consent."
+        },
+        "article3": "After account termination or the end of the contractual relationship, we may retain some data for a reasonable period, in particular for the purpose of:",
+        "postTerminationItems": {
+          "legalObligations": "complying with legal obligations,",
+          "legitimateInterests": "protecting legitimate interests,",
+          "disputes": "resolving disputes, complaints, and incidents,",
+          "contractual": "keeping logs, backups, and security records,",
+          "logs": "other operational and security needs."
+        },
+        "article4": "Specific retention periods may vary depending on the type of data and type of service."
       },
       "rights": {
         "title": "Your rights",
-        "description": "You have the right to:",
+        "article1": "In connection with the processing of personal data, you have in particular the right:",
         "items": {
-          "access": "request access to your personal data,",
-          "rectification": "request rectification of inaccurate or incomplete data,",
-          "erasure": "request erasure where legal conditions are met,",
-          "restriction": "request restriction of processing,",
-          "objection": "object to processing based on legitimate interest,",
-          "portability": "data portability,",
-          "withdrawConsent": "withdraw consent at any time where processing is based on consent,",
-          "complaint": "lodge a complaint with a supervisory authority."
-        }
-      },
-      "automatedDecisionMaking": {
-        "title": "Automated decision-making",
-        "disabled": "We do not carry out decision-making based solely on automated processing that would have legal effects on you or similarly significantly affect you unless we expressly inform you otherwise.",
-        "enabled": "If decision-making based solely on automated processing with legal or similarly significant effects were to occur, you would be informed in accordance with GDPR, including the related rights."
-      },
-      "security": {
-        "title": "Security",
-        "description": "We have adopted appropriate technical and organizational measures to protect personal data, in particular access control management, transmission security, logging, backups, monitoring, and internal incident response processes."
+          "access": "to access personal data,",
+          "rectification": "to rectification of inaccurate or incomplete data,",
+          "erasure": "to erasure,",
+          "restriction": "to restriction of processing,",
+          "objection": "to object to processing,",
+          "portability": "to data portability,",
+          "withdrawConsent": "to withdraw consent where processing is based on consent,",
+          "complaint": "to lodge a complaint with a supervisory authority."
+        },
+        "article2": "If you believe that we process your data in breach of legal regulations, you may contact the Czech Data Protection Authority.",
+        "article3": "You may exercise your rights using the contact details stated in these principles."
       },
       "cookies": {
         "title": "Cookies and similar technologies",
-        "description": "Details about the use of cookies and similar technologies are set out in a separate Cookie Policy."
+        "article1": "We may use cookies and similar technologies on our website and related services.",
+        "article2": "Details on which cookies we use, for what purposes, and how you can manage your preferences are stated in a separate document titled “Cookie Policy”."
+      },
+      "security": {
+        "title": "Security",
+        "article1": "We have adopted appropriate technical and organizational measures to protect personal data.",
+        "article2": "These measures may include in particular:",
+        "items": {
+          "access": "access control management,",
+          "authentication": "authentication and security mechanisms,",
+          "logging": "logging and monitoring,",
+          "infrastructure": "infrastructure protection,",
+          "encryption": "encryption or pseudonymization where appropriate,",
+          "backups": "backups,",
+          "incidents": "internal processes for incident prevention and response."
+        },
+        "article3": "Nevertheless, absolute security of any transfer or storage of data cannot be guaranteed."
+      },
+      "minors": {
+        "title": "Minors",
+        "article1": "The Service may be used by persons older than {minimumAge}.",
+        "article2": "If the user is a minor, we expect that they use the Service with the consent of their legal guardian where required by law.",
+        "article3": "If we learn that personal data were obtained in breach of these conditions or legal regulations, we may take appropriate measures, including account restriction or deletion of data."
       },
       "contact": {
-        "title": "Contact and complaint",
-        "description": "For data protection matters, you can contact us at {email}.",
-        "authority": "You also have the right to lodge a complaint with the Czech Data Protection Authority at www.uoou.cz."
+        "title": "Contact",
+        "article1": "If you have questions about the processing of personal data, you can contact us at:",
+        "email": "e-mail: {email}",
+        "address": "address: {address}",
+        "dpo": "DPO e-mail: {email}"
+      },
+      "changes": {
+        "title": "Changes to these principles",
+        "article1": "We may amend or update these principles from time to time.",
+        "article2": "We will inform you of material changes in an appropriate way, for example through the website, application, or e-mail.",
+        "article3": "These principles are effective from {effectiveDate}."
       },
       "defaults": {
         "thirdParties": [
@@ -1673,169 +1853,226 @@
       "title": "Terms of Service",
       "effectiveFrom": "Effective from:",
       "lastUpdated": "Last updated:",
+      "common": {
+        "companyRegister": "{court}, file number {fileNumber}",
+        "companyRegisterFallback": "the relevant commercial register"
+      },
       "introduction": {
         "title": "Introductory provisions",
-        "body": "These Terms govern the rights and obligations between {company}, company ID {companyId}, with its registered office at {address}, as the operator and provider of the service, and any natural or legal person using the web application, related websites, interfaces, features, content, and related services available primarily at {domain} (the “Service”).",
-        "registeredIn": "The company is registered in {register}.",
-        "contractPart": "These Terms form an integral part of every agreement concluded between the provider and the user unless expressly agreed otherwise in writing."
+        "article1": "These Terms govern the rights and obligations between {companyLegalName}, company ID {companyId}, with its registered office at {companyAddress}, registered in {companyRegister}, contact e-mail {contactEmail} (the “Provider”), and any natural or legal person using the web application, related websites, features, content, and related services available primarily at {domain} (the “Service”).",
+        "article2": "These Terms form an integral part of every agreement concluded between the Provider and the user unless expressly agreed otherwise in writing.",
+        "article3": "The Service is a digital service provided remotely, in particular as an online workspace tool for work organization, task management, internal notes, files, contacts, team members, and related data.",
+        "article4": "The Service is intended for both businesses and consumers unless a specific feature, plan, or offer expressly states otherwise. Some features may be intended primarily for work, team, or business use."
       },
       "definitions": {
         "title": "Definitions",
         "user": "“User” means any person who uses the Service.",
-        "customer": "“Customer” means a user who has entered into an agreement for a paid version of the Service.",
+        "customer": "“Customer” means a user who has entered into an agreement with the Provider for a paid version of the Service.",
         "account": "“Account” means the user access created for the purpose of using the Service.",
-        "userContent": "“User Content” means any data, documents, inputs, texts, files, instructions, settings, and other information uploaded by the user to the Service or otherwise processed through the Service.",
-        "output": "“Output” means any result generated or made available by the Service based on the user’s inputs, data, or activities."
+        "workspace": "“Workspace” means a separate environment within the Service intended for organizing data, collaboration, member management, and use of the Service features.",
+        "userContent": "“User Content” means any data, texts, notes, tasks, files, contacts, settings, imported data, personal data, and other information uploaded by the user to the Service or otherwise processed through the Service.",
+        "plan": "“Plan” means the specific scope of services, features, limits, price, and conditions for using the Service.",
+        "order": "“Order” means the legal act by which the user activates a paid version of the Service."
       },
-      "contractFormation": {
-        "title": "Contract formation and binding effect",
-        "description": "The contractual relationship arises in particular through:",
+      "contract": {
+        "title": "Contract formation",
+        "description": "The contractual relationship between the Provider and the user arises in particular through:",
         "items": {
           "accountRegistration": "account registration,",
+          "workspaceActivation": "workspace activation,",
           "orderConfirmation": "order confirmation,",
           "paidPlanActivation": "activation of a paid plan,",
-          "individualOffer": "acceptance of an individual offer,",
-          "otherUse": "or any other demonstrable commencement of use of the Service after becoming familiar with these Terms."
+          "useAfterReview": "commencement of use of the Service after becoming familiar with these Terms,",
+          "otherAcceptance": "or any other demonstrable acceptance of the Provider’s offer."
         },
         "acceptance": "By using the Service, the user confirms that they have read, understood, and agree to these Terms.",
-        "authority": "If the user uses the Service on behalf of a legal entity or other organization, the user represents that they are authorized to bind that entity."
+        "authority": "If the user uses the Service on behalf of a legal entity, organization, or another third party, the user represents that they are authorized to bind that person or entity."
       },
-      "serviceNature": {
-        "title": "Nature of the Service and its development",
-        "description": "The Service is provided as a SaaS solution, i.e. as a continuously provided digital service accessible online. The provider may develop, modify, and change the technical solution, user interface, features, integrations, architecture, data models, limits, security elements, and method of providing the Service, provided that this does not breach obligations arising from mandatory law or individually agreed commitments.",
-        "noSpecificFeatureGuarantee": "The provider is not obliged to preserve any specific feature, integration, or parameter of the Service for an unlimited period unless expressly guaranteed on an individual basis."
+      "age": {
+        "title": "Age of the user and minors",
+        "article1": "The Service may be used independently by persons older than {minimumAge}.",
+        "article2": "A user under 18 represents that they use the Service with the consent of their legal guardian if such consent is required by law.",
+        "article3": "The Provider may request reasonable confirmation of compliance with this article if justified doubts arise."
       },
-      "providerIdentification": {
-        "registerValue": "{court}, file number {fileNumber}"
+      "account": {
+        "title": "Account, workspace, and security",
+        "article1": "The user must provide truthful, complete, and up-to-date information and keep it updated.",
+        "article2": "The user is responsible for securing their login credentials, passwords, devices, and other authentication means.",
+        "article3": "The user may not make their account available to unauthorized persons or allow use of the Service in a way that conflicts with these Terms.",
+        "article4": "The user must notify the Provider without undue delay of any suspicion of account misuse, security incident, or unauthorized access.",
+        "article5": "The Provider may implement security measures, in particular multi-factor authentication, access restrictions, login checks, usage limits, abuse prevention, and other technical or organizational measures."
       },
-      "accountSecurity": {
-        "title": "User account and security",
-        "description": "The user is required in particular to:",
-        "items": {
-          "accurateInformation": "provide complete, truthful, and up-to-date information,",
-          "credentialsProtection": "protect their login credentials and access means,",
-          "unauthorizedAccess": "ensure that unauthorized persons do not access the Service,",
-          "incidentReporting": "promptly report any suspicion of account misuse or any security incident."
-        },
-        "liability": "The user is responsible for all activity performed through their account unless they prove that the account was used solely as a result of the provider’s breach of obligations.",
-        "securityMeasures": "The provider may implement multi-factor authentication, access limits, security checks, and other protective measures."
-      },
-      "licenseScope": {
-        "title": "License and scope of authorization",
-        "description": "For the duration of the contractual relationship, the provider grants the user a limited, non-exclusive, non-transferable, and revocable right to use the Service to the extent corresponding to the agreed plan and intended purpose of the Service.",
-        "restrictionsIntro": "The user is not entitled in particular to:",
-        "items": {
-          "copying": "copy, sell, rent, sublicense, or otherwise commercially make the Service available to third parties unless expressly permitted,",
-          "circumvention": "circumvent technical restrictions or security mechanisms,",
-          "reverseEngineering": "perform reverse engineering, decompilation, or attempts to obtain source code unless expressly permitted by law,",
-          "harmfulUse": "use the Service in a way that could harm the provider, other users, or third parties."
-        },
-        "ipReservation": "All rights to the Service, its software, design, databases, documentation, know-how, and related elements belong to the provider or its licensors."
-      },
-      "userContent": {
-        "title": "User Content, data, and responsibility for use",
-        "description": "The user bears full responsibility for User Content, for the legal basis for its processing, and for the way in which the Service is used.",
-        "representationsIntro": "The user especially represents and undertakes that:",
-        "items": {
-          "rightsAndConsents": "they have all necessary rights, licenses, consents, and other authorizations for the uploaded data and content,",
-          "thirdPartyRights": "they do not infringe the rights of third parties, especially copyright, personality, contractual, competition, or data protection rights,",
-          "lawfulProcessing": "they will not process through the Service any content whose processing is unlawful or for which they lack the necessary authorization,",
-          "outputReview": "they are responsible for reviewing, validating, and assessing the suitability of any Output before using it in practice."
-        }
-      },
-      "prohibitedUse": {
-        "title": "Prohibited use",
-        "description": "The user may not use the Service in particular for:",
-        "items": {
-          "unlawfulConduct": "unlawful, fraudulent, deceptive, or abusive conduct,",
-          "malware": "distribution of malicious code, malware, spam, or phishing,",
-          "unauthorizedInterference": "unauthorized interference with systems, accounts, or infrastructure,",
-          "thirdPartyRights": "violating the rights of third parties,",
-          "scraping": "scraping, extraction, or automated access contrary to documentation or the reasonable purpose of the Service,",
-          "infrastructureLoad": "activities that could place an unreasonable load on infrastructure,",
-          "highImpactAutomation": "use of outputs for fully automated decision-making with significant impact on individuals’ rights without adequate human oversight and legal assessment."
+      "service": {
+        "title": "Nature of the Service and product changes",
+        "article1": "The Service is provided as an evolving SaaS solution.",
+        "article2": "The Provider may develop, change, modify, or discontinue individual features, modules, integrations, limits, technical solutions, data structures, user interface, and the method of providing the Service.",
+        "article3": "The Provider is not obliged to preserve any specific feature, parameter, or integration for an unlimited period unless expressly agreed individually.",
+        "article4": "Features and properties of the Service marked as optional, test, beta, preview, trial, AI, or similarly may be provided in a limited mode, without guarantee of availability, accuracy, or continuity.",
+        "features": {
+          "hasFreePlan": "The Service may include a free plan.",
+          "hasTrial": "The Service may include a trial period of up to {trialDays} days.",
+          "hasMonthlyBilling": "The Service may use monthly billing.",
+          "hasAnnualBilling": "The Service may use annual billing.",
+          "hasAutoRenewal": "Subscriptions may renew automatically.",
+          "hasAiFeatures": "The Service may include AI features or automated outputs.",
+          "hasDataExport": "The Service may support data export.",
+          "hasEnterpriseSla": "An enterprise SLA mode may be available for selected customers."
         }
       },
       "pricing": {
-        "title": "Pricing, invoicing, and payments",
-        "description": "The price of the Service is governed by the current price list, order, plan, or individual offer. Prices are stated without VAT unless expressly stated otherwise.",
-        "items": {
-          "prepaid": "paid services are charged in advance,",
-          "autoRenewal": "subscriptions renew automatically for the next billing period,",
-          "disableRenewal": "the user may disable renewal before the next period starts,",
-          "nonRefundable": "fees paid are non-refundable except where mandatory law or expressly agreed conditions require otherwise."
-        },
-        "thirdPartyPayments": "If payment is processed by a third party, such as Stripe, the payment transaction is also governed by that provider’s terms."
+        "title": "Plan, price, and payment terms",
+        "article1": "The price of the Service is governed by the current plan, price list, individual offer, or order.",
+        "article2": "The Provider may offer free and paid plans, one-time or recurring payments, monthly or annual billing, and other charging models depending on the current offer.",
+        "article3": "If automatic renewal is active, the subscription renews automatically for the next period unless cancelled in time by the method specified in the Service, order, or relevant plan.",
+        "article4": "The user must pay the price properly and on time.",
+        "article5": "If payment is overdue, the Provider may restrict or suspend the Service, deactivate paid features, or terminate the account.",
+        "article6": "Refunds, discounts, cancellations, trial periods, plan changes, and other commercial conditions are governed by the rules of the specific plan, offer, or order.",
+        "article7": "Unless expressly stated otherwise, prices are payable in advance for the relevant billing period.",
+        "article8": "If payment is processed through a third party or payment gateway, the payment process is also governed by that provider’s terms."
       },
-      "trialAndBeta": {
-        "title": "Trial versions, beta features, and free plans",
-        "trials": "The provider may offer trial periods or free plans. These modes may be limited, temporary, and provided without any guarantee of availability, accuracy, or continuity.",
-        "beta": "The provider may make beta features available. They may be changed, limited, or discontinued at any time and may be subject to a different support or stability regime."
+      "consumers": {
+        "title": "Consumers",
+        "article1": "If the user is a consumer, the relevant mandatory provisions of consumer protection law apply in addition to these Terms.",
+        "article2": "If the Service is provided before the withdrawal period expires, the consumer may be asked before activation to give explicit consent to the start of performance and confirm that this may result in losing the right of withdrawal to the extent provided by law.",
+        "article3": "Out-of-court consumer dispute resolution is provided by {adrAuthority}, {adrWebsite}.",
+        "article4": "This does not affect any other statutory consumer rights."
+      },
+      "license": {
+        "title": "License and authorization to use",
+        "article1": "For the duration of the contractual relationship, the Provider grants the user a limited, non-exclusive, non-transferable, and revocable right to use the Service to the extent corresponding to the selected plan and purpose of the Service.",
+        "article2": "The user is not entitled in particular to:",
+        "items": {
+          "copying": "copy, sell, rent, sublicense, or otherwise commercially make the Service available to third parties without the Provider’s authorization,",
+          "circumvention": "circumvent technical restrictions or security mechanisms,",
+          "reverseEngineering": "perform reverse engineering, decompilation, or attempts to obtain source code unless expressly permitted by law,",
+          "harmfulUse": "use the Service in a way that could harm the Provider, other users, or third parties."
+        },
+        "article3": "All rights to the Service, its software, design, databases, documentation, know-how, brand, and related elements belong to the Provider or its licensors."
+      },
+      "userContent": {
+        "title": "User Content and personal data in the workspace",
+        "article1": "The user is responsible for User Content and for the way in which the Service is used.",
+        "article2": "The user represents and undertakes that:",
+        "items": {
+          "rights": "they have all necessary rights to the User Content,",
+          "legalTitle": "they have a legal basis for processing personal data they upload to the Service,",
+          "thirdPartyRights": "they do not infringe the rights of third parties,",
+          "lawfulUse": "they will not process data through the Service in violation of the law,",
+          "noHarm": "they will not store in the Service any content that could cause legal, security, reputational, or operational harm to the Provider."
+        },
+        "article3": "To the extent the user uploads personal data of third parties into the Service within their workspace, the user or the entity on whose behalf they act is generally the controller of such personal data and the Provider is the processor.",
+        "article4": "Details of the processing of personal data under the previous paragraph are governed by a separate data processing agreement (DPA), if used."
+      },
+      "prohibitedUse": {
+        "title": "Prohibited use",
+        "article1": "The user may not use the Service in particular:",
+        "items": {
+          "unlawful": "for unlawful activity,",
+          "malware": "to distribute malware, malicious code, or security threats,",
+          "interference": "for unauthorized interference with systems, infrastructure, or accounts,",
+          "thirdPartyRights": "to infringe third-party rights,",
+          "spamFraud": "for spam, fraud, or deceptive conduct,",
+          "harmfulContent": "to upload content that is illegal, offensive, objectionable, or otherwise harmful,",
+          "riskyData": "to process data that may create unreasonable legal, technical, or security risk for the Provider,",
+          "specialCategories": "to process special categories of personal data unless there is a clear legal basis and the Service is expressly intended for such use,",
+          "infrastructureLoad": "in a way that unreasonably burdens the Provider’s infrastructure,",
+          "limitCircumvention": "by circumventing plan limits or the Provider’s business model."
+        },
+        "article2": "The Provider may assess whether specific use violates this article and take appropriate measures."
       },
       "availability": {
-        "title": "Availability, maintenance, and Service changes",
-        "description": "The provider uses reasonable efforts to ensure the availability, security, and functionality of the Service. However, the provider does not guarantee that the Service will be continuously available, error-free, or entirely free of vulnerabilities.",
-        "actionsIntro": "The provider is entitled in particular to:",
-        "items": {
-          "maintenance": "perform maintenance, updates, and security interventions,",
-          "restrictions": "temporarily restrict operation if necessary for technical, security, or legal reasons,",
-          "partners": "change technology partners, hosting environments, or integration layers."
-        }
-      },
-      "liability": {
-        "title": "Liability and limitation of liability",
-        "description": "To the maximum extent permitted by law, the Service is provided “as is” and “as available”.",
-        "items": {
-          "thirdPartyOutages": "outages caused by third parties, internet connectivity, or events beyond the provider’s reasonable control,",
-          "indirectDamage": "loss of profit, loss of opportunity, indirect or consequential damage,",
-          "outputUse": "damage arising from the use of Output without adequate review,",
-          "misuse": "damage caused by improper use of the Service or the user’s breach of these Terms,",
-          "thirdPartyServices": "third-party content and services."
-        },
-        "cap": "The provider’s aggregate liability for all harm arising from one or more related breaches is limited to the amount corresponding to the sum of payments made by the user during the {lookbackMonths} months preceding the claim, but at least {capAmount} {capCurrency}.",
-        "mandatoryLaw": "This limitation does not apply where liability cannot be excluded or limited under mandatory law, especially in cases of intent, gross negligence, or where mandatory consumer rights would be affected."
-      },
-      "indemnification": {
-        "title": "Indemnification by the user",
-        "description": "The user agrees to compensate the provider for damages, costs, penalties, fines, third-party claims, and reasonably incurred legal representation costs arising as a result of:",
-        "items": {
-          "termsBreach": "the user’s breach of these Terms,",
-          "unlawfulUse": "unlawful use of the Service,",
-          "userContentRights": "infringement of third-party rights by User Content,",
-          "falseStatements": "the inaccuracy of the user’s representations under these Terms."
-        }
+        "title": "Availability, maintenance, and support",
+        "article1": "The Provider uses reasonable efforts to ensure the availability and security of the Service.",
+        "article2": "The Provider does not guarantee uninterrupted or error-free availability of the Service unless expressly agreed otherwise.",
+        "article3": "The Provider may carry out maintenance, updates, security interventions, technical changes, and other operational measures that may temporarily limit the availability of the Service.",
+        "article4": "If a special level of service or support is agreed for a specific plan or customer, such level is governed by a separate offer, plan, or agreement.",
+        "article5": "Unless expressly agreed otherwise, no general SLA applies to the Service."
       },
       "termination": {
         "title": "Suspension and termination",
-        "description": "The provider may immediately limit or suspend access to the Service if:",
+        "article1": "The user may stop using the Service by the means provided by the Service, in particular by cancelling the account, workspace, subscription, or by not renewing the plan.",
+        "article2": "The Provider may immediately restrict, suspend, or terminate the account, workspace, or access to the Service if:",
         "items": {
-          "breach": "the user materially or repeatedly breaches these Terms,",
+          "termsBreach": "the user breaches these Terms,",
           "nonPayment": "payment is overdue,",
-          "harmRisk": "harm to the provider, other users, or third parties is threatened,",
-          "securityReasons": "such intervention is necessary for security or legal reasons."
+          "harm": "harm to the Provider, other users, or third parties is threatened,",
+          "suspicion": "there is reasonable suspicion of misuse, a security incident, or unlawful conduct,",
+          "operationalReasons": "such intervention is necessary for legal, regulatory, security, or operational reasons."
         },
-        "dataDeletion": "After termination of the contractual relationship, the provider may delete or anonymize the account and related data after a reasonable period unless legal regulations require longer retention."
+        "article3": "In the cases above, the Provider may act without prior notice if delay could increase the risk of harm or breach of obligations.",
+        "article4": "Upon termination of the contractual relationship, the user’s right to continue using the Service ends to the extent not expressly preserved."
       },
-      "confidentiality": {
-        "title": "Protection of confidential information",
-        "description": "Non-public information obtained in connection with the use of the Service is considered confidential. Each party must protect it and not use it otherwise than for the purpose of performing the contractual relationship unless statutory or contractual authorization exists."
+      "postTerminationData": {
+        "title": "Data after termination",
+        "article1": "After termination of the contractual relationship, the user’s access to the account, workspace, and User Content may be limited or terminated.",
+        "article2": "If data export is part of a specific feature, plan, or offer, the user may be allowed to export data to the extent and in the format supported by the Provider.",
+        "article3": "The Provider may, after termination of the contractual relationship, delete, anonymize, or otherwise remove User Content, the account, and related data.",
+        "article4": "The Provider may retain data for a reasonable period after termination, in particular for the purpose of:",
+        "items": {
+          "legalObligations": "complying with legal obligations,",
+          "legitimateInterests": "protecting legitimate interests,",
+          "records": "keeping records,",
+          "disputes": "resolving disputes, complaints, and incidents,",
+          "backups": "operating backups, system recovery, and security processes."
+        },
+        "article5": "The Provider is not obliged to retain data long-term after termination or guarantee recoverability unless this expressly follows from a specific plan, offer, or agreement."
       },
-      "consumerRights": {
-        "title": "Consumers",
-        "description": "If the user is a consumer, the relevant mandatory provisions of consumer protection law apply in addition to these Terms.",
-        "withdrawal": "If the Service is provided as a digital service before the withdrawal period expires, the consumer may be asked before activation to give explicit consent to the start of performance and confirm that this may result in losing the right of withdrawal to the extent provided by law.",
-        "executionConsent": "Out-of-court consumer dispute resolution is provided by the Czech Trade Inspection Authority at www.coi.gov.cz.",
-        "adr": "The general withdrawal period for distance contracts is {withdrawalDays} days unless a statutory exception for digital content or digital services applies."
+      "liability": {
+        "title": "Liability and limitation of liability",
+        "article1": "The Provider is liable for harm caused by breach of its obligations to the extent provided by law and these Terms.",
+        "article2": "The Provider is not liable in particular for:",
+        "items": {
+          "thirdParties": "outages or limitations caused by third parties,",
+          "incorrectUse": "damage arising from improper use of the Service,",
+          "userContent": "the content and lawfulness of User Content,",
+          "dataLoss": "loss or corruption of data caused by the user, a third party, or circumstances beyond the Provider’s reasonable control,",
+          "indirectDamage": "indirect harm, loss of profit, loss of opportunity, loss of goodwill, or reputational damage to the extent permitted by law,",
+          "userDecisions": "the consequences of user decisions made on the basis of data, outputs, overviews, or automations provided by the Service."
+        },
+        "article3": "The Provider’s total liability for harm arising in connection with the Service is limited to the amount corresponding to the sum of payments actually paid by the user during the last {liabilityLookbackMonths} months before the claim arose.",
+        "article4": "The limitation of liability under this article does not apply where it cannot validly be agreed under law, especially in cases of intentional harm, gross negligence, or where mandatory consumer rights would be affected."
+      },
+      "indemnification": {
+        "title": "Indemnification by the user",
+        "article1": "The user agrees to compensate the Provider for damage, costs, penalties, fines, third-party claims, and reasonably incurred legal representation costs arising as a result of:",
+        "items": {
+          "termsBreach": "the user’s breach of these Terms,",
+          "unlawfulUse": "unlawful use of the Service,",
+          "thirdPartyRights": "infringement of third-party rights,",
+          "personalData": "unlawful or unauthorized processing of personal data uploaded to the Service by the user,",
+          "falseStatements": "the inaccuracy of the user’s representations under these Terms."
+        }
+      },
+      "privacy": {
+        "title": "Privacy, cookies, and DPA",
+        "article1": "Information about the Provider’s processing of personal data as controller is set out in a separate document titled “Privacy Policy”.",
+        "article2": "Information about the use of cookies and similar technologies is set out in a separate document titled “Cookie Policy”.",
+        "article3": "If the Provider processes personal data on behalf of the user as processor while providing the Service, such processing is governed by a separate data processing agreement (DPA), if used.",
+        "article4": "A list of processors or categories of recipients may be stated in the Privacy Policy or related Provider documentation."
       },
       "changes": {
         "title": "Changes to the Terms",
-        "description": "The provider may amend these Terms to a reasonable extent, especially when laws, technology, the scope of the Service, pricing model, or security requirements change. Users will be informed in advance of material changes in an appropriate manner. Continued use of the Service after the effective date of a change constitutes acceptance unless mandatory law requires a different procedure."
+        "article1": "The Provider may amend these Terms, the price list, plans, limits, scope of features, and related commercial rules to a reasonable extent.",
+        "article2": "Users will be informed in advance of material changes in an appropriate manner, in particular by e-mail, notice in the Service, or publication on the website.",
+        "article3": "If the user does not agree with the change, they may terminate the contractual relationship before the change takes effect, unless law or the nature of the change requires otherwise.",
+        "article4": "Continued use of the Service after the effective date of a change constitutes acceptance unless mandatory law requires a different procedure."
       },
       "governingLaw": {
         "title": "Governing law and jurisdiction",
-        "description": "Legal relationships arising under these Terms are governed by the laws of the Czech Republic.",
-        "consumerFallback": "If the user is a consumer, this does not affect the protection provided by the mandatory provisions of the law of the country of their habitual residence.",
-        "courts": "Disputes will be resolved by the competent courts of the Czech Republic unless mandatory law provides otherwise."
+        "article1": "Legal relationships arising under these Terms are governed by the laws of the Czech Republic.",
+        "article2": "If the user is a consumer, this does not affect the protection provided by the mandatory provisions of the law of the country of their habitual residence.",
+        "article3": "Disputes will be resolved by the competent courts of the Czech Republic unless mandatory law provides otherwise."
+      },
+      "final": {
+        "title": "Final provisions",
+        "article1": "If any provision of these Terms becomes invalid, ineffective, or unenforceable, this does not affect the validity and effectiveness of the remaining provisions.",
+        "article2": "The Provider and the user undertake to replace any invalid or ineffective provision with one that most closely reflects the meaning and purpose of the original provision.",
+        "article3": "These Terms take effect on {effectiveDate}."
+      },
+      "contact": {
+        "title": "Contact",
+        "description": "For questions regarding these Terms, contact us at {email}.",
+        "phone": "Phone: {phone}"
       }
     }
   },
@@ -1893,38 +2130,35 @@
   "cookies": {
     "consent": {
       "banner": {
-        "description": "We use cookies to enhance your browsing experience, analyze site traffic, and provide personalized content. You can choose to accept all cookies or customize your preferences.",
+        "description": "We use necessary cookies to keep the website working properly and, with your consent, also functional, analytics and, where applicable, marketing cookies. You can change your preferences at any time in cookie settings.",
         "deny": "Reject all",
         "acceptAll": "Accept all",
         "settings": "Consent settings",
-        "footer": {
-          "termsOfService": "Terms of Service",
-          "privacyPolicy": "Privacy Policy"
-        }
+        "cookiesPolicy": "Cookies Policy"
       },
       "dialog": {
         "title": "Cookie Consent Settings",
-        "description": "Manage your cookie preferences. Blocking some cookies may impact your experience.",
+        "description": "Necessary cookies are always active because they are required for the secure and proper operation of the website and app. You can allow, reject or later change the other categories at any time.",
         "categories": {
           "necessary": {
             "label": "Necessary",
             "ariaLabel": "Necessary cookies (always enabled)",
-            "description": "Essential for the website to function. Enable basic features like page navigation and secure areas."
+            "description": "Required for the website and app to function, including security, session handling and storing your cookie choices."
           },
           "functional": {
             "label": "Functional",
             "ariaLabel": "Functional cookies",
-            "description": "Enable enhanced functionality and personalization, such as remembering your preferences and settings."
+            "description": "Help remember your settings and preferences, such as language, appearance and other environment choices."
           },
           "analytics": {
             "label": "Analytics",
             "ariaLabel": "Analytics cookies",
-            "description": "Help us understand how visitors interact with our website to improve content and user experience."
+            "description": "Help us understand how visitors and users interact with the website and app so we can measure performance and improve content and features."
           },
           "marketing": {
             "label": "Marketing",
             "ariaLabel": "Marketing cookies",
-            "description": "Used to deliver relevant advertisements and measure the effectiveness of advertising campaigns."
+            "description": "Used to evaluate marketing activities, measure campaigns and, where applicable, personalize advertising messages."
           }
         },
         "moreInfo": "For more information about how we use cookies, please read our",

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
-import { legal } from "@/config/legal";
+import { legal, legalDocumentDates } from "@/config/legal";
 import { createPageMetadata } from "@/lib/metadata";
 import { termsOfService } from "@/config/legal";
 import { TermsOfService } from "@/features/marketing/legal/terms-of-service";
@@ -31,14 +31,12 @@ export async function generateMetadata(
 
 export default async function Page({ params }: PageProps<"/[locale]/terms-of-service">) {
   const { locale } = await params;
+  const formattedEffectiveDate = new Intl.DateTimeFormat(locale as Locale, {
+    dateStyle: "long",
+  }).format(new Date(legalDocumentDates.termsOfService));
 
   // Enable static rendering
   setRequestLocale(locale as Locale);
-
-  const t = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.termsOfService",
-  });
 
   return (
     <div className="relative">
@@ -58,7 +56,7 @@ export default async function Page({ params }: PageProps<"/[locale]/terms-of-ser
             phone: legal.contact.phone,
           }}
           terms={termsOfService}
-          effectiveDate={t("effectiveDate")}
+          effectiveDate={formattedEffectiveDate}
         />
       </Container>
     </div>

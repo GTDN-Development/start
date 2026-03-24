@@ -30,4 +30,6 @@ export type Cookie = {
   duration: CookieDuration;
   category: CookieCategory;
   storageType?: CookieStorageType;
+  thirdParty: boolean;
+  requiresConsent: boolean;
 };
