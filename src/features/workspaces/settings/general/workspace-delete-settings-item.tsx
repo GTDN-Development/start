@@ -30,6 +30,7 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
+import { APP_HOME_PATH } from "@/config/routes";
 import { deleteOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
@@ -101,7 +102,7 @@ export function WorkspaceDeleteSettingsItem({
       startTransition(() => {
         setIsDeleteDialogOpen(false);
         form.reset();
-        router.replace("/app");
+        router.replace(APP_HOME_PATH);
       });
     },
   });
@@ -128,9 +129,7 @@ export function WorkspaceDeleteSettingsItem({
       </SettingsItemContent>
 
       <SettingsItemFooter>
-        {isReadOnly && (
-          <SettingsItemDescription>{tCommon("readOnlyHint")}</SettingsItemDescription>
-        )}
+        {isReadOnly && <SettingsItemDescription>{tCommon("readOnlyHint")}</SettingsItemDescription>}
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={handleDeleteDialogOpenChange}>
           <AlertDialogTrigger
             nativeButton={true}

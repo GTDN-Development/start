@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getWorkspaceOverviewHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
@@ -74,12 +75,7 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
       createLocalizedUrl(
         request,
         getPathname({
-          href: {
-            pathname: "/w/[workspaceSlug]/overview",
-            params: {
-              workspaceSlug: acceptResponse.data.result.workspace.slug,
-            },
-          },
+          href: getWorkspaceOverviewHref(acceptResponse.data.result.workspace.slug),
           locale: appLocale,
         })
       ),

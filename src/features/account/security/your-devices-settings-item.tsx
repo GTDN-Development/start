@@ -2,6 +2,7 @@
 
 import { startTransition, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -314,7 +315,7 @@ function handleAuthError(
 ): void {
   if (errorCode === "UNAUTHORIZED") {
     toast.error(t("security.devices.status.unauthorized"));
-    router.replace("/sign-in");
+    router.replace(SIGN_IN_PATH);
     return;
   }
 

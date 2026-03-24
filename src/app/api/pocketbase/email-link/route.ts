@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { getPathname, type AppPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { authConfig, type AuthEmailLinkAction } from "@/config/auth";
@@ -11,7 +12,7 @@ export async function GET(request: NextRequest) {
   const token = parseToken(request.nextUrl.searchParams.get("token"));
   const targetRoute: AppPathname = action
     ? authConfig.routes.emailLinkActionTargets[action]
-    : "/sign-in";
+    : SIGN_IN_PATH;
   const localizedPathname = getPathname({
     href: targetRoute,
     locale,

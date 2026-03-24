@@ -12,6 +12,14 @@ import {
   workspaceApplicationMenu,
   type ApplicationMenuLink,
 } from "@/config/navigation";
+import {
+  APP_HOME_PATH,
+  getWorkspaceOverviewHref,
+  getWorkspaceOverviewPath,
+  getWorkspaceRootPath,
+  getWorkspaceSettingsHref,
+  getWorkspaceSettingsPath,
+} from "@/config/routes";
 import { AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -21,26 +29,31 @@ import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
 
 function isMenuItemActive(pathname: string, item: ApplicationMenuLink) {
   const pathnameWorkspaceSlug = getWorkspaceSlugFromPathname(pathname);
-  const workspaceBasePath = pathnameWorkspaceSlug ? `/w/${pathnameWorkspaceSlug}` : null;
 
   switch (item.labelKey) {
     case "home":
-      return pathname === "/app";
-    case "overview":
-      if (!workspaceBasePath) {
+      return pathname === APP_HOME_PATH;
+    case "overview": {
+      if (!pathnameWorkspaceSlug) {
         return false;
       }
 
-      return pathname === workspaceBasePath || pathname === `${workspaceBasePath}/overview`;
-    case "settings":
-      if (!workspaceBasePath) {
-        return false;
-      }
+      const workspaceBasePath = getWorkspaceRootPath(pathnameWorkspaceSlug);
 
       return (
-        pathname === `${workspaceBasePath}/settings` ||
-        pathname.startsWith(`${workspaceBasePath}/settings/`)
+        pathname === workspaceBasePath ||
+        pathname === getWorkspaceOverviewPath(pathnameWorkspaceSlug)
       );
+    }
+    case "settings": {
+      if (!pathnameWorkspaceSlug) {
+        return false;
+      }
+
+      const workspaceSettingsPath = getWorkspaceSettingsPath(pathnameWorkspaceSlug);
+
+      return pathname === workspaceSettingsPath || pathname.startsWith(`${workspaceSettingsPath}/`);
+    }
   }
 }
 
@@ -50,24 +63,14 @@ function resolveMenuHref(item: ApplicationMenuLink, selectedWorkspaceSlug: strin
   }
 
   if (!selectedWorkspaceSlug) {
-    return "/app";
+    return APP_HOME_PATH;
   }
 
   if (item.labelKey === "overview") {
-    return {
-      pathname: "/w/[workspaceSlug]/overview",
-      params: {
-        workspaceSlug: selectedWorkspaceSlug,
-      },
-    };
+    return getWorkspaceOverviewHref(selectedWorkspaceSlug);
   }
 
-  return {
-    pathname: "/w/[workspaceSlug]/settings",
-    params: {
-      workspaceSlug: selectedWorkspaceSlug,
-    },
-  };
+  return getWorkspaceSettingsHref(selectedWorkspaceSlug);
 }
 
 export function ApplicationMenuTree({ className, ...props }: React.ComponentProps<"nav">) {

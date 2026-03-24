@@ -30,6 +30,7 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
+import { APP_HOME_PATH } from "@/config/routes";
 import { leaveWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
@@ -105,7 +106,7 @@ export function WorkspaceLeaveSettingsItem({
       startTransition(() => {
         setIsLeaveDialogOpen(false);
         form.reset();
-        router.replace("/app");
+        router.replace(APP_HOME_PATH);
       });
     },
   });

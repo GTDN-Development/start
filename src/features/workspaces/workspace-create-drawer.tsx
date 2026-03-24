@@ -18,6 +18,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
+import { getWorkspaceOverviewHref } from "@/config/routes";
 import { workspaceConfig } from "@/config/workspace";
 import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { useRouter } from "@/i18n/navigation";
@@ -86,12 +87,7 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
       startTransition(() => {
         form.reset();
         onOpenChange(false);
-        router.replace({
-          pathname: "/w/[workspaceSlug]/overview",
-          params: {
-            workspaceSlug: response.data.workspaceSlug,
-          },
-        });
+        router.replace(getWorkspaceOverviewHref(response.data.workspaceSlug));
       });
     },
   });

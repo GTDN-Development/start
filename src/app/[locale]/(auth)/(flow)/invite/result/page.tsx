@@ -3,6 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
+import { APP_HOME_PATH, SIGN_IN_PATH } from "@/config/routes";
 import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { InviteSignOutButton } from "../invite-sign-out-button";
 import { InviteStatePanel } from "../invite-state-panel";
@@ -87,10 +88,10 @@ export default async function Page({ params, searchParams }: InviteResultPagePro
             <InviteSignOutButton
               label={t("states.email_mismatch.cta")}
               errorMessage={t("actions.signOutError")}
-              redirectHref="/sign-in"
+              redirectHref={SIGN_IN_PATH}
             />
           ) : (
-            renderInviteLinkAction(tCommonError("goToSignIn"), "/sign-in")
+            renderInviteLinkAction(tCommonError("goToSignIn"), SIGN_IN_PATH)
           )
         }
       />
@@ -104,7 +105,7 @@ export default async function Page({ params, searchParams }: InviteResultPagePro
         description={t("states.error.description")}
         action={renderInviteLinkAction(
           session ? tCommonError("goToApp") : tCommonError("goToSignIn"),
-          session ? (applicationEntryHref ?? "/app") : "/sign-in"
+          session ? (applicationEntryHref ?? APP_HOME_PATH) : SIGN_IN_PATH
         )}
       />
     );
@@ -116,7 +117,7 @@ export default async function Page({ params, searchParams }: InviteResultPagePro
       description={t("states.blocked.description")}
       action={renderInviteLinkAction(
         session ? tCommonError("goToApp") : tCommonError("goToSignIn"),
-        session ? (applicationEntryHref ?? "/app") : "/sign-in"
+        session ? (applicationEntryHref ?? APP_HOME_PATH) : SIGN_IN_PATH
       )}
     />
   );

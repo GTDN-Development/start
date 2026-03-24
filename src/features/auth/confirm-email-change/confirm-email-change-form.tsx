@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -32,9 +33,12 @@ export function ConfirmEmailChangeForm({
   const [submitErrorCode, setSubmitErrorCode] = useState<SubmitErrorCode>(null);
   const submitErrorMessage = getSubmitErrorMessage(submitErrorCode, t);
   const confirmEmailChangeFormSchema = z.object({
-    password: z.string().trim().min(1, {
-      message: t("validation.passwordRequired"),
-    }),
+    password: z
+      .string()
+      .trim()
+      .min(1, {
+        message: t("validation.passwordRequired"),
+      }),
   });
 
   const form = useForm({
@@ -63,7 +67,7 @@ export function ConfirmEmailChangeForm({
           return;
         }
 
-        router.replace("/sign-in");
+        router.replace(SIGN_IN_PATH);
         return;
       }
 
@@ -134,7 +138,11 @@ export function ConfirmEmailChangeForm({
               </form.Field>
 
               <Button type="submit" disabled={isSubmitting || !token} size="lg" className="w-full">
-                {isSubmitting ? <Spinner /> : <MailCheckIcon aria-hidden="true" className="size-4" />}
+                {isSubmitting ? (
+                  <Spinner />
+                ) : (
+                  <MailCheckIcon aria-hidden="true" className="size-4" />
+                )}
                 {isSubmitting ? t("submit.pending") : t("submit.default")}
               </Button>
 

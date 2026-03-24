@@ -1,4 +1,10 @@
 import type { AppPathname } from "@/i18n/navigation";
+import {
+  ACCOUNT_PATH,
+  APP_HOME_PATH,
+  DEFAULT_AUTH_REDIRECTS,
+  WORKSPACE_PATH_PREFIX,
+} from "@/config/routes";
 
 const emailLinkActionTargets = {
   "verify-email": "/verify-email",
@@ -8,12 +14,13 @@ const emailLinkActionTargets = {
 
 export type AuthEmailLinkAction = keyof typeof emailLinkActionTargets;
 
-export const AUTH_PROTECTED_ROUTE_PREFIXES = ["/app", "/w", "/account"] as const;
+export const AUTH_PROTECTED_ROUTE_PREFIXES = [
+  APP_HOME_PATH,
+  WORKSPACE_PATH_PREFIX,
+  ACCOUNT_PATH,
+] as const;
 
-export const AUTH_REDIRECTS = {
-  unauthenticatedTo: "/sign-in",
-  authenticatedTo: "/app",
-} as const;
+export const AUTH_REDIRECTS = DEFAULT_AUTH_REDIRECTS;
 
 export const authConfig = {
   routes: {

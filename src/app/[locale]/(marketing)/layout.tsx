@@ -1,4 +1,5 @@
 import { MarketingLayout } from "@/features/marketing/marketing-layout";
+import { APP_HOME_PATH } from "@/config/routes";
 import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
@@ -24,7 +25,7 @@ export default async function Layout({ children }: MarketingRouteLayoutProps) {
     : null;
   const applicationEntryHref = sessionUser
     ? await resolveApplicationEntryHref(sessionUser.id)
-    : "/app";
+    : APP_HOME_PATH;
 
   return (
     <MarketingLayout viewer={viewer} applicationEntryHref={applicationEntryHref}>

@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
+import { APP_HOME_PATH } from "@/config/routes";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { ErrorStateContent } from "@/features/error-handling/error-state-content";
 import { useMountEffect } from "@/hooks/use-mount-effect";
@@ -41,7 +42,7 @@ export default function Error({ error, reset }: Props) {
         <ErrorStateContent
           className="h-full min-h-96"
           error={error}
-          href="/app"
+          href={APP_HOME_PATH}
           hrefLabel={t("goToApp")}
           reset={reset}
         />

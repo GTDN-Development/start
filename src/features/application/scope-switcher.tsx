@@ -22,6 +22,7 @@ import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-ty
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
+import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
 import {
   WorkspaceAvatar,
   WorkspaceAvatarFallback,
@@ -98,7 +99,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
     }
 
     setIsScopeMenuOpen(false);
-    router.replace("/app");
+    router.replace(APP_HOME_PATH);
   }
 
   function handleWorkspaceSwitch(workspace: WorkspaceOption) {
@@ -118,12 +119,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
         return;
       }
 
-      router.replace({
-        pathname: "/w/[workspaceSlug]/overview",
-        params: {
-          workspaceSlug: response.data.workspaceSlug,
-        },
-      });
+      router.replace(getWorkspaceOverviewHref(response.data.workspaceSlug));
     });
   }
 

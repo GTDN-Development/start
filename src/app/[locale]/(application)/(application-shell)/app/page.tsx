@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { APP_HOME_PATH } from "@/config/routes";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
@@ -24,7 +25,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/app">): Promi
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    pathname: "/app",
+    pathname: APP_HOME_PATH,
   });
 }
 

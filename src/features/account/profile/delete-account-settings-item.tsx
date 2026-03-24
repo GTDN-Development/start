@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { startTransition, useId, useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { deleteAccountAction } from "@/features/account/actions/account-actions";
@@ -86,7 +87,7 @@ export function AccountDeleteAccountSettingsItem() {
         startTransition(() => {
           setIsDeleteDialogOpen(false);
           form.reset();
-          router.replace("/sign-in");
+          router.replace(SIGN_IN_PATH);
         });
         return;
       }
@@ -103,7 +104,7 @@ export function AccountDeleteAccountSettingsItem() {
         startTransition(() => {
           setIsDeleteDialogOpen(false);
           form.reset();
-          router.replace("/sign-in");
+          router.replace(SIGN_IN_PATH);
         });
         return;
       }

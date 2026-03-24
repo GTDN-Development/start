@@ -1,3 +1,8 @@
+import {
+  ACCOUNT_PATH,
+  WORKSPACE_SETTINGS_MEMBERS_PATH,
+  WORKSPACE_SETTINGS_PATH,
+} from "@/config/routes";
 import type { InnerSidebarNavItem } from "./inner-sidebar-types";
 
 type InnerSidebarItemDefinition<TLabelKey extends string> = Omit<InnerSidebarNavItem, "label"> & {
@@ -5,8 +10,8 @@ type InnerSidebarItemDefinition<TLabelKey extends string> = Omit<InnerSidebarNav
 };
 
 type WorkspaceInnerSidebarPathname =
-  | "/w/[workspaceSlug]/settings"
-  | "/w/[workspaceSlug]/settings/members";
+  | typeof WORKSPACE_SETTINGS_PATH
+  | typeof WORKSPACE_SETTINGS_MEMBERS_PATH;
 
 type WorkspaceInnerSidebarItemDefinition<TLabelKey extends string> = Omit<
   InnerSidebarItemDefinition<TLabelKey>,
@@ -17,7 +22,7 @@ type WorkspaceInnerSidebarItemDefinition<TLabelKey extends string> = Omit<
 
 export const accountInnerSidebarItems = [
   {
-    href: "/account",
+    href: ACCOUNT_PATH,
     labelKey: "nav.profile",
     icon: "user",
   },
@@ -38,12 +43,12 @@ export const accountInnerSidebarItems = [
 
 export const workspaceSettingsInnerSidebarItems = [
   {
-    href: "/w/[workspaceSlug]/settings",
+    href: WORKSPACE_SETTINGS_PATH,
     labelKey: "general",
     icon: "slidersHorizontal",
   },
   {
-    href: "/w/[workspaceSlug]/settings/members",
+    href: WORKSPACE_SETTINGS_MEMBERS_PATH,
     labelKey: "members",
     icon: "users",
   },

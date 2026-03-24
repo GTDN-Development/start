@@ -3,6 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
+import { SIGN_IN_PATH, getWorkspaceOverviewHref } from "@/config/routes";
 import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { type AppHref, redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
@@ -86,7 +87,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
         <InviteStatePanel
           title={t("states.blocked.title")}
           description={t("states.blocked.description")}
-          action={renderInviteLinkAction(tCommonError("goToSignIn"), "/sign-in")}
+          action={renderInviteLinkAction(tCommonError("goToSignIn"), SIGN_IN_PATH)}
         />
       );
     }
@@ -123,12 +124,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
     await setActiveWorkspaceSlugCookie(inspectResponse.data.result.workspace.slug);
 
     redirect({
-      href: {
-        pathname: "/w/[workspaceSlug]/overview",
-        params: {
-          workspaceSlug: inspectResponse.data.result.workspace.slug,
-        },
-      },
+      href: getWorkspaceOverviewHref(inspectResponse.data.result.workspace.slug),
       locale: locale as Locale,
     });
   }

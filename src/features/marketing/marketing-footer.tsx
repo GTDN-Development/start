@@ -16,6 +16,7 @@ import {
   type MenuLink,
   type MenuLabelKey,
 } from "@/config/navigation";
+import { ACCOUNT_PATH, APP_HOME_PATH } from "@/config/routes";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 import {
   DropdownMenu,
@@ -108,8 +109,8 @@ export function MarketingFooter({
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
   const accountLinks: MenuLink[] = viewer
     ? [
-        { labelKey: "home", href: "/app" },
-        { labelKey: "myAccount", href: "/account" },
+        { labelKey: "home", href: APP_HOME_PATH },
+        { labelKey: "myAccount", href: ACCOUNT_PATH },
       ]
     : authMenu;
 

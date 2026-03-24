@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Link, type LinkHref } from "@/components/ui/link";
+import { ACCOUNT_PATH } from "@/config/routes";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthUser } from "@/features/auth/auth-contract";
 import { useSignOut } from "@/features/auth/use-sign-out";
@@ -116,7 +117,7 @@ export function UserAccountMenu({
           <LayoutDashboardIcon aria-hidden="true" />
           {labels.applicationEntry}
         </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href="/account" />}>
+        <DropdownMenuItem render={<Link href={ACCOUNT_PATH} />}>
           <UserIcon aria-hidden="true" />
           {labels.accountPage}
         </DropdownMenuItem>

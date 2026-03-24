@@ -1,6 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import {
+  APP_HOME_PATH,
+  getWorkspaceOverviewPath,
+  getWorkspaceSettingsMembersPath,
+  getWorkspaceSettingsPath,
+} from "@/config/routes";
 import { z } from "zod";
 import { workspaceConfig } from "@/config/workspace";
 import { routing, type AppLocale } from "@/i18n/routing";
@@ -99,7 +105,7 @@ export async function createOrganizationWorkspaceAction(input: {
 
   if (response.ok) {
     await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    revalidatePath("/app");
+    revalidatePath(APP_HOME_PATH);
   }
 
   return finalizeWorkspaceAction(response, (data) => ({
@@ -120,7 +126,7 @@ export async function switchWorkspaceAction(
 
   if (response.ok) {
     await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    revalidatePath("/app");
+    revalidatePath(APP_HOME_PATH);
   }
 
   return finalizeWorkspaceAction(response, (data) => ({
@@ -187,7 +193,7 @@ export async function leaveWorkspaceAction(
 
   if (response.ok) {
     await clearActiveWorkspaceSlugCookie();
-    revalidatePath("/app");
+    revalidatePath(APP_HOME_PATH);
   }
 
   return finalizeWorkspaceAction(response);
@@ -206,7 +212,7 @@ export async function deleteOrganizationWorkspaceAction(
 
   if (response.ok) {
     await clearActiveWorkspaceSlugCookie();
-    revalidatePath("/app");
+    revalidatePath(APP_HOME_PATH);
   }
 
   return finalizeWorkspaceAction(response);
@@ -436,17 +442,17 @@ function isWorkspaceAvatarFileValid(avatarFile: File): boolean {
 }
 
 function revalidateWorkspaceGeneralPaths(currentSlug: string, nextSlug: string): void {
-  revalidatePath(`/w/${currentSlug}/settings`);
-  revalidatePath(`/w/${currentSlug}/overview`);
+  revalidatePath(getWorkspaceSettingsPath(currentSlug));
+  revalidatePath(getWorkspaceOverviewPath(currentSlug));
 
   if (currentSlug !== nextSlug) {
-    revalidatePath(`/w/${nextSlug}/settings`);
-    revalidatePath(`/w/${nextSlug}/overview`);
+    revalidatePath(getWorkspaceSettingsPath(nextSlug));
+    revalidatePath(getWorkspaceOverviewPath(nextSlug));
   }
 }
 
 function revalidateWorkspaceMembersPath(workspaceSlug: string): void {
-  revalidatePath(`/w/${workspaceSlug}/settings/members`);
+  revalidatePath(getWorkspaceSettingsMembersPath(workspaceSlug));
 }
 
 function mapWorkspaceNavigationItem(workspace: UserWorkspace): WorkspaceNavigationItem {

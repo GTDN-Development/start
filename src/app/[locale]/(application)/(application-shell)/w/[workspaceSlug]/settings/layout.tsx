@@ -10,6 +10,7 @@ import { InnerSidebarBreadcrumbs } from "@/features/application/inner-sidebar/in
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { AUTH_REDIRECTS } from "@/config/auth";
+import { getWorkspaceSettingsHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
@@ -62,12 +63,7 @@ export default async function Layout({
       breadcrumbs={
         <InnerSidebarBreadcrumbs
           items={innerSidebarItems}
-          rootHref={{
-            pathname: "/w/[workspaceSlug]/settings",
-            params: {
-              workspaceSlug: workspace.slug,
-            },
-          }}
+          rootHref={getWorkspaceSettingsHref(workspace.slug)}
           rootLabel={tNav("settings")}
         />
       }

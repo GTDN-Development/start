@@ -2,6 +2,7 @@
 
 import { BackNavigation } from "@/components/ui/back-navigation";
 import { Link } from "@/components/ui/link";
+import { ACCOUNT_PATH } from "@/config/routes";
 import { useSidebarContext } from "@/features/application/application-root";
 import { cn } from "@/lib/utils";
 
@@ -23,8 +24,8 @@ export function AccountHeroBackLink({ className, children }: AccountHeroBackLink
         const canGoBackOutsideAccount =
           canGoBack &&
           previousPathname !== undefined &&
-          previousPathname !== "/account" &&
-          !previousPathname.startsWith("/account/");
+          previousPathname !== ACCOUNT_PATH &&
+          !previousPathname.startsWith(`${ACCOUNT_PATH}/`);
 
         return canGoBackOutsideAccount ? (
           <button type="button" className={sharedClassName} onClick={goBack}>

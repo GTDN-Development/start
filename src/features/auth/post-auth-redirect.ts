@@ -1,4 +1,5 @@
 import { startTransition } from "react";
+import { APP_HOME_PATH, SIGN_IN_PATH, getWorkspaceOverviewHref } from "@/config/routes";
 import { resolvePostAuthDestinationAction } from "@/features/auth/actions/auth-actions";
 import type { AppHref } from "@/i18n/navigation";
 import { runAsyncTransition } from "@/lib/app-utils";
@@ -12,7 +13,7 @@ export async function replaceToPostAuthDestination(router: PostAuthRouter): Prom
 
   if (!destinationResponse.ok) {
     startTransition(() => {
-      router.replace("/sign-in");
+      router.replace(SIGN_IN_PATH);
     });
     return;
   }
@@ -21,12 +22,7 @@ export async function replaceToPostAuthDestination(router: PostAuthRouter): Prom
     const workspaceSlug = destinationResponse.data.workspaceSlug;
 
     startTransition(() => {
-      router.replace({
-        pathname: "/w/[workspaceSlug]/overview",
-        params: {
-          workspaceSlug,
-        },
-      });
+      router.replace(getWorkspaceOverviewHref(workspaceSlug));
     });
     return;
   }
@@ -62,7 +58,7 @@ export async function replaceToPostAuthDestination(router: PostAuthRouter): Prom
   }
 
   startTransition(() => {
-    router.replace("/app");
+    router.replace(APP_HOME_PATH);
   });
 }
 

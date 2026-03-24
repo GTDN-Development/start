@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -76,7 +77,7 @@ export function ResetPasswordForm({
       });
 
       if (response.ok) {
-        router.replace("/sign-in");
+        router.replace(SIGN_IN_PATH);
         return;
       }
 
@@ -85,10 +86,7 @@ export function ResetPasswordForm({
         return;
       }
 
-      if (
-        response.errorCode === "WEAK_PASSWORD" ||
-        response.errorCode === "VALIDATION_ERROR"
-      ) {
+      if (response.errorCode === "WEAK_PASSWORD" || response.errorCode === "VALIDATION_ERROR") {
         setSubmitErrorCode("password");
         return;
       }
@@ -186,7 +184,11 @@ export function ResetPasswordForm({
               </form.Field>
 
               <Button type="submit" disabled={isSubmitting || !token} size="lg" className="w-full">
-                {isSubmitting ? <Spinner /> : <KeyRoundIcon aria-hidden="true" className="size-4" />}
+                {isSubmitting ? (
+                  <Spinner />
+                ) : (
+                  <KeyRoundIcon aria-hidden="true" className="size-4" />
+                )}
                 {isSubmitting ? t("submit.pending") : t("submit.default")}
               </Button>
 

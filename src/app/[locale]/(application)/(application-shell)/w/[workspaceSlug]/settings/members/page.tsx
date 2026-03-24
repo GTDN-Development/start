@@ -3,6 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { redirect } from "@/i18n/navigation";
+import { getWorkspaceSettingsHref } from "@/config/routes";
 import { WorkspaceMembersSettingsSection } from "@/features/workspaces/settings/members/workspace-members-settings-section";
 import { SettingsPage } from "@/features/application/settings-page";
 import { createPageMetadata } from "@/lib/metadata";
@@ -78,12 +79,7 @@ export default async function Page({
 
   if (!membersResponse.ok) {
     redirect({
-      href: {
-        pathname: "/w/[workspaceSlug]/settings",
-        params: {
-          workspaceSlug: workspace.slug,
-        },
-      },
+      href: getWorkspaceSettingsHref(workspace.slug),
       locale: locale as Locale,
     });
 
@@ -102,12 +98,7 @@ export default async function Page({
 
   if (!invitesResponse.ok) {
     redirect({
-      href: {
-        pathname: "/w/[workspaceSlug]/settings",
-        params: {
-          workspaceSlug: workspace.slug,
-        },
-      },
+      href: getWorkspaceSettingsHref(workspace.slug),
       locale: locale as Locale,
     });
 

@@ -3,6 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,7 @@ export function VerifyEmailForm({
           return;
         }
 
-        router.replace("/sign-in");
+        router.replace(SIGN_IN_PATH);
         return;
       }
 
@@ -70,7 +71,11 @@ export function VerifyEmailForm({
               <FieldDescription>{t("description")}</FieldDescription>
 
               <Button type="submit" disabled={isSubmitting || !token} size="lg" className="w-full">
-                {isSubmitting ? <Spinner /> : <MailCheckIcon aria-hidden="true" className="size-4" />}
+                {isSubmitting ? (
+                  <Spinner />
+                ) : (
+                  <MailCheckIcon aria-hidden="true" className="size-4" />
+                )}
                 {isSubmitting ? t("submit.pending") : t("submit.default")}
               </Button>
 

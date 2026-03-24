@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ACCOUNT_PATH } from "@/config/routes";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountAvatarSettingsItem } from "@/features/account/profile/avatar-settings-item";
@@ -20,7 +21,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/account">): P
     title: t("profilePage.title"),
     description: t("profilePage.description"),
     locale: locale as Locale,
-    pathname: "/account",
+    pathname: ACCOUNT_PATH,
   });
 }
 

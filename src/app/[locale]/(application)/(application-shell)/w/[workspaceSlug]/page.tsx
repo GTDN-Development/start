@@ -2,6 +2,7 @@ import { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { AUTH_REDIRECTS } from "@/config/auth";
+import { getWorkspaceOverviewHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
@@ -34,12 +35,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   }
 
   redirect({
-    href: {
-      pathname: "/w/[workspaceSlug]/overview",
-      params: {
-        workspaceSlug: workspaceResponse.data.workspace.slug,
-      },
-    },
+    href: getWorkspaceOverviewHref(workspaceResponse.data.workspace.slug),
     locale: locale as Locale,
   });
 }

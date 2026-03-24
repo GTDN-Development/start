@@ -1,9 +1,19 @@
 import type { AppPathname } from "@/i18n/navigation";
+import {
+  ACCOUNT_PATH,
+  APP_HOME_PATH,
+  SIGN_IN_PATH,
+  WORKSPACE_OVERVIEW_PATH,
+  WORKSPACE_SETTINGS_PATH,
+} from "@/config/routes";
 import type { AppIcon } from "@/types/icons";
 import { LayoutDashboardIcon, LifeBuoyIcon, SettingsIcon, UserIcon } from "lucide-react";
 
 type MenuHref = AppPathname;
-type ApplicationMenuHref = MenuHref | "/w/[workspaceSlug]/overview" | "/w/[workspaceSlug]/settings";
+type ApplicationMenuHref =
+  | MenuHref
+  | typeof WORKSPACE_OVERVIEW_PATH
+  | typeof WORKSPACE_SETTINGS_PATH;
 
 export type MenuLinkLabelKey =
   | "home"
@@ -68,7 +78,7 @@ export const marketingMenu: MenuItem[] = [
 ];
 
 export const personalApplicationMenu = [
-  { labelKey: "home", href: "/app", icon: LayoutDashboardIcon },
+  { labelKey: "home", href: APP_HOME_PATH, icon: LayoutDashboardIcon },
 ] as const satisfies ReadonlyArray<{
   labelKey: "home";
   href: MenuHref;
@@ -77,10 +87,10 @@ export const personalApplicationMenu = [
 }>;
 
 export const workspaceApplicationMenu = [
-  { labelKey: "overview", href: "/w/[workspaceSlug]/overview", icon: LayoutDashboardIcon },
+  { labelKey: "overview", href: WORKSPACE_OVERVIEW_PATH, icon: LayoutDashboardIcon },
   {
     labelKey: "settings",
-    href: "/w/[workspaceSlug]/settings",
+    href: WORKSPACE_SETTINGS_PATH,
     icon: SettingsIcon,
     matchNested: true,
   },
@@ -92,7 +102,7 @@ export const workspaceApplicationMenu = [
 }>;
 
 export const applicationSidebarFooterMenu = [
-  { labelKey: "myAccount", href: "/account", icon: UserIcon, matchNested: true },
+  { labelKey: "myAccount", href: ACCOUNT_PATH, icon: UserIcon, matchNested: true },
   { labelKey: "support", href: "/contact/support", icon: LifeBuoyIcon, matchNested: true },
 ] as const satisfies ReadonlyArray<{
   labelKey: "myAccount" | "support";
@@ -112,7 +122,7 @@ export const applicationFooterMenu: MenuLink[] = [
 ];
 
 export const authMenu: MenuLink[] = [
-  { labelKey: "signIn", href: "/sign-in" },
+  { labelKey: "signIn", href: SIGN_IN_PATH },
   { labelKey: "signUp", href: "/sign-up" },
 ];
 

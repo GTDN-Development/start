@@ -1,3 +1,5 @@
+import { APP_HOME_PATH, WORKSPACE_PATH_PREFIX } from "@/config/routes";
+
 export type ApplicationScope = "personal" | "workspace" | "other";
 
 export function normalizeWorkspaceSlug(workspaceSlug: string | null | undefined): string | null {
@@ -25,11 +27,11 @@ export function getWorkspaceSlugFromPathname(pathname: string): string | null {
 }
 
 export function isPersonalScopePath(pathname: string): boolean {
-  return pathname === "/app";
+  return pathname === APP_HOME_PATH;
 }
 
 export function isWorkspaceScopePath(pathname: string): boolean {
-  return pathname === "/w" || pathname.startsWith("/w/");
+  return pathname === WORKSPACE_PATH_PREFIX || pathname.startsWith(`${WORKSPACE_PATH_PREFIX}/`);
 }
 
 export function resolveApplicationScope(pathname: string): ApplicationScope {

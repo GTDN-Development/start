@@ -17,6 +17,7 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
+import { getWorkspaceSettingsHref } from "@/config/routes";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { app } from "@/config/app";
 import { workspaceConfig } from "@/config/workspace";
@@ -105,12 +106,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
 
       if (response.data.workspaceSlug !== workspaceSnapshot.slug) {
         startTransition(() => {
-          router.replace({
-            pathname: "/w/[workspaceSlug]/settings",
-            params: {
-              workspaceSlug: response.data.workspaceSlug,
-            },
-          });
+          router.replace(getWorkspaceSettingsHref(response.data.workspaceSlug));
         });
       }
     },
