@@ -181,12 +181,12 @@ export function MarketingHeader({
         // Transition and initial state
         "transform-gpu transition duration-300",
         // Initial state
-        "bg-background/75 border-b backdrop-blur-2xl",
+        "bg-background/75 backdrop-blur-2xl",
         // Hidden state for auto-hide behavior
         "data-hidden:data-scrolled:shadow-none data-hidden:motion-safe:-translate-y-full"
       )}
     >
-      <Container className="flex h-full items-center justify-between gap-8">
+      <Container size="full" className="flex h-full items-center justify-between gap-8">
         {/* Left side */}
         <div className="flex flex-1 items-center gap-4">
           <Link href="/" aria-label={t("homeAriaLabel")}>
@@ -207,13 +207,13 @@ export function MarketingHeader({
           <ul className="ml-auto hidden items-center gap-2 lg:flex">
             {viewer ? (
               <li>
-                <Button size="lg" nativeButton={false} render={<Link href={applicationEntryHref} />}>
+                <Button
+                  size="lg"
+                  nativeButton={false}
+                  render={<Link href={applicationEntryHref} />}
+                >
                   {applicationButtonLabel}
-                  <ChevronRightIcon
-                    aria-hidden="true"
-                    className="size-4"
-                    data-icon="inline-end"
-                  />
+                  <ChevronRightIcon aria-hidden="true" className="size-4" data-icon="inline-end" />
                 </Button>
               </li>
             ) : (
