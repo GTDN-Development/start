@@ -61,6 +61,7 @@
         "workspace": "Workspace",
         "settings": "Settings",
         "account": "Account",
+        "myAccount": "My account",
         "signIn": "Sign in",
         "signUp": "Sign up",
         "overview": "Overview",
@@ -114,6 +115,7 @@
     },
     "application": {
       "signedInAs": "Signed in as",
+      "goToWebsite": "Go to website",
       "signOut": "Sign out",
       "scopeSwitcher": {
         "personal": {

@@ -80,7 +80,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   const activeWorkspaceAvatarUrl = selectedWorkspace
     ? getWorkspaceAvatarUrl(selectedWorkspace, failedAvatarUrls)
     : null;
-  const isPersonalScope = applicationScope !== "workspace";
+  const isPersonalScope = applicationScope === "personal";
 
   function handleWorkspaceAvatarError(avatarUrl: string) {
     setFailedAvatarUrls((currentUrls) => {

@@ -17,14 +17,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthUser } from "@/features/auth/auth-contract";
 import { useSignOut } from "@/features/auth/use-sign-out";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
-import { GlobeIcon, LogOutIcon } from "lucide-react";
+import { GlobeIcon, LayoutDashboardIcon, LogOutIcon, UserIcon } from "lucide-react";
 
-export type UserAccountMenuViewer = Pick<AuthUser, "id" | "email" | "name" | "verified" | "avatarUrl">;
+export type UserAccountMenuViewer = Pick<
+  AuthUser,
+  "id" | "email" | "name" | "verified" | "avatarUrl"
+>;
 
 export type UserAccountMenuLabels = {
   account: string;
   accountPage: string;
-  personalHome: string;
+  applicationEntry: string;
   website: string;
   signOut: string;
 };
@@ -32,14 +35,14 @@ export type UserAccountMenuLabels = {
 type UserAccountMenuProps = {
   viewer: UserAccountMenuViewer;
   labels: UserAccountMenuLabels;
-  appHref?: LinkHref;
+  applicationEntryHref: LinkHref;
   className?: string;
 };
 
 export function UserAccountMenu({
   viewer,
   labels,
-  appHref = "/app",
+  applicationEntryHref,
   className,
 }: UserAccountMenuProps) {
   const accountProfile = useOptionalAccountProfile();
@@ -109,28 +112,22 @@ export function UserAccountMenu({
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href={appHref} className="w-full cursor-pointer" />}>
-          {labels.personalHome}
+        <DropdownMenuItem render={<Link href={applicationEntryHref} />}>
+          <LayoutDashboardIcon aria-hidden="true" />
+          {labels.applicationEntry}
         </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href="/account" className="w-full cursor-pointer" />}>
+        <DropdownMenuItem render={<Link href="/account" />}>
+          <UserIcon aria-hidden="true" />
           {labels.accountPage}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          render={
-            <Link href="/" className="flex w-full cursor-pointer justify-between text-left" />
-          }
-        >
+        <DropdownMenuItem render={<Link href="/" />}>
+          <GlobeIcon aria-hidden="true" />
           {labels.website}
-          <GlobeIcon aria-hidden="true" className="size-4" />
         </DropdownMenuItem>
-        <DropdownMenuItem
-          disabled={isSignOutPending}
-          className="justify-between"
-          onClick={handleSignOut}
-        >
+        <DropdownMenuItem disabled={isSignOutPending} onClick={handleSignOut}>
+          <LogOutIcon aria-hidden="true" />
           {labels.signOut}
-          <LogOutIcon aria-hidden="true" className="size-4" />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

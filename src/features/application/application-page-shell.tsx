@@ -4,6 +4,7 @@ import { ApplicationPageHeader, type ApplicationPageHeaderProps } from "./applic
 
 export function ApplicationPageShell({
   breadcrumbs,
+  variant,
   children,
   className,
 }: ApplicationPageHeaderProps & {
@@ -12,7 +13,7 @@ export function ApplicationPageShell({
 }) {
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col justify-between *:shrink-0 *:grow-0 *:data-[slot=main]:shrink *:data-[slot=main]:grow">
-      <ApplicationPageHeader breadcrumbs={breadcrumbs} />
+      <ApplicationPageHeader breadcrumbs={breadcrumbs} variant={variant} />
 
       <div data-slot="main" className={cn("relative isolate min-w-0", className)}>
         {children}

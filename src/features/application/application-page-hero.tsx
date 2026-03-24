@@ -49,11 +49,7 @@ function ApplicationPageHeroContent({ className, size, render, ...props }: Conta
     defaultTagName: "div",
     props: {
       ...props,
-      className: cn(
-        containerVariants({ size }),
-        "relative z-10 space-y-3 py-6 sm:py-10",
-        className
-      ),
+      className: cn(containerVariants({ size }), "relative z-10 space-y-3 py-6 sm:py-8", className),
     },
   });
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
+import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { ApplicationLayout } from "@/features/application/application-layout";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { AUTH_REDIRECTS } from "@/config/auth";
@@ -82,10 +83,15 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
     : [];
   const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
   const repairedActiveWorkspaceSlug = resolveActiveWorkspaceSlug(activeWorkspaceSlug, workspaces);
+  const applicationEntryHref = await resolveApplicationEntryHref(currentUser.user.id);
 
   const tApplication = await getTranslations({
     locale: locale as Locale,
     namespace: "layout.application",
+  });
+  const tHeader = await getTranslations({
+    locale: locale as Locale,
+    namespace: "layout.header",
   });
   const tHeaderMenu = await getTranslations({
     locale: locale as Locale,
@@ -101,12 +107,13 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
       user={user}
       workspaces={workspaces}
       activeWorkspaceSlug={repairedActiveWorkspaceSlug}
+      applicationEntryHref={applicationEntryHref}
       labels={{
         userMenu: {
-          account: tNavigation("account"),
-          accountPage: tNavigation("account"),
-          personalHome: tNavigation("home"),
-          website: tNavigation("website"),
+          account: tNavigation("myAccount"),
+          accountPage: tNavigation("myAccount"),
+          applicationEntry: tHeader("goToApplication"),
+          website: tApplication("goToWebsite"),
           signOut: tApplication("signOut"),
         },
         mobileMenu: {

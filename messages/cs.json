@@ -61,6 +61,7 @@
         "workspace": "Workspace",
         "settings": "Nastavení",
         "account": "Účet",
+        "myAccount": "Můj účet",
         "signIn": "Přihlášení",
         "signUp": "Registrace",
         "overview": "Přehled",
@@ -114,6 +115,7 @@
     },
     "application": {
       "signedInAs": "Přihlášen jako",
+      "goToWebsite": "Přejít na web",
       "signOut": "Odhlásit se",
       "scopeSwitcher": {
         "personal": {

@@ -1,20 +1,28 @@
 "use client";
 
 import { FloatingBar } from "@/components/layout/floating-bar";
+import { LogoStart } from "@/components/brand/logo-start";
 import { BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserAccountMenu } from "@/features/account/user-account-menu";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import { useSidebarContext } from "./application-layout";
 import { ScopeSwitcher } from "./scope-switcher";
 
 export type ApplicationPageHeaderProps = {
-  breadcrumbs: React.ReactNode;
+  breadcrumbs?: React.ReactNode;
+  variant?: "default" | "account";
 };
 
-export function ApplicationPageHeader({ breadcrumbs }: ApplicationPageHeaderProps) {
-  const { user, userMenuLabels, mobileMenuLabels } = useSidebarContext();
+export function ApplicationPageHeader({
+  breadcrumbs,
+  variant = "default",
+}: ApplicationPageHeaderProps) {
+  const { user, userMenuLabels, mobileMenuLabels, applicationEntryHref } = useSidebarContext();
+  const t = useTranslations("layout.header");
 
   return (
     <FloatingBar
@@ -33,24 +41,40 @@ export function ApplicationPageHeader({ breadcrumbs }: ApplicationPageHeaderProp
       <Container size="full" className="flex h-full min-w-0 shrink items-center gap-x-4">
         {/* Left side */}
         <div className="flex min-w-0 flex-1 items-center gap-x-2">
-          <SidebarTrigger
-            variant="ghost"
-            aria-label={mobileMenuLabels.openAriaLabel}
-            className="shrink-0"
-          />
+          {variant === "account" ? (
+            <Link
+              href={applicationEntryHref}
+              aria-label={t("homeAriaLabel")}
+              className="inline-flex w-fit"
+            >
+              <LogoStart aria-hidden="true" className="w-18" />
+            </Link>
+          ) : (
+            <>
+              <SidebarTrigger
+                variant="ghost"
+                aria-label={mobileMenuLabels.openAriaLabel}
+                className="shrink-0"
+              />
 
-          <div className="hidden w-48 min-w-0 lg:block">
-            <ScopeSwitcher />
-          </div>
+              <div className="hidden w-48 min-w-0 lg:block">
+                <ScopeSwitcher />
+              </div>
 
-          <BreadcrumbSeparator className="hidden shrink-0 lg:block" />
+              {breadcrumbs && <BreadcrumbSeparator className="hidden shrink-0 lg:block" />}
 
-          <div className="min-w-0">{breadcrumbs}</div>
+              {breadcrumbs && <div className="min-w-0">{breadcrumbs}</div>}
+            </>
+          )}
         </div>
 
         {/* Right side */}
         <div className="flex min-w-0 items-center justify-end gap-x-4">
-          <UserAccountMenu viewer={user} labels={userMenuLabels} appHref="/app" />
+          <UserAccountMenu
+            viewer={user}
+            labels={userMenuLabels}
+            applicationEntryHref={applicationEntryHref}
+          />
         </div>
       </Container>
     </FloatingBar>

@@ -22,6 +22,7 @@ export type MenuLinkLabelKey =
   | "overview"
   | "settings"
   | "account"
+  | "myAccount"
   | "privacyPolicy"
   | "termsOfService"
   | "cookiePolicy";
@@ -68,9 +69,8 @@ export const marketingMenu: MenuItem[] = [
 
 export const personalApplicationMenu = [
   { labelKey: "home", href: "/app", icon: LayoutDashboardIcon },
-  { labelKey: "account", href: "/account", icon: UserIcon, matchNested: true },
 ] as const satisfies ReadonlyArray<{
-  labelKey: "home" | "account";
+  labelKey: "home";
   href: MenuHref;
   icon: AppIcon;
   matchNested?: boolean;
@@ -92,9 +92,10 @@ export const workspaceApplicationMenu = [
 }>;
 
 export const applicationSidebarFooterMenu = [
+  { labelKey: "myAccount", href: "/account", icon: UserIcon, matchNested: true },
   { labelKey: "support", href: "/contact/support", icon: LifeBuoyIcon, matchNested: true },
 ] as const satisfies ReadonlyArray<{
-  labelKey: "support";
+  labelKey: "myAccount" | "support";
   href: ApplicationMenuHref;
   icon: AppIcon;
   matchNested?: boolean;

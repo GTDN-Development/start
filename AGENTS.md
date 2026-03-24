@@ -15,6 +15,7 @@
 - **Never** import from `next/link` directly — use `@/components/ui/link` for internal localized links
 - For external URLs and hash/mailto/tel links use a native `<a>` (do not force `@/components/ui/link`)
 - Mirror route-specific feature folders to the actual app route/route-group structure when practical (e.g. `src/features/.../account/security/*` for `/account/security`)
+- Prefer route-group/layout splits over client pathname branching when the difference affects first paint, chrome, or `loading.tsx`
 - **Never** use `middleware.ts` — use `proxy.ts` for request interception (no edge runtime)
 - `params` and `searchParams` must be awaited — they are async in Next.js 16
 - `cookies()`, `headers()`, `draftMode()` must be awaited
@@ -42,6 +43,8 @@
 - Do not introduce shared helpers/components too early just to deduplicate markup; two instances are not enough on their own to justify an abstraction
 - Three instances is still a judgment call and depends on context; prefer duplication unless the abstraction has clear semantic value, ownership, or behavioral reuse
 - Usually only extract a shared helper/component when the same pattern appears in four or more places, or when there is a strong reason beyond deduplication
+- Do not extract one-off wrapper components when the same UI is clearer as inline composition with existing primitives in the route/layout file
+- Do not extract duplicated JSX into intermediate variables only to avoid small local duplication
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
 - API route groups:
   - marketing: `src/app/api/marketing/*`
@@ -63,6 +66,7 @@
 - For small, localized UI changes, prefer inline composition with existing shared primitives (`Button`, `Link`, etc.) over extracting one-off helper components
 - Do not introduce local wrapper/helper components only to deduplicate a tiny amount of markup inside a single file, unless they carry their own logic, semantics, or are likely to be reused meaningfully
 - Prefer a direct `Button` with `render={<Link ... />}` over a custom CTA wrapper component when the abstraction would only hide a simple one-off render pattern
+- When a variant changes only inner content or a few classes, keep one shared outer wrapper and branch inside it
 
 ## Forms
 

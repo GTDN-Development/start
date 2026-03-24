@@ -19,17 +19,11 @@ import { useSidebarContext } from "./application-layout";
 import { getWorkspaceSlugFromPathname, resolveApplicationScope } from "./application-scope";
 import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
 
-function isAccountRoute(pathname: string) {
-  return pathname === "/account" || pathname.startsWith("/account/");
-}
-
 function isMenuItemActive(pathname: string, item: ApplicationMenuLink) {
   const pathnameWorkspaceSlug = getWorkspaceSlugFromPathname(pathname);
   const workspaceBasePath = pathnameWorkspaceSlug ? `/w/${pathnameWorkspaceSlug}` : null;
 
   switch (item.labelKey) {
-    case "account":
-      return isAccountRoute(pathname);
     case "home":
       return pathname === "/app";
     case "overview":

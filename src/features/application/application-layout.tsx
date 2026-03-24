@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { LayoutBanners } from "@/components/layout/layout-banners";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import { LogoStart } from "@/components/brand/logo-start";
-import { Link } from "@/components/ui/link";
+import { Link, type LinkHref } from "@/components/ui/link";
 import {
   Sidebar,
   SidebarContent,
@@ -25,7 +25,7 @@ import { useSession } from "@/features/auth/auth-client";
 import { showEmailVerificationBanner } from "@/features/auth/email-verification";
 import { EmailVerificationBanner } from "@/features/auth/email-verification-banner";
 import { useMountEffect } from "@/hooks/use-mount-effect";
-import { useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import {
   WorkspaceNavigationProvider,
   useWorkspaceNavigation,
@@ -34,6 +34,7 @@ import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-ty
 import { ApplicationSidebarFooterNavigation } from "./application-sidebar-footer-navigation";
 import { ApplicationSidebarSignOut } from "./application-sidebar-sign-out";
 import { ApplicationMenuTree } from "./application-menu-tree";
+import { isAccountScopePath } from "./application-scope";
 import { ScopeSwitcher } from "./scope-switcher";
 
 type ApplicationMobileMenuLabels = {
@@ -46,6 +47,7 @@ type ApplicationLayoutContextValue = {
   user: AccountProfileSnapshot;
   userMenuLabels: UserAccountMenuLabels;
   mobileMenuLabels: ApplicationMobileMenuLabels;
+  applicationEntryHref: LinkHref;
 };
 
 export type ApplicationLayoutLabels = {
@@ -58,6 +60,7 @@ type ApplicationLayoutProps = {
   user: AccountProfileSnapshot;
   workspaces: WorkspaceNavigationItem[];
   activeWorkspaceSlug: string | null;
+  applicationEntryHref: LinkHref;
   labels: ApplicationLayoutLabels;
 };
 
@@ -82,11 +85,14 @@ export function ApplicationLayout({
   user,
   workspaces,
   activeWorkspaceSlug,
+  applicationEntryHref,
   labels,
 }: ApplicationLayoutProps) {
   const sessionSnapshot = useSession();
   const t = useTranslations("layout");
+  const pathname = usePathname();
   const contentId = "gtdn-app-content";
+  const isAccountSurface = isAccountScopePath(pathname);
 
   if (sessionSnapshot.status === "unauthenticated") {
     return <UnauthenticatedApplicationRedirect />;
@@ -122,41 +128,43 @@ export function ApplicationLayout({
             user: currentUser,
             userMenuLabels: labels.userMenu,
             mobileMenuLabels: labels.mobileMenu,
+            applicationEntryHref,
           }}
         >
           <div className="relative isolate [--navbar-height:--spacing(16)]">
             <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
-
             <SidebarProvider>
-              <Sidebar collapsible="offcanvas">
-                <SidebarHeader>
-                  <div className="pt-3.5 pl-2.5 lg:pb-2.5">
-                    <Link
-                      href="/"
-                      aria-label={t("header.homeAriaLabel")}
-                      className="inline-flex w-fit"
-                    >
-                      <LogoStart aria-hidden="true" className="w-18" />
-                    </Link>
-                  </div>
+              {!isAccountSurface && (
+                <Sidebar collapsible="offcanvas">
+                  <SidebarHeader>
+                    <div className="pt-3.5 pl-2.5 lg:pb-2.5">
+                      <Link
+                        href={applicationEntryHref}
+                        aria-label={t("header.homeAriaLabel")}
+                        className="inline-flex w-fit"
+                      >
+                        <LogoStart aria-hidden="true" className="w-18" />
+                      </Link>
+                    </div>
 
-                  <div className="max-w-full lg:hidden">
-                    <ScopeSwitcher />
-                  </div>
-                </SidebarHeader>
-                <SidebarContent>
-                  <SidebarGroup>
-                    <SidebarGroupContent>
-                      <ApplicationMenuTree aria-label={labels.mobileMenu.title} />
-                    </SidebarGroupContent>
-                  </SidebarGroup>
-                </SidebarContent>
-                <SidebarFooter>
-                  <SidebarSeparator />
-                  <ApplicationSidebarFooterNavigation />
-                  <ApplicationSidebarSignOut />
-                </SidebarFooter>
-              </Sidebar>
+                    <div className="max-w-full lg:hidden">
+                      <ScopeSwitcher />
+                    </div>
+                  </SidebarHeader>
+                  <SidebarContent>
+                    <SidebarGroup>
+                      <SidebarGroupContent>
+                        <ApplicationMenuTree aria-label={labels.mobileMenu.title} />
+                      </SidebarGroupContent>
+                    </SidebarGroup>
+                  </SidebarContent>
+                  <SidebarFooter>
+                    <SidebarSeparator />
+                    <ApplicationSidebarFooterNavigation />
+                    <ApplicationSidebarSignOut />
+                  </SidebarFooter>
+                </Sidebar>
+              )}
 
               <SidebarInset id={contentId} className="min-w-0">
                 <LayoutBanners

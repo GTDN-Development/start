@@ -12,8 +12,8 @@ import {
   isNested,
   legalItems,
   marketingMenu,
-  personalApplicationMenu,
   type MenuItem,
+  type MenuLink,
   type MenuLabelKey,
 } from "@/config/navigation";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
@@ -106,10 +106,11 @@ export function MarketingFooter({
   const tApplication = useTranslations("layout.application");
 
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
-  const accountLinks = viewer
-    ? personalApplicationMenu.filter(
-        (item) => item.labelKey === "home" || item.labelKey === "account"
-      )
+  const accountLinks: MenuLink[] = viewer
+    ? [
+        { labelKey: "home", href: "/app" },
+        { labelKey: "myAccount", href: "/account" },
+      ]
     : authMenu;
 
   const viewerName = viewer?.name?.trim() || null;
@@ -135,7 +136,7 @@ export function MarketingFooter({
         </div>
 
         <div className="flex flex-col items-start justify-start gap-7">
-          <p className="font-heading text-sm font-semibold">{tNav("account")}</p>
+          <p className="font-heading text-sm font-semibold">{tNav("myAccount")}</p>
           {viewer && (
             <div className="space-y-1">
               <p className="text-muted-foreground text-xs">{tApplication("signedInAs")}</p>
