@@ -344,7 +344,6 @@ function createAccountProfileSnapshot(pb: PocketBase, record: UsersRecord) {
     id: record.id,
     email: record.email,
     name: getNullableTrimmedString(record.name),
-    verified: record.verified === true,
     avatarUrl: getAvatarUrl(pb, record),
   };
 }

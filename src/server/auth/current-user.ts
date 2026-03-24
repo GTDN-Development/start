@@ -63,6 +63,12 @@ export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
       return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
     }
 
+    if (refreshedAuth.record.verified !== true) {
+      console.warn("[auth-current-user] requireCurrentUser.unverifiedUserSession");
+
+      return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
+    }
+
     return {
       ok: true,
       pb,

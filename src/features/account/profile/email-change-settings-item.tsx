@@ -33,7 +33,6 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import type { InlineStatus } from "@/features/account/account-types";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { runAsyncTransition } from "@/lib/app-utils";
 
 const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
@@ -139,20 +138,10 @@ export function AccountEmailSettingsItem() {
   return (
     <SettingsItem>
       <SettingsItemContent className="flex flex-col gap-6">
-        <div className="flex flex-row flex-wrap gap-6 xl:gap-8">
-          <SettingsItemContentHeader className="w-full grow basis-72">
-            <SettingsItemTitle>{t("email.title")}</SettingsItemTitle>
-            <SettingsItemDescription>{t("email.description")}</SettingsItemDescription>
-          </SettingsItemContentHeader>
-
-          <div className="shrink-0 basis-auto self-start">
-            {profile.verified ? (
-              <Badge>{t("email.verification.verified")}</Badge>
-            ) : (
-              <Badge variant={"destructive"}>{t("email.verification.unverified")}</Badge>
-            )}
-          </div>
-        </div>
+        <SettingsItemContentHeader>
+          <SettingsItemTitle>{t("email.title")}</SettingsItemTitle>
+          <SettingsItemDescription>{t("email.description")}</SettingsItemDescription>
+        </SettingsItemContentHeader>
 
         <SettingsItemContentBody>
           <p className="text-foreground text-sm font-semibold break-all">{profile.email}</p>

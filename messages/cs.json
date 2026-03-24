@@ -97,22 +97,6 @@
       "callToAction": "Akce",
       "close": "Zavřít oznámení"
     },
-    "emailVerificationBanner": {
-      "title": "Už jen krok. Ověřte prosím e-mail a odemkněte všechny funkce.",
-      "resend": "Znovu poslat ověřovací e-mail",
-      "close": "Zavřít banner ověření e-mailu",
-      "status": {
-        "success": {
-          "title": "Ověřovací e-mail odeslán",
-          "message": "Poslali jsme nový ověřovací e-mail."
-        },
-        "error": {
-          "title": "E-mail se nepodařilo odeslat",
-          "message": "Ověřovací e-mail se teď nepodařilo odeslat. Zkuste to prosím znovu.",
-          "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
-        }
-      }
-    },
     "application": {
       "signedInAs": "Přihlášen jako",
       "goToWebsite": "Přejít na web",
@@ -220,7 +204,20 @@
     "verifyEmail": {
       "title": "Ověření e-mailu",
       "description": "Potvrďte svou e-mailovou adresu a dokončete nastavení účtu.",
-      "backToSignIn": "Zpět na přihlášení"
+      "states": {
+        "pending": {
+          "title": "Zkontrolujte e-mail",
+          "description": "Poslali jsme vám ověřovací odkaz. Pro přihlášení do aplikace je nutné ověřit e-mailovou adresu."
+        },
+        "verified": {
+          "title": "E-mail ověřen",
+          "description": "Vaše e-mailová adresa je ověřená. Můžete pokračovat přihlášením."
+        },
+        "invalid": {
+          "title": "Ověřovací odkaz vypršel",
+          "description": "Tento ověřovací odkaz je neplatný nebo vypršel. Požádejte o nový a pokračujte."
+        }
+      }
     },
     "confirmEmailChange": {
       "title": "Potvrzení změny e-mailu",
@@ -633,10 +630,6 @@
       "email": {
         "title": "E-mailová adresa",
         "description": "Tato e-mailová adresa slouží k přihlášení a k zasílání důležitých oznámení.",
-        "verification": {
-          "verified": "Ověřeno",
-          "unverified": "Neověřeno"
-        },
         "footerHint": "Změna e-mailu vyžaduje ověření, než se nová adresa aktivuje.",
         "changeButton": "Změnit e-mail",
         "dialog": {
@@ -1400,20 +1393,36 @@
       }
     },
     "verifyEmail": {
-      "description": "Pomocí tlačítka níže potvrďte svou e-mailovou adresu.",
-      "submit": {
-        "default": "Ověřit e-mail",
-        "pending": "Ověřování..."
+      "pending": {
+        "emailLabel": "Ověřovací e-mail posíláme na",
+        "resendHint": "E-mail nedorazil? Požádejte o nový ověřovací odkaz."
+      },
+      "actions": {
+        "resend": "Poslat ověřovací e-mail znovu",
+        "resendPending": "Odesílání ověřovacího e-mailu...",
+        "signIn": "Přejít na přihlášení",
+        "signUp": "Vytvořit jiný účet"
       },
       "status": {
-        "success": {
+        "verified": {
           "title": "E-mail ověřen",
-          "message": "Vaše e-mailová adresa byla úspěšně ověřena."
+          "message": "Vaše e-mailová adresa byla ověřena. Pro pokračování se přihlaste."
+        },
+        "invalid": {
+          "title": "Ověřovací odkaz vypršel",
+          "message": "Tento ověřovací odkaz je neplatný nebo vypršel."
+        },
+        "resent": {
+          "title": "Zkontrolujte e-mail",
+          "message": "Pokud tato e-mailová adresa existuje a stále čeká na ověření, poslali jsme nový ověřovací e-mail."
+        },
+        "rateLimited": {
+          "title": "Příliš mnoho požadavků",
+          "message": "Před dalším požadavkem na ověřovací e-mail chvíli počkejte."
         },
         "error": {
-          "title": "Ověření selhalo",
-          "message": "E-mailovou adresu se nepodařilo ověřit. Zkuste to prosím znovu.",
-          "invalidOrExpiredToken": "Tento ověřovací odkaz je neplatný nebo vypršel."
+          "title": "Ověřovací e-mail se nepodařilo odeslat",
+          "message": "Ověřovací e-mail se teď nepodařilo odeslat. Zkuste to prosím později."
         }
       }
     },
@@ -1598,7 +1607,8 @@
         "functional": "Funkční úložiště",
         "analytics": "Analytické cookies",
         "marketing": "Marketingové cookies"
-      },      "storageType": {
+      },
+      "storageType": {
         "cookie": "Cookie",
         "localStorage": "Local storage",
         "sessionStorage": "Session storage"

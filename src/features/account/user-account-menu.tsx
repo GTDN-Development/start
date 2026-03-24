@@ -20,10 +20,7 @@ import { useSignOut } from "@/features/auth/use-sign-out";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { GlobeIcon, LayoutDashboardIcon, LogOutIcon, UserIcon } from "lucide-react";
 
-export type UserAccountMenuViewer = Pick<
-  AuthUser,
-  "id" | "email" | "name" | "verified" | "avatarUrl"
->;
+export type UserAccountMenuViewer = Pick<AuthUser, "id" | "email" | "name" | "avatarUrl">;
 
 export type UserAccountMenuLabels = {
   account: string;

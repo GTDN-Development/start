@@ -45,7 +45,6 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
     id: currentUser.user.id,
     email: currentUser.user.email,
     name: getNullableTrimmedString(currentUser.user.name),
-    verified: currentUser.user.verified === true,
     avatarUrl: getAvatarUrl(currentUser.pb, currentUser.user),
   };
   const userWorkspacesResponse = await listUserWorkspacesWithClient(

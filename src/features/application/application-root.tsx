@@ -74,7 +74,7 @@ export function ApplicationRoot({
 
   const currentUser =
     sessionSnapshot.status === "authenticated" ? (sessionSnapshot.session?.user ?? user) : user;
-  const profileProviderKey = `${currentUser.email}:${currentUser.name ?? ""}:${currentUser.avatarUrl ?? ""}:${currentUser.verified ? "1" : "0"}`;
+  const profileProviderKey = `${currentUser.email}:${currentUser.name ?? ""}:${currentUser.avatarUrl ?? ""}`;
   const workspaceNavigationKey = `${activeWorkspaceSlug ?? ""}:${workspaces
     .map((workspace) =>
       [

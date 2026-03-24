@@ -16,7 +16,7 @@ import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/navigation";
 import { signUp } from "@/features/auth/auth-client";
-import { replaceToPostAuthDestination } from "@/features/auth/post-auth-redirect";
+import { createPendingVerifyEmailHref } from "@/features/auth/verify-email/verify-email-state";
 import { createSignUpFormSchema, type SignUpInput } from "@/features/auth/auth-schemas";
 import { cn } from "@/lib/utils";
 
@@ -66,7 +66,11 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       const response = await signUp(value);
 
       if (response.ok) {
-        await replaceToPostAuthDestination(router);
+        router.replace(
+          createPendingVerifyEmailHref({
+            email: value.email,
+          })
+        );
         return;
       }
 

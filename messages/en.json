@@ -97,22 +97,6 @@
       "callToAction": "Call to action",
       "close": "Close alert"
     },
-    "emailVerificationBanner": {
-      "title": "Almost there! Please verify your email to unlock all features.",
-      "resend": "Resend verification email",
-      "close": "Close email verification banner",
-      "status": {
-        "success": {
-          "title": "Verification email sent",
-          "message": "We've sent a new verification email."
-        },
-        "error": {
-          "title": "Unable to send email",
-          "message": "We couldn't send the verification email right now. Please try again.",
-          "unauthorized": "Your session expired. Please sign in again."
-        }
-      }
-    },
     "application": {
       "signedInAs": "Signed in as",
       "goToWebsite": "Go to website",
@@ -220,7 +204,20 @@
     "verifyEmail": {
       "title": "Verify your email",
       "description": "Confirm your email address to finish setting up your account.",
-      "backToSignIn": "Back to sign in"
+      "states": {
+        "pending": {
+          "title": "Check your email",
+          "description": "We've sent a verification link. You need to verify your email address before signing in to the application."
+        },
+        "verified": {
+          "title": "Email verified",
+          "description": "Your email address is verified. You can continue by signing in."
+        },
+        "invalid": {
+          "title": "Verification link expired",
+          "description": "This verification link is invalid or expired. Request a new one to keep going."
+        }
+      }
     },
     "confirmEmailChange": {
       "title": "Confirm email change",
@@ -633,10 +630,6 @@
       "email": {
         "title": "Email address",
         "description": "This email is used for sign in and account-related notifications.",
-        "verification": {
-          "verified": "Verified",
-          "unverified": "Not verified"
-        },
         "footerHint": "Email changes require verification before the new address becomes active.",
         "changeButton": "Change email",
         "dialog": {
@@ -1400,20 +1393,36 @@
       }
     },
     "verifyEmail": {
-      "description": "Use the button below to confirm your email address.",
-      "submit": {
-        "default": "Verify email",
-        "pending": "Verifying..."
+      "pending": {
+        "emailLabel": "Verification email address",
+        "resendHint": "Didn't receive it? Request another verification email."
+      },
+      "actions": {
+        "resend": "Resend verification email",
+        "resendPending": "Sending verification email...",
+        "signIn": "Go to sign in",
+        "signUp": "Create another account"
       },
       "status": {
-        "success": {
+        "verified": {
           "title": "Email verified",
-          "message": "Your email address has been verified successfully."
+          "message": "Your email address has been verified. Sign in to continue."
+        },
+        "invalid": {
+          "title": "Verification link expired",
+          "message": "This verification link is invalid or expired."
+        },
+        "resent": {
+          "title": "Check your inbox",
+          "message": "If this email address exists and still needs verification, we've sent a new verification email."
+        },
+        "rateLimited": {
+          "title": "Too many requests",
+          "message": "Please wait a moment before requesting another verification email."
         },
         "error": {
-          "title": "Verification failed",
-          "message": "Unable to verify the email address. Please try again.",
-          "invalidOrExpiredToken": "This verification link is invalid or expired."
+          "title": "Couldn't send verification email",
+          "message": "Unable to send the verification email right now. Please try again later."
         }
       }
     },

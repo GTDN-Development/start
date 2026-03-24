@@ -19,7 +19,6 @@ export default async function Layout({ children }: MarketingRouteLayoutProps) {
         id: sessionUser.id,
         email: sessionUser.email,
         name: sessionUser.name,
-        verified: sessionUser.verified,
         avatarUrl: sessionUser.avatarUrl,
       }
     : null;

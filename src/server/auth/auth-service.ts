@@ -7,6 +7,7 @@ import type {
   ConfirmEmailChangePayload,
   AuthSession,
   AuthSessionPayload,
+  SignUpPayload,
   RequestEmailVerificationPayload,
   RequestPasswordResetPayload,
   ResetPasswordPayload,
@@ -31,7 +32,6 @@ import {
   revokeCurrentDeviceSession,
   validateDeviceSessionOrInvalidate,
 } from "@/server/device-sessions/device-sessions-service";
-import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
 import {
   formatServiceError,
   getAvatarUrl,
@@ -63,6 +63,25 @@ export async function signInWithPassword(
     const authResponse = await pb
       .collection("users")
       .authWithPassword<UsersRecord>(input.email, input.password);
+
+    if (authResponse.record.verified !== true) {
+      try {
+        await pb.collection("users").requestVerification(input.email);
+      } catch (verificationError) {
+        console.warn(
+          "[auth-service] signInWithPassword: requestVerification failed after blocked sign-in",
+          formatServiceError(verificationError)
+        );
+      }
+
+      pb.authStore.clear();
+
+      return {
+        ok: false,
+        errorCode: "EMAIL_NOT_VERIFIED",
+        setCookie: createClearedAuthAndDeviceCookies(),
+      };
+    }
 
     const session = createAuthSession(pb, authResponse.record);
 
@@ -121,7 +140,7 @@ export async function signInWithPassword(
 
 export async function signUpWithPassword(
   input: SignUpInput
-): Promise<ServerAuthResponse<AuthSessionPayload>> {
+): Promise<ServerAuthResponse<SignUpPayload>> {
   const { pb } = await createPocketBaseServerClient();
 
   try {
@@ -144,49 +163,11 @@ export async function signUpWithPassword(
       );
     }
 
-    const authResponse = await pb
-      .collection("users")
-      .authWithPassword<UsersRecord>(input.email, input.password);
-
-    const session = createAuthSession(pb, authResponse.record);
-
-    if (!session) {
-      return {
-        ok: false,
-        errorCode: "UNKNOWN_ERROR",
-      };
-    }
-
-    const { token: deviceSessionToken, setCookie: deviceSessionCookie } =
-      generateDeviceSessionCookie(true);
-
-    try {
-      const requestHeaders = await headers();
-      await registerOrRefreshDeviceSession({
-        pb,
-        userId: session.user.id,
-        sessionToken: deviceSessionToken,
-        rememberMe: true,
-        requestHeaders,
-      });
-    } catch (error) {
-      console.warn(
-        "[auth-service] signUpWithPassword: device session registration failed, continuing",
-        formatServiceError(error)
-      );
-    }
-
     return {
       ok: true,
       data: {
-        session,
+        created: true,
       },
-      setCookie: [
-        ...exportPocketBaseAuthCookies(pb, {
-          sessionOnly: false,
-        }),
-        deviceSessionCookie,
-      ],
     };
   } catch (error) {
     const errorCode = mapSignUpErrorCode(error);
@@ -252,7 +233,6 @@ export async function confirmEmailVerificationToken(
     return {
       ok: true,
       data: {
-        verified: true,
         session: null,
       },
       ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
@@ -301,7 +281,6 @@ async function getVerifiedSessionResponse(
       return {
         ok: true,
         data: {
-          verified: true,
           session: null,
         },
         setCookie: createClearedPocketBaseAuthCookies(),
@@ -311,7 +290,6 @@ async function getVerifiedSessionResponse(
     return {
       ok: true,
       data: {
-        verified: true,
         session,
       },
       setCookie: exportPocketBaseAuthCookies(pb, {
@@ -395,41 +373,34 @@ export async function requestPasswordResetForEmail(
   };
 }
 
-export async function requestEmailVerificationForCurrentUser(): Promise<
-  ServerAuthResponse<RequestEmailVerificationPayload>
-> {
-  const currentUser = await requireAuthenticatedUser();
-
-  if (!currentUser.ok) {
-    return {
-      ok: false,
-      errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
-    };
-  }
+export async function requestEmailVerificationForEmail(
+  email: string
+): Promise<ServerAuthResponse<RequestEmailVerificationPayload>> {
+  const { pb, hadInvalidAuthCookie } = await createPocketBaseServerClient();
 
   try {
-    await currentUser.pb.collection("users").requestVerification(currentUser.user.email);
-
-    return {
-      ok: true,
-      data: {
-        sent: true,
-      },
-    };
+    await pb.collection("users").requestVerification(email);
   } catch (error) {
-    const errorCode = mapRequestEmailVerificationErrorCode(error);
-
-    if (errorCode === "UNKNOWN_ERROR") {
-      logAuthServiceError("requestEmailVerificationForCurrentUser", error);
+    if (error instanceof ClientResponseError && error.status === 429) {
+      return {
+        ok: false,
+        errorCode: "RATE_LIMITED",
+        ...(hadInvalidAuthCookie ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
+      };
     }
 
-    return {
-      ok: false,
-      errorCode,
-      ...(errorCode === "UNAUTHORIZED" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
-    };
+    if (!(error instanceof ClientResponseError) || (error.status !== 400 && error.status !== 404)) {
+      logAuthServiceError("requestEmailVerificationForEmail", error);
+    }
   }
+
+  return {
+    ok: true,
+    data: {
+      sent: true,
+    },
+    ...(hadInvalidAuthCookie ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
+  };
 }
 
 export async function confirmEmailChangeToken(input: {
@@ -534,6 +505,19 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
     }
 
     const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+
+    if (refreshedAuth.record.verified !== true) {
+      console.warn("[auth-service] getServerAuthSession: unverified user session detected");
+
+      return {
+        ok: true,
+        data: {
+          session: null,
+        },
+        setCookie: createClearedAuthAndDeviceCookies(),
+      };
+    }
+
     const session = createAuthSession(pb, refreshedAuth.record);
 
     if (!session) {
@@ -581,7 +565,11 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
     logAuthServiceError("getServerAuthSession", error);
 
     // Transient error (5xx / network) — return stale session from the local JWT.
-    if (isTransientError(error) && isUsersRecord(pb.authStore.record)) {
+    if (
+      isTransientError(error) &&
+      isUsersRecord(pb.authStore.record) &&
+      pb.authStore.record.verified === true
+    ) {
       console.warn("[auth-service] getServerAuthSession: PB unavailable, stale session");
       const staleSession = createAuthSession(pb, pb.authStore.record);
 
@@ -657,6 +645,19 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
     }
 
     const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+
+    if (refreshedAuth.record.verified !== true) {
+      console.warn("[auth-service] getApiAuthSession: unverified user session detected");
+
+      return {
+        ok: true,
+        data: {
+          session: null,
+        },
+        setCookie: createClearedAuthAndDeviceCookies(),
+      };
+    }
+
     const session = createAuthSession(pb, refreshedAuth.record);
 
     if (!session) {
@@ -694,7 +695,11 @@ export async function getApiAuthSession(): Promise<ServerAuthResponse<AuthSessio
     logAuthServiceError("getApiAuthSession", error);
 
     // Transient error (5xx / network) — keep existing cookie, return stale session.
-    if (isTransientError(error) && isUsersRecord(pb.authStore.record)) {
+    if (
+      isTransientError(error) &&
+      isUsersRecord(pb.authStore.record) &&
+      pb.authStore.record.verified === true
+    ) {
       console.warn("[auth-service] getApiAuthSession: PB unavailable, stale session");
       const staleSession = createAuthSession(pb, pb.authStore.record);
 
@@ -726,7 +731,6 @@ function createAuthSession(pb: PocketBase, record: UsersRecord | null): AuthSess
       id: record.id,
       email: record.email,
       name: getNullableTrimmedString(record.name),
-      verified: record.verified === true,
       avatarUrl: getAvatarUrl(pb, record),
     },
   };
@@ -798,24 +802,6 @@ function mapResetPasswordErrorCode(error: unknown): AuthErrorCode {
       }
 
       return "BAD_REQUEST";
-    }
-
-    return null;
-  });
-}
-
-function mapRequestEmailVerificationErrorCode(error: unknown): AuthErrorCode {
-  return mapPocketBaseError(error, (pocketBaseError) => {
-    if (pocketBaseError.status === 400) {
-      return "BAD_REQUEST";
-    }
-
-    if (pocketBaseError.status === 401 || pocketBaseError.status === 403) {
-      return "UNAUTHORIZED";
-    }
-
-    if (pocketBaseError.status === 404) {
-      return "NOT_FOUND";
     }
 
     return null;

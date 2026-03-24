@@ -7,12 +7,13 @@ import type {
   AuthSessionPayload,
   AuthSignOutPayload,
   ConfirmEmailChangePayload,
+  RequestEmailVerificationInput,
+  SignUpPayload,
   RequestPasswordResetInput,
   RequestEmailVerificationPayload,
   RequestPasswordResetPayload,
   ResetPasswordPayload,
   SignUpActionInput,
-  VerifyEmailPayload,
 } from "@/features/auth/auth-contract";
 import {
   signInInputSchema,
@@ -31,10 +32,9 @@ import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/t
 import {
   finalizeAuthAction,
   confirmEmailChangeToken,
-  confirmEmailVerificationToken,
   confirmPasswordResetToken,
   getServerAuthSession,
-  requestEmailVerificationForCurrentUser,
+  requestEmailVerificationForEmail,
   requestPasswordResetForEmail,
   signInWithPassword,
   signOutServerSession,
@@ -44,10 +44,6 @@ import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 
-const verifyEmailInputSchema = z.object({
-  token: requiredTokenSchema(),
-});
-
 const signUpActionInputSchema = signUpInputSchema.extend({
   turnstileToken: turnstileTokenSchema(),
 });
@@ -55,6 +51,10 @@ const signUpActionInputSchema = signUpInputSchema.extend({
 const requestPasswordResetInputSchema = z.object({
   email: normalizedEmailSchema(),
   turnstileToken: turnstileTokenSchema(),
+});
+
+const requestEmailVerificationInputSchema = z.object({
+  email: normalizedEmailSchema(),
 });
 
 const resetPasswordInputSchema = z
@@ -102,19 +102,17 @@ export async function signInAction(input: SignInInput): Promise<AuthResponse<Aut
   return finalizeAuthAction(response);
 }
 
-export async function signUpAction(
-  input: SignUpActionInput
-): Promise<AuthResponse<AuthSessionPayload>> {
+export async function signUpAction(input: SignUpActionInput): Promise<AuthResponse<SignUpPayload>> {
   const parsedInput = signUpActionInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse<AuthSessionPayload>();
+    return createBadRequestResponse<SignUpPayload>();
   }
 
   const turnstileVerification = await verifyAuthTurnstileToken(parsedInput.data.turnstileToken);
 
   if (!turnstileVerification.success) {
-    return createTurnstileVerificationFailedResponse<AuthSessionPayload>();
+    return createTurnstileVerificationFailedResponse<SignUpPayload>();
   }
 
   const { turnstileToken: _turnstileToken, ...signUpInput } = parsedInput.data;
@@ -168,20 +166,6 @@ export async function resolvePostAuthDestinationAction(): Promise<
   };
 }
 
-export async function verifyEmailAction(input: {
-  token: string;
-}): Promise<AuthResponse<VerifyEmailPayload>> {
-  const parsedInput = verifyEmailInputSchema.safeParse(input);
-
-  if (!parsedInput.success) {
-    return createBadRequestResponse<VerifyEmailPayload>();
-  }
-
-  const response = await confirmEmailVerificationToken(parsedInput.data.token);
-
-  return finalizeAuthAction(response);
-}
-
 export async function requestPasswordResetAction(
   input: RequestPasswordResetInput
 ): Promise<AuthResponse<RequestPasswordResetPayload>> {
@@ -222,10 +206,16 @@ export async function resetPasswordAction(input: {
   return finalizeAuthAction(response);
 }
 
-export async function requestEmailVerificationAction(): Promise<
-  AuthResponse<RequestEmailVerificationPayload>
-> {
-  const response = await requestEmailVerificationForCurrentUser();
+export async function requestEmailVerificationAction(
+  input: RequestEmailVerificationInput
+): Promise<AuthResponse<RequestEmailVerificationPayload>> {
+  const parsedInput = requestEmailVerificationInputSchema.safeParse(input);
+
+  if (!parsedInput.success) {
+    return createBadRequestResponse<RequestEmailVerificationPayload>();
+  }
+
+  const response = await requestEmailVerificationForEmail(parsedInput.data.email);
 
   return finalizeAuthAction(response);
 }

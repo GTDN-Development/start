@@ -7,6 +7,7 @@ export const PB_AUTH_PERSIST_COOKIE_NAME = authConfig.cookies.persistCookieName;
 export type AuthErrorCode =
   | "BAD_REQUEST"
   | "INVALID_CREDENTIALS"
+  | "EMAIL_NOT_VERIFIED"
   | "EMAIL_ALREADY_IN_USE"
   | "VALIDATION_ERROR"
   | "WEAK_PASSWORD"
@@ -25,11 +26,14 @@ export type RequestPasswordResetInput = {
   turnstileToken: string;
 };
 
+export type RequestEmailVerificationInput = {
+  email: string;
+};
+
 export type AuthUser = {
   id: string;
   email: string;
   name: string | null;
-  verified: boolean;
   avatarUrl: string | null;
 };
 
@@ -41,12 +45,15 @@ export type AuthSessionPayload = {
   session: AuthSession | null;
 };
 
+export type SignUpPayload = {
+  created: true;
+};
+
 export type AuthSignOutPayload = {
   signedOut: true;
 };
 
 export type VerifyEmailPayload = {
-  verified: true;
   session: AuthSession | null;
 };
 
@@ -80,7 +87,7 @@ export type AuthErrorResponse = {
 export type AuthResponse<TData> = AuthSuccessResponse<TData> | AuthErrorResponse;
 
 export type SignInResponse = AuthResponse<AuthSessionPayload>;
-export type SignUpResponse = AuthResponse<AuthSessionPayload>;
+export type SignUpResponse = AuthResponse<SignUpPayload>;
 export type SignOutResponse = AuthResponse<AuthSignOutPayload>;
 export type SessionResponse = AuthResponse<AuthSessionPayload>;
 export type VerifyEmailResponse = AuthResponse<VerifyEmailPayload>;

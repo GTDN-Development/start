@@ -2,6 +2,8 @@ import type { AppHref } from "@/i18n/navigation";
 
 export const APP_HOME_PATH = "/app" as const;
 export const SIGN_IN_PATH = "/sign-in" as const;
+export const SIGN_UP_PATH = "/sign-up" as const;
+export const VERIFY_EMAIL_PATH = "/verify-email" as const;
 export const ACCOUNT_PATH = "/account" as const;
 export const WORKSPACE_PATH_PREFIX = "/w" as const;
 export const WORKSPACE_OVERVIEW_PATH = "/w/[workspaceSlug]/overview" as const;

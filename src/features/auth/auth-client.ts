@@ -5,6 +5,7 @@ import type {
   ConfirmEmailChangeResponse,
   AuthSession,
   AuthSessionSnapshot,
+  RequestEmailVerificationInput,
   RequestEmailVerificationResponse,
   RequestPasswordResetInput,
   RequestPasswordResetResponse,
@@ -14,7 +15,6 @@ import type {
   SignOutResponse,
   SignUpActionInput,
   SignUpResponse,
-  VerifyEmailResponse,
 } from "@/features/auth/auth-contract";
 import {
   confirmEmailChangeAction,
@@ -24,7 +24,6 @@ import {
   signInAction,
   signOutAction,
   signUpAction,
-  verifyEmailAction,
 } from "@/features/auth/actions/auth-actions";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import { runAsyncTransition } from "@/lib/app-utils";
@@ -68,11 +67,10 @@ export async function signUp(input: SignUpActionInput): Promise<SignUpResponse> 
   if (response.ok) {
     startTransition(() => {
       setSessionState({
-        status: response.data.session ? "authenticated" : "unauthenticated",
-        session: response.data.session,
+        status: "unauthenticated",
+        session: null,
       });
     });
-    broadcastSessionChanged();
   }
 
   return response;
@@ -89,26 +87,6 @@ export async function signOut(): Promise<SignOutResponse> {
       });
     });
     broadcastSignedOut();
-  }
-
-  return response;
-}
-
-export async function verifyEmailToken(token: string): Promise<VerifyEmailResponse> {
-  const response = await runAsyncTransition(() =>
-    verifyEmailAction({
-      token,
-    })
-  );
-
-  if (response.ok) {
-    startTransition(() => {
-      setSessionState({
-        status: response.data.session ? "authenticated" : "unauthenticated",
-        session: response.data.session,
-      });
-    });
-    broadcastSessionChanged();
   }
 
   return response;
@@ -140,8 +118,10 @@ export async function requestPasswordReset(
   return await runAsyncTransition(() => requestPasswordResetAction(input));
 }
 
-export async function requestEmailVerification(): Promise<RequestEmailVerificationResponse> {
-  return await runAsyncTransition(() => requestEmailVerificationAction());
+export async function requestEmailVerification(
+  input: RequestEmailVerificationInput
+): Promise<RequestEmailVerificationResponse> {
+  return await runAsyncTransition(() => requestEmailVerificationAction(input));
 }
 
 export async function confirmEmailChange(input: {
@@ -167,7 +147,7 @@ export function useSession(): AuthSessionSnapshot {
   return useSyncExternalStore(subscribeToSessionStore, getSessionSnapshot, getSessionSnapshot);
 }
 
-export async function refreshSession(options?: { force?: boolean }): Promise<SessionResponse> {
+export async function refreshSession(): Promise<SessionResponse> {
   if (pendingSessionRequest) {
     await pendingSessionRequest;
 
@@ -179,7 +159,7 @@ export async function refreshSession(options?: { force?: boolean }): Promise<Ses
     session: sessionState.session,
   });
 
-  pendingSessionRequest = executeSessionRefresh(options);
+  pendingSessionRequest = executeSessionRefresh();
 
   try {
     await pendingSessionRequest;
@@ -190,7 +170,7 @@ export async function refreshSession(options?: { force?: boolean }): Promise<Ses
   return createSessionResponseFromSnapshot(getSessionSnapshot());
 }
 
-async function executeSessionRefresh(_options?: { force?: boolean }) {
+async function executeSessionRefresh() {
   lastSessionRequestAt = Date.now();
 
   const response = await requestSessionEndpoint();
@@ -250,7 +230,6 @@ function isSameSession(current: AuthSession | null, next: AuthSession | null) {
     current.user.id === next.user.id &&
     current.user.email === next.user.email &&
     current.user.name === next.user.name &&
-    current.user.verified === next.user.verified &&
     current.user.avatarUrl === next.user.avatarUrl
   );
 }
@@ -359,15 +338,7 @@ function isOnline() {
   return typeof navigator === "undefined" || navigator.onLine;
 }
 
-function isRefetchAllowed(options?: { allowUnverifiedBypass?: boolean }) {
-  if (
-    options?.allowUnverifiedBypass !== false &&
-    sessionState.status === "authenticated" &&
-    sessionState.session?.user.verified !== true
-  ) {
-    return true;
-  }
-
+function isRefetchAllowed() {
   return Date.now() - lastSessionRequestAt >= REFETCH_RATE_LIMIT_MS;
 }
 
@@ -392,15 +363,11 @@ function handleVisibilityChange() {
     return;
   }
 
-  const shouldForceRefresh = shouldForceSessionRevalidation();
-
-  if (!shouldForceRefresh && !isRefetchAllowed({ allowUnverifiedBypass: false })) {
+  if (!isRefetchAllowed()) {
     return;
   }
 
-  void refreshSession({
-    force: shouldForceRefresh,
-  });
+  void refreshSession();
 }
 
 function initWindowFocusRefresh() {
@@ -420,15 +387,11 @@ function handleWindowFocus() {
     return;
   }
 
-  const shouldForceRefresh = shouldForceSessionRevalidation();
-
-  if (!shouldForceRefresh && !isRefetchAllowed({ allowUnverifiedBypass: false })) {
+  if (!isRefetchAllowed()) {
     return;
   }
 
-  void refreshSession({
-    force: shouldForceRefresh,
-  });
+  void refreshSession();
 }
 
 function initOnlineRecovery() {
@@ -449,10 +412,6 @@ function handleOnlineRecovery() {
   }
 
   void refreshSession();
-}
-
-function shouldForceSessionRevalidation() {
-  return sessionState.status === "authenticated" && sessionState.session?.user.verified !== true;
 }
 
 async function requestSessionEndpoint(): Promise<SessionResponse> {

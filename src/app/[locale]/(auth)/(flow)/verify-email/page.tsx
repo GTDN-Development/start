@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link } from "@/components/ui/link";
 import { VerifyEmailForm } from "@/features/auth/verify-email/verify-email-form";
 import {
   AuthHero,
@@ -9,12 +8,31 @@ import {
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
-import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
+import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
+import { redirect, type AppHref } from "@/i18n/navigation";
+import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
+import { confirmEmailVerificationToken } from "@/server/auth/auth-service";
+import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
+import {
+  createVerifyEmailResultHref,
+  parseVerifyEmailPageState,
+  type VerifyEmailPageState,
+} from "@/features/auth/verify-email/verify-email-state";
 import { createPageMetadata } from "@/lib/metadata";
 
-export async function generateMetadata(
-  props: PageProps<"/[locale]/verify-email">
-): Promise<Metadata> {
+type VerifyEmailPageProps = {
+  params: Promise<{
+    locale: string;
+  }>;
+  searchParams: Promise<{
+    token?: string | string[];
+    email?: string | string[];
+    result?: string | string[];
+  }>;
+};
+
+export async function generateMetadata(props: VerifyEmailPageProps): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
@@ -30,7 +48,7 @@ export async function generateMetadata(
   });
 }
 
-export default async function Page({ params, searchParams }: PageProps<"/[locale]/verify-email">) {
+export default async function Page({ params, searchParams }: VerifyEmailPageProps) {
   const { locale } = await params;
   const query = await searchParams;
 
@@ -40,27 +58,168 @@ export default async function Page({ params, searchParams }: PageProps<"/[locale
     locale: locale as Locale,
     namespace: "pages.verifyEmail",
   });
+  const state = parseVerifyEmailPageState(query);
 
-  const token = parseAuthFlowToken(query.token);
+  if (state.token) {
+    await handleVerificationToken(locale as Locale, state);
+  }
+
+  const pageState = getPageCopyState(state);
 
   return (
     <div className="relative">
       <AuthHero>
         <AuthHeroContent>
-          <AuthHeroTitle>{t("title")}</AuthHeroTitle>
-          <AuthHeroDescription>{t("description")}</AuthHeroDescription>
+          <AuthHeroTitle>{t(`states.${pageState}.title`)}</AuthHeroTitle>
+          <AuthHeroDescription>{t(`states.${pageState}.description`)}</AuthHeroDescription>
         </AuthHeroContent>
       </AuthHero>
 
       <div className="mt-6 pt-6">
-        <VerifyEmailForm token={token} />
-        <p className="text-muted-foreground mt-6 text-sm">
-          <Link href="/sign-in" className="underline decoration-current/30 hover:decoration-current">
-            {t("backToSignIn")}
-          </Link>
-          .
-        </p>
+        <VerifyEmailForm email={state.email} result={state.result} />
       </div>
     </div>
   );
+}
+
+async function handleVerificationToken(locale: Locale, state: VerifyEmailPageState) {
+  const response = await confirmEmailVerificationToken(state.token!);
+
+  await applyServerAuthCookies(response.setCookie);
+
+  if (!response.ok) {
+    redirect({
+      href: createVerifyEmailResultHref({
+        result: "invalid",
+        email: state.email,
+      }),
+      locale,
+    });
+
+    return;
+  }
+
+  const session = response.data.session;
+
+  if (session) {
+    await redirectToPostAuthDestination(locale, session.user.id, session.user.email);
+    return;
+  }
+
+  redirect({
+    href: createVerifyEmailResultHref({
+      result: "verified",
+      email: state.email,
+    }),
+    locale,
+  });
+}
+
+async function redirectToPostAuthDestination(locale: Locale, userId: string, userEmail: string) {
+  const destinationResponse = await resolvePostAuthDestination({
+    userId,
+    userEmail,
+  });
+
+  await applyServerAuthCookies(destinationResponse.setCookie);
+
+  if (!destinationResponse.ok) {
+    redirect({
+      href: APP_HOME_PATH,
+      locale,
+    });
+
+    return;
+  }
+
+  const destination = destinationResponse.data;
+
+  if (destination.state === "workspace_redirect") {
+    await setActiveWorkspaceSlugCookie(destination.workspaceSlug);
+
+    redirect({
+      href: getWorkspaceOverviewHref(destination.workspaceSlug),
+      locale,
+    });
+
+    return;
+  }
+
+  if (destination.state === "email_mismatch") {
+    redirect({
+      href: createInviteResultHref({
+        state: "email_mismatch",
+        invitedEmail: destination.invitedEmail,
+        currentEmail: destination.currentEmail,
+      }),
+      locale,
+    });
+
+    return;
+  }
+
+  if (destination.state === "invalid_or_expired") {
+    redirect({
+      href: createInviteResultHref({
+        state: "invalid_or_expired",
+      }),
+      locale,
+    });
+
+    return;
+  }
+
+  if (destination.state === "error") {
+    redirect({
+      href: createInviteResultHref({
+        state: "error",
+      }),
+      locale,
+    });
+
+    return;
+  }
+
+  redirect({
+    href: APP_HOME_PATH,
+    locale,
+  });
+}
+
+function createInviteResultHref(
+  input:
+    | {
+        state: "email_mismatch";
+        invitedEmail: string;
+        currentEmail: string;
+      }
+    | {
+        state: "invalid_or_expired";
+      }
+    | {
+        state: "error";
+      }
+): AppHref {
+  const searchParams = new URLSearchParams({
+    state: input.state,
+  });
+
+  if (input.state === "email_mismatch") {
+    searchParams.set("invitedEmail", input.invitedEmail);
+    searchParams.set("currentEmail", input.currentEmail);
+  }
+
+  return `/invite/result?${searchParams.toString()}` as AppHref;
+}
+
+function getPageCopyState(state: VerifyEmailPageState) {
+  if (state.result === "verified") {
+    return "verified";
+  }
+
+  if (state.result === "invalid") {
+    return "invalid";
+  }
+
+  return "pending";
 }

@@ -16,6 +16,7 @@ import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/navigation";
 import { signIn } from "@/features/auth/auth-client";
 import { replaceToPostAuthDestination } from "@/features/auth/post-auth-redirect";
+import { createPendingVerifyEmailHref } from "@/features/auth/verify-email/verify-email-state";
 import { createSignInFormSchema, type SignInInput } from "@/features/auth/auth-schemas";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +49,15 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
 
       if (response.ok) {
         await replaceToPostAuthDestination(router);
+        return;
+      }
+
+      if (response.errorCode === "EMAIL_NOT_VERIFIED") {
+        router.replace(
+          createPendingVerifyEmailHref({
+            email: value.email,
+          })
+        );
         return;
       }
 
