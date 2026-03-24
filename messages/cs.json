@@ -2167,11 +2167,11 @@
   "cookies": {
     "consent": {
       "banner": {
+        "title": "Používáme cookies",
         "description": "Používáme nezbytné cookies pro správné fungování webu a se vaším souhlasem také funkční, analytické a případně marketingové cookies. Své preference můžete kdykoli změnit v nastavení cookies.",
-        "deny": "Odmítnout vše",
+        "rejectAll": "Odmítnout vše",
         "acceptAll": "Přijmout vše",
-        "settings": "Nastavení souhlasu",
-        "cookiesPolicy": "Zásady cookies"
+        "settings": "Nastavení souhlasu"
       },
       "dialog": {
         "title": "Nastavení souhlasu s cookies",
@@ -2201,7 +2201,7 @@
         "moreInfo": "Více informací o používání cookies najdete v našich",
         "cookiesPolicy": "zásadách cookies.",
         "actions": {
-          "deny": "Odmítnout vše",
+          "rejectAll": "Odmítnout vše",
           "acceptAll": "Přijmout vše",
           "save": "Uložit preference"
         }

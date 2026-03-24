@@ -2168,11 +2168,11 @@
   "cookies": {
     "consent": {
       "banner": {
+        "title": "We use cookies",
         "description": "We use necessary cookies to keep the website working properly and, with your consent, also functional, analytics and, where applicable, marketing cookies. You can change your preferences at any time in cookie settings.",
-        "deny": "Reject all",
+        "rejectAll": "Reject all",
         "acceptAll": "Accept all",
-        "settings": "Consent settings",
-        "cookiesPolicy": "Cookies Policy"
+        "settings": "Consent settings"
       },
       "dialog": {
         "title": "Cookie Consent Settings",
@@ -2202,7 +2202,7 @@
         "moreInfo": "For more information about how we use cookies, please read our",
         "cookiesPolicy": "cookies policy.",
         "actions": {
-          "deny": "Reject all",
+          "rejectAll": "Reject all",
           "acceptAll": "Accept all",
           "save": "Save preferences"
         }

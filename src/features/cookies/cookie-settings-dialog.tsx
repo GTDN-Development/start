@@ -4,6 +4,7 @@ import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -77,76 +78,72 @@ export function CookieSettingsDialog() {
           <AlertDialogTitle>{t("title")}</AlertDialogTitle>
           <AlertDialogDescription>{t("description")}</AlertDialogDescription>
         </AlertDialogHeader>
-        <div>
-          <div className="border-border divide-border mt-4 divide-y rounded-lg border">
-            {COOKIE_CATEGORY_CONFIG.map((category) => {
-              const categoryTranslationKey = `categories.${category.key}`;
-              const categoryInputId = `cookie-category-${category.key}`;
 
-              return (
-                <div key={category.key} className="flex flex-col gap-2 p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <Label
-                      htmlFor={categoryInputId}
-                      className={
-                        category.isEditable ? "cursor-pointer" : "cursor-not-allowed opacity-70"
-                      }
-                    >
-                      {t(`${categoryTranslationKey}.label`)}
-                    </Label>
-                    <Switch
-                      id={categoryInputId}
-                      checked={consent[category.key]}
-                      disabled={!category.isEditable}
-                      onCheckedChange={(checked) => handleCategoryCheckedChange(category, checked)}
-                      aria-label={t(`${categoryTranslationKey}.ariaLabel`)}
-                    />
-                  </div>
-                  <p
+        <div className="border-border divide-border mt-4 divide-y rounded-lg border">
+          {COOKIE_CATEGORY_CONFIG.map((category) => {
+            const categoryTranslationKey = `categories.${category.key}`;
+            const categoryInputId = `cookie-category-${category.key}`;
+
+            return (
+              <div key={category.key} className="flex flex-col gap-2 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <Label
+                    htmlFor={categoryInputId}
                     className={
-                      category.isEditable
-                        ? "text-muted-foreground text-sm"
-                        : "text-muted-foreground text-sm opacity-70"
+                      category.isEditable ? "cursor-pointer" : "cursor-not-allowed opacity-70"
                     }
                   >
-                    {t(`${categoryTranslationKey}.description`)}
-                  </p>
+                    {t(`${categoryTranslationKey}.label`)}
+                  </Label>
+                  <Switch
+                    id={categoryInputId}
+                    checked={consent[category.key]}
+                    disabled={!category.isEditable}
+                    onCheckedChange={(checked) => handleCategoryCheckedChange(category, checked)}
+                    aria-label={t(`${categoryTranslationKey}.ariaLabel`)}
+                  />
                 </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-4">
-            <p className="text-muted-foreground text-sm">
-              {t("moreInfo")}{" "}
-              <Link
-                href={legalLinks.cookies.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-foreground underline"
-              >
-                {t("cookiesPolicy")}
-              </Link>
-            </p>
-          </div>
+                <p
+                  className={
+                    category.isEditable
+                      ? "text-muted-foreground text-sm"
+                      : "text-muted-foreground text-sm opacity-70"
+                  }
+                >
+                  {t(`${categoryTranslationKey}.description`)}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
-        <div className="mt-4 flex items-center gap-2">
+        <div className="mt-4">
+          <p className="text-muted-foreground text-sm">
+            {t("moreInfo")}{" "}
+            <Link
+              href={legalLinks.cookies.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground underline"
+            >
+              {t("cookiesPolicy")}
+            </Link>
+          </p>
+        </div>
+
+        <AlertDialogFooter className="flex items-center gap-2">
           <AlertDialogPrimitive.Close render={<Button variant="secondary" />} onClick={handleSave}>
             {t("actions.save")}
           </AlertDialogPrimitive.Close>
           <div className="ml-auto flex gap-2">
-            <AlertDialogPrimitive.Close
-              render={<Button variant="secondary" />}
-              onClick={handleDeny}
-            >
-              {t("actions.deny")}
+            <AlertDialogPrimitive.Close render={<Button />} onClick={handleDeny}>
+              {t("actions.rejectAll")}
             </AlertDialogPrimitive.Close>
             <AlertDialogPrimitive.Close render={<Button />} onClick={handleAcceptAll}>
               {t("actions.acceptAll")}
             </AlertDialogPrimitive.Close>
           </div>
-        </div>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
