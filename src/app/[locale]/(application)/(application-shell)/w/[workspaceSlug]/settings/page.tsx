@@ -25,14 +25,14 @@ export async function generateMetadata(
     namespace: "layout.navigation.items",
   });
 
-  const tWorkspaceNav = await getTranslations({
+  const tWorkspace = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.workspace.nav",
+    namespace: "pages.workspace",
   });
 
   return createPageMetadata({
-    title: `${tNav("workspace")} · ${tWorkspaceNav("general")}`,
-    description: tWorkspaceNav("general"),
+    title: `${tNav("settings")} · ${tWorkspace("nav.general")}`,
+    description: tWorkspace("description"),
     locale: locale as Locale,
     pathname: {
       pathname: "/w/[workspaceSlug]/settings",
@@ -100,7 +100,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   });
 
   return (
-    <SettingsPage title={tNav("workspace")} description={tWorkspace("description")}>
+    <SettingsPage title={tNav("settings")} description={tWorkspace("description")}>
       <div className="grid gap-8">
         <WorkspaceNameSettingsItem workspace={workspaceSettings} />
         <WorkspaceUrlSettingsItem workspace={workspaceSettings} />

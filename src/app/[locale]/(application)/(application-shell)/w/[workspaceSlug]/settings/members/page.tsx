@@ -28,7 +28,7 @@ export async function generateMetadata(
   });
 
   return createPageMetadata({
-    title: `${tNav("workspace")} · ${tWorkspaceNav("members")}`,
+    title: `${tNav("settings")} · ${tWorkspaceNav("members")}`,
     description: tWorkspaceNav("members"),
     locale: locale as Locale,
     pathname: {

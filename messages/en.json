@@ -59,7 +59,7 @@
         "changelog": "Changelog",
         "roadmap": "Roadmap",
         "workspace": "Workspace",
-        "settings": "Settings",
+        "settings": "Workspace settings",
         "account": "Account",
         "myAccount": "My account",
         "signIn": "Sign in",
@@ -773,7 +773,7 @@
       }
     },
     "workspace": {
-      "title": "Settings",
+      "title": "Workspace settings",
       "description": "Manage your workspace settings and appearance.",
       "overview": {
         "title": "Overview",

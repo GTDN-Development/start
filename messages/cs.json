@@ -59,7 +59,7 @@
         "changelog": "Nové funkce",
         "roadmap": "Plán vývoje",
         "workspace": "Workspace",
-        "settings": "Nastavení",
+        "settings": "Nastavení workspace",
         "account": "Účet",
         "myAccount": "Můj účet",
         "signIn": "Přihlášení",
@@ -773,7 +773,7 @@
       }
     },
     "workspace": {
-      "title": "Nastavení",
+      "title": "Nastavení workspace",
       "description": "Spravujte základní nastavení workspace a jeho vzhled.",
       "overview": {
         "title": "Přehled",
