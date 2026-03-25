@@ -109,7 +109,10 @@ export function AccountDeleteAccountSettingsItem() {
         return;
       }
 
-      if (response.errorCode === "BAD_REQUEST") {
+      if (
+        response.errorCode === "BAD_REQUEST" ||
+        response.errorCode === "ACCOUNT_DELETE_BLOCKED_LAST_OWNER"
+      ) {
         toast.error(t("deleteAccount.status.deleteNotAllowed"), {
           id: deleteAccountToastId,
         });

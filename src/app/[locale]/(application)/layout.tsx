@@ -2,15 +2,16 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
-import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { ApplicationRoot } from "@/features/application/application-root";
-import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 import { AUTH_REDIRECTS } from "@/config/auth";
+import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
-import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { listUserWorkspacesWithClient } from "@/server/workspaces/workspace-resolution-service";
+import {
+  listUserWorkspacesWithClient,
+  resolveActiveWorkspaceForUserWithClient,
+} from "@/server/workspaces/workspace-resolution-service";
 
 type ApplicationRouteLayoutProps = {
   children: React.ReactNode;
@@ -80,9 +81,35 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
         memberCount: workspace.memberCount,
       }))
     : [];
-  const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
-  const repairedActiveWorkspaceSlug = resolveActiveWorkspaceSlug(activeWorkspaceSlug, workspaces);
-  const applicationEntryHref = await resolveApplicationEntryHref(currentUser.user.id);
+  const activeWorkspaceResponse = await resolveActiveWorkspaceForUserWithClient(
+    currentUser.pb,
+    currentUser.user.id
+  );
+
+  if (!activeWorkspaceResponse.ok) {
+    if (
+      activeWorkspaceResponse.errorCode === "UNAUTHORIZED" ||
+      activeWorkspaceResponse.errorCode === "FORBIDDEN"
+    ) {
+      redirect({
+        href: AUTH_REDIRECTS.unauthenticatedTo,
+        locale: locale as Locale,
+      });
+
+      return null;
+    }
+
+    console.error(
+      `[application-root] Failed to resolve active workspace: ${activeWorkspaceResponse.errorCode}`
+    );
+  }
+
+  const activeWorkspaceSlug = activeWorkspaceResponse.ok
+    ? (activeWorkspaceResponse.data.workspace?.slug ?? null)
+    : null;
+  const applicationEntryHref = activeWorkspaceSlug
+    ? getWorkspaceOverviewHref(activeWorkspaceSlug)
+    : APP_HOME_PATH;
 
   const tApplication = await getTranslations({
     locale: locale as Locale,
@@ -105,7 +132,7 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
     <ApplicationRoot
       user={user}
       workspaces={workspaces}
-      activeWorkspaceSlug={repairedActiveWorkspaceSlug}
+      activeWorkspaceSlug={activeWorkspaceSlug}
       applicationEntryHref={applicationEntryHref}
       labels={{
         userMenu: {
@@ -125,22 +152,4 @@ export default async function Layout({ children, params }: ApplicationRouteLayou
       {children}
     </ApplicationRoot>
   );
-}
-
-function resolveActiveWorkspaceSlug(
-  activeWorkspaceSlug: string | null,
-  workspaces: WorkspaceNavigationItem[]
-): string | null {
-  if (workspaces.length === 0) {
-    return null;
-  }
-
-  if (
-    activeWorkspaceSlug &&
-    workspaces.some((workspace) => workspace.slug === activeWorkspaceSlug)
-  ) {
-    return activeWorkspaceSlug;
-  }
-
-  return workspaces[0]?.slug ?? null;
 }

@@ -15,10 +15,7 @@ type ExportPocketBaseAuthCookieOptions = {
 };
 
 export async function createPocketBaseServerClient(): Promise<CreatePocketBaseServerClientResult> {
-  const pb = new PocketBase(getPocketBaseUrl());
-
-  pb.autoCancellation(false);
-  pb.beforeSend = withNoStoreFetch;
+  const pb = createPocketBaseClient();
 
   const cookieStore = await cookies();
   const pbAuthCookieValue = cookieStore.get(authConfig.cookies.authCookieName)?.value ?? "";
@@ -46,6 +43,15 @@ export async function createPocketBaseServerClient(): Promise<CreatePocketBaseSe
     hadInvalidAuthCookie,
     shouldPersistSession: persistSessionCookieValue === "1",
   };
+}
+
+export function createPocketBaseClient(): PocketBase {
+  const pb = new PocketBase(getPocketBaseUrl());
+
+  pb.autoCancellation(false);
+  pb.beforeSend = withNoStoreFetch;
+
+  return pb;
 }
 
 export function exportPocketBaseAuthCookies(

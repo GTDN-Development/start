@@ -13,16 +13,16 @@ export function generateDeviceSessionCookie(rememberMe: boolean): {
   setCookie: string;
 } {
   const token = randomBytes(32).toString("hex");
-  const setCookie = cookieSerialize(
-    DEVICE_SESSION_COOKIE_NAME,
-    token,
-    getDeviceCookieOptions(rememberMe)
-  );
+  const setCookie = createDeviceSessionCookie(token, rememberMe);
 
   return {
     token,
     setCookie,
   };
+}
+
+export function createDeviceSessionCookie(token: string, rememberMe: boolean): string {
+  return cookieSerialize(DEVICE_SESSION_COOKIE_NAME, token, getDeviceCookieOptions(rememberMe));
 }
 
 export async function readDeviceSessionCookie(): Promise<string | null> {

@@ -24,8 +24,9 @@ export function resolveSelectedWorkspaceSlug(
     return normalizedActiveWorkspaceSlug;
   }
 
-  return normalizeWorkspaceSlug(workspaces[0]?.slug ?? null);
+  return null;
 }
+
 function isWorkspaceSlugAvailable(
   workspaces: WorkspaceNavigationItem[],
   workspaceSlug: string

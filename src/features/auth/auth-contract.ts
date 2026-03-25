@@ -6,6 +6,7 @@ export const PB_AUTH_PERSIST_COOKIE_NAME = authConfig.cookies.persistCookieName;
 
 export type AuthErrorCode =
   | "BAD_REQUEST"
+  | "ACCOUNT_DELETE_BLOCKED_LAST_OWNER"
   | "INVALID_CREDENTIALS"
   | "EMAIL_NOT_VERIFIED"
   | "EMAIL_ALREADY_IN_USE"

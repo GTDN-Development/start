@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeftIcon } from "lucide-react";
 import { BackLink } from "@/components/ui/back-navigation";
 import { Link } from "@/components/ui/link";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { SupportForm } from "@/features/marketing/contact/support-form";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent } from "@/components/ui/card";
@@ -107,7 +108,11 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                       {tSupportForm("loginGate.description")}
                     </p>
                   </div>
-                  <Button nativeButton={false} render={<Link href="/sign-in" />} className="w-fit">
+                  <Button
+                    nativeButton={false}
+                    render={<Link href={SIGN_IN_PATH} />}
+                    className="w-fit"
+                  >
                     {tSupportForm("loginGate.button")}
                   </Button>
                 </div>

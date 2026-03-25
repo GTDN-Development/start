@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SIGN_IN_PATH, getInviteHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { setPendingInviteTokenCookie } from "@/server/workspaces/workspace-cookie";
@@ -21,12 +22,7 @@ export async function GET(request: NextRequest, context: InviteStartRouteContext
       createLocalizedUrl(
         request,
         getPathname({
-          href: {
-            pathname: "/invite/[token]",
-            params: {
-              token,
-            },
-          },
+          href: getInviteHref(token),
           locale: appLocale,
         })
       )
@@ -39,7 +35,7 @@ export async function GET(request: NextRequest, context: InviteStartRouteContext
     createLocalizedUrl(
       request,
       getPathname({
-        href: "/sign-in",
+        href: SIGN_IN_PATH,
         locale: appLocale,
       })
     )

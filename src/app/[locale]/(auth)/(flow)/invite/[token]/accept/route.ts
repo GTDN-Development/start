@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getWorkspaceOverviewHref } from "@/config/routes";
+import { getInviteHref, getInviteStartHref, getWorkspaceOverviewHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
@@ -28,12 +28,7 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
       createLocalizedUrl(
         request,
         getPathname({
-          href: {
-            pathname: "/invite/[token]/start",
-            params: {
-              token,
-            },
-          },
+          href: getInviteStartHref(token),
           locale: appLocale,
         })
       ),
@@ -51,12 +46,7 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
       createLocalizedUrl(
         request,
         getPathname({
-          href: {
-            pathname: "/invite/[token]",
-            params: {
-              token,
-            },
-          },
+          href: getInviteHref(token),
           locale: appLocale,
         })
       ),
@@ -86,12 +76,7 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
     createLocalizedUrl(
       request,
       getPathname({
-        href: {
-          pathname: "/invite/[token]",
-          params: {
-            token,
-          },
-        },
+        href: getInviteHref(token),
         locale: appLocale,
       })
     ),

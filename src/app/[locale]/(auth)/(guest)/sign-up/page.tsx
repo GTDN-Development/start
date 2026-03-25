@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
+import { SIGN_IN_PATH, SIGN_UP_PATH } from "@/config/routes";
 import {
   AuthHero,
   AuthHeroContent,
@@ -23,7 +24,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/sign-up">): P
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    pathname: "/sign-up",
+    pathname: SIGN_UP_PATH,
   });
 }
 
@@ -52,7 +53,7 @@ export default async function Page({ params }: PageProps<"/[locale]/sign-up">) {
         <p className="text-muted-foreground mt-6 text-sm">
           {t("alreadyHaveAccount")}{" "}
           <Link
-            href="/sign-in"
+            href={SIGN_IN_PATH}
             className="underline decoration-current/30 hover:decoration-current"
           >
             {t("signIn")}

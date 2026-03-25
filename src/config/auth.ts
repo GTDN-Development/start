@@ -2,14 +2,17 @@ import type { AppPathname } from "@/i18n/navigation";
 import {
   ACCOUNT_PATH,
   APP_HOME_PATH,
+  CONFIRM_EMAIL_CHANGE_PATH,
   DEFAULT_AUTH_REDIRECTS,
+  RESET_PASSWORD_PATH,
+  VERIFY_EMAIL_PATH,
   WORKSPACE_PATH_PREFIX,
 } from "@/config/routes";
 
 const emailLinkActionTargets = {
-  "verify-email": "/verify-email",
-  "reset-password": "/reset-password",
-  "confirm-email-change": "/confirm-email-change",
+  "verify-email": VERIFY_EMAIL_PATH,
+  "reset-password": RESET_PASSWORD_PATH,
+  "confirm-email-change": CONFIRM_EMAIL_CHANGE_PATH,
 } as const satisfies Record<string, AppPathname>;
 
 export type AuthEmailLinkAction = keyof typeof emailLinkActionTargets;
@@ -40,5 +43,7 @@ export const authConfig = {
     authCookieName: "pb_auth",
     persistCookieName: "pb_auth_persist",
     persistCookieMaxAgeSeconds: 60 * 60 * 24 * 365,
+    emailChangeFlowCookieName: "auth_email_change_flow",
+    emailChangeFlowCookieMaxAgeSeconds: 60 * 60 * 24,
   },
 } as const;

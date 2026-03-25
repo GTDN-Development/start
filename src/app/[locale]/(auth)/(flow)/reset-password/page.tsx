@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
+import { RESET_PASSWORD_PATH, SIGN_IN_PATH } from "@/config/routes";
 import { ResetPasswordForm } from "@/features/auth/reset-password/reset-password-form";
 import {
   AuthHero,
@@ -26,11 +27,14 @@ export async function generateMetadata(
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    pathname: "/reset-password",
+    pathname: RESET_PASSWORD_PATH,
   });
 }
 
-export default async function Page({ params, searchParams }: PageProps<"/[locale]/reset-password">) {
+export default async function Page({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/reset-password">) {
   const { locale } = await params;
   const query = await searchParams;
 
@@ -55,7 +59,10 @@ export default async function Page({ params, searchParams }: PageProps<"/[locale
       <div className="mt-6 pt-6">
         <ResetPasswordForm token={token} />
         <p className="text-muted-foreground mt-6 text-sm">
-          <Link href="/sign-in" className="underline decoration-current/30 hover:decoration-current">
+          <Link
+            href={SIGN_IN_PATH}
+            className="underline decoration-current/30 hover:decoration-current"
+          >
             {t("backToSignIn")}
           </Link>
           .

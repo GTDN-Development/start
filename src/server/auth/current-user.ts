@@ -20,6 +20,7 @@ export type RequireCurrentUserResult =
       pb: PocketBase;
       user: UsersRecord;
       currentSessionIdHash: string;
+      shouldPersistSession: boolean;
     }
   | {
       ok: false;
@@ -28,7 +29,8 @@ export type RequireCurrentUserResult =
     };
 
 export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
-  const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+  const { pb, hasAuthCookie, hadInvalidAuthCookie, shouldPersistSession } =
+    await createPocketBaseServerClient();
 
   if (hadInvalidAuthCookie) {
     return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
@@ -74,6 +76,7 @@ export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
       pb,
       user: refreshedAuth.record,
       currentSessionIdHash: deviceSessionCheck.sessionIdHash,
+      shouldPersistSession,
     };
   } catch (error) {
     if (isAuthRefreshUnauthorizedError(error)) {

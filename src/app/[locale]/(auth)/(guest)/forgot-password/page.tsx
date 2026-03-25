@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
+import { FORGOT_PASSWORD_PATH, SIGN_IN_PATH } from "@/config/routes";
 import { ForgotPasswordForm } from "@/features/auth/forgot-password/forgot-password-form";
 import {
   AuthHero,
@@ -25,7 +26,7 @@ export async function generateMetadata(
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    pathname: "/forgot-password",
+    pathname: FORGOT_PASSWORD_PATH,
   });
 }
 
@@ -51,7 +52,10 @@ export default async function Page({ params }: PageProps<"/[locale]/forgot-passw
       <div className="mt-6 pt-6">
         <ForgotPasswordForm />
         <p className="text-muted-foreground mt-6 text-sm">
-          <Link href="/sign-in" className="underline decoration-current/30 hover:decoration-current">
+          <Link
+            href={SIGN_IN_PATH}
+            className="underline decoration-current/30 hover:decoration-current"
+          >
             {t("backToSignIn")}
           </Link>
           .

@@ -2,7 +2,11 @@ import type PocketBase from "pocketbase";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
 import { requireWorkspaceAccess } from "@/server/workspaces/workspace-access";
-import { consumePendingInviteTokenCookie } from "@/server/workspaces/workspace-cookie";
+import {
+  clearActiveWorkspaceSlugCookie,
+  consumePendingInviteTokenCookie,
+  getActiveWorkspaceSlugCookie,
+} from "@/server/workspaces/workspace-cookie";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
@@ -145,7 +149,7 @@ export async function resolveWorkspaceForUserBySlugWithClient(
   }
 }
 
-export async function resolvePostAuthDestination(_input: {
+export async function resolvePostAuthDestination(input: {
   userId: string;
   userEmail: string;
 }): Promise<ServerWorkspaceResponse<PostAuthDestination>> {
@@ -157,6 +161,22 @@ export async function resolvePostAuthDestination(_input: {
       data: {
         state: "invite_redirect",
         inviteToken: pendingInviteToken,
+      },
+    };
+  }
+
+  const activeWorkspaceResponse = await resolveActiveWorkspaceForUser(input.userId);
+
+  if (!activeWorkspaceResponse.ok) {
+    return activeWorkspaceResponse;
+  }
+
+  if (activeWorkspaceResponse.data.workspace) {
+    return {
+      ok: true,
+      data: {
+        state: "workspace_redirect",
+        workspaceSlug: activeWorkspaceResponse.data.workspace.slug,
       },
     };
   }
@@ -222,6 +242,46 @@ export async function switchWorkspaceForCurrentUser(
       errorCode,
     };
   }
+}
+
+export async function resolveActiveWorkspaceForUser(
+  userId: string
+): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>> {
+  const { pb } = await createPocketBaseServerClient();
+
+  return resolveActiveWorkspaceForUserWithClient(pb, userId);
+}
+
+export async function resolveActiveWorkspaceForUserWithClient(
+  pb: PocketBase,
+  userId: string
+): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>> {
+  const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
+
+  if (!activeWorkspaceSlug) {
+    return {
+      ok: true,
+      data: {
+        workspace: null,
+      },
+    };
+  }
+
+  const workspaceResponse = await resolveWorkspaceForUserBySlugWithClient(
+    pb,
+    userId,
+    activeWorkspaceSlug
+  );
+
+  if (!workspaceResponse.ok) {
+    return workspaceResponse;
+  }
+
+  if (!workspaceResponse.data.workspace) {
+    await clearActiveWorkspaceSlugCookie();
+  }
+
+  return workspaceResponse;
 }
 
 async function listUserWorkspaceMemberships(

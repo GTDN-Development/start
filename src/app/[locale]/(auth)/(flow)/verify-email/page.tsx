@@ -8,7 +8,12 @@ import {
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
-import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
+import {
+  APP_HOME_PATH,
+  VERIFY_EMAIL_PATH,
+  getInviteHref,
+  getWorkspaceOverviewHref,
+} from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { confirmEmailVerificationToken } from "@/server/auth/auth-service";
@@ -44,7 +49,7 @@ export async function generateMetadata(props: VerifyEmailPageProps): Promise<Met
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    pathname: "/verify-email",
+    pathname: VERIFY_EMAIL_PATH,
   });
 }
 
@@ -147,12 +152,7 @@ async function redirectToPostAuthDestination(locale: Locale, userId: string, use
 
   if (destination.state === "invite_redirect") {
     redirect({
-      href: {
-        pathname: "/invite/[token]",
-        params: {
-          token: destination.inviteToken,
-        },
-      },
+      href: getInviteHref(destination.inviteToken),
       locale,
     });
 

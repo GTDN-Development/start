@@ -3,7 +3,14 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
-import { SIGN_IN_PATH, getWorkspaceOverviewHref } from "@/config/routes";
+import {
+  INVITE_PATH,
+  SIGN_IN_PATH,
+  getInviteAcceptHref,
+  getInviteHref,
+  getInviteStartHref,
+  getWorkspaceOverviewHref,
+} from "@/config/routes";
 import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { type AppHref, getPathname, redirect } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
@@ -38,7 +45,7 @@ export async function generateMetadata(props: InviteTokenPageProps): Promise<Met
     description: t("description"),
     locale: locale as Locale,
     pathname: {
-      pathname: "/invite/[token]",
+      pathname: INVITE_PATH,
       params: {
         token,
       },
@@ -74,12 +81,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
         <InviteStatePanel
           title={t("states.error.title")}
           description={t("states.error.description")}
-          action={renderInviteLinkAction(t("states.error.cta"), {
-            pathname: "/invite/[token]",
-            params: {
-              token,
-            },
-          })}
+          action={renderInviteLinkAction(t("states.error.cta"), getInviteHref(token))}
         />
       );
     }
@@ -95,12 +97,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
     }
 
     redirect({
-      href: {
-        pathname: "/invite/[token]/start",
-        params: {
-          token,
-        },
-      },
+      href: getInviteStartHref(token),
       locale: locale as Locale,
     });
     return null;
@@ -112,12 +109,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
   });
   const applicationEntryHref = await resolveApplicationEntryHref(session.user.id);
   const acceptAction = getPathname({
-    href: {
-      pathname: "/invite/[token]/accept",
-      params: {
-        token,
-      },
-    },
+    href: getInviteAcceptHref(token),
     locale: appLocale,
   });
 
@@ -126,12 +118,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
       <InviteStatePanel
         title={t("states.error.title")}
         description={t("states.error.description")}
-        action={renderInviteLinkAction(t("states.error.cta"), {
-          pathname: "/invite/[token]",
-          params: {
-            token,
-          },
-        })}
+        action={renderInviteLinkAction(t("states.error.cta"), getInviteHref(token))}
       />
     );
   }
@@ -196,12 +183,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
           <InviteSignOutButton
             label={t("states.email_mismatch.cta")}
             errorMessage={t("actions.signOutError")}
-            redirectHref={{
-              pathname: "/invite/[token]",
-              params: {
-                token,
-              },
-            }}
+            redirectHref={getInviteHref(token)}
           />
         }
       />

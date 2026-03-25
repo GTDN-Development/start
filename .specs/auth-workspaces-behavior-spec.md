@@ -33,7 +33,7 @@
 - Email verification with an invalid or expired token shows a recoverable invalid state.
 - Verification resend for unknown or already verified email shows generic success and only sends mail when needed.
 - Forgot-password submission shows generic success for both known and unknown emails.
-- Reset password with a valid token updates the password, revokes all sessions, and requires fresh sign-in.
+- Reset password with a valid token updates the password, clears the current browser session, and requires fresh sign-in.
 - Reset password with an invalid or expired token stays in the reset flow and requires a new reset link.
 - Email change uses a secure confirmation flow.
 - Confirming email change does not require an active session.
@@ -135,7 +135,7 @@
 3. Duplicate sign-up email returns explicit duplicate-email outcome.
 4. Verification resend returns generic success for unknown and already verified email.
 5. Email verification is idempotent for already verified email.
-6. Reset password revokes all sessions.
+6. Reset password clears the current browser session and requires fresh sign-in.
 7. Change password keeps current session and revokes all other sessions.
 8. Email-change confirmation succeeds without an active session when token and password are valid.
 9. Member/admin/owner capability matrix matches the access rules above.

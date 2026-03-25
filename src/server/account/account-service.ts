@@ -4,8 +4,13 @@ import type { AuthErrorCode } from "@/features/auth/auth-contract";
 import type { UsersRecord } from "@/types/pocketbase";
 import { accountConfig } from "@/config/account";
 import type { ServerAuthResponse } from "@/server/auth/auth-service";
+import {
+  clearEmailChangeFlowCookie,
+  setEmailChangeFlowCookie,
+} from "@/server/auth/auth-flow-cookie";
 import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
+import { revokeOtherDeviceSessions } from "@/server/device-sessions/device-sessions-service";
 import {
   getAvatarUrl,
   getNullableTrimmedString,
@@ -13,6 +18,11 @@ import {
   logServiceError,
   mapPocketBaseError,
 } from "@/server/pocketbase/pocketbase-utils";
+import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import {
+  countWorkspaceOwners,
+  listUserWorkspaceMembershipRecords,
+} from "@/server/workspaces/workspace-repository";
 
 type DeleteAccountPayload = {
   deleted: true;
@@ -34,6 +44,8 @@ type RequireCurrentUserResult =
       ok: true;
       pb: PocketBase;
       user: UsersRecord;
+      currentSessionIdHash: string;
+      shouldPersistSession: boolean;
     }
   | {
       ok: false;
@@ -185,6 +197,11 @@ export async function requestEmailChangeForCurrentUser(
 
   try {
     await currentUser.pb.collection("users").requestEmailChange(newEmail);
+    await setEmailChangeFlowCookie({
+      userId: currentUser.user.id,
+      nextEmail: newEmail,
+      persistSession: currentUser.shouldPersistSession,
+    });
 
     return {
       ok: true,
@@ -242,7 +259,32 @@ export async function deleteCurrentUserAccountWithPassword(
   }
 
   try {
+    const workspaceMemberships = await listUserWorkspaceMembershipRecords(
+      currentUser.pb,
+      currentUser.user.id
+    );
+    const ownerMemberships = workspaceMemberships.filter(
+      (membership) => membership.role === "owner"
+    );
+
+    for (const ownerMembership of ownerMemberships) {
+      const ownerCount = await countWorkspaceOwners(currentUser.pb, ownerMembership.workspace);
+
+      if (ownerCount <= 1) {
+        return {
+          ok: false,
+          errorCode: "ACCOUNT_DELETE_BLOCKED_LAST_OWNER",
+        };
+      }
+    }
+
+    for (const workspaceMembership of workspaceMemberships) {
+      await currentUser.pb.collection("workspace_members").delete(workspaceMembership.id);
+    }
+
     await currentUser.pb.collection("users").delete(currentUser.user.id);
+    await clearActiveWorkspaceSlugCookie();
+    await clearEmailChangeFlowCookie();
 
     return {
       ok: true,
@@ -291,6 +333,22 @@ export async function updateCurrentUserPassword(input: {
       passwordConfirm: input.confirmPassword,
     });
 
+    try {
+      await revokeOtherDeviceSessions({
+        pb: currentUser.pb,
+        userId: currentUser.user.id,
+        currentSessionIdHash: currentUser.currentSessionIdHash,
+      });
+    } catch (revokeError) {
+      logAccountServiceError("updateCurrentUserPassword.revokeOtherDeviceSessions", revokeError);
+
+      return {
+        ok: false,
+        errorCode: "UNKNOWN_ERROR",
+        setCookie: createClearedAuthAndDeviceCookies(),
+      };
+    }
+
     return {
       ok: true,
       data: {
@@ -330,6 +388,8 @@ async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
     ok: true,
     pb: currentUser.pb,
     user: currentUser.user,
+    currentSessionIdHash: currentUser.currentSessionIdHash,
+    shouldPersistSession: currentUser.shouldPersistSession,
   };
 }
 

@@ -181,6 +181,29 @@ export async function revokeOtherDeviceSessions(input: {
   return sessionsToRevoke.length;
 }
 
+export async function revokeAllDeviceSessions(input: {
+  pb: PocketBase;
+  userId: string;
+  reason: string;
+}): Promise<number> {
+  const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
+  const now = new Date();
+  const sessionsToRevoke = sessions.filter((session) => isActiveDeviceSession(session, now));
+
+  if (sessionsToRevoke.length === 0) {
+    return 0;
+  }
+
+  for (const session of sessionsToRevoke) {
+    await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(session.id, {
+      revoked_at: now.toISOString(),
+      revoked_reason: input.reason,
+    });
+  }
+
+  return sessionsToRevoke.length;
+}
+
 export async function revokeDeviceSessionById(input: {
   pb: PocketBase;
   userId: string;

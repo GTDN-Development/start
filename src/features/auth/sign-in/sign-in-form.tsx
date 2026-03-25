@@ -4,6 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { FORGOT_PASSWORD_PATH } from "@/config/routes";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -126,7 +127,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
                         </FieldLabel>
                         <p className="text-sm">
                           <Link
-                            href="/forgot-password"
+                            href={FORGOT_PASSWORD_PATH}
                             className="underline decoration-current/30 hover:decoration-current"
                           >
                             {tPage("forgotPassword")}

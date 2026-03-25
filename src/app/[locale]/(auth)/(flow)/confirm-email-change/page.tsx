@@ -9,6 +9,7 @@ import {
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
 import { Link } from "@/components/ui/link";
+import { CONFIRM_EMAIL_CHANGE_PATH, SIGN_IN_PATH } from "@/config/routes";
 import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
 import { createPageMetadata } from "@/lib/metadata";
 
@@ -33,7 +34,7 @@ export async function generateMetadata(props: ConfirmEmailChangePageProps): Prom
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    pathname: "/confirm-email-change",
+    pathname: CONFIRM_EMAIL_CHANGE_PATH,
   });
 }
 
@@ -62,7 +63,10 @@ export default async function Page({ params, searchParams }: ConfirmEmailChangeP
       <div className="mt-6 pt-6">
         <ConfirmEmailChangeForm token={token} />
         <p className="text-muted-foreground mt-6 text-sm">
-          <Link href="/sign-in" className="underline decoration-current/30 hover:decoration-current">
+          <Link
+            href={SIGN_IN_PATH}
+            className="underline decoration-current/30 hover:decoration-current"
+          >
             {t("backToSignIn")}
           </Link>
           .

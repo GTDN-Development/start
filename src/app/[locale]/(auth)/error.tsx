@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { ErrorStateContent } from "@/features/error-handling/error-state-content";
 import { useMountEffect } from "@/hooks/use-mount-effect";
 
@@ -20,7 +21,7 @@ export default function Error({ error, reset }: Props) {
     <ErrorStateContent
       className="min-h-96"
       error={error}
-      href="/sign-in"
+      href={SIGN_IN_PATH}
       hrefLabel={t("goToSignIn")}
       reset={reset}
     />

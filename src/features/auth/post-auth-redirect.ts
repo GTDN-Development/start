@@ -1,5 +1,10 @@
 import { startTransition } from "react";
-import { APP_HOME_PATH, SIGN_IN_PATH, getWorkspaceOverviewHref } from "@/config/routes";
+import {
+  APP_HOME_PATH,
+  SIGN_IN_PATH,
+  getInviteHref,
+  getWorkspaceOverviewHref,
+} from "@/config/routes";
 import { resolvePostAuthDestinationAction } from "@/features/auth/actions/auth-actions";
 import type { AppHref } from "@/i18n/navigation";
 import { runAsyncTransition } from "@/lib/app-utils";
@@ -31,12 +36,7 @@ export async function replaceToPostAuthDestination(router: PostAuthRouter): Prom
     const inviteToken = destinationResponse.data.inviteToken;
 
     startTransition(() => {
-      router.replace({
-        pathname: "/invite/[token]",
-        params: {
-          token: inviteToken,
-        },
-      });
+      router.replace(getInviteHref(inviteToken));
     });
     return;
   }
