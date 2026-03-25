@@ -30,10 +30,10 @@ type WorkspaceCreateFormValues = {
 
 type WorkspaceCreateDrawerProps = {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChangeAction: (open: boolean) => void;
 };
 
-export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDrawerProps) {
+export function WorkspaceCreateDrawer({ open, onOpenChangeAction }: WorkspaceCreateDrawerProps) {
   const t = useTranslations("layout.application.scopeSwitcher.createDrawer");
   const router = useRouter();
   const createToastId = useId();
@@ -86,14 +86,14 @@ export function WorkspaceCreateDrawer({ open, onOpenChange }: WorkspaceCreateDra
 
       startTransition(() => {
         form.reset();
-        onOpenChange(false);
+        onOpenChangeAction(false);
         router.replace(getWorkspaceOverviewHref(response.data.workspaceSlug));
       });
     },
   });
 
   function handleDrawerOpenChange(nextOpen: boolean) {
-    onOpenChange(nextOpen);
+    onOpenChangeAction(nextOpen);
 
     if (!nextOpen) {
       form.reset();

@@ -48,10 +48,10 @@ function getInviteRoleOption(value: string | null) {
 
 export function WorkspaceInviteMembersSettingsItem({
   workspace,
-  onInviteCreated,
+  onInviteCreatedAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
-  onInviteCreated: (invite: WorkspaceSettingsInvite) => void;
+  onInviteCreatedAction: (invite: WorkspaceSettingsInvite) => void;
 }) {
   const tInvite = useTranslations("pages.workspace.members.invite");
   const tRoles = useTranslations("pages.workspace.members.roles");
@@ -107,7 +107,7 @@ export function WorkspaceInviteMembersSettingsItem({
     startTransition(() => {
       setEmail("");
       setRole("member");
-      onInviteCreated(response.data.invite);
+      onInviteCreatedAction(response.data.invite);
     });
     toast.success(tInvite("status.sent"));
   }

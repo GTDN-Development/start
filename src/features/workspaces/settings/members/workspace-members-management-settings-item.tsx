@@ -120,21 +120,24 @@ export function WorkspaceMembersManagementSettingsItem({
   workspace,
   members,
   invites,
-  onInviteRemoved,
-  onInviteResent,
-  onMemberRemoved,
-  onMemberRoleChanged,
+  onInviteRemovedAction,
+  onInviteResentAction,
+  onMemberRemovedAction,
+  onMemberRoleChangedAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
   members: WorkspaceSettingsMember[];
   invites: WorkspaceSettingsInvite[];
-  onInviteRemoved: (inviteId: string) => void;
-  onInviteResent: (
+  onInviteRemovedAction: (inviteId: string) => void;
+  onInviteResentAction: (
     inviteId: string,
     patch: Pick<WorkspaceSettingsInvite, "expiresAt" | "updatedAt" | "inviteUrl">
   ) => void;
-  onMemberRemoved: (memberId: string) => void;
-  onMemberRoleChanged: (memberId: string, role: WorkspaceSettingsMember["role"]) => void;
+  onMemberRemovedAction: (memberId: string) => void;
+  onMemberRoleChangedAction: (
+    memberId: string,
+    role: WorkspaceSettingsMember["role"]
+  ) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
@@ -254,7 +257,7 @@ export function WorkspaceMembersManagementSettingsItem({
     }
 
     startTransition(() => {
-      onInviteResent(response.data.inviteId, {
+      onInviteResentAction(response.data.inviteId, {
         expiresAt: response.data.expiresAt,
         updatedAt: response.data.updatedAt,
         inviteUrl: response.data.inviteUrl,
@@ -338,7 +341,7 @@ export function WorkspaceMembersManagementSettingsItem({
     startTransition(() => {
       setIsActionSubmitting(false);
       setActionState(null);
-      onMemberRoleChanged(actionResponse.data.memberId, actionResponse.data.role);
+      onMemberRoleChangedAction(actionResponse.data.memberId, actionResponse.data.role);
     });
     toast.success(t("status.roleChange.success"));
   }
@@ -401,7 +404,7 @@ export function WorkspaceMembersManagementSettingsItem({
     startTransition(() => {
       setIsActionSubmitting(false);
       setActionState(null);
-      onMemberRemoved(response.data.memberId);
+      onMemberRemovedAction(response.data.memberId);
     });
     toast.success(t("status.memberRemove.success"));
   }
@@ -429,7 +432,7 @@ export function WorkspaceMembersManagementSettingsItem({
     startTransition(() => {
       setIsActionSubmitting(false);
       setActionState(null);
-      onInviteResent(response.data.inviteId, {
+      onInviteResentAction(response.data.inviteId, {
         expiresAt: response.data.expiresAt,
         updatedAt: response.data.updatedAt,
         inviteUrl: response.data.inviteUrl,
@@ -461,7 +464,7 @@ export function WorkspaceMembersManagementSettingsItem({
     startTransition(() => {
       setIsActionSubmitting(false);
       setActionState(null);
-      onInviteRemoved(response.data.inviteId);
+      onInviteRemovedAction(response.data.inviteId);
     });
     toast.success(t("status.inviteRemove.success"));
   }

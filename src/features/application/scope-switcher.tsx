@@ -298,7 +298,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
         </DropdownMenu>
         <WorkspaceCreateDrawer
           open={isCreateWorkspaceDrawerOpen}
-          onOpenChange={handleCreateWorkspaceDrawerOpenChange}
+          onOpenChangeAction={handleCreateWorkspaceDrawerOpenChange}
         />
       </SidebarMenuItem>
     </SidebarMenu>

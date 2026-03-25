@@ -69,16 +69,16 @@ export function WorkspaceMembersSettingsSection({
     <div className="grid gap-8">
       <WorkspaceInviteMembersSettingsItem
         workspace={workspaceState}
-        onInviteCreated={handleInviteCreated}
+        onInviteCreatedAction={handleInviteCreated}
       />
       <WorkspaceMembersManagementSettingsItem
         workspace={workspaceState}
         members={members}
         invites={invites}
-        onInviteRemoved={handleInviteRemoved}
-        onInviteResent={handleInviteResent}
-        onMemberRemoved={handleMemberRemoved}
-        onMemberRoleChanged={handleMemberRoleChanged}
+        onInviteRemovedAction={handleInviteRemoved}
+        onInviteResentAction={handleInviteResent}
+        onMemberRemovedAction={handleMemberRemoved}
+        onMemberRoleChangedAction={handleMemberRoleChanged}
       />
     </div>
   );
