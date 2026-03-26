@@ -241,6 +241,16 @@ export async function confirmEmailVerificationToken(
       }
     }
 
+    if (mapVerifyEmailErrorCode(error) === "BAD_REQUEST" && isProbablyConsumedVerificationToken(token)) {
+      return {
+        ok: true,
+        data: {
+          session: null,
+        },
+        ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      };
+    }
+
     const errorCode = mapVerifyEmailErrorCode(error);
 
     if (errorCode === "UNKNOWN_ERROR") {
@@ -770,6 +780,42 @@ function createAuthSession(pb: PocketBase, record: UsersRecord | null): AuthSess
 
 function createDisplayName(firstName: string, lastName: string) {
   return `${firstName} ${lastName}`.trim();
+}
+
+function isProbablyConsumedVerificationToken(token: string): boolean {
+  const payload = parseJwtPayload(token);
+
+  if (!payload || payload.type !== "verification" || typeof payload.email !== "string") {
+    return false;
+  }
+
+  if (typeof payload.exp === "number" && payload.exp * 1000 <= Date.now()) {
+    return false;
+  }
+
+  return payload.email.trim().length > 0;
+}
+
+function parseJwtPayload(token: string): Record<string, unknown> | null {
+  const segments = token.split(".");
+
+  if (segments.length !== 3 || !segments[1]) {
+    return null;
+  }
+
+  try {
+    const base64 = segments[1].replace(/-/g, "+").replace(/_/g, "/");
+    const normalizedBase64 = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    const payload = JSON.parse(Buffer.from(normalizedBase64, "base64").toString("utf8"));
+
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      return null;
+    }
+
+    return payload as Record<string, unknown>;
+  } catch {
+    return null;
+  }
 }
 
 function mapSignInErrorCode(error: unknown): AuthErrorCode {
