@@ -221,7 +221,7 @@
     },
     "confirmEmailChange": {
       "title": "Potvrzení změny e-mailu",
-      "description": "Pro potvrzení nové e-mailové adresy zadejte své aktuální heslo.",
+      "description": "Pro potvrzení nové e-mailové adresy zadejte své aktuální heslo. Po potvrzení se budete muset znovu přihlásit novým e-mailem.",
       "backToSignIn": "Zpět na přihlášení"
     },
     "signUp": {
@@ -1434,7 +1434,7 @@
         "password": {
           "label": "Aktuální heslo",
           "placeholder": "Zadejte své aktuální heslo",
-          "description": "Z bezpečnostních důvodů zadejte pro potvrzení této změny své aktuální heslo."
+          "description": "Z bezpečnostních důvodů zadejte pro potvrzení této změny své aktuální heslo. Poté se znovu přihlásíte novým e-mailem."
         }
       },
       "submit": {
@@ -1442,10 +1442,6 @@
         "pending": "Potvrzování..."
       },
       "status": {
-        "success": {
-          "title": "Změna e-mailu potvrzena",
-          "message": "Vaše nová e-mailová adresa byla úspěšně potvrzena."
-        },
         "error": {
           "title": "Potvrzení selhalo",
           "message": "Změnu e-mailu se nepodařilo potvrdit. Zkuste to prosím znovu.",

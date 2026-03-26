@@ -26,7 +26,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { runAsyncTransition } from "@/lib/app-utils";
-import { AlertCircleIcon, CheckCircle2Icon } from "lucide-react";
+import { AlertCircleIcon } from "lucide-react";
 
 type SecurityTranslationFn = (key: string, values?: Record<string, string>) => string;
 type PasswordFormValues = {
@@ -217,22 +217,11 @@ export function AccountChangePasswordItem() {
                     </form.Field>
 
                     {submitStatus ? (
-                      submitStatus.kind === "success" ? (
-                        <Alert className="py-2">
-                          <CheckCircle2Icon
-                            aria-hidden="true"
-                            className="size-4 text-emerald-500"
-                          />
-                          <AlertTitle>{t("common.successTitle")}</AlertTitle>
-                          <AlertDescription>{submitStatus.message}</AlertDescription>
-                        </Alert>
-                      ) : (
-                        <Alert variant="destructive" className="py-2">
-                          <AlertCircleIcon aria-hidden="true" className="size-4" />
-                          <AlertTitle>{t("common.errorTitle")}</AlertTitle>
-                          <AlertDescription>{submitStatus.message}</AlertDescription>
-                        </Alert>
-                      )
+                      <Alert variant="destructive" className="py-2">
+                        <AlertCircleIcon aria-hidden="true" className="size-4" />
+                        <AlertTitle>{t("common.errorTitle")}</AlertTitle>
+                        <AlertDescription>{submitStatus.message}</AlertDescription>
+                      </Alert>
                     ) : null}
                   </div>
                 </SettingsItemContentBody>

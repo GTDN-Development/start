@@ -133,11 +133,11 @@ export async function confirmEmailChange(input: {
   if (response.ok) {
     startTransition(() => {
       setSessionState({
-        status: response.data.session ? "authenticated" : "unauthenticated",
-        session: response.data.session,
+        status: "unauthenticated",
+        session: null,
       });
     });
-    broadcastSessionChanged();
+    broadcastSignedOut();
   }
 
   return response;

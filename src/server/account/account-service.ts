@@ -4,10 +4,6 @@ import type { AuthErrorCode } from "@/features/auth/auth-contract";
 import type { UsersRecord } from "@/types/pocketbase";
 import { accountConfig } from "@/config/account";
 import type { ServerAuthResponse } from "@/server/auth/auth-service";
-import {
-  clearEmailChangeFlowCookie,
-  setEmailChangeFlowCookie,
-} from "@/server/auth/auth-flow-cookie";
 import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 import { revokeAllDeviceSessions } from "@/server/device-sessions/device-sessions-service";
@@ -46,7 +42,6 @@ type RequireCurrentUserResult =
       pb: PocketBase;
       user: UsersRecord;
       currentSessionIdHash: string;
-      shouldPersistSession: boolean;
     }
   | {
       ok: false;
@@ -198,11 +193,6 @@ export async function requestEmailChangeForCurrentUser(
 
   try {
     await currentUser.pb.collection("users").requestEmailChange(newEmail);
-    await setEmailChangeFlowCookie({
-      userId: currentUser.user.id,
-      nextEmail: newEmail,
-      persistSession: currentUser.shouldPersistSession,
-    });
 
     return {
       ok: true,
@@ -285,7 +275,6 @@ export async function deleteCurrentUserAccountWithPassword(
 
     await currentUser.pb.collection("users").delete(currentUser.user.id);
     await clearActiveWorkspaceSlugCookie();
-    await clearEmailChangeFlowCookie();
 
     return {
       ok: true,
@@ -391,7 +380,6 @@ async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
     pb: currentUser.pb,
     user: currentUser.user,
     currentSessionIdHash: currentUser.currentSessionIdHash,
-    shouldPersistSession: currentUser.shouldPersistSession,
   };
 }
 

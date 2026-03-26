@@ -72,7 +72,6 @@ export type RequestEmailVerificationPayload = {
 
 export type ConfirmEmailChangePayload = {
   emailChanged: true;
-  session: AuthSession | null;
 };
 
 export type AuthSuccessResponse<TData> = {

@@ -16,12 +16,7 @@ import type {
 } from "@/features/auth/auth-contract";
 import type { SignInInput, SignUpInput } from "@/features/auth/auth-schemas";
 import {
-  clearEmailChangeFlowCookie,
-  readEmailChangeFlowCookie,
-} from "@/server/auth/auth-flow-cookie";
-import {
   createClearedPocketBaseAuthCookies,
-  createPocketBaseClient,
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
@@ -201,7 +196,6 @@ export async function signOutServerSession(): Promise<ServerAuthResponse<AuthSig
     }
   }
 
-  await clearEmailChangeFlowCookie();
   await clearActiveWorkspaceSlugCookie();
 
   return {
@@ -413,27 +407,14 @@ export async function confirmEmailChangeToken(input: {
   password: string;
 }): Promise<ServerAuthResponse<ConfirmEmailChangePayload>> {
   const { pb, hadInvalidAuthCookie } = await createPocketBaseServerClient();
-  const emailChangeFlow = await readEmailChangeFlowCookie();
 
   try {
     await pb.collection("users").confirmEmailChange(input.token, input.password);
-
-    await clearEmailChangeFlowCookie();
-
-    const restoredSessionResponse = await restoreSessionAfterEmailChange({
-      emailChangeFlow,
-      password: input.password,
-    });
-
-    if (restoredSessionResponse) {
-      return restoredSessionResponse;
-    }
 
     return {
       ok: true,
       data: {
         emailChanged: true,
-        session: null,
       },
       setCookie: createClearedAuthAndDeviceCookies(),
     };
@@ -770,67 +751,6 @@ async function createAuthAndDeviceCookies(input: {
     }),
     nextDeviceSession.setCookie,
   ];
-}
-
-async function restoreSessionAfterEmailChange(input: {
-  emailChangeFlow: Awaited<ReturnType<typeof readEmailChangeFlowCookie>>;
-  password: string;
-}): Promise<ServerAuthResponse<ConfirmEmailChangePayload> | null> {
-  if (!input.emailChangeFlow) {
-    return null;
-  }
-
-  const pb = createPocketBaseClient();
-
-  try {
-    const authResponse = await pb
-      .collection("users")
-      .authWithPassword<UsersRecord>(input.emailChangeFlow.nextEmail, input.password);
-
-    if (
-      authResponse.record.id !== input.emailChangeFlow.userId ||
-      authResponse.record.verified !== true
-    ) {
-      return null;
-    }
-
-    const session = createAuthSession(pb, authResponse.record);
-
-    if (!session) {
-      return {
-        ok: true,
-        data: {
-          emailChanged: true,
-          session: null,
-        },
-        setCookie: createClearedAuthAndDeviceCookies(),
-      };
-    }
-
-    return {
-      ok: true,
-      data: {
-        emailChanged: true,
-        session,
-      },
-      setCookie: await createAuthAndDeviceCookies({
-        pb,
-        userId: session.user.id,
-        rememberMe: input.emailChangeFlow.persistSession,
-        existingDeviceSessionToken: await readDeviceSessionCookie(),
-        logContext: "confirmEmailChangeToken",
-      }),
-    };
-  } catch (error) {
-    if (
-      error instanceof ClientResponseError &&
-      (error.status === 400 || error.status === 401 || error.status === 403 || error.status === 404)
-    ) {
-      return null;
-    }
-
-    throw error;
-  }
 }
 
 function createAuthSession(pb: PocketBase, record: UsersRecord | null): AuthSession | null {

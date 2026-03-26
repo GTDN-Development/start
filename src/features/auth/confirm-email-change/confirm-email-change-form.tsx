@@ -12,7 +12,6 @@ import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/c
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { confirmEmailChange } from "@/features/auth/auth-client";
-import { replaceToPostAuthDestination } from "@/features/auth/post-auth-redirect";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -62,11 +61,6 @@ export function ConfirmEmailChangeForm({
       });
 
       if (response.ok) {
-        if (response.data.session?.user.id) {
-          await replaceToPostAuthDestination(router);
-          return;
-        }
-
         router.replace(SIGN_IN_PATH);
         return;
       }

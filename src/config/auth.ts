@@ -43,7 +43,5 @@ export const authConfig = {
     authCookieName: "pb_auth",
     persistCookieName: "pb_auth_persist",
     persistCookieMaxAgeSeconds: 60 * 60 * 24 * 365,
-    emailChangeFlowCookieName: "auth_email_change_flow",
-    emailChangeFlowCookieMaxAgeSeconds: 60 * 60 * 24,
   },
 } as const;

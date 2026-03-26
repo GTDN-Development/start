@@ -221,7 +221,7 @@
     },
     "confirmEmailChange": {
       "title": "Confirm email change",
-      "description": "Enter your current password to confirm the new email address for your account.",
+      "description": "Enter your current password to confirm the new email address for your account. After confirmation, you'll need to sign in again with the new email.",
       "backToSignIn": "Back to sign in"
     },
     "signUp": {
@@ -1434,7 +1434,7 @@
         "password": {
           "label": "Current password",
           "placeholder": "Enter your current password",
-          "description": "For security reasons, enter your current password to confirm this change."
+          "description": "For security reasons, enter your current password to confirm this change. You'll then sign in again with the new email."
         }
       },
       "submit": {
@@ -1442,10 +1442,6 @@
         "pending": "Confirming..."
       },
       "status": {
-        "success": {
-          "title": "Email change confirmed",
-          "message": "Your new email address has been confirmed successfully."
-        },
         "error": {
           "title": "Confirmation failed",
           "message": "Unable to confirm the email change. Please try again.",
