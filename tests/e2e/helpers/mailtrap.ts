@@ -63,16 +63,8 @@ export async function listMailtrapMessages(options: {
   return await requestMailtrapJson<MailtrapMessage[]>(path);
 }
 
-export async function getMailtrapMessage(messageId: number): Promise<MailtrapMessage> {
-  return await requestMailtrapJson<MailtrapMessage>(`${getMailtrapMessagesPath()}/${messageId}`);
-}
-
 export async function getMailtrapMessageHtml(messageId: number): Promise<string> {
   return await requestMailtrapText(`${getMailtrapMessagesPath()}/${messageId}/body.html`);
-}
-
-export async function getMailtrapMessageText(messageId: number): Promise<string> {
-  return await requestMailtrapText(`${getMailtrapMessagesPath()}/${messageId}/body.txt`);
 }
 
 export async function waitForMailtrapMessage(
