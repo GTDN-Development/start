@@ -695,8 +695,8 @@
       "security": {
         "password": {
           "title": "Password",
-          "description": "Change your account password. You'll need your current password to confirm the change.",
-          "footerHint": "Use a strong password with at least 8 characters.",
+          "description": "Change your account password. You'll need your current password to confirm the change, and you'll be asked to sign in again afterward.",
+          "footerHint": "Changing your password signs out all devices, including this one.",
           "submit": {
             "default": "Update password",
             "pending": "Updating..."

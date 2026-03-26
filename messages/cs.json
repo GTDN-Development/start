@@ -695,8 +695,8 @@
       "security": {
         "password": {
           "title": "Heslo",
-          "description": "Změňte heslo ke svému účtu. Pro potvrzení změny budete potřebovat aktuální heslo.",
-          "footerHint": "Použijte silné heslo o délce alespoň 8 znaků.",
+          "description": "Změňte heslo ke svému účtu. Pro potvrzení změny budete potřebovat aktuální heslo a po změně se budete muset znovu přihlásit.",
+          "footerHint": "Změna hesla odhlásí všechna zařízení včetně tohoto zařízení.",
           "submit": {
             "default": "Aktualizovat heslo",
             "pending": "Aktualizace..."

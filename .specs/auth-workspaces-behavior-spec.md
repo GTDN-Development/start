@@ -1,17 +1,20 @@
 # Behavior Spec
 
 ## Scope
+
 - Product-level behavior contract for a Next.js App Router SaaS template.
 - Intended as input for Playwright E2E tests and Vitest business-rule tests.
 - In scope: auth, personal scope, collaborative workspaces, invitations, access control, redirects, and key error states.
 - Out of scope: billing, subscriptions, credits, seats, OAuth/SSO, magic links, OTP, 2FA, teams, and provider-specific implementation details.
 
 ## Testing References
+
 - Next.js testing overview: https://nextjs.org/docs/app/guides/testing
 - Next.js Vitest guide: https://nextjs.org/docs/app/guides/testing/vitest
 - Next.js Playwright guide: https://nextjs.org/docs/app/guides/testing/playwright
 
 ## Roles / Actors
+
 - Guest: not authenticated.
 - Authenticated user: authenticated and verified user in personal scope.
 - Workspace member: can access a workspace but has read-only collaboration access.
@@ -20,6 +23,7 @@
 - Personal scope: private default scope for every authenticated user; not shareable and not deletable.
 
 ## Auth Behavior
+
 - Protected routes require a valid authenticated and verified session.
 - An unverified account must not gain app access.
 - Sign up with a new email sends the user to email verification.
@@ -38,12 +42,13 @@
 - Email change uses a secure confirmation flow.
 - Confirming email change does not require an active session.
 - Valid email-change token plus correct current password completes the change and restores signed-in state.
-- Change password from account settings keeps the current session and revokes all other sessions.
+- Change password from account settings revokes all sessions and requires fresh sign-in.
 - Sign out redirects to sign-in.
 - Account deletion is blocked if the user is the last owner of any workspace.
 - If account deletion is allowed, the user is removed from all shared workspaces and then the account is deleted.
 
 ## Workspace Behavior
+
 - Every authenticated user always has personal scope at `/app`.
 - First-time users start in personal scope.
 - Creating a workspace is always an explicit action.
@@ -62,6 +67,7 @@
 - Leaving or deleting the currently active workspace returns the user to personal scope at `/app`.
 
 ## Access Rules
+
 - Member can read workspace data and read the workspace roster.
 - Member cannot change workspace settings.
 - Member cannot create, resend, revoke, or inspect pending invites.
@@ -80,6 +86,7 @@
 - Personal scope has no workspace-style membership, sharing, leave, or delete actions.
 
 ## Redirect Rules
+
 - Application entry resolution is: valid active workspace -> workspace overview; otherwise `/app`.
 - Post-auth resolution after successful sign-in, email verification, or email-change confirmation is: pending invite -> active workspace if still accessible -> `/app`.
 - Direct invite link without session stores pending invite state and sends the user through sign-in or verification.
@@ -91,6 +98,7 @@
 - If the user loses workspace access by someone else's action, the next server navigation or mutation treats that workspace as inaccessible; direct workspace routes become workspace-404 and app entry falls back to `/app`.
 
 ## Invitation Behavior
+
 - Invite acceptance requires an authenticated and verified user.
 - Invite acceptance requires the signed-in email to match the invited email.
 - Invite acceptance with a matching verified account adds membership and redirects to workspace overview.
@@ -99,6 +107,7 @@
 - Invalid or expired invite links show a blocked/error invite state and do not change membership.
 
 ## Error and Edge Cases
+
 - Forgot-password must not reveal whether an email exists.
 - Verification resend must not reveal whether an email exists or is already verified.
 - Duplicate sign-up email is an intentional explicit error.
@@ -109,9 +118,11 @@
 - Account deletion while last owner of any workspace must be blocked until ownership transfer or workspace deletion is completed.
 
 ## Open Questions
+
 - None for the current scope.
 
 ## Candidate E2E Scenarios
+
 1. Guest opens a protected route and is redirected to sign-in.
 2. New user signs up, verifies email, and lands in `/app`.
 3. Sign-up with existing email stays on sign-up and shows explicit duplicate-email error.
@@ -130,13 +141,14 @@
 16. User removed from a workspace elsewhere loses that workspace on next app entry and falls back to `/app`.
 
 ## Candidate Business-Rule / Unit Scenarios
+
 1. Post-auth destination resolver prioritizes pending invite over active workspace over `/app`.
 2. Application entry resolver returns active workspace only when it is still accessible.
 3. Duplicate sign-up email returns explicit duplicate-email outcome.
 4. Verification resend returns generic success for unknown and already verified email.
 5. Email verification is idempotent for already verified email.
 6. Reset password clears the current browser session and requires fresh sign-in.
-7. Change password keeps current session and revokes all other sessions.
+7. Change password revokes all sessions and requires fresh sign-in.
 8. Email-change confirmation succeeds without an active session when token and password are valid.
 9. Member/admin/owner capability matrix matches the access rules above.
 10. Admin cannot manage owners or assign owner role.

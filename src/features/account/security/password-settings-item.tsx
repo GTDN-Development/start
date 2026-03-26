@@ -4,9 +4,12 @@ import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { authConfig } from "@/config/auth";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { updateAccountPasswordAction } from "@/features/account/actions/account-actions";
 import type { InlineStatus } from "@/features/account/account-types";
+import { useRouter } from "@/i18n/navigation";
 import { authPasswordSchema, refinePasswordMatch } from "@/lib/schemas";
 import {
   SettingsItem,
@@ -35,6 +38,7 @@ type PasswordFormValues = {
 export function AccountChangePasswordItem() {
   const t = useTranslations("pages.account");
   const tPasswordVisibility = useTranslations("forms.signIn.passwordVisibility");
+  const router = useRouter();
 
   const [submitStatus, setSubmitStatus] = useState<InlineStatus>(null);
 
@@ -56,18 +60,14 @@ export function AccountChangePasswordItem() {
 
       if (response.ok) {
         form.reset();
-        setSubmitStatus({
-          kind: "success",
-          message: t("security.password.status.saved"),
-        });
+        toast.success(t("security.password.status.savedAndSignIn"));
+        router.replace(SIGN_IN_PATH);
         return;
       }
 
       if (response.errorCode === "UNAUTHORIZED") {
-        setSubmitStatus({
-          kind: "error",
-          message: t("security.password.status.unauthorized"),
-        });
+        toast.error(t("security.password.status.unauthorized"));
+        router.replace(SIGN_IN_PATH);
         return;
       }
 

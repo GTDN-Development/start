@@ -10,7 +10,8 @@ import {
 } from "@/server/auth/auth-flow-cookie";
 import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
-import { revokeOtherDeviceSessions } from "@/server/device-sessions/device-sessions-service";
+import { revokeAllDeviceSessions } from "@/server/device-sessions/device-sessions-service";
+import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
 import {
   getAvatarUrl,
   getNullableTrimmedString,
@@ -334,19 +335,19 @@ export async function updateCurrentUserPassword(input: {
     });
 
     try {
-      await revokeOtherDeviceSessions({
-        pb: currentUser.pb,
-        userId: currentUser.user.id,
-        currentSessionIdHash: currentUser.currentSessionIdHash,
-      });
-    } catch (revokeError) {
-      logAccountServiceError("updateCurrentUserPassword.revokeOtherDeviceSessions", revokeError);
+      const cleanupClient = createPocketBaseClient();
 
-      return {
-        ok: false,
-        errorCode: "UNKNOWN_ERROR",
-        setCookie: createClearedAuthAndDeviceCookies(),
-      };
+      await cleanupClient
+        .collection("users")
+        .authWithPassword<UsersRecord>(currentUser.user.email, input.newPassword);
+
+      await revokeAllDeviceSessions({
+        pb: cleanupClient,
+        userId: currentUser.user.id,
+        reason: "signed_out",
+      });
+    } catch (cleanupError) {
+      logAccountServiceError("updateCurrentUserPassword.revokeAllDeviceSessions", cleanupError);
     }
 
     return {
@@ -354,6 +355,7 @@ export async function updateCurrentUserPassword(input: {
       data: {
         passwordUpdated: true,
       },
+      setCookie: createClearedAuthAndDeviceCookies(),
     };
   } catch (error) {
     const errorCode = mapUpdatePasswordErrorCode(error);
