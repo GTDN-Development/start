@@ -14,7 +14,7 @@ type EmailMessage = BaseEmailMessage & {
 };
 
 export async function sendFormEmail(message: BaseEmailMessage) {
-  const recipientEmail = process.env.FORM_RECIPIENT_EMAIL ?? "";
+  const recipientEmail = process.env.GENERAL_FORMS_RECIPIEN ?? "";
 
   await sendEmail({
     to: recipientEmail,
