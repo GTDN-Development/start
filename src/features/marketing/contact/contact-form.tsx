@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { legalLinks } from "@/config/navigation";
+import { isTurnstileEnabled } from "@/config/security";
 import { submitContactFormAction } from "@/features/marketing/actions/marketing-actions";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
@@ -31,6 +32,7 @@ type ContactFormValues = {
 
 export function ContactForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.contact");
+  const turnstileEnabled = isTurnstileEnabled();
 
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
@@ -69,9 +71,11 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
     gdprConsent: z.boolean().refine((value) => value === true, {
       message: t("validation.gdprConsent"),
     }),
-    turnstileToken: z.string().min(1, {
-      message: t("validation.turnstile"),
-    }),
+    turnstileToken: turnstileEnabled
+      ? z.string().min(1, {
+          message: t("validation.turnstile"),
+        })
+      : z.string(),
   });
   const form = useForm({
     defaultValues: {
@@ -88,7 +92,11 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
     onSubmit: async ({ value }: { value: ContactFormValues }) => {
       setSubmitStatus({ type: null, message: "" });
 
-      const response = await runAsyncTransition(() => submitContactFormAction(value));
+      const response = await runAsyncTransition(() =>
+        submitContactFormAction(
+          turnstileEnabled ? value : { ...value, turnstileToken: undefined }
+        )
+      );
 
       if (response.ok) {
         startTransition(() => {
@@ -272,24 +280,26 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
                 }}
               </form.Field>
 
-              <form.Field name="turnstileToken">
-                {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <Turnstile
-                        ref={turnstileRef}
-                        onSuccess={(token: string) => field.handleChange(token)}
-                        onError={() => field.handleChange("")}
-                        onExpire={() => field.handleChange("")}
-                      />
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                    </Field>
-                  );
-                }}
-              </form.Field>
+              {turnstileEnabled && (
+                <form.Field name="turnstileToken">
+                  {(field) => {
+                    const isInvalid =
+                      (field.state.meta.isTouched || submissionAttempts > 0) &&
+                      !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <Turnstile
+                          ref={turnstileRef}
+                          onSuccess={(token: string) => field.handleChange(token)}
+                          onError={() => field.handleChange("")}
+                          onExpire={() => field.handleChange("")}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              )}
 
               <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
                 {isSubmitting && <Spinner />}

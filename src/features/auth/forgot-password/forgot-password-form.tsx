@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { AlertCircleIcon, CheckCircleIcon, MailIcon } from "lucide-react";
+import { isTurnstileEnabled } from "@/config/security";
 import { requestPasswordReset } from "@/features/auth/auth-client";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
   const tSignInValidation = useTranslations("forms.signIn.validation");
 
   const turnstileRef = useRef<TurnstileRef>(null);
+  const turnstileEnabled = isTurnstileEnabled();
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
     message: string;
@@ -33,9 +35,11 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
     email: z.email({
       message: tSignInValidation("email"),
     }),
-    turnstileToken: z.string().min(1, {
-      message: t("validation.turnstile"),
-    }),
+    turnstileToken: turnstileEnabled
+      ? z.string().min(1, {
+          message: t("validation.turnstile"),
+        })
+      : z.string(),
   });
 
   const form = useForm({
@@ -49,10 +53,16 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
     onSubmit: async ({ value }: { value: ForgotPasswordFormValues }) => {
       setSubmitStatus({ type: null, message: "" });
 
-      const response = await requestPasswordReset({
-        email: value.email,
-        turnstileToken: value.turnstileToken,
-      });
+      const response = await requestPasswordReset(
+        turnstileEnabled
+          ? {
+              email: value.email,
+              turnstileToken: value.turnstileToken,
+            }
+          : {
+              email: value.email,
+            }
+      );
 
       if (response.ok) {
         setSubmitStatus({
@@ -134,25 +144,27 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
                 }}
               </form.Field>
 
-              <form.Field name="turnstileToken">
-                {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
+              {turnstileEnabled && (
+                <form.Field name="turnstileToken">
+                  {(field) => {
+                    const isInvalid =
+                      (field.state.meta.isTouched || submissionAttempts > 0) &&
+                      !field.state.meta.isValid;
 
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <Turnstile
-                        ref={turnstileRef}
-                        onSuccess={(token: string) => field.handleChange(token)}
-                        onError={() => field.handleChange("")}
-                        onExpire={() => field.handleChange("")}
-                      />
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                    </Field>
-                  );
-                }}
-              </form.Field>
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <Turnstile
+                          ref={turnstileRef}
+                          onSuccess={(token: string) => field.handleChange(token)}
+                          onError={() => field.handleChange("")}
+                          onExpire={() => field.handleChange("")}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              )}
 
               <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
                 {isSubmitting ? <Spinner /> : <MailIcon aria-hidden="true" className="size-4" />}

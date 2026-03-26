@@ -15,6 +15,7 @@ import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/navigation";
+import { isTurnstileEnabled } from "@/config/security";
 import { signUp } from "@/features/auth/auth-client";
 import { createPendingVerifyEmailHref } from "@/features/auth/verify-email/verify-email-state";
 import { createSignUpFormSchema, type SignUpInput } from "@/features/auth/auth-schemas";
@@ -28,6 +29,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
   const t = useTranslations("forms.signUp");
   const router = useRouter();
   const turnstileRef = useRef<TurnstileRef>(null);
+  const turnstileEnabled = isTurnstileEnabled();
 
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
 
@@ -41,9 +43,11 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     passwordMax: t("validation.passwordMax"),
   });
   const turnstileSchema = z.object({
-    turnstileToken: z.string().min(1, {
-      message: t("validation.turnstile"),
-    }),
+    turnstileToken: turnstileEnabled
+      ? z.string().min(1, {
+          message: t("validation.turnstile"),
+        })
+      : z.string(),
   });
 
   const form = useForm({
@@ -60,7 +64,9 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     onSubmit: async ({ value }: { value: SignUpFormValues }) => {
       setSubmitErrorMessage(null);
 
-      const response = await signUp(value);
+      const response = await signUp(
+        turnstileEnabled ? value : { ...value, turnstileToken: undefined }
+      );
 
       if (response.ok) {
         router.replace(
@@ -219,24 +225,26 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                 }}
               </form.Field>
 
-              <form.Field name="turnstileToken">
-                {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <Turnstile
-                        ref={turnstileRef}
-                        onSuccess={(token: string) => field.handleChange(token)}
-                        onError={() => field.handleChange("")}
-                        onExpire={() => field.handleChange("")}
-                      />
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                    </Field>
-                  );
-                }}
-              </form.Field>
+              {turnstileEnabled && (
+                <form.Field name="turnstileToken">
+                  {(field) => {
+                    const isInvalid =
+                      (field.state.meta.isTouched || submissionAttempts > 0) &&
+                      !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <Turnstile
+                          ref={turnstileRef}
+                          onSuccess={(token: string) => field.handleChange(token)}
+                          onError={() => field.handleChange("")}
+                          onExpire={() => field.handleChange("")}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              )}
 
               <Button type="submit" disabled={isSubmitting} size="lg" className="w-full">
                 {isSubmitting ? (

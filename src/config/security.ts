@@ -6,3 +6,25 @@ export const securityConfig = {
     maxActiveSessions: 8 as number | null,
   },
 } as const;
+
+export function isTurnstileEnabled() {
+  return parseSecurityEnvBoolean(process.env.NEXT_PUBLIC_TURNSTILE_ENABLED, true);
+}
+
+function parseSecurityEnvBoolean(value: string | undefined, defaultValue: boolean) {
+  const normalizedValue = value?.trim().toLowerCase();
+
+  if (!normalizedValue) {
+    return defaultValue;
+  }
+
+  if (normalizedValue === "true") {
+    return true;
+  }
+
+  if (normalizedValue === "false") {
+    return false;
+  }
+
+  return defaultValue;
+}

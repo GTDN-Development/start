@@ -28,6 +28,7 @@ import {
   requiredTokenSchema,
   turnstileTokenSchema,
 } from "@/lib/schemas";
+import { isTurnstileEnabled } from "@/config/security";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import {
   finalizeAuthAction,
@@ -44,13 +45,19 @@ import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 
+const turnstileEnabled = isTurnstileEnabled();
+
 const signUpActionInputSchema = signUpInputSchema.extend({
-  turnstileToken: turnstileTokenSchema(),
+  turnstileToken: turnstileTokenSchema({
+    enabled: turnstileEnabled,
+  }),
 });
 
 const requestPasswordResetInputSchema = z.object({
   email: normalizedEmailSchema(),
-  turnstileToken: turnstileTokenSchema(),
+  turnstileToken: turnstileTokenSchema({
+    enabled: turnstileEnabled,
+  }),
 });
 
 const requestEmailVerificationInputSchema = z.object({

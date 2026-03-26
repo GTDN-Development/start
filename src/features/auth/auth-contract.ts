@@ -19,12 +19,12 @@ export type AuthErrorCode =
   | "UNKNOWN_ERROR";
 
 export type SignUpActionInput = SignUpInput & {
-  turnstileToken: string;
+  turnstileToken?: string;
 };
 
 export type RequestPasswordResetInput = {
   email: string;
-  turnstileToken: string;
+  turnstileToken?: string;
 };
 
 export type RequestEmailVerificationInput = {

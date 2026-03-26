@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import type Mail from "nodemailer/lib/mailer";
 import { z } from "zod";
 import { routing } from "@/i18n/routing";
+import { isTurnstileEnabled } from "@/config/security";
 import { normalizedEmailSchema, turnstileTokenSchema } from "@/lib/schemas";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import { requireCurrentUser } from "@/server/auth/current-user";
@@ -17,13 +18,17 @@ import {
   type SupportAttachmentValue,
 } from "@/features/marketing/contact/support-attachments";
 
+const turnstileEnabled = isTurnstileEnabled();
+
 const contactFormPayloadSchema = z.object({
   fullName: z.string().trim().min(1),
   email: normalizedEmailSchema(),
   phone: z.string().trim().min(1),
   message: z.string().trim().min(1),
   gdprConsent: z.literal(true),
-  turnstileToken: turnstileTokenSchema(),
+  turnstileToken: turnstileTokenSchema({
+    enabled: turnstileEnabled,
+  }),
 });
 
 const supportFormPayloadSchema = z.object({
@@ -43,7 +48,9 @@ const supportFormPayloadSchema = z.object({
 
 const newsletterPayloadSchema = z.object({
   email: normalizedEmailSchema(),
-  turnstileToken: turnstileTokenSchema(),
+  turnstileToken: turnstileTokenSchema({
+    enabled: turnstileEnabled,
+  }),
 });
 
 type MarketingActionErrorCode = "BAD_REQUEST" | "INTERNAL_ERROR" | "TURNSTILE_VERIFICATION_FAILED";
@@ -58,7 +65,7 @@ export async function submitContactFormAction(input: {
   phone: string;
   message: string;
   gdprConsent: boolean;
-  turnstileToken: string;
+  turnstileToken?: string;
 }): Promise<MarketingActionResponse> {
   const parsedInput = contactFormPayloadSchema.safeParse(input);
 
@@ -152,7 +159,7 @@ export async function submitSupportFormAction(input: {
 
 export async function submitNewsletterFormAction(input: {
   email: string;
-  turnstileToken: string;
+  turnstileToken?: string;
 }): Promise<MarketingActionResponse> {
   const parsedInput = newsletterPayloadSchema.safeParse(input);
 
