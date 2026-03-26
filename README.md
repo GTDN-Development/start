@@ -18,6 +18,8 @@ Next.js 16 starter app for marketing, auth, and application pages.
 npm install
 npm run dev
 npm run lint
+npm run test:unit
+npm run test:e2e
 npm run build
 npm run format
 npm run pocketbase:typegen
@@ -39,6 +41,23 @@ PocketBase typegen requires:
 - Output: `src/types/pocketbase.ts`
 - Source: live PocketBase collection schema
 - Do not edit generated types manually
+
+## Testing
+
+Local testing uses `.env.test`.
+
+- `npm run test` runs the Vitest suite once
+- `npm run test:unit:watch` runs Vitest in watch mode
+- `npm run test:e2e` builds the app with test env and runs Playwright against `next start` on `http://127.0.0.1:3100`
+- `npm run test:e2e:ui` and `npm run test:e2e:headed` are local debugging variants
+- `npm run test:all` runs unit and E2E tests in sequence
+
+Conventions:
+
+- colocate unit tests as `*.test.ts` / `*.test.tsx` inside `src/**`
+- keep E2E tests in `tests/e2e/**`
+- use explicit locale-prefixed URLs in E2E, preferably `/cs/...`
+- keep PocketBase superuser credentials inside test helpers only, never in app runtime
 
 ## Structure
 
