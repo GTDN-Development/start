@@ -44,6 +44,10 @@ export const rejectAllConsent: ConsentState = {
   marketing: false,
 };
 
+export function isCookieConsentEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED !== "false";
+}
+
 export function normalizeConsent(value: unknown): ConsentState {
   const input = isRecord(value) ? value : {};
 

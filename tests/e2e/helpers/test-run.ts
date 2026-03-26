@@ -33,6 +33,12 @@ export function createIsolatedTestEmail(
   localPart: string,
   domain: string = "example.com"
 ): string {
+  const configuredBaseEmail = process.env.PLAYWRIGHT_TEST_EMAIL?.trim();
+
+  if (configuredBaseEmail) {
+    return createPlusAliasedTestEmail(configuredBaseEmail, createIsolatedTestValue(runId, localPart));
+  }
+
   return `${createIsolatedTestValue(runId, localPart)}@${domain}`;
 }
 
@@ -51,4 +57,17 @@ function normalizeTestSegment(value: string): string {
   }
 
   return sanitizedValue;
+}
+
+function createPlusAliasedTestEmail(baseEmail: string, alias: string): string {
+  const separatorIndex = baseEmail.indexOf("@");
+
+  if (separatorIndex < 1 || separatorIndex === baseEmail.length - 1) {
+    throw new Error("PLAYWRIGHT_TEST_EMAIL must contain a valid email address.");
+  }
+
+  const localPart = baseEmail.slice(0, separatorIndex).split("+")[0];
+  const domain = baseEmail.slice(separatorIndex + 1);
+
+  return `${localPart}+${alias}@${domain}`;
 }

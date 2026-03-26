@@ -1,6 +1,9 @@
 import { cookies } from "next/headers";
 import { workspaceConfig } from "@/config/workspace";
-import { getBaseServerCookieOptions } from "@/server/cookies";
+import {
+  getBaseServerCookieOptions,
+  isReadonlyRequestCookiesError,
+} from "@/server/cookies";
 
 const ACTIVE_WORKSPACE_COOKIE_NAME = workspaceConfig.cookies.activeWorkspace.name;
 const ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS =
@@ -18,17 +21,34 @@ export async function getActiveWorkspaceSlugCookie(): Promise<string | null> {
 export async function setActiveWorkspaceSlugCookie(workspaceSlug: string): Promise<void> {
   const cookieStore = await cookies();
 
-  cookieStore.set({
-    name: ACTIVE_WORKSPACE_COOKIE_NAME,
-    value: workspaceSlug,
-    maxAge: ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS,
-    ...getBaseCookieOptions(),
-  });
+  try {
+    cookieStore.set({
+      name: ACTIVE_WORKSPACE_COOKIE_NAME,
+      value: workspaceSlug,
+      maxAge: ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS,
+      ...getBaseCookieOptions(),
+    });
+  } catch (error) {
+    if (isReadonlyRequestCookiesError(error)) {
+      return;
+    }
+
+    throw error;
+  }
 }
 
 export async function clearActiveWorkspaceSlugCookie(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(ACTIVE_WORKSPACE_COOKIE_NAME);
+
+  try {
+    cookieStore.delete(ACTIVE_WORKSPACE_COOKIE_NAME);
+  } catch (error) {
+    if (isReadonlyRequestCookiesError(error)) {
+      return;
+    }
+
+    throw error;
+  }
 }
 
 export async function getPendingInviteTokenCookie(): Promise<string | null> {
@@ -41,17 +61,34 @@ export async function getPendingInviteTokenCookie(): Promise<string | null> {
 export async function setPendingInviteTokenCookie(inviteToken: string): Promise<void> {
   const cookieStore = await cookies();
 
-  cookieStore.set({
-    name: PENDING_INVITE_COOKIE_NAME,
-    value: inviteToken,
-    maxAge: PENDING_INVITE_COOKIE_MAX_AGE_SECONDS,
-    ...getBaseCookieOptions(),
-  });
+  try {
+    cookieStore.set({
+      name: PENDING_INVITE_COOKIE_NAME,
+      value: inviteToken,
+      maxAge: PENDING_INVITE_COOKIE_MAX_AGE_SECONDS,
+      ...getBaseCookieOptions(),
+    });
+  } catch (error) {
+    if (isReadonlyRequestCookiesError(error)) {
+      return;
+    }
+
+    throw error;
+  }
 }
 
 export async function clearPendingInviteTokenCookie(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(PENDING_INVITE_COOKIE_NAME);
+
+  try {
+    cookieStore.delete(PENDING_INVITE_COOKIE_NAME);
+  } catch (error) {
+    if (isReadonlyRequestCookiesError(error)) {
+      return;
+    }
+
+    throw error;
+  }
 }
 
 export async function consumePendingInviteTokenCookie(): Promise<string | null> {

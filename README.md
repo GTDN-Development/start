@@ -51,6 +51,7 @@ Local testing uses `.env.test`.
 - `npm run test:e2e` builds the app with test env and runs Playwright against `next start` on `http://127.0.0.1:3100`
 - `npm run test:e2e:ui` and `npm run test:e2e:headed` are local debugging variants
 - `npm run test:all` runs unit and E2E tests in sequence
+- auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias` recipients from it
 
 Conventions:
 

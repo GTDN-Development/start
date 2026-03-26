@@ -33,6 +33,11 @@ export type WaitForMailtrapMessageOptions = {
   pollIntervalMs?: number;
 };
 
+export type PocketBaseEmailLinkAction =
+  | "verify-email"
+  | "reset-password"
+  | "confirm-email-change";
+
 export async function listMailtrapMessages(options: {
   search?: string;
   page?: number;
@@ -81,9 +86,11 @@ export async function waitForMailtrapMessage(
     const messages = await listMailtrapMessages({
       search: options.toEmail,
     });
-    const matchingMessage = messages.find(function findMatchingMessage(message) {
-      return matchesMailtrapMessage(message, options);
-    });
+    const matchingMessage = messages
+      .filter(function filterMatchingMessages(message) {
+        return matchesMailtrapMessage(message, options);
+      })
+      .sort(sortMailtrapMessagesByCreatedAtDesc)[0];
 
     if (matchingMessage) {
       return matchingMessage;
@@ -94,6 +101,39 @@ export async function waitForMailtrapMessage(
 
   throw new Error(
     `Timed out waiting for Mailtrap message for ${options.toEmail} after ${timeoutMs}ms.`
+  );
+}
+
+export function extractPocketBaseEmailLinkPath(options: {
+  html: string;
+  action: PocketBaseEmailLinkAction;
+}): string {
+  const hrefValues = Array.from(options.html.matchAll(/href=(["'])(.*?)\1/gi)).map(
+    function mapHrefMatch(match) {
+      return decodeHtmlAttribute(match[2] ?? "");
+    }
+  );
+
+  for (const hrefValue of hrefValues) {
+    const parsedUrl = tryParseMailLinkUrl(hrefValue);
+
+    if (!parsedUrl) {
+      continue;
+    }
+
+    if (
+      parsedUrl.pathname === "/api/pocketbase/email-link" &&
+      parsedUrl.searchParams.get("action") === options.action &&
+      parsedUrl.searchParams.get("token")
+    ) {
+      const searchValue = parsedUrl.searchParams.toString();
+
+      return searchValue ? `${parsedUrl.pathname}?${searchValue}` : parsedUrl.pathname;
+    }
+  }
+
+  throw new Error(
+    `Unable to find PocketBase email link for action "${options.action}" in Mailtrap HTML.`
   );
 }
 
@@ -124,6 +164,25 @@ function matchesMailtrapMessage(
   }
 
   return true;
+}
+
+function sortMailtrapMessagesByCreatedAtDesc(a: MailtrapMessage, b: MailtrapMessage): number {
+  const createdAtA = Date.parse(a.created_at);
+  const createdAtB = Date.parse(b.created_at);
+
+  if (Number.isNaN(createdAtA) && Number.isNaN(createdAtB)) {
+    return 0;
+  }
+
+  if (Number.isNaN(createdAtA)) {
+    return 1;
+  }
+
+  if (Number.isNaN(createdAtB)) {
+    return -1;
+  }
+
+  return createdAtB - createdAtA;
 }
 
 function wasMessageReceivedAfter(message: MailtrapMessage, receivedAfter: Date): boolean {
@@ -185,6 +244,22 @@ function truncateErrorBody(value: string): string {
   }
 
   return `${trimmedValue.slice(0, 297)}...`;
+}
+
+function decodeHtmlAttribute(value: string): string {
+  return value
+    .replaceAll("&amp;", "&")
+    .replaceAll("&quot;", "\"")
+    .replaceAll("&#39;", "'")
+    .trim();
+}
+
+function tryParseMailLinkUrl(value: string): URL | null {
+  try {
+    return new URL(value, "http://127.0.0.1");
+  } catch {
+    return null;
+  }
 }
 
 async function waitForDuration(durationMs: number): Promise<void> {
