@@ -14,7 +14,7 @@ type EmailMessage = BaseEmailMessage & {
 };
 
 export async function sendFormEmail(message: BaseEmailMessage) {
-  const recipientEmail = process.env.GENERAL_FORMS_RECIPIEN ?? "";
+  const recipientEmail = process.env.GENERAL_FORMS_RECIPIENT ?? "";
 
   await sendEmail({
     to: recipientEmail,
@@ -42,11 +42,12 @@ function getOrCreateMailTransporter() {
   }
 
   const port = Number.parseInt(process.env.MAIL_PORT || "587", 10);
+  const secure = getMailTransportSecureValue(port);
 
   const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
     port,
-    secure: port === 465,
+    secure,
     auth: {
       user: process.env.MAIL_USERNAME,
       pass: process.env.MAIL_PASSWORD,
@@ -56,6 +57,20 @@ function getOrCreateMailTransporter() {
   globalThis.__startMailTransporter = transporter;
 
   return transporter;
+}
+
+function getMailTransportSecureValue(port: number) {
+  const secureValue = process.env.EMAIL_SECURE?.trim().toLowerCase();
+
+  if (secureValue === "true") {
+    return true;
+  }
+
+  if (secureValue === "false") {
+    return false;
+  }
+
+  return port === 465;
 }
 
 declare global {
