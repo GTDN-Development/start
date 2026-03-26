@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import {
   Breadcrumb,
@@ -17,6 +16,7 @@ import { createPageMetadata } from "@/lib/metadata";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
+import { requireWorkspaceRouteResult } from "../workspace-route";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/overview">
@@ -62,10 +62,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   }
 
   const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
-
-  if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    notFound();
-  }
+  requireWorkspaceRouteResult(workspaceResponse);
 
   const tNav = await getTranslations({
     locale: locale as Locale,

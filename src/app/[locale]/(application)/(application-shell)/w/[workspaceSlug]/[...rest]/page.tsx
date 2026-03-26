@@ -6,6 +6,7 @@ import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
+import { requireWorkspaceRouteResult } from "../workspace-route";
 
 export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]/[...rest]">) {
   const { locale, workspaceSlug } = await params;
@@ -28,10 +29,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   }
 
   const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
-
-  if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    notFound();
-  }
+  requireWorkspaceRouteResult(workspaceResponse);
 
   notFound();
 }

@@ -1,12 +1,12 @@
 import { Locale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { getWorkspaceOverviewHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
+import { requireWorkspaceRouteResult } from "./workspace-route";
 
 export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]">) {
   const { locale, workspaceSlug } = await params;
@@ -29,13 +29,10 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   }
 
   const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
-
-  if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    notFound();
-  }
+  const workspace = requireWorkspaceRouteResult(workspaceResponse);
 
   redirect({
-    href: getWorkspaceOverviewHref(workspaceResponse.data.workspace.slug),
+    href: getWorkspaceOverviewHref(workspace.slug),
     locale: locale as Locale,
   });
 }

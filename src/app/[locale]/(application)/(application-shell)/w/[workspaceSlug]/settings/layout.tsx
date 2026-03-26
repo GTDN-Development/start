@@ -1,6 +1,5 @@
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import {
   getWorkspaceSettingsInnerSidebarItems,
@@ -14,6 +13,7 @@ import { getWorkspaceSettingsHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
+import { requireWorkspaceRouteResult } from "../workspace-route";
 
 export default async function Layout({
   children,
@@ -37,12 +37,7 @@ export default async function Layout({
     currentUser.user.id,
     workspaceSlug
   );
-
-  if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    notFound();
-  }
-
-  const workspace = workspaceResponse.data.workspace;
+  const workspace = requireWorkspaceRouteResult(workspaceResponse);
   const tNav = await getTranslations({
     locale: currentLocale,
     namespace: "layout.navigation.items",

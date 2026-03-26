@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
 import { redirect } from "@/i18n/navigation";
 import { getWorkspaceSettingsHref } from "@/config/routes";
 import { WorkspaceMembersSettingsSection } from "@/features/workspaces/settings/members/workspace-members-settings-section";
@@ -12,6 +11,7 @@ import { requireCurrentUser } from "@/server/auth/current-user";
 import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
 import { listWorkspaceInvites } from "@/server/workspaces/workspace-invite-service";
 import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
+import { requireWorkspaceRouteResult } from "../../workspace-route";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings/members">
@@ -64,12 +64,7 @@ export default async function Page({
     currentUser.user.id,
     workspaceSlug
   );
-
-  if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    notFound();
-  }
-
-  const workspace = workspaceResponse.data.workspace;
+  const workspace = requireWorkspaceRouteResult(workspaceResponse);
   const tWorkspaceMembersPage = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.workspace.members.page",

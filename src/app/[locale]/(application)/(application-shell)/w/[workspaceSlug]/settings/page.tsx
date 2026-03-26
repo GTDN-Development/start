@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
 import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceAvatarSettingsItem } from "@/features/workspaces/settings/general/workspace-avatar-settings-item";
 import { WorkspaceDeleteSettingsItem } from "@/features/workspaces/settings/general/workspace-delete-settings-item";
@@ -14,6 +13,7 @@ import { createPageMetadata } from "@/lib/metadata";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
 import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
+import { requireWorkspaceRouteResult } from "../workspace-route";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings">
@@ -64,12 +64,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
     currentUser.user.id,
     workspaceSlug
   );
-
-  if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
-    notFound();
-  }
-
-  const workspace = workspaceResponse.data.workspace;
+  const workspace = requireWorkspaceRouteResult(workspaceResponse);
 
   const membersResponse =
     workspace.role === "owner" ? await listWorkspaceMembers(workspace.slug) : null;
