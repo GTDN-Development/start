@@ -333,7 +333,6 @@ export async function updateCurrentUserPassword(input: {
       await revokeAllDeviceSessions({
         pb: cleanupClient,
         userId: currentUser.user.id,
-        reason: "signed_out",
       });
     } catch (cleanupError) {
       logAccountServiceError("updateCurrentUserPassword.revokeAllDeviceSessions", cleanupError);

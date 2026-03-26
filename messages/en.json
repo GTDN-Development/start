@@ -738,9 +738,8 @@
           "empty": "No active devices found.",
           "currentBadge": "This device",
           "unknownDevice": "Unknown device",
-          "unknownLocation": "Unknown location",
           "unknownLastSeen": "Unknown time",
-          "sessionMeta": "Last seen {lastSeen} - {location}",
+          "sessionMeta": "Last seen {lastSeen}",
           "footerHint": "Sign out of all other devices except this one.",
           "actions": {
             "signOut": "Sign out",

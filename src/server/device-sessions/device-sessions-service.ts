@@ -6,10 +6,8 @@ import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/devi
 import { parseDeviceInfo } from "@/server/device-sessions/device-sessions-ua-parser";
 import {
   DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS,
-  EXPIRED_RETENTION_DAYS,
   HEARTBEAT_MIN_SECONDS,
   MAX_ACTIVE_SESSIONS,
-  REVOKED_RETENTION_DAYS,
   type DeviceSessionAuthCheckResult,
   type DeviceSessionListItem,
   type RevokeDeviceSessionByIdResult,
@@ -43,14 +41,8 @@ export async function registerOrRefreshDeviceSession(input: {
     browser: parsedDeviceInfo.browser,
     os: parsedDeviceInfo.os,
     user_agent: userAgent,
-    ip_masked: null,
-    ip_hash: null,
-    location_label: null,
     last_seen_at: nowIso,
     expires_at: createExpiresAt(now),
-    remember_me: input.rememberMe,
-    revoked_at: null,
-    revoked_reason: null,
   };
 
   const existingSession = await findDeviceSessionByHash(input.pb, sessionIdHash);
@@ -68,7 +60,7 @@ export async function registerOrRefreshDeviceSession(input: {
   });
 
   try {
-    await cleanUpStaleDeviceSessions({
+    await cleanUpExpiredDeviceSessions({
       pb: input.pb,
       userId: input.userId,
     });
@@ -148,10 +140,7 @@ export async function revokeCurrentDeviceSession(input: {
     return;
   }
 
-  await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(session.id, {
-    revoked_at: new Date().toISOString(),
-    revoked_reason: "signed_out",
-  });
+  await deleteDeviceSessionSafely(input.pb, session.id);
 }
 
 export async function revokeOtherDeviceSessions(input: {
@@ -172,10 +161,7 @@ export async function revokeOtherDeviceSessions(input: {
   }
 
   for (const session of sessionsToRevoke) {
-    await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(session.id, {
-      revoked_at: now.toISOString(),
-      revoked_reason: "signed_out_others",
-    });
+    await deleteDeviceSessionSafely(input.pb, session.id);
   }
 
   return sessionsToRevoke.length;
@@ -184,7 +170,6 @@ export async function revokeOtherDeviceSessions(input: {
 export async function revokeAllDeviceSessions(input: {
   pb: PocketBase;
   userId: string;
-  reason: string;
 }): Promise<number> {
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
   const now = new Date();
@@ -195,10 +180,7 @@ export async function revokeAllDeviceSessions(input: {
   }
 
   for (const session of sessionsToRevoke) {
-    await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(session.id, {
-      revoked_at: now.toISOString(),
-      revoked_reason: input.reason,
-    });
+    await deleteDeviceSessionSafely(input.pb, session.id);
   }
 
   return sessionsToRevoke.length;
@@ -224,35 +206,28 @@ export async function revokeDeviceSessionById(input: {
     return "current_device";
   }
 
-  await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(deviceSession.id, {
-    revoked_at: new Date().toISOString(),
-    revoked_reason: "signed_out",
-  });
+  await deleteDeviceSessionSafely(input.pb, deviceSession.id);
 
   return "revoked";
 }
 
-async function cleanUpStaleDeviceSessions(input: {
+async function cleanUpExpiredDeviceSessions(input: {
   pb: PocketBase;
   userId: string;
 }): Promise<number> {
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId);
-  const now = Date.now();
-  const revokedCutoff = now - REVOKED_RETENTION_DAYS * 24 * 60 * 60 * 1000;
-  const expiredCutoff = now - EXPIRED_RETENTION_DAYS * 24 * 60 * 60 * 1000;
-  const staleSessions = sessions.filter((session) =>
-    shouldDeleteStaleDeviceSession(session, revokedCutoff, expiredCutoff)
-  );
+  const now = new Date();
+  const expiredSessions = sessions.filter((session) => !isActiveDeviceSession(session, now));
 
-  if (staleSessions.length === 0) {
+  if (expiredSessions.length === 0) {
     return 0;
   }
 
-  for (const staleSession of staleSessions) {
-    await deleteDeviceSessionSafely(input.pb, staleSession.id);
+  for (const expiredSession of expiredSessions) {
+    await deleteDeviceSessionSafely(input.pb, expiredSession.id);
   }
 
-  return staleSessions.length;
+  return expiredSessions.length;
 }
 
 async function enforceDeviceLimit(input: {
@@ -278,10 +253,7 @@ async function enforceDeviceLimit(input: {
   );
 
   for (const session of revokeCandidates.slice(0, sessionsToRevokeCount)) {
-    await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(session.id, {
-      revoked_at: now.toISOString(),
-      revoked_reason: "capped",
-    });
+    await deleteDeviceSessionSafely(input.pb, session.id);
   }
 }
 
@@ -382,26 +354,6 @@ async function deleteDeviceSessionSafely(pb: PocketBase, deviceSessionId: string
   }
 }
 
-function shouldDeleteStaleDeviceSession(
-  session: UserDeviceSessionsRecord,
-  revokedCutoffMs: number,
-  expiredCutoffMs: number
-): boolean {
-  const revokedAtMs = parseDateToTimestamp(session.revoked_at);
-
-  if (revokedAtMs !== null && revokedAtMs < revokedCutoffMs) {
-    return true;
-  }
-
-  const expiresAtMs = parseDateToTimestamp(session.expires_at);
-
-  if (expiresAtMs === null) {
-    return false;
-  }
-
-  return expiresAtMs < expiredCutoffMs;
-}
-
 function mapDeviceSessionListItem(
   session: UserDeviceSessionsRecord,
   currentSessionIdHash: string
@@ -413,8 +365,6 @@ function mapDeviceSessionListItem(
     browser: getNullableString(session.browser),
     os: getNullableString(session.os),
     userAgent: getNullableString(session.user_agent),
-    ipMasked: getNullableString(session.ip_masked),
-    locationLabel: getNullableString(session.location_label),
     lastSeenAt: session.last_seen_at,
     createdAt: session.created,
     isCurrentDevice: session.session_id_hash === currentSessionIdHash,
@@ -422,12 +372,6 @@ function mapDeviceSessionListItem(
 }
 
 function isActiveDeviceSession(session: UserDeviceSessionsRecord, now: Date): boolean {
-  const revokedAtMs = parseDateToTimestamp(session.revoked_at);
-
-  if (revokedAtMs !== null) {
-    return false;
-  }
-
   const expiresAtMs = parseDateToTimestamp(session.expires_at);
 
   if (expiresAtMs === null) {

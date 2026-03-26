@@ -42,14 +42,8 @@ export interface UserDeviceSessionsRecord extends PocketBaseSystemFields {
   browser?: string;
   os?: string;
   user_agent?: string;
-  ip_masked?: string;
-  ip_hash?: string;
-  location_label?: string;
   last_seen_at: string;
   expires_at: string;
-  revoked_at?: string;
-  revoked_reason?: "signed_out" | "signed_out_others" | "capped" | "expired" | "admin";
-  remember_me?: boolean;
 }
 
 export interface UsersRecord extends PocketBaseSystemFields {

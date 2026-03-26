@@ -738,9 +738,8 @@
           "empty": "Nebyla nalezena žádná aktivní zařízení.",
           "currentBadge": "Toto zařízení",
           "unknownDevice": "Neznámé zařízení",
-          "unknownLocation": "Neznámá poloha",
           "unknownLastSeen": "Neznámý čas",
-          "sessionMeta": "Naposledy aktivní {lastSeen} - {location}",
+          "sessionMeta": "Naposledy aktivní {lastSeen}",
           "footerHint": "Odhlaste všechna ostatní zařízení kromě tohoto.",
           "actions": {
             "signOut": "Odhlásit",

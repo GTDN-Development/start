@@ -236,7 +236,6 @@ function DeviceItem(input: {
         <SettingsItemListDescription>
           {t("security.devices.sessionMeta", {
             lastSeen: formatLastSeenAt(session.lastSeenAt, dateTimeFormatter, t),
-            location: session.locationLabel ?? t("security.devices.unknownLocation"),
           })}
         </SettingsItemListDescription>
       </SettingsItemListContent>
