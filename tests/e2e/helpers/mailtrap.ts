@@ -104,6 +104,18 @@ export async function waitForMailtrapMessage(
   );
 }
 
+export async function waitForPocketBaseEmailLinkPath(options: WaitForMailtrapMessageOptions & {
+  action: PocketBaseEmailLinkAction;
+}): Promise<string> {
+  const message = await waitForMailtrapMessage(options);
+  const html = await getMailtrapMessageHtml(message.id);
+
+  return extractPocketBaseEmailLinkPath({
+    html,
+    action: options.action,
+  });
+}
+
 export function extractPocketBaseEmailLinkPath(options: {
   html: string;
   action: PocketBaseEmailLinkAction;

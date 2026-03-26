@@ -78,3 +78,47 @@ export async function deletePocketBaseRecordsByPrefixTargets(options: {
 
   return deletedCount;
 }
+
+export async function deleteSignedUpUsersByEmail(pb: PocketBase, email: string): Promise<void> {
+  const users = await listPocketBaseRecordsByPrefix({
+    pb,
+    collection: "users",
+    field: "email",
+    prefix: email,
+  });
+
+  for (const user of users) {
+    await deleteUserDeviceSessionsByUserId(pb, user.id);
+    await pb.collection("users").delete(user.id);
+  }
+}
+
+export async function createVerifiedUser(options: {
+  pb: PocketBase;
+  email: string;
+  password: string;
+  name?: string;
+}): Promise<RecordModel> {
+  return await options.pb.collection("users").create({
+    email: options.email,
+    password: options.password,
+    passwordConfirm: options.password,
+    name: options.name ?? "E2E User",
+    verified: true,
+  });
+}
+
+export async function deleteUserDeviceSessionsByUserId(
+  pb: PocketBase,
+  userId: string
+): Promise<void> {
+  const deviceSessions = await pb.collection("user_device_sessions").getFullList({
+    filter: pb.filter("user = {:userId}", {
+      userId,
+    }),
+  });
+
+  for (const deviceSession of deviceSessions) {
+    await pb.collection("user_device_sessions").delete(deviceSession.id);
+  }
+}
