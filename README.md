@@ -76,10 +76,10 @@ Conventions:
 - `src/server` - server-only infrastructure (`captcha`, `email`)
 - `src/config` - structural config (menus, links, site data)
 - `src/i18n` + `messages` - routing and translations
-- `src/lib` - shared utilities
+- `src/lib` - shared utilities (`utils.ts` for shadcn-safe helpers, `app-utils.ts` for app-specific shared helpers)
 - `src/types` - shared types + generated PocketBase types
 - `scripts/pocketbase-typegen.mjs` - PocketBase type generator
-- `POCKETBASE-INTEGRATION.md` - PocketBase integration notes
+- `.rules/pocketbase-integration.md` - PocketBase integration notes
 
 ## Architecture Conventions
 
@@ -91,7 +91,8 @@ Conventions:
 - Application shell/composition belongs to `src/features/application`; account domain stays in `src/features/account`
 - Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
 - Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
-- Keep common helpers centralized in `src/lib/utils.ts`; avoid splitting utility helpers into many micro files
+- Keep `src/lib/utils.ts` limited to shadcn-safe helpers such as `cn()`
+- Put app-specific shared helpers in `src/lib/app-utils.ts`; avoid spreading utility helpers across many micro files
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
 - API groups are path-based:
   - Marketing: `/api/marketing/*`
@@ -138,8 +139,9 @@ redirect({ href: "/sign-in", locale: locale as Locale });
 ## Auth/Account Status
 
 - Auth uses PocketBase via SSR-safe per-request server clients.
-- Auth API is available via catch-all route `src/app/api/auth/[...all]/route.ts`.
-- Implemented actions: `sign-in`, `sign-up`, `sign-out`, `session`.
+- Client auth flows are implemented primarily via server actions exposed from `src/features/auth/auth-client.ts`.
+- The public auth API route currently exposed from `src/app/api/auth` is `src/app/api/auth/session/route.ts`.
+- Additional auth-related route handlers live next to their route flows (for example invite accept/start handlers under `src/app/[locale]/(auth)/(flow)/invite/...`).
 - Client DX API is exposed via `src/features/auth/auth-client.ts`:
   - `signIn`, `signUp`, `useSession`, `signOut`
 - Application routes are protected by:
