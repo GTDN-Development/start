@@ -1,8 +1,8 @@
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { Container } from "@/components/ui/container";
+import { workspaceSettingsInnerSidebarItems } from "@/features/workspaces/settings/workspace-settings-inner-sidebar-items";
 import {
-  getWorkspaceSettingsInnerSidebarItems,
   mapWorkspaceInnerSidebarItems,
 } from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarBreadcrumbs } from "@/features/application/inner-sidebar/inner-sidebar-breadcrumbs";
@@ -48,7 +48,7 @@ export default async function Layout({
   });
 
   const innerSidebarItems = mapWorkspaceInnerSidebarItems(
-    getWorkspaceSettingsInnerSidebarItems(),
+    workspaceSettingsInnerSidebarItems,
     workspace.slug,
     tWorkspaceNav
   );

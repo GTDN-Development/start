@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 import { headers } from "next/headers";
-import type { AuthSession } from "@/features/auth/auth-contract";
+import type { AuthSession } from "@/features/auth/auth-types";
 import type { UsersRecord } from "@/types/pocketbase";
 import {
   createDeviceSessionCookie,

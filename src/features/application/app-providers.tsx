@@ -2,9 +2,9 @@
 
 import { ThemeProvider } from "next-themes";
 import { BackNavigationProvider } from "@/components/ui/back-navigation";
-import { CookieContextProvider } from "@/features/cookies/cookie-context";
-import type { ConsentState } from "@/features/cookies/cookie-consent";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import type { ConsentState } from "@/features/cookies/cookie-consent";
+import { CookieContextProvider } from "@/features/cookies/cookie-context";
 
 type AppProvidersProps = {
   children: React.ReactNode;

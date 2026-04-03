@@ -1,7 +1,7 @@
 import type {
   WorkspaceInvitableRole,
   WorkspaceMemberRole,
-} from "@/features/workspaces/workspace-roles";
+} from "@/features/workspaces/workspace-role-rules";
 
 export type WorkspaceSettingsWorkspace = {
   id: string;

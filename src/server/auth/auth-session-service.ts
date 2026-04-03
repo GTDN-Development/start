@@ -1,6 +1,6 @@
 import { ClientResponseError } from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
-import type { AuthSessionPayload, AuthSignOutPayload } from "@/features/auth/auth-contract";
+import type { AuthSessionPayload, AuthSignOutPayload } from "@/features/auth/auth-types";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import {
   createPocketBaseServerClient,

@@ -1,4 +1,4 @@
-import type { WorkspaceMemberRole } from "@/features/workspaces/workspace-roles";
+import type { WorkspaceMemberRole } from "@/features/workspaces/workspace-role-rules";
 
 export type WorkspaceNavigationItem = {
   id: string;

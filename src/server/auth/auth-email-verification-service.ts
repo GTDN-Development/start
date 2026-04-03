@@ -4,7 +4,7 @@ import type {
   ConfirmEmailChangePayload,
   RequestEmailVerificationPayload,
   VerifyEmailPayload,
-} from "@/features/auth/auth-contract";
+} from "@/features/auth/auth-types";
 import {
   createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,

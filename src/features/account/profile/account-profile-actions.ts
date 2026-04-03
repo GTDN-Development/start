@@ -1,12 +1,12 @@
 "use server";
 
 import type { AccountProfilePayload } from "@/features/account/account-profile-types";
+import type { AuthResponse } from "@/features/auth/auth-types";
 import {
   accountAvatarUploadInputSchema,
   accountEmailChangeInputSchema,
   accountProfileInputSchema,
 } from "@/features/account/account-schemas";
-import type { AuthResponse } from "@/features/auth/auth-contract";
 import {
   requestEmailChangeForCurrentUser,
   removeCurrentUserAvatar,

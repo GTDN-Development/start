@@ -12,7 +12,7 @@ import {
 import {
   WORKSPACE_MEMBER_ROLE_VALUES,
   type WorkspaceMemberRole,
-} from "@/features/workspaces/workspace-roles";
+} from "@/features/workspaces/workspace-role-rules";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import {
   changeWorkspaceMemberRoleForCurrentUser,

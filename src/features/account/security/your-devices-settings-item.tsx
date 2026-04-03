@@ -34,7 +34,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner";
-import type { AuthErrorCode } from "@/features/auth/auth-contract";
+import type { AuthErrorCode } from "@/features/auth/auth-types";
 import {
   signOutDeviceAction,
   signOutOtherDevicesAction,

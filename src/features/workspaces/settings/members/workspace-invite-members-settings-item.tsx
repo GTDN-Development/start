@@ -26,9 +26,11 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import {
   WORKSPACE_INVITABLE_ROLE_OPTIONS,
+} from "@/features/workspaces/workspace-role-options";
+import {
   isWorkspaceInvitableRole,
   type WorkspaceInvitableRole,
-} from "@/features/workspaces/workspace-roles";
+} from "@/features/workspaces/workspace-role-rules";
 import { workspaceInviteEmailSchema } from "@/features/workspaces/workspace-schemas";
 import { createInviteAction } from "@/features/workspaces/settings/members/workspace-members-actions";
 import type {

@@ -7,14 +7,16 @@ import type {
   AuthSessionPayload,
   AuthSignOutPayload,
   ConfirmEmailChangePayload,
-  RequestEmailVerificationInput,
-  SignUpPayload,
-  RequestPasswordResetInput,
   RequestEmailVerificationPayload,
   RequestPasswordResetPayload,
   ResetPasswordPayload,
+  SignUpPayload,
+} from "@/features/auth/auth-types";
+import type {
+  RequestEmailVerificationInput,
+  RequestPasswordResetInput,
   SignUpActionInput,
-} from "@/features/auth/auth-contract";
+} from "@/features/auth/auth-action-types";
 import {
   signInInputSchema,
   signUpInputSchema,

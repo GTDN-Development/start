@@ -23,10 +23,10 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
 import type {
-  WorkspaceMemberRole,
   WorkspaceMemberRoleDescriptionKey,
   WorkspaceMemberRoleLabelKey,
-} from "@/features/workspaces/workspace-roles";
+} from "@/features/workspaces/workspace-role-options";
+import type { WorkspaceMemberRole } from "@/features/workspaces/workspace-role-rules";
 import type {
   WorkspaceSettingsInvite,
   WorkspaceSettingsMember,

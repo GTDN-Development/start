@@ -25,11 +25,11 @@ import {
   canAssignWorkspaceMemberRole,
   canChangeWorkspaceMemberRole,
   canManageWorkspaceMemberRole,
-  getAssignableWorkspaceMemberRoleOptions,
   isLastWorkspaceOwner,
   isWorkspaceMemberRole,
   type WorkspaceMemberRole,
-} from "@/features/workspaces/workspace-roles";
+} from "@/features/workspaces/workspace-role-rules";
+import { getAssignableWorkspaceMemberRoleOptions } from "@/features/workspaces/workspace-role-options";
 import {
   WorkspaceInvitationsTable,
   WorkspacePendingInvitationsEmptyState,

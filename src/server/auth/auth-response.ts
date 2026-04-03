@@ -1,4 +1,4 @@
-import type { AuthErrorCode, AuthResponse } from "@/features/auth/auth-contract";
+import type { AuthErrorCode, AuthResponse } from "@/features/auth/auth-types";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 
 export type ServerAuthResponse<TData> =

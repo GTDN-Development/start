@@ -25,9 +25,9 @@ import {
 } from "@/components/ui/table";
 import {
   canManageWorkspaceMemberRole,
-  getWorkspaceMemberRoleLabel,
   isLastWorkspaceOwner,
-} from "@/features/workspaces/workspace-roles";
+} from "@/features/workspaces/workspace-role-rules";
+import { getWorkspaceMemberRoleLabel } from "@/features/workspaces/workspace-role-options";
 import type {
   WorkspaceSettingsMember,
   WorkspaceSettingsWorkspace,

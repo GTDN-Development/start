@@ -1,7 +1,7 @@
 import { z } from "zod";
+import { WORKSPACE_INVITABLE_ROLE_VALUES } from "@/features/workspaces/workspace-role-rules";
 import { workspaceConfig } from "@/config/workspace";
 import { normalizedEmailSchema } from "@/lib/schemas";
-import { WORKSPACE_INVITABLE_ROLE_VALUES } from "@/features/workspaces/workspace-roles";
 
 export const workspaceNameMaxLength = workspaceConfig.limits.nameMaxLength;
 export const workspaceSlugMaxLength = workspaceConfig.limits.slugMaxLength;

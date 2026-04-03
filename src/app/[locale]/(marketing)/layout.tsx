@@ -1,6 +1,6 @@
 import { MarketingLayout } from "@/features/marketing/marketing-layout";
 import { APP_HOME_PATH } from "@/config/routes";
-import { resolveApplicationEntryHref } from "@/features/application/application-entry-href";
+import { resolveApplicationEntryHref } from "@/server/application/application-entry-href";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-session-service";
 

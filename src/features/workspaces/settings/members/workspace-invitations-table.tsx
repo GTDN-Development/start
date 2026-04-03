@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getWorkspaceMemberRoleLabel } from "@/features/workspaces/workspace-roles";
+import { getWorkspaceMemberRoleLabel } from "@/features/workspaces/workspace-role-options";
 import type { WorkspaceSettingsInvite } from "@/features/workspaces/settings/workspace-settings-types";
 
 export function WorkspaceInvitationsTable({

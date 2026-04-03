@@ -1,62 +1,29 @@
-import {
-  ACCOUNT_PATH,
-  WORKSPACE_SETTINGS_MEMBERS_PATH,
-  WORKSPACE_SETTINGS_PATH,
-} from "@/config/routes";
+import type { AppHref } from "@/i18n/navigation";
 import type { InnerSidebarNavItem } from "./inner-sidebar-types";
 
-type InnerSidebarItemDefinition<TLabelKey extends string> = Omit<InnerSidebarNavItem, "label"> & {
+export type InnerSidebarItemDefinition<TLabelKey extends string> = Omit<
+  InnerSidebarNavItem,
+  "label"
+> & {
   labelKey: TLabelKey;
 };
 
-type WorkspaceInnerSidebarPathname =
-  | typeof WORKSPACE_SETTINGS_PATH
-  | typeof WORKSPACE_SETTINGS_MEMBERS_PATH;
-
-type WorkspaceInnerSidebarItemDefinition<TLabelKey extends string> = Omit<
-  InnerSidebarItemDefinition<TLabelKey>,
-  "href"
-> & {
-  href: WorkspaceInnerSidebarPathname;
+export type WorkspaceInnerSidebarItemDefinition<
+  TLabelKey extends string,
+  TPathname extends string = string,
+> = Omit<InnerSidebarItemDefinition<TLabelKey>, "href"> & {
+  href: TPathname;
 };
 
-export const accountInnerSidebarItems = [
+type WorkspaceSidebarHref<TPathname extends string> = Extract<
+  AppHref,
   {
-    href: ACCOUNT_PATH,
-    labelKey: "nav.profile",
-    icon: "user",
-  },
-  {
-    href: "/account/preferences",
-    labelKey: "nav.preferences",
-    icon: "slidersHorizontal",
-  },
-  {
-    href: "/account/security",
-    labelKey: "nav.security",
-    icon: "shield",
-    matchNested: true,
-  },
-] as const satisfies ReadonlyArray<
-  InnerSidebarItemDefinition<"nav.preferences" | "nav.profile" | "nav.security">
+    pathname: TPathname;
+    params: {
+      workspaceSlug: string;
+    };
+  }
 >;
-
-export const workspaceSettingsInnerSidebarItems = [
-  {
-    href: WORKSPACE_SETTINGS_PATH,
-    labelKey: "general",
-    icon: "slidersHorizontal",
-  },
-  {
-    href: WORKSPACE_SETTINGS_MEMBERS_PATH,
-    labelKey: "members",
-    icon: "users",
-  },
-] as const satisfies ReadonlyArray<WorkspaceInnerSidebarItemDefinition<"general" | "members">>;
-
-export function getWorkspaceSettingsInnerSidebarItems() {
-  return workspaceSettingsInnerSidebarItems;
-}
 
 export function mapInnerSidebarItems<TLabelKey extends string>(
   items: ReadonlyArray<InnerSidebarItemDefinition<TLabelKey>>,
@@ -68,8 +35,8 @@ export function mapInnerSidebarItems<TLabelKey extends string>(
   }));
 }
 
-export function mapWorkspaceInnerSidebarItems<TLabelKey extends string>(
-  items: ReadonlyArray<WorkspaceInnerSidebarItemDefinition<TLabelKey>>,
+export function mapWorkspaceInnerSidebarItems<TLabelKey extends string, TPathname extends string>(
+  items: ReadonlyArray<WorkspaceInnerSidebarItemDefinition<TLabelKey, TPathname>>,
   workspaceSlug: string,
   getLabel: (labelKey: TLabelKey) => string
 ): InnerSidebarNavItem[] {
@@ -80,7 +47,7 @@ export function mapWorkspaceInnerSidebarItems<TLabelKey extends string>(
       params: {
         workspaceSlug,
       },
-    },
+    } as WorkspaceSidebarHref<TPathname>,
     activePathnames: [href, ...(item.activePathnames ?? [])],
     label: getLabel(labelKey),
   }));

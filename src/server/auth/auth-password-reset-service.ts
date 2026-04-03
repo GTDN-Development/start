@@ -2,7 +2,7 @@ import { ClientResponseError } from "pocketbase";
 import type {
   RequestPasswordResetPayload,
   ResetPasswordPayload,
-} from "@/features/auth/auth-contract";
+} from "@/features/auth/auth-types";
 import {
   createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,

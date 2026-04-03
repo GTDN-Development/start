@@ -1,5 +1,5 @@
 import { ClientResponseError } from "pocketbase";
-import type { AuthErrorCode } from "@/features/auth/auth-contract";
+import type { AuthErrorCode } from "@/features/auth/auth-types";
 import {
   hasValidationCode,
   logServiceError,

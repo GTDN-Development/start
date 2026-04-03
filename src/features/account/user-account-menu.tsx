@@ -15,7 +15,7 @@ import {
 import { Link, type LinkHref } from "@/components/ui/link";
 import { ACCOUNT_PATH } from "@/config/routes";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { AuthUser } from "@/features/auth/auth-contract";
+import type { AuthUser } from "@/features/auth/auth-types";
 import { useSignOut } from "@/features/auth/use-sign-out";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { GlobeIcon, LayoutDashboardIcon, LogOutIcon, UserIcon } from "lucide-react";

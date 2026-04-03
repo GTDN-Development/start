@@ -11,7 +11,7 @@ import {
   getInviteStartHref,
   getWorkspaceOverviewHref,
 } from "@/config/routes";
-import { resolveApplicationEntryHref } from "@/features/application/application-entry-href";
+import { resolveApplicationEntryHref } from "@/server/application/application-entry-href";
 import { type AppHref, getPathname, redirect } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { createPageMetadata } from "@/lib/metadata";

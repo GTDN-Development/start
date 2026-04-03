@@ -1,5 +1,5 @@
 import type { UsersRecord } from "@/types/pocketbase";
-import type { SignUpPayload } from "@/features/auth/auth-contract";
+import type { SignUpPayload } from "@/features/auth/auth-types";
 import type { SignUpInput } from "@/features/auth/auth-schemas";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { formatServiceError } from "@/server/pocketbase/pocketbase-utils";

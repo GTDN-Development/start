@@ -14,7 +14,7 @@ import {
 import {
   canAssignWorkspaceMemberRole,
   canManageWorkspaceMemberRole,
-} from "@/features/workspaces/workspace-roles";
+} from "@/features/workspaces/workspace-role-rules";
 import {
   countWorkspaceOwners,
   findWorkspaceMemberById,

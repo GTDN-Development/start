@@ -27,7 +27,7 @@ src/server/cookie-consent/
 ## Current integration
 
 - UI is rendered in `src/app/[locale]/layout.tsx`
-- Provider wiring is in `src/components/providers/app-providers.tsx`
+- Provider wiring is in `src/features/application/app-providers.tsx`
 
 ## Consent cookie format
 

@@ -20,7 +20,7 @@ npm run dev
 npm run lint
 npm run lint:fix
 npm run check
-npm run test:unit
+npm run test
 npm run test:e2e
 npm run build
 npm run format
@@ -50,10 +50,9 @@ PocketBase typegen requires:
 Local testing uses `.env.test`.
 
 - `npm run test` runs the Vitest suite once
-- `npm run test:unit:watch` runs Vitest in watch mode
+- `npm run test:watch` runs Vitest in watch mode
 - `npm run test:e2e` builds the app with test env and runs Playwright against `next start` on `http://127.0.0.1:3100`
-- `npm run test:e2e:ui` and `npm run test:e2e:headed` are local debugging variants
-- `npm run test:all` runs unit and E2E tests in sequence
+- `npm run test:e2e:ui` is the local Playwright debugging variant
 - auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias` recipients from it
 
 ## Tooling
@@ -73,7 +72,7 @@ Conventions:
 
 - `src/app` - routes, layouts, metadata, API route adapters
 - `src/features` - feature-first modules (`auth`, `account`, `marketing`, `cookies`, `application`)
-- `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `providers`, `dev`)
+- `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `dev`)
 - `src/server` - server-only infrastructure (`captcha`, `email`)
 - `src/config` - structural config (menus, links, site data)
 - `src/i18n` + `messages` - routing and translations
@@ -85,6 +84,7 @@ Conventions:
 ## Architecture Conventions
 
 - Feature-first source of truth lives in `src/features/*`
+- Shared contracts, types, and rules that are used by both features and server stay at the owning feature root
 - No barrel exports (`index.ts` / `index.tsx`) in feature modules
 - No `shared/` folders inside features; feature-wide types/helpers live at feature root
 - Keep `src/components/ui` as the shadcn CLI target

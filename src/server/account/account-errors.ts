@@ -1,4 +1,4 @@
-import type { AuthErrorCode } from "@/features/auth/auth-contract";
+import type { AuthErrorCode } from "@/features/auth/auth-types";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 import {
   hasValidationCode,

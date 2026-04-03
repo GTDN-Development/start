@@ -21,7 +21,7 @@ export default defineConfig({
     video: "retain-on-failure",
   },
   webServer: {
-    command: "npm run start:test",
+    command: "node ./tests/scripts/run-next-with-test-env.cjs start",
     url: e2eBaseUrl,
     reuseExistingServer: false,
     timeout: 120_000,

@@ -35,7 +35,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Architecture
 
 - Primary app/domain code lives in `src/features/*`
-- `src/components/*` is for shared cross-feature UI infrastructure only (`ui`, `layout`, `brand`, `providers`, `dev`)
+- `src/components/*` is for shared cross-feature UI infrastructure only (`ui`, `layout`, `brand`, `dev`)
+- Keep shared contracts, types, and rules that are used by both features and server at the owning feature root
 - Keep application shell/composition in `src/features/application`; keep account domain in `src/features/account`
 - Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
 - Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
