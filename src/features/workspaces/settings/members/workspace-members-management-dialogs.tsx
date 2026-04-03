@@ -161,7 +161,9 @@ export function WorkspaceMembersManagementDialogs({
             <AlertDialogDescription>{tLeave("dialog.description")}</AlertDialogDescription>
           </AlertDialogHeader>
 
-          {leaveWorkspaceTarget ? <WorkspaceMemberSummaryRow member={leaveWorkspaceTarget} /> : null}
+          {leaveWorkspaceTarget ? (
+            <WorkspaceMemberSummaryRow member={leaveWorkspaceTarget} />
+          ) : null}
 
           {isCurrentUserLastOwner ? (
             <Alert>
@@ -234,10 +236,7 @@ export function WorkspaceMembersManagementDialogs({
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog
-        open={Boolean(resendInvitationTarget)}
-        onOpenChange={onActionDialogOpenChange}
-      >
+      <AlertDialog open={Boolean(resendInvitationTarget)} onOpenChange={onActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>{t("dialogs.resendInvite.title")}</AlertDialogTitle>
@@ -271,10 +270,7 @@ export function WorkspaceMembersManagementDialogs({
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog
-        open={Boolean(removeInvitationTarget)}
-        onOpenChange={onActionDialogOpenChange}
-      >
+      <AlertDialog open={Boolean(removeInvitationTarget)} onOpenChange={onActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>{t("dialogs.removeInvite.title")}</AlertDialogTitle>

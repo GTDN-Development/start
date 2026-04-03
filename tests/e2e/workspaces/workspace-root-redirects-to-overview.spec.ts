@@ -1,9 +1,6 @@
 import { expect, test } from "@playwright/test";
 import type PocketBase from "pocketbase";
-import {
-  DEFAULT_AUTH_TEST_PASSWORD,
-  signInUser,
-} from "../helpers/auth";
+import { DEFAULT_AUTH_TEST_PASSWORD, signInUser } from "../helpers/auth";
 import {
   createPocketBaseAdminClient,
   createWorkspace,

@@ -207,6 +207,5 @@ function logCookieDebugState(input: {
     return;
   }
 
-  // eslint-disable-next-line no-console
   console.log("Cookie Consent State:", input);
 }

@@ -1,9 +1,6 @@
 import { cookies } from "next/headers";
 import { workspaceConfig } from "@/config/workspace";
-import {
-  getBaseServerCookieOptions,
-  isReadonlyRequestCookiesError,
-} from "@/server/cookies";
+import { getBaseServerCookieOptions, isReadonlyRequestCookiesError } from "@/server/cookies";
 
 const ACTIVE_WORKSPACE_COOKIE_NAME = workspaceConfig.cookies.activeWorkspace.name;
 const ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS =

@@ -37,13 +37,12 @@ export function TermsOfService({
 }: TermsOfServiceProps) {
   const t = useTranslations("legal.termsOfService");
   const legalName = company.legalName ?? company.name;
-  const register =
-    company.registration
-      ? t("common.companyRegister", {
-          court: company.registration.court,
-          fileNumber: company.registration.fileNumber,
-        })
-      : t("common.companyRegisterFallback");
+  const register = company.registration
+    ? t("common.companyRegister", {
+        court: company.registration.court,
+        fileNumber: company.registration.fileNumber,
+      })
+    : t("common.companyRegisterFallback");
 
   return (
     <div {...props}>

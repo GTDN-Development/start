@@ -3,12 +3,7 @@ import { Container } from "@/components/ui/container";
 import { NavLink } from "@/components/layout/nav-link";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
-import {
-  applicationFooterMenu,
-  legalItems,
-  type MenuLink,
-  type MenuLabelKey,
-} from "@/config/menu";
+import { applicationFooterMenu, legalItems, type MenuLink, type MenuLabelKey } from "@/config/menu";
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -61,18 +61,26 @@ test("member opens members page in read-only mode", async ({ page }) => {
 
     await expect(page).toHaveURL(new RegExp(`/cs/w/${workspaceSlug}/nastaveni/clenove$`));
     await expect(
-      page.locator("tbody tr").filter({
-        hasText: ownerName,
-      }).filter({
-        hasText: "Vlastník",
-      }).first()
+      page
+        .locator("tbody tr")
+        .filter({
+          hasText: ownerName,
+        })
+        .filter({
+          hasText: "Vlastník",
+        })
+        .first()
     ).toBeVisible();
     await expect(
-      page.locator("tbody tr").filter({
-        hasText: memberEmail,
-      }).filter({
-        hasText: "Člen",
-      }).first()
+      page
+        .locator("tbody tr")
+        .filter({
+          hasText: memberEmail,
+        })
+        .filter({
+          hasText: "Člen",
+        })
+        .first()
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Pozvat" })).toBeDisabled();
     await expect(
@@ -82,9 +90,7 @@ test("member opens members page in read-only mode", async ({ page }) => {
     await page.getByRole("tab", { name: "Čekající pozvánky" }).click();
 
     await expect(page.getByText("Žádné čekající pozvánky")).toBeVisible();
-    await expect(
-      page.getByText("Všechny pozvánky byly přijaty nebo expirovaly.")
-    ).toBeVisible();
+    await expect(page.getByText("Všechny pozvánky byly přijaty nebo expirovaly.")).toBeVisible();
     await expect(page.getByText(pendingInviteEmail)).toHaveCount(0);
   } finally {
     if (pb) {

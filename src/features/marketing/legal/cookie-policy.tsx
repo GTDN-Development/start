@@ -33,7 +33,9 @@ export function CookiePolicy({
 }: CookiePolicyProps) {
   const t = useTranslations("legal.cookiePolicy");
   const actualCookies = cookies ?? [];
-  const thirdPartyProviders = Array.from(new Set(actualCookies.filter((cookie) => cookie.thirdParty).map((cookie) => cookie.provider)));
+  const thirdPartyProviders = Array.from(
+    new Set(actualCookies.filter((cookie) => cookie.thirdParty).map((cookie) => cookie.provider))
+  );
 
   const groupedCookies = actualCookies.reduce(
     (acc, cookie) => {

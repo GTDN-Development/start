@@ -93,9 +93,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
       setSubmitStatus({ type: null, message: "" });
 
       const response = await runAsyncTransition(() =>
-        submitContactFormAction(
-          turnstileEnabled ? value : { ...value, turnstileToken: undefined }
-        )
+        submitContactFormAction(turnstileEnabled ? value : { ...value, turnstileToken: undefined })
       );
 
       if (response.ok) {

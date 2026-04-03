@@ -18,10 +18,13 @@ Next.js 16 starter app for marketing, auth, and application pages.
 npm install
 npm run dev
 npm run lint
+npm run lint:fix
+npm run check
 npm run test:unit
 npm run test:e2e
 npm run build
 npm run format
+npm run format:check
 npm run pocketbase:typegen
 ```
 
@@ -52,6 +55,12 @@ Local testing uses `.env.test`.
 - `npm run test:e2e:ui` and `npm run test:e2e:headed` are local debugging variants
 - `npm run test:all` runs unit and E2E tests in sequence
 - auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias` recipients from it
+
+## Tooling
+
+- `npm run format` / `npm run format:check` run Prettier with `prettier-plugin-tailwindcss`
+- `npm run lint` / `npm run lint:fix` run ESLint with Next.js baseline rules plus project architectural guardrails
+- `npm run check` runs format and lint checks together
 
 Conventions:
 

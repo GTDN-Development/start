@@ -10,9 +10,7 @@ export type WorkspaceMemberRoleDescriptionKey = `${WorkspaceMemberRole}.descript
 export type WorkspaceMemberRoleTranslationKey =
   | WorkspaceMemberRoleLabelKey
   | WorkspaceMemberRoleDescriptionKey;
-export type WorkspaceMemberRoleTranslationFn = (
-  key: WorkspaceMemberRoleTranslationKey
-) => string;
+export type WorkspaceMemberRoleTranslationFn = (key: WorkspaceMemberRoleTranslationKey) => string;
 
 export const WORKSPACE_MEMBER_ROLE_OPTIONS: Array<{
   value: WorkspaceMemberRole;

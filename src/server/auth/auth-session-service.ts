@@ -1,9 +1,6 @@
 import { ClientResponseError } from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
-import type {
-  AuthSessionPayload,
-  AuthSignOutPayload,
-} from "@/features/auth/auth-contract";
+import type { AuthSessionPayload, AuthSignOutPayload } from "@/features/auth/auth-contract";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import {
   createPocketBaseServerClient,
@@ -18,20 +15,14 @@ import {
   revokeCurrentDeviceSession,
   validateDeviceSessionOrInvalidate,
 } from "@/server/device-sessions/device-sessions-service";
-import {
-  formatServiceError,
-  isUsersRecord,
-} from "@/server/pocketbase/pocketbase-utils";
+import { formatServiceError, isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
 import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   logAuthServiceError,
   mapSignInErrorCode,
   isTransientError,
 } from "@/server/auth/auth-errors";
-import {
-  createAuthAndDeviceCookies,
-  createAuthSession,
-} from "@/server/auth/auth-session-utils";
+import { createAuthAndDeviceCookies, createAuthSession } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
 export async function signInWithPassword(

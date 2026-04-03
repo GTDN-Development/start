@@ -19,14 +19,9 @@ const newsletterPayloadSchema = z.object({
   }),
 });
 
-type NewsletterActionErrorCode =
-  | "BAD_REQUEST"
-  | "INTERNAL_ERROR"
-  | "TURNSTILE_VERIFICATION_FAILED";
+type NewsletterActionErrorCode = "BAD_REQUEST" | "INTERNAL_ERROR" | "TURNSTILE_VERIFICATION_FAILED";
 
-type NewsletterActionResponse =
-  | { ok: true }
-  | { ok: false; errorCode: NewsletterActionErrorCode };
+type NewsletterActionResponse = { ok: true } | { ok: false; errorCode: NewsletterActionErrorCode };
 
 export async function submitNewsletterFormAction(input: {
   email: string;

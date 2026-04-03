@@ -1,10 +1,7 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import type PocketBase from "pocketbase";
 import type { WorkspaceMembersRecord } from "../../../src/types/pocketbase";
-import {
-  getMailtrapMessageHtml,
-  waitForMailtrapMessage,
-} from "../helpers/mailtrap";
+import { getMailtrapMessageHtml, waitForMailtrapMessage } from "../helpers/mailtrap";
 import { DEFAULT_AUTH_TEST_PASSWORD, expectSignInPage, signInUser } from "../helpers/auth";
 import {
   createPocketBaseAdminClient,
@@ -110,11 +107,11 @@ test("admin creates invite from UI and invited user accepts it from email", asyn
 });
 
 function extractWorkspaceInvitePathFromHtml(html: string): string {
-  const hrefValues = Array.from(html.matchAll(/href=(["'])(.*?)\1/gi)).map(function mapHrefMatch(
-    match
-  ) {
-    return decodeHtmlAttribute(match[2] ?? "");
-  });
+  const hrefValues = Array.from(html.matchAll(/href=(["'])(.*?)\1/gi)).map(
+    function mapHrefMatch(match) {
+      return decodeHtmlAttribute(match[2] ?? "");
+    }
+  );
 
   for (const hrefValue of hrefValues) {
     const parsedUrl = tryParseInviteUrl(hrefValue);
@@ -138,11 +135,7 @@ function tryParseInviteUrl(value: string): URL | null {
 }
 
 function decodeHtmlAttribute(value: string): string {
-  return value
-    .replaceAll("&amp;", "&")
-    .replaceAll("&quot;", "\"")
-    .replaceAll("&#39;", "'")
-    .trim();
+  return value.replaceAll("&amp;", "&").replaceAll("&quot;", '"').replaceAll("&#39;", "'").trim();
 }
 
 async function copySessionCookiesToLocalhost(page: Page): Promise<void> {

@@ -1,11 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import {
-  APP_HOME_PATH,
-  getWorkspaceOverviewPath,
-  getWorkspaceSettingsPath,
-} from "@/config/routes";
+import { APP_HOME_PATH, getWorkspaceOverviewPath, getWorkspaceSettingsPath } from "@/config/routes";
 import {
   createWorkspaceInputSchema,
   updateWorkspaceGeneralInputSchema,

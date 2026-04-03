@@ -51,9 +51,7 @@ import {
   readDeviceSessionCookie,
 } from "@/server/device-sessions/device-sessions-cookie";
 import { validateDeviceSessionOrInvalidate } from "@/server/device-sessions/device-sessions-service";
-import {
-  getServerAuthSession,
-} from "./auth-session-service";
+import { getServerAuthSession } from "./auth-session-service";
 import {
   confirmEmailChangeToken,
   requestEmailVerificationForEmail,
@@ -80,10 +78,7 @@ describe("auth-service", function describeAuthService() {
       "device_session=; Max-Age=0",
     ]);
     vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue(["pb_auth=; Max-Age=0"]);
-    vi.mocked(exportPocketBaseAuthCookies).mockReturnValue([
-      "pb_auth=token",
-      "pb_persist=1",
-    ]);
+    vi.mocked(exportPocketBaseAuthCookies).mockReturnValue(["pb_auth=token", "pb_persist=1"]);
   });
 
   afterEach(function restoreConsoleSpies() {

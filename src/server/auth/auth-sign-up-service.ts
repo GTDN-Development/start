@@ -3,14 +3,8 @@ import type { SignUpPayload } from "@/features/auth/auth-contract";
 import type { SignUpInput } from "@/features/auth/auth-schemas";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { formatServiceError } from "@/server/pocketbase/pocketbase-utils";
-import {
-  logAuthServiceError,
-  mapSignUpErrorCode,
-} from "@/server/auth/auth-errors";
-import {
-  createAuthAndDeviceCookies,
-  createDisplayName,
-} from "@/server/auth/auth-session-utils";
+import { logAuthServiceError, mapSignUpErrorCode } from "@/server/auth/auth-errors";
+import { createAuthAndDeviceCookies, createDisplayName } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
 export async function signUpWithPassword(

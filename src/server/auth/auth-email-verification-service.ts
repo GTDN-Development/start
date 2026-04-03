@@ -60,7 +60,10 @@ export async function confirmEmailVerificationToken(
       }
     }
 
-    if (mapVerifyEmailErrorCode(error) === "BAD_REQUEST" && isProbablyConsumedVerificationToken(token)) {
+    if (
+      mapVerifyEmailErrorCode(error) === "BAD_REQUEST" &&
+      isProbablyConsumedVerificationToken(token)
+    ) {
       return {
         ok: true,
         data: {

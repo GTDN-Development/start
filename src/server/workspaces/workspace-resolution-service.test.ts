@@ -1,9 +1,6 @@
 import type PocketBase from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type {
-  WorkspaceMembersRecord,
-  WorkspacesRecord,
-} from "@/types/pocketbase";
+import type { WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
 
 vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer() {
   return {

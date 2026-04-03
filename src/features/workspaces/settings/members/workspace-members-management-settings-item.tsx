@@ -86,10 +86,7 @@ export function WorkspaceMembersManagementSettingsItem({
     patch: Pick<WorkspaceSettingsInvite, "expiresAt" | "updatedAt" | "inviteUrl">
   ) => void;
   onMemberRemovedAction: (memberId: string) => void;
-  onMemberRoleChangedAction: (
-    memberId: string,
-    role: WorkspaceSettingsMember["role"]
-  ) => void;
+  onMemberRoleChangedAction: (memberId: string, role: WorkspaceSettingsMember["role"]) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const tLeave = useTranslations("pages.workspace.general.leave");

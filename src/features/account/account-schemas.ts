@@ -70,9 +70,7 @@ export type AccountDeleteValidationMessages = {
   acknowledged: string;
 };
 
-export function createAccountProfileNameFormSchema(
-  messages: AccountProfileNameValidationMessages
-) {
+export function createAccountProfileNameFormSchema(messages: AccountProfileNameValidationMessages) {
   return z.object({
     name: z.string().trim().max(accountProfileNameMaxLength, {
       message: messages.max,
@@ -81,11 +79,15 @@ export function createAccountProfileNameFormSchema(
 }
 
 export function createAccountEmailChangeValueSchema(messages?: { email?: string }) {
-  return z.string().trim().toLowerCase().pipe(
-    z.email({
-      message: messages?.email,
-    })
-  );
+  return z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(
+      z.email({
+        message: messages?.email,
+      })
+    );
 }
 
 export function createAccountEmailChangeFormSchema(
@@ -104,9 +106,7 @@ export function createAccountEmailChangeFormSchema(
   });
 }
 
-export function createAccountPasswordFormSchema(
-  messages: AccountPasswordValidationMessages
-) {
+export function createAccountPasswordFormSchema(messages: AccountPasswordValidationMessages) {
   return z
     .object({
       currentPassword: z.string(),

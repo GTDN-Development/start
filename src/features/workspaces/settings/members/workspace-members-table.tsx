@@ -1,12 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import {
-  LogOutIcon,
-  MoreHorizontalIcon,
-  PencilLineIcon,
-  TrashIcon,
-} from "lucide-react";
+import { LogOutIcon, MoreHorizontalIcon, PencilLineIcon, TrashIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {

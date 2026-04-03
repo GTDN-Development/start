@@ -12,10 +12,7 @@ import {
 } from "../../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../../helpers/test-run";
 
-test("sign out all other devices keeps current device signed in", async ({
-  page,
-  browser,
-}) => {
+test("sign out all other devices keeps current device signed in", async ({ page, browser }) => {
   test.setTimeout(120_000);
 
   const run = createE2ETestRun();

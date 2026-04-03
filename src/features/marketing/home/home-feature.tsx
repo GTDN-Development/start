@@ -1,5 +1,4 @@
 import { useRender } from "@base-ui/react/use-render";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
@@ -8,13 +7,13 @@ import { cn } from "@/lib/utils";
  *       <HomeFeatureTitle>…</HomeFeatureTitle>
  *       <HomeFeatureHeaderAside>
  *         <HomeFeatureDescription>…</HomeFeatureDescription>
- *         <HomeFeatureLink href="…">2.0 Plan →</HomeFeatureLink>
+ *         <a href="…">2.0 Plan →</a>
  *       </HomeFeatureHeaderAside>
  *     </HomeFeatureHeader>
  *     <HomeFeatureMedia>…screenshot…</HomeFeatureMedia>
  *     <HomeFeatureSubLinks>
- *       <HomeFeatureSubLink href="…">2.1 Projects</HomeFeatureSubLink>
- *       <HomeFeatureSubLink href="…">2.2 Documents</HomeFeatureSubLink>
+ *       <a href="…">2.1 Projects</a>
+ *       <a href="…">2.2 Documents</a>
  *     </HomeFeatureSubLinks>
  *   </HomeFeature>
  *
@@ -72,20 +71,6 @@ function HomeFeatureDescription({ className, render, ...props }: useRender.Compo
   });
 }
 
-function HomeFeatureLink({ className, children, ...props }: React.ComponentProps<typeof Link>) {
-  return (
-    <Link
-      {...props}
-      className={cn(
-        "text-foreground hover:text-foreground/70 inline-flex items-center gap-1 text-sm font-medium transition-colors",
-        className
-      )}
-    >
-      {children}
-    </Link>
-  );
-}
-
 function HomeFeatureMedia({ children, className, ...props }: React.ComponentProps<"div">) {
   return (
     <div {...props} className={cn("overflow-hidden rounded-xl border", className)}>
@@ -102,28 +87,12 @@ function HomeFeatureSubLinks({ children, className, ...props }: React.ComponentP
   );
 }
 
-function HomeFeatureSubLink({ className, children, ...props }: React.ComponentProps<typeof Link>) {
-  return (
-    <Link
-      {...props}
-      className={cn(
-        "text-muted-foreground hover:text-foreground text-sm transition-colors",
-        className
-      )}
-    >
-      {children}
-    </Link>
-  );
-}
-
 export {
   HomeFeature,
   HomeFeatureHeader,
   HomeFeatureTitle,
   HomeFeatureHeaderAside,
   HomeFeatureDescription,
-  HomeFeatureLink,
   HomeFeatureMedia,
   HomeFeatureSubLinks,
-  HomeFeatureSubLink,
 };

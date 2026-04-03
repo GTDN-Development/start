@@ -16,13 +16,7 @@ type GdprPolicyProps = React.ComponentProps<"div"> & {
   effectiveDate?: string;
 };
 
-export function GdprPolicy({
-  company,
-  contact,
-  policy,
-  effectiveDate,
-  ...props
-}: GdprPolicyProps) {
+export function GdprPolicy({ company, contact, policy, effectiveDate, ...props }: GdprPolicyProps) {
   const t = useTranslations("legal.gdprPolicy");
   const register = t("common.companyRegisterFallback");
 

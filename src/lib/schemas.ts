@@ -47,8 +47,8 @@ export function refinePasswordMatch<TValues extends Record<string, unknown>>(
   options?: PasswordMatchRefineOptions<TValues>
 ) {
   const passwordField = (options?.passwordField ?? "password") as keyof TValues & string;
-  const confirmPasswordField = (options?.confirmPasswordField ?? "confirmPassword") as keyof TValues &
-    string;
+  const confirmPasswordField = (options?.confirmPasswordField ??
+    "confirmPassword") as keyof TValues & string;
 
   return (values: TValues, context: z.RefinementCtx) => {
     if (values[passwordField] !== values[confirmPasswordField]) {
