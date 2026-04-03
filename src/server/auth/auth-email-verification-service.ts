@@ -15,14 +15,16 @@ import {
 } from "@/server/device-sessions/device-sessions-cookie";
 import { isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
 import {
-  createAuthAndDeviceCookies,
-  createAuthSession,
-  isProbablyConsumedVerificationToken,
   logAuthServiceError,
   mapConfirmEmailChangeErrorCode,
   mapVerifyEmailErrorCode,
-  type ServerAuthResponse,
-} from "@/server/auth/auth-service-shared";
+} from "@/server/auth/auth-errors";
+import {
+  createAuthAndDeviceCookies,
+  createAuthSession,
+  isProbablyConsumedVerificationToken,
+} from "@/server/auth/auth-session-utils";
+import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
 export async function confirmEmailVerificationToken(
   token: string

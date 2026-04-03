@@ -1,18 +1,23 @@
-import type { AccountProfilePayload } from "@/features/account/account-profile";
+import type { AccountProfilePayload } from "@/features/account/account-profile-types";
 import type { UsersRecord } from "@/types/pocketbase";
-import type { ServerAuthResponse } from "@/server/auth/auth-service-shared";
+import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import {
   createAccountProfileSnapshot,
+  MAX_ACCOUNT_AVATAR_SIZE_BYTES,
+  MAX_ACCOUNT_PROFILE_NAME_LENGTH,
+  normalizeProfileName,
+} from "@/server/account/account-profile-utils";
+import {
   getUnauthorizedAccountCookies,
   logAccountServiceError,
   mapRequestEmailChangeErrorCode,
   mapUpdateProfileErrorCode,
-  MAX_ACCOUNT_AVATAR_SIZE_BYTES,
-  MAX_ACCOUNT_PROFILE_NAME_LENGTH,
-  normalizeProfileName,
-  RequestAccountEmailChangePayload,
-  requireCurrentAccountUser,
-} from "@/server/account/account-service-shared";
+} from "@/server/account/account-errors";
+import { requireCurrentAccountUser } from "@/server/account/account-current-user";
+
+type RequestAccountEmailChangePayload = {
+  sent: true;
+};
 
 export async function updateCurrentUserProfileName(
   name: string

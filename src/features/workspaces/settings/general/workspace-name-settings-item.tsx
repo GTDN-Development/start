@@ -17,11 +17,11 @@ import {
   SettingsItemFooter,
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
-import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
 import {
   createWorkspaceNameFormSchema,
   workspaceNameMaxLength,
 } from "@/features/workspaces/workspace-schemas";
+import { updateWorkspaceGeneralAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { runAsyncTransition } from "@/lib/app-utils";

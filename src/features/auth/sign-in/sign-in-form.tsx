@@ -14,7 +14,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, LogInIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
-import { legalLinks } from "@/config/navigation";
+import { legalLinks } from "@/config/menu";
 import { signIn } from "@/features/auth/auth-client";
 import { replaceToPostAuthDestination } from "@/features/auth/post-auth-redirect";
 import { createPendingVerifyEmailHref } from "@/features/auth/verify-email/verify-email-state";

@@ -30,8 +30,8 @@ import {
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
 import { APP_HOME_PATH } from "@/config/routes";
-import { leaveWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { createWorkspaceLeaveFormSchema } from "@/features/workspaces/workspace-schemas";
+import { leaveWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
 import { runAsyncTransition } from "@/lib/app-utils";

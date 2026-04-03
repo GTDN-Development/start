@@ -17,7 +17,7 @@ export const workspaceSlugSchema = z
 export const workspaceIdSchema = z.string().trim().min(1);
 export const workspaceInviteEmailSchema = normalizedEmailSchema();
 
-export const createOrganizationWorkspaceInputSchema = z.object({
+export const createWorkspaceInputSchema = z.object({
   name: workspaceNameSchema,
   slug: workspaceSlugSchema.optional(),
 });

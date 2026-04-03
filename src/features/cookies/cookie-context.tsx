@@ -14,7 +14,7 @@ import {
 } from "./cookie-consent";
 import { useRouter } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
-import { persistCookieConsentAction } from "./actions/cookie-consent-actions";
+import { persistCookieConsentAction } from "./cookie-consent-actions";
 
 // Enable logging of the current state and always display the consent banner
 const DEBUG_MODE = false;

@@ -3,8 +3,8 @@ import type PocketBase from "pocketbase";
 import type { WorkspaceMembersRecord } from "../../../src/types/pocketbase";
 import { DEFAULT_AUTH_TEST_PASSWORD, signInUser } from "../helpers/auth";
 import {
-  createOrganizationWorkspace,
   createPocketBaseAdminClient,
+  createWorkspace,
   createVerifiedUser,
   createWorkspaceInvite,
   deleteSignedUpUsersByEmail,
@@ -33,7 +33,7 @@ test("member opens members page in read-only mode", async ({ page }) => {
     const owner = await createVerifiedUser({ pb, email: ownerEmail, password, name: ownerName });
     const member = await createVerifiedUser({ pb, email: memberEmail, password, name: memberName });
 
-    const { workspace } = await createOrganizationWorkspace({
+    const { workspace } = await createWorkspace({
       pb,
       userId: owner.id,
       name: workspaceName,

@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { requestAccountEmailChangeAction } from "@/features/account/actions/account-actions";
+import { requestAccountEmailChangeAction } from "@/features/account/profile/account-profile-actions";
 import { createAccountEmailChangeFormSchema } from "@/features/account/account-schemas";
 import {
   SettingsItem,

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { toAuthApiResponse } from "@/server/auth/auth-service-shared";
+import { toAuthApiResponse } from "@/server/auth/auth-response";
 import { getApiAuthSession } from "@/server/auth/auth-session-service";
 
 export async function GET() {

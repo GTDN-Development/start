@@ -4,12 +4,14 @@ import type { SignUpInput } from "@/features/auth/auth-schemas";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { formatServiceError } from "@/server/pocketbase/pocketbase-utils";
 import {
-  createAuthAndDeviceCookies,
-  createDisplayName,
   logAuthServiceError,
   mapSignUpErrorCode,
-  type ServerAuthResponse,
-} from "@/server/auth/auth-service-shared";
+} from "@/server/auth/auth-errors";
+import {
+  createAuthAndDeviceCookies,
+  createDisplayName,
+} from "@/server/auth/auth-session-utils";
+import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
 export async function signUpWithPassword(
   input: SignUpInput

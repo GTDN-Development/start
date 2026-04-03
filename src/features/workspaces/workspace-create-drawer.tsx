@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
 import { getWorkspaceOverviewHref } from "@/config/routes";
-import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
+import { createWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import {
   createWorkspaceNameFormSchema,
   workspaceNameMaxLength,
@@ -56,11 +56,7 @@ export function WorkspaceCreateDrawer({ open, onOpenChangeAction }: WorkspaceCre
     },
     onSubmit: async ({ value }: { value: WorkspaceCreateFormValues }) => {
       const trimmedName = value.name.trim();
-      const response = await runAsyncTransition(() =>
-        createOrganizationWorkspaceAction({
-          name: trimmedName,
-        })
-      );
+      const response = await runAsyncTransition(() => createWorkspaceAction({ name: trimmedName }));
 
       if (!response.ok) {
         toast.error(

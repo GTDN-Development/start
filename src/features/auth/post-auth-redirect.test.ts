@@ -11,7 +11,7 @@ vi.mock("react", async function mockReact() {
   };
 });
 
-vi.mock("@/features/auth/actions/auth-actions", function mockAuthActions() {
+vi.mock("@/features/auth/auth-actions", function mockAuthActions() {
   return {
     resolvePostAuthDestinationAction: vi.fn(),
   };
@@ -29,7 +29,7 @@ import {
   getInviteHref,
   getWorkspaceOverviewHref,
 } from "@/config/routes";
-import { resolvePostAuthDestinationAction } from "@/features/auth/actions/auth-actions";
+import { resolvePostAuthDestinationAction } from "@/features/auth/auth-actions";
 import { runAsyncTransition } from "@/lib/app-utils";
 import { replaceToPostAuthDestination } from "./post-auth-redirect";
 

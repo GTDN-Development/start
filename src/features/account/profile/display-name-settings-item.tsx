@@ -4,7 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { startTransition, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { updateAccountProfileAction } from "@/features/account/actions/account-actions";
+import { updateAccountProfileAction } from "@/features/account/profile/account-profile-actions";
 import {
   accountProfileNameMaxLength,
   createAccountProfileNameFormSchema,

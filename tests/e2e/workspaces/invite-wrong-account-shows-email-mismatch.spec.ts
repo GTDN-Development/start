@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 import type PocketBase from "pocketbase";
 import { DEFAULT_AUTH_TEST_PASSWORD, expectSignInPage, signInUser } from "../helpers/auth";
 import {
-  createOrganizationWorkspace,
   createPocketBaseAdminClient,
+  createWorkspace,
   createVerifiedUser,
   createWorkspaceInvite,
   deleteSignedUpUsersByEmail,
@@ -31,7 +31,7 @@ test("wrong account opening invite sees email mismatch and recoverable state", a
     await createVerifiedUser({ pb, email: invitedEmail, password });
     await createVerifiedUser({ pb, email: wrongEmail, password });
 
-    const { workspace } = await createOrganizationWorkspace({
+    const { workspace } = await createWorkspace({
       pb,
       userId: owner.id,
       name: workspaceName,

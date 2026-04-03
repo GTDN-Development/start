@@ -15,7 +15,7 @@ import {
   type MenuItem,
   type MenuLink,
   type MenuLabelKey,
-} from "@/config/navigation";
+} from "@/config/menu";
 import { ACCOUNT_PATH, APP_HOME_PATH } from "@/config/routes";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 import {

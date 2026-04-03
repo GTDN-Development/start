@@ -19,11 +19,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { getWorkspaceSettingsHref } from "@/config/routes";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { app } from "@/config/app";
-import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
 import {
   createWorkspaceUrlFormSchema,
   workspaceSlugMaxLength,
 } from "@/features/workspaces/workspace-schemas";
+import { updateWorkspaceGeneralAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";

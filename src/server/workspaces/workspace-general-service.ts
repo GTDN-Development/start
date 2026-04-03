@@ -22,7 +22,7 @@ import {
 } from "@/server/workspaces/workspace-repository";
 import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
 
-export type CreateOrganizationWorkspaceInput = {
+export type CreateWorkspaceInput = {
   name: string;
   slug?: string | null;
 };
@@ -34,8 +34,8 @@ export type UpdateWorkspaceGeneralInput = {
   removeAvatar?: boolean;
 };
 
-export async function createOrganizationWorkspaceForCurrentUser(
-  input: CreateOrganizationWorkspaceInput
+export async function createWorkspaceForCurrentUser(
+  input: CreateWorkspaceInput
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace }>> {
   const currentUser = await requireWorkspaceAuthContext();
 
@@ -89,7 +89,7 @@ export async function createOrganizationWorkspaceForCurrentUser(
     });
 
     if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("createOrganizationWorkspaceForCurrentUser", error);
+      logWorkspaceServiceError("createWorkspaceForCurrentUser", error);
     }
 
     return {
@@ -215,7 +215,7 @@ export async function updateWorkspaceGeneralForCurrentUser(
   }
 }
 
-export async function deleteOrganizationWorkspaceForCurrentUser(
+export async function deleteWorkspaceForCurrentUser(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ deleted: true }>> {
   const currentUser = await requireWorkspaceAuthContext();
@@ -253,7 +253,7 @@ export async function deleteOrganizationWorkspaceForCurrentUser(
     });
 
     if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("deleteOrganizationWorkspaceForCurrentUser", error);
+      logWorkspaceServiceError("deleteWorkspaceForCurrentUser", error);
     }
 
     return {

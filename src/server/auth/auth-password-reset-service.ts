@@ -11,8 +11,8 @@ import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/devi
 import {
   logAuthServiceError,
   mapResetPasswordErrorCode,
-  type ServerAuthResponse,
-} from "@/server/auth/auth-service-shared";
+} from "@/server/auth/auth-errors";
+import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
 export async function confirmPasswordResetToken(input: {
   token: string;

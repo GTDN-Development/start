@@ -11,7 +11,6 @@ import { requireCurrentUser } from "@/server/auth/current-user";
 import { sendFormEmail } from "@/server/email/email-transport";
 import { renderEmail } from "@/server/email/render-email";
 import { buildContactFormEmail } from "@/server/email/templates/contact-form.builder";
-import { buildNewsletterSignupEmail } from "@/server/email/templates/newsletter-signup.builder";
 import { buildSupportFormEmail } from "@/server/email/templates/support-form.builder";
 import {
   SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES,
@@ -44,13 +43,6 @@ const supportFormPayloadSchema = z.object({
     )
     .optional()
     .default([]),
-});
-
-const newsletterPayloadSchema = z.object({
-  email: normalizedEmailSchema(),
-  turnstileToken: turnstileTokenSchema({
-    enabled: turnstileEnabled,
-  }),
 });
 
 type MarketingActionErrorCode = "BAD_REQUEST" | "INTERNAL_ERROR" | "TURNSTILE_VERIFICATION_FAILED";
@@ -153,45 +145,6 @@ export async function submitSupportFormAction(input: {
     return { ok: true };
   } catch (error) {
     console.error("Support form action error:", error);
-    return createErrorResponse("INTERNAL_ERROR");
-  }
-}
-
-export async function submitNewsletterFormAction(input: {
-  email: string;
-  turnstileToken?: string;
-}): Promise<MarketingActionResponse> {
-  const parsedInput = newsletterPayloadSchema.safeParse(input);
-
-  if (!parsedInput.success) {
-    return createErrorResponse("BAD_REQUEST");
-  }
-
-  const turnstileVerification = await verifyMarketingTurnstileToken(
-    parsedInput.data.turnstileToken
-  );
-
-  if (!turnstileVerification.success) {
-    return createErrorResponse("TURNSTILE_VERIFICATION_FAILED");
-  }
-
-  try {
-    await sendFormEmail(
-      await renderEmail(
-        await buildNewsletterSignupEmail({
-          locale: routing.defaultLocale,
-          email: parsedInput.data.email,
-          subscribedAt: new Date(),
-        })
-      )
-    );
-
-    return {
-      ok: true,
-    };
-  } catch (error) {
-    console.error("Newsletter form action error:", error);
-
     return createErrorResponse("INTERNAL_ERROR");
   }
 }

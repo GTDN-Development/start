@@ -11,7 +11,7 @@ import {
   getInviteStartHref,
   getWorkspaceOverviewHref,
 } from "@/config/routes";
-import { resolveApplicationEntryHref } from "@/features/application/application-entry";
+import { resolveApplicationEntryHref } from "@/features/application/application-entry-href";
 import { type AppHref, getPathname, redirect } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { createPageMetadata } from "@/lib/metadata";
@@ -22,8 +22,8 @@ import {
   getInviteTokenForUser,
   validateInviteToken,
 } from "@/server/workspaces/workspace-invite-recipient-service";
-import { InviteSignOutButton } from "../invite-sign-out-button";
-import { InviteStatePanel } from "../invite-state-panel";
+import { InviteSignOutButton } from "@/features/auth/invite/invite-sign-out-button";
+import { InviteStatePanel } from "@/features/auth/invite/invite-state-panel";
 
 type InviteTokenPageProps = {
   params: Promise<{

@@ -6,7 +6,7 @@ import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
-import { requireWorkspaceRouteResult } from "../workspace-route";
+import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
 
 export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]/[...rest]">) {
   const { locale, workspaceSlug } = await params;

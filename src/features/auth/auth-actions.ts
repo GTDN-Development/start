@@ -34,7 +34,7 @@ import {
   confirmEmailChangeToken,
   requestEmailVerificationForEmail,
 } from "@/server/auth/auth-email-verification-service";
-import { finalizeAuthAction } from "@/server/auth/auth-service-shared";
+import { finalizeAuthAction } from "@/server/auth/auth-response";
 import {
   getServerAuthSession,
   signInWithPassword,

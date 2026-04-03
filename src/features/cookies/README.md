@@ -11,15 +11,14 @@ Cookie consent module for Next.js App Router with:
 ```txt
 src/features/cookies/
 ├── cookie-consent.ts                       # Consent types, defaults, parse/serialize, versioning
+├── cookie-consent-actions.ts               # Server action for consent audit events
 ├── cookie-server-utils.ts                  # Server reads of consent + interaction state
 ├── cookie-context.tsx                      # Client state and actions
 ├── cookie-consent-banner.tsx               # Bottom banner UI
 ├── cookie-settings-dialog.tsx              # Category settings dialog
 ├── cookie-settings-trigger.tsx             # Reusable trigger button
 ├── cookie-error-boundary.tsx               # UI fail-safe wrapper
-├── third-party-scripts.tsx                 # Conditionally renders GA/GTM scripts
-└── actions/
-    └── cookie-consent-actions.ts           # Server action for consent audit events
+└── third-party-scripts.tsx                 # Conditionally renders GA/GTM scripts
 
 src/server/cookie-consent/
 └── cookie-consent-service.ts               # PocketBase write service for audit trail

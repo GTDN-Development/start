@@ -29,8 +29,8 @@ import {
   isWorkspaceInvitableRole,
   type WorkspaceInvitableRole,
 } from "@/features/workspaces/workspace-roles";
-import { createInviteAction } from "@/features/workspaces/actions/workspace-actions";
 import { workspaceInviteEmailSchema } from "@/features/workspaces/workspace-schemas";
+import { createInviteAction } from "@/features/workspaces/settings/members/workspace-members-actions";
 import type {
   WorkspaceSettingsInvite,
   WorkspaceSettingsWorkspace,

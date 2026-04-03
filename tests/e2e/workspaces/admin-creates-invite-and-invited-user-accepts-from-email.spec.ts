@@ -7,8 +7,8 @@ import {
 } from "../helpers/mailtrap";
 import { DEFAULT_AUTH_TEST_PASSWORD, expectSignInPage, signInUser } from "../helpers/auth";
 import {
-  createOrganizationWorkspace,
   createPocketBaseAdminClient,
+  createWorkspace,
   createVerifiedUser,
   deleteSignedUpUsersByEmail,
   deleteWorkspaceGraph,
@@ -39,7 +39,7 @@ test("admin creates invite from UI and invited user accepts it from email", asyn
     const admin = await createVerifiedUser({ pb, email: adminEmail, password });
     await createVerifiedUser({ pb, email: invitedEmail, password });
 
-    const { workspace } = await createOrganizationWorkspace({
+    const { workspace } = await createWorkspace({
       pb,
       userId: owner.id,
       name: workspaceName,

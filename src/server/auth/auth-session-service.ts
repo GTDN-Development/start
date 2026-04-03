@@ -6,7 +6,6 @@ import type {
 } from "@/features/auth/auth-contract";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import {
-  createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
@@ -25,13 +24,15 @@ import {
 } from "@/server/pocketbase/pocketbase-utils";
 import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
-  createAuthAndDeviceCookies,
-  createAuthSession,
-  isTransientError,
   logAuthServiceError,
   mapSignInErrorCode,
-  type ServerAuthResponse,
-} from "@/server/auth/auth-service-shared";
+  isTransientError,
+} from "@/server/auth/auth-errors";
+import {
+  createAuthAndDeviceCookies,
+  createAuthSession,
+} from "@/server/auth/auth-session-utils";
+import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
 export async function signInWithPassword(
   input: SignInInput

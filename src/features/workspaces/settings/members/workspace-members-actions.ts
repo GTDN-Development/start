@@ -1,19 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import {
-  APP_HOME_PATH,
-  getWorkspaceOverviewPath,
-  getWorkspaceSettingsMembersPath,
-  getWorkspaceSettingsPath,
-} from "@/config/routes";
+import { getWorkspaceSettingsMembersPath } from "@/config/routes";
 import { z } from "zod";
 import { routing, type AppLocale } from "@/i18n/routing";
 import {
-  createOrganizationWorkspaceInputSchema,
   createWorkspaceInviteInputSchema,
-  updateWorkspaceGeneralInputSchema,
-  workspaceAvatarMaxSizeBytes,
   workspaceIdSchema,
   workspaceSlugSchema,
 } from "@/features/workspaces/workspace-schemas";
@@ -23,19 +15,7 @@ import {
 } from "@/features/workspaces/workspace-roles";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import {
-  clearActiveWorkspaceSlugCookie,
-  getActiveWorkspaceSlugCookie,
-  setActiveWorkspaceSlugCookie,
-} from "@/server/workspaces/workspace-cookie";
-import {
-  createOrganizationWorkspaceForCurrentUser,
-  deleteOrganizationWorkspaceForCurrentUser,
-  updateWorkspaceGeneralForCurrentUser,
-} from "@/server/workspaces/workspace-general-service";
-import { switchWorkspaceForCurrentUser } from "@/server/workspaces/workspace-resolution-service";
-import {
   changeWorkspaceMemberRoleForCurrentUser,
-  leaveWorkspaceForCurrentUser,
   removeWorkspaceMemberForCurrentUser,
 } from "@/server/workspaces/workspace-members-service";
 import {
@@ -46,141 +26,12 @@ import {
 } from "@/server/workspaces/workspace-invite-service";
 import type {
   ServerWorkspaceResponse,
-  UserWorkspace,
   WorkspaceInviteSummary,
   WorkspaceResponse,
 } from "@/server/workspaces/workspace-types";
-import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 
 const workspaceMemberRoleSchema = z.enum(WORKSPACE_MEMBER_ROLE_VALUES);
 const createInviteInputSchema = createWorkspaceInviteInputSchema(z.enum(routing.locales));
-
-export async function createOrganizationWorkspaceAction(input: {
-  name: string;
-  slug?: string;
-}): Promise<WorkspaceResponse<{ workspaceSlug: string }>> {
-  const parsedInput = createOrganizationWorkspaceInputSchema.safeParse(input);
-
-  if (!parsedInput.success) {
-    return createBadRequestResponse();
-  }
-
-  const response = await createOrganizationWorkspaceForCurrentUser(parsedInput.data);
-
-  if (response.ok) {
-    await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    revalidatePath(APP_HOME_PATH);
-  }
-
-  return finalizeWorkspaceAction(response, (data) => ({
-    workspaceSlug: data.workspace.slug,
-  }));
-}
-
-export async function switchWorkspaceAction(
-  workspaceSlug: string
-): Promise<WorkspaceResponse<{ switched: true; workspaceSlug: string }>> {
-  const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
-
-  if (!parsedWorkspaceSlug.success) {
-    return createBadRequestResponse();
-  }
-
-  const response = await switchWorkspaceForCurrentUser(parsedWorkspaceSlug.data);
-
-  if (response.ok) {
-    await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    revalidatePath(APP_HOME_PATH);
-  }
-
-  return finalizeWorkspaceAction(response, (data) => ({
-    switched: true as const,
-    workspaceSlug: data.workspace.slug,
-  }));
-}
-
-export async function updateWorkspaceGeneralAction(
-  workspaceSlug: string,
-  input: {
-    name?: string;
-    slug?: string;
-    removeAvatar?: boolean;
-    avatarFile?: File;
-  }
-): Promise<WorkspaceResponse<{ workspaceSlug: string; workspace: WorkspaceNavigationItem }>> {
-  const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
-  const parsedInput = updateWorkspaceGeneralInputSchema.safeParse(input);
-
-  if (!parsedWorkspaceSlug.success || !parsedInput.success) {
-    return createBadRequestResponse();
-  }
-
-  if (parsedInput.data.avatarFile && !isWorkspaceAvatarFileValid(parsedInput.data.avatarFile)) {
-    return createBadRequestResponse();
-  }
-
-  const response = await updateWorkspaceGeneralForCurrentUser(
-    parsedWorkspaceSlug.data,
-    parsedInput.data
-  );
-
-  if (response.ok) {
-    const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
-    const workspaceSlugChanged = response.data.previousSlug !== response.data.workspace.slug;
-    const shouldUpdateActiveWorkspaceCookie = activeWorkspaceSlug !== response.data.workspace.slug;
-
-    if (shouldUpdateActiveWorkspaceCookie) {
-      await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    }
-
-    if (workspaceSlugChanged) {
-      revalidateWorkspaceGeneralPaths(response.data.previousSlug, response.data.workspace.slug);
-    }
-  }
-
-  return finalizeWorkspaceAction(response, (data) => ({
-    workspaceSlug: data.workspace.slug,
-    workspace: mapWorkspaceNavigationItem(data.workspace),
-  }));
-}
-
-export async function leaveWorkspaceAction(
-  workspaceSlug: string
-): Promise<WorkspaceResponse<{ left: true }>> {
-  const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
-
-  if (!parsedWorkspaceSlug.success) {
-    return createBadRequestResponse();
-  }
-
-  const response = await leaveWorkspaceForCurrentUser(parsedWorkspaceSlug.data);
-
-  if (response.ok) {
-    await clearActiveWorkspaceSlugCookie();
-    revalidatePath(APP_HOME_PATH);
-  }
-
-  return finalizeWorkspaceAction(response);
-}
-
-export async function deleteOrganizationWorkspaceAction(
-  workspaceSlug: string
-): Promise<WorkspaceResponse<{ deleted: true }>> {
-  const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
-
-  if (!parsedWorkspaceSlug.success) {
-    return createBadRequestResponse();
-  }
-
-  const response = await deleteOrganizationWorkspaceForCurrentUser(parsedWorkspaceSlug.data);
-
-  if (response.ok) {
-    await clearActiveWorkspaceSlugCookie();
-    revalidatePath(APP_HOME_PATH);
-  }
-
-  return finalizeWorkspaceAction(response);
-}
 
 export async function changeMemberRoleAction(
   workspaceSlug: string,
@@ -370,39 +221,6 @@ function createBadRequestResponse<TData>(): WorkspaceResponse<TData> {
   };
 }
 
-function isWorkspaceAvatarFileValid(avatarFile: File): boolean {
-  if (!avatarFile.type.startsWith("image/")) {
-    return false;
-  }
-
-  if (avatarFile.size > workspaceAvatarMaxSizeBytes) {
-    return false;
-  }
-
-  return true;
-}
-
-function revalidateWorkspaceGeneralPaths(currentSlug: string, nextSlug: string): void {
-  revalidatePath(getWorkspaceSettingsPath(currentSlug));
-  revalidatePath(getWorkspaceOverviewPath(currentSlug));
-
-  if (currentSlug !== nextSlug) {
-    revalidatePath(getWorkspaceSettingsPath(nextSlug));
-    revalidatePath(getWorkspaceOverviewPath(nextSlug));
-  }
-}
-
 function revalidateWorkspaceMembersPath(workspaceSlug: string): void {
   revalidatePath(getWorkspaceSettingsMembersPath(workspaceSlug));
-}
-
-function mapWorkspaceNavigationItem(workspace: UserWorkspace): WorkspaceNavigationItem {
-  return {
-    id: workspace.id,
-    slug: workspace.slug,
-    name: workspace.name,
-    role: workspace.role,
-    avatarUrl: workspace.avatarUrl,
-    memberCount: workspace.memberCount,
-  };
 }

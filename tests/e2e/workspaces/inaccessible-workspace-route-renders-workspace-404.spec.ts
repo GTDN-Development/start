@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 import type PocketBase from "pocketbase";
 import { DEFAULT_AUTH_TEST_PASSWORD, signInUser } from "../helpers/auth";
 import {
-  createOrganizationWorkspace,
   createPocketBaseAdminClient,
+  createWorkspace,
   createVerifiedUser,
   deleteSignedUpUsersByEmail,
   deleteWorkspaceGraph,
@@ -28,7 +28,7 @@ test("inaccessible workspace URL renders workspace-scoped 404 state", async ({ p
     const owner = await createVerifiedUser({ pb, email: ownerEmail, password });
     await createVerifiedUser({ pb, email: unrelatedEmail, password });
 
-    await createOrganizationWorkspace({
+    await createWorkspace({
       pb,
       userId: owner.id,
       name: workspaceName,

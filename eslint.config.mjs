@@ -1,6 +1,7 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import reactHooks from "eslint-plugin-react-hooks";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -14,6 +15,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
   ]),
   {
+    plugins: {
+      "react-hooks": reactHooks,
+    },
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",
@@ -68,12 +72,14 @@ const eslintConfig = defineConfig([
       "src/components/ui/**/*.{ts,tsx}",
       "src/hooks/use-mobile.ts",
       "src/lib/utils.ts",
+      "tests/**/*.cjs",
     ],
     rules: {
       "@typescript-eslint/no-unused-vars": "off",
       "func-style": "off",
       quotes: "off",
       "no-restricted-syntax": "off",
+      "@typescript-eslint/no-require-imports": "off",
       "react-hooks/set-state-in-effect": "off",
     },
   },

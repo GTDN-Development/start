@@ -52,12 +52,16 @@ import {
 } from "@/server/device-sessions/device-sessions-cookie";
 import { validateDeviceSessionOrInvalidate } from "@/server/device-sessions/device-sessions-service";
 import {
-  confirmEmailChangeToken,
-  confirmPasswordResetToken,
   getServerAuthSession,
+} from "./auth-session-service";
+import {
+  confirmEmailChangeToken,
   requestEmailVerificationForEmail,
+} from "./auth-email-verification-service";
+import {
+  confirmPasswordResetToken,
   requestPasswordResetForEmail,
-} from "./auth-service";
+} from "./auth-password-reset-service";
 
 describe("auth-service", function describeAuthService() {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;

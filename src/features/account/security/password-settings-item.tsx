@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { authConfig } from "@/config/auth";
 import { SIGN_IN_PATH } from "@/config/routes";
-import { updateAccountPasswordAction } from "@/features/account/actions/account-actions";
+import { updateAccountPasswordAction } from "@/features/account/security/account-security-actions";
 import {
   createAccountPasswordFormSchema,
   type AccountPasswordFormValues,

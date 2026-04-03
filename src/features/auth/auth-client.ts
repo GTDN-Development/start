@@ -24,7 +24,7 @@ import {
   signInAction,
   signOutAction,
   signUpAction,
-} from "@/features/auth/actions/auth-actions";
+} from "@/features/auth/auth-actions";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import { runAsyncTransition } from "@/lib/app-utils";
 

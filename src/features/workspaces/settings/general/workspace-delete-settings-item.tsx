@@ -30,8 +30,8 @@ import {
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
 import { APP_HOME_PATH } from "@/config/routes";
-import { deleteOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
 import { createWorkspaceDeleteFormSchema } from "@/features/workspaces/workspace-schemas";
+import { deleteWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
 import { runAsyncTransition } from "@/lib/app-utils";
@@ -75,9 +75,7 @@ export function WorkspaceDeleteSettingsItem({
         return;
       }
 
-      const response = await runAsyncTransition(() =>
-        deleteOrganizationWorkspaceAction(workspace.slug)
-      );
+      const response = await runAsyncTransition(() => deleteWorkspaceAction(workspace.slug));
 
       if (!response.ok) {
         toast.error(t("status.failed"), {

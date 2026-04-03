@@ -21,8 +21,8 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Skeleton } from "@/components/ui/skeleton";
-import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import { updateWorkspaceGeneralAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import {
   WorkspaceAvatar,
   WorkspaceAvatarFallback,

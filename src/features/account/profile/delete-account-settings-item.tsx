@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { SIGN_IN_PATH } from "@/config/routes";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
-import { deleteAccountAction } from "@/features/account/actions/account-actions";
+import { deleteAccountAction } from "@/features/account/security/account-security-actions";
 import { createAccountDeleteFormSchema } from "@/features/account/account-schemas";
 import {
   SettingsItem,

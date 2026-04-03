@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "@/components/ui/link";
 import { Badge } from "@/components/ui/badge";
-import { legalLinks } from "@/config/navigation";
+import { legalLinks } from "@/config/menu";
 import { useTranslations } from "next-intl";
 import { isCookieConsentEnabled, type ConsentState } from "./cookie-consent";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   removeAccountAvatarAction,
   uploadAccountAvatarAction,
-} from "@/features/account/actions/account-actions";
+} from "@/features/account/profile/account-profile-actions";
 import { accountAvatarMaxSizeBytes } from "@/features/account/account-schemas";
 import { useAccountProfile } from "@/features/account/account-profile-context";
 import {

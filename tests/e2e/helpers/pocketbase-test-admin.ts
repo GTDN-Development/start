@@ -75,7 +75,7 @@ export async function deleteUserDeviceSessionsByUserId(
   }
 }
 
-export async function createOrganizationWorkspace(options: {
+export async function createWorkspace(options: {
   pb: PocketBase;
   userId: string;
   name: string;

@@ -13,14 +13,14 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { leaveWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import {
   changeMemberRoleAction,
-  leaveWorkspaceAction,
   refreshInviteLinkAction,
   removeMemberAction,
   resendInviteAction,
   revokeInviteAction,
-} from "@/features/workspaces/actions/workspace-actions";
+} from "@/features/workspaces/settings/members/workspace-members-actions";
 import {
   canAssignWorkspaceMemberRole,
   canChangeWorkspaceMemberRole,

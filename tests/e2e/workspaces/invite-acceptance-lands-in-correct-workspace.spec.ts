@@ -2,8 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import type PocketBase from "pocketbase";
 import { DEFAULT_AUTH_TEST_PASSWORD, expectSignInPage, signInUser } from "../helpers/auth";
 import {
-  createOrganizationWorkspace,
   createPocketBaseAdminClient,
+  createWorkspace,
   createVerifiedUser,
   createWorkspaceInvite,
   deleteSignedUpUsersByEmail,
@@ -29,7 +29,7 @@ test("invited user accepts invite and lands in the correct workspace", async ({ 
     const owner = await createVerifiedUser({ pb, email: ownerEmail, password });
     await createVerifiedUser({ pb, email: invitedEmail, password });
 
-    const { workspace } = await createOrganizationWorkspace({
+    const { workspace } = await createWorkspace({
       pb,
       userId: owner.id,
       name: workspaceName,

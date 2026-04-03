@@ -8,7 +8,7 @@ import {
   legalItems,
   type MenuLink,
   type MenuLabelKey,
-} from "@/config/navigation";
+} from "@/config/menu";
 import {
   DropdownMenu,
   DropdownMenuContent,

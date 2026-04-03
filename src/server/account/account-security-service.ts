@@ -1,5 +1,5 @@
 import type { UsersRecord } from "@/types/pocketbase";
-import type { ServerAuthResponse } from "@/server/auth/auth-service-shared";
+import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import { revokeAllDeviceSessions } from "@/server/device-sessions/device-sessions-service";
 import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
 import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
@@ -8,16 +8,22 @@ import {
   listUserWorkspaceMembershipRecords,
 } from "@/server/workspaces/workspace-repository";
 import {
-  DeleteAccountPayload,
   getUnauthorizedAccountCookies,
   logAccountServiceError,
   mapDeleteAccountErrorCode,
   mapDeleteAccountPasswordErrorCode,
   mapUpdatePasswordErrorCode,
-  requireCurrentAccountUser,
-  UpdateAccountPasswordPayload,
-} from "@/server/account/account-service-shared";
+} from "@/server/account/account-errors";
+import { requireCurrentAccountUser } from "@/server/account/account-current-user";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
+
+type DeleteAccountPayload = {
+  deleted: true;
+};
+
+type UpdateAccountPasswordPayload = {
+  passwordUpdated: true;
+};
 
 export async function deleteCurrentUserAccountWithPassword(
   password: string
