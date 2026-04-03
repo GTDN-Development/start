@@ -42,7 +42,8 @@ We want the smallest setup that still works well for:
 - auth verification and reset flows
 - workspace invitation and membership flows
 - email-driven flows through Mailtrap
-- future business-rule tests around auth and workspaces
+- account security and device-session flows
+- business-rule tests around auth, workspaces, account, and security
 
 ## File Map
 
@@ -51,9 +52,15 @@ We want the smallest setup that still works well for:
 - shared test env loader: [load-test-env.cjs](/Users/fanda/Dev/start/tests/load-test-env.cjs)
 - Next test bootstrap runner: [run-next-with-test-env.cjs](/Users/fanda/Dev/start/tests/scripts/run-next-with-test-env.cjs)
 - Vitest setup: [setup.ts](/Users/fanda/Dev/start/tests/vitest/setup.ts)
-- PocketBase admin helper: [pocketbase-admin.ts](/Users/fanda/Dev/start/tests/e2e/helpers/pocketbase-admin.ts)
+- PocketBase test admin helper: [pocketbase-test-admin.ts](/Users/fanda/Dev/start/tests/e2e/helpers/pocketbase-test-admin.ts)
 - Mailtrap helper: [mailtrap.ts](/Users/fanda/Dev/start/tests/e2e/helpers/mailtrap.ts)
 - test run id helper: [test-run.ts](/Users/fanda/Dev/start/tests/e2e/helpers/test-run.ts)
+- current Vitest coverage example: [post-auth-redirect.test.ts](/Users/fanda/Dev/start/src/features/auth/post-auth-redirect.test.ts)
+- current Vitest coverage example: [workspace-members-service.test.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-members-service.test.ts)
+- current Vitest coverage example: [workspace-resolution-service.test.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.test.ts)
+- current Vitest coverage example: [account-service.test.ts](/Users/fanda/Dev/start/src/server/account/account-service.test.ts)
+- current Vitest coverage example: [auth-service.test.ts](/Users/fanda/Dev/start/src/server/auth/auth-service.test.ts)
+- current Vitest coverage example: [device-sessions-service.test.ts](/Users/fanda/Dev/start/src/server/device-sessions/device-sessions-service.test.ts)
 
 ## Conventions
 
