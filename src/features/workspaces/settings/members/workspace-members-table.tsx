@@ -39,17 +39,17 @@ export function WorkspaceMembersTable({
   currentUserId,
   actorRole,
   ownerCount,
-  onChangeRoleRequest,
-  onLeaveWorkspaceRequest,
-  onRemoveMemberRequest,
+  onChangeRoleRequestAction,
+  onLeaveWorkspaceRequestAction,
+  onRemoveMemberRequestAction,
 }: {
   rows: WorkspaceSettingsMember[];
   currentUserId: string;
   actorRole: WorkspaceSettingsWorkspace["role"];
   ownerCount: number;
-  onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
-  onLeaveWorkspaceRequest: () => void;
-  onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
+  onChangeRoleRequestAction: (member: WorkspaceSettingsMember) => void;
+  onLeaveWorkspaceRequestAction: () => void;
+  onRemoveMemberRequestAction: (member: WorkspaceSettingsMember) => void;
 }) {
   return (
     <>
@@ -59,9 +59,9 @@ export function WorkspaceMembersTable({
           currentUserId={currentUserId}
           actorRole={actorRole}
           ownerCount={ownerCount}
-          onChangeRoleRequest={onChangeRoleRequest}
-          onLeaveWorkspaceRequest={onLeaveWorkspaceRequest}
-          onRemoveMemberRequest={onRemoveMemberRequest}
+          onChangeRoleRequestAction={onChangeRoleRequestAction}
+          onLeaveWorkspaceRequestAction={onLeaveWorkspaceRequestAction}
+          onRemoveMemberRequestAction={onRemoveMemberRequestAction}
         />
       </div>
       <div className="grid gap-3 @lg/members-management:hidden">
@@ -72,9 +72,9 @@ export function WorkspaceMembersTable({
             currentUserId={currentUserId}
             actorRole={actorRole}
             ownerCount={ownerCount}
-            onChangeRoleRequest={onChangeRoleRequest}
-            onLeaveWorkspaceRequest={onLeaveWorkspaceRequest}
-            onRemoveMemberRequest={onRemoveMemberRequest}
+            onChangeRoleRequestAction={onChangeRoleRequestAction}
+            onLeaveWorkspaceRequestAction={onLeaveWorkspaceRequestAction}
+            onRemoveMemberRequestAction={onRemoveMemberRequestAction}
           />
         ))}
       </div>
@@ -100,17 +100,17 @@ function WorkspaceMembersDataTable({
   currentUserId,
   actorRole,
   ownerCount,
-  onChangeRoleRequest,
-  onLeaveWorkspaceRequest,
-  onRemoveMemberRequest,
+  onChangeRoleRequestAction,
+  onLeaveWorkspaceRequestAction,
+  onRemoveMemberRequestAction,
 }: {
   rows: WorkspaceSettingsMember[];
   currentUserId: string;
   actorRole: WorkspaceSettingsWorkspace["role"];
   ownerCount: number;
-  onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
-  onLeaveWorkspaceRequest: () => void;
-  onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
+  onChangeRoleRequestAction: (member: WorkspaceSettingsMember) => void;
+  onLeaveWorkspaceRequestAction: () => void;
+  onRemoveMemberRequestAction: (member: WorkspaceSettingsMember) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
@@ -140,9 +140,9 @@ function WorkspaceMembersDataTable({
                   !canManageWorkspaceMemberRole(actorRole, member.role) ||
                   isLastWorkspaceOwner(member.role, ownerCount)
                 }
-                onChangeRoleRequest={onChangeRoleRequest}
-                onLeaveWorkspaceRequest={onLeaveWorkspaceRequest}
-                onRemoveMemberRequest={onRemoveMemberRequest}
+                onChangeRoleRequestAction={onChangeRoleRequestAction}
+                onLeaveWorkspaceRequestAction={onLeaveWorkspaceRequestAction}
+                onRemoveMemberRequestAction={onRemoveMemberRequestAction}
               />
             </TableCell>
           </TableRow>
@@ -157,17 +157,17 @@ function WorkspaceMemberDescriptionRow({
   currentUserId,
   actorRole,
   ownerCount,
-  onChangeRoleRequest,
-  onLeaveWorkspaceRequest,
-  onRemoveMemberRequest,
+  onChangeRoleRequestAction,
+  onLeaveWorkspaceRequestAction,
+  onRemoveMemberRequestAction,
 }: {
   member: WorkspaceSettingsMember;
   currentUserId: string;
   actorRole: WorkspaceSettingsWorkspace["role"];
   ownerCount: number;
-  onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
-  onLeaveWorkspaceRequest: () => void;
-  onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
+  onChangeRoleRequestAction: (member: WorkspaceSettingsMember) => void;
+  onLeaveWorkspaceRequestAction: () => void;
+  onRemoveMemberRequestAction: (member: WorkspaceSettingsMember) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
@@ -193,9 +193,9 @@ function WorkspaceMemberDescriptionRow({
               !canManageWorkspaceMemberRole(actorRole, member.role) ||
               isLastWorkspaceOwner(member.role, ownerCount)
             }
-            onChangeRoleRequest={onChangeRoleRequest}
-            onLeaveWorkspaceRequest={onLeaveWorkspaceRequest}
-            onRemoveMemberRequest={onRemoveMemberRequest}
+            onChangeRoleRequestAction={onChangeRoleRequestAction}
+            onLeaveWorkspaceRequestAction={onLeaveWorkspaceRequestAction}
+            onRemoveMemberRequestAction={onRemoveMemberRequestAction}
           />
         </DescriptionDetails>
       </DescriptionList>
@@ -227,17 +227,17 @@ function WorkspaceMembersActionMenu({
   currentUserId,
   isChangeRoleDisabled,
   isRemoveDisabled,
-  onChangeRoleRequest,
-  onLeaveWorkspaceRequest,
-  onRemoveMemberRequest,
+  onChangeRoleRequestAction,
+  onLeaveWorkspaceRequestAction,
+  onRemoveMemberRequestAction,
 }: {
   member: WorkspaceSettingsMember;
   currentUserId: string;
   isChangeRoleDisabled: boolean;
   isRemoveDisabled: boolean;
-  onChangeRoleRequest: (member: WorkspaceSettingsMember) => void;
-  onLeaveWorkspaceRequest: () => void;
-  onRemoveMemberRequest: (member: WorkspaceSettingsMember) => void;
+  onChangeRoleRequestAction: (member: WorkspaceSettingsMember) => void;
+  onLeaveWorkspaceRequestAction: () => void;
+  onRemoveMemberRequestAction: (member: WorkspaceSettingsMember) => void;
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const isCurrentUser = member.userId === currentUserId;
@@ -261,18 +261,18 @@ function WorkspaceMembersActionMenu({
       />
       <DropdownMenuContent align="end" className="w-auto min-w-44">
         <DropdownMenuItem
-          onClick={() => onChangeRoleRequest(member)}
+          onClick={() => onChangeRoleRequestAction(member)}
           disabled={isChangeRoleDisabled}
         >
           <PencilLineIcon aria-hidden="true" /> {t("menus.members.changeRole")}
         </DropdownMenuItem>
         {isCurrentUser ? (
-          <DropdownMenuItem onClick={onLeaveWorkspaceRequest} variant="destructive">
+          <DropdownMenuItem onClick={onLeaveWorkspaceRequestAction} variant="destructive">
             <LogOutIcon aria-hidden="true" /> {t("menus.members.leaveWorkspace")}
           </DropdownMenuItem>
         ) : (
           <DropdownMenuItem
-            onClick={() => onRemoveMemberRequest(member)}
+            onClick={() => onRemoveMemberRequestAction(member)}
             variant="destructive"
             disabled={isRemoveDisabled}
           >

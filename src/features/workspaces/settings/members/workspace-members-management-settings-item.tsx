@@ -432,9 +432,9 @@ export function WorkspaceMembersManagementSettingsItem({
                   currentUserId={workspace.currentUserId}
                   actorRole={workspace.role}
                   ownerCount={ownerCount}
-                  onChangeRoleRequest={handleChangeRoleRequest}
-                  onLeaveWorkspaceRequest={handleLeaveWorkspaceRequest}
-                  onRemoveMemberRequest={handleRemoveMemberRequest}
+                  onChangeRoleRequestAction={handleChangeRoleRequest}
+                  onLeaveWorkspaceRequestAction={handleLeaveWorkspaceRequest}
+                  onRemoveMemberRequestAction={handleRemoveMemberRequest}
                 />
               </TabsContent>
 
@@ -443,9 +443,9 @@ export function WorkspaceMembersManagementSettingsItem({
                   <WorkspaceInvitationsTable
                     rows={invites}
                     isReadOnly={isInviteManagementReadOnly}
-                    onCopyInvitationLink={handleCopyInvitationLink}
-                    onResendInvitationRequest={handleResendInvitationRequest}
-                    onRemoveInvitationRequest={handleRemoveInvitationRequest}
+                    onCopyInvitationLinkAction={handleCopyInvitationLink}
+                    onResendInvitationRequestAction={handleResendInvitationRequest}
+                    onRemoveInvitationRequestAction={handleRemoveInvitationRequest}
                   />
                 ) : (
                   <WorkspacePendingInvitationsEmptyState />

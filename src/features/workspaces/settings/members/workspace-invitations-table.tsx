@@ -35,37 +35,138 @@ import type { WorkspaceSettingsInvite } from "@/features/workspaces/settings/wor
 export function WorkspaceInvitationsTable({
   rows,
   isReadOnly,
-  onCopyInvitationLink,
-  onResendInvitationRequest,
-  onRemoveInvitationRequest,
+  onCopyInvitationLinkAction,
+  onResendInvitationRequestAction,
+  onRemoveInvitationRequestAction,
 }: {
   rows: WorkspaceSettingsInvite[];
   isReadOnly: boolean;
-  onCopyInvitationLink: (invitation: WorkspaceSettingsInvite) => void;
-  onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
-  onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
+  onCopyInvitationLinkAction: (invitation: WorkspaceSettingsInvite) => void;
+  onResendInvitationRequestAction: (invitation: WorkspaceSettingsInvite) => void;
+  onRemoveInvitationRequestAction: (invitation: WorkspaceSettingsInvite) => void;
 }) {
+  const t = useTranslations("pages.workspace.members.management");
+  const tRoles = useTranslations("pages.workspace.members.roles");
+
   return (
     <>
       <div className="hidden @lg/members-management:block">
-        <WorkspaceInvitationsDataTable
-          rows={rows}
-          isReadOnly={isReadOnly}
-          onCopyInvitationLink={onCopyInvitationLink}
-          onResendInvitationRequest={onResendInvitationRequest}
-          onRemoveInvitationRequest={onRemoveInvitationRequest}
-        />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("table.invites.email")}</TableHead>
+              <TableHead>{t("table.invites.role")}</TableHead>
+              <TableHead className="text-right">{t("table.invites.actions")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((invitation) => (
+              <TableRow key={invitation.id}>
+                <TableCell className="min-w-72">
+                  <p className="text-sm font-medium">{invitation.emailNormalized}</p>
+                </TableCell>
+                <TableCell>{getWorkspaceMemberRoleLabel(invitation.role, tRoles)}</TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      nativeButton={true}
+                      render={
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("menus.invites.ariaLabel")}
+                          disabled={isReadOnly}
+                        >
+                          <MoreHorizontalIcon aria-hidden="true" className="size-4" />
+                        </Button>
+                      }
+                    />
+                    <DropdownMenuContent align="end" className="w-auto min-w-44">
+                      <DropdownMenuItem
+                        onClick={() => onCopyInvitationLinkAction(invitation)}
+                        disabled={isReadOnly}
+                      >
+                        <CopyIcon aria-hidden="true" /> {t("menus.invites.copyLink")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onResendInvitationRequestAction(invitation)}
+                        disabled={isReadOnly}
+                      >
+                        <SendIcon aria-hidden="true" /> {t("menus.invites.resend")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => onRemoveInvitationRequestAction(invitation)}
+                        variant="destructive"
+                        disabled={isReadOnly}
+                      >
+                        <TrashIcon aria-hidden="true" /> {t("menus.invites.remove")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
+
       <div className="grid gap-3 @lg/members-management:hidden">
         {rows.map((invitation) => (
-          <WorkspaceInvitationDescriptionRow
-            key={invitation.id}
-            invitation={invitation}
-            isReadOnly={isReadOnly}
-            onCopyInvitationLink={onCopyInvitationLink}
-            onResendInvitationRequest={onResendInvitationRequest}
-            onRemoveInvitationRequest={onRemoveInvitationRequest}
-          />
+          <div key={invitation.id} className="bg-background rounded-xl border px-3">
+            <DescriptionList>
+              <DescriptionTerm>{t("table.invites.email")}</DescriptionTerm>
+              <DescriptionDetails>
+                <span className="text-sm font-medium">{invitation.emailNormalized}</span>
+              </DescriptionDetails>
+
+              <DescriptionTerm>{t("table.invites.role")}</DescriptionTerm>
+              <DescriptionDetails>
+                {getWorkspaceMemberRoleLabel(invitation.role, tRoles)}
+              </DescriptionDetails>
+
+              <DescriptionTerm>{t("table.invites.actions")}</DescriptionTerm>
+              <DescriptionDetails>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    nativeButton={true}
+                    render={
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label={t("menus.invites.ariaLabel")}
+                        disabled={isReadOnly}
+                      >
+                        <MoreHorizontalIcon aria-hidden="true" className="size-4" />
+                      </Button>
+                    }
+                  />
+                  <DropdownMenuContent align="end" className="w-auto min-w-44">
+                    <DropdownMenuItem
+                      onClick={() => onCopyInvitationLinkAction(invitation)}
+                      disabled={isReadOnly}
+                    >
+                      <CopyIcon aria-hidden="true" /> {t("menus.invites.copyLink")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => onResendInvitationRequestAction(invitation)}
+                      disabled={isReadOnly}
+                    >
+                      <SendIcon aria-hidden="true" /> {t("menus.invites.resend")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => onRemoveInvitationRequestAction(invitation)}
+                      variant="destructive"
+                      disabled={isReadOnly}
+                    >
+                      <TrashIcon aria-hidden="true" /> {t("menus.invites.remove")}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </DescriptionDetails>
+            </DescriptionList>
+          </div>
         ))}
       </div>
     </>
@@ -102,147 +203,5 @@ export function WorkspaceInvitationSummaryRow({
         {getWorkspaceMemberRoleLabel(invitation.role, tRoles)}
       </span>
     </div>
-  );
-}
-
-function WorkspaceInvitationsDataTable({
-  rows,
-  isReadOnly,
-  onCopyInvitationLink,
-  onResendInvitationRequest,
-  onRemoveInvitationRequest,
-}: {
-  rows: WorkspaceSettingsInvite[];
-  isReadOnly: boolean;
-  onCopyInvitationLink: (invitation: WorkspaceSettingsInvite) => void;
-  onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
-  onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
-}) {
-  const t = useTranslations("pages.workspace.members.management");
-  const tRoles = useTranslations("pages.workspace.members.roles");
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>{t("table.invites.email")}</TableHead>
-          <TableHead>{t("table.invites.role")}</TableHead>
-          <TableHead className="text-right">{t("table.invites.actions")}</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rows.map((invitation) => (
-          <TableRow key={invitation.id}>
-            <TableCell className="min-w-72">
-              <p className="text-sm font-medium">{invitation.emailNormalized}</p>
-            </TableCell>
-            <TableCell>{getWorkspaceMemberRoleLabel(invitation.role, tRoles)}</TableCell>
-            <TableCell className="text-right">
-              <WorkspaceInvitationActionMenu
-                invitation={invitation}
-                disabled={isReadOnly}
-                onCopyInvitationLink={onCopyInvitationLink}
-                onResendInvitationRequest={onResendInvitationRequest}
-                onRemoveInvitationRequest={onRemoveInvitationRequest}
-              />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
-function WorkspaceInvitationDescriptionRow({
-  invitation,
-  isReadOnly,
-  onCopyInvitationLink,
-  onResendInvitationRequest,
-  onRemoveInvitationRequest,
-}: {
-  invitation: WorkspaceSettingsInvite;
-  isReadOnly: boolean;
-  onCopyInvitationLink: (invitation: WorkspaceSettingsInvite) => void;
-  onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
-  onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
-}) {
-  const t = useTranslations("pages.workspace.members.management");
-  const tRoles = useTranslations("pages.workspace.members.roles");
-
-  return (
-    <div className="bg-background rounded-xl border px-3">
-      <DescriptionList>
-        <DescriptionTerm>{t("table.invites.email")}</DescriptionTerm>
-        <DescriptionDetails>
-          <span className="text-sm font-medium">{invitation.emailNormalized}</span>
-        </DescriptionDetails>
-
-        <DescriptionTerm>{t("table.invites.role")}</DescriptionTerm>
-        <DescriptionDetails>
-          {getWorkspaceMemberRoleLabel(invitation.role, tRoles)}
-        </DescriptionDetails>
-
-        <DescriptionTerm>{t("table.invites.actions")}</DescriptionTerm>
-        <DescriptionDetails>
-          <WorkspaceInvitationActionMenu
-            invitation={invitation}
-            disabled={isReadOnly}
-            onCopyInvitationLink={onCopyInvitationLink}
-            onResendInvitationRequest={onResendInvitationRequest}
-            onRemoveInvitationRequest={onRemoveInvitationRequest}
-          />
-        </DescriptionDetails>
-      </DescriptionList>
-    </div>
-  );
-}
-
-function WorkspaceInvitationActionMenu({
-  invitation,
-  disabled,
-  onCopyInvitationLink,
-  onResendInvitationRequest,
-  onRemoveInvitationRequest,
-}: {
-  invitation: WorkspaceSettingsInvite;
-  disabled: boolean;
-  onCopyInvitationLink: (invitation: WorkspaceSettingsInvite) => void;
-  onResendInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
-  onRemoveInvitationRequest: (invitation: WorkspaceSettingsInvite) => void;
-}) {
-  const t = useTranslations("pages.workspace.members.management");
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        nativeButton={true}
-        render={
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label={t("menus.invites.ariaLabel")}
-            disabled={disabled}
-          >
-            <MoreHorizontalIcon aria-hidden="true" className="size-4" />
-          </Button>
-        }
-      />
-      <DropdownMenuContent align="end" className="w-auto min-w-44">
-        <DropdownMenuItem onClick={() => onCopyInvitationLink(invitation)} disabled={disabled}>
-          <CopyIcon aria-hidden="true" /> {t("menus.invites.copyLink")}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onResendInvitationRequest(invitation)} disabled={disabled}>
-          <SendIcon aria-hidden="true" /> {t("menus.invites.resend")}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => onRemoveInvitationRequest(invitation)}
-          variant="destructive"
-          disabled={disabled}
-        >
-          <TrashIcon aria-hidden="true" /> {t("menus.invites.remove")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }

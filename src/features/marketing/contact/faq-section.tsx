@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDownIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -48,49 +45,31 @@ export function FaqSection({
   className,
   ...props
 }: { faqData?: FaqItem[] } & React.ComponentProps<"div">) {
+  const items = faqData ?? defaultFaqData;
+
   return (
     <div className={cn("grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-12", className)} {...props}>
       <h2 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl md:sticky md:top-18 md:self-start">
         Frequently Asked Questions
       </h2>
       <div className="md:col-span-2">
-        <Faq faqData={faqData} />
+        <div className="flex flex-col divide-y">
+          {items.map((faq, index) => (
+            <Collapsible key={index}>
+              <CollapsibleTrigger className="flex w-full items-center justify-between gap-4 py-4 text-left font-medium">
+                <span>{faq.question}</span>
+                <ChevronDownIcon
+                  className="size-4 shrink-0 transition-transform duration-200"
+                  aria-hidden="true"
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="text-muted-foreground overflow-hidden">
+                <p className="pb-4">{faq.answer}</p>
+              </CollapsibleContent>
+            </Collapsible>
+          ))}
+        </div>
       </div>
-    </div>
-  );
-}
-
-function Faq({ faqData = defaultFaqData }: { faqData?: FaqItem[] } = {}) {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
-  return (
-    <div className="flex flex-col">
-      {faqData.map((faq, index) => (
-        <Collapsible
-          key={index}
-          open={openIndex === index}
-          onOpenChange={(open) => setOpenIndex(open ? index : null)}
-        >
-          <CollapsibleTrigger
-            className={cn(
-              "hover:text-foreground/70 flex w-full items-center justify-between gap-4 py-4 text-left font-medium transition-colors",
-              index !== 0 && "border-t"
-            )}
-          >
-            <span>{faq.question}</span>
-            <ChevronDownIcon
-              className={cn(
-                "size-4 shrink-0 transition-transform duration-200",
-                openIndex === index && "rotate-180"
-              )}
-              aria-hidden="true"
-            />
-          </CollapsibleTrigger>
-          <CollapsibleContent className="text-muted-foreground overflow-hidden">
-            <p className="pb-4">{faq.answer}</p>
-          </CollapsibleContent>
-        </Collapsible>
-      ))}
     </div>
   );
 }
