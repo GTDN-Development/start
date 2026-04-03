@@ -3,7 +3,6 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountChangePasswordItem } from "@/features/account/security/password-settings-item";
 import { SettingsPage } from "@/features/application/settings-page";
-import { createPageMetadata } from "@/lib/metadata";
 import { YourDevicesSettingsItem } from "@/features/account/security/your-devices-settings-item";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { listDeviceSessions } from "@/server/device-sessions/device-sessions-service";
@@ -18,12 +17,10 @@ export async function generateMetadata(
     namespace: "pages.account",
   });
 
-  return createPageMetadata({
+  return {
     title: t("securityPage.title"),
     description: t("securityPage.description"),
-    locale: locale as Locale,
-    pathname: "/account/security",
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/account/security">) {

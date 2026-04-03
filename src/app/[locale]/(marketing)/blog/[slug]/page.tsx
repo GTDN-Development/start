@@ -9,7 +9,7 @@ import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { app } from "@/config/app";
 import { getPathname } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
+import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
 import { getAllPosts, getPostBySlug, stripHtmlTags } from "@/server/blog/blog-api";
 
 export const revalidate = 180;
@@ -30,33 +30,31 @@ export async function generateMetadata(
   }
 
   const title = stripHtmlTags(post.title);
-  const description = stripHtmlTags(post.excerpt);
+  const description = stripHtmlTags(post.excerpt) || app.site.defaultDescription;
   const href = { pathname: "/blog/[slug]" as const, params: { slug } };
+  const localizedUrl = getPathname({ href, locale: locale as Locale });
+  const socialImage = post.coverImage
+    ? { url: post.coverImage.url, alt: post.coverImage.alt }
+    : defaultSocialPreviewImage;
 
   return {
     title,
     description,
-    alternates: {
-      canonical: getPathname({ href, locale: locale as Locale }),
-      languages: Object.fromEntries(
-        routing.locales.map((l) => [l, getPathname({ href, locale: l })])
-      ),
-    },
+    alternates: getLocalizedAlternates(href, locale as Locale),
     openGraph: {
       type: "article",
       siteName: app.site.name,
+      url: localizedUrl,
       title,
       description,
       publishedTime: post.date,
-      images: post.coverImage
-        ? [{ url: post.coverImage.url, alt: post.coverImage.alt }]
-        : undefined,
+      images: [socialImage],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: post.coverImage ? [post.coverImage.url] : undefined,
+      images: [socialImage.url],
     },
   };
 }

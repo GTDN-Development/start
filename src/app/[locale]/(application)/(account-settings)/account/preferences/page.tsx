@@ -5,7 +5,6 @@ import { AccountCookieSettingsItem } from "@/features/account/preferences/accoun
 import { AccountLanguageSettingsItem } from "@/features/account/preferences/account-language-settings-item";
 import { AccountThemeSettingsItem } from "@/features/account/preferences/account-theme-settings-item";
 import { SettingsPage } from "@/features/application/settings-page";
-import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/account/preferences">
@@ -17,12 +16,10 @@ export async function generateMetadata(
     namespace: "pages.account",
   });
 
-  return createPageMetadata({
+  return {
     title: t("preferencesPage.title"),
     description: t("preferencesPage.description"),
-    locale: locale as Locale,
-    pathname: "/account/preferences",
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/account/preferences">) {

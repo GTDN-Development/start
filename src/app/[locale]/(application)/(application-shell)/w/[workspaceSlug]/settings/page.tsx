@@ -8,9 +8,7 @@ import { WorkspaceLeaveSettingsItem } from "@/features/workspaces/settings/gener
 import { WorkspaceNameSettingsItem } from "@/features/workspaces/settings/general/workspace-name-settings-item";
 import { WorkspaceUrlSettingsItem } from "@/features/workspaces/settings/general/workspace-url-settings-item";
 import { AUTH_REDIRECTS } from "@/config/auth";
-import { WORKSPACE_SETTINGS_PATH } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
-import { createPageMetadata } from "@/lib/metadata";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
 import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
@@ -19,7 +17,7 @@ import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-rou
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings">
 ): Promise<Metadata> {
-  const { locale, workspaceSlug } = await props.params;
+  const { locale } = await props.params;
 
   const tNav = await getTranslations({
     locale: locale as Locale,
@@ -31,17 +29,10 @@ export async function generateMetadata(
     namespace: "pages.workspace",
   });
 
-  return createPageMetadata({
+  return {
     title: `${tNav("settings")} · ${tWorkspace("nav.general")}`,
     description: tWorkspace("description"),
-    locale: locale as Locale,
-    pathname: {
-      pathname: WORKSPACE_SETTINGS_PATH,
-      params: {
-        workspaceSlug,
-      },
-    },
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]/settings">) {

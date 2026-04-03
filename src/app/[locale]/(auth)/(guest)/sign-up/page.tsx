@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
-import { SIGN_IN_PATH, SIGN_UP_PATH } from "@/config/routes";
+import { SIGN_IN_PATH } from "@/config/routes";
 import {
   AuthHero,
   AuthHeroContent,
@@ -10,7 +10,6 @@ import {
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
 import { SignUpForm } from "@/features/auth/sign-up/sign-up-form";
-import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/sign-up">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -20,12 +19,10 @@ export async function generateMetadata(props: PageProps<"/[locale]/sign-up">): P
     namespace: "pages.signUp",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: SIGN_UP_PATH,
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/sign-up">) {

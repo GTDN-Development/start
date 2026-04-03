@@ -3,7 +3,6 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { legal, legalDocumentDates } from "@/config/legal";
-import { createPageMetadata } from "@/lib/metadata";
 import { termsOfService } from "@/config/legal";
 import { TermsOfService } from "@/features/marketing/legal/terms-of-service";
 
@@ -17,16 +16,14 @@ export async function generateMetadata(
     namespace: "pages.termsOfService",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: "/terms-of-service",
     robots: {
       index: false,
       follow: true,
     },
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/terms-of-service">) {

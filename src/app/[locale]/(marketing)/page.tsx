@@ -21,7 +21,7 @@ import { NewsletterCta } from "@/features/marketing/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
 import { MarqueeCompanies } from "@/features/marketing/home/marquee-companies";
 // import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPublicPageMetadata } from "@/lib/metadata";
 import {
   HomeFeature,
   HomeFeatureDescription,
@@ -52,7 +52,7 @@ export async function generateMetadata(props: PageProps<"/[locale]">): Promise<M
     break: () => " ",
   });
 
-  return createPageMetadata({
+  return createPublicPageMetadata({
     title: metadataTitle,
     description: t("description"),
     locale: locale as Locale,

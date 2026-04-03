@@ -8,12 +8,7 @@ import {
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
-import {
-  APP_HOME_PATH,
-  VERIFY_EMAIL_PATH,
-  getInviteHref,
-  getWorkspaceOverviewHref,
-} from "@/config/routes";
+import { APP_HOME_PATH, getInviteHref, getWorkspaceOverviewHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { confirmEmailVerificationToken } from "@/server/auth/auth-email-verification-service";
@@ -24,7 +19,6 @@ import {
   parseVerifyEmailPageState,
   type VerifyEmailPageState,
 } from "@/features/auth/verify-email/verify-email-state";
-import { createPageMetadata } from "@/lib/metadata";
 
 type VerifyEmailPageProps = {
   params: Promise<{
@@ -45,12 +39,10 @@ export async function generateMetadata(props: VerifyEmailPageProps): Promise<Met
     namespace: "pages.verifyEmail",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: VERIFY_EMAIL_PATH,
-  });
+  };
 }
 
 export default async function Page({ params, searchParams }: VerifyEmailPageProps) {

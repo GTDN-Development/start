@@ -4,7 +4,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import {
-  INVITE_PATH,
   SIGN_IN_PATH,
   getInviteAcceptHref,
   getInviteHref,
@@ -14,7 +13,6 @@ import {
 import { resolveApplicationEntryHref } from "@/server/application/application-entry-href";
 import { type AppHref, getPathname, redirect } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { createPageMetadata } from "@/lib/metadata";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
@@ -33,24 +31,17 @@ type InviteTokenPageProps = {
 };
 
 export async function generateMetadata(props: InviteTokenPageProps): Promise<Metadata> {
-  const { locale, token } = await props.params;
+  const { locale } = await props.params;
 
   const t = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.inviteToken",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: {
-      pathname: INVITE_PATH,
-      params: {
-        token,
-      },
-    },
-  });
+  };
 }
 
 export default async function Page({ params }: InviteTokenPageProps) {

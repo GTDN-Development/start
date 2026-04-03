@@ -7,7 +7,7 @@ import { Link } from "@/components/ui/link";
 import { ContactForm } from "@/features/marketing/contact/contact-form";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent } from "@/components/ui/card";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPublicPageMetadata } from "@/lib/metadata";
 import { ContactCopyItem } from "@/features/marketing/contact/contact-copy-item";
 import { legal } from "@/config/legal";
 import { formatPhoneNumber } from "@/lib/app-utils";
@@ -22,7 +22,7 @@ export async function generateMetadata(props: {
     namespace: "pages.contact.sales",
   });
 
-  return createPageMetadata({
+  return createPublicPageMetadata({
     title: t("infoTitle"),
     description: t("infoDescription"),
     locale: locale as Locale,

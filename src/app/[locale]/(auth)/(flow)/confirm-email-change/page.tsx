@@ -9,9 +9,8 @@ import {
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
 import { Link } from "@/components/ui/link";
-import { CONFIRM_EMAIL_CHANGE_PATH, SIGN_IN_PATH } from "@/config/routes";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
-import { createPageMetadata } from "@/lib/metadata";
 
 type ConfirmEmailChangePageProps = {
   params: Promise<{
@@ -30,12 +29,10 @@ export async function generateMetadata(props: ConfirmEmailChangePageProps): Prom
     namespace: "pages.confirmEmailChange",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: CONFIRM_EMAIL_CHANGE_PATH,
-  });
+  };
 }
 
 export default async function Page({ params, searchParams }: ConfirmEmailChangePageProps) {

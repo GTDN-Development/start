@@ -12,12 +12,11 @@ type SocialPreviewImage = {
   alt?: string;
 };
 
-type CreatePageMetadataInput = {
+type CreatePublicPageMetadataInput = {
   locale: Locale;
   title: string;
   description: string;
   pathname: AppHref;
-  robots?: Metadata["robots"];
   // For route-specific generated OG images, add `opengraph-image.tsx` in that route segment.
   // This field is for static per-page overrides when needed.
   socialImage?: SocialPreviewImage;
@@ -30,14 +29,13 @@ export const defaultSocialPreviewImage = {
   alt: app.site.defaultTitle,
 };
 
-export function createPageMetadata({
+export function createPublicPageMetadata({
   locale,
   title,
   description,
   pathname,
-  robots,
   socialImage = defaultSocialPreviewImage,
-}: CreatePageMetadataInput): Metadata {
+}: CreatePublicPageMetadataInput): Metadata {
   const localizedPathname = getPathname({ href: pathname, locale });
 
   return {
@@ -58,7 +56,6 @@ export function createPageMetadata({
       description,
       images: [socialImage.url],
     },
-    ...(robots ? { robots } : {}),
   };
 }
 

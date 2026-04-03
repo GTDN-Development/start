@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { GdprPolicy } from "@/features/marketing/legal/gdpr-policy";
 import { Container } from "@/components/ui/container";
 import { gdprPolicy, legal, legalDocumentDates } from "@/config/legal";
-import { createPageMetadata } from "@/lib/metadata";
+import { GdprPolicy } from "@/features/marketing/legal/gdpr-policy";
 
 export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -14,16 +13,14 @@ export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Prom
     namespace: "pages.gdpr",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: "/gdpr",
     robots: {
       index: false,
       follow: true,
     },
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/gdpr">) {

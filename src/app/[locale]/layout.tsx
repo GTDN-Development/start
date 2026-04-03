@@ -6,7 +6,6 @@ import { Locale, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
-import { getPathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
 import { TailwindScreen } from "@/components/layout/tailwind-screen";
@@ -21,7 +20,6 @@ import {
 } from "@/features/cookies/cookie-server-utils";
 import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { app } from "@/config/app";
-import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
 
 const fontSans = Inter({
   variable: "--font-sans",
@@ -64,32 +62,6 @@ export async function generateMetadata(
     },
     description: t("description"),
     metadataBase: new URL(app.site.url),
-    alternates: getLocalizedAlternates("/", currentLocale),
-    openGraph: {
-      type: "website",
-      siteName: app.site.name,
-      title: t("title"),
-      description: t("description"),
-      url: getPathname({ href: "/", locale: currentLocale }),
-      images: [defaultSocialPreviewImage],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: t("title"),
-      description: t("description"),
-      images: [defaultSocialPreviewImage.url],
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-      },
-    },
     authors: app.metadata.authors,
   };
 }

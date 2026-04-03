@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
-import { RESET_PASSWORD_PATH, SIGN_IN_PATH } from "@/config/routes";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { ResetPasswordForm } from "@/features/auth/reset-password/reset-password-form";
 import {
   AuthHero,
@@ -11,7 +11,6 @@ import {
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
 import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
-import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/reset-password">
@@ -23,12 +22,10 @@ export async function generateMetadata(
     namespace: "pages.resetPassword",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: RESET_PASSWORD_PATH,
-  });
+  };
 }
 
 export default async function Page({
