@@ -1,12 +1,9 @@
 import { expect, test } from "@playwright/test";
 import type PocketBase from "pocketbase";
+import { DEFAULT_AUTH_TEST_PASSWORD, signInUser } from "../helpers/auth";
 import {
-  DEFAULT_AUTH_TEST_PASSWORD,
-  signInUser,
-} from "../helpers/auth";
-import {
-  createOrganizationWorkspace,
   createPocketBaseAdminClient,
+  createWorkspace,
   createVerifiedUser,
   deleteSignedUpUsersByEmail,
   deleteWorkspaceGraph,
@@ -29,7 +26,7 @@ test("workspace root redirects to workspace overview", async ({ page }) => {
     pb = await createPocketBaseAdminClient();
     const user = await createVerifiedUser({ pb, email, password });
 
-    await createOrganizationWorkspace({
+    await createWorkspace({
       pb,
       userId: user.id,
       name: workspaceName,

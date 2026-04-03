@@ -5,7 +5,7 @@ import {
   getInviteHref,
   getWorkspaceOverviewHref,
 } from "@/config/routes";
-import { resolvePostAuthDestinationAction } from "@/features/auth/actions/auth-actions";
+import { resolvePostAuthDestinationAction } from "@/features/auth/auth-actions";
 import type { AppHref } from "@/i18n/navigation";
 import { runAsyncTransition } from "@/lib/app-utils";
 

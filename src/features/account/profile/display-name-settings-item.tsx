@@ -2,10 +2,13 @@
 
 import { useForm } from "@tanstack/react-form";
 import { startTransition, useId, useState } from "react";
-import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { updateAccountProfileAction } from "@/features/account/actions/account-actions";
+import { updateAccountProfileAction } from "@/features/account/profile/account-profile-actions";
+import {
+  accountProfileNameMaxLength,
+  createAccountProfileNameFormSchema,
+} from "@/features/account/account-schemas";
 import { useAccountProfile } from "@/features/account/account-profile-context";
 import {
   SettingsItem,
@@ -22,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { accountConfig } from "@/config/account";
 import { runAsyncTransition } from "@/lib/app-utils";
 import { AlertCircleIcon } from "lucide-react";
 
@@ -30,22 +32,15 @@ type ProfileNameFormValues = {
   name: string;
 };
 
-const MAX_ACCOUNT_PROFILE_NAME_LENGTH = accountConfig.limits.profileNameMaxLength;
-
 export function AccountDisplayNameSettingsItem() {
   const t = useTranslations("pages.account");
   const { profile, patchProfile } = useAccountProfile();
   const nameToastId = useId();
   const [nameStatus, setNameStatus] = useState<InlineStatus>(null);
-  const profileNameSchema = z.object({
-    name: z
-      .string()
-      .trim()
-      .max(MAX_ACCOUNT_PROFILE_NAME_LENGTH, {
-        message: t("profile.fields.name.errors.max", {
-          max: String(MAX_ACCOUNT_PROFILE_NAME_LENGTH),
-        }),
-      }),
+  const profileNameSchema = createAccountProfileNameFormSchema({
+    max: t("profile.fields.name.errors.max", {
+      max: String(accountProfileNameMaxLength),
+    }),
   });
 
   const form = useForm({

@@ -1,10 +1,6 @@
 import type PocketBase from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type {
-  UsersRecord,
-  WorkspaceMembersRecord,
-  WorkspacesRecord,
-} from "@/types/pocketbase";
+import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
 import {
   requireAdminWorkspaceAccessBySlug,

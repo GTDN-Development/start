@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getApiAuthSession, toAuthApiResponse } from "@/server/auth/auth-service";
+import { toAuthApiResponse } from "@/server/auth/auth-response";
+import { getApiAuthSession } from "@/server/auth/auth-session-service";
 
 export async function GET() {
   const result = await getApiAuthSession();

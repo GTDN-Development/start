@@ -3,8 +3,8 @@ import type PocketBase from "pocketbase";
 import type { WorkspaceMembersRecord } from "../../../src/types/pocketbase";
 import { DEFAULT_AUTH_TEST_PASSWORD, signInUser } from "../helpers/auth";
 import {
-  createOrganizationWorkspace,
   createPocketBaseAdminClient,
+  createWorkspace,
   createVerifiedUser,
   deleteSignedUpUsersByEmail,
   deleteWorkspaceGraph,
@@ -32,7 +32,7 @@ test("stale active workspace falls back to personal app entry after external acc
     const owner = await createVerifiedUser({ pb, email: ownerEmail, password });
     const member = await createVerifiedUser({ pb, email: memberEmail, password });
 
-    const { workspace } = await createOrganizationWorkspace({
+    const { workspace } = await createWorkspace({
       pb,
       userId: owner.id,
       name: workspaceName,

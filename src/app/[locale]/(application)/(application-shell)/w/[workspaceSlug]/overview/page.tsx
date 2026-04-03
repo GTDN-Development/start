@@ -12,33 +12,25 @@ import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
-import { createPageMetadata } from "@/lib/metadata";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
-import { requireWorkspaceRouteResult } from "../workspace-route";
+import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/overview">
 ): Promise<Metadata> {
-  const { locale, workspaceSlug } = await props.params;
+  const { locale } = await props.params;
 
   const t = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.workspace.overview",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: {
-      pathname: "/w/[workspaceSlug]/overview",
-      params: {
-        workspaceSlug,
-      },
-    },
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]/overview">) {

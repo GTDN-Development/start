@@ -1,9 +1,9 @@
 "use server";
 
 import { z } from "zod";
-import type { AuthResponse } from "@/features/auth/auth-contract";
+import type { AuthResponse } from "@/features/auth/auth-types";
 import { requireCurrentUser } from "@/server/auth/current-user";
-import { finalizeAuthAction } from "@/server/auth/auth-service";
+import { finalizeAuthAction } from "@/server/auth/auth-response";
 import {
   revokeDeviceSessionById,
   revokeOtherDeviceSessions,

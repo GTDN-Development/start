@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { AccountProfileSnapshot } from "@/features/account/account-profile";
+import type { AccountProfileSnapshot } from "@/features/account/account-profile-types";
 
 type AccountProfileContextValue = {
   profile: AccountProfileSnapshot;

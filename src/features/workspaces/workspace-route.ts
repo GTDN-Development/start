@@ -1,8 +1,5 @@
 import { notFound } from "next/navigation";
-import type {
-  ServerWorkspaceResponse,
-  UserWorkspace,
-} from "@/server/workspaces/workspace-types";
+import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
 
 export function requireWorkspaceRouteResult(
   response: ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>

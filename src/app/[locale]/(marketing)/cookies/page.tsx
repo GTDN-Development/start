@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { CookiePolicy } from "@/features/marketing/legal/cookie-policy";
 import { Container } from "@/components/ui/container";
 import { cookieCatalog, cookiePolicy, legal, legalDocumentDates } from "@/config/legal";
-import { createPageMetadata } from "@/lib/metadata";
+import { CookiePolicy } from "@/features/marketing/legal/cookie-policy";
 
 export async function generateMetadata(props: PageProps<"/[locale]/cookies">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -14,16 +13,14 @@ export async function generateMetadata(props: PageProps<"/[locale]/cookies">): P
     namespace: "pages.cookies",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: "/cookies",
     robots: {
       index: false,
       follow: true,
     },
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/cookies">) {

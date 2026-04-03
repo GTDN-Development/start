@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import {
   removeAccountAvatarAction,
   uploadAccountAvatarAction,
-} from "@/features/account/actions/account-actions";
+} from "@/features/account/profile/account-profile-actions";
+import { accountAvatarMaxSizeBytes } from "@/features/account/account-schemas";
 import { useAccountProfile } from "@/features/account/account-profile-context";
 import {
   SettingsItem,
@@ -26,7 +27,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { accountConfig } from "@/config/account";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import {
   getAvatarColorClass,
@@ -36,8 +36,6 @@ import {
 } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 import { PencilIcon, Trash2Icon } from "lucide-react";
-
-const MAX_ACCOUNT_AVATAR_SIZE_BYTES = accountConfig.limits.avatarMaxSizeBytes;
 
 export function AccountAvatarSettingsItem() {
   const t = useTranslations("pages.account");
@@ -66,7 +64,7 @@ export function AccountAvatarSettingsItem() {
 
     try {
       const preparedAvatarFileResult = await prepareAvatarUpload(avatarFile, {
-        maxFileSizeBytes: MAX_ACCOUNT_AVATAR_SIZE_BYTES,
+        maxFileSizeBytes: accountAvatarMaxSizeBytes,
       });
 
       if (!preparedAvatarFileResult.ok) {

@@ -4,26 +4,24 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import {
-  INVITE_PATH,
   SIGN_IN_PATH,
   getInviteAcceptHref,
   getInviteHref,
   getInviteStartHref,
   getWorkspaceOverviewHref,
 } from "@/config/routes";
-import { resolveApplicationEntryHref } from "@/features/application/application-entry";
-import { type AppHref, getPathname, redirect } from "@/i18n/navigation";
+import { resolveApplicationEntryHref } from "@/server/application/application-entry-href";
+import { getPathname, redirect } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { createPageMetadata } from "@/lib/metadata";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   getInviteTokenForUser,
   validateInviteToken,
 } from "@/server/workspaces/workspace-invite-recipient-service";
-import { InviteSignOutButton } from "../invite-sign-out-button";
-import { InviteStatePanel } from "../invite-state-panel";
+import { InviteSignOutButton } from "@/features/auth/invite/invite-sign-out-button";
+import { InviteStatePanel } from "@/features/auth/invite/invite-state-panel";
 
 type InviteTokenPageProps = {
   params: Promise<{
@@ -33,24 +31,17 @@ type InviteTokenPageProps = {
 };
 
 export async function generateMetadata(props: InviteTokenPageProps): Promise<Metadata> {
-  const { locale, token } = await props.params;
+  const { locale } = await props.params;
 
   const t = await getTranslations({
     locale: locale as Locale,
     namespace: "pages.inviteToken",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: {
-      pathname: INVITE_PATH,
-      params: {
-        token,
-      },
-    },
-  });
+  };
 }
 
 export default async function Page({ params }: InviteTokenPageProps) {
@@ -81,7 +72,16 @@ export default async function Page({ params }: InviteTokenPageProps) {
         <InviteStatePanel
           title={t("states.error.title")}
           description={t("states.error.description")}
-          action={renderInviteLinkAction(t("states.error.cta"), getInviteHref(token))}
+          action={
+            <Button
+              size="lg"
+              nativeButton={false}
+              className="w-full"
+              render={<Link href={getInviteHref(token)} className="w-full" />}
+            >
+              {t("states.error.cta")}
+            </Button>
+          }
         />
       );
     }
@@ -91,7 +91,16 @@ export default async function Page({ params }: InviteTokenPageProps) {
         <InviteStatePanel
           title={t("states.blocked.title")}
           description={t("states.blocked.description")}
-          action={renderInviteLinkAction(tCommonError("goToSignIn"), SIGN_IN_PATH)}
+          action={
+            <Button
+              size="lg"
+              nativeButton={false}
+              className="w-full"
+              render={<Link href={SIGN_IN_PATH} className="w-full" />}
+            >
+              {tCommonError("goToSignIn")}
+            </Button>
+          }
         />
       );
     }
@@ -118,7 +127,16 @@ export default async function Page({ params }: InviteTokenPageProps) {
       <InviteStatePanel
         title={t("states.error.title")}
         description={t("states.error.description")}
-        action={renderInviteLinkAction(t("states.error.cta"), getInviteHref(token))}
+        action={
+          <Button
+            size="lg"
+            nativeButton={false}
+            className="w-full"
+            render={<Link href={getInviteHref(token)} className="w-full" />}
+          >
+            {t("states.error.cta")}
+          </Button>
+        }
       />
     );
   }
@@ -156,7 +174,13 @@ export default async function Page({ params }: InviteTokenPageProps) {
             </p>
           </>
         }
-        action={renderInviteAcceptAction(t("actions.accept"), acceptAction)}
+        action={
+          <form action={acceptAction} method="post">
+            <Button type="submit" size="lg" className="w-full">
+              {t("actions.accept")}
+            </Button>
+          </form>
+        }
       />
     );
   }
@@ -194,30 +218,16 @@ export default async function Page({ params }: InviteTokenPageProps) {
     <InviteStatePanel
       title={t("states.blocked.title")}
       description={t("states.blocked.description")}
-      action={renderInviteLinkAction(tCommonError("goToApp"), applicationEntryHref)}
+      action={
+        <Button
+          size="lg"
+          nativeButton={false}
+          className="w-full"
+          render={<Link href={applicationEntryHref} className="w-full" />}
+        >
+          {tCommonError("goToApp")}
+        </Button>
+      }
     />
-  );
-}
-
-function renderInviteLinkAction(label: string, href: AppHref) {
-  return (
-    <Button
-      size="lg"
-      nativeButton={false}
-      className="w-full"
-      render={<Link href={href} className="w-full" />}
-    >
-      {label}
-    </Button>
-  );
-}
-
-function renderInviteAcceptAction(label: string, action: string) {
-  return (
-    <form action={action} method="post">
-      <Button type="submit" size="lg" className="w-full">
-        {label}
-      </Button>
-    </form>
   );
 }

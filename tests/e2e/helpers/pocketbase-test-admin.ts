@@ -75,7 +75,7 @@ export async function deleteUserDeviceSessionsByUserId(
   }
 }
 
-export async function createOrganizationWorkspace(options: {
+export async function createWorkspace(options: {
   pb: PocketBase;
   userId: string;
   name: string;
@@ -89,11 +89,13 @@ export async function createOrganizationWorkspace(options: {
     slug: options.slug,
     kind: "organization",
   });
-  const membership = await options.pb.collection("workspace_members").create<WorkspaceMembersRecord>({
-    workspace: workspace.id,
-    user: options.userId,
-    role: "owner",
-  });
+  const membership = await options.pb
+    .collection("workspace_members")
+    .create<WorkspaceMembersRecord>({
+      workspace: workspace.id,
+      user: options.userId,
+      role: "owner",
+    });
 
   return {
     workspace,
@@ -140,11 +142,13 @@ export async function deleteWorkspaceGraph(options: {
     return;
   }
 
-  const invites = await options.pb.collection("workspace_invites").getFullList<WorkspaceInvitesRecord>({
-    filter: options.pb.filter("workspace = {:workspaceId}", {
-      workspaceId: workspace.id,
-    }),
-  });
+  const invites = await options.pb
+    .collection("workspace_invites")
+    .getFullList<WorkspaceInvitesRecord>({
+      filter: options.pb.filter("workspace = {:workspaceId}", {
+        workspaceId: workspace.id,
+      }),
+    });
   const memberships = await options.pb
     .collection("workspace_members")
     .getFullList<WorkspaceMembersRecord>({
@@ -177,7 +181,9 @@ async function resolveWorkspaceForCleanup(options: {
 }): Promise<WorkspacesRecord | null> {
   if (options.workspaceId) {
     try {
-      return await options.pb.collection("workspaces").getOne<WorkspacesRecord>(options.workspaceId);
+      return await options.pb
+        .collection("workspaces")
+        .getOne<WorkspacesRecord>(options.workspaceId);
     } catch (error) {
       if (error instanceof ClientResponseError && error.status === 404) {
         return null;

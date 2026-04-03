@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { APP_HOME_PATH } from "@/config/routes";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
@@ -11,7 +10,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
-import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/app">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -21,12 +19,10 @@ export async function generateMetadata(props: PageProps<"/[locale]/app">): Promi
     namespace: "pages.app",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: APP_HOME_PATH,
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/app">) {

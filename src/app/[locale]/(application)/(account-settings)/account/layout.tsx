@@ -3,8 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { ArrowLeftIcon } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { AccountHeroBackLink } from "@/features/account/account-hero-back-link";
+import { accountInnerSidebarItems } from "@/features/account/account-inner-sidebar-items";
 import {
-  accountInnerSidebarItems,
   mapInnerSidebarItems,
 } from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";

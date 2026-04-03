@@ -1,8 +1,8 @@
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { Container } from "@/components/ui/container";
+import { workspaceSettingsInnerSidebarItems } from "@/features/workspaces/settings/workspace-settings-inner-sidebar-items";
 import {
-  getWorkspaceSettingsInnerSidebarItems,
   mapWorkspaceInnerSidebarItems,
 } from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarBreadcrumbs } from "@/features/application/inner-sidebar/inner-sidebar-breadcrumbs";
@@ -13,7 +13,7 @@ import { getWorkspaceSettingsHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
-import { requireWorkspaceRouteResult } from "../workspace-route";
+import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
 
 export default async function Layout({
   children,
@@ -48,7 +48,7 @@ export default async function Layout({
   });
 
   const innerSidebarItems = mapWorkspaceInnerSidebarItems(
-    getWorkspaceSettingsInnerSidebarItems(),
+    workspaceSettingsInnerSidebarItems,
     workspace.slug,
     tWorkspaceNav
   );

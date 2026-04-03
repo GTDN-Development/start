@@ -1,9 +1,3 @@
-import type { SignInInput, SignUpInput } from "@/features/auth/auth-schemas";
-import { authConfig } from "@/config/auth";
-
-export const PB_AUTH_COOKIE_NAME = authConfig.cookies.authCookieName;
-export const PB_AUTH_PERSIST_COOKIE_NAME = authConfig.cookies.persistCookieName;
-
 export type AuthErrorCode =
   | "BAD_REQUEST"
   | "ACCOUNT_DELETE_BLOCKED_LAST_OWNER"
@@ -17,19 +11,6 @@ export type AuthErrorCode =
   | "RATE_LIMITED"
   | "NOT_FOUND"
   | "UNKNOWN_ERROR";
-
-export type SignUpActionInput = SignUpInput & {
-  turnstileToken?: string;
-};
-
-export type RequestPasswordResetInput = {
-  email: string;
-  turnstileToken?: string;
-};
-
-export type RequestEmailVerificationInput = {
-  email: string;
-};
 
 export type AuthUser = {
   id: string;
@@ -101,11 +82,4 @@ export type AuthSessionStatus = "idle" | "loading" | "authenticated" | "unauthen
 export type AuthSessionSnapshot = {
   status: AuthSessionStatus;
   session: AuthSession | null;
-};
-
-export type AuthClient = {
-  signIn: (input: SignInInput) => Promise<SignInResponse>;
-  signUp: (input: SignUpActionInput) => Promise<SignUpResponse>;
-  signOut: () => Promise<SignOutResponse>;
-  useSession: () => AuthSessionSnapshot;
 };

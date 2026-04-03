@@ -2,9 +2,9 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
-import { z } from "zod";
 import { useTranslations } from "next-intl";
-import { requestAccountEmailChangeAction } from "@/features/account/actions/account-actions";
+import { requestAccountEmailChangeAction } from "@/features/account/profile/account-profile-actions";
+import { createAccountEmailChangeFormSchema } from "@/features/account/account-schemas";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -35,8 +35,6 @@ import type { InlineStatus } from "@/features/account/account-types";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 import { runAsyncTransition } from "@/lib/app-utils";
 
-const emailChangeValueSchema = z.string().trim().toLowerCase().pipe(z.email());
-type AccountTranslationFn = (key: string, values?: Record<string, string>) => string;
 type EmailChangeFormValues = {
   newEmail: string;
   confirmed: boolean;
@@ -50,7 +48,14 @@ export function AccountEmailSettingsItem() {
   const [emailDialogStatus, setEmailDialogStatus] = useState<InlineStatus>(null);
 
   const normalizedCurrentEmail = profile.email.trim().toLowerCase();
-  const emailChangeFormSchema = getEmailChangeFormSchema(t, normalizedCurrentEmail);
+  const emailChangeFormSchema = createAccountEmailChangeFormSchema(
+    {
+      email: t("email.dialog.errors.invalidOrUnavailable"),
+      sameAsCurrent: t("email.dialog.errors.sameAsCurrent"),
+      confirmed: t("email.dialog.errors.confirmationRequired"),
+    },
+    normalizedCurrentEmail
+  );
 
   const form = useForm({
     defaultValues: {
@@ -68,14 +73,7 @@ export function AccountEmailSettingsItem() {
       if (!parsedValue.success) {
         return;
       }
-
-      const parsedEmail = emailChangeValueSchema.safeParse(value.newEmail);
-
-      if (!parsedEmail.success) {
-        return;
-      }
-
-      const normalizedNewEmail = parsedEmail.data;
+      const normalizedNewEmail = parsedValue.data.newEmail;
 
       const response = await runAsyncTransition(() =>
         requestAccountEmailChangeAction({
@@ -295,37 +293,4 @@ export function AccountEmailSettingsItem() {
       </SettingsItemFooter>
     </SettingsItem>
   );
-}
-
-function getEmailChangeFormSchema(t: AccountTranslationFn, normalizedCurrentEmail: string) {
-  return z
-    .object({
-      newEmail: z.string(),
-      confirmed: z.boolean(),
-    })
-    .superRefine((value, context) => {
-      const parsedNewEmail = emailChangeValueSchema.safeParse(value.newEmail);
-
-      if (!parsedNewEmail.success) {
-        context.addIssue({
-          code: "custom",
-          path: ["newEmail"],
-          message: t("email.dialog.errors.invalidOrUnavailable"),
-        });
-      } else if (parsedNewEmail.data === normalizedCurrentEmail) {
-        context.addIssue({
-          code: "custom",
-          path: ["newEmail"],
-          message: t("email.dialog.errors.sameAsCurrent"),
-        });
-      }
-
-      if (!value.confirmed) {
-        context.addIssue({
-          code: "custom",
-          path: ["confirmed"],
-          message: t("email.dialog.errors.confirmationRequired"),
-        });
-      }
-    });
 }

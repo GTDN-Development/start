@@ -29,7 +29,9 @@ test("sign in with invalid credentials stays on sign-in and shows an actionable 
 
     await expect(page).toHaveURL(/\/cs\/prihlasit-se$/);
     await expect(page.getByText("Přihlášení selhalo")).toBeVisible();
-    await expect(page.getByText("Neplatné přihlašovací údaje. Zkuste to prosím znovu.")).toBeVisible();
+    await expect(
+      page.getByText("Neplatné přihlašovací údaje. Zkuste to prosím znovu.")
+    ).toBeVisible();
   } finally {
     if (pb) {
       await deleteSignedUpUsersByEmail(pb, email);

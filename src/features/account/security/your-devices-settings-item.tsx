@@ -34,11 +34,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner";
-import type { AuthErrorCode } from "@/features/auth/auth-contract";
+import type { AuthErrorCode } from "@/features/auth/auth-types";
 import {
   signOutDeviceAction,
   signOutOtherDevicesAction,
-} from "@/features/account/actions/device-session-actions";
+} from "@/features/account/security/device-session-actions";
 import { useRouter } from "@/i18n/navigation";
 import { runAsyncTransition } from "@/lib/app-utils";
 import type { DeviceSessionListItem } from "@/server/device-sessions/device-sessions-types";

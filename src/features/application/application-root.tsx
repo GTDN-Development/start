@@ -4,7 +4,7 @@ import { createContext, useContext } from "react";
 import { type LinkHref } from "@/components/ui/link";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
-import type { AccountProfileSnapshot } from "@/features/account/account-profile";
+import type { AccountProfileSnapshot } from "@/features/account/account-profile-types";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
 import { useSession } from "@/features/auth/auth-client";
 import { useMountEffect } from "@/hooks/use-mount-effect";
@@ -13,7 +13,7 @@ import {
   WorkspaceNavigationProvider,
   useWorkspaceNavigation,
 } from "@/features/workspaces/workspace-navigation-context";
-import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
 
 type ApplicationMobileMenuLabels = {
   openAriaLabel: string;

@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { Card, CardContent } from "@/components/ui/card";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPublicPageMetadata } from "@/lib/metadata";
 import { ArrowRightIcon } from "lucide-react";
 // import { FaqSection } from "@/features/marketing/contact/faq-section";
 import FeaturesSection from "@/features/marketing/contact/features-section";
@@ -19,7 +19,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/contact">): P
     namespace: "pages.contact",
   });
 
-  return createPageMetadata({
+  return createPublicPageMetadata({
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,

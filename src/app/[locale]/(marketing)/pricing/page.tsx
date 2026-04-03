@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPublicPageMetadata } from "@/lib/metadata";
 import { PricingCards } from "@/features/marketing/pricing/pricing-cards";
 import { PricingComparison } from "@/features/marketing/pricing/pricing-comparison";
 
@@ -14,7 +14,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/pricing">): P
     namespace: "pages.pricing",
   });
 
-  return createPageMetadata({
+  return createPublicPageMetadata({
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,

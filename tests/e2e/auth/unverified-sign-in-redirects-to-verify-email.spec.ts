@@ -29,7 +29,9 @@ test("unverified user signing in is sent to verify email without automatic resen
 
     await signInUser({ page, email, password });
 
-    await expect(page).toHaveURL(new RegExp(`/cs/overit-email\\?email=${encodeURIComponent(email)}$`));
+    await expect(page).toHaveURL(
+      new RegExp(`/cs/overit-email\\?email=${encodeURIComponent(email)}$`)
+    );
     await expect(page.getByText(email)).toBeVisible();
     await expect(page.getByText("Ověřovací e-mail posíláme na")).toBeVisible();
     await expect(

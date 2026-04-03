@@ -1,5 +1,4 @@
 import PocketBase, { ClientResponseError } from "pocketbase";
-import type { AuthErrorCode } from "@/features/auth/auth-contract";
 import type { UsersRecord } from "@/types/pocketbase";
 
 type FieldError = {
@@ -95,10 +94,11 @@ export function logServiceError(label: string, context: string, error: unknown):
   console.error(`[${label}] ${context}`, formatServiceError(error));
 }
 
-export function mapPocketBaseError(
+export function mapPocketBaseError<TErrorCode extends string>(
   error: unknown,
-  operationMapper: (error: ClientResponseError) => AuthErrorCode | null
-): AuthErrorCode {
+  operationMapper: (error: ClientResponseError) => TErrorCode | null,
+  unknownErrorCode: TErrorCode
+): TErrorCode | "RATE_LIMITED" {
   if (error instanceof ClientResponseError) {
     if (error.status === 429) {
       return "RATE_LIMITED";
@@ -111,5 +111,5 @@ export function mapPocketBaseError(
     }
   }
 
-  return "UNKNOWN_ERROR";
+  return unknownErrorCode;
 }

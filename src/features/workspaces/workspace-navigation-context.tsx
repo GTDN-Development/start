@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import type { WorkspaceNavigationItem } from "./workspace-types";
+import type { WorkspaceNavigationItem } from "./workspace-navigation-types";
 
 type WorkspaceNavigationState = {
   activeWorkspaceSlug: string | null;

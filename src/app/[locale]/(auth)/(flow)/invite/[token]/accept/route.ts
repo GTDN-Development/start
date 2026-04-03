@@ -3,7 +3,7 @@ import { getInviteHref, getInviteStartHref, getWorkspaceOverviewHref } from "@/c
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import { acceptInviteTokenForUser } from "@/server/workspaces/workspace-invite-recipient-service";
 

@@ -36,7 +36,10 @@ export function createIsolatedTestEmail(
   const configuredBaseEmail = process.env.PLAYWRIGHT_TEST_EMAIL?.trim();
 
   if (configuredBaseEmail) {
-    return createPlusAliasedTestEmail(configuredBaseEmail, createIsolatedTestValue(runId, localPart));
+    return createPlusAliasedTestEmail(
+      configuredBaseEmail,
+      createIsolatedTestValue(runId, localPart)
+    );
   }
 
   return `${createIsolatedTestValue(runId, localPart)}@${domain}`;
@@ -49,7 +52,10 @@ function formatRunDate(date: Date): string {
 }
 
 function normalizeTestSegment(value: string): string {
-  const normalizedValue = value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const normalizedValue = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
   const sanitizedValue = normalizedValue.replace(/^-+/, "").replace(/-+$/, "");
 
   if (!sanitizedValue) {

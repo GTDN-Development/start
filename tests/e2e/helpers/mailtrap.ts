@@ -1,7 +1,4 @@
-import {
-  getRequiredTestEnv,
-  getRequiredTestEnvNumber,
-} from "./test-env";
+import { getRequiredTestEnv, getRequiredTestEnvNumber } from "./test-env";
 
 const MAILTRAP_API_BASE_URL = "https://mailtrap.io";
 const DEFAULT_MAILTRAP_TIMEOUT_MS = 30_000;
@@ -33,16 +30,15 @@ export type WaitForMailtrapMessageOptions = {
   pollIntervalMs?: number;
 };
 
-export type PocketBaseEmailLinkAction =
-  | "verify-email"
-  | "reset-password"
-  | "confirm-email-change";
+export type PocketBaseEmailLinkAction = "verify-email" | "reset-password" | "confirm-email-change";
 
-export async function listMailtrapMessages(options: {
-  search?: string;
-  page?: number;
-  lastId?: number;
-} = {}): Promise<MailtrapMessage[]> {
+export async function listMailtrapMessages(
+  options: {
+    search?: string;
+    page?: number;
+    lastId?: number;
+  } = {}
+): Promise<MailtrapMessage[]> {
   const searchParams = new URLSearchParams();
 
   if (options.search) {
@@ -58,7 +54,9 @@ export async function listMailtrapMessages(options: {
   }
 
   const searchValue = searchParams.toString();
-  const path = searchValue ? `${getMailtrapMessagesPath()}?${searchValue}` : getMailtrapMessagesPath();
+  const path = searchValue
+    ? `${getMailtrapMessagesPath()}?${searchValue}`
+    : getMailtrapMessagesPath();
 
   return await requestMailtrapJson<MailtrapMessage[]>(path);
 }
@@ -96,9 +94,11 @@ export async function waitForMailtrapMessage(
   );
 }
 
-export async function waitForPocketBaseEmailLinkPath(options: WaitForMailtrapMessageOptions & {
-  action: PocketBaseEmailLinkAction;
-}): Promise<string> {
+export async function waitForPocketBaseEmailLinkPath(
+  options: WaitForMailtrapMessageOptions & {
+    action: PocketBaseEmailLinkAction;
+  }
+): Promise<string> {
   const message = await waitForMailtrapMessage(options);
   const html = await getMailtrapMessageHtml(message.id);
 
@@ -251,11 +251,7 @@ function truncateErrorBody(value: string): string {
 }
 
 function decodeHtmlAttribute(value: string): string {
-  return value
-    .replaceAll("&amp;", "&")
-    .replaceAll("&quot;", "\"")
-    .replaceAll("&#39;", "'")
-    .trim();
+  return value.replaceAll("&amp;", "&").replaceAll("&quot;", '"').replaceAll("&#39;", "'").trim();
 }
 
 function tryParseMailLinkUrl(value: string): URL | null {

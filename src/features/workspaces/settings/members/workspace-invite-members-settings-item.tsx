@@ -1,7 +1,6 @@
 "use client";
 
 import { startTransition, useState } from "react";
-import { z } from "zod";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -27,10 +26,13 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import {
   WORKSPACE_INVITABLE_ROLE_OPTIONS,
+} from "@/features/workspaces/workspace-role-options";
+import {
   isWorkspaceInvitableRole,
   type WorkspaceInvitableRole,
-} from "@/features/workspaces/settings/members/workspace-member-roles";
-import { createInviteAction } from "@/features/workspaces/actions/workspace-actions";
+} from "@/features/workspaces/workspace-role-rules";
+import { workspaceInviteEmailSchema } from "@/features/workspaces/workspace-schemas";
+import { createInviteAction } from "@/features/workspaces/settings/members/workspace-members-actions";
 import type {
   WorkspaceSettingsInvite,
   WorkspaceSettingsWorkspace,
@@ -40,7 +42,7 @@ import { runAsyncTransition } from "@/lib/app-utils";
 
 type InviteRole = WorkspaceInvitableRole;
 
-const inviteEmailSchema = z.email();
+const inviteEmailSchema = workspaceInviteEmailSchema;
 
 function getInviteRoleOption(value: string | null) {
   return WORKSPACE_INVITABLE_ROLE_OPTIONS.find((option) => option.value === value);

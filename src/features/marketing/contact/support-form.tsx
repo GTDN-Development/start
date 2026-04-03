@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon, PaperclipIcon, XIcon } from "lucide-react";
-import { submitSupportFormAction } from "@/features/marketing/actions/marketing-actions";
+import { submitSupportFormAction } from "@/features/marketing/contact/contact-actions";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
 import {
   getSupportAttachmentsTotalSize,

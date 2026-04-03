@@ -1,10 +1,10 @@
 import type PocketBase from "pocketbase";
 import type { WorkspaceInvitesRecord } from "@/types/pocketbase";
 import type { AppLocale } from "@/i18n/routing";
+import { workspaceConfig } from "@/config/workspace";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
 import { requireAdminWorkspaceAccessBySlug } from "@/server/workspaces/workspace-access";
 import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
-import { INVITE_RESEND_COOLDOWN_SECONDS } from "@/server/workspaces/workspace-constants";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
@@ -282,7 +282,7 @@ export async function resendWorkspaceInviteForCurrentUser(
 
     if (
       Number.isFinite(inviteLastUpdatedAt) &&
-      Date.now() - inviteLastUpdatedAt < INVITE_RESEND_COOLDOWN_SECONDS * 1000
+      Date.now() - inviteLastUpdatedAt < workspaceConfig.invites.resendCooldownSeconds * 1000
     ) {
       return {
         ok: false,

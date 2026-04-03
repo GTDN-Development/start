@@ -7,7 +7,7 @@ import {
   isChangelogLocale,
 } from "@/features/marketing/about/changelog/changelog-content";
 import { ChangelogTimeline } from "@/features/marketing/about/changelog/changelog-timeline";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPublicPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/about/changelog">
@@ -19,7 +19,7 @@ export async function generateMetadata(
     namespace: "pages.aboutChangelog",
   });
 
-  return createPageMetadata({
+  return createPublicPageMetadata({
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,

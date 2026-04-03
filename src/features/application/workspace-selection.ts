@@ -2,7 +2,7 @@ import {
   getWorkspaceSlugFromPathname,
   normalizeWorkspaceSlug,
 } from "@/features/application/application-scope";
-import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
 
 export function resolveSelectedWorkspaceSlug(
   pathname: string,

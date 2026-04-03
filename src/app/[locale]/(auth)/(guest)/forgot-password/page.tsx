@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
-import { FORGOT_PASSWORD_PATH, SIGN_IN_PATH } from "@/config/routes";
+import { SIGN_IN_PATH } from "@/config/routes";
 import { ForgotPasswordForm } from "@/features/auth/forgot-password/forgot-password-form";
 import {
   AuthHero,
@@ -10,7 +10,6 @@ import {
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
-import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/forgot-password">
@@ -22,12 +21,10 @@ export async function generateMetadata(
     namespace: "pages.forgotPassword",
   });
 
-  return createPageMetadata({
+  return {
     title: t("title"),
     description: t("description"),
-    locale: locale as Locale,
-    pathname: FORGOT_PASSWORD_PATH,
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/forgot-password">) {

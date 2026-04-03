@@ -14,7 +14,7 @@ export async function signUpUser(options: {
   await options.page.locator("#signup-lastName").fill(options.lastName ?? "User");
   await options.page.locator("#signup-email").fill(options.email);
   await options.page.locator("#signup-password").fill(options.password);
-  await options.page.locator("form button[type=\"submit\"]").click();
+  await options.page.locator('form button[type="submit"]').click();
 }
 
 export async function signInUser(options: {
@@ -25,16 +25,13 @@ export async function signInUser(options: {
   await options.page.goto("/cs/prihlasit-se");
   await options.page.locator("#sign-in-email").fill(options.email);
   await options.page.locator("#sign-in-password").fill(options.password);
-  await options.page.locator("form button[type=\"submit\"]").click();
+  await options.page.locator('form button[type="submit"]').click();
 }
 
-export async function requestPasswordReset(options: {
-  page: Page;
-  email: string;
-}): Promise<void> {
+export async function requestPasswordReset(options: { page: Page; email: string }): Promise<void> {
   await options.page.goto("/cs/zapomenute-heslo");
   await options.page.locator("#forgot-password-email").fill(options.email);
-  await options.page.locator("form button[type=\"submit\"]").click();
+  await options.page.locator('form button[type="submit"]').click();
 }
 
 export async function resetPassword(options: {
@@ -46,7 +43,7 @@ export async function resetPassword(options: {
   await options.page
     .locator("#reset-password-confirmPassword")
     .fill(options.confirmPassword ?? options.password);
-  await options.page.locator("form button[type=\"submit\"]").click();
+  await options.page.locator('form button[type="submit"]').click();
 }
 
 export async function expectPendingVerifyEmailPage(page: Page, email: string): Promise<void> {
@@ -90,9 +87,7 @@ export async function changeAccountPassword(options: {
   confirmPassword?: string;
 }): Promise<void> {
   await openAccountSecurityPage(options.page);
-  await options.page
-    .locator("#account-password-currentPassword")
-    .fill(options.currentPassword);
+  await options.page.locator("#account-password-currentPassword").fill(options.currentPassword);
   await options.page.locator("#account-password-newPassword").fill(options.newPassword);
   await options.page
     .locator("#account-password-confirmPassword")
@@ -100,13 +95,8 @@ export async function changeAccountPassword(options: {
   await options.page.getByRole("button", { name: "Aktualizovat heslo" }).click();
 }
 
-export async function confirmEmailChange(options: {
-  page: Page;
-  password: string;
-}): Promise<void> {
-  await options.page
-    .locator("#confirm-email-change-password")
-    .fill(options.password);
+export async function confirmEmailChange(options: { page: Page; password: string }): Promise<void> {
+  await options.page.locator("#confirm-email-change-password").fill(options.password);
   await options.page.getByRole("button", { name: "Potvrdit změnu e-mailu" }).click();
 }
 

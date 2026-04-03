@@ -11,7 +11,7 @@ import {
   personalApplicationMenu,
   workspaceApplicationMenu,
   type ApplicationMenuLink,
-} from "@/config/navigation";
+} from "@/config/menu";
 import {
   APP_HOME_PATH,
   getWorkspaceOverviewHref,
@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useSidebarContext } from "./application-root";
 import { getWorkspaceSlugFromPathname, resolveApplicationScope } from "./application-scope";
-import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
+import { resolveSelectedWorkspaceSlug } from "./workspace-selection";
 
 function isMenuItemActive(pathname: string, item: ApplicationMenuLink) {
   const pathnameWorkspaceSlug = getWorkspaceSlugFromPathname(pathname);

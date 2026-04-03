@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
-import { PB_AUTH_COOKIE_NAME } from "@/features/auth/auth-contract";
 import { AUTH_PROTECTED_ROUTE_PREFIXES, AUTH_REDIRECTS } from "@/config/auth";
+import { authConfig } from "@/config/auth";
 import { routing } from "@/i18n/routing";
 
 type AppLocale = (typeof routing.locales)[number];
@@ -37,7 +37,7 @@ export function evaluateAuthProxyGuard(request: NextRequest): AuthProxyGuardResu
 }
 
 function hasPocketBaseAuthCookie(request: NextRequest) {
-  const cookieValue = request.cookies.get(PB_AUTH_COOKIE_NAME)?.value ?? "";
+  const cookieValue = request.cookies.get(authConfig.cookies.authCookieName)?.value ?? "";
 
   return cookieValue.trim().length > 0;
 }

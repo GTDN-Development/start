@@ -14,7 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
-import { legalLinks } from "@/config/navigation";
+import { legalLinks } from "@/config/menu";
 import { isTurnstileEnabled } from "@/config/security";
 import { signUp } from "@/features/auth/auth-client";
 import { createPendingVerifyEmailHref } from "@/features/auth/verify-email/verify-email-state";

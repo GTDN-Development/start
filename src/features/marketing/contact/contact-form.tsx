@@ -11,9 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
-import { legalLinks } from "@/config/navigation";
+import { legalLinks } from "@/config/menu";
 import { isTurnstileEnabled } from "@/config/security";
-import { submitContactFormAction } from "@/features/marketing/actions/marketing-actions";
+import { submitContactFormAction } from "@/features/marketing/contact/contact-actions";
 import { Field, FieldLabel, FieldDescription, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { Spinner } from "@/components/ui/spinner";
@@ -93,9 +93,7 @@ export function ContactForm({ className, ...props }: React.ComponentProps<"div">
       setSubmitStatus({ type: null, message: "" });
 
       const response = await runAsyncTransition(() =>
-        submitContactFormAction(
-          turnstileEnabled ? value : { ...value, turnstileToken: undefined }
-        )
+        submitContactFormAction(turnstileEnabled ? value : { ...value, turnstileToken: undefined })
       );
 
       if (response.ok) {

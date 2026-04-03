@@ -4,7 +4,6 @@ import { useForm } from "@tanstack/react-form";
 import { startTransition, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -18,8 +17,11 @@ import {
   SettingsItemFooter,
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
-import { workspaceConfig } from "@/config/workspace";
-import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
+import {
+  createWorkspaceNameFormSchema,
+  workspaceNameMaxLength,
+} from "@/features/workspaces/workspace-schemas";
+import { updateWorkspaceGeneralAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { runAsyncTransition } from "@/lib/app-utils";
@@ -45,18 +47,11 @@ export function WorkspaceNameSettingsItem({
   const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
   const isReadOnly = workspaceSnapshot.role === "member";
 
-  const workspaceNameSchema = z.object({
-    name: z
-      .string()
-      .trim()
-      .min(1, {
-        message: t("validation.required"),
-      })
-      .max(workspaceConfig.limits.nameMaxLength, {
-        message: t("validation.max", {
-          max: String(workspaceConfig.limits.nameMaxLength),
-        }),
-      }),
+  const workspaceNameSchema = createWorkspaceNameFormSchema({
+    required: t("validation.required"),
+    max: t("validation.max", {
+      max: String(workspaceNameMaxLength),
+    }),
   });
 
   const form = useForm({
@@ -160,7 +155,7 @@ export function WorkspaceNameSettingsItem({
                   {isReadOnly
                     ? tCommon("readOnlyHint")
                     : t("footerHint", {
-                        max: String(workspaceConfig.limits.nameMaxLength),
+                        max: String(workspaceNameMaxLength),
                       })}
                 </SettingsItemDescription>
                 <Button

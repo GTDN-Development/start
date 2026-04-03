@@ -7,14 +7,16 @@ import type {
   AuthSessionPayload,
   AuthSignOutPayload,
   ConfirmEmailChangePayload,
-  RequestEmailVerificationInput,
-  SignUpPayload,
-  RequestPasswordResetInput,
   RequestEmailVerificationPayload,
   RequestPasswordResetPayload,
   ResetPasswordPayload,
+  SignUpPayload,
+} from "@/features/auth/auth-types";
+import type {
+  RequestEmailVerificationInput,
+  RequestPasswordResetInput,
   SignUpActionInput,
-} from "@/features/auth/auth-contract";
+} from "@/features/auth/auth-action-types";
 import {
   signInInputSchema,
   signUpInputSchema,
@@ -31,16 +33,20 @@ import {
 import { isTurnstileEnabled } from "@/config/security";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import {
-  finalizeAuthAction,
   confirmEmailChangeToken,
-  confirmPasswordResetToken,
-  getServerAuthSession,
   requestEmailVerificationForEmail,
-  requestPasswordResetForEmail,
+} from "@/server/auth/auth-email-verification-service";
+import { finalizeAuthAction } from "@/server/auth/auth-response";
+import {
+  getServerAuthSession,
   signInWithPassword,
   signOutServerSession,
-  signUpWithPassword,
-} from "@/server/auth/auth-service";
+} from "@/server/auth/auth-session-service";
+import { signUpWithPassword } from "@/server/auth/auth-sign-up-service";
+import {
+  confirmPasswordResetToken,
+  requestPasswordResetForEmail,
+} from "@/server/auth/auth-password-reset-service";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";

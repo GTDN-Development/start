@@ -2,15 +2,17 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
-import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { authConfig } from "@/config/auth";
 import { SIGN_IN_PATH } from "@/config/routes";
-import { updateAccountPasswordAction } from "@/features/account/actions/account-actions";
+import { updateAccountPasswordAction } from "@/features/account/security/account-security-actions";
+import {
+  createAccountPasswordFormSchema,
+  type AccountPasswordFormValues,
+} from "@/features/account/account-schemas";
 import type { InlineStatus } from "@/features/account/account-types";
 import { useRouter } from "@/i18n/navigation";
-import { authPasswordSchema, refinePasswordMatch } from "@/lib/schemas";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -29,11 +31,6 @@ import { runAsyncTransition } from "@/lib/app-utils";
 import { AlertCircleIcon } from "lucide-react";
 
 type SecurityTranslationFn = (key: string, values?: Record<string, string>) => string;
-type PasswordFormValues = {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-};
 
 export function AccountChangePasswordItem() {
   const t = useTranslations("pages.account");
@@ -53,7 +50,7 @@ export function AccountChangePasswordItem() {
     validators: {
       onSubmit: passwordFormSchema,
     },
-    onSubmit: async ({ value }: { value: PasswordFormValues }) => {
+    onSubmit: async ({ value }: { value: AccountPasswordFormValues }) => {
       setSubmitStatus(null);
 
       const response = await runAsyncTransition(() => updateAccountPasswordAction(value));
@@ -247,49 +244,14 @@ export function AccountChangePasswordItem() {
 }
 
 function getPasswordFormSchema(t: SecurityTranslationFn) {
-  return z
-    .object({
-      currentPassword: z.string(),
-      newPassword: authPasswordSchema({
-        min: t("security.password.fields.newPassword.errors.min", {
-          min: String(authConfig.limits.passwordMinLength),
-        }),
-        max: t("security.password.status.invalidInput"),
-      }),
-      confirmPassword: z.string(),
-    })
-    .superRefine((value, context) => {
-      if (!value.currentPassword.trim()) {
-        context.addIssue({
-          code: "custom",
-          path: ["currentPassword"],
-          message: t("security.password.fields.currentPassword.errors.required"),
-        });
-      }
-
-      if (!value.confirmPassword) {
-        context.addIssue({
-          code: "custom",
-          path: ["confirmPassword"],
-          message: t("security.password.fields.confirmPassword.errors.required"),
-        });
-      } else {
-        refinePasswordMatch<PasswordFormValues>({
-          passwordField: "newPassword",
-          message: t("security.password.fields.confirmPassword.errors.mismatch"),
-        })(value, context);
-      }
-
-      if (
-        value.currentPassword &&
-        value.newPassword &&
-        value.currentPassword === value.newPassword
-      ) {
-        context.addIssue({
-          code: "custom",
-          path: ["newPassword"],
-          message: t("security.password.fields.newPassword.errors.sameAsCurrent"),
-        });
-      }
-    });
+  return createAccountPasswordFormSchema({
+    currentPasswordRequired: t("security.password.fields.currentPassword.errors.required"),
+    newPasswordMin: t("security.password.fields.newPassword.errors.min", {
+      min: String(authConfig.limits.passwordMinLength),
+    }),
+    newPasswordMax: t("security.password.status.invalidInput"),
+    newPasswordSameAsCurrent: t("security.password.fields.newPassword.errors.sameAsCurrent"),
+    confirmPasswordRequired: t("security.password.fields.confirmPassword.errors.required"),
+    confirmPasswordMismatch: t("security.password.fields.confirmPassword.errors.mismatch"),
+  });
 }

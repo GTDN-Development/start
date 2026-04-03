@@ -4,9 +4,9 @@ import { AUTH_REDIRECTS } from "@/config/auth";
 import { getWorkspaceOverviewHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
-import { requireWorkspaceRouteResult } from "./workspace-route";
+import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
 
 export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]">) {
   const { locale, workspaceSlug } = await params;

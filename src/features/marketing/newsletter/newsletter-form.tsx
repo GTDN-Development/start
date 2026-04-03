@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
-import { legalLinks } from "@/config/navigation";
+import { legalLinks } from "@/config/menu";
 import { isTurnstileEnabled } from "@/config/security";
-import { submitNewsletterFormAction } from "@/features/marketing/actions/marketing-actions";
+import { submitNewsletterFormAction } from "@/features/marketing/newsletter/newsletter-actions";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 

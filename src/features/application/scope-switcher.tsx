@@ -16,9 +16,10 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { useOptionalAccountProfile } from "@/features/account/account-profile-context";
 import { resolveApplicationScope } from "@/features/application/application-scope";
-import { switchWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
+import { resolveSelectedWorkspaceSlug } from "@/features/application/workspace-selection";
+import { switchWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
-import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
@@ -29,7 +30,6 @@ import {
   WorkspaceAvatarImage,
 } from "@/features/workspaces/workspace-avatar";
 import { WorkspaceCreateDrawer } from "@/features/workspaces/workspace-create-drawer";
-import { resolveSelectedWorkspaceSlug } from "./workspace-routing";
 
 type WorkspaceOption = WorkspaceNavigationItem & {
   initials: string;

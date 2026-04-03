@@ -1,10 +1,10 @@
 import { createElement } from "react";
 import { createTranslator } from "next-intl";
 import type { AppLocale } from "@/i18n/routing";
+import { workspaceConfig } from "@/config/workspace";
 import { getEmailMessages } from "@/server/email/email-messages";
 import type { EmailTemplateResult } from "@/server/email/render-email";
 import { WorkspaceInviteEmail } from "@/server/email/templates/workspace-invite";
-import { INVITE_TTL_DAYS } from "@/server/workspaces/workspace-constants";
 import { createWorkspaceInviteUrl } from "@/server/workspaces/workspace-invite-url";
 
 type BuildWorkspaceInviteEmailInput = {
@@ -58,7 +58,7 @@ export async function buildWorkspaceInviteEmail(
       inviteUrl,
       urlFallbackLabel: t("urlFallbackLabel"),
       expiryText: t("expiryText", {
-        days: INVITE_TTL_DAYS,
+        days: workspaceConfig.invites.ttlDays,
       }),
     }),
   };

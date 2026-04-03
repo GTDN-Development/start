@@ -9,10 +9,10 @@ import { SupportForm } from "@/features/marketing/contact/support-form";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPublicPageMetadata } from "@/lib/metadata";
 import { ContactCopyItem } from "@/features/marketing/contact/contact-copy-item";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { legal } from "@/config/legal";
 
 export async function generateMetadata(props: {
@@ -25,7 +25,7 @@ export async function generateMetadata(props: {
     namespace: "pages.contact.support",
   });
 
-  return createPageMetadata({
+  return createPublicPageMetadata({
     title: t("infoTitle"),
     description: t("infoDescription"),
     locale: locale as Locale,

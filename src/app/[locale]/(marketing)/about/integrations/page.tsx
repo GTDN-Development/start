@@ -3,7 +3,7 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPublicPageMetadata } from "@/lib/metadata";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 
 export async function generateMetadata(
@@ -16,7 +16,7 @@ export async function generateMetadata(
     namespace: "pages.aboutIntegrations",
   });
 
-  return createPageMetadata({
+  return createPublicPageMetadata({
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,

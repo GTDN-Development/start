@@ -21,16 +21,13 @@ import { NewsletterCta } from "@/features/marketing/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
 import { MarqueeCompanies } from "@/features/marketing/home/marquee-companies";
 // import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPublicPageMetadata } from "@/lib/metadata";
 import {
   HomeFeature,
   HomeFeatureDescription,
   HomeFeatureHeader,
   HomeFeatureHeaderAside,
-  HomeFeatureLink,
   HomeFeatureMedia,
-  // HomeFeatureSubLink,
-  // HomeFeatureSubLinks,
   HomeFeatureTitle,
 } from "@/features/marketing/home/home-feature";
 import OgImage from "@/assets/images/og-image.jpg";
@@ -55,7 +52,7 @@ export async function generateMetadata(props: PageProps<"/[locale]">): Promise<M
     break: () => " ",
   });
 
-  return createPageMetadata({
+  return createPublicPageMetadata({
     title: metadataTitle,
     description: t("description"),
     locale: locale as Locale,
@@ -126,17 +123,17 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
                   lectus eleifend, sed laoreet nulla pretium. Praesent dictum mi nunc, sit amet
                   gravida turpis lobortis et.
                 </HomeFeatureDescription>
-                <HomeFeatureLink href="#">Zjistit více</HomeFeatureLink>
+                <a
+                  href="#"
+                  className="text-foreground hover:text-foreground/70 inline-flex items-center gap-1 text-sm font-medium transition-colors"
+                >
+                  Zjistit více
+                </a>
               </HomeFeatureHeaderAside>
             </HomeFeatureHeader>
             <HomeFeatureMedia>
               <Image src={OgImage} alt="" className="w-full" />
             </HomeFeatureMedia>
-            {/*<HomeFeatureSubLinks>
-              <HomeFeatureSubLink href="#">Feature 1</HomeFeatureSubLink>
-              <HomeFeatureSubLink href="#">Feature 2</HomeFeatureSubLink>
-              <HomeFeatureSubLink href="#">Feature 3</HomeFeatureSubLink>
-            </HomeFeatureSubLinks>*/}
           </HomeFeature>
         </Container>
 
@@ -154,17 +151,17 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
                   lectus eleifend, sed laoreet nulla pretium. Praesent dictum mi nunc, sit amet
                   gravida turpis lobortis et.
                 </HomeFeatureDescription>
-                <HomeFeatureLink href="#">Zjistit více</HomeFeatureLink>
+                <a
+                  href="#"
+                  className="text-foreground hover:text-foreground/70 inline-flex items-center gap-1 text-sm font-medium transition-colors"
+                >
+                  Zjistit více
+                </a>
               </HomeFeatureHeaderAside>
             </HomeFeatureHeader>
             <HomeFeatureMedia>
               <div className="h-100 w-full bg-gray-300"></div>
             </HomeFeatureMedia>
-            {/*<HomeFeatureSubLinks>
-              <HomeFeatureSubLink href="#">Feature 1</HomeFeatureSubLink>
-              <HomeFeatureSubLink href="#">Feature 2</HomeFeatureSubLink>
-              <HomeFeatureSubLink href="#">Feature 3</HomeFeatureSubLink>
-            </HomeFeatureSubLinks>*/}
           </HomeFeature>
         </Container>
 

@@ -22,13 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  authMenu,
-  isNested,
-  marketingMenu,
-  type MenuItem,
-  type MenuLabelKey,
-} from "@/config/navigation";
+import { authMenu, isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/menu";
 import { SocialMediaIcons } from "@/components/brand/social-media-icons";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
 import { useTranslations } from "next-intl";

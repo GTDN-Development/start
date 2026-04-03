@@ -51,7 +51,7 @@ import {
 import {
   deleteCurrentUserAccountWithPassword,
   updateCurrentUserPassword,
-} from "./account-service";
+} from "./account-security-service";
 
 describe("account-service", function describeAccountService() {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;

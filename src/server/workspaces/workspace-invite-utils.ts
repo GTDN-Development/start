@@ -1,17 +1,17 @@
 import { createHash, randomBytes } from "node:crypto";
-import { INVITE_TOKEN_BYTES, INVITE_TTL_DAYS } from "@/server/workspaces/workspace-constants";
+import { workspaceConfig } from "@/config/workspace";
 
 export function hashInviteToken(inviteToken: string): string {
   return createHash("sha256").update(inviteToken).digest("hex");
 }
 
 export function createInviteToken(): string {
-  return randomBytes(INVITE_TOKEN_BYTES).toString("hex");
+  return randomBytes(workspaceConfig.invites.tokenBytes).toString("hex");
 }
 
 export function createInviteExpiryDate(): string {
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + INVITE_TTL_DAYS);
+  expiresAt.setDate(expiresAt.getDate() + workspaceConfig.invites.ttlDays);
 
   return expiresAt.toISOString();
 }

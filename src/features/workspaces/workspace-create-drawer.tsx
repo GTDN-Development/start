@@ -4,7 +4,6 @@ import { useForm } from "@tanstack/react-form";
 import { startTransition, useId } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -19,8 +18,11 @@ import {
 } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
 import { getWorkspaceOverviewHref } from "@/config/routes";
-import { workspaceConfig } from "@/config/workspace";
-import { createOrganizationWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
+import { createWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
+import {
+  createWorkspaceNameFormSchema,
+  workspaceNameMaxLength,
+} from "@/features/workspaces/workspace-schemas";
 import { useRouter } from "@/i18n/navigation";
 import { resolveErrorMessage, runAsyncTransition } from "@/lib/app-utils";
 
@@ -38,18 +40,11 @@ export function WorkspaceCreateDrawer({ open, onOpenChangeAction }: WorkspaceCre
   const router = useRouter();
   const createToastId = useId();
 
-  const createWorkspaceSchema = z.object({
-    name: z
-      .string()
-      .trim()
-      .min(1, {
-        message: t("validation.nameRequired"),
-      })
-      .max(workspaceConfig.limits.nameMaxLength, {
-        message: t("validation.nameMax", {
-          max: String(workspaceConfig.limits.nameMaxLength),
-        }),
-      }),
+  const createWorkspaceSchema = createWorkspaceNameFormSchema({
+    required: t("validation.nameRequired"),
+    max: t("validation.nameMax", {
+      max: String(workspaceNameMaxLength),
+    }),
   });
 
   const form = useForm({
@@ -61,11 +56,7 @@ export function WorkspaceCreateDrawer({ open, onOpenChangeAction }: WorkspaceCre
     },
     onSubmit: async ({ value }: { value: WorkspaceCreateFormValues }) => {
       const trimmedName = value.name.trim();
-      const response = await runAsyncTransition(() =>
-        createOrganizationWorkspaceAction({
-          name: trimmedName,
-        })
-      );
+      const response = await runAsyncTransition(() => createWorkspaceAction({ name: trimmedName }));
 
       if (!response.ok) {
         toast.error(

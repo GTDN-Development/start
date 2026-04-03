@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ACCOUNT_PATH } from "@/config/routes";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountAvatarSettingsItem } from "@/features/account/profile/avatar-settings-item";
@@ -7,7 +6,6 @@ import { AccountDeleteAccountSettingsItem } from "@/features/account/profile/del
 import { AccountDisplayNameSettingsItem } from "@/features/account/profile/display-name-settings-item";
 import { AccountEmailSettingsItem } from "@/features/account/profile/email-change-settings-item";
 import { SettingsPage } from "@/features/application/settings-page";
-import { createPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(props: PageProps<"/[locale]/account">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -17,12 +15,10 @@ export async function generateMetadata(props: PageProps<"/[locale]/account">): P
     namespace: "pages.account",
   });
 
-  return createPageMetadata({
+  return {
     title: t("profilePage.title"),
     description: t("profilePage.description"),
-    locale: locale as Locale,
-    pathname: ACCOUNT_PATH,
-  });
+  };
 }
 
 export default async function Page({ params }: PageProps<"/[locale]/account">) {

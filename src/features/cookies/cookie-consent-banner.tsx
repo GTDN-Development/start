@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
-import { legalItems } from "@/config/navigation";
+import { legalItems } from "@/config/menu";
 import { useCookieContext } from "./cookie-context";
 import { useTranslations } from "next-intl";
 

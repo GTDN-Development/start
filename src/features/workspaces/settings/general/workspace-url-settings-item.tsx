@@ -4,7 +4,6 @@ import { useForm } from "@tanstack/react-form";
 import { startTransition, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import {
@@ -20,8 +19,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { getWorkspaceSettingsHref } from "@/config/routes";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { app } from "@/config/app";
-import { workspaceConfig } from "@/config/workspace";
-import { updateWorkspaceGeneralAction } from "@/features/workspaces/actions/workspace-actions";
+import {
+  createWorkspaceUrlFormSchema,
+  workspaceSlugMaxLength,
+} from "@/features/workspaces/workspace-schemas";
+import { updateWorkspaceGeneralAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
@@ -45,18 +47,11 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
   const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
   const isReadOnly = workspaceSnapshot.role === "member";
 
-  const workspaceUrlSchema = z.object({
-    url: z
-      .string()
-      .trim()
-      .min(1, {
-        message: t("validation.required"),
-      })
-      .max(workspaceConfig.limits.slugMaxLength, {
-        message: t("validation.max", {
-          max: String(workspaceConfig.limits.slugMaxLength),
-        }),
-      }),
+  const workspaceUrlSchema = createWorkspaceUrlFormSchema({
+    required: t("validation.required"),
+    max: t("validation.max", {
+      max: String(workspaceSlugMaxLength),
+    }),
   });
 
   const form = useForm({
@@ -180,7 +175,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
                   {isReadOnly
                     ? tCommon("readOnlyHint")
                     : t("footerHint", {
-                        max: String(workspaceConfig.limits.slugMaxLength),
+                        max: String(workspaceSlugMaxLength),
                       })}
                 </SettingsItemDescription>
                 <Button

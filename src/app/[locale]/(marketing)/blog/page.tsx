@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
-import { createPageMetadata } from "@/lib/metadata";
+import { createPublicPageMetadata } from "@/lib/metadata";
 import { getAllPosts } from "@/server/blog/blog-api";
 import { BlogPostGrid } from "@/features/marketing/blog/blog-post-grid";
 
@@ -16,7 +16,7 @@ export async function generateMetadata(props: PageProps<"/[locale]/blog">): Prom
     namespace: "pages.blog",
   });
 
-  return createPageMetadata({
+  return createPublicPageMetadata({
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
