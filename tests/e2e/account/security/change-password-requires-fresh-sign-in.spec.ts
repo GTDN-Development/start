@@ -10,7 +10,7 @@ import {
   createPocketBaseAdminClient,
   createVerifiedUser,
   deleteSignedUpUsersByEmail,
-} from "../../helpers/pocketbase-admin";
+} from "../../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../../helpers/test-run";
 
 test("change password revokes current session and requires fresh sign-in", async ({ page }) => {

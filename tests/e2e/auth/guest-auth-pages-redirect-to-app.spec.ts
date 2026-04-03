@@ -5,7 +5,7 @@ import {
   createPocketBaseAdminClient,
   createVerifiedUser,
   deleteSignedUpUsersByEmail,
-} from "../helpers/pocketbase-admin";
+} from "../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("signed-in user opening sign-in or sign-up is redirected to effective app entry", async ({

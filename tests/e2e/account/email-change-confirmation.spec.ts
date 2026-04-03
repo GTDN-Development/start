@@ -12,7 +12,7 @@ import {
   createPocketBaseAdminClient,
   createVerifiedUser,
   deleteSignedUpUsersByEmail,
-} from "../helpers/pocketbase-admin";
+} from "../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("email change request sends confirmation link to the new email", async ({ page }) => {

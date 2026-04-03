@@ -9,7 +9,7 @@ import {
   createPocketBaseAdminClient,
   createVerifiedUser,
   deleteSignedUpUsersByEmail,
-} from "../../helpers/pocketbase-admin";
+} from "../../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../../helpers/test-run";
 
 test("your devices shows current device and allows signing out another device", async ({

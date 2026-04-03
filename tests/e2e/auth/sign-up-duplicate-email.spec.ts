@@ -5,7 +5,7 @@ import {
   createVerifiedUser,
   createPocketBaseAdminClient,
   deleteSignedUpUsersByEmail,
-} from "../helpers/pocketbase-admin";
+} from "../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("sign-up with existing email stays on sign-up and shows explicit duplicate-email error", async ({

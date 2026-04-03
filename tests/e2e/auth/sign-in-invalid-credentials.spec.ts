@@ -5,7 +5,7 @@ import {
   createPocketBaseAdminClient,
   createVerifiedUser,
   deleteSignedUpUsersByEmail,
-} from "../helpers/pocketbase-admin";
+} from "../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("sign in with invalid credentials stays on sign-in and shows an actionable auth error", async ({

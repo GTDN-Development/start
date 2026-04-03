@@ -5,7 +5,7 @@ import { waitForPocketBaseEmailLinkPath } from "../helpers/mailtrap";
 import {
   createPocketBaseAdminClient,
   deleteSignedUpUsersByEmail,
-} from "../helpers/pocketbase-admin";
+} from "../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("user can sign up, verify email, and sign in", async ({ page, browser }) => {

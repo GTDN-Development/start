@@ -5,7 +5,7 @@ import { waitForPocketBaseEmailLinkPath } from "../helpers/mailtrap";
 import {
   createPocketBaseAdminClient,
   deleteSignedUpUsersByEmail,
-} from "../helpers/pocketbase-admin";
+} from "../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("email verification is idempotent for an already verified email", async ({ page }) => {
