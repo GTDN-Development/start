@@ -13,6 +13,12 @@
 - Next.js Vitest guide: https://nextjs.org/docs/app/guides/testing/vitest
 - Next.js Playwright guide: https://nextjs.org/docs/app/guides/testing/playwright
 
+## Email Link Localization
+
+- PocketBase auth email templates are treated as single-template and not locale-aware.
+- Auth email links therefore go through the app route `/api/pocketbase/email-link`, which resolves the effective locale and redirects to the localized auth flow route.
+- This keeps email-link flows language-safe without duplicating PocketBase templates for each locale.
+
 ## Roles / Actors
 
 - Guest: not authenticated.

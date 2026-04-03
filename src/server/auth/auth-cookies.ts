@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { isReadonlyRequestCookiesError } from "@/server/cookies";
 
 type ParsedSetCookie = {
   name: string;
@@ -20,24 +21,32 @@ export async function applyServerAuthCookies(setCookie: string[] | undefined): P
   const cookieStore = await cookies();
 
   for (const setCookieValue of setCookie) {
-    const parsedCookie = parseSetCookie(setCookieValue);
+    try {
+      const parsedCookie = parseSetCookie(setCookieValue);
 
-    if (!parsedCookie) {
-      continue;
+      if (!parsedCookie) {
+        continue;
+      }
+
+      if (isClearedCookie(parsedCookie)) {
+        cookieStore.delete(parsedCookie.name);
+        cookieStore.set({
+          ...parsedCookie,
+          value: "",
+          maxAge: 0,
+          expires: new Date(0),
+        });
+        continue;
+      }
+
+      cookieStore.set(parsedCookie);
+    } catch (error) {
+      if (isReadonlyRequestCookiesError(error)) {
+        return;
+      }
+
+      throw error;
     }
-
-    if (isClearedCookie(parsedCookie)) {
-      cookieStore.delete(parsedCookie.name);
-      cookieStore.set({
-        ...parsedCookie,
-        value: "",
-        maxAge: 0,
-        expires: new Date(0),
-      });
-      continue;
-    }
-
-    cookieStore.set(parsedCookie);
   }
 }
 

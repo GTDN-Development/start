@@ -11,6 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { legalLinks } from "@/config/navigation";
+import { isTurnstileEnabled } from "@/config/security";
 import { submitNewsletterFormAction } from "@/features/marketing/actions/marketing-actions";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
@@ -25,6 +26,7 @@ type NewsletterFormValues = {
 
 export function NewsletterForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.newsletter");
+  const turnstileEnabled = isTurnstileEnabled();
 
   const [submitStatus, setSubmitStatus] = useState<{
     type: "success" | "error" | null;
@@ -36,9 +38,11 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
     "newsletter-email": z.email({
       message: t("validation.email"),
     }),
-    turnstileToken: z.string().min(1, {
-      message: t("validation.turnstile"),
-    }),
+    turnstileToken: turnstileEnabled
+      ? z.string().min(1, {
+          message: t("validation.turnstile"),
+        })
+      : z.string(),
   });
   const form = useForm({
     defaultValues: {
@@ -52,10 +56,16 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
       setSubmitStatus({ type: null, message: "" });
 
       const response = await runAsyncTransition(() =>
-        submitNewsletterFormAction({
-          email: value["newsletter-email"],
-          turnstileToken: value.turnstileToken,
-        })
+        submitNewsletterFormAction(
+          turnstileEnabled
+            ? {
+                email: value["newsletter-email"],
+                turnstileToken: value.turnstileToken,
+              }
+            : {
+                email: value["newsletter-email"],
+              }
+        )
       );
 
       if (response.ok) {
@@ -140,24 +150,26 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
                 })}
               </p>
 
-              <form.Field name="turnstileToken">
-                {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <Turnstile
-                        ref={turnstileRef}
-                        onSuccess={(token: string) => field.handleChange(token)}
-                        onError={() => field.handleChange("")}
-                        onExpire={() => field.handleChange("")}
-                      />
-                      {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                    </Field>
-                  );
-                }}
-              </form.Field>
+              {turnstileEnabled && (
+                <form.Field name="turnstileToken">
+                  {(field) => {
+                    const isInvalid =
+                      (field.state.meta.isTouched || submissionAttempts > 0) &&
+                      !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <Turnstile
+                          ref={turnstileRef}
+                          onSuccess={(token: string) => field.handleChange(token)}
+                          onError={() => field.handleChange("")}
+                          onExpire={() => field.handleChange("")}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              )}
 
               <Button type="submit" disabled={isSubmitting} className="w-full @sm:hidden">
                 {isSubmitting && <Spinner />}

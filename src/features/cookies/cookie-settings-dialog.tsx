@@ -16,7 +16,7 @@ import { Link } from "@/components/ui/link";
 import { Badge } from "@/components/ui/badge";
 import { legalLinks } from "@/config/navigation";
 import { useTranslations } from "next-intl";
-import type { ConsentState } from "./cookie-consent";
+import { isCookieConsentEnabled, type ConsentState } from "./cookie-consent";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
@@ -35,6 +35,7 @@ const COOKIE_CATEGORY_CONFIG: CookieCategoryConfig[] = [
 ];
 
 export function CookieSettingsDialog() {
+  const cookieConsentEnabled = isCookieConsentEnabled();
   const t = useTranslations("cookies.consent.dialog");
   const [openCategoryKeys, setOpenCategoryKeys] = useState<Record<keyof ConsentState, boolean>>({
     necessary: true,
@@ -51,6 +52,10 @@ export function CookieSettingsDialog() {
     isSettingsOpen,
     closeSettingsDialog,
   } = useCookieContext();
+
+  if (!cookieConsentEnabled) {
+    return null;
+  }
 
   function handleDeny() {
     rejectAll();

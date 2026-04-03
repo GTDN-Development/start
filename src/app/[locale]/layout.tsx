@@ -19,6 +19,7 @@ import {
   getConsent,
   hasInteracted as getCookieConsentHasInteracted,
 } from "@/features/cookies/cookie-server-utils";
+import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { app } from "@/config/app";
 import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
 
@@ -104,6 +105,8 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
   // Enable static rendering
   setRequestLocale(locale);
 
+  const cookieConsentEnabled = isCookieConsentEnabled();
+
   const [initialCookieConsent, initialCookieConsentInteracted] = await Promise.all([
     getConsent(),
     getCookieConsentHasInteracted(),
@@ -122,10 +125,12 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
             initialCookieConsentInteracted={initialCookieConsentInteracted}
           >
             <div className="relative isolate">{children}</div>
-            <CookieErrorBoundary>
-              <CookieConsentBanner />
-              <CookieSettingsDialog />
-            </CookieErrorBoundary>
+            {cookieConsentEnabled && (
+              <CookieErrorBoundary>
+                <CookieConsentBanner />
+                <CookieSettingsDialog />
+              </CookieErrorBoundary>
+            )}
             <TailwindScreen />
             <Toaster />
           </AppProviders>

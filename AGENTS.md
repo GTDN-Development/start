@@ -19,6 +19,7 @@
 - **Never** use `middleware.ts` — use `proxy.ts` for request interception (no edge runtime)
 - `params` and `searchParams` must be awaited — they are async in Next.js 16
 - `cookies()`, `headers()`, `draftMode()` must be awaited
+- Never mutate cookies during Server Component/page/layout render. In Next.js 16, cookie writes are allowed only in Server Actions, Route Handlers, or other response-writing server contexts
 - Use `"use cache"` directive for caching — not the old `fetch` cache options
 - `revalidateTag(tag, cacheLifeProfile)` requires a cacheLife profile as the 2nd argument
 - Parallel route slots require explicit `default.tsx` files

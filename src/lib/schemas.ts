@@ -31,7 +31,11 @@ export function requiredPasswordSchema() {
   return z.string().trim().min(1);
 }
 
-export function turnstileTokenSchema() {
+export function turnstileTokenSchema(options?: { enabled?: boolean }) {
+  if (options?.enabled === false) {
+    return z.string().trim().optional().default("");
+  }
+
   return z.string().trim().min(1);
 }
 

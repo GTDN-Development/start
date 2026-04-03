@@ -8,6 +8,7 @@ import {
   type CookieConsentEventType,
   acceptAllConsent,
   defaultConsent,
+  isCookieConsentEnabled,
   rejectAllConsent,
   serializeConsentCookieValue,
 } from "./cookie-consent";
@@ -57,6 +58,7 @@ function setConsentCookie(consent: ConsentState): void {
 
 // For safety the cookie consent works normally in production
 const ENABLE_DEBUG_MODE = process.env.NODE_ENV === "development" && DEBUG_MODE;
+const COOKIE_CONSENT_ENABLED = isCookieConsentEnabled();
 
 type CookieContextProviderProps = {
   children: ReactNode;
@@ -74,7 +76,7 @@ export function CookieContextProvider({
 
   const [consent, setConsent] = useState<ConsentState>(initialConsent);
   const [hasInteracted, setHasInteracted] = useState(
-    ENABLE_DEBUG_MODE ? false : initialHasInteracted
+    ENABLE_DEBUG_MODE ? false : COOKIE_CONSENT_ENABLED ? initialHasInteracted : true
   );
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -136,6 +138,10 @@ export function CookieContextProvider({
   }
 
   function openSettingsDialog() {
+    if (!COOKIE_CONSENT_ENABLED) {
+      return;
+    }
+
     setIsSettingsOpen(true);
     logCookieDebugState({
       consent,

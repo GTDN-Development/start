@@ -1,7 +1,12 @@
+import { isCookieConsentEnabled } from "./cookie-consent";
 import { getConsent } from "./cookie-server-utils";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
 export async function ThirdPartyScripts() {
+  if (!isCookieConsentEnabled()) {
+    return null;
+  }
+
   const consent = await getConsent();
 
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
