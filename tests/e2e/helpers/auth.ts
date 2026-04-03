@@ -60,6 +60,56 @@ export async function expectSignInPage(page: Page): Promise<void> {
   await expect(page.locator("#sign-in-password")).toBeVisible();
 }
 
+export async function openAccountEmailChangeDialog(page: Page): Promise<void> {
+  await page.goto("/cs/ucet");
+  await page.getByRole("button", { name: "Změnit e-mail" }).click();
+}
+
+export async function requestAccountEmailChange(options: {
+  page: Page;
+  newEmail: string;
+}): Promise<void> {
+  await openAccountEmailChangeDialog(options.page);
+  await options.page.locator("#account-email-change-newEmail").fill(options.newEmail);
+  await options.page
+    .getByRole("checkbox", {
+      name: "Rozumím, že tento e-mail bude mít přístup k mému účtu.",
+    })
+    .check();
+  await options.page.getByRole("button", { name: "Odeslat potvrzovací odkaz" }).click();
+}
+
+export async function openAccountSecurityPage(page: Page): Promise<void> {
+  await page.goto("/cs/ucet/zabezpeceni");
+}
+
+export async function changeAccountPassword(options: {
+  page: Page;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword?: string;
+}): Promise<void> {
+  await openAccountSecurityPage(options.page);
+  await options.page
+    .locator("#account-password-currentPassword")
+    .fill(options.currentPassword);
+  await options.page.locator("#account-password-newPassword").fill(options.newPassword);
+  await options.page
+    .locator("#account-password-confirmPassword")
+    .fill(options.confirmPassword ?? options.newPassword);
+  await options.page.getByRole("button", { name: "Aktualizovat heslo" }).click();
+}
+
+export async function confirmEmailChange(options: {
+  page: Page;
+  password: string;
+}): Promise<void> {
+  await options.page
+    .locator("#confirm-email-change-password")
+    .fill(options.password);
+  await options.page.getByRole("button", { name: "Potvrdit změnu e-mailu" }).click();
+}
+
 export async function signOutCurrentUser(page: Page): Promise<void> {
   await page.getByRole("button", { name: "Můj účet" }).click();
   await page.getByRole("menuitem", { name: "Odhlásit se" }).click();
