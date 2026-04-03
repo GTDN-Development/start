@@ -12,6 +12,10 @@ import {
   sortWorkspaceMembers,
 } from "@/server/workspaces/workspace-mappers";
 import {
+  canAssignWorkspaceMemberRole,
+  canManageWorkspaceMemberRole,
+} from "@/features/workspaces/workspace-roles";
+import {
   countWorkspaceOwners,
   findWorkspaceMemberById,
   listWorkspaceMemberRecordsByWorkspace,
@@ -177,8 +181,8 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
     }
 
     if (
-      !canManageMemberRole(adminAccess.context.membership.role, memberRecord.role) ||
-      !canAssignMemberRole(adminAccess.context.membership.role, role)
+      !canManageWorkspaceMemberRole(adminAccess.context.membership.role, memberRecord.role) ||
+      !canAssignWorkspaceMemberRole(adminAccess.context.membership.role, role)
     ) {
       return {
         ok: false,
@@ -275,7 +279,7 @@ export async function removeWorkspaceMemberForCurrentUser(
       };
     }
 
-    if (!canManageMemberRole(adminAccess.context.membership.role, memberRecord.role)) {
+    if (!canManageWorkspaceMemberRole(adminAccess.context.membership.role, memberRecord.role)) {
       return {
         ok: false,
         errorCode: "FORBIDDEN",
@@ -326,34 +330,4 @@ export async function removeWorkspaceMemberForCurrentUser(
       errorCode,
     };
   }
-}
-
-function canManageMemberRole(
-  actingRole: WorkspaceMemberRole,
-  targetRole: WorkspaceMemberRole
-): boolean {
-  if (actingRole === "owner") {
-    return true;
-  }
-
-  if (actingRole === "admin") {
-    return targetRole !== "owner";
-  }
-
-  return false;
-}
-
-function canAssignMemberRole(
-  actingRole: WorkspaceMemberRole,
-  nextRole: WorkspaceMemberRole
-): boolean {
-  if (actingRole === "owner") {
-    return true;
-  }
-
-  if (actingRole === "admin") {
-    return nextRole !== "owner";
-  }
-
-  return false;
 }

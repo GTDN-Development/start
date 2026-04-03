@@ -4,7 +4,6 @@ import { useForm } from "@tanstack/react-form";
 import { startTransition, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { z } from "zod";
 import { LogOutIcon } from "lucide-react";
 import {
   AlertDialog,
@@ -32,6 +31,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { APP_HOME_PATH } from "@/config/routes";
 import { leaveWorkspaceAction } from "@/features/workspaces/actions/workspace-actions";
+import { createWorkspaceLeaveFormSchema } from "@/features/workspaces/workspace-schemas";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { useRouter } from "@/i18n/navigation";
 import { runAsyncTransition } from "@/lib/app-utils";
@@ -55,21 +55,12 @@ export function WorkspaceLeaveSettingsItem({
   const isLeaveBlockedByLastOwnerGuard =
     workspace.role === "owner" && workspace.isCurrentUserLastOwner;
 
-  const leaveWorkspaceSchema = z.object({
-    confirmationUrl: z
-      .string()
-      .trim()
-      .min(1, {
-        message: t("validation.confirmationUrl.required"),
-      })
-      .refine((value) => value === workspace.slug, {
-        message: t("validation.confirmationUrl.mismatch", {
-          workspaceSlug: workspace.slug,
-        }),
-      }),
-    isLeavingAcknowledged: z.boolean().refine((value) => value === true, {
-      message: t("validation.acknowledged.required"),
+  const leaveWorkspaceSchema = createWorkspaceLeaveFormSchema(workspace.slug, {
+    confirmationRequired: t("validation.confirmationUrl.required"),
+    confirmationMismatch: t("validation.confirmationUrl.mismatch", {
+      workspaceSlug: workspace.slug,
     }),
+    acknowledged: t("validation.acknowledged.required"),
   });
 
   const form = useForm({

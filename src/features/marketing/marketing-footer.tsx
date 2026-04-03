@@ -266,17 +266,22 @@ function Copyright({
 
 function AgencyCredit(props: React.ComponentProps<"p">) {
   const t = useTranslations("layout.footer");
+  const author = app.metadata.authors[0];
+
+  if (!author) {
+    return null;
+  }
 
   return (
     <p {...props} className={cn("text-sm", props.className)}>
       <span>{t("createdBy")} </span>
       <a
-        href="https://www.gtdn.online/"
+        href={author.url}
         target="_blank"
         rel="noopener noreferrer"
         className="underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60"
       >
-        gtdn.online
+        {author.name}
       </a>
     </p>
   );

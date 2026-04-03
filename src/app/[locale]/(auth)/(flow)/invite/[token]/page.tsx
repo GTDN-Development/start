@@ -16,7 +16,7 @@ import { type AppHref, getPathname, redirect } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { createPageMetadata } from "@/lib/metadata";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   getInviteTokenForUser,

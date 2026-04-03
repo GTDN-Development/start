@@ -8,9 +8,19 @@ import {
   getWorkspaceSettingsPath,
 } from "@/config/routes";
 import { z } from "zod";
-import { workspaceConfig } from "@/config/workspace";
 import { routing, type AppLocale } from "@/i18n/routing";
-import { normalizedEmailSchema } from "@/lib/schemas";
+import {
+  createOrganizationWorkspaceInputSchema,
+  createWorkspaceInviteInputSchema,
+  updateWorkspaceGeneralInputSchema,
+  workspaceAvatarMaxSizeBytes,
+  workspaceIdSchema,
+  workspaceSlugSchema,
+} from "@/features/workspaces/workspace-schemas";
+import {
+  WORKSPACE_MEMBER_ROLE_VALUES,
+  type WorkspaceMemberRole,
+} from "@/features/workspaces/workspace-roles";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import {
   clearActiveWorkspaceSlugCookie,
@@ -42,53 +52,8 @@ import type {
 } from "@/server/workspaces/workspace-types";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-types";
 
-const workspaceSlugSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(workspaceConfig.limits.slugMaxLength)
-  .regex(workspaceConfig.validation.slugPattern);
-const workspaceIdSchema = z.string().trim().min(1);
-
-const createOrganizationWorkspaceInputSchema = z.object({
-  name: z.string().trim().min(1).max(workspaceConfig.limits.nameMaxLength),
-  slug: workspaceSlugSchema.optional(),
-});
-
-const updateWorkspaceGeneralInputSchema = z
-  .object({
-    name: z.string().trim().min(1).max(workspaceConfig.limits.nameMaxLength).optional(),
-    slug: workspaceSlugSchema.optional(),
-    removeAvatar: z.boolean().optional(),
-    avatarFile: z.custom<File>((value) => value instanceof File).optional(),
-  })
-  .superRefine((value, context) => {
-    if (
-      value.name === undefined &&
-      value.slug === undefined &&
-      value.removeAvatar !== true &&
-      value.avatarFile === undefined
-    ) {
-      context.addIssue({
-        code: "custom",
-      });
-    }
-
-    if (value.avatarFile && value.removeAvatar === true) {
-      context.addIssue({
-        code: "custom",
-        path: ["avatarFile"],
-      });
-    }
-  });
-
-const workspaceMemberRoleSchema = z.enum(workspaceConfig.roles.memberValues);
-
-const createInviteInputSchema = z.object({
-  locale: z.enum(routing.locales),
-  email: normalizedEmailSchema(),
-  role: z.enum(workspaceConfig.roles.invitableValues),
-});
+const workspaceMemberRoleSchema = z.enum(WORKSPACE_MEMBER_ROLE_VALUES);
+const createInviteInputSchema = createWorkspaceInviteInputSchema(z.enum(routing.locales));
 
 export async function createOrganizationWorkspaceAction(input: {
   name: string;
@@ -220,8 +185,8 @@ export async function deleteOrganizationWorkspaceAction(
 export async function changeMemberRoleAction(
   workspaceSlug: string,
   memberId: string,
-  role: "owner" | "admin" | "member"
-): Promise<WorkspaceResponse<{ memberId: string; role: "owner" | "admin" | "member" }>> {
+  role: WorkspaceMemberRole
+): Promise<WorkspaceResponse<{ memberId: string; role: WorkspaceMemberRole }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedMemberId = workspaceIdSchema.safeParse(memberId);
   const parsedRole = workspaceMemberRoleSchema.safeParse(role);
@@ -410,7 +375,7 @@ function isWorkspaceAvatarFileValid(avatarFile: File): boolean {
     return false;
   }
 
-  if (avatarFile.size > workspaceConfig.limits.avatarMaxSizeBytes) {
+  if (avatarFile.size > workspaceAvatarMaxSizeBytes) {
     return false;
   }
 

@@ -1,7 +1,10 @@
-import type { WorkspaceInvitesRecord, WorkspaceMembersRecord } from "@/types/pocketbase";
+import type {
+  WorkspaceInvitableRole,
+  WorkspaceMemberRole,
+} from "@/features/workspaces/workspace-roles";
 
-export type WorkspaceMemberRole = WorkspaceMembersRecord["role"];
-export type WorkspaceInviteRole = WorkspaceInvitesRecord["role"];
+export type { WorkspaceMemberRole };
+export type WorkspaceInviteRole = WorkspaceInvitableRole;
 
 export type WorkspaceErrorCode =
   | "BAD_REQUEST"

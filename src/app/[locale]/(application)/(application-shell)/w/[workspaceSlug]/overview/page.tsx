@@ -11,10 +11,11 @@ import {
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { AUTH_REDIRECTS } from "@/config/auth";
+import { WORKSPACE_OVERVIEW_PATH } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
 import { requireWorkspaceRouteResult } from "../workspace-route";
 
@@ -33,7 +34,7 @@ export async function generateMetadata(
     description: t("description"),
     locale: locale as Locale,
     pathname: {
-      pathname: "/w/[workspaceSlug]/overview",
+      pathname: WORKSPACE_OVERVIEW_PATH,
       params: {
         workspaceSlug,
       },

@@ -1,24 +1,25 @@
 "use server";
 
-import { z } from "zod";
 import type { AccountProfilePayload } from "@/features/account/account-profile";
-import type { AuthResponse } from "@/features/auth/auth-contract";
-import { accountConfig } from "@/config/account";
 import {
-  authPasswordSchema,
-  normalizedEmailSchema,
-  refinePasswordMatch,
-  requiredPasswordSchema,
-} from "@/lib/schemas";
+  accountAvatarUploadInputSchema,
+  accountDeleteInputSchema,
+  accountEmailChangeInputSchema,
+  accountPasswordUpdateInputSchema,
+  accountProfileInputSchema,
+} from "@/features/account/account-schemas";
+import type { AuthResponse } from "@/features/auth/auth-contract";
+import {
+  requestEmailChangeForCurrentUser,
+  removeCurrentUserAvatar,
+  updateCurrentUserAvatar,
+  updateCurrentUserProfileName,
+} from "@/server/account/account-profile-service";
 import {
   deleteCurrentUserAccountWithPassword,
-  removeCurrentUserAvatar,
-  requestEmailChangeForCurrentUser,
-  updateCurrentUserAvatar,
   updateCurrentUserPassword,
-  updateCurrentUserProfileName,
-} from "@/server/account/account-service";
-import { finalizeAuthAction } from "@/server/auth/auth-service";
+} from "@/server/account/account-security-service";
+import { finalizeAuthAction } from "@/server/auth/auth-service-shared";
 
 type DeleteAccountPayload = {
   deleted: true;
@@ -32,44 +33,10 @@ type UpdateAccountPasswordPayload = {
   passwordUpdated: true;
 };
 
-const MAX_ACCOUNT_PROFILE_NAME_LENGTH = accountConfig.limits.profileNameMaxLength;
-
-const updateProfileInputSchema = z.object({
-  name: z.string().trim().max(MAX_ACCOUNT_PROFILE_NAME_LENGTH),
-});
-
-const uploadAvatarInputSchema = z.object({
-  avatar: z.custom<File>((value) => value instanceof File),
-});
-
-const requestEmailChangeInputSchema = z.object({
-  newEmail: normalizedEmailSchema(),
-});
-
-const updatePasswordInputSchema = z
-  .object({
-    currentPassword: requiredPasswordSchema(),
-    newPassword: authPasswordSchema(),
-    confirmPassword: authPasswordSchema(),
-  })
-  .superRefine(
-    refinePasswordMatch<{
-      currentPassword: string;
-      newPassword: string;
-      confirmPassword: string;
-    }>({
-      passwordField: "newPassword",
-    })
-  );
-
-const deleteAccountInputSchema = z.object({
-  password: requiredPasswordSchema(),
-});
-
 export async function updateAccountProfileAction(input: {
   name: string;
 }): Promise<AuthResponse<AccountProfilePayload>> {
-  const parsedInput = updateProfileInputSchema.safeParse(input);
+  const parsedInput = accountProfileInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
     return createBadRequestResponse<AccountProfilePayload>();
@@ -83,7 +50,7 @@ export async function updateAccountProfileAction(input: {
 export async function uploadAccountAvatarAction(
   formData: FormData
 ): Promise<AuthResponse<AccountProfilePayload>> {
-  const parsedInput = uploadAvatarInputSchema.safeParse({
+  const parsedInput = accountAvatarUploadInputSchema.safeParse({
     avatar: formData.get("avatar"),
   });
 
@@ -105,7 +72,7 @@ export async function removeAccountAvatarAction(): Promise<AuthResponse<AccountP
 export async function requestAccountEmailChangeAction(input: {
   newEmail: string;
 }): Promise<AuthResponse<RequestAccountEmailChangePayload>> {
-  const parsedInput = requestEmailChangeInputSchema.safeParse(input);
+  const parsedInput = accountEmailChangeInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
     return createBadRequestResponse<RequestAccountEmailChangePayload>();
@@ -121,7 +88,7 @@ export async function updateAccountPasswordAction(input: {
   newPassword: string;
   confirmPassword: string;
 }): Promise<AuthResponse<UpdateAccountPasswordPayload>> {
-  const parsedInput = updatePasswordInputSchema.safeParse(input);
+  const parsedInput = accountPasswordUpdateInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
     return createBadRequestResponse<UpdateAccountPasswordPayload>();
@@ -135,7 +102,7 @@ export async function updateAccountPasswordAction(input: {
 export async function deleteAccountAction(input: {
   password: string;
 }): Promise<AuthResponse<DeleteAccountPayload>> {
-  const parsedInput = deleteAccountInputSchema.safeParse(input);
+  const parsedInput = accountDeleteInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
     return createBadRequestResponse<DeleteAccountPayload>();

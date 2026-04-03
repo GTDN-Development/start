@@ -8,6 +8,7 @@ import { WorkspaceLeaveSettingsItem } from "@/features/workspaces/settings/gener
 import { WorkspaceNameSettingsItem } from "@/features/workspaces/settings/general/workspace-name-settings-item";
 import { WorkspaceUrlSettingsItem } from "@/features/workspaces/settings/general/workspace-url-settings-item";
 import { AUTH_REDIRECTS } from "@/config/auth";
+import { WORKSPACE_SETTINGS_PATH } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { createPageMetadata } from "@/lib/metadata";
 import { requireCurrentUser } from "@/server/auth/current-user";
@@ -35,7 +36,7 @@ export async function generateMetadata(
     description: tWorkspace("description"),
     locale: locale as Locale,
     pathname: {
-      pathname: "/w/[workspaceSlug]/settings",
+      pathname: WORKSPACE_SETTINGS_PATH,
       params: {
         workspaceSlug,
       },

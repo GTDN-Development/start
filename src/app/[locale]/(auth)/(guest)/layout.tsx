@@ -2,7 +2,7 @@ import { Locale } from "next-intl";
 import { redirect } from "@/i18n/navigation";
 import { APP_HOME_PATH, getInviteHref, getWorkspaceOverviewHref } from "@/config/routes";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
 

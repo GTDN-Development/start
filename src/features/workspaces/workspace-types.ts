@@ -1,8 +1,10 @@
+import type { WorkspaceMemberRole } from "@/features/workspaces/workspace-roles";
+
 export type WorkspaceNavigationItem = {
   id: string;
   slug: string;
   name: string;
-  role: "owner" | "admin" | "member";
+  role: WorkspaceMemberRole;
   avatarUrl: string | null;
   memberCount: number;
 };

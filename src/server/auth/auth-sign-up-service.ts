@@ -1,0 +1,74 @@
+import type { UsersRecord } from "@/types/pocketbase";
+import type { SignUpPayload } from "@/features/auth/auth-contract";
+import type { SignUpInput } from "@/features/auth/auth-schemas";
+import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
+import { formatServiceError } from "@/server/pocketbase/pocketbase-utils";
+import {
+  createAuthAndDeviceCookies,
+  createDisplayName,
+  logAuthServiceError,
+  mapSignUpErrorCode,
+  type ServerAuthResponse,
+} from "@/server/auth/auth-service-shared";
+
+export async function signUpWithPassword(
+  input: SignUpInput
+): Promise<ServerAuthResponse<SignUpPayload>> {
+  const { pb } = await createPocketBaseServerClient();
+  let setCookie: string[] | undefined;
+
+  try {
+    await pb.collection("users").create<UsersRecord>({
+      email: input.email,
+      password: input.password,
+      passwordConfirm: input.password,
+      name: createDisplayName(input.firstName, input.lastName),
+    });
+
+    try {
+      await pb.collection("users").requestVerification(input.email);
+    } catch (verificationError) {
+      console.warn(
+        "[auth-service] signUpWithPassword: requestVerification failed, user was created but verification email may not have been sent",
+        formatServiceError(verificationError)
+      );
+    }
+
+    try {
+      const authResponse = await pb
+        .collection("users")
+        .authWithPassword<UsersRecord>(input.email, input.password);
+
+      setCookie = await createAuthAndDeviceCookies({
+        pb,
+        userId: authResponse.record.id,
+        rememberMe: false,
+        logContext: "signUpWithPassword",
+      });
+    } catch (authError) {
+      console.warn(
+        "[auth-service] signUpWithPassword: pending auth session bootstrap failed, continuing",
+        formatServiceError(authError)
+      );
+    }
+
+    return {
+      ok: true,
+      data: {
+        created: true,
+      },
+      ...(setCookie ? { setCookie } : {}),
+    };
+  } catch (error) {
+    const errorCode = mapSignUpErrorCode(error);
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logAuthServiceError("signUpWithPassword", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+    };
+  }
+}

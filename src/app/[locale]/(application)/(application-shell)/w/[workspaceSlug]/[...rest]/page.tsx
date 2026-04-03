@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
 import { requireWorkspaceRouteResult } from "../workspace-route";
 

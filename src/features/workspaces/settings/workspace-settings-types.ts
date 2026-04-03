@@ -1,9 +1,14 @@
+import type {
+  WorkspaceInvitableRole,
+  WorkspaceMemberRole,
+} from "@/features/workspaces/workspace-roles";
+
 export type WorkspaceSettingsWorkspace = {
   id: string;
   slug: string;
   name: string;
   currentUserId: string;
-  role: "owner" | "admin" | "member";
+  role: WorkspaceMemberRole;
   isCurrentUserLastOwner: boolean;
   avatarUrl: string | null;
 };
@@ -14,13 +19,13 @@ export type WorkspaceSettingsMember = {
   email: string;
   name: string | null;
   avatarUrl: string | null;
-  role: "owner" | "admin" | "member";
+  role: WorkspaceMemberRole;
 };
 
 export type WorkspaceSettingsInvite = {
   id: string;
   emailNormalized: string;
-  role: "admin" | "member";
+  role: WorkspaceInvitableRole;
   expiresAt: string;
   updatedAt: string;
   invitedByName: string | null;

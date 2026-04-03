@@ -1,4 +1,5 @@
 import { Button, Heading, Link, Section, Text } from "@react-email/components";
+import { createWorkspaceInviteUrl } from "@/server/workspaces/workspace-invite-url";
 import { EmailLayout } from "@/server/email/email-layout";
 import { emailTheme } from "@/server/email/email-theme";
 
@@ -68,7 +69,7 @@ export const PreviewProps = {
   description: "Byli jste pozváni do workspace Start Labs.",
   inviterLine: "Pozval vás Jan Novák.",
   ctaLabel: "Přijmout pozvánku",
-  inviteUrl: "https://start.gtdn.online/cs/invite/demo-token",
+  inviteUrl: createWorkspaceInviteUrl("demo-token", "cs"),
   urlFallbackLabel: "Pokud tlačítko nefunguje, otevřete tuto adresu:",
   expiryText: "Pozvánka vyprší za 7 dní.",
 } satisfies WorkspaceInviteEmailProps;

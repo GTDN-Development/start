@@ -2,12 +2,12 @@
 
 import { useForm } from "@tanstack/react-form";
 import { startTransition, useId, useState } from "react";
-import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { SIGN_IN_PATH } from "@/config/routes";
 import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { deleteAccountAction } from "@/features/account/actions/account-actions";
+import { createAccountDeleteFormSchema } from "@/features/account/account-schemas";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -50,16 +50,9 @@ export function AccountDeleteAccountSettingsItem() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [passwordServerErrorMessage, setPasswordServerErrorMessage] = useState<string | null>(null);
 
-  const deleteAccountSchema = z.object({
-    password: z
-      .string()
-      .trim()
-      .min(1, {
-        message: t("deleteAccount.dialog.fields.password.errors.required"),
-      }),
-    isDeletionAcknowledged: z.boolean().refine((value) => value === true, {
-      message: t("deleteAccount.dialog.fields.acknowledgement.errors.required"),
-    }),
+  const deleteAccountSchema = createAccountDeleteFormSchema({
+    passwordRequired: t("deleteAccount.dialog.fields.password.errors.required"),
+    acknowledged: t("deleteAccount.dialog.fields.acknowledgement.errors.required"),
   });
 
   const form = useForm({

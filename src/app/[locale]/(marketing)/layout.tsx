@@ -2,7 +2,7 @@ import { MarketingLayout } from "@/features/marketing/marketing-layout";
 import { APP_HOME_PATH } from "@/config/routes";
 import { resolveApplicationEntryHref } from "@/features/application/application-entry";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-service";
+import { getServerAuthSession } from "@/server/auth/auth-session-service";
 
 type MarketingRouteLayoutProps = {
   children: React.ReactNode;

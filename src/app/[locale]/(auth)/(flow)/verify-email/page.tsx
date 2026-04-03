@@ -16,7 +16,7 @@ import {
 } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { confirmEmailVerificationToken } from "@/server/auth/auth-service";
+import { confirmEmailVerificationToken } from "@/server/auth/auth-email-verification-service";
 import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
 import {

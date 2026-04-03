@@ -1,10 +1,7 @@
 import { randomBytes } from "node:crypto";
 import type PocketBase from "pocketbase";
+import { workspaceConfig } from "@/config/workspace";
 import { toWorkspaceSlug, trimWorkspaceSlugLength } from "@/features/workspaces/workspace-slug";
-import {
-  MAX_WORKSPACE_NAME_LENGTH,
-  MAX_WORKSPACE_SLUG_LENGTH,
-} from "@/server/workspaces/workspace-constants";
 import { findWorkspaceBySlug } from "@/server/workspaces/workspace-repository";
 
 export function normalizeWorkspaceName(value: string): string | null {
@@ -14,7 +11,7 @@ export function normalizeWorkspaceName(value: string): string | null {
     return null;
   }
 
-  if (normalizedValue.length > MAX_WORKSPACE_NAME_LENGTH) {
+  if (normalizedValue.length > workspaceConfig.limits.nameMaxLength) {
     return null;
   }
 
@@ -36,7 +33,7 @@ export async function resolveUniqueWorkspaceSlug(
     const suffix = index === 0 ? "" : `-${index + 1}`;
     const candidateBase = trimWorkspaceSlugLength(
       baseSlug,
-      MAX_WORKSPACE_SLUG_LENGTH - suffix.length
+      workspaceConfig.limits.slugMaxLength - suffix.length
     );
     const candidateSlug = `${candidateBase}${suffix}`;
     const existingWorkspace = await findWorkspaceBySlug(pb, candidateSlug);
@@ -49,7 +46,7 @@ export async function resolveUniqueWorkspaceSlug(
   const fallbackSuffix = randomBytes(2).toString("hex");
   const fallbackBase = trimWorkspaceSlugLength(
     baseSlug,
-    MAX_WORKSPACE_SLUG_LENGTH - fallbackSuffix.length - 1
+    workspaceConfig.limits.slugMaxLength - fallbackSuffix.length - 1
   );
 
   return `${fallbackBase}-${fallbackSuffix}`;
