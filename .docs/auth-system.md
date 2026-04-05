@@ -82,6 +82,12 @@ Short version:
 
 `rememberMe` decides whether the auth session is session-only or persistent.
 
+Important unverified-account rule:
+
+- an unverified sign-in may bootstrap PocketBase auth cookies so the verification flow can continue
+- an unverified sign-in must not create a custom `device_session`
+- the custom device session starts only after successful email verification
+
 ### Sign Up
 
 - entrypoint: `signUp()`
@@ -93,8 +99,8 @@ Current behavior:
 
 - creates the PocketBase user
 - requests a verification email
-- signs the user in immediately
-- creates a persistent device session
+- bootstraps PocketBase auth cookies for the pending verification flow
+- does not create a custom device session before verification
 
 ### Sign Out
 
@@ -187,6 +193,7 @@ Important rule:
 - the server creates a fresh PocketBase instance per request
 - auth state is loaded from request cookies into that instance
 - protected flows validate the device session, not only PocketBase auth cookie presence
+- custom device sessions are created only for verified accounts
 
 ## Post-Auth Navigation
 

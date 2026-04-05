@@ -43,14 +43,17 @@ import {
 } from "@/server/pocketbase/pocketbase-server";
 import {
   createClearedAuthAndDeviceCookies,
+  generateDeviceSessionCookie,
   readDeviceSessionCookie,
 } from "@/server/device-sessions/device-sessions-cookie";
 import {
   checkDeviceSessionReadOnly,
+  registerOrRefreshDeviceSession,
   validateDeviceSessionOrInvalidate,
 } from "@/server/device-sessions/device-sessions-service";
 import { getResponseAuthSession, getServerAuthSession } from "./auth-session-service";
 import {
+  confirmEmailVerificationToken,
   confirmEmailChangeToken,
   requestEmailVerificationForEmail,
 } from "./auth-email-verification-service";
@@ -58,6 +61,8 @@ import {
   confirmPasswordResetToken,
   requestPasswordResetForEmail,
 } from "./auth-password-reset-service";
+import { signUpWithPassword } from "./auth-sign-up-service";
+import { signInWithPassword } from "./auth-session-service";
 
 describe("auth-service", function describeAuthService() {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
@@ -75,8 +80,16 @@ describe("auth-service", function describeAuthService() {
       "pb_auth=; Max-Age=0",
       "device_session=; Max-Age=0",
     ]);
+    vi.mocked(generateDeviceSessionCookie).mockReturnValue({
+      token: "device-token-new",
+      setCookie: "device_session=device-token-new",
+    });
     vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue(["pb_auth=; Max-Age=0"]);
-    vi.mocked(exportPocketBaseAuthCookies).mockReturnValue(["pb_auth=token", "pb_persist=1"]);
+    vi.mocked(exportPocketBaseAuthCookies).mockImplementation(
+      function exportAuthCookies(_pb, options) {
+        return ["pb_auth=token", options?.sessionOnly ? "pb_persist=0" : "pb_persist=1"];
+      }
+    );
   });
 
   afterEach(function restoreConsoleSpies() {
@@ -209,6 +222,106 @@ describe("auth-service", function describeAuthService() {
       errorCode: "BAD_REQUEST",
       setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
+  });
+
+  it("keeps unverified sign-in on PocketBase auth only without creating a device session", async function testSignInUnverifiedWithoutDeviceSession() {
+    const context = createAuthServiceContext();
+
+    context.usersCollection.authWithPassword.mockResolvedValue({
+      record: createUserRecord("user-1", "user@example.com", {
+        verified: false,
+      }),
+    });
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+
+    const response = await signInWithPassword({
+      email: "user@example.com",
+      password: "secret-password",
+      rememberMe: true,
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      errorCode: "EMAIL_NOT_VERIFIED",
+      setCookie: ["pb_auth=token", "pb_persist=1"],
+    });
+    expect(exportPocketBaseAuthCookies).toHaveBeenCalledWith(context.pb, {
+      sessionOnly: false,
+    });
+    expect(registerOrRefreshDeviceSession).not.toHaveBeenCalled();
+  });
+
+  it("keeps sign-up verification bootstrap on PocketBase auth only without creating a device session", async function testSignUpWithoutDeviceSession() {
+    const context = createAuthServiceContext();
+
+    context.usersCollection.create.mockResolvedValue(
+      createUserRecord("user-1", "user@example.com", {
+        verified: false,
+      })
+    );
+    context.usersCollection.requestVerification.mockResolvedValue(undefined);
+    context.usersCollection.authWithPassword.mockResolvedValue({
+      record: createUserRecord("user-1", "user@example.com", {
+        verified: false,
+      }),
+    });
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+
+    const response = await signUpWithPassword({
+      firstName: "Test",
+      lastName: "User",
+      email: "user@example.com",
+      password: "secret-password",
+    });
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        created: true,
+      },
+      setCookie: ["pb_auth=token", "pb_persist=0"],
+    });
+    expect(exportPocketBaseAuthCookies).toHaveBeenCalledWith(context.pb, {
+      sessionOnly: true,
+    });
+    expect(registerOrRefreshDeviceSession).not.toHaveBeenCalled();
+  });
+
+  it("creates a custom device session after successful email verification", async function testConfirmEmailVerificationCreatesDeviceSession() {
+    const context = createAuthServiceContext({
+      authStoreRecord: createUserRecord("user-1", "user@example.com", {
+        verified: false,
+      }),
+      authStoreValid: true,
+      shouldPersistSession: true,
+    });
+
+    context.usersCollection.confirmVerification.mockResolvedValue(undefined);
+    context.usersCollection.authRefresh.mockResolvedValue({
+      record: createUserRecord("user-1", "user@example.com", {
+        verified: true,
+      }),
+    });
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+    vi.mocked(readDeviceSessionCookie).mockResolvedValue(null);
+
+    const response = await confirmEmailVerificationToken("verification-token");
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        session: {
+          user: {
+            id: "user-1",
+            email: "user@example.com",
+            name: "User",
+            avatarUrl: null,
+          },
+        },
+      },
+      setCookie: ["pb_auth=token", "pb_persist=1", "device_session=device-token-new"],
+    });
+    expect(registerOrRefreshDeviceSession).toHaveBeenCalledTimes(1);
   });
 
   it("returns null session and clears cookies when the auth cookie is invalid", async function testGetServerAuthSessionInvalidAuthCookie() {
@@ -421,8 +534,11 @@ function createAuthServiceContext(input?: {
 }) {
   const usersCollection = {
     authRefresh: vi.fn(),
+    authWithPassword: vi.fn(),
+    confirmVerification: vi.fn(),
     confirmEmailChange: vi.fn(),
     confirmPasswordReset: vi.fn(),
+    create: vi.fn(),
     getOne: vi.fn(),
     requestPasswordReset: vi.fn(),
     requestVerification: vi.fn(),

@@ -34,20 +34,23 @@ export async function signInWithPassword(
     const authResponse = await pb
       .collection("users")
       .authWithPassword<UsersRecord>(input.email, input.password);
+
+    if (authResponse.record.verified !== true) {
+      return {
+        ok: false,
+        errorCode: "EMAIL_NOT_VERIFIED",
+        setCookie: exportPocketBaseAuthCookies(pb, {
+          sessionOnly: !input.rememberMe,
+        }),
+      };
+    }
+
     const setCookie = await createAuthAndDeviceCookies({
       pb,
       userId: authResponse.record.id,
       rememberMe: input.rememberMe,
       logContext: "signInWithPassword",
     });
-
-    if (authResponse.record.verified !== true) {
-      return {
-        ok: false,
-        errorCode: "EMAIL_NOT_VERIFIED",
-        setCookie,
-      };
-    }
 
     const session = createAuthSession(pb, authResponse.record);
 

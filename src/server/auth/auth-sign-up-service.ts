@@ -1,10 +1,13 @@
 import type { UsersRecord } from "@/types/pocketbase";
 import type { SignUpPayload } from "@/features/auth/auth-types";
 import type { SignUpInput } from "@/features/auth/auth-schemas";
-import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
+import {
+  createPocketBaseServerClient,
+  exportPocketBaseAuthCookies,
+} from "@/server/pocketbase/pocketbase-server";
 import { formatServiceError } from "@/server/pocketbase/pocketbase-utils";
 import { logAuthServiceError, mapSignUpErrorCode } from "@/server/auth/auth-errors";
-import { createAuthAndDeviceCookies, createDisplayName } from "@/server/auth/auth-session-utils";
+import { createDisplayName } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
 export async function signUpWithPassword(
@@ -31,15 +34,10 @@ export async function signUpWithPassword(
     }
 
     try {
-      const authResponse = await pb
-        .collection("users")
-        .authWithPassword<UsersRecord>(input.email, input.password);
+      await pb.collection("users").authWithPassword<UsersRecord>(input.email, input.password);
 
-      setCookie = await createAuthAndDeviceCookies({
-        pb,
-        userId: authResponse.record.id,
-        rememberMe: false,
-        logContext: "signUpWithPassword",
+      setCookie = exportPocketBaseAuthCookies(pb, {
+        sessionOnly: true,
       });
     } catch (authError) {
       console.warn(
