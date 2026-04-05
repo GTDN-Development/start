@@ -5,7 +5,6 @@ import { redirect } from "@/i18n/navigation";
 import { ApplicationRoot } from "@/features/application/application-root";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 import {
@@ -30,8 +29,6 @@ export const metadata: Metadata = {
 export default async function Layout({ children, params }: ApplicationRouteLayoutProps) {
   const { locale } = await params;
   const currentUser = await requireCurrentUser();
-
-  await applyServerAuthCookies(currentUser.ok ? undefined : currentUser.setCookie);
 
   if (!currentUser.ok) {
     redirect({

@@ -141,9 +141,20 @@ redirect({ href: "/sign-in", locale: locale as Locale });
 - Auth uses PocketBase via SSR-safe per-request server clients.
 - Client auth flows are implemented primarily via server actions exposed from `src/features/auth/auth-client.ts`.
 - The public auth API route currently exposed from `src/app/api/auth` is `src/app/api/auth/session/route.ts`.
-- Additional auth-related route handlers live next to their route flows (for example invite accept/start handlers under `src/app/[locale]/(auth)/(flow)/invite/...`).
+- Additional auth-related route handlers live next to their route flows:
+  - `src/app/[locale]/(auth)/(flow)/post-auth/route.ts`
+  - `src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts`
+  - invite accept/start handlers under `src/app/[locale]/(auth)/(flow)/invite/...`
 - Client DX API is exposed via `src/features/auth/auth-client.ts`:
   - `signIn`, `signUp`, `useSession`, `signOut`
 - Application routes are protected by:
   - `src/proxy.ts` cookie-presence redirect guard
   - server-layout fallback session validation in `src/app/[locale]/(application)/layout.tsx`
+
+### Cookie Boundary
+
+- Pages, layouts, and other render-time Server Components are cookie-read-only
+- Auth and workspace services may return serialized `setCookie[]`, but render code must never commit them
+- Server Actions commit auth cookies through `src/server/auth/auth-cookies.ts`
+- Route Handlers commit auth and workspace cookies on `NextResponse`
+- `src/proxy.ts` stays optimistic only; real auth and cleanup decisions stay near the data

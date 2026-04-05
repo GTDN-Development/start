@@ -1,5 +1,5 @@
 import type { AuthErrorCode, AuthResponse } from "@/features/auth/auth-types";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
+import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
 
 export type ServerAuthResponse<TData> =
   | {
@@ -30,7 +30,7 @@ export function toAuthApiResponse<TData>(response: ServerAuthResponse<TData>): A
 export async function finalizeAuthAction<TData>(
   response: ServerAuthResponse<TData>
 ): Promise<AuthResponse<TData>> {
-  await applyServerAuthCookies(response.setCookie);
+  await applyServerActionAuthCookies(response.setCookie);
 
   return toAuthApiResponse(response);
 }

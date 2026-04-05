@@ -16,7 +16,6 @@ import {
   validateDeviceSessionOrInvalidate,
 } from "@/server/device-sessions/device-sessions-service";
 import { formatServiceError, isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
-import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   logAuthServiceError,
   mapSignInErrorCode,
@@ -99,8 +98,6 @@ export async function signOutServerSession(): Promise<ServerAuthResponse<AuthSig
       );
     }
   }
-
-  await clearActiveWorkspaceSlugCookie();
 
   return {
     ok: true,

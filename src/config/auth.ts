@@ -3,14 +3,14 @@ import {
   ACCOUNT_PATH,
   APP_HOME_PATH,
   CONFIRM_EMAIL_CHANGE_PATH,
+  VERIFY_EMAIL_COMPLETE_PATH,
   DEFAULT_AUTH_REDIRECTS,
   RESET_PASSWORD_PATH,
-  VERIFY_EMAIL_PATH,
   WORKSPACE_PATH_PREFIX,
 } from "@/config/routes";
 
 const emailLinkActionTargets = {
-  "verify-email": VERIFY_EMAIL_PATH,
+  "verify-email": VERIFY_EMAIL_COMPLETE_PATH,
   "reset-password": RESET_PASSWORD_PATH,
   "confirm-email-change": CONFIRM_EMAIL_CHANGE_PATH,
 } as const satisfies Record<string, AppPathname>;

@@ -13,7 +13,7 @@ import {
   WORKSPACE_MEMBER_ROLE_VALUES,
   type WorkspaceMemberRole,
 } from "@/features/workspaces/workspace-role-rules";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
+import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
 import {
   changeWorkspaceMemberRoleForCurrentUser,
   removeWorkspaceMemberForCurrentUser,
@@ -199,7 +199,7 @@ async function finalizeWorkspaceAction<TData, TResult = TData>(
   response: ServerWorkspaceResponse<TData>,
   mapData?: (data: TData) => TResult
 ): Promise<WorkspaceResponse<TResult>> {
-  await applyServerAuthCookies(response.setCookie);
+  await applyServerActionAuthCookies(response.setCookie);
 
   if (!response.ok) {
     return {

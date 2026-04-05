@@ -47,9 +47,14 @@ import {
   confirmPasswordResetToken,
   requestPasswordResetForEmail,
 } from "@/server/auth/auth-password-reset-service";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
+import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
 import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
-import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import {
+  clearActiveWorkspaceSlugCookie,
+  clearPendingInviteTokenCookie,
+  getPendingInviteTokenCookie,
+  setActiveWorkspaceSlugCookie,
+} from "@/server/workspaces/workspace-cookie";
 
 const turnstileEnabled = isTurnstileEnabled();
 
@@ -130,6 +135,10 @@ export async function signUpAction(input: SignUpActionInput): Promise<AuthRespon
 export async function signOutAction(): Promise<AuthResponse<AuthSignOutPayload>> {
   const response = await signOutServerSession();
 
+  if (response.ok) {
+    await clearActiveWorkspaceSlugCookie();
+  }
+
   return finalizeAuthAction(response);
 }
 
@@ -139,7 +148,7 @@ export async function resolvePostAuthDestinationAction(): Promise<
   const sessionResponse = await getServerAuthSession();
 
   if (!sessionResponse.ok || !sessionResponse.data.session) {
-    await applyServerAuthCookies(sessionResponse.setCookie);
+    await applyServerActionAuthCookies(sessionResponse.setCookie);
 
     return {
       ok: false,
@@ -148,18 +157,24 @@ export async function resolvePostAuthDestinationAction(): Promise<
   }
 
   const session = sessionResponse.data.session;
+  const pendingInviteToken = await getPendingInviteTokenCookie();
   const response = await resolvePostAuthDestination({
     userId: session.user.id,
     userEmail: session.user.email,
+    pendingInviteToken,
   });
 
-  await applyServerAuthCookies(response.setCookie);
+  await applyServerActionAuthCookies(response.setCookie);
 
   if (!response.ok) {
     return {
       ok: false,
       errorCode: "UNKNOWN_ERROR",
     };
+  }
+
+  if (response.data.state === "invite_redirect") {
+    await clearPendingInviteTokenCookie();
   }
 
   if (response.data.state === "workspace_redirect") {

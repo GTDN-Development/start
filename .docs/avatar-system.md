@@ -26,9 +26,9 @@ Short version:
 Main entrypoints:
 
 - client image preparation: [avatar-image-processing.ts](/Users/fanda/Dev/start/src/lib/avatar-image-processing.ts)
-- account avatar UI: [avatar-settings-item.tsx](/Users/fanda/Dev/start/src/features/account/general/avatar-settings-item.tsx)
+- account avatar UI: [avatar-settings-item.tsx](/Users/fanda/Dev/start/src/features/account/profile/avatar-settings-item.tsx)
 - workspace avatar UI: [workspace-avatar-settings-item.tsx](/Users/fanda/Dev/start/src/features/workspaces/settings/general/workspace-avatar-settings-item.tsx)
-- account server handling: [account-service.ts](/Users/fanda/Dev/start/src/server/account/account-service.ts)
+- account server handling: [account-profile-service.ts](/Users/fanda/Dev/start/src/server/account/account-profile-service.ts)
 - workspace server handling: [workspace-general-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-general-service.ts)
 
 ## Client-Side Image Processing

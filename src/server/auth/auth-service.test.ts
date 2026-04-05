@@ -9,12 +9,6 @@ vi.mock("next/headers", function mockNextHeaders() {
   };
 });
 
-vi.mock("@/server/auth/auth-cookies", function mockAuthCookies() {
-  return {
-    applyServerAuthCookies: vi.fn(),
-  };
-});
-
 vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer() {
   return {
     createClearedPocketBaseAuthCookies: vi.fn(),

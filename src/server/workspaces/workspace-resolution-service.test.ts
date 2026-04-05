@@ -10,8 +10,6 @@ vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer()
 
 vi.mock("@/server/workspaces/workspace-cookie", function mockWorkspaceCookie() {
   return {
-    clearActiveWorkspaceSlugCookie: vi.fn(),
-    consumePendingInviteTokenCookie: vi.fn(),
     getActiveWorkspaceSlugCookie: vi.fn(),
   };
 });
@@ -33,11 +31,7 @@ vi.mock("@/server/workspaces/workspace-mappers", function mockWorkspaceMappers()
 });
 
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
-import {
-  clearActiveWorkspaceSlugCookie,
-  consumePendingInviteTokenCookie,
-  getActiveWorkspaceSlugCookie,
-} from "@/server/workspaces/workspace-cookie";
+import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
 import {
   countWorkspaceMembers,
@@ -55,11 +49,10 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
   });
 
   it("prioritizes a pending invite over active workspace resolution", async function testInvitePriority() {
-    vi.mocked(consumePendingInviteTokenCookie).mockResolvedValue("invite-token");
-
     const response = await resolvePostAuthDestination({
       userId: "user-1",
       userEmail: "user@example.com",
+      pendingInviteToken: "invite-token",
     });
 
     expect(response).toEqual({
@@ -77,7 +70,6 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
     const workspace = createWorkspaceRecord("team-space");
     const membership = createWorkspaceMemberRecord("membership-1", "user-1", "member");
 
-    vi.mocked(consumePendingInviteTokenCookie).mockResolvedValue(null);
     vi.mocked(createPocketBaseServerClient).mockResolvedValue({
       pb,
       hasAuthCookie: true,
@@ -101,6 +93,7 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
     const response = await resolvePostAuthDestination({
       userId: "user-1",
       userEmail: "user@example.com",
+      pendingInviteToken: null,
     });
 
     expect(response).toEqual({
@@ -115,7 +108,6 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
   it("falls back to app when no active workspace is available", async function testAppFallback() {
     const pb = createPocketBaseMock();
 
-    vi.mocked(consumePendingInviteTokenCookie).mockResolvedValue(null);
     vi.mocked(createPocketBaseServerClient).mockResolvedValue({
       pb,
       hasAuthCookie: true,
@@ -127,6 +119,7 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
     const response = await resolvePostAuthDestination({
       userId: "user-1",
       userEmail: "user@example.com",
+      pendingInviteToken: null,
     });
 
     expect(response).toEqual({
@@ -150,10 +143,9 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
         workspace: null,
       },
     });
-    expect(clearActiveWorkspaceSlugCookie).not.toHaveBeenCalled();
   });
 
-  it("clears stale active workspace cookies when membership is no longer accessible", async function testStaleCookie() {
+  it("falls back without clearing stale active workspace cookies during render", async function testStaleCookie() {
     const pb = createPocketBaseMock();
     const workspace = createWorkspaceRecord("team-space");
 
@@ -169,7 +161,6 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
         workspace: null,
       },
     });
-    expect(clearActiveWorkspaceSlugCookie).toHaveBeenCalledTimes(1);
   });
 });
 

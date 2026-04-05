@@ -2,7 +2,6 @@ import type { UsersRecord } from "@/types/pocketbase";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import { revokeAllDeviceSessions } from "@/server/device-sessions/device-sessions-service";
 import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
-import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   countWorkspaceOwners,
   listUserWorkspaceMembershipRecords,
@@ -84,7 +83,6 @@ export async function deleteCurrentUserAccountWithPassword(
     }
 
     await currentUser.pb.collection("users").delete(currentUser.user.id);
-    await clearActiveWorkspaceSlugCookie();
 
     return {
       ok: true,

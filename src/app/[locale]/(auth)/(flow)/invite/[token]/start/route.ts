@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SIGN_IN_PATH, getInviteHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { setPendingInviteTokenCookie } from "@/server/workspaces/workspace-cookie";
+import { setPendingInviteTokenResponseCookie } from "@/server/workspaces/workspace-cookie";
 import { validateInviteToken } from "@/server/workspaces/workspace-invite-recipient-service";
 
 type InviteStartRouteContext = {
@@ -29,9 +29,7 @@ export async function GET(request: NextRequest, context: InviteStartRouteContext
     );
   }
 
-  await setPendingInviteTokenCookie(token);
-
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     createLocalizedUrl(
       request,
       getPathname({
@@ -40,6 +38,10 @@ export async function GET(request: NextRequest, context: InviteStartRouteContext
       })
     )
   );
+
+  setPendingInviteTokenResponseCookie(response, token);
+
+  return response;
 }
 
 export function createLocalizedUrl(request: NextRequest, pathname: string): URL {

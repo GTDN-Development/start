@@ -1,7 +1,6 @@
 import { MarketingLayout } from "@/features/marketing/marketing-layout";
 import { APP_HOME_PATH } from "@/config/routes";
 import { resolveApplicationEntryHref } from "@/server/application/application-entry-href";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-session-service";
 
 type MarketingRouteLayoutProps = {
@@ -10,8 +9,6 @@ type MarketingRouteLayoutProps = {
 
 export default async function Layout({ children }: MarketingRouteLayoutProps) {
   const sessionResponse = await getServerAuthSession();
-
-  await applyServerAuthCookies(sessionResponse.setCookie);
 
   const sessionUser = sessionResponse.ok ? (sessionResponse.data.session?.user ?? null) : null;
   const viewer = sessionUser

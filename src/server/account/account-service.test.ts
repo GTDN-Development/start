@@ -26,12 +26,6 @@ vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer()
   };
 });
 
-vi.mock("@/server/workspaces/workspace-cookie", function mockWorkspaceCookie() {
-  return {
-    clearActiveWorkspaceSlugCookie: vi.fn(),
-  };
-});
-
 vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceRepository() {
   return {
     countWorkspaceOwners: vi.fn(),
@@ -43,7 +37,6 @@ import { requireCurrentUser } from "@/server/auth/current-user";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 import { revokeAllDeviceSessions } from "@/server/device-sessions/device-sessions-service";
 import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
-import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   countWorkspaceOwners,
   listUserWorkspaceMembershipRecords,
@@ -91,7 +84,6 @@ describe("account-service", function describeAccountService() {
     });
     expect(currentUser.workspaceMembersCollection.delete).not.toHaveBeenCalled();
     expect(currentUser.usersCollection.delete).not.toHaveBeenCalled();
-    expect(clearActiveWorkspaceSlugCookie).not.toHaveBeenCalled();
   });
 
   it("deletes memberships and clears cookies when account deletion succeeds", async function testDeleteHappyPath() {
@@ -107,7 +99,6 @@ describe("account-service", function describeAccountService() {
     vi.mocked(requireCurrentUser).mockResolvedValue(currentUser.result);
     vi.mocked(listUserWorkspaceMembershipRecords).mockResolvedValue(memberships);
     vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
-    vi.mocked(clearActiveWorkspaceSlugCookie).mockResolvedValue(undefined);
 
     const response = await deleteCurrentUserAccountWithPassword("secret-password");
 
@@ -128,7 +119,6 @@ describe("account-service", function describeAccountService() {
       "membership-member"
     );
     expect(currentUser.usersCollection.delete).toHaveBeenCalledWith(currentUser.user.id);
-    expect(clearActiveWorkspaceSlugCookie).toHaveBeenCalledTimes(1);
   });
 
   it("revokes device sessions after a successful password change", async function testUpdatePasswordSuccess() {

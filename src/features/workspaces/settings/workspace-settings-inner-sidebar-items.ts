@@ -1,7 +1,4 @@
-import {
-  WORKSPACE_SETTINGS_MEMBERS_PATH,
-  WORKSPACE_SETTINGS_PATH,
-} from "@/config/routes";
+import { WORKSPACE_SETTINGS_MEMBERS_PATH, WORKSPACE_SETTINGS_PATH } from "@/config/routes";
 import type { WorkspaceInnerSidebarItemDefinition } from "@/features/application/inner-sidebar/inner-sidebar-items";
 
 type WorkspaceSettingsInnerSidebarPathname =
@@ -20,8 +17,5 @@ export const workspaceSettingsInnerSidebarItems = [
     icon: "users",
   },
 ] as const satisfies ReadonlyArray<
-  WorkspaceInnerSidebarItemDefinition<
-    "general" | "members",
-    WorkspaceSettingsInnerSidebarPathname
-  >
+  WorkspaceInnerSidebarItemDefinition<"general" | "members", WorkspaceSettingsInnerSidebarPathname>
 >;

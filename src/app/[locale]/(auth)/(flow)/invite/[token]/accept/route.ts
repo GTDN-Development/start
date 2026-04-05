@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getInviteHref, getInviteStartHref, getWorkspaceOverviewHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
+import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-session-service";
-import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { acceptInviteTokenForUser } from "@/server/workspaces/workspace-invite-recipient-service";
+import { setActiveWorkspaceSlugResponseCookie } from "@/server/workspaces/workspace-cookie";
+import {
+  acceptInviteTokenForUser,
+  getInviteTokenForUser,
+} from "@/server/workspaces/workspace-invite-recipient-service";
 
 type InviteAcceptRouteContext = {
   params: Promise<{
@@ -14,25 +17,68 @@ type InviteAcceptRouteContext = {
   }>;
 };
 
+export async function GET(request: NextRequest, context: InviteAcceptRouteContext) {
+  const { locale, token } = await context.params;
+  const appLocale = locale as AppLocale;
+  const sessionResponse = await getServerAuthSession();
+  const session = sessionResponse.ok ? sessionResponse.data.session : null;
+
+  if (!session) {
+    return redirectWithAuthCookies(
+      request,
+      sessionResponse.setCookie,
+      getPathname({
+        href: getInviteStartHref(token),
+        locale: appLocale,
+      })
+    );
+  }
+
+  const inspectResponse = await getInviteTokenForUser(token, {
+    id: session.user.id,
+    email: session.user.email,
+  });
+
+  if (!inspectResponse.ok || inspectResponse.data.result.state !== "already_member") {
+    return redirectWithAuthCookies(
+      request,
+      sessionResponse.setCookie,
+      getPathname({
+        href: getInviteHref(token),
+        locale: appLocale,
+      })
+    );
+  }
+
+  const response = redirectWithAuthCookies(
+    request,
+    sessionResponse.setCookie,
+    getPathname({
+      href: getWorkspaceOverviewHref(inspectResponse.data.result.workspace.slug),
+      locale: appLocale,
+    })
+  );
+
+  setActiveWorkspaceSlugResponseCookie(response, inspectResponse.data.result.workspace.slug);
+
+  return response;
+}
+
 export async function POST(request: NextRequest, context: InviteAcceptRouteContext) {
   const { locale, token } = await context.params;
   const appLocale = locale as AppLocale;
   const sessionResponse = await getServerAuthSession();
 
-  await applyServerAuthCookies(sessionResponse.setCookie);
-
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!session) {
-    return NextResponse.redirect(
-      createLocalizedUrl(
-        request,
-        getPathname({
-          href: getInviteStartHref(token),
-          locale: appLocale,
-        })
-      ),
-      { status: 303 }
+    return redirectWithAuthCookies(
+      request,
+      sessionResponse.setCookie,
+      getPathname({
+        href: getInviteStartHref(token),
+        locale: appLocale,
+      })
     );
   }
 
@@ -42,15 +88,13 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
   });
 
   if (!acceptResponse.ok) {
-    return NextResponse.redirect(
-      createLocalizedUrl(
-        request,
-        getPathname({
-          href: getInviteHref(token),
-          locale: appLocale,
-        })
-      ),
-      { status: 303 }
+    return redirectWithAuthCookies(
+      request,
+      sessionResponse.setCookie,
+      getPathname({
+        href: getInviteHref(token),
+        locale: appLocale,
+      })
     );
   }
 
@@ -58,32 +102,42 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
     acceptResponse.data.result.state === "accepted" ||
     acceptResponse.data.result.state === "already_member"
   ) {
-    await setActiveWorkspaceSlugCookie(acceptResponse.data.result.workspace.slug);
-
-    return NextResponse.redirect(
-      createLocalizedUrl(
-        request,
-        getPathname({
-          href: getWorkspaceOverviewHref(acceptResponse.data.result.workspace.slug),
-          locale: appLocale,
-        })
-      ),
-      { status: 303 }
-    );
-  }
-
-  return NextResponse.redirect(
-    createLocalizedUrl(
+    const response = redirectWithAuthCookies(
       request,
+      sessionResponse.setCookie,
       getPathname({
-        href: getInviteHref(token),
+        href: getWorkspaceOverviewHref(acceptResponse.data.result.workspace.slug),
         locale: appLocale,
       })
-    ),
-    { status: 303 }
+    );
+
+    setActiveWorkspaceSlugResponseCookie(response, acceptResponse.data.result.workspace.slug);
+
+    return response;
+  }
+
+  return redirectWithAuthCookies(
+    request,
+    sessionResponse.setCookie,
+    getPathname({
+      href: getInviteHref(token),
+      locale: appLocale,
+    })
   );
 }
 
 function createLocalizedUrl(request: NextRequest, pathname: string): URL {
   return new URL(pathname, request.nextUrl.origin);
+}
+
+function redirectWithAuthCookies(
+  request: NextRequest,
+  setCookie: string[] | undefined,
+  pathname: string
+): NextResponse {
+  const response = NextResponse.redirect(createLocalizedUrl(request, pathname), {
+    status: 303,
+  });
+
+  return appendAuthCookiesToResponse(response, setCookie);
 }

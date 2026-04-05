@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { isReadonlyRequestCookiesError } from "@/server/cookies";
+import type { NextResponse } from "next/server";
 
 type ParsedSetCookie = {
   name: string;
@@ -13,7 +13,7 @@ type ParsedSetCookie = {
   sameSite?: "lax" | "strict" | "none";
 };
 
-export async function applyServerAuthCookies(setCookie: string[] | undefined): Promise<void> {
+export async function applyServerActionAuthCookies(setCookie: string[] | undefined): Promise<void> {
   if (!setCookie?.length) {
     return;
   }
@@ -21,33 +21,35 @@ export async function applyServerAuthCookies(setCookie: string[] | undefined): P
   const cookieStore = await cookies();
 
   for (const setCookieValue of setCookie) {
-    try {
-      const parsedCookie = parseSetCookie(setCookieValue);
+    const parsedCookie = parseSetCookie(setCookieValue);
 
-      if (!parsedCookie) {
-        continue;
-      }
-
-      if (isClearedCookie(parsedCookie)) {
-        cookieStore.delete(parsedCookie.name);
-        cookieStore.set({
-          ...parsedCookie,
-          value: "",
-          maxAge: 0,
-          expires: new Date(0),
-        });
-        continue;
-      }
-
-      cookieStore.set(parsedCookie);
-    } catch (error) {
-      if (isReadonlyRequestCookiesError(error)) {
-        return;
-      }
-
-      throw error;
+    if (!parsedCookie) {
+      continue;
     }
+
+    cookieStore.set(getWritableCookie(parsedCookie));
   }
+}
+
+export function appendAuthCookiesToResponse(
+  response: NextResponse,
+  setCookie: string[] | undefined
+): NextResponse {
+  if (!setCookie?.length) {
+    return response;
+  }
+
+  for (const setCookieValue of setCookie) {
+    const parsedCookie = parseSetCookie(setCookieValue);
+
+    if (!parsedCookie) {
+      continue;
+    }
+
+    response.cookies.set(getWritableCookie(parsedCookie));
+  }
+
+  return response;
 }
 
 function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {
@@ -150,4 +152,17 @@ function isClearedCookie(cookie: ParsedSetCookie): boolean {
   }
 
   return cookie.value.length === 0;
+}
+
+function getWritableCookie(cookie: ParsedSetCookie): ParsedSetCookie {
+  if (!isClearedCookie(cookie)) {
+    return cookie;
+  }
+
+  return {
+    ...cookie,
+    value: "",
+    maxAge: 0,
+    expires: new Date(0),
+  };
 }
