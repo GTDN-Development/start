@@ -463,7 +463,11 @@
       "description": "Postřehy, produktové novinky a praktické návody pro moderní týmy.",
       "readMore": "Číst více",
       "loadMore": "Načíst další",
-      "backToBlog": "Zpět na blog"
+      "backToBlog": "Zpět na blog",
+      "empty": {
+        "title": "Zatím tu nejsou žádné články",
+        "description": "Starter drží blogovou route připravenou od prvního dne. První článek můžete publikovat, až to bude dávat smysl."
+      }
     },
     "gdpr": {
       "title": "Zásady ochrany osobních údajů",

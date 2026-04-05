@@ -35,8 +35,8 @@ test("user can sign up, verify email, and sign in", async ({ page, browser }) =>
     });
 
     await page.goto(verificationPath);
-    await expect(page).toHaveURL(/\/cs\/overit-email\?result=verified/);
-    await expect(page.getByRole("heading", { name: /^E-mail ověřen$/i })).toBeVisible();
+    await expect(page).toHaveURL(/\/cs\/aplikace$/);
+    await expect(page.getByRole("link", { name: "Můj účet" })).toBeVisible();
 
     signInContext = await browser.newContext();
     const signInPage = await signInContext.newPage();

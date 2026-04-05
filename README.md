@@ -51,7 +51,7 @@ Local testing uses `.env.test`.
 
 - `npm run test` runs the Vitest suite once
 - `npm run test:watch` runs Vitest in watch mode
-- `npm run test:e2e` builds the app with test env and runs Playwright against `next start` on `http://127.0.0.1:3100`
+- `npm run test:e2e` builds the app with test env and runs Playwright against `next start` on `http://localhost:3100`
 - `npm run test:e2e:ui` is the local Playwright debugging variant
 - auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias` recipients from it
 

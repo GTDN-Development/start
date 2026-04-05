@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -12,9 +13,9 @@ import {
 } from "@/features/auth/auth-page-shell";
 import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
 
-export async function generateMetadata(
-  props: PageProps<"/[locale]/reset-password">
-): Promise<Metadata> {
+type ResetPasswordPageProps = PageProps<"/[locale]/reset-password">;
+
+export async function generateMetadata(props: ResetPasswordPageProps): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
@@ -28,10 +29,15 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page({
-  params,
-  searchParams,
-}: PageProps<"/[locale]/reset-password">) {
+export default function Page({ params, searchParams }: ResetPasswordPageProps) {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordPageContent params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function ResetPasswordPageContent({ params, searchParams }: ResetPasswordPageProps) {
   const { locale } = await params;
   const query = await searchParams;
 
@@ -41,7 +47,6 @@ export default async function Page({
     locale: locale as Locale,
     namespace: "pages.resetPassword",
   });
-
   const token = parseAuthFlowToken(query.token);
 
   return (

@@ -5,9 +5,9 @@ import { useCookieContext } from "./cookie-context";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
 export function ThirdPartyScripts() {
-  const { consent } = useCookieContext();
+  const { consent, isReady } = useCookieContext();
 
-  if (!isCookieConsentEnabled()) {
+  if (!isCookieConsentEnabled() || !isReady) {
     return null;
   }
 

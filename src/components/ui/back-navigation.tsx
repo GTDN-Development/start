@@ -1,8 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
 import { Link, type LinkHref } from "@/components/ui/link";
-import { usePathname } from "@/i18n/navigation";
+import { useBrowserPathnameState } from "@/hooks/use-browser-pathname-state";
 import { cn } from "@/lib/utils";
 
 type BackNavigationContextValue = {
@@ -24,33 +23,14 @@ export type BackLinkProps = {
   children: React.ReactNode;
 };
 
-const BackNavigationContext = createContext<BackNavigationContextValue | null>(null);
-
-export function BackNavigationProvider({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const previousPathname = usePreviousValue(pathname);
-
-  return (
-    <BackNavigationContext.Provider
-      value={{
-        previousPathname,
-        canGoBack: previousPathname !== undefined,
-        goBack,
-      }}
-    >
-      {children}
-    </BackNavigationContext.Provider>
-  );
-}
-
 export function useBackNavigation(): BackNavigationRenderProps {
-  const context = useContext(BackNavigationContext);
+  const { previousPathname } = useBrowserPathnameState();
 
-  if (!context) {
-    throw new Error("useBackNavigation must be used within BackNavigationProvider.");
-  }
-
-  return context;
+  return {
+    previousPathname: previousPathname ?? undefined,
+    canGoBack: previousPathname !== null,
+    goBack,
+  };
 }
 
 export function BackNavigation({ children }: BackNavigationProps) {
@@ -84,20 +64,6 @@ export function BackLink({ fallbackHref, className, backContent, children }: Bac
       }
     </BackNavigation>
   );
-}
-
-export function usePreviousValue<T>(value: T): T | undefined {
-  const [currentValue, setCurrentValue] = useState(value);
-  const [previousValue, setPreviousValue] = useState<T | undefined>();
-
-  if (currentValue !== value) {
-    setPreviousValue(currentValue);
-    setCurrentValue(value);
-
-    return currentValue;
-  }
-
-  return previousValue;
 }
 
 function goBack() {

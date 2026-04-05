@@ -3,6 +3,15 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 const APP_DIRECTORY = path.resolve(process.cwd(), "src/app");
+const ROOT_LAYOUT_PATH = path.resolve(process.cwd(), "src/app/[locale]/layout.tsx");
+const MARKETING_LAYOUT_PATH = path.resolve(
+  process.cwd(),
+  "src/features/marketing/marketing-layout.tsx"
+);
+const APPLICATION_ROOT_PATH = path.resolve(
+  process.cwd(),
+  "src/features/application/application-root.tsx"
+);
 const FORBIDDEN_RENDER_MUTATORS = [
   "applyServerActionAuthCookies",
   "appendAuthCookiesToResponse",
@@ -24,6 +33,25 @@ describe("render cookie boundary", function describeRenderCookieBoundary() {
         );
       }
     }
+  });
+
+  it("keeps the root layout free of render-time cookie bootstrap helpers", function testRootLayoutBootstrap() {
+    const content = readFileSync(ROOT_LAYOUT_PATH, "utf8");
+
+    expect(content).not.toContain("getConsent");
+    expect(content).not.toContain("getCookieConsentHasInteracted");
+  });
+
+  it("keeps marketing layout free of client auth session gating", function testMarketingLayoutAuthGating() {
+    const content = readFileSync(MARKETING_LAYOUT_PATH, "utf8");
+
+    expect(content).not.toContain("useSession(");
+  });
+
+  it("keeps application root free of client auth session gating", function testApplicationRootAuthGating() {
+    const content = readFileSync(APPLICATION_ROOT_PATH, "utf8");
+
+    expect(content).not.toContain("useSession(");
   });
 });
 

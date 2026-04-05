@@ -1,9 +1,10 @@
 "use client";
 
-import { startTransition, useState } from "react";
+import { useState } from "react";
+import { useLocale } from "next-intl";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { signOut } from "@/features/auth/auth-client";
-import { useRouter } from "@/i18n/navigation";
+import { getPathname } from "@/i18n/navigation";
 
 type UseSignOutReturn = {
   handleSignOut: () => Promise<void>;
@@ -11,7 +12,7 @@ type UseSignOutReturn = {
 };
 
 export function useSignOut(): UseSignOutReturn {
-  const router = useRouter();
+  const locale = useLocale();
   const [isPending, setIsPending] = useState(false);
 
   async function handleSignOut() {
@@ -24,9 +25,12 @@ export function useSignOut(): UseSignOutReturn {
     const response = await signOut();
 
     if (response.ok) {
-      startTransition(() => {
-        router.replace(AUTH_REDIRECTS.unauthenticatedTo);
-      });
+      window.location.assign(
+        getPathname({
+          href: AUTH_REDIRECTS.unauthenticatedTo,
+          locale,
+        })
+      );
       return;
     }
 

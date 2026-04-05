@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { useOptionalAccountProfile } from "@/features/account/account-profile-context";
 import { resolveApplicationScope } from "@/features/application/application-scope";
 import { resolveSelectedWorkspaceSlug } from "@/features/application/workspace-selection";
@@ -47,6 +47,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
 
   const pathname = usePathname();
   const router = useRouter();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
   const [isScopeMenuOpen, setIsScopeMenuOpen] = useState(false);
@@ -98,6 +99,10 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
       return;
     }
 
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+
     setIsScopeMenuOpen(false);
     router.replace(APP_HOME_PATH);
   }
@@ -108,6 +113,10 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
       (applicationScope === "workspace" && selectedWorkspace?.slug === workspace.slug)
     ) {
       return;
+    }
+
+    if (isMobile) {
+      setOpenMobile(false);
     }
 
     setIsScopeMenuOpen(false);
@@ -126,6 +135,10 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   function handleCreateWorkspaceClick() {
     if (isSwitchingWorkspace) {
       return;
+    }
+
+    if (isMobile) {
+      setOpenMobile(false);
     }
 
     setIsScopeMenuOpen(false);

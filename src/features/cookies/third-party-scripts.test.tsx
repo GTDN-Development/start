@@ -1,19 +1,44 @@
 "use client";
 
+import type { ComponentProps } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CookieContextProvider, useCookieContext } from "./cookie-context";
-import { defaultConsent } from "./cookie-consent";
-import { ThirdPartyScripts } from "./third-party-scripts";
 
-const refresh = vi.fn();
+vi.hoisted(function hoistCookieEnvironment() {
+  process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED = "true";
+  process.env.NEXT_PUBLIC_GA_ID = "ga-test-id";
+  process.env.NEXT_PUBLIC_GTM_ID = "gtm-test-id";
+});
+
+import {
+  acceptAllConsent,
+  COOKIE_NAME,
+  serializeConsentCookieValue,
+} from "./cookie-consent";
+
+const { persistCookieConsentAction } = vi.hoisted(function hoistCookieActionMocks() {
+  return {
+    persistCookieConsentAction: vi.fn(async function persistCookieConsentAction() {
+      return undefined;
+    }),
+  };
+});
+
+vi.mock("@/hooks/use-hydrated", function mockUseHydrated() {
+  return {
+    useHydrated: vi.fn(function useHydrated() {
+      return true;
+    }),
+  };
+});
 
 vi.mock("@/i18n/navigation", function mockNavigation() {
   return {
-    useRouter: vi.fn(function useRouter() {
-      return {
-        refresh,
-      };
+    Link: function Link(props: ComponentProps<"a">) {
+      return <a {...props} />;
+    },
+    usePathname: vi.fn(function usePathname() {
+      return "/pricing";
     }),
   };
 });
@@ -23,14 +48,17 @@ vi.mock("next-intl", function mockNextIntl() {
     useLocale: vi.fn(function useLocale() {
       return "en";
     }),
+    useTranslations: vi.fn(function useTranslations(namespace: string) {
+      return function translate(key: string) {
+        return `${namespace}.${key}`;
+      };
+    }),
   };
 });
 
 vi.mock("./cookie-consent-actions", function mockCookieConsentActions() {
   return {
-    persistCookieConsentAction: vi.fn(async function persistCookieConsentAction() {
-      return undefined;
-    }),
+    persistCookieConsentAction,
   };
 });
 
@@ -45,17 +73,59 @@ vi.mock("@next/third-parties/google", function mockGoogleThirdParties() {
   };
 });
 
-describe("third-party scripts", function describeThirdPartyScripts() {
+describe("cookie consent client bootstrap", function describeCookieConsentClientBootstrap() {
   beforeEach(function resetEnvironment() {
     vi.clearAllMocks();
+    vi.resetModules();
     process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED = "true";
     process.env.NEXT_PUBLIC_GA_ID = "ga-test-id";
     process.env.NEXT_PUBLIC_GTM_ID = "gtm-test-id";
+    clearConsentCookie();
   });
 
-  it("updates analytics scripts from cookie context without a router refresh", async function testConsentUpdate() {
+  it("shows the consent banner for first-time visitors after hydration", async function testFirstVisitBanner() {
+    const { CookieConsentBanner, CookieContextProvider } = await loadCookieUi();
+
     render(
-      <CookieContextProvider initialConsent={defaultConsent} initialHasInteracted={false}>
+      <CookieContextProvider>
+        <CookieConsentBanner />
+      </CookieContextProvider>
+    );
+
+    expect(await screen.findByText("cookies.consent.banner.title")).toBeDefined();
+    expect(
+      await screen.findByRole("button", { name: "cookies.consent.banner.acceptAll" })
+    ).toBeDefined();
+  });
+
+  it("keeps the consent banner hidden for returning visitors with a current consent cookie", function testReturningVisitorBanner() {
+    const bannerPromise = loadCookieUi();
+
+    document.cookie = [
+      `${COOKIE_NAME}=${serializeConsentCookieValue(acceptAllConsent)}`,
+      "path=/",
+    ].join("; ");
+
+    return bannerPromise.then(function assertReturningVisitorBanner({
+      CookieConsentBanner,
+      CookieContextProvider,
+    }) {
+      render(
+        <CookieContextProvider>
+          <CookieConsentBanner />
+        </CookieContextProvider>
+      );
+
+      expect(screen.queryByText("cookies.consent.banner.title")).toBeNull();
+    });
+  });
+
+  it("does not render third-party scripts before consent and enables them after accept all", async function testThirdPartyScripts() {
+    const { CookieContextProvider, useCookieContext, ThirdPartyScripts } = await loadCookieUi();
+    const ConsentTestHarness = createConsentTestHarness(useCookieContext, ThirdPartyScripts);
+
+    render(
+      <CookieContextProvider>
         <ConsentTestHarness />
       </CookieContextProvider>
     );
@@ -70,19 +140,50 @@ describe("third-party scripts", function describeThirdPartyScripts() {
       expect(screen.getByTestId("google-tag-manager").textContent).toBe("gtm-test-id");
     });
 
-    expect(refresh).not.toHaveBeenCalled();
+    expect(persistCookieConsentAction).toHaveBeenCalledWith({
+      eventType: "accept_all",
+      consent: acceptAllConsent,
+      locale: "en",
+    });
   });
 });
 
-function ConsentTestHarness() {
-  const { acceptAll } = useCookieContext();
+function createConsentTestHarness(
+  useCookieContext: typeof import("./cookie-context").useCookieContext,
+  ThirdPartyScripts: typeof import("./third-party-scripts").ThirdPartyScripts
+) {
+  function ConsentTestHarness() {
+    const { acceptAll } = useCookieContext();
 
-  return (
-    <>
-      <ThirdPartyScripts />
-      <button type="button" onClick={acceptAll}>
-        Accept all
-      </button>
-    </>
-  );
+    return (
+      <>
+        <ThirdPartyScripts />
+        <button type="button" onClick={acceptAll}>
+          Accept all
+        </button>
+      </>
+    );
+  }
+
+  return ConsentTestHarness;
+}
+
+async function loadCookieUi() {
+  const [{ CookieConsentBanner }, { CookieContextProvider, useCookieContext }, { ThirdPartyScripts }] =
+    await Promise.all([
+      import("./cookie-consent-banner"),
+      import("./cookie-context"),
+      import("./third-party-scripts"),
+    ]);
+
+  return {
+    CookieConsentBanner,
+    CookieContextProvider,
+    useCookieContext,
+    ThirdPartyScripts,
+  };
+}
+
+function clearConsentCookie() {
+  document.cookie = `${COOKIE_NAME}=; Max-Age=0; path=/`;
 }

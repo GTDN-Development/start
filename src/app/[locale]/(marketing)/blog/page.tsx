@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { NewspaperIcon } from "lucide-react";
 import { Container } from "@/components/ui/container";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import { createPublicPageMetadata } from "@/lib/metadata";
 import { getAllPosts } from "@/server/blog/blog-api";
@@ -33,10 +40,8 @@ export default async function Page({ params }: PageProps<"/[locale]/blog">) {
     getTranslations({ locale: locale as Locale, namespace: "pages.blog" }),
     getAllPosts(locale as "cs" | "en"),
   ]);
-
-  if (posts.length === 0) {
-    notFound();
-  }
+  const emptyTitle = t.has("empty.title") ? t("empty.title") : t("title");
+  const emptyDescription = t.has("empty.description") ? t("empty.description") : t("description");
 
   return (
     <div className="relative">
@@ -49,7 +54,19 @@ export default async function Page({ params }: PageProps<"/[locale]/blog">) {
 
       <div className="pb-24">
         <Container render={<section />}>
-          <BlogPostGrid posts={posts} />
+          {posts.length > 0 ? (
+            <BlogPostGrid posts={posts} />
+          ) : (
+            <Empty className="border-border bg-card/40">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <NewspaperIcon aria-hidden="true" />
+                </EmptyMedia>
+                <EmptyTitle>{emptyTitle}</EmptyTitle>
+                <EmptyDescription>{emptyDescription}</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          )}
         </Container>
       </div>
     </div>

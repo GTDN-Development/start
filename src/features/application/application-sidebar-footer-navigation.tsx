@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { applicationSidebarFooterMenu } from "@/config/menu";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
+import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -31,6 +32,7 @@ export function ApplicationSidebarFooterNavigation({
   const tFooter = useTranslations("layout.footer");
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
+  const cookieConsentEnabled = isCookieConsentEnabled();
 
   function handleItemClick() {
     if (isMobile) {
@@ -44,7 +46,8 @@ export function ApplicationSidebarFooterNavigation({
         {applicationSidebarFooterMenu.map((item) => {
           const itemLabel = tNav(item.labelKey);
           const ItemIcon = item.icon;
-          const shouldRenderCookieSettingsAfterItem = item.labelKey === "myAccount";
+          const shouldRenderCookieSettingsAfterItem =
+            cookieConsentEnabled && item.labelKey === "myAccount";
 
           return (
             <Fragment key={item.labelKey}>

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -35,7 +36,21 @@ export async function generateMetadata(props: ConfirmEmailChangePageProps): Prom
   };
 }
 
-export default async function Page({ params, searchParams }: ConfirmEmailChangePageProps) {
+export default function Page({
+  params,
+  searchParams,
+}: ConfirmEmailChangePageProps) {
+  return (
+    <Suspense fallback={null}>
+      <ConfirmEmailChangePageContent params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function ConfirmEmailChangePageContent({
+  params,
+  searchParams,
+}: ConfirmEmailChangePageProps) {
   const { locale } = await params;
   const query = await searchParams;
 
@@ -45,7 +60,6 @@ export default async function Page({ params, searchParams }: ConfirmEmailChangeP
     locale: locale as Locale,
     namespace: "pages.confirmEmailChange",
   });
-
   const token = parseAuthFlowToken(query.token);
 
   return (

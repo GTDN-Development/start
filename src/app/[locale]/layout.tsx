@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
 import { Locale, hasLocale } from "next-intl";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
@@ -13,10 +13,6 @@ import { ThirdPartyScripts } from "@/features/cookies/third-party-scripts";
 import { CookieConsentBanner } from "@/features/cookies/cookie-consent-banner";
 import { CookieSettingsDialog } from "@/features/cookies/cookie-settings-dialog";
 import { CookieErrorBoundary } from "@/features/cookies/cookie-error-boundary";
-import {
-  getConsent,
-  hasInteracted as getCookieConsentHasInteracted,
-} from "@/features/cookies/cookie-server-utils";
 import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { app } from "@/config/app";
 
@@ -29,6 +25,10 @@ const fontMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const STATIC_INTL_FORMATS = {};
+const STATIC_INTL_NOW = new Date("2000-01-01T00:00:00.000Z");
+const STATIC_INTL_TIME_ZONE = "UTC";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -77,11 +77,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
   setRequestLocale(locale);
 
   const cookieConsentEnabled = isCookieConsentEnabled();
-
-  const [initialCookieConsent, initialCookieConsentInteracted] = await Promise.all([
-    getConsent(),
-    getCookieConsentHasInteracted(),
-  ]);
+  const messages = await getMessages({ locale });
 
   return (
     <html
@@ -90,11 +86,14 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
       className={`scroll-pt-16 ${fontSans.variable} ${fontMono.variable}`}
     >
       <body className="antialiased">
-        <NextIntlClientProvider>
-          <AppProviders
-            initialCookieConsent={initialCookieConsent}
-            initialCookieConsentInteracted={initialCookieConsentInteracted}
-          >
+        <NextIntlClientProvider
+          locale={locale}
+          messages={messages}
+          formats={STATIC_INTL_FORMATS}
+          now={STATIC_INTL_NOW}
+          timeZone={STATIC_INTL_TIME_ZONE}
+        >
+          <AppProviders>
             <div className="relative isolate">{children}</div>
             {cookieConsentEnabled && (
               <CookieErrorBoundary>

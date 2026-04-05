@@ -12,11 +12,17 @@ import {
   SettingsItemFooter,
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
+import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 import { cn } from "@/lib/utils";
 
 export function AccountCookieSettingsItem() {
   const t = useTranslations("pages.account.preferences");
+  const cookieConsentEnabled = isCookieConsentEnabled();
+
+  if (!cookieConsentEnabled) {
+    return null;
+  }
 
   return (
     <SettingsItem>

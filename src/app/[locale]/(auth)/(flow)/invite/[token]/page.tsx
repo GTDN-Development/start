@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
@@ -42,6 +43,8 @@ export async function generateMetadata(props: InviteTokenPageProps): Promise<Met
 }
 
 export default async function Page({ params }: InviteTokenPageProps) {
+  await connection();
+
   const { locale, token } = await params;
   const appLocale = locale as AppLocale;
 

@@ -1,31 +1,27 @@
-"use client";
-
 import clsx from "clsx";
-import { useTranslations } from "next-intl";
 import { SkipToContent } from "@/components/layout/skip-to-content";
-import type { LinkHref } from "@/components/ui/link";
-import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
-import { useSession } from "@/features/auth/auth-client";
 import { MarketingFooter } from "./marketing-footer";
 import { MarketingHeader } from "./marketing-header";
 
 export function MarketingLayout({
   children,
-  viewer,
-  applicationEntryHref,
+  headerDesktopAuthSlot,
+  headerMobileTopAuthSlot,
+  headerMobileViewerSlot,
+  headerMobileFooterActionsSlot,
+  footerAccountSection,
+  skipToContentLabel,
+  homeHref,
 }: {
   children: React.ReactNode;
-  viewer: UserAccountMenuViewer | null;
-  applicationEntryHref: LinkHref;
+  headerDesktopAuthSlot: React.ReactNode;
+  headerMobileTopAuthSlot: React.ReactNode;
+  headerMobileViewerSlot: React.ReactNode;
+  headerMobileFooterActionsSlot: React.ReactNode;
+  footerAccountSection: React.ReactNode;
+  skipToContentLabel: string;
+  homeHref: string;
 }) {
-  const sessionSnapshot = useSession();
-  const currentViewer =
-    sessionSnapshot.status === "authenticated"
-      ? (sessionSnapshot.session?.user ?? viewer)
-      : sessionSnapshot.status === "unauthenticated"
-        ? null
-        : viewer;
-  const t = useTranslations("layout");
   const contentId = "gtdn-app-content";
 
   return (
@@ -35,15 +31,21 @@ export function MarketingLayout({
         "relative isolate flex min-h-dvh w-full flex-col justify-between *:shrink-0 *:grow-0 *:data-[slot=main]:shrink *:data-[slot=main]:grow"
       )}
     >
-      <SkipToContent href={`#${contentId}`}>{t("skipToContent")}</SkipToContent>
+      <SkipToContent href={`#${contentId}`}>{skipToContentLabel}</SkipToContent>
 
-      <MarketingHeader viewer={currentViewer} applicationEntryHref={applicationEntryHref} />
+      <MarketingHeader
+        desktopAuthSlot={headerDesktopAuthSlot}
+        mobileTopAuthSlot={headerMobileTopAuthSlot}
+        mobileViewerSlot={headerMobileViewerSlot}
+        mobileFooterActionsSlot={headerMobileFooterActionsSlot}
+        homeHref={homeHref}
+      />
 
       <main id={contentId} data-slot="main" className="min-w-0">
         {children}
       </main>
 
-      <MarketingFooter viewer={currentViewer} />
+      <MarketingFooter accountSection={footerAccountSection} homeHref={homeHref} />
     </div>
   );
 }

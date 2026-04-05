@@ -49,11 +49,12 @@ export function CookieSettingsDialog() {
     acceptAll,
     rejectAll,
     savePreferences,
+    isReady,
     isSettingsOpen,
     closeSettingsDialog,
   } = useCookieContext();
 
-  if (!cookieConsentEnabled) {
+  if (!cookieConsentEnabled || !isReady) {
     return null;
   }
 

@@ -1,14 +1,15 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { VerifyEmailForm } from "@/features/auth/verify-email/verify-email-form";
+import { redirect } from "@/i18n/navigation";
 import {
   AuthHero,
   AuthHeroContent,
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
-import { redirect } from "@/i18n/navigation";
+import { VerifyEmailForm } from "@/features/auth/verify-email/verify-email-form";
 import {
   createVerifyEmailCompletionHref,
   parseVerifyEmailPageState,
@@ -40,7 +41,15 @@ export async function generateMetadata(props: VerifyEmailPageProps): Promise<Met
   };
 }
 
-export default async function Page({ params, searchParams }: VerifyEmailPageProps) {
+export default function Page({ params, searchParams }: VerifyEmailPageProps) {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailPageContent params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function VerifyEmailPageContent({ params, searchParams }: VerifyEmailPageProps) {
   const { locale } = await params;
   const query = await searchParams;
 

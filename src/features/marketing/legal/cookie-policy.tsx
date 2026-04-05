@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import type { CookiePolicyConfig } from "@/config/legal";
+import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 import type { Cookie, CookieCategory } from "@/types/cookies";
 
@@ -32,6 +33,7 @@ export function CookiePolicy({
   ...props
 }: CookiePolicyProps) {
   const t = useTranslations("legal.cookiePolicy");
+  const cookieConsentEnabled = isCookieConsentEnabled();
   const actualCookies = cookies ?? [];
   const thirdPartyProviders = Array.from(
     new Set(actualCookies.filter((cookie) => cookie.thirdParty).map((cookie) => cookie.provider))
@@ -182,11 +184,13 @@ export function CookiePolicy({
           <li>{t("consentManagement.items.browser")}</li>
         </ul>
         <p>{t("consentManagement.article3")}</p>
-        <div className="mt-4">
-          <CookieSettingsTrigger className="cursor-pointer font-medium underline underline-offset-2">
-            {t("consentManagement.button")}
-          </CookieSettingsTrigger>
-        </div>
+        {cookieConsentEnabled && (
+          <div className="mt-4">
+            <CookieSettingsTrigger className="cursor-pointer font-medium underline underline-offset-2">
+              {t("consentManagement.button")}
+            </CookieSettingsTrigger>
+          </div>
+        )}
       </section>
 
       <section>
