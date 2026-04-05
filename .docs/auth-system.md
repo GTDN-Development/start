@@ -44,7 +44,7 @@ The flow stays intentionally direct:
 3. the action or handler validates input and calls the focused auth server service
 4. auth service talks to PocketBase and may return serialized `setCookie[]`
 5. only the action or Route Handler commits those cookies
-6. after successful auth, the UI resolves the post-auth destination
+6. after successful auth, the UI hands off to `/post-auth`, which resolves the destination
 
 Short version:
 
@@ -66,7 +66,6 @@ Short version:
 - auth server actions: [auth-actions.ts](/Users/fanda/Dev/start/src/features/auth/auth-actions.ts)
 - auth client API and session store: [auth-client.ts](/Users/fanda/Dev/start/src/features/auth/auth-client.ts)
 - route proxy guard: [auth-proxy.ts](/Users/fanda/Dev/start/src/features/auth/auth-proxy.ts)
-- post-auth client redirect helper: [post-auth-redirect.ts](/Users/fanda/Dev/start/src/features/auth/post-auth-redirect.ts)
 - post-auth Route Handler: [route.ts](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
 - session endpoint: [route.ts](/Users/fanda/Dev/start/src/app/api/auth/session/route.ts)
 - verify-email completion Route Handler: [route.ts](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts)
@@ -199,9 +198,9 @@ Important rule:
 
 Auth does not directly hardcode a workspace landing page anymore.
 
-After successful auth, the UI uses [post-auth-redirect.ts](/Users/fanda/Dev/start/src/features/auth/post-auth-redirect.ts), which calls `resolvePostAuthDestinationAction()` in [auth-actions.ts](/Users/fanda/Dev/start/src/features/auth/auth-actions.ts).
+After successful auth, the sign-in UI performs a direct handoff to `/post-auth`.
 
-Authenticated render-time guest routes use [post-auth route handler](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts) instead of mutating cookies during layout render.
+Authenticated render-time guest routes also use [post-auth route handler](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts) instead of mutating cookies during layout render.
 
 These boundaries:
 
@@ -220,7 +219,7 @@ Possible post-auth outcomes are:
 - `/w/[workspaceSlug]/overview`
 - `/invite/[token]`
 
-This keeps auth focused on auth while preserving signed-out invite handoff.
+This keeps auth focused on auth while preserving signed-out invite handoff through one explicit response-writing authority.
 
 ## Current Guest/Auth Route Behavior
 
@@ -252,7 +251,7 @@ Adding a new auth UI flow:
 - add the server action or Route Handler boundary
 - add or extend the focused auth service entrypoint
 - expose a small client helper only if the UI needs one
-- keep post-auth destination handling as one explicit follow-up call
+- keep post-auth destination handling in `/post-auth` as the only destination authority
 
 Changing session behavior:
 
@@ -263,7 +262,5 @@ Changing session behavior:
 
 Changing post-auth routing:
 
-- check [auth-actions.ts](/Users/fanda/Dev/start/src/features/auth/auth-actions.ts)
-- check [post-auth-redirect.ts](/Users/fanda/Dev/start/src/features/auth/post-auth-redirect.ts)
 - check [post-auth route](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
 - check [workspace-resolution-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.ts)

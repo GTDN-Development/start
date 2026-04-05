@@ -2,9 +2,10 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { useRouter } from "@/i18n/navigation";
-import { FORGOT_PASSWORD_PATH } from "@/config/routes";
+import { useLocale, useTranslations } from "next-intl";
+import { getPathname, useRouter } from "@/i18n/navigation";
+import type { AppLocale } from "@/i18n/routing";
+import { FORGOT_PASSWORD_PATH, POST_AUTH_PATH } from "@/config/routes";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,7 +17,6 @@ import { AlertCircleIcon, LogInIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/menu";
 import { signIn } from "@/features/auth/auth-client";
-import { replaceToPostAuthDestination } from "@/features/auth/post-auth-redirect";
 import { createPendingVerifyEmailHref } from "@/features/auth/verify-email/verify-email-state";
 import { createSignInFormSchema, type SignInInput } from "@/features/auth/auth-schemas";
 import { cn } from "@/lib/utils";
@@ -24,9 +24,14 @@ import { cn } from "@/lib/utils";
 export function SignInForm({ className, ...props }: React.ComponentProps<"div">) {
   const t = useTranslations("forms.signIn");
   const tPage = useTranslations("pages.signIn");
+  const locale = useLocale() as AppLocale;
   const router = useRouter();
 
   const [submitErrorMessage, setSubmitErrorMessage] = useState<string | null>(null);
+  const postAuthPath = getPathname({
+    href: POST_AUTH_PATH,
+    locale,
+  });
 
   const signInFormSchema = createSignInFormSchema({
     email: t("validation.email"),
@@ -49,7 +54,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
       const response = await signIn(value);
 
       if (response.ok) {
-        await replaceToPostAuthDestination(router);
+        window.location.replace(postAuthPath);
         return;
       }
 

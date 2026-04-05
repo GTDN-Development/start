@@ -119,7 +119,7 @@ Workspace-specific code is intentionally localized. The main app core touches it
 - app shell scope switcher mount in [application-layout.tsx](/Users/fanda/Dev/start/src/features/application/application-layout.tsx)
 - contextual personal/workspace navigation in [application-menu-tree.tsx](/Users/fanda/Dev/start/src/features/application/application-menu-tree.tsx)
 - personal home route under [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(application)/(application-shell)/app/page.tsx>)
-- post-auth invite handoff in [auth-actions.ts](/Users/fanda/Dev/start/src/features/auth/auth-actions.ts), [post-auth-redirect.ts](/Users/fanda/Dev/start/src/features/auth/post-auth-redirect.ts), and [post-auth route](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
+- post-auth invite handoff in sign-in navigation and [post-auth route](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
 - invite routes under [src/app/[locale]/(auth)/(flow)/invite](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite>)
 
 That keeps the removal path bounded without adding a runtime feature system.
@@ -156,8 +156,7 @@ It may also be used to resume the user's last valid app context from non-shell s
 Used by:
 
 - `/invite/[token]/start`
-- post-auth invite handoff in [auth-actions.ts](/Users/fanda/Dev/start/src/features/auth/auth-actions.ts)
-- post-auth redirect Route Handler in [post-auth route](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
+- `/post-auth`
 
 Important rules:
 
@@ -169,6 +168,13 @@ Important rules:
 The default authenticated destination is `/app`.
 
 Post-auth workspace handling only changes the destination when a pending workspace invite exists.
+
+The invite handoff chain is:
+
+- `/invite/[token]/start`
+- `/sign-in`
+- `/post-auth`
+- `/invite/[token]` or `/w/[workspaceSlug]/overview` or `/app`
 
 Outside auth flows, non-shell `Go to app` entry points restore the last valid app context:
 

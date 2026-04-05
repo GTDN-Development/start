@@ -56,6 +56,59 @@ describe("post-auth route", function describePostAuthRoute() {
     vi.clearAllMocks();
   });
 
+  it("redirects unauthenticated requests to sign-in and forwards auth cookies", async function testUnauthorizedRedirect() {
+    vi.mocked(getResponseAuthSession).mockResolvedValue({
+      ok: true,
+      data: {
+        session: null,
+      },
+      setCookie: ["pb_auth=; Max-Age=0; Path=/; HttpOnly"],
+    } as Awaited<ReturnType<typeof getResponseAuthSession>>);
+
+    const response = await GET(new NextRequest("https://example.com/cs/post-auth"), {
+      params: Promise.resolve({
+        locale: "cs",
+      }),
+    });
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("https://example.com/sign-in");
+    expect(response.headers.get("set-cookie")).toContain("pb_auth=");
+    expect(resolvePostAuthDestination).not.toHaveBeenCalled();
+  });
+
+  it("redirects to app when no workspace-specific destination is available", async function testAppRedirect() {
+    vi.mocked(getResponseAuthSession).mockResolvedValue({
+      ok: true,
+      data: {
+        session: {
+          user: {
+            id: "user-1",
+            email: "user@example.com",
+          },
+        },
+      },
+      setCookie: ["pb_auth=token; Path=/; HttpOnly"],
+    } as Awaited<ReturnType<typeof getResponseAuthSession>>);
+    vi.mocked(getPendingInviteTokenCookie).mockResolvedValue(null);
+    vi.mocked(resolvePostAuthDestination).mockResolvedValue({
+      ok: true,
+      data: {
+        state: "app",
+      },
+    } as Awaited<ReturnType<typeof resolvePostAuthDestination>>);
+
+    const response = await GET(new NextRequest("https://example.com/cs/post-auth"), {
+      params: Promise.resolve({
+        locale: "cs",
+      }),
+    });
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("https://example.com/app");
+    expect(response.headers.get("set-cookie")).toContain("pb_auth=token");
+  });
+
   it("clears the pending invite cookie when redirecting to an invite", async function testInviteRedirect() {
     vi.mocked(getResponseAuthSession).mockResolvedValue({
       ok: true,
