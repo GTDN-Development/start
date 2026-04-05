@@ -22,7 +22,7 @@ vi.mock("@/i18n/navigation", function mockNavigation() {
 
 vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() {
   return {
-    getServerAuthSession: vi.fn(),
+    getResponseAuthSession: vi.fn(),
   };
 });
 
@@ -46,7 +46,7 @@ vi.mock("@/server/workspaces/workspace-cookie", async function mockWorkspaceCook
   };
 });
 
-import { getServerAuthSession } from "@/server/auth/auth-session-service";
+import { getResponseAuthSession } from "@/server/auth/auth-session-service";
 import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
 import { getPendingInviteTokenCookie } from "@/server/workspaces/workspace-cookie";
 import { GET } from "./route";
@@ -57,7 +57,7 @@ describe("post-auth route", function describePostAuthRoute() {
   });
 
   it("clears the pending invite cookie when redirecting to an invite", async function testInviteRedirect() {
-    vi.mocked(getServerAuthSession).mockResolvedValue({
+    vi.mocked(getResponseAuthSession).mockResolvedValue({
       ok: true,
       data: {
         session: {
@@ -68,7 +68,7 @@ describe("post-auth route", function describePostAuthRoute() {
         },
       },
       setCookie: ["pb_auth=token; Path=/; HttpOnly"],
-    } as Awaited<ReturnType<typeof getServerAuthSession>>);
+    } as Awaited<ReturnType<typeof getResponseAuthSession>>);
     vi.mocked(getPendingInviteTokenCookie).mockResolvedValue("invite-1");
     vi.mocked(resolvePostAuthDestination).mockResolvedValue({
       ok: true,
@@ -93,7 +93,7 @@ describe("post-auth route", function describePostAuthRoute() {
   });
 
   it("sets the active workspace cookie when redirecting to a workspace", async function testWorkspaceRedirect() {
-    vi.mocked(getServerAuthSession).mockResolvedValue({
+    vi.mocked(getResponseAuthSession).mockResolvedValue({
       ok: true,
       data: {
         session: {
@@ -103,7 +103,7 @@ describe("post-auth route", function describePostAuthRoute() {
           },
         },
       },
-    } as Awaited<ReturnType<typeof getServerAuthSession>>);
+    } as Awaited<ReturnType<typeof getResponseAuthSession>>);
     vi.mocked(getPendingInviteTokenCookie).mockResolvedValue(null);
     vi.mocked(resolvePostAuthDestination).mockResolvedValue({
       ok: true,

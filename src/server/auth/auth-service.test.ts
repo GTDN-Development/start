@@ -28,6 +28,7 @@ vi.mock("@/server/device-sessions/device-sessions-cookie", function mockDeviceSe
 
 vi.mock("@/server/device-sessions/device-sessions-service", function mockDeviceSessionsService() {
   return {
+    checkDeviceSessionReadOnly: vi.fn(),
     hashSessionToken: vi.fn(),
     registerOrRefreshDeviceSession: vi.fn(),
     revokeCurrentDeviceSession: vi.fn(),
@@ -44,8 +45,11 @@ import {
   createClearedAuthAndDeviceCookies,
   readDeviceSessionCookie,
 } from "@/server/device-sessions/device-sessions-cookie";
-import { validateDeviceSessionOrInvalidate } from "@/server/device-sessions/device-sessions-service";
-import { getServerAuthSession } from "./auth-session-service";
+import {
+  checkDeviceSessionReadOnly,
+  validateDeviceSessionOrInvalidate,
+} from "@/server/device-sessions/device-sessions-service";
+import { getResponseAuthSession, getServerAuthSession } from "./auth-session-service";
 import {
   confirmEmailChangeToken,
   requestEmailVerificationForEmail,
@@ -221,12 +225,103 @@ describe("auth-service", function describeAuthService() {
       data: {
         session: null,
       },
-      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
     expect(readDeviceSessionCookie).not.toHaveBeenCalled();
   });
 
-  it("returns null session when the device session is invalid", async function testGetServerAuthSessionInvalidDeviceSession() {
+  it("returns null session when the render-time device session is invalid", async function testGetServerAuthSessionInvalidDeviceSession() {
+    const context = createAuthServiceContext({
+      authStoreRecord: createUserRecord("user-1", "user@example.com"),
+      authStoreValid: true,
+    });
+
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+    vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
+    vi.mocked(checkDeviceSessionReadOnly).mockResolvedValue({
+      status: "invalid",
+    });
+
+    const response = await getServerAuthSession();
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        session: null,
+      },
+    });
+    expect(checkDeviceSessionReadOnly).toHaveBeenCalledWith({
+      pb: context.pb,
+      userId: "user-1",
+      deviceSessionToken: "device-token",
+    });
+    expect(validateDeviceSessionOrInvalidate).not.toHaveBeenCalled();
+    expect(context.usersCollection.authRefresh).not.toHaveBeenCalled();
+  });
+
+  it("returns null session for read-only checks when the fresh user record is unverified", async function testGetServerAuthSessionUnverifiedUser() {
+    const context = createAuthServiceContext({
+      authStoreRecord: createUserRecord("user-1", "user@example.com"),
+      authStoreValid: true,
+    });
+
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+    vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
+    vi.mocked(checkDeviceSessionReadOnly).mockResolvedValue({
+      status: "valid",
+      sessionIdHash: "session-hash-1",
+    });
+    context.usersCollection.getOne.mockResolvedValue(
+      createUserRecord("user-1", "user@example.com", {
+        verified: false,
+      })
+    );
+
+    const response = await getServerAuthSession();
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        session: null,
+      },
+    });
+    expect(context.usersCollection.authRefresh).not.toHaveBeenCalled();
+    expect(validateDeviceSessionOrInvalidate).not.toHaveBeenCalled();
+  });
+
+  it("returns the stale verified session on transient render-time backend errors", async function testGetServerAuthSessionTransientError() {
+    const user = createUserRecord("user-1", "user@example.com");
+    const context = createAuthServiceContext({
+      authStoreRecord: user,
+      authStoreValid: true,
+    });
+
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+    vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
+    vi.mocked(checkDeviceSessionReadOnly).mockResolvedValue({
+      status: "valid",
+      sessionIdHash: "session-hash-1",
+    });
+    context.usersCollection.getOne.mockRejectedValue(createClientResponseError(503));
+
+    const response = await getServerAuthSession();
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        session: {
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            avatarUrl: null,
+          },
+        },
+      },
+    });
+    expect(context.usersCollection.authRefresh).not.toHaveBeenCalled();
+  });
+
+  it("clears cookies in the response-writing session path when the device session is invalid", async function testGetResponseAuthSessionInvalidDeviceSession() {
     const context = createAuthServiceContext({
       authStoreRecord: createUserRecord("user-1", "user@example.com"),
       authStoreValid: true,
@@ -239,7 +334,7 @@ describe("auth-service", function describeAuthService() {
       clearCookies: ["device_session=; Max-Age=0"],
     });
 
-    const response = await getServerAuthSession();
+    const response = await getResponseAuthSession();
 
     expect(response).toEqual({
       ok: true,
@@ -251,7 +346,7 @@ describe("auth-service", function describeAuthService() {
     expect(context.usersCollection.authRefresh).not.toHaveBeenCalled();
   });
 
-  it("returns null session for refreshed but unverified users", async function testGetServerAuthSessionUnverifiedUser() {
+  it("refreshes and rewrites auth cookies in the response-writing session path", async function testGetResponseAuthSessionUnverifiedUser() {
     const context = createAuthServiceContext({
       authStoreRecord: createUserRecord("user-1", "user@example.com"),
       authStoreValid: true,
@@ -270,7 +365,7 @@ describe("auth-service", function describeAuthService() {
       }),
     });
 
-    const response = await getServerAuthSession();
+    const response = await getResponseAuthSession();
 
     expect(response).toEqual({
       ok: true,
@@ -284,7 +379,7 @@ describe("auth-service", function describeAuthService() {
     });
   });
 
-  it("returns the stale verified session on transient backend errors", async function testGetServerAuthSessionTransientError() {
+  it("returns the stale verified session on transient response-writing backend errors", async function testGetResponseAuthSessionTransientError() {
     const user = createUserRecord("user-1", "user@example.com");
     const context = createAuthServiceContext({
       authStoreRecord: user,
@@ -299,7 +394,7 @@ describe("auth-service", function describeAuthService() {
     });
     context.usersCollection.authRefresh.mockRejectedValue(createClientResponseError(503));
 
-    const response = await getServerAuthSession();
+    const response = await getResponseAuthSession();
 
     expect(response).toEqual({
       ok: true,
@@ -328,6 +423,7 @@ function createAuthServiceContext(input?: {
     authRefresh: vi.fn(),
     confirmEmailChange: vi.fn(),
     confirmPasswordReset: vi.fn(),
+    getOne: vi.fn(),
     requestPasswordReset: vi.fn(),
     requestVerification: vi.fn(),
   };

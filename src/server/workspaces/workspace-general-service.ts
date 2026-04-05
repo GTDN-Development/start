@@ -1,7 +1,7 @@
 import { toWorkspaceSlug } from "@/features/workspaces/workspace-slug";
 import type { WorkspacesRecord } from "@/types/pocketbase";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
-import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
+import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
 import {
   requireAdminWorkspaceAccessBySlug,
   requireOwnerWorkspaceAccessBySlug,
@@ -37,7 +37,7 @@ export type UpdateWorkspaceGeneralInput = {
 export async function createWorkspaceForCurrentUser(
   input: CreateWorkspaceInput
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;
@@ -103,7 +103,7 @@ export async function updateWorkspaceGeneralForCurrentUser(
   workspaceSlug: string,
   input: UpdateWorkspaceGeneralInput
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace; previousSlug: string }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;
@@ -218,7 +218,7 @@ export async function updateWorkspaceGeneralForCurrentUser(
 export async function deleteWorkspaceForCurrentUser(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ deleted: true }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;

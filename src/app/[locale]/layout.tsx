@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
-import { Suspense } from "react";
 import { Locale, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
@@ -105,13 +104,9 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
             )}
             <TailwindScreen />
             <Toaster />
+            <ThirdPartyScripts />
           </AppProviders>
         </NextIntlClientProvider>
-
-        {/* Load scripts that are controlled by our cookie consent settings. */}
-        <Suspense fallback={null}>
-          <ThirdPartyScripts />
-        </Suspense>
       </body>
     </html>
   );

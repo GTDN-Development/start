@@ -4,7 +4,7 @@ import type { UsersRecord, WorkspaceMembersRecord } from "@/types/pocketbase";
 
 vi.mock("@/server/auth/current-user", function mockCurrentUser() {
   return {
-    requireCurrentUser: vi.fn(),
+    requireCurrentActionUser: vi.fn(),
   };
 });
 
@@ -33,7 +33,7 @@ vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceReposi
   };
 });
 
-import { requireCurrentUser } from "@/server/auth/current-user";
+import { requireCurrentActionUser } from "@/server/auth/current-user";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 import { revokeAllDeviceSessions } from "@/server/device-sessions/device-sessions-service";
 import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
@@ -70,7 +70,7 @@ describe("account-service", function describeAccountService() {
     currentUser.usersCollection.authWithPassword.mockResolvedValue({
       record: currentUser.user,
     });
-    vi.mocked(requireCurrentUser).mockResolvedValue(currentUser.result);
+    vi.mocked(requireCurrentActionUser).mockResolvedValue(currentUser.result);
     vi.mocked(listUserWorkspaceMembershipRecords).mockResolvedValue([
       createWorkspaceMemberRecord("membership-owner", currentUser.user.id, "owner"),
     ]);
@@ -96,7 +96,7 @@ describe("account-service", function describeAccountService() {
     currentUser.usersCollection.authWithPassword.mockResolvedValue({
       record: currentUser.user,
     });
-    vi.mocked(requireCurrentUser).mockResolvedValue(currentUser.result);
+    vi.mocked(requireCurrentActionUser).mockResolvedValue(currentUser.result);
     vi.mocked(listUserWorkspaceMembershipRecords).mockResolvedValue(memberships);
     vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
 
@@ -125,7 +125,7 @@ describe("account-service", function describeAccountService() {
     const currentUser = createCurrentUserContext();
     const cleanupClient = createCleanupClientMock();
 
-    vi.mocked(requireCurrentUser).mockResolvedValue(currentUser.result);
+    vi.mocked(requireCurrentActionUser).mockResolvedValue(currentUser.result);
     vi.mocked(createPocketBaseClient).mockReturnValue(cleanupClient.pb);
     vi.mocked(revokeAllDeviceSessions).mockResolvedValue(3);
 
@@ -161,7 +161,7 @@ describe("account-service", function describeAccountService() {
     const currentUser = createCurrentUserContext();
     const cleanupClient = createCleanupClientMock();
 
-    vi.mocked(requireCurrentUser).mockResolvedValue(currentUser.result);
+    vi.mocked(requireCurrentActionUser).mockResolvedValue(currentUser.result);
     vi.mocked(createPocketBaseClient).mockReturnValue(cleanupClient.pb);
     vi.mocked(revokeAllDeviceSessions).mockRejectedValue(new Error("cleanup failed"));
 
@@ -212,7 +212,6 @@ function createCurrentUserContext() {
       ok: true as const,
       currentSessionIdHash: "session-hash-1",
       pb,
-      shouldPersistSession: true,
       user,
     },
     user,

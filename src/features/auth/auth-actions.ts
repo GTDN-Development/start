@@ -38,7 +38,7 @@ import {
 } from "@/server/auth/auth-email-verification-service";
 import { finalizeAuthAction } from "@/server/auth/auth-response";
 import {
-  getServerAuthSession,
+  getResponseAuthSession,
   signInWithPassword,
   signOutServerSession,
 } from "@/server/auth/auth-session-service";
@@ -145,7 +145,7 @@ export async function signOutAction(): Promise<AuthResponse<AuthSignOutPayload>>
 export async function resolvePostAuthDestinationAction(): Promise<
   AuthResponse<PostAuthDestinationActionResult>
 > {
-  const sessionResponse = await getServerAuthSession();
+  const sessionResponse = await getResponseAuthSession();
 
   if (!sessionResponse.ok || !sessionResponse.data.session) {
     await applyServerActionAuthCookies(sessionResponse.setCookie);

@@ -165,13 +165,14 @@ Protected layouts and pages still use server-side auth checks through:
 
 - [current-user.ts](/Users/fanda/Dev/start/src/server/auth/current-user.ts)
 - [getServerAuthSession()](/Users/fanda/Dev/start/src/server/auth/auth-session-service.ts)
+- [getResponseAuthSession()](/Users/fanda/Dev/start/src/server/auth/auth-session-service.ts)
 
-That is the real runtime check and handles:
+The split is intentional:
 
-- invalid auth cookies
-- missing user records
-- stale or invalid sessions
-- signaling cookie cleanup via `setCookie[]` when needed
+- render-time checks stay read-only
+- render-time checks may treat invalid or stale auth as unauthenticated, but they do not emit cleanup cookies
+- response-writing checks own `authRefresh()`, device-session heartbeat updates, and `setCookie[]` cleanup metadata
+- cookie cleanup is committed only later by a Server Action, a Route Handler, or [session refresh endpoint](/Users/fanda/Dev/start/src/app/api/auth/session/route.ts)
 
 ## Session Model
 

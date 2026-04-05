@@ -1,13 +1,15 @@
+"use client";
+
 import { isCookieConsentEnabled } from "./cookie-consent";
-import { getConsent } from "./cookie-server-utils";
+import { useCookieContext } from "./cookie-context";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
-export async function ThirdPartyScripts() {
+export function ThirdPartyScripts() {
+  const { consent } = useCookieContext();
+
   if (!isCookieConsentEnabled()) {
     return null;
   }
-
-  const consent = await getConsent();
 
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;

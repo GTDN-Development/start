@@ -1,7 +1,7 @@
 import type PocketBase from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
-import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
+import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
 import {
   requireAdminWorkspaceAccessBySlug,
   requireWorkspaceAccess,
@@ -19,7 +19,7 @@ import {
 
 vi.mock("@/server/workspaces/workspace-auth-context", function mockWorkspaceAuthContext() {
   return {
-    requireWorkspaceAuthContext: vi.fn(),
+    requireWorkspaceActionContext: vi.fn(),
   };
 });
 
@@ -48,7 +48,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const user = createUserRecord("user-member", "member@example.com");
     const membership = createWorkspaceMemberRecord("membership-member", user.id, "member");
 
-    vi.mocked(requireWorkspaceAuthContext).mockResolvedValue(createWorkspaceAuthSuccess(pb, user));
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
+      createWorkspaceAuthSuccess(pb, user)
+    );
     vi.mocked(requireWorkspaceAccess).mockResolvedValue(
       createWorkspaceAccessSuccess(pb, user, membership)
     );
@@ -69,7 +71,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const user = createUserRecord("user-owner", "owner@example.com");
     const membership = createWorkspaceMemberRecord("membership-owner", user.id, "owner");
 
-    vi.mocked(requireWorkspaceAuthContext).mockResolvedValue(createWorkspaceAuthSuccess(pb, user));
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
+      createWorkspaceAuthSuccess(pb, user)
+    );
     vi.mocked(requireWorkspaceAccess).mockResolvedValue(
       createWorkspaceAccessSuccess(pb, user, membership)
     );
@@ -90,7 +94,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
     const ownerMembership = createWorkspaceMemberRecord("membership-owner", "user-owner", "owner");
 
-    vi.mocked(requireWorkspaceAuthContext).mockResolvedValue(createWorkspaceAuthSuccess(pb, user));
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
+      createWorkspaceAuthSuccess(pb, user)
+    );
     vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
       createWorkspaceAccessSuccess(pb, user, adminMembership)
     );
@@ -119,7 +125,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
       "member"
     );
 
-    vi.mocked(requireWorkspaceAuthContext).mockResolvedValue(createWorkspaceAuthSuccess(pb, user));
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
+      createWorkspaceAuthSuccess(pb, user)
+    );
     vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
       createWorkspaceAccessSuccess(pb, user, adminMembership)
     );
@@ -148,7 +156,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
       "member"
     );
 
-    vi.mocked(requireWorkspaceAuthContext).mockResolvedValue(createWorkspaceAuthSuccess(pb, user));
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
+      createWorkspaceAuthSuccess(pb, user)
+    );
     vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
       createWorkspaceAccessSuccess(pb, user, ownerMembership)
     );
@@ -176,7 +186,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const user = createUserRecord("user-owner", "owner@example.com");
     const ownerMembership = createWorkspaceMemberRecord("membership-owner", user.id, "owner");
 
-    vi.mocked(requireWorkspaceAuthContext).mockResolvedValue(createWorkspaceAuthSuccess(pb, user));
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
+      createWorkspaceAuthSuccess(pb, user)
+    );
     vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
       createWorkspaceAccessSuccess(pb, user, ownerMembership)
     );
@@ -202,7 +214,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
     const ownerMembership = createWorkspaceMemberRecord("membership-owner", "user-owner", "owner");
 
-    vi.mocked(requireWorkspaceAuthContext).mockResolvedValue(createWorkspaceAuthSuccess(pb, user));
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
+      createWorkspaceAuthSuccess(pb, user)
+    );
     vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
       createWorkspaceAccessSuccess(pb, user, adminMembership)
     );

@@ -1,6 +1,6 @@
 import type PocketBase from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
-import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
+import { requireCurrentActionUser } from "@/server/auth/current-user";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
 export type RequireCurrentAccountUserResult =
@@ -16,7 +16,7 @@ export type RequireCurrentAccountUserResult =
     };
 
 export async function requireCurrentAccountUser(): Promise<RequireCurrentAccountUserResult> {
-  const currentUser = await requireAuthenticatedUser();
+  const currentUser = await requireCurrentActionUser();
 
   if (!currentUser.ok) {
     return {

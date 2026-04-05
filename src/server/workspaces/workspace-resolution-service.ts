@@ -1,6 +1,6 @@
 import type PocketBase from "pocketbase";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
-import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
+import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
 import { requireWorkspaceAccess } from "@/server/workspaces/workspace-access";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
@@ -187,7 +187,7 @@ export async function resolvePostAuthDestination(input: {
 export async function switchWorkspaceForCurrentUser(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;

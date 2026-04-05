@@ -15,7 +15,8 @@
     "test:e2e:ui": "node ./tests/scripts/run-next-with-test-env.cjs build && playwright test --ui --pass-with-no-tests",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run format:check && npm run lint",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run format:check && npm run lint && npm run typecheck",
     "pocketbase:typegen": "node ./scripts/pocketbase-typegen.mjs"
   },
   "dependencies": {

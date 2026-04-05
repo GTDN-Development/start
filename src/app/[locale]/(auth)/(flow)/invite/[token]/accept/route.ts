@@ -3,7 +3,7 @@ import { getInviteHref, getInviteStartHref, getWorkspaceOverviewHref } from "@/c
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-session-service";
+import { getResponseAuthSession } from "@/server/auth/auth-session-service";
 import { setActiveWorkspaceSlugResponseCookie } from "@/server/workspaces/workspace-cookie";
 import {
   acceptInviteTokenForUser,
@@ -20,7 +20,7 @@ type InviteAcceptRouteContext = {
 export async function GET(request: NextRequest, context: InviteAcceptRouteContext) {
   const { locale, token } = await context.params;
   const appLocale = locale as AppLocale;
-  const sessionResponse = await getServerAuthSession();
+  const sessionResponse = await getResponseAuthSession();
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!session) {
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
 export async function POST(request: NextRequest, context: InviteAcceptRouteContext) {
   const { locale, token } = await context.params;
   const appLocale = locale as AppLocale;
-  const sessionResponse = await getServerAuthSession();
+  const sessionResponse = await getResponseAuthSession();
 
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 

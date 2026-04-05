@@ -1,6 +1,9 @@
 import type PocketBase from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
-import { requireCurrentUser as requireAuthenticatedUser } from "@/server/auth/current-user";
+import {
+  requireCurrentActionUser,
+  requireCurrentUser as requireAuthenticatedUser,
+} from "@/server/auth/current-user";
 import type { ServerWorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 export type WorkspaceAuthContext = {
@@ -20,6 +23,28 @@ type WorkspaceAuthContextResult =
 
 export async function requireWorkspaceAuthContext(): Promise<WorkspaceAuthContextResult> {
   const currentUser = await requireAuthenticatedUser();
+
+  if (!currentUser.ok) {
+    return {
+      ok: false,
+      response: {
+        ok: false,
+        errorCode: currentUser.errorCode,
+      },
+    };
+  }
+
+  return {
+    ok: true,
+    context: {
+      pb: currentUser.pb,
+      user: currentUser.user,
+    },
+  };
+}
+
+export async function requireWorkspaceActionContext(): Promise<WorkspaceAuthContextResult> {
+  const currentUser = await requireCurrentActionUser();
 
   if (!currentUser.ok) {
     return {

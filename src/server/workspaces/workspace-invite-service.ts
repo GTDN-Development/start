@@ -4,7 +4,10 @@ import type { AppLocale } from "@/i18n/routing";
 import { workspaceConfig } from "@/config/workspace";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
 import { requireAdminWorkspaceAccessBySlug } from "@/server/workspaces/workspace-access";
-import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
+import {
+  requireWorkspaceActionContext,
+  requireWorkspaceAuthContext,
+} from "@/server/workspaces/workspace-auth-context";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
@@ -97,7 +100,7 @@ export async function createWorkspaceInviteForCurrentUser(
   workspaceSlug: string,
   input: CreateWorkspaceInviteInput
 ): Promise<ServerWorkspaceResponse<{ invite: WorkspaceInviteSummary }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;
@@ -243,7 +246,7 @@ export async function resendWorkspaceInviteForCurrentUser(
     inviteUrl: string;
   }>
 > {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;
@@ -376,7 +379,7 @@ export async function refreshWorkspaceInviteLinkForCurrentUser(
     inviteUrl: string;
   }>
 > {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;
@@ -464,7 +467,7 @@ export async function revokeWorkspaceInviteForCurrentUser(
   workspaceSlug: string,
   inviteId: string
 ): Promise<ServerWorkspaceResponse<{ revoked: true }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, startTransition, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
   COOKIE_NAME,
@@ -12,7 +12,6 @@ import {
   rejectAllConsent,
   serializeConsentCookieValue,
 } from "./cookie-consent";
-import { useRouter } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { persistCookieConsentAction } from "./cookie-consent-actions";
 
@@ -71,7 +70,6 @@ export function CookieContextProvider({
   initialConsent = defaultConsent,
   initialHasInteracted = false,
 }: CookieContextProviderProps) {
-  const router = useRouter();
   const locale = useLocale();
 
   const [consent, setConsent] = useState<ConsentState>(initialConsent);
@@ -113,12 +111,6 @@ export function CookieContextProvider({
     }).catch((error) => {
       console.error("Error persisting cookie consent event:", error);
     });
-
-    if (!isSameConsent(consent, nextConsent)) {
-      startTransition(() => {
-        router.refresh();
-      });
-    }
   }
 
   function acceptAll() {
@@ -187,15 +179,6 @@ export function useCookieContext() {
   }
 
   return context;
-}
-
-function isSameConsent(a: ConsentState, b: ConsentState) {
-  return (
-    a.necessary === b.necessary &&
-    a.functional === b.functional &&
-    a.analytics === b.analytics &&
-    a.marketing === b.marketing
-  );
 }
 
 function logCookieDebugState(input: {

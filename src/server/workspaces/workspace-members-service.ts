@@ -1,4 +1,7 @@
-import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
+import {
+  requireWorkspaceActionContext,
+  requireWorkspaceAuthContext,
+} from "@/server/workspaces/workspace-auth-context";
 import {
   requireAdminWorkspaceAccessBySlug,
   requireWorkspaceAccess,
@@ -84,7 +87,7 @@ export async function listWorkspaceMembers(
 export async function leaveWorkspaceForCurrentUser(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ left: true }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;
@@ -145,7 +148,7 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
   memberId: string,
   role: WorkspaceMemberRole
 ): Promise<ServerWorkspaceResponse<{ updated: true }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;
@@ -246,7 +249,7 @@ export async function removeWorkspaceMemberForCurrentUser(
   workspaceSlug: string,
   memberId: string
 ): Promise<ServerWorkspaceResponse<{ removed: true }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;

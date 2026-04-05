@@ -8,7 +8,7 @@ import {
 import { getPathname, type AppHref } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
-import { getServerAuthSession } from "@/server/auth/auth-session-service";
+import { getResponseAuthSession } from "@/server/auth/auth-session-service";
 import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
 import {
   clearPendingInviteTokenResponseCookie,
@@ -25,7 +25,7 @@ type PostAuthRouteContext = {
 export async function GET(request: NextRequest, context: PostAuthRouteContext) {
   const { locale } = await context.params;
   const appLocale = locale as AppLocale;
-  const sessionResponse = await getServerAuthSession();
+  const sessionResponse = await getResponseAuthSession();
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!session) {
