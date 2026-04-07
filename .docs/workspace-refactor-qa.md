@@ -4,8 +4,8 @@
 
 Last implementation pass verified:
 
-- `npm run lint`
-- `npm test`
+- `pnpm lint`
+- `pnpm test`
 
 These checks validate the cookie-boundary refactor, route typing, and regression coverage around render-time cookie writes.
 

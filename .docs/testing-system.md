@@ -47,39 +47,39 @@ We want the smallest setup that still works well for:
 
 ## File Map
 
-- unit config: [vitest.config.mts](/Users/fanda/Dev/start/vitest.config.mts)
-- E2E config: [playwright.config.ts](/Users/fanda/Dev/start/playwright.config.ts)
-- shared test env loader: [load-test-env.cjs](/Users/fanda/Dev/start/tests/load-test-env.cjs)
-- Next test bootstrap runner: [run-next-with-test-env.cjs](/Users/fanda/Dev/start/tests/scripts/run-next-with-test-env.cjs)
-- Vitest setup: [setup.ts](/Users/fanda/Dev/start/tests/vitest/setup.ts)
-- PocketBase test admin helper: [pocketbase-test-admin.ts](/Users/fanda/Dev/start/tests/e2e/helpers/pocketbase-test-admin.ts)
-- Mailtrap helper: [mailtrap.ts](/Users/fanda/Dev/start/tests/e2e/helpers/mailtrap.ts)
-- test run id helper: [test-run.ts](/Users/fanda/Dev/start/tests/e2e/helpers/test-run.ts)
-- current Vitest coverage example: [route.test.ts](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.test.ts)
-- current Vitest coverage example: [route.test.ts](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.test.ts)
-- current Vitest coverage example: [route.test.ts](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite/[token]/accept/route.test.ts)
-- current Vitest coverage example: [workspace-members-service.test.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-members-service.test.ts)
-- current Vitest coverage example: [workspace-resolution-service.test.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.test.ts)
-- current Vitest coverage example: [account-service.test.ts](/Users/fanda/Dev/start/src/server/account/account-service.test.ts)
-- current Vitest coverage example: [auth-service.test.ts](/Users/fanda/Dev/start/src/server/auth/auth-service.test.ts)
-- current Vitest coverage example: [device-sessions-service.test.ts](/Users/fanda/Dev/start/src/server/device-sessions/device-sessions-service.test.ts)
+- unit config: [apps/web/vitest.config.mts](/Users/fanda/Dev/start/apps/web/vitest.config.mts)
+- E2E config: [apps/web/playwright.config.ts](/Users/fanda/Dev/start/apps/web/playwright.config.ts)
+- shared test env loader: [load-test-env.cjs](/Users/fanda/Dev/start/apps/web/tests/load-test-env.cjs)
+- Next test bootstrap runner: [run-next-with-test-env.cjs](/Users/fanda/Dev/start/apps/web/tests/scripts/run-next-with-test-env.cjs)
+- Vitest setup: [setup.ts](/Users/fanda/Dev/start/apps/web/tests/vitest/setup.ts)
+- PocketBase test admin helper: [pocketbase-test-admin.ts](/Users/fanda/Dev/start/apps/web/tests/e2e/helpers/pocketbase-test-admin.ts)
+- Mailtrap helper: [mailtrap.ts](/Users/fanda/Dev/start/apps/web/tests/e2e/helpers/mailtrap.ts)
+- test run id helper: [test-run.ts](/Users/fanda/Dev/start/apps/web/tests/e2e/helpers/test-run.ts)
+- current Vitest coverage example: [route.test.ts](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.test.ts)
+- current Vitest coverage example: [route.test.ts](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.test.ts)
+- current Vitest coverage example: [route.test.ts](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/invite/[token]/accept/route.test.ts)
+- current Vitest coverage example: [workspace-members-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-members-service.test.ts)
+- current Vitest coverage example: [workspace-resolution-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-resolution-service.test.ts)
+- current Vitest coverage example: [account-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/account/account-service.test.ts)
+- current Vitest coverage example: [auth-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-service.test.ts)
+- current Vitest coverage example: [device-sessions-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/device-sessions/device-sessions-service.test.ts)
 
 ## Conventions
 
-- colocate unit tests as `*.test.ts` or `*.test.tsx` inside `src/**`
-- keep E2E tests in `tests/e2e/**`
+- colocate unit tests as `*.test.ts` or `*.test.tsx` inside `apps/web/src/**`
+- keep E2E tests in `apps/web/tests/e2e/**`
 - use explicit locale-prefixed URLs in E2E, preferably `/cs/...`
 - keep test helpers thin and direct
 - add abstractions only after repeated real use, not in advance
 
 ## Daily Use
 
-- `npm run test` or `npm run test:unit`
-- `npm run test:unit:watch`
-- `npm run test:e2e`
-- `npm run test:e2e:ui`
-- `npm run test:e2e:headed`
-- `npm run test:all`
+- `pnpm test`
+- `pnpm test:watch`
+- `pnpm test:e2e`
+- `pnpm test:e2e:ui`
+
+These commands work from the repository root and from `apps/web`.
 
 ## Intent To Preserve
 

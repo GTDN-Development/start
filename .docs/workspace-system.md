@@ -66,22 +66,22 @@ Important route rules:
 
 ## File Map
 
-- shell scope helpers: [application-scope.ts](/Users/fanda/Dev/start/src/features/application/application-scope.ts)
-- shell route selection helpers: [workspace-selection.ts](/Users/fanda/Dev/start/src/features/application/workspace-selection.ts)
-- shell scope switcher: [scope-switcher.tsx](/Users/fanda/Dev/start/src/features/application/scope-switcher.tsx)
-- personal home route: [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(application)/(application-shell)/app/page.tsx>)
-- access checks: [workspace-access.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-access.ts)
-- write and lifecycle service: [workspace-general-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-general-service.ts)
-- read and resolution service: [workspace-resolution-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.ts)
-- members service: [workspace-members-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-members-service.ts)
-- invite service: [workspace-invite-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-invite-service.ts)
-- invite recipient service: [workspace-invite-recipient-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-invite-recipient-service.ts)
-- repository layer: [workspace-repository.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-repository.ts)
-- cookie helpers: [workspace-cookie.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-cookie.ts)
-- general workspace actions: [workspace-general-actions.ts](/Users/fanda/Dev/start/src/features/workspaces/settings/general/workspace-general-actions.ts)
-- members workspace actions: [workspace-members-actions.ts](/Users/fanda/Dev/start/src/features/workspaces/settings/members/workspace-members-actions.ts)
-- workspace navigation state: [workspace-navigation-context.tsx](/Users/fanda/Dev/start/src/features/workspaces/workspace-navigation-context.tsx)
-- workspace creation UI: [workspace-create-drawer.tsx](/Users/fanda/Dev/start/src/features/workspaces/workspace-create-drawer.tsx)
+- shell scope helpers: [application-scope.ts](/Users/fanda/Dev/start/apps/web/src/features/application/application-scope.ts)
+- shell route selection helpers: [workspace-selection.ts](/Users/fanda/Dev/start/apps/web/src/features/application/workspace-selection.ts)
+- shell scope switcher: [scope-switcher.tsx](/Users/fanda/Dev/start/apps/web/src/features/application/scope-switcher.tsx)
+- personal home route: [page.tsx](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/(application-shell)/app/page.tsx>)
+- access checks: [workspace-access.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-access.ts)
+- write and lifecycle service: [workspace-general-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-general-service.ts)
+- read and resolution service: [workspace-resolution-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-resolution-service.ts)
+- members service: [workspace-members-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-members-service.ts)
+- invite service: [workspace-invite-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-invite-service.ts)
+- invite recipient service: [workspace-invite-recipient-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-invite-recipient-service.ts)
+- repository layer: [workspace-repository.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-repository.ts)
+- cookie helpers: [workspace-cookie.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-cookie.ts)
+- general workspace actions: [workspace-general-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts)
+- members workspace actions: [workspace-members-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-actions.ts)
+- workspace navigation state: [workspace-navigation-context.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/workspace-navigation-context.tsx)
+- workspace creation UI: [workspace-create-drawer.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/workspace-create-drawer.tsx)
 
 ## Service Split
 
@@ -116,11 +116,11 @@ Important rule:
 
 Workspace-specific code is intentionally localized. The main app core touches it only in a few places:
 
-- app shell scope switcher mount in [application-layout.tsx](/Users/fanda/Dev/start/src/features/application/application-layout.tsx)
-- contextual personal/workspace navigation in [application-menu-tree.tsx](/Users/fanda/Dev/start/src/features/application/application-menu-tree.tsx)
-- personal home route under [page.tsx](</Users/fanda/Dev/start/src/app/[locale]/(application)/(application-shell)/app/page.tsx>)
-- post-auth invite handoff in sign-in navigation and [post-auth route](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
-- invite routes under [src/app/[locale]/(auth)/(flow)/invite](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite>)
+- app shell scope switcher mount in [application-layout.tsx](/Users/fanda/Dev/start/apps/web/src/features/application/application-layout.tsx)
+- contextual personal/workspace navigation in [application-menu-tree.tsx](/Users/fanda/Dev/start/apps/web/src/features/application/application-menu-tree.tsx)
+- personal home route under [page.tsx](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/(application-shell)/app/page.tsx>)
+- post-auth invite handoff in sign-in navigation and [post-auth route](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
+- invite routes under [apps/web/src/app/[locale]/(auth)/(flow)/invite](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/invite>)
 
 That keeps the removal path bounded without adding a runtime feature system.
 
@@ -287,9 +287,9 @@ Non-goals for this layer:
 If a fork removes workspaces later, the intended bounded deletion path is:
 
 1. remove workspace PocketBase collections
-2. delete [src/server/workspaces](/Users/fanda/Dev/start/src/server/workspaces)
-3. delete [src/features/workspaces](/Users/fanda/Dev/start/src/features/workspaces)
-4. delete [src/app/[locale]/(application)/w/[workspaceSlug]](</Users/fanda/Dev/start/src/app/[locale]/(application)/w/[workspaceSlug]>)
+2. delete [apps/web/src/server/workspaces](/Users/fanda/Dev/start/apps/web/src/server/workspaces)
+3. delete [apps/web/src/features/workspaces](/Users/fanda/Dev/start/apps/web/src/features/workspaces)
+4. delete [apps/web/src/app/[locale]/(application)/w/[workspaceSlug]](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/w/[workspaceSlug]>)
 5. remove workspace shell integrations from scope switcher, contextual navigation, personal home CTA, and post-auth invite handoff
 
 No runtime feature registry or provider-neutral abstraction is required for that future change.
