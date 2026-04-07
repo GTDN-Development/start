@@ -56,26 +56,26 @@ Short version:
 
 ## File Map
 
-- auth session service: [auth-session-service.ts](/Users/fanda/Dev/start/src/server/auth/auth-session-service.ts)
-- auth sign-up service: [auth-sign-up-service.ts](/Users/fanda/Dev/start/src/server/auth/auth-sign-up-service.ts)
-- auth email verification service: [auth-email-verification-service.ts](/Users/fanda/Dev/start/src/server/auth/auth-email-verification-service.ts)
-- auth password reset service: [auth-password-reset-service.ts](/Users/fanda/Dev/start/src/server/auth/auth-password-reset-service.ts)
-- current user guard: [current-user.ts](/Users/fanda/Dev/start/src/server/auth/current-user.ts)
-- auth cookie writers: [auth-cookies.ts](/Users/fanda/Dev/start/src/server/auth/auth-cookies.ts)
-- PocketBase server client: [pocketbase-server.ts](/Users/fanda/Dev/start/src/server/pocketbase/pocketbase-server.ts)
-- auth server actions: [auth-actions.ts](/Users/fanda/Dev/start/src/features/auth/auth-actions.ts)
-- auth client API and session store: [auth-client.ts](/Users/fanda/Dev/start/src/features/auth/auth-client.ts)
-- route proxy guard: [auth-proxy.ts](/Users/fanda/Dev/start/src/features/auth/auth-proxy.ts)
-- post-auth Route Handler: [route.ts](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
-- session endpoint: [route.ts](/Users/fanda/Dev/start/src/app/api/auth/session/route.ts)
-- verify-email completion Route Handler: [route.ts](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts)
-- PocketBase email-link bridge: [route.ts](/Users/fanda/Dev/start/src/app/api/pocketbase/email-link/route.ts)
+- auth session service: [auth-session-service.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-session-service.ts)
+- auth sign-up service: [auth-sign-up-service.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-sign-up-service.ts)
+- auth email verification service: [auth-email-verification-service.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-email-verification-service.ts)
+- auth password reset service: [auth-password-reset-service.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-password-reset-service.ts)
+- current user guard: [current-user.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/current-user.ts)
+- auth cookie writers: [auth-cookies.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-cookies.ts)
+- PocketBase server client: [pocketbase-server.ts](/Users/fanda/Dev/start/apps/web/src/server/pocketbase/pocketbase-server.ts)
+- auth server actions: [auth-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-actions.ts)
+- auth client API and session store: [auth-client.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-client.ts)
+- route proxy guard: [auth-proxy.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-proxy.ts)
+- post-auth Route Handler: [route.ts](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
+- session endpoint: [route.ts](/Users/fanda/Dev/start/apps/web/src/app/api/auth/session/route.ts)
+- verify-email completion Route Handler: [route.ts](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts)
+- PocketBase email-link bridge: [route.ts](/Users/fanda/Dev/start/apps/web/src/app/api/pocketbase/email-link/route.ts)
 
 ## Supported Flows
 
 ### Sign In
 
-- entrypoint: `signIn()` in [auth-client.ts](/Users/fanda/Dev/start/src/features/auth/auth-client.ts)
+- entrypoint: `signIn()` in [auth-client.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-client.ts)
 - server action: `signInAction()`
 - service: `signInWithPassword()`
 
@@ -115,7 +115,7 @@ Current behavior:
 
 ### Email Flows
 
-Implemented in the focused auth services under [src/server/auth](/Users/fanda/Dev/start/src/server/auth):
+Implemented in the focused auth services under [apps/web/src/server/auth](/Users/fanda/Dev/start/apps/web/src/server/auth):
 
 - `confirmEmailVerificationToken()`
 - `requestPasswordResetForEmail()`
@@ -131,8 +131,8 @@ Turnstile is currently used for:
 Current URL-token rule:
 
 - `/api/pocketbase/email-link` stays the stable backend-facing bridge
-- `verify-email` links are redirected to [verify-email/complete route](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts)
-- [verify-email page](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/verify-email/page.tsx) is UI-only and does not mutate cookies
+- `verify-email` links are redirected to [verify-email/complete route](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts)
+- [verify-email page](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/page.tsx) is UI-only and does not mutate cookies
 
 ## Cookie Boundary
 
@@ -142,7 +142,7 @@ Rules:
 
 - pages, layouts, and other Server Components may read auth state but must not call cookie mutation helpers
 - auth and workspace services may return `setCookie[]`, but that is only response metadata
-- Server Actions commit auth cookies via [auth-cookies.ts](/Users/fanda/Dev/start/src/server/auth/auth-cookies.ts)
+- Server Actions commit auth cookies via [auth-cookies.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-cookies.ts)
 - Route Handlers commit auth cookies on `NextResponse`
 - workspace preference cookies are also written only in Server Actions or Route Handlers
 
@@ -152,7 +152,7 @@ Protection is intentionally two-layered.
 
 ### Proxy Guard
 
-[proxy.ts](/Users/fanda/Dev/start/src/proxy.ts) uses [auth-proxy.ts](/Users/fanda/Dev/start/src/features/auth/auth-proxy.ts) to do a fast cookie-presence redirect for protected prefixes:
+[proxy.ts](/Users/fanda/Dev/start/apps/web/src/proxy.ts) uses [auth-proxy.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-proxy.ts) to do a fast cookie-presence redirect for protected prefixes:
 
 - `/app`
 - `/w`
@@ -160,24 +160,24 @@ Protection is intentionally two-layered.
 
 Important rule:
 
-- [proxy.ts](/Users/fanda/Dev/start/src/proxy.ts) is optimistic only
+- [proxy.ts](/Users/fanda/Dev/start/apps/web/src/proxy.ts) is optimistic only
 - real auth decisions happen in server checks near the data
-- cleanup is committed later by a Server Action, a Route Handler, or [session refresh endpoint](/Users/fanda/Dev/start/src/app/api/auth/session/route.ts)
+- cleanup is committed later by a Server Action, a Route Handler, or [session refresh endpoint](/Users/fanda/Dev/start/apps/web/src/app/api/auth/session/route.ts)
 
 ### Server Guard
 
 Protected layouts and pages still use server-side auth checks through:
 
-- [current-user.ts](/Users/fanda/Dev/start/src/server/auth/current-user.ts)
-- [getServerAuthSession()](/Users/fanda/Dev/start/src/server/auth/auth-session-service.ts)
-- [getResponseAuthSession()](/Users/fanda/Dev/start/src/server/auth/auth-session-service.ts)
+- [current-user.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/current-user.ts)
+- [getServerAuthSession()](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-session-service.ts)
+- [getResponseAuthSession()](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-session-service.ts)
 
 The split is intentional:
 
 - render-time checks stay read-only
 - render-time checks may treat invalid or stale auth as unauthenticated, but they do not emit cleanup cookies
 - response-writing checks own `authRefresh()`, device-session heartbeat updates, and `setCookie[]` cleanup metadata
-- cookie cleanup is committed only later by a Server Action, a Route Handler, or [session refresh endpoint](/Users/fanda/Dev/start/src/app/api/auth/session/route.ts)
+- cookie cleanup is committed only later by a Server Action, a Route Handler, or [session refresh endpoint](/Users/fanda/Dev/start/apps/web/src/app/api/auth/session/route.ts)
 
 ## Session Model
 
@@ -200,7 +200,7 @@ Auth does not directly hardcode a workspace landing page anymore.
 
 After successful auth, the sign-in UI performs a direct handoff to `/post-auth`.
 
-Authenticated render-time guest routes also use [post-auth route handler](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts) instead of mutating cookies during layout render.
+Authenticated render-time guest routes also use [post-auth route handler](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts) instead of mutating cookies during layout render.
 
 These boundaries:
 
@@ -235,7 +235,7 @@ The main auth-facing routes are:
 - `/confirm-email-change`
 - `/invite/[token]`
 
-Authenticated visitors hitting guest auth pages are redirected to `/post-auth` through [layout.tsx](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(guest)/layout.tsx).
+Authenticated visitors hitting guest auth pages are redirected to `/post-auth` through [layout.tsx](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(guest)/layout.tsx).
 
 ## Current Constraints
 
@@ -255,12 +255,12 @@ Adding a new auth UI flow:
 
 Changing session behavior:
 
-- check [pocketbase-server.ts](/Users/fanda/Dev/start/src/server/pocketbase/pocketbase-server.ts)
-- check [device-sessions-cookie.ts](/Users/fanda/Dev/start/src/server/device-sessions/device-sessions-cookie.ts)
-- check [current-user.ts](/Users/fanda/Dev/start/src/server/auth/current-user.ts)
+- check [pocketbase-server.ts](/Users/fanda/Dev/start/apps/web/src/server/pocketbase/pocketbase-server.ts)
+- check [device-sessions-cookie.ts](/Users/fanda/Dev/start/apps/web/src/server/device-sessions/device-sessions-cookie.ts)
+- check [current-user.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/current-user.ts)
 - keep render paths read-only; move cookie writes to a Server Action or Route Handler
 
 Changing post-auth routing:
 
-- check [post-auth route](/Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
-- check [workspace-resolution-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.ts)
+- check [post-auth route](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
+- check [workspace-resolution-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-resolution-service.ts)

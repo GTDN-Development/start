@@ -1,0 +1,1637 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  const snapshot = [
+    {
+      "createRule": null,
+      "deleteRule": null,
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text455797646",
+          "max": 0,
+          "min": 0,
+          "name": "collectionRef",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text127846527",
+          "max": 0,
+          "min": 0,
+          "name": "recordRef",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text1582905952",
+          "max": 0,
+          "min": 0,
+          "name": "method",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_2279338944",
+      "indexes": [
+        "CREATE INDEX `idx_mfas_collectionRef_recordRef` ON `_mfas` (collectionRef,recordRef)"
+      ],
+      "listRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+      "name": "_mfas",
+      "system": true,
+      "type": "base",
+      "updateRule": null,
+      "viewRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId"
+    },
+    {
+      "createRule": null,
+      "deleteRule": null,
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text455797646",
+          "max": 0,
+          "min": 0,
+          "name": "collectionRef",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text127846527",
+          "max": 0,
+          "min": 0,
+          "name": "recordRef",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "cost": 8,
+          "hidden": true,
+          "id": "password901924565",
+          "max": 0,
+          "min": 0,
+          "name": "password",
+          "pattern": "",
+          "presentable": false,
+          "required": true,
+          "system": true,
+          "type": "password"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": true,
+          "id": "text3866985172",
+          "max": 0,
+          "min": 0,
+          "name": "sentTo",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": false,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_1638494021",
+      "indexes": [
+        "CREATE INDEX `idx_otps_collectionRef_recordRef` ON `_otps` (collectionRef, recordRef)"
+      ],
+      "listRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+      "name": "_otps",
+      "system": true,
+      "type": "base",
+      "updateRule": null,
+      "viewRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId"
+    },
+    {
+      "createRule": null,
+      "deleteRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text455797646",
+          "max": 0,
+          "min": 0,
+          "name": "collectionRef",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text127846527",
+          "max": 0,
+          "min": 0,
+          "name": "recordRef",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text2462348188",
+          "max": 0,
+          "min": 0,
+          "name": "provider",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text1044722854",
+          "max": 0,
+          "min": 0,
+          "name": "providerId",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_2281828961",
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_externalAuths_record_provider` ON `_externalAuths` (collectionRef, recordRef, provider)",
+        "CREATE UNIQUE INDEX `idx_externalAuths_collection_provider` ON `_externalAuths` (collectionRef, provider, providerId)"
+      ],
+      "listRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+      "name": "_externalAuths",
+      "system": true,
+      "type": "base",
+      "updateRule": null,
+      "viewRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId"
+    },
+    {
+      "createRule": null,
+      "deleteRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text455797646",
+          "max": 0,
+          "min": 0,
+          "name": "collectionRef",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text127846527",
+          "max": 0,
+          "min": 0,
+          "name": "recordRef",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text4228609354",
+          "max": 0,
+          "min": 0,
+          "name": "fingerprint",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_4275539003",
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_authOrigins_unique_pairs` ON `_authOrigins` (collectionRef, recordRef, fingerprint)"
+      ],
+      "listRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+      "name": "_authOrigins",
+      "system": true,
+      "type": "base",
+      "updateRule": null,
+      "viewRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId"
+    },
+    {
+      "authAlert": {
+        "emailTemplate": {
+          "body": "<p>Hello,</p>\n<p>We noticed a login to your {APP_NAME} account from a new location:</p>\n<p><em>{ALERT_INFO}</em></p>\n<p><strong>If this wasn't you, you should immediately change your {APP_NAME} account password to revoke access from all other locations.</strong></p>\n<p>If this was you, you may disregard this email.</p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>",
+          "subject": "Login from a new location"
+        },
+        "enabled": true
+      },
+      "authRule": "",
+      "authToken": {
+        "duration": 86400
+      },
+      "confirmEmailChangeTemplate": {
+        "body": "<p>Hello,</p>\n<p>Click on the button below to confirm your new email address.</p>\n<p>\n  <a class=\"btn\" href=\"{APP_URL}/_/#/auth/confirm-email-change/{TOKEN}\" target=\"_blank\" rel=\"noopener\">Confirm new email</a>\n</p>\n<p><i>If you didn't ask to change your email address, you can ignore this email.</i></p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>",
+        "subject": "Confirm your {APP_NAME} new email address"
+      },
+      "createRule": null,
+      "deleteRule": null,
+      "emailChangeToken": {
+        "duration": 1800
+      },
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "cost": 0,
+          "hidden": true,
+          "id": "password901924565",
+          "max": 0,
+          "min": 8,
+          "name": "password",
+          "pattern": "",
+          "presentable": false,
+          "required": true,
+          "system": true,
+          "type": "password"
+        },
+        {
+          "autogeneratePattern": "[a-zA-Z0-9]{50}",
+          "hidden": true,
+          "id": "text2504183744",
+          "max": 60,
+          "min": 30,
+          "name": "tokenKey",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "exceptDomains": null,
+          "hidden": false,
+          "id": "email3885137012",
+          "name": "email",
+          "onlyDomains": null,
+          "presentable": false,
+          "required": true,
+          "system": true,
+          "type": "email"
+        },
+        {
+          "hidden": false,
+          "id": "bool1547992806",
+          "name": "emailVisibility",
+          "presentable": false,
+          "required": false,
+          "system": true,
+          "type": "bool"
+        },
+        {
+          "hidden": false,
+          "id": "bool256245529",
+          "name": "verified",
+          "presentable": false,
+          "required": false,
+          "system": true,
+          "type": "bool"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": true,
+          "type": "autodate"
+        }
+      ],
+      "fileToken": {
+        "duration": 180
+      },
+      "id": "pbc_3142635823",
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_tokenKey_pbc_3142635823` ON `_superusers` (`tokenKey`)",
+        "CREATE UNIQUE INDEX `idx_email_pbc_3142635823` ON `_superusers` (`email`) WHERE `email` != ''"
+      ],
+      "listRule": null,
+      "manageRule": null,
+      "mfa": {
+        "duration": 1800,
+        "enabled": false,
+        "rule": ""
+      },
+      "name": "_superusers",
+      "oauth2": {
+        "enabled": false,
+        "mappedFields": {
+          "avatarURL": "",
+          "id": "",
+          "name": "",
+          "username": ""
+        }
+      },
+      "otp": {
+        "duration": 180,
+        "emailTemplate": {
+          "body": "<p>Hello,</p>\n<p>Your one-time password is: <strong>{OTP}</strong></p>\n<p><i>If you didn't ask for the one-time password, you can ignore this email.</i></p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>",
+          "subject": "OTP for {APP_NAME}"
+        },
+        "enabled": false,
+        "length": 8
+      },
+      "passwordAuth": {
+        "enabled": true,
+        "identityFields": [
+          "email"
+        ]
+      },
+      "passwordResetToken": {
+        "duration": 1800
+      },
+      "resetPasswordTemplate": {
+        "body": "<p>Hello,</p>\n<p>Click on the button below to reset your password.</p>\n<p>\n  <a class=\"btn\" href=\"{APP_URL}/_/#/auth/confirm-password-reset/{TOKEN}\" target=\"_blank\" rel=\"noopener\">Reset password</a>\n</p>\n<p><i>If you didn't ask to reset your password, you can ignore this email.</i></p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>",
+        "subject": "Reset your {APP_NAME} password"
+      },
+      "system": true,
+      "type": "auth",
+      "updateRule": null,
+      "verificationTemplate": {
+        "body": "<p>Hello,</p>\n<p>Thank you for joining us at {APP_NAME}.</p>\n<p>Click on the button below to verify your email address.</p>\n<p>\n  <a class=\"btn\" href=\"{APP_URL}/_/#/auth/confirm-verification/{TOKEN}\" target=\"_blank\" rel=\"noopener\">Verify</a>\n</p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>",
+        "subject": "Verify your {APP_NAME} email"
+      },
+      "verificationToken": {
+        "duration": 259200
+      },
+      "viewRule": null
+    },
+    {
+      "authAlert": {
+        "emailTemplate": {
+          "body": "<p>Dobrý den,</p>\n<p>Zaznamenali jsme přihlášení k vašemu účtu {APP_NAME} z nového místa:</p>\n<p><em>{ALERT_INFO}</em></p>\n<p><strong>Pokud jste to nebyli vy, měli byste si okamžitě změnit heslo k účtu {APP_NAME}, abyste zamezili přístupu ze všech ostatních míst.</strong></p>\n<p>Pokud jste to byli vy, můžete tento e-mail ignorovat.</p>\n<p>\n  S pozdravem,<br/>\n  Tým {APP_NAME}\n</p>",
+          "subject": "Přihlášení z nového místa"
+        },
+        "enabled": true
+      },
+      "authRule": "",
+      "authToken": {
+        "duration": 604800
+      },
+      "confirmEmailChangeTemplate": {
+        "body": "<p>Dobrý den,</p>\n<p>Kliknutím na tlačítko níže potvrdíte svou novou e-mailovou adresu.</p>\n<p>\n<a class=\"btn\" href=\"{APP_URL}/api/pocketbase/email-link?action=confirm-email-change&token={TOKEN}\" target=\"_blank\" rel=\"noopener\">Potvrdit nový e-mail</a>\n</p>\n<p><i>Pokud jste o změnu e-mailové adresy nežádali, můžete tento e-mail ignorovat.</i></p>\n<p>\n  S pozdravem,<br/>\n  Tým {APP_NAME}\n</p>",
+        "subject": "Potvrďte svou novou e-mailovou adresu -  {APP_NAME}"
+      },
+      "createRule": "",
+      "deleteRule": "id = @request.auth.id",
+      "emailChangeToken": {
+        "duration": 1800
+      },
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "cost": 0,
+          "hidden": true,
+          "id": "password901924565",
+          "max": 0,
+          "min": 8,
+          "name": "password",
+          "pattern": "",
+          "presentable": false,
+          "required": true,
+          "system": true,
+          "type": "password"
+        },
+        {
+          "autogeneratePattern": "[a-zA-Z0-9]{50}",
+          "hidden": true,
+          "id": "text2504183744",
+          "max": 60,
+          "min": 30,
+          "name": "tokenKey",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "exceptDomains": null,
+          "hidden": false,
+          "id": "email3885137012",
+          "name": "email",
+          "onlyDomains": null,
+          "presentable": false,
+          "required": true,
+          "system": true,
+          "type": "email"
+        },
+        {
+          "hidden": false,
+          "id": "bool1547992806",
+          "name": "emailVisibility",
+          "presentable": false,
+          "required": false,
+          "system": true,
+          "type": "bool"
+        },
+        {
+          "hidden": false,
+          "id": "bool256245529",
+          "name": "verified",
+          "presentable": false,
+          "required": false,
+          "system": true,
+          "type": "bool"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text1579384326",
+          "max": 255,
+          "min": 0,
+          "name": "name",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": false,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "file376926767",
+          "maxSelect": 1,
+          "maxSize": 0,
+          "mimeTypes": [
+            "image/jpeg",
+            "image/png",
+            "image/svg+xml",
+            "image/gif",
+            "image/webp"
+          ],
+          "name": "avatar",
+          "presentable": false,
+          "protected": false,
+          "required": false,
+          "system": false,
+          "thumbs": null,
+          "type": "file"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        }
+      ],
+      "fileToken": {
+        "duration": 180
+      },
+      "id": "_pb_users_auth_",
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_tokenKey__pb_users_auth_` ON `users` (`tokenKey`)",
+        "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
+      ],
+      "listRule": "@request.auth.id != \"\" && (\n  id = @request.auth.id ||\n  (\n    @collection.workspace_members.user ?= id &&\n    @collection.workspace_members:auth.user ?= @request.auth.id &&\n    @collection.workspace_members.workspace ?= @collection.workspace_members:auth.workspace\n  )\n)\n",
+      "manageRule": null,
+      "mfa": {
+        "duration": 1800,
+        "enabled": false,
+        "rule": ""
+      },
+      "name": "users",
+      "oauth2": {
+        "enabled": false,
+        "mappedFields": {
+          "avatarURL": "avatar",
+          "id": "",
+          "name": "name",
+          "username": ""
+        }
+      },
+      "otp": {
+        "duration": 180,
+        "emailTemplate": {
+          "body": "<p>Dobrý den,</p>\n<p>Vaše jednorázové heslo je: <strong>{OTP}</strong></p>\n<p><i>Pokud jste o jednorázové heslo nežádali, můžete tento e-mail ignorovat.</i></p>\n<p>\n  S pozdravem,<br/>\n  Tým {APP_NAME}\n</p>",
+          "subject": "Jednorázové heslo do aplikace {APP_NAME}"
+        },
+        "enabled": false,
+        "length": 8
+      },
+      "passwordAuth": {
+        "enabled": true,
+        "identityFields": [
+          "email"
+        ]
+      },
+      "passwordResetToken": {
+        "duration": 1800
+      },
+      "resetPasswordTemplate": {
+        "body": "<p>Dobrý den,</p>\n<p>Kliknutím na tlačítko níže obnovíte své heslo.</p>\n<p>\n<a class=\"btn\" href=\"{APP_URL}/api/pocketbase/email-link?action=reset-password&token={TOKEN}\" target=\"_blank\" rel=\"noopener\">Obnovit heslo</a>\n</p>\n<p><i>Pokud jste o obnovení hesla nežádali, můžete tento e-mail ignorovat.</i></p>\n<p>\n  S pozdravem,<br/>\n  Tým {APP_NAME}\n</p>",
+        "subject": "Obnovení hesla do aplikace {APP_NAME}"
+      },
+      "system": false,
+      "type": "auth",
+      "updateRule": "id = @request.auth.id",
+      "verificationTemplate": {
+        "body": "<p>Dobrý den,</p>\n<p>Kliknutím na tlačítko níže ověříte svou e-mailovou adresu.</p>\n<p>\n<a class=\"btn\" href=\"{APP_URL}/api/pocketbase/email-link?action=verify-email&token={TOKEN}\" target=\"_blank\" rel=\"noopener\">Ověřit e-mail</a>\n</p>\n<p><i>Pokud jste o ověření e-mailové adresy nežádali, můžete tento e-mail ignorovat.</i></p>\n<p>\n  S pozdravem,<br/>\n  Tým {APP_NAME}\n</p>\n",
+        "subject": "Ověřte svůj e-mail pro {APP_NAME}"
+      },
+      "verificationToken": {
+        "duration": 259200
+      },
+      "viewRule": "@request.auth.id != \"\" && (\n  id = @request.auth.id ||\n  (\n    @collection.workspace_members.user ?= id &&\n    @collection.workspace_members:auth.user ?= @request.auth.id &&\n    @collection.workspace_members.workspace ?= @collection.workspace_members:auth.workspace\n  )\n)\n"
+    },
+    {
+      "createRule": "",
+      "deleteRule": null,
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text2459626341",
+          "max": 128,
+          "min": 1,
+          "name": "subject_key",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "select2467634050",
+          "maxSelect": 1,
+          "name": "event_type",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "select",
+          "values": [
+            "accept_all",
+            "reject_all",
+            "save_preferences",
+            "withdraw"
+          ]
+        },
+        {
+          "hidden": false,
+          "id": "bool3912345333",
+          "name": "preferences",
+          "presentable": false,
+          "required": false,
+          "system": false,
+          "type": "bool"
+        },
+        {
+          "hidden": false,
+          "id": "bool3938641544",
+          "name": "analytics",
+          "presentable": false,
+          "required": false,
+          "system": false,
+          "type": "bool"
+        },
+        {
+          "hidden": false,
+          "id": "bool2491507048",
+          "name": "marketing",
+          "presentable": false,
+          "required": false,
+          "system": false,
+          "type": "bool"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text344777727",
+          "max": 128,
+          "min": 1,
+          "name": "consent_version",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "json59373954",
+          "maxSize": 65536,
+          "name": "consent_snapshot",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "json"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text1098958488",
+          "max": 20,
+          "min": 2,
+          "name": "locale",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text2144452935",
+          "max": 128,
+          "min": 8,
+          "name": "idempotency_key",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_1672299127",
+      "indexes": [
+        "CREATE INDEX `idx_cookie_consent_events_subject_key` ON `cookie_consent_events` (`subject_key`)",
+        "CREATE INDEX `idx_cookie_consent_events_created` ON `cookie_consent_events` (`created`)",
+        "CREATE UNIQUE INDEX `idx_cookie_consent_events_idempotency_key` ON `cookie_consent_events` (`idempotency_key`)"
+      ],
+      "listRule": null,
+      "name": "cookie_consent_events",
+      "system": false,
+      "type": "base",
+      "updateRule": null,
+      "viewRule": null
+    },
+    {
+      "createRule": null,
+      "deleteRule": null,
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text724990059",
+          "max": 200,
+          "min": 0,
+          "name": "title",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text2560465762",
+          "max": 200,
+          "min": 0,
+          "name": "slug",
+          "pattern": "^[a-z0-9-]+$",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text1591429585",
+          "max": 0,
+          "min": 0,
+          "name": "excerpt",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "date3772055009",
+          "max": "",
+          "min": "",
+          "name": "published_at",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "date"
+        },
+        {
+          "hidden": false,
+          "id": "select2063623452",
+          "maxSelect": 1,
+          "name": "status",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "select",
+          "values": [
+            "draft",
+            "published"
+          ]
+        },
+        {
+          "hidden": false,
+          "id": "file484410058",
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "mimeTypes": [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+          ],
+          "name": "cover_image",
+          "presentable": false,
+          "protected": false,
+          "required": true,
+          "system": false,
+          "thumbs": [
+            "800x0"
+          ],
+          "type": "file"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text2365568098",
+          "max": 100,
+          "min": 0,
+          "name": "cover_image_alt",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": false,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "convertURLs": false,
+          "hidden": false,
+          "id": "editor4274335913",
+          "maxSize": 0,
+          "name": "content",
+          "presentable": false,
+          "required": false,
+          "system": false,
+          "type": "editor"
+        },
+        {
+          "hidden": false,
+          "id": "select1098958488",
+          "maxSelect": 1,
+          "name": "locale",
+          "presentable": false,
+          "required": false,
+          "system": false,
+          "type": "select",
+          "values": [
+            "cs",
+            "en"
+          ]
+        },
+        {
+          "autogeneratePattern": "[a-zA-Z0-9]{15}",
+          "hidden": false,
+          "id": "text3649001451",
+          "max": 0,
+          "min": 0,
+          "name": "translation_shared_id",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": false,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_1125843985",
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_lTE3YsxAHd` ON `posts` (`slug`)"
+      ],
+      "listRule": "",
+      "name": "posts",
+      "system": false,
+      "type": "base",
+      "updateRule": null,
+      "viewRule": ""
+    },
+    {
+      "createRule": "",
+      "deleteRule": "",
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "cascadeDelete": false,
+          "collectionId": "_pb_users_auth_",
+          "hidden": false,
+          "id": "relation2375276105",
+          "maxSelect": 1,
+          "minSelect": 0,
+          "name": "user",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "relation"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text1212218592",
+          "max": 64,
+          "min": 0,
+          "name": "session_id_hash",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text3357716623",
+          "max": 120,
+          "min": 0,
+          "name": "device_label",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "select99058195",
+          "maxSelect": 1,
+          "name": "device_type",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "select",
+          "values": [
+            "desktop",
+            "phone",
+            "tablet",
+            "unknown"
+          ]
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text3658682170",
+          "max": 60,
+          "min": 0,
+          "name": "browser",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": false,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text1789936913",
+          "max": 60,
+          "min": 0,
+          "name": "os",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": false,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text3293145029",
+          "max": 500,
+          "min": 0,
+          "name": "user_agent",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": false,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "date3088861482",
+          "max": "",
+          "min": "",
+          "name": "last_seen_at",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "date"
+        },
+        {
+          "hidden": false,
+          "id": "date261981154",
+          "max": "",
+          "min": "",
+          "name": "expires_at",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "date"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_195393444",
+      "indexes": [
+        "CREATE UNIQUE INDEX idx_user_device_sessions_session_hash ON user_device_sessions (`session_id_hash`)",
+        "CREATE INDEX idx_user_device_sessions_expires_at ON user_device_sessions (expires_at)"
+      ],
+      "listRule": "",
+      "name": "user_device_sessions",
+      "system": false,
+      "type": "base",
+      "updateRule": "",
+      "viewRule": ""
+    },
+    {
+      "createRule": "",
+      "deleteRule": "",
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "cascadeDelete": true,
+          "collectionId": "pbc_2170078043",
+          "hidden": false,
+          "id": "relation2375286809",
+          "maxSelect": 1,
+          "minSelect": 0,
+          "name": "workspace",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "relation"
+        },
+        {
+          "exceptDomains": [],
+          "hidden": false,
+          "id": "email3885137012",
+          "name": "email_normalized",
+          "onlyDomains": [],
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "email"
+        },
+        {
+          "hidden": false,
+          "id": "select1466534506",
+          "maxSelect": 1,
+          "name": "role",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "select",
+          "values": [
+            "member",
+            "admin"
+          ]
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text3015464922",
+          "max": 0,
+          "min": 0,
+          "name": "token_hash",
+          "pattern": "^[a-f0-9]{64}$",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "date261981154",
+          "max": "",
+          "min": "",
+          "name": "expires_at",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "date"
+        },
+        {
+          "cascadeDelete": false,
+          "collectionId": "_pb_users_auth_",
+          "hidden": false,
+          "id": "relation1109389909",
+          "maxSelect": 1,
+          "minSelect": 0,
+          "name": "invited_by",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "relation"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_1183816054",
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_CIapvN6x1I` ON `workspace_invites` (`token_hash`)",
+        "CREATE UNIQUE INDEX `idx_J2Vr7DkuMo` ON `workspace_invites` (\n  `workspace`,\n  `email_normalized`\n)",
+        "CREATE INDEX `idx_9vfsSIAP95` ON `workspace_invites` (`workspace`)",
+        "CREATE INDEX `idx_tKRawmMPyA` ON `workspace_invites` (`expires_at`)"
+      ],
+      "listRule": "",
+      "name": "workspace_invites",
+      "system": false,
+      "type": "base",
+      "updateRule": "",
+      "viewRule": ""
+    },
+    {
+      "createRule": "",
+      "deleteRule": "",
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "cascadeDelete": true,
+          "collectionId": "pbc_2170078043",
+          "hidden": false,
+          "id": "relation2375286809",
+          "maxSelect": 1,
+          "minSelect": 0,
+          "name": "workspace",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "relation"
+        },
+        {
+          "cascadeDelete": true,
+          "collectionId": "_pb_users_auth_",
+          "hidden": false,
+          "id": "relation2375276105",
+          "maxSelect": 1,
+          "minSelect": 0,
+          "name": "user",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "relation"
+        },
+        {
+          "hidden": false,
+          "id": "select1466534506",
+          "maxSelect": 1,
+          "name": "role",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "select",
+          "values": [
+            "owner",
+            "admin",
+            "member"
+          ]
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_5317093",
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_BhAWYQ2qjE` ON `workspace_members` (\n  `workspace`,\n  `user`\n)",
+        "CREATE INDEX `idx_9shJCD6QaV` ON `workspace_members` (`user`)",
+        "CREATE INDEX `idx_05TRG4DHAF` ON `workspace_members` (\n  `workspace`,\n  `role`\n)"
+      ],
+      "listRule": "",
+      "name": "workspace_members",
+      "system": false,
+      "type": "base",
+      "updateRule": "",
+      "viewRule": ""
+    },
+    {
+      "createRule": "",
+      "deleteRule": "",
+      "fields": [
+        {
+          "autogeneratePattern": "[a-z0-9]{15}",
+          "hidden": false,
+          "id": "text3208210256",
+          "max": 15,
+          "min": 15,
+          "name": "id",
+          "pattern": "^[a-z0-9]+$",
+          "presentable": false,
+          "primaryKey": true,
+          "required": true,
+          "system": true,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text1579384326",
+          "max": 120,
+          "min": 0,
+          "name": "name",
+          "pattern": "",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "autogeneratePattern": "",
+          "hidden": false,
+          "id": "text2560465762",
+          "max": 0,
+          "min": 0,
+          "name": "slug",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "presentable": false,
+          "primaryKey": false,
+          "required": true,
+          "system": false,
+          "type": "text"
+        },
+        {
+          "hidden": false,
+          "id": "select1002749145",
+          "maxSelect": 1,
+          "name": "kind",
+          "presentable": false,
+          "required": true,
+          "system": false,
+          "type": "select",
+          "values": [
+            "organization"
+          ]
+        },
+        {
+          "hidden": false,
+          "id": "file376926767",
+          "maxSelect": 1,
+          "maxSize": 0,
+          "mimeTypes": [
+            "image/png",
+            "image/jpeg",
+            "image/webp"
+          ],
+          "name": "avatar",
+          "presentable": false,
+          "protected": false,
+          "required": false,
+          "system": false,
+          "thumbs": [],
+          "type": "file"
+        },
+        {
+          "hidden": false,
+          "id": "autodate2990389176",
+          "name": "created",
+          "onCreate": true,
+          "onUpdate": false,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        },
+        {
+          "hidden": false,
+          "id": "autodate3332085495",
+          "name": "updated",
+          "onCreate": true,
+          "onUpdate": true,
+          "presentable": false,
+          "system": false,
+          "type": "autodate"
+        }
+      ],
+      "id": "pbc_2170078043",
+      "indexes": [
+        "CREATE UNIQUE INDEX `idx_t7YN5coORc` ON `workspaces` (`slug`)"
+      ],
+      "listRule": "",
+      "name": "workspaces",
+      "system": false,
+      "type": "base",
+      "updateRule": "",
+      "viewRule": ""
+    }
+  ];
+
+  return app.importCollections(snapshot, false);
+}, (app) => {
+  return null;
+})
