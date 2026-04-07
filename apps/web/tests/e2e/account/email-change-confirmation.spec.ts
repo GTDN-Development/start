@@ -7,7 +7,7 @@ import {
   requestAccountEmailChange,
   signInUser,
 } from "../helpers/auth";
-import { waitForPocketBaseEmailLinkPath } from "../helpers/mailtrap";
+import { waitForPocketBaseEmailLinkPath } from "../helpers/mailpit";
 import {
   createPocketBaseAdminClient,
   createVerifiedUser,

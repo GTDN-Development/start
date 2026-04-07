@@ -18,6 +18,7 @@
     "typecheck": "pnpm --filter @start/web run typecheck",
     "check": "pnpm --filter @start/web run check",
     "pocketbase:typegen": "pnpm --filter @start/web run pocketbase:typegen",
+    "pocketbase:mailpit:apply": "pnpm --filter @start/pocketbase run mailpit:apply",
     "turbo": "turbo"
   },
   "devDependencies": {

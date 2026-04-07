@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type PocketBase from "pocketbase";
 import { DEFAULT_AUTH_TEST_PASSWORD, signUpUser } from "../helpers/auth";
-import { waitForPocketBaseEmailLinkPath } from "../helpers/mailtrap";
+import { waitForPocketBaseEmailLinkPath } from "../helpers/mailpit";
 import {
   createPocketBaseAdminClient,
   deleteSignedUpUsersByEmail,

@@ -1,7 +1,7 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import type PocketBase from "pocketbase";
 import { expectPendingVerifyEmailPage, signInUser, signUpUser } from "../helpers/auth";
-import { waitForPocketBaseEmailLinkPath } from "../helpers/mailtrap";
+import { waitForPocketBaseEmailLinkPath } from "../helpers/mailpit";
 import {
   createPocketBaseAdminClient,
   deleteSignedUpUsersByEmail,

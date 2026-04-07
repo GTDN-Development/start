@@ -73,7 +73,7 @@ Keep environment-specific values outside migrations, for example:
 - sender name and sender email
 - any value that should differ between `dev` and `prod`
 
-Set those environment-specific values manually in each PocketBase environment.
+For dev/test mail flows, prefer the repository-managed Mailpit apply script over manual admin UI edits.
 
 ## Railway Deployment
 
@@ -88,6 +88,33 @@ Set those environment-specific values manually in each PocketBase environment.
 7. Open `https://your-domain/_/` and sign in with the configured superuser.
 
 `Root Directory = apps/pocketbase` is required in Railway for this monorepo layout. Without it, Railway will build from the repository root instead of the PocketBase app and the deployment will fail or build the wrong service.
+
+## Dev/Test Mailpit Setup
+
+Use `pnpm pocketbase:mailpit:apply` from the repository root to apply the dev/test mail baseline to PocketBase.
+
+The script sets:
+
+- `meta.appURL`
+- `meta.senderName`
+- `meta.senderAddress`
+- Mailpit SMTP host/port/TLS/auth settings
+- SMTP host is fixed to `mailpit.railway.internal`, so the Railway Mailpit service must be named `mailpit`
+
+Required envs:
+
+- `PB_URL` or `NEXT_PUBLIC_PB_URL`
+- `PB_SUPERUSER_EMAIL`
+- `PB_SUPERUSER_PASSWORD`
+- `PB_APP_URL`
+- `PB_MAIL_FROM_NAME`
+- `PB_MAIL_FROM_ADDRESS`
+
+Safety rules:
+
+- the script refuses production-like targets by default
+- production writes require `ALLOW_PB_SETTINGS_WRITE=production`
+- Mailpit is for development and testing only
 
 The container startup sequence is:
 

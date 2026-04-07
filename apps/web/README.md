@@ -53,9 +53,16 @@ Local testing uses `.env.test`.
 
 - `pnpm test` runs the Vitest suite once
 - `pnpm test:watch` runs Vitest in watch mode
-- `pnpm test:e2e` builds the app with test env and runs Playwright against `next start` on `http://localhost:3100`
-- `pnpm test:e2e:ui` is the local Playwright debugging variant
+- `pnpm test:e2e` first applies the PocketBase Mailpit dev/test settings, then builds the app with test env and runs Playwright against `next start` on `http://localhost:3100`
+- `pnpm test:e2e:ui` is the local Playwright debugging variant with the same Mailpit/PocketBase prep step
 - auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias` recipients from it
+
+Mailpit contract for dev/test:
+
+- PocketBase auth emails still exercise SMTP delivery
+- local web app test emails use Mailpit HTTP Send API instead of SMTP
+- this split is intentional because PocketBase runs on Railway while the E2E Next.js app runs locally
+- production email delivery is out of scope here
 
 ## Tooling
 

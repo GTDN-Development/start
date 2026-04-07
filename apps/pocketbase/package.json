@@ -1,5 +1,13 @@
 {
   "name": "@start/pocketbase",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "mailpit:apply": "node ./scripts/apply-mailpit-settings.mjs",
+    "test": "node --test ./scripts/*.test.mjs"
+  },
+  "dependencies": {
+    "pocketbase": "^0.26.8"
+  }
 }

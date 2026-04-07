@@ -12,7 +12,13 @@ importers:
         specifier: ^2.9.4
         version: 2.9.4
 
-  apps/pocketbase: {}
+  apps/mailpit: {}
+
+  apps/pocketbase:
+    dependencies:
+      pocketbase:
+        specifier: ^0.26.8
+        version: 0.26.8
 
   apps/web:
     dependencies:

@@ -1,7 +1,7 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import type PocketBase from "pocketbase";
 import type { WorkspaceMembersRecord } from "../../../src/types/pocketbase";
-import { getMailtrapMessageHtml, waitForMailtrapMessage } from "../helpers/mailtrap";
+import { getMailpitMessageHtml, waitForMailpitMessage } from "../helpers/mailpit";
 import { DEFAULT_AUTH_TEST_PASSWORD, expectSignInPage, signInUser } from "../helpers/auth";
 import {
   createPocketBaseAdminClient,
@@ -63,13 +63,13 @@ test("admin creates invite from UI and invited user accepts it from email", asyn
     await page.getByRole("tab", { name: "Čekající pozvánky" }).click();
     await expect(page.getByText(invitedEmail).first()).toBeVisible();
 
-    const message = await waitForMailtrapMessage({
+    const message = await waitForMailpitMessage({
       toEmail: invitedEmail,
       subjectIncludes: workspaceName,
       receivedAfter: run.startedAt,
       timeoutMs: 45_000,
     });
-    const html = await getMailtrapMessageHtml(message.id);
+    const html = await getMailpitMessageHtml(message.ID);
     const invitePath = extractWorkspaceInvitePathFromHtml(html);
 
     invitedContext = await browser.newContext();
@@ -123,7 +123,7 @@ function extractWorkspaceInvitePathFromHtml(html: string): string {
     }
   }
 
-  throw new Error("Unable to resolve workspace invite path from Mailtrap HTML.");
+  throw new Error("Unable to resolve workspace invite path from Mailpit HTML.");
 }
 
 function tryParseInviteUrl(value: string): URL | null {
