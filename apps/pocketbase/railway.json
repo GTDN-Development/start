@@ -3,7 +3,6 @@
   "build": {
     "builder": "DOCKERFILE",
     "buildCommand": null,
-    "dockerfilePath": "/apps/pocketbase/Dockerfile",
     "watchPatterns": ["/apps/pocketbase/**"]
   },
   "deploy": {
