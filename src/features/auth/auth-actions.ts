@@ -37,19 +37,13 @@ import {
   requestEmailVerificationForEmail,
 } from "@/server/auth/auth-email-verification-service";
 import { finalizeAuthAction } from "@/server/auth/auth-response";
-import {
-  getServerAuthSession,
-  signInWithPassword,
-  signOutServerSession,
-} from "@/server/auth/auth-session-service";
+import { signInWithPassword, signOutServerSession } from "@/server/auth/auth-session-service";
 import { signUpWithPassword } from "@/server/auth/auth-sign-up-service";
 import {
   confirmPasswordResetToken,
   requestPasswordResetForEmail,
 } from "@/server/auth/auth-password-reset-service";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
-import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 
 const turnstileEnabled = isTurnstileEnabled();
 
@@ -82,19 +76,6 @@ const confirmEmailChangeInputSchema = z.object({
   token: requiredTokenSchema(),
   password: requiredPasswordSchema(),
 });
-
-export type PostAuthDestinationActionResult =
-  | {
-      state: "app";
-    }
-  | {
-      state: "workspace_redirect";
-      workspaceSlug: string;
-    }
-  | {
-      state: "invite_redirect";
-      inviteToken: string;
-    };
 
 export async function signInAction(input: SignInInput): Promise<AuthResponse<AuthSessionPayload>> {
   const parsedInput = signInInputSchema.safeParse(input);
@@ -130,46 +111,11 @@ export async function signUpAction(input: SignUpActionInput): Promise<AuthRespon
 export async function signOutAction(): Promise<AuthResponse<AuthSignOutPayload>> {
   const response = await signOutServerSession();
 
+  if (response.ok) {
+    await clearActiveWorkspaceSlugCookie();
+  }
+
   return finalizeAuthAction(response);
-}
-
-export async function resolvePostAuthDestinationAction(): Promise<
-  AuthResponse<PostAuthDestinationActionResult>
-> {
-  const sessionResponse = await getServerAuthSession();
-
-  if (!sessionResponse.ok || !sessionResponse.data.session) {
-    await applyServerAuthCookies(sessionResponse.setCookie);
-
-    return {
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-    };
-  }
-
-  const session = sessionResponse.data.session;
-  const response = await resolvePostAuthDestination({
-    userId: session.user.id,
-    userEmail: session.user.email,
-  });
-
-  await applyServerAuthCookies(response.setCookie);
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      errorCode: "UNKNOWN_ERROR",
-    };
-  }
-
-  if (response.data.state === "workspace_redirect") {
-    await setActiveWorkspaceSlugCookie(response.data.workspaceSlug);
-  }
-
-  return {
-    ok: true,
-    data: response.data,
-  };
 }
 
 export async function requestPasswordResetAction(

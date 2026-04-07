@@ -5,9 +5,9 @@
 Last implementation pass verified:
 
 - `npm run lint`
-- `npm run build`
+- `npm test`
 
-These checks validate route typing, message typing, and production build integrity after the `/app` cutover and scope-switcher clarification.
+These checks validate the cookie-boundary refactor, route typing, and regression coverage around render-time cookie writes.
 
 ## Manual QA Matrix
 
@@ -30,15 +30,15 @@ These checks validate route typing, message typing, and production build integri
 - Start signed out.
 - Set up a stale or revoked pending invite flow.
 - Complete auth.
-- Expected result: redirect to `/invite/result?state=invalid_or_expired`.
-- Expected non-goal: no silent fallback to `/app`.
+- Expected result: redirect to `/invite/[token]` and render the blocked or invalid state there.
+- Expected non-goal: no silent fallback to `/app` and no render-time cookie mutation.
 
 ### Pending Invite Resolution Failure
 
-- Simulate a transient failure while consuming `pending_invite`.
+- Simulate a transient failure while resolving post-auth destination after reading `pending_invite`.
 - Complete auth.
-- Expected result: redirect to `/invite/result?state=error`.
-- Expected non-goal: no silent fallback to `/app`.
+- Expected result: safe fallback to `/app` or explicit invite page state, depending on the failing step.
+- Expected non-goal: no render-time cookie mutation and no hidden cookie consumption before a redirect is chosen.
 
 ### Signed-In Invite Open
 
@@ -62,7 +62,8 @@ These checks validate route typing, message typing, and production build integri
 
 - Set `active_workspace` to a slug that is no longer available.
 - Open `/app`.
-- Expected result: shell repairs the cookie to the first available workspace, or clears it when none exist.
+- Expected result: shell falls back read-only without mutating the cookie during render.
+- Expected non-goal: no silent cookie repair in layouts or pages.
 
 ### Zero-Workspace Authenticated Shell State
 
@@ -113,7 +114,7 @@ When re-checking this refactor later, prioritize:
 
 - post-auth destination correctness
 - invite outcome explicitness
-- stale cookie repair
+- stale cookie fallback without render-time repair
 - zero-workspace shell behavior
 - personal/workspace scope switching behavior
 - workspace route failure behavior

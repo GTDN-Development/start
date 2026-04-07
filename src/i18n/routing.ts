@@ -59,6 +59,7 @@ export const routing = defineRouting({
     "/forgot-password": {
       cs: "/zapomenute-heslo",
     },
+    "/post-auth": "/post-auth",
     "/gdpr": {
       cs: "/gdpr",
     },
@@ -92,6 +93,7 @@ export const routing = defineRouting({
     "/verify-email": {
       cs: "/overit-email",
     },
+    "/verify-email/complete": "/verify-email/complete",
     "/invite/[token]": "/invite/[token]",
     "/invite/[token]/accept": "/invite/[token]/accept",
     "/invite/[token]/start": "/invite/[token]/start",

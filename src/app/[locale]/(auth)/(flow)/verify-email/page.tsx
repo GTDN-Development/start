@@ -1,21 +1,17 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { VerifyEmailForm } from "@/features/auth/verify-email/verify-email-form";
+import { redirect } from "@/i18n/navigation";
 import {
   AuthHero,
   AuthHeroContent,
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
-import { APP_HOME_PATH, getInviteHref, getWorkspaceOverviewHref } from "@/config/routes";
-import { redirect } from "@/i18n/navigation";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
-import { confirmEmailVerificationToken } from "@/server/auth/auth-email-verification-service";
-import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
+import { VerifyEmailForm } from "@/features/auth/verify-email/verify-email-form";
 import {
-  createVerifyEmailResultHref,
+  createVerifyEmailCompletionHref,
   parseVerifyEmailPageState,
   type VerifyEmailPageState,
 } from "@/features/auth/verify-email/verify-email-state";
@@ -45,7 +41,15 @@ export async function generateMetadata(props: VerifyEmailPageProps): Promise<Met
   };
 }
 
-export default async function Page({ params, searchParams }: VerifyEmailPageProps) {
+export default function Page({ params, searchParams }: VerifyEmailPageProps) {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailPageContent params={params} searchParams={searchParams} />
+    </Suspense>
+  );
+}
+
+async function VerifyEmailPageContent({ params, searchParams }: VerifyEmailPageProps) {
   const { locale } = await params;
   const query = await searchParams;
 
@@ -58,7 +62,13 @@ export default async function Page({ params, searchParams }: VerifyEmailPageProp
   const state = parseVerifyEmailPageState(query);
 
   if (state.token) {
-    await handleVerificationToken(locale as Locale, state);
+    redirect({
+      href: createVerifyEmailCompletionHref({
+        token: state.token,
+        email: state.email,
+      }),
+      locale: locale as Locale,
+    });
   }
 
   const pageState = getPageCopyState(state);
@@ -77,84 +87,6 @@ export default async function Page({ params, searchParams }: VerifyEmailPageProp
       </div>
     </div>
   );
-}
-
-async function handleVerificationToken(locale: Locale, state: VerifyEmailPageState) {
-  const response = await confirmEmailVerificationToken(state.token!);
-
-  await applyServerAuthCookies(response.setCookie);
-
-  if (!response.ok) {
-    redirect({
-      href: createVerifyEmailResultHref({
-        result: "invalid",
-        email: state.email,
-      }),
-      locale,
-    });
-
-    return;
-  }
-
-  const session = response.data.session;
-
-  if (session) {
-    await redirectToPostAuthDestination(locale, session.user.id, session.user.email);
-    return;
-  }
-
-  redirect({
-    href: createVerifyEmailResultHref({
-      result: "verified",
-      email: state.email,
-    }),
-    locale,
-  });
-}
-
-async function redirectToPostAuthDestination(locale: Locale, userId: string, userEmail: string) {
-  const destinationResponse = await resolvePostAuthDestination({
-    userId,
-    userEmail,
-  });
-
-  await applyServerAuthCookies(destinationResponse.setCookie);
-
-  if (!destinationResponse.ok) {
-    redirect({
-      href: APP_HOME_PATH,
-      locale,
-    });
-
-    return;
-  }
-
-  const destination = destinationResponse.data;
-
-  if (destination.state === "workspace_redirect") {
-    await setActiveWorkspaceSlugCookie(destination.workspaceSlug);
-
-    redirect({
-      href: getWorkspaceOverviewHref(destination.workspaceSlug),
-      locale,
-    });
-
-    return;
-  }
-
-  if (destination.state === "invite_redirect") {
-    redirect({
-      href: getInviteHref(destination.inviteToken),
-      locale,
-    });
-
-    return;
-  }
-
-  redirect({
-    href: APP_HOME_PATH,
-    locale,
-  });
 }
 
 function getPageCopyState(state: VerifyEmailPageState) {

@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
+import type { NextResponse } from "next/server";
 import { workspaceConfig } from "@/config/workspace";
-import { getBaseServerCookieOptions, isReadonlyRequestCookiesError } from "@/server/cookies";
+import { getBaseServerCookieOptions } from "@/server/cookies";
 
 const ACTIVE_WORKSPACE_COOKIE_NAME = workspaceConfig.cookies.activeWorkspace.name;
 const ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS =
@@ -17,35 +18,12 @@ export async function getActiveWorkspaceSlugCookie(): Promise<string | null> {
 
 export async function setActiveWorkspaceSlugCookie(workspaceSlug: string): Promise<void> {
   const cookieStore = await cookies();
-
-  try {
-    cookieStore.set({
-      name: ACTIVE_WORKSPACE_COOKIE_NAME,
-      value: workspaceSlug,
-      maxAge: ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS,
-      ...getBaseCookieOptions(),
-    });
-  } catch (error) {
-    if (isReadonlyRequestCookiesError(error)) {
-      return;
-    }
-
-    throw error;
-  }
+  cookieStore.set(createActiveWorkspaceSlugCookie(workspaceSlug));
 }
 
 export async function clearActiveWorkspaceSlugCookie(): Promise<void> {
   const cookieStore = await cookies();
-
-  try {
-    cookieStore.delete(ACTIVE_WORKSPACE_COOKIE_NAME);
-  } catch (error) {
-    if (isReadonlyRequestCookiesError(error)) {
-      return;
-    }
-
-    throw error;
-  }
+  cookieStore.set(createClearedCookie(ACTIVE_WORKSPACE_COOKIE_NAME));
 }
 
 export async function getPendingInviteTokenCookie(): Promise<string | null> {
@@ -55,53 +33,59 @@ export async function getPendingInviteTokenCookie(): Promise<string | null> {
   return normalizeCookieToken(value);
 }
 
-export async function setPendingInviteTokenCookie(inviteToken: string): Promise<void> {
-  const cookieStore = await cookies();
-
-  try {
-    cookieStore.set({
-      name: PENDING_INVITE_COOKIE_NAME,
-      value: inviteToken,
-      maxAge: PENDING_INVITE_COOKIE_MAX_AGE_SECONDS,
-      ...getBaseCookieOptions(),
-    });
-  } catch (error) {
-    if (isReadonlyRequestCookiesError(error)) {
-      return;
-    }
-
-    throw error;
-  }
-}
-
 export async function clearPendingInviteTokenCookie(): Promise<void> {
   const cookieStore = await cookies();
-
-  try {
-    cookieStore.delete(PENDING_INVITE_COOKIE_NAME);
-  } catch (error) {
-    if (isReadonlyRequestCookiesError(error)) {
-      return;
-    }
-
-    throw error;
-  }
+  cookieStore.set(createClearedCookie(PENDING_INVITE_COOKIE_NAME));
 }
 
-export async function consumePendingInviteTokenCookie(): Promise<string | null> {
-  const inviteToken = await getPendingInviteTokenCookie();
+export function setActiveWorkspaceSlugResponseCookie(
+  response: NextResponse,
+  workspaceSlug: string
+): void {
+  response.cookies.set(createActiveWorkspaceSlugCookie(workspaceSlug));
+}
 
-  if (!inviteToken) {
-    return null;
-  }
+export function clearPendingInviteTokenResponseCookie(response: NextResponse): void {
+  response.cookies.set(createClearedCookie(PENDING_INVITE_COOKIE_NAME));
+}
 
-  await clearPendingInviteTokenCookie();
-
-  return inviteToken;
+export function setPendingInviteTokenResponseCookie(
+  response: NextResponse,
+  inviteToken: string
+): void {
+  response.cookies.set(createPendingInviteTokenCookie(inviteToken));
 }
 
 function getBaseCookieOptions() {
   return getBaseServerCookieOptions();
+}
+
+function createActiveWorkspaceSlugCookie(workspaceSlug: string) {
+  return {
+    name: ACTIVE_WORKSPACE_COOKIE_NAME,
+    value: workspaceSlug,
+    maxAge: ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS,
+    ...getBaseCookieOptions(),
+  };
+}
+
+function createPendingInviteTokenCookie(inviteToken: string) {
+  return {
+    name: PENDING_INVITE_COOKIE_NAME,
+    value: inviteToken,
+    maxAge: PENDING_INVITE_COOKIE_MAX_AGE_SECONDS,
+    ...getBaseCookieOptions(),
+  };
+}
+
+function createClearedCookie(name: string) {
+  return {
+    name,
+    value: "",
+    maxAge: 0,
+    expires: new Date(0),
+    ...getBaseCookieOptions(),
+  };
 }
 
 function normalizeCookieToken(value: string): string | null {

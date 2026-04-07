@@ -4,7 +4,11 @@ import {
   createClearedAuthAndDeviceCookies,
   readDeviceSessionCookie,
 } from "@/server/device-sessions/device-sessions-cookie";
-import { validateDeviceSessionOrInvalidate } from "@/server/device-sessions/device-sessions-service";
+import {
+  checkDeviceSessionReadOnly,
+  validateDeviceSessionOrInvalidate,
+} from "@/server/device-sessions/device-sessions-service";
+import { isTransientError } from "@/server/auth/auth-errors";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import {
   formatServiceError,
@@ -20,7 +24,18 @@ export type RequireCurrentUserResult =
       pb: PocketBase;
       user: UsersRecord;
       currentSessionIdHash: string;
-      shouldPersistSession: boolean;
+    }
+  | {
+      ok: false;
+      errorCode: RequireCurrentUserErrorCode;
+    };
+
+export type RequireCurrentActionUserResult =
+  | {
+      ok: true;
+      pb: PocketBase;
+      user: UsersRecord;
+      currentSessionIdHash: string;
     }
   | {
       ok: false;
@@ -29,66 +44,44 @@ export type RequireCurrentUserResult =
     };
 
 export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
-  const { pb, hasAuthCookie, hadInvalidAuthCookie, shouldPersistSession } =
-    await createPocketBaseServerClient();
+  const { pb, hadInvalidAuthCookie } = await createPocketBaseServerClient();
 
   if (hadInvalidAuthCookie) {
-    return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
+    return createReadOnlyUnauthorizedResult();
   }
 
-  if (!pb.authStore.isValid || !pb.authStore.record) {
-    return createUnauthorizedResult(
-      hasAuthCookie ? createClearedAuthAndDeviceCookies() : undefined
-    );
-  }
+  const authenticatedUser = getAuthenticatedUserFromStore(pb);
 
-  if (!isUsersRecord(pb.authStore.record)) {
-    return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
+  if (!authenticatedUser) {
+    return createReadOnlyUnauthorizedResult();
   }
 
   try {
     const deviceSessionToken = await readDeviceSessionCookie();
-    const deviceSessionCheck = await validateDeviceSessionOrInvalidate({
+    const deviceSessionCheck = await checkDeviceSessionReadOnly({
       pb,
-      userId: pb.authStore.record.id,
+      userId: authenticatedUser.id,
       deviceSessionToken,
-      shouldUpdateHeartbeat: true,
     });
 
     if (deviceSessionCheck.status === "invalid") {
-      return createUnauthorizedResult(deviceSessionCheck.clearCookies);
+      return createReadOnlyUnauthorizedResult();
     }
 
-    const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+    const user = await getVerifiedUserRecordReadOnly(pb, authenticatedUser);
 
-    if (!isUsersRecord(refreshedAuth.record)) {
-      return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
-    }
-
-    if (refreshedAuth.record.verified !== true) {
-      console.warn("[auth-current-user] requireCurrentUser.unverifiedUserSession");
-
-      return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
+    if (!user) {
+      return createReadOnlyUnauthorizedResult();
     }
 
     return {
       ok: true,
       pb,
-      user: refreshedAuth.record,
+      user,
       currentSessionIdHash: deviceSessionCheck.sessionIdHash,
-      shouldPersistSession,
     };
   } catch (error) {
-    if (isAuthRefreshUnauthorizedError(error)) {
-      console.warn(
-        "[auth-current-user] requireCurrentUser.authRefreshUnauthorized",
-        formatServiceError(error)
-      );
-
-      return createUnauthorizedResult(createClearedAuthAndDeviceCookies());
-    }
-
-    logServiceError("auth-current-user", "requireCurrentUser.deviceValidation", error);
+    logServiceError("auth-current-user", "requireCurrentUser.readOnly", error);
 
     return {
       ok: false,
@@ -97,7 +90,113 @@ export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
   }
 }
 
-function createUnauthorizedResult(setCookie?: string[]): RequireCurrentUserResult {
+export async function requireCurrentActionUser(): Promise<RequireCurrentActionUserResult> {
+  const { pb, hasAuthCookie, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+
+  if (hadInvalidAuthCookie) {
+    return createActionUnauthorizedResult(createClearedAuthAndDeviceCookies());
+  }
+
+  const authenticatedUser = getAuthenticatedUserFromStore(pb);
+
+  if (!authenticatedUser) {
+    return createActionUnauthorizedResult(
+      hasAuthCookie ? createClearedAuthAndDeviceCookies() : undefined
+    );
+  }
+
+  try {
+    const deviceSessionToken = await readDeviceSessionCookie();
+    const deviceSessionCheck = await validateDeviceSessionOrInvalidate({
+      pb,
+      userId: authenticatedUser.id,
+      deviceSessionToken,
+      shouldUpdateHeartbeat: true,
+    });
+
+    if (deviceSessionCheck.status === "invalid") {
+      return createActionUnauthorizedResult(deviceSessionCheck.clearCookies);
+    }
+
+    const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+
+    if (!isUsersRecord(refreshedAuth.record)) {
+      return createActionUnauthorizedResult(createClearedAuthAndDeviceCookies());
+    }
+
+    if (refreshedAuth.record.verified !== true) {
+      console.warn("[auth-current-user] requireCurrentActionUser.unverifiedUserSession");
+
+      return createActionUnauthorizedResult(createClearedAuthAndDeviceCookies());
+    }
+
+    return {
+      ok: true,
+      pb,
+      user: refreshedAuth.record,
+      currentSessionIdHash: deviceSessionCheck.sessionIdHash,
+    };
+  } catch (error) {
+    if (isAuthRefreshUnauthorizedError(error)) {
+      console.warn(
+        "[auth-current-user] requireCurrentActionUser.authRefreshUnauthorized",
+        formatServiceError(error)
+      );
+
+      return createActionUnauthorizedResult(createClearedAuthAndDeviceCookies());
+    }
+
+    logServiceError("auth-current-user", "requireCurrentActionUser", error);
+
+    return {
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+    };
+  }
+}
+
+function getAuthenticatedUserFromStore(pb: PocketBase): UsersRecord | null {
+  if (!pb.authStore.isValid || !isUsersRecord(pb.authStore.record)) {
+    return null;
+  }
+
+  return pb.authStore.record;
+}
+
+async function getVerifiedUserRecordReadOnly(
+  pb: PocketBase,
+  authenticatedUser: UsersRecord
+): Promise<UsersRecord | null> {
+  try {
+    const user = await pb.collection("users").getOne<UsersRecord>(authenticatedUser.id);
+
+    if (!isUsersRecord(user) || user.verified !== true) {
+      return null;
+    }
+
+    return user;
+  } catch (error) {
+    if (isAuthRefreshUnauthorizedError(error)) {
+      return null;
+    }
+
+    if (isTransientError(error) && authenticatedUser.verified === true) {
+      console.warn("[auth-current-user] requireCurrentUser.transientBackendError");
+      return authenticatedUser;
+    }
+
+    throw error;
+  }
+}
+
+function createReadOnlyUnauthorizedResult(): RequireCurrentUserResult {
+  return {
+    ok: false,
+    errorCode: "UNAUTHORIZED",
+  };
+}
+
+function createActionUnauthorizedResult(setCookie?: string[]): RequireCurrentActionUserResult {
   return {
     ok: false,
     errorCode: "UNAUTHORIZED",

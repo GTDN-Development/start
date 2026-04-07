@@ -39,4 +39,13 @@ export type DeviceSessionAuthCheckResult =
       clearCookies: string[];
     };
 
+export type DeviceSessionReadOnlyCheckResult =
+  | {
+      status: "valid";
+      sessionIdHash: string;
+    }
+  | {
+      status: "invalid";
+    };
+
 export type RevokeDeviceSessionByIdResult = "revoked" | "not_found" | "current_device";

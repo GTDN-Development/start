@@ -1,6 +1,6 @@
 "use client";
 
-import { Link } from "@/components/ui/link";
+import { LocalizedPathLink } from "@/components/ui/link";
 import { LogoStart } from "@/components/brand/logo-start";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
 import { NavLink } from "@/components/layout/nav-link";
@@ -8,15 +8,12 @@ import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { SocialMediaIcons } from "@/components/brand/social-media-icons";
 import {
-  authMenu,
   isNested,
   legalItems,
   marketingMenu,
   type MenuItem,
-  type MenuLink,
   type MenuLabelKey,
 } from "@/config/menu";
-import { ACCOUNT_PATH, APP_HOME_PATH } from "@/config/routes";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 import {
   DropdownMenu,
@@ -32,11 +29,11 @@ import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { formatPhoneNumber } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
-import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
-import { useSignOut } from "@/features/auth/use-sign-out";
+import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
-type FooterViewer = UserAccountMenuViewer | null;
+
+const COPYRIGHT_YEAR = new Date().getFullYear();
 
 function FooterNavigation({
   items,
@@ -96,34 +93,24 @@ function FooterNavigation({
 }
 
 export function MarketingFooter({
-  viewer,
+  accountSection,
+  homeHref,
   ...props
-}: React.ComponentProps<"footer"> & {
-  viewer: FooterViewer;
-}) {
-  const { handleSignOut, isPending: isSignOutPending } = useSignOut();
+}: React.ComponentProps<"footer"> & { accountSection: React.ReactNode; homeHref: string }) {
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
-  const tApplication = useTranslations("layout.application");
+  const cookieConsentEnabled = isCookieConsentEnabled();
 
   const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
-  const accountLinks: MenuLink[] = viewer
-    ? [
-        { labelKey: "home", href: APP_HOME_PATH },
-        { labelKey: "myAccount", href: ACCOUNT_PATH },
-      ]
-    : authMenu;
-
-  const viewerName = viewer?.name?.trim() || null;
 
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
       {/* First row - Logo & socials */}
       <Container className="flex flex-wrap items-center justify-between gap-8 pt-16">
         <div className="flex flex-col items-start justify-start gap-7 min-[24rem]:col-span-2 md:col-span-4 lg:col-span-1">
-          <Link href="/" aria-label={t("homeAriaLabel")}>
+          <LocalizedPathLink href={homeHref} aria-label={t("homeAriaLabel")}>
             <LogoStart aria-hidden="true" className="w-18" />
-          </Link>
+          </LocalizedPathLink>
         </div>
 
         <SocialMediaIcons />
@@ -136,44 +123,7 @@ export function MarketingFooter({
           <FooterNavigation items={marketingMenu} translate={tNav} />
         </div>
 
-        <div className="flex flex-col items-start justify-start gap-7">
-          <p className="font-heading text-sm font-semibold">{tNav("myAccount")}</p>
-          {viewer && (
-            <div className="space-y-1">
-              <p className="text-muted-foreground text-xs">{tApplication("signedInAs")}</p>
-              <p className="max-w-full truncate text-sm font-medium">
-                {viewerName ?? viewer.email}
-              </p>
-              {viewerName ? (
-                <p className="text-muted-foreground max-w-full truncate text-xs">{viewer.email}</p>
-              ) : null}
-            </div>
-          )}
-          <ul className="flex flex-col gap-2">
-            {accountLinks.map((item) => (
-              <li key={item.href}>
-                <NavLink
-                  href={item.href}
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-                >
-                  {tNav(item.labelKey)}
-                </NavLink>
-              </li>
-            ))}
-            {viewer && (
-              <li>
-                <button
-                  type="button"
-                  disabled={isSignOutPending}
-                  onClick={handleSignOut}
-                  className="text-muted-foreground hover:text-foreground cursor-pointer appearance-none bg-transparent p-0 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {tApplication("signOut")}
-                </button>
-              </li>
-            )}
-          </ul>
-        </div>
+        {accountSection}
 
         <div className="flex flex-col items-start justify-start gap-6">
           <p className="font-heading text-sm font-semibold">{t("sections.contactDetails")}</p>
@@ -219,11 +169,13 @@ export function MarketingFooter({
                 </NavLink>
               </li>
             ))}
-            <li>
-              <CookieSettingsTrigger className="text-muted-foreground hover:text-foreground text-sm transition-colors">
-                {t("cookieSettings")}
-              </CookieSettingsTrigger>
-            </li>
+            {cookieConsentEnabled && (
+              <li>
+                <CookieSettingsTrigger className="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                  {t("cookieSettings")}
+                </CookieSettingsTrigger>
+              </li>
+            )}
           </ul>
         </div>
       </Container>
@@ -259,7 +211,7 @@ function Copyright({
 
   return (
     <p {...props} className={cn("text-text-subtle text-sm", props.className)}>
-      {t("copyright", { year: new Date().getFullYear(), company })}
+      {t("copyright", { year: COPYRIGHT_YEAR, company })}
     </p>
   );
 }

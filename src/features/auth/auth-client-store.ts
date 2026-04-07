@@ -1,8 +1,4 @@
-import type {
-  AuthSession,
-  AuthSessionSnapshot,
-  SessionResponse,
-} from "@/features/auth/auth-types";
+import type { AuthSession, AuthSessionSnapshot, SessionResponse } from "@/features/auth/auth-types";
 
 const SESSION_ENDPOINT_PATH = "/api/auth/session";
 

@@ -1,12 +1,8 @@
 import type PocketBase from "pocketbase";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
-import { requireWorkspaceAuthContext } from "@/server/workspaces/workspace-auth-context";
+import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
 import { requireWorkspaceAccess } from "@/server/workspaces/workspace-access";
-import {
-  clearActiveWorkspaceSlugCookie,
-  consumePendingInviteTokenCookie,
-  getActiveWorkspaceSlugCookie,
-} from "@/server/workspaces/workspace-cookie";
+import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
@@ -152,15 +148,14 @@ export async function resolveWorkspaceForUserBySlugWithClient(
 export async function resolvePostAuthDestination(input: {
   userId: string;
   userEmail: string;
+  pendingInviteToken?: string | null;
 }): Promise<ServerWorkspaceResponse<PostAuthDestination>> {
-  const pendingInviteToken = await consumePendingInviteTokenCookie();
-
-  if (pendingInviteToken) {
+  if (input.pendingInviteToken) {
     return {
       ok: true,
       data: {
         state: "invite_redirect",
-        inviteToken: pendingInviteToken,
+        inviteToken: input.pendingInviteToken,
       },
     };
   }
@@ -192,7 +187,7 @@ export async function resolvePostAuthDestination(input: {
 export async function switchWorkspaceForCurrentUser(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const currentUser = await requireWorkspaceActionContext();
 
   if (!currentUser.ok) {
     return currentUser.response;
@@ -275,10 +270,6 @@ export async function resolveActiveWorkspaceForUserWithClient(
 
   if (!workspaceResponse.ok) {
     return workspaceResponse;
-  }
-
-  if (!workspaceResponse.data.workspace) {
-    await clearActiveWorkspaceSlugCookie();
   }
 
   return workspaceResponse;

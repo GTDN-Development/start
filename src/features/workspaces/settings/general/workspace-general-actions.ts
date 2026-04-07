@@ -9,7 +9,7 @@ import {
   workspaceSlugSchema,
 } from "@/features/workspaces/workspace-schemas";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
+import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
 import {
   clearActiveWorkspaceSlugCookie,
   getActiveWorkspaceSlugCookie,
@@ -164,7 +164,7 @@ async function finalizeWorkspaceAction<TData, TResult = TData>(
   response: ServerWorkspaceResponse<TData>,
   mapData?: (data: TData) => TResult
 ): Promise<WorkspaceResponse<TResult>> {
-  await applyServerAuthCookies(response.setCookie);
+  await applyServerActionAuthCookies(response.setCookie);
 
   if (!response.ok) {
     return {

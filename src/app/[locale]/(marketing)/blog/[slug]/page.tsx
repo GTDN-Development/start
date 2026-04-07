@@ -10,14 +10,7 @@ import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/h
 import { app } from "@/config/app";
 import { getPathname } from "@/i18n/navigation";
 import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
-import { getAllPosts, getPostBySlug, stripHtmlTags } from "@/server/blog/blog-api";
-
-export const revalidate = 180;
-
-export async function generateStaticParams() {
-  const [csPosts, enPosts] = await Promise.all([getAllPosts("cs"), getAllPosts("en")]);
-  return [...csPosts, ...enPosts].map((post) => ({ slug: post.slug }));
-}
+import { getPostBySlug, stripHtmlTags } from "@/server/blog/blog-api";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/blog/[slug]">

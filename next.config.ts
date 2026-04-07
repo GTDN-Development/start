@@ -8,6 +8,13 @@ const withNextIntl = createNextIntlPlugin({
 });
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
+  cacheLife: {
+    blog: {
+      stale: 30,
+      revalidate: 180,
+    },
+  },
   reactStrictMode: true,
   reactCompiler: true,
   images: {

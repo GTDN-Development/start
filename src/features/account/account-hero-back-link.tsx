@@ -1,10 +1,11 @@
 "use client";
 
 import { BackNavigation } from "@/components/ui/back-navigation";
-import { Link } from "@/components/ui/link";
+import { getPathname, Link } from "@/i18n/navigation";
 import { ACCOUNT_PATH } from "@/config/routes";
 import { useSidebarContext } from "@/features/application/application-root";
 import { cn } from "@/lib/utils";
+import { useLocale } from "next-intl";
 
 type AccountHeroBackLinkProps = {
   className?: string;
@@ -12,11 +13,16 @@ type AccountHeroBackLinkProps = {
 };
 
 export function AccountHeroBackLink({ className, children }: AccountHeroBackLinkProps) {
+  const locale = useLocale();
   const sharedClassName = cn(
     "cursor-pointer appearance-none bg-transparent p-0 text-left",
     className
   );
   const { applicationEntryHref } = useSidebarContext();
+  const localizedAccountPath = getPathname({
+    href: ACCOUNT_PATH,
+    locale,
+  });
 
   return (
     <BackNavigation>
@@ -24,8 +30,8 @@ export function AccountHeroBackLink({ className, children }: AccountHeroBackLink
         const canGoBackOutsideAccount =
           canGoBack &&
           previousPathname !== undefined &&
-          previousPathname !== ACCOUNT_PATH &&
-          !previousPathname.startsWith(`${ACCOUNT_PATH}/`);
+          previousPathname !== localizedAccountPath &&
+          !previousPathname.startsWith(`${localizedAccountPath}/`);
 
         return canGoBackOutsideAccount ? (
           <button type="button" className={sharedClassName} onClick={goBack}>

@@ -9,9 +9,9 @@ import { useTranslations } from "next-intl";
 export function CookieConsentBanner() {
   const t = useTranslations("cookies.consent.banner");
   const tNav = useTranslations("layout.navigation.items");
-  const { hasInteracted, acceptAll, rejectAll, openSettingsDialog } = useCookieContext();
+  const { hasInteracted, isReady, acceptAll, rejectAll, openSettingsDialog } = useCookieContext();
 
-  if (hasInteracted) {
+  if (!isReady || hasInteracted) {
     return null;
   }
 

@@ -34,12 +34,12 @@ test("email verification is idempotent for an already verified email", async ({ 
     });
 
     await page.goto(verificationPath);
-    await expect(page).toHaveURL(/\/cs\/overit-email\?result=verified/);
-    await expect(page.getByRole("heading", { name: "E-mail ověřen" })).toBeVisible();
+    await expect(page).toHaveURL(/\/cs\/aplikace$/);
+    await expect(page.getByRole("link", { name: "Můj účet" })).toBeVisible();
 
     await page.goto(verificationPath);
-    await expect(page).toHaveURL(/\/cs\/overit-email\?result=verified/);
-    await expect(page.getByRole("heading", { name: "E-mail ověřen" })).toBeVisible();
+    await expect(page).toHaveURL(/\/cs\/aplikace$/);
+    await expect(page.getByRole("link", { name: "Můj účet" })).toBeVisible();
   } finally {
     if (pb) {
       await deleteSignedUpUsersByEmail(pb, email);

@@ -17,6 +17,7 @@ import { ACCOUNT_PATH } from "@/config/routes";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthUser } from "@/features/auth/auth-types";
 import { useSignOut } from "@/features/auth/use-sign-out";
+import { useBrowserPathnameState } from "@/hooks/use-browser-pathname-state";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { GlobeIcon, LayoutDashboardIcon, LogOutIcon, UserIcon } from "lucide-react";
 
@@ -45,7 +46,7 @@ export function UserAccountMenu({
 }: UserAccountMenuProps) {
   const accountProfile = useOptionalAccountProfile();
   const { handleSignOut, isPending: isSignOutPending } = useSignOut();
-
+  const { navigationId } = useBrowserPathnameState();
   const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
 
   const currentViewer = accountProfile?.profile ?? viewer;
@@ -60,7 +61,7 @@ export function UserAccountMenu({
       : null;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu key={navigationId}>
       <DropdownMenuTrigger
         className="hover:bg-muted/50 inline-flex rounded-full p-0"
         aria-label={labels.account}

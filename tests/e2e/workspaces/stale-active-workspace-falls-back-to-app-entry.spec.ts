@@ -52,7 +52,7 @@ test("stale active workspace falls back to personal app entry after external acc
       {
         name: "active_workspace",
         value: workspaceSlug,
-        url: "http://127.0.0.1:3100",
+        url: "http://localhost:3100",
       },
     ]);
 

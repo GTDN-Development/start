@@ -42,8 +42,10 @@ test("inaccessible workspace URL renders workspace-scoped 404 state", async ({ p
 
     await expect(page).toHaveURL(new RegExp(`/cs/w/${workspaceSlug}/prehled$`));
     await expect(page).not.toHaveURL(/\/cs\/aplikace$/);
-    await expect(page.locator("main")).toContainText("Nenalezeno");
-    await expect(page.locator("main")).toContainText(
+    const visibleMain = page.locator("main:visible");
+
+    await expect(visibleMain).toContainText("Nenalezeno");
+    await expect(visibleMain).toContainText(
       "Stránku, kterou hledáte, se nepodařilo najít."
     );
   } finally {

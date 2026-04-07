@@ -1,9 +1,11 @@
 "use client";
 
-import { Link, type LinkHref, type LinkProps } from "@/components/ui/link";
-import { usePathname } from "@/i18n/navigation";
+import { LocalizedPathLink, type LinkProps } from "@/components/ui/link";
+import { getPathname, type AppHref } from "@/i18n/navigation";
+import { useBrowserPathnameState } from "@/hooks/use-browser-pathname-state";
 import { ComponentPropsWithoutRef } from "react";
 import { ArrowUpRightIcon } from "lucide-react";
+import { useLocale } from "next-intl";
 
 export type NavLinkProps = LinkProps & {
   showExternalIcon?: boolean;
@@ -19,12 +21,13 @@ export function NavLink({
   matchNested = false,
   ...props
 }: NavLinkProps) {
-  const pathname = usePathname();
-  const hrefString = typeof href === "string" ? href : (href.pathname ?? "");
+  const locale = useLocale();
+  const { pathname } = useBrowserPathnameState();
+  const localizedHref = resolveLocalizedHref(href, locale);
 
   const isCurrent = matchNested
-    ? pathname === hrefString || pathname.startsWith(`${hrefString}/`)
-    : pathname === hrefString;
+    ? pathname === localizedHref || pathname?.startsWith(`${localizedHref}/`) === true
+    : pathname === localizedHref;
 
   if (typeof href === "string" && isExternalHref(href)) {
     const externalProps = props as Omit<ComponentPropsWithoutRef<"a">, "href">;
@@ -48,9 +51,9 @@ export function NavLink({
   }
 
   return (
-    <Link
+    <LocalizedPathLink
       {...props}
-      href={href as LinkHref}
+      href={localizedHref}
       aria-current={isCurrent ? "page" : undefined}
       data-current={isCurrent ? "true" : undefined}
       data-external={undefined}
@@ -58,10 +61,27 @@ export function NavLink({
       rel={rel}
     >
       {children}
-    </Link>
+    </LocalizedPathLink>
   );
 }
 
 function isExternalHref(href: string) {
-  return href.startsWith("http://") || href.startsWith("https://");
+  return (
+    href.startsWith("#") ||
+    href.startsWith("http://") ||
+    href.startsWith("https://") ||
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:")
+  );
+}
+
+function resolveLocalizedHref(href: NavLinkProps["href"], locale: string) {
+  if (typeof href === "string" && isExternalHref(href)) {
+    return href;
+  }
+
+  return getPathname({
+    href: href as AppHref,
+    locale,
+  });
 }

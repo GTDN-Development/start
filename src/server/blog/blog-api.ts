@@ -1,3 +1,4 @@
+import { cacheLife } from "next/cache";
 import type { PostsRecord } from "@/types/pocketbase";
 
 const PB_URL = process.env.NEXT_PUBLIC_PB_URL;
@@ -70,10 +71,7 @@ function mapPost(record: PostsRecord): BlogPost {
 async function fetchPosts(params: Record<string, string>): Promise<PostsRecord[]> {
   const searchParams = new URLSearchParams({ ...params, skipTotal: "true" });
 
-  const response = await fetch(
-    `${getPocketBaseUrl()}/api/collections/posts/records?${searchParams}`,
-    { next: { revalidate: 180 } }
-  );
+  const response = await fetch(`${getPocketBaseUrl()}/api/collections/posts/records?${searchParams}`);
 
   if (!response.ok) {
     return [];
@@ -85,6 +83,9 @@ async function fetchPosts(params: Record<string, string>): Promise<PostsRecord[]
 }
 
 export async function getAllPosts(locale: "cs" | "en"): Promise<BlogPost[]> {
+  "use cache";
+  cacheLife("blog");
+
   try {
     const items = await fetchPosts({
       sort: "-published_at",
@@ -101,6 +102,9 @@ export async function getAllPosts(locale: "cs" | "en"): Promise<BlogPost[]> {
 }
 
 export async function getPostBySlug(slug: string, locale: "cs" | "en"): Promise<BlogPost | null> {
+  "use cache";
+  cacheLife("blog");
+
   try {
     const items = await fetchPosts({
       filter: `slug="${escapePBValue(slug)}" && status="published" && locale="${locale}"`,

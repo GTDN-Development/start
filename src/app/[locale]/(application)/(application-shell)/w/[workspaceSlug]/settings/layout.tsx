@@ -2,9 +2,7 @@ import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { workspaceSettingsInnerSidebarItems } from "@/features/workspaces/settings/workspace-settings-inner-sidebar-items";
-import {
-  mapWorkspaceInnerSidebarItems,
-} from "@/features/application/inner-sidebar/inner-sidebar-items";
+import { mapWorkspaceInnerSidebarItems } from "@/features/application/inner-sidebar/inner-sidebar-items";
 import { InnerSidebarBreadcrumbs } from "@/features/application/inner-sidebar/inner-sidebar-breadcrumbs";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";

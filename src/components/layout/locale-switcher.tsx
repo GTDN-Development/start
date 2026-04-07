@@ -1,11 +1,11 @@
 "use client";
 
+import { Suspense, useTransition } from "react";
 import { routing } from "@/i18n/routing";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useParams } from "next/navigation";
 import { GlobeIcon } from "lucide-react";
 import { Locale, useLocale, useTranslations } from "next-intl";
-import { useTransition } from "react";
 import {
   Select,
   SelectContent,
@@ -14,9 +14,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export function LocaleSwitcher({ className = "" }: { className?: string }) {
+  return (
+    <Suspense fallback={<LocaleSwitcherSkeleton className={className} />}>
+      <LocaleSwitcherContent className={className} />
+    </Suspense>
+  );
+}
+
+function LocaleSwitcherContent({ className = "" }: { className?: string }) {
   const locale = useLocale();
   const t = useTranslations("common.localeSwitcher");
   const router = useRouter();
@@ -61,4 +70,8 @@ export function LocaleSwitcher({ className = "" }: { className?: string }) {
       </SelectContent>
     </Select>
   );
+}
+
+function LocaleSwitcherSkeleton({ className = "" }: { className?: string }) {
+  return <Skeleton className={cn("h-10 min-w-32 rounded-full", className)} />;
 }

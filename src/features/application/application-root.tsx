@@ -2,13 +2,10 @@
 
 import { createContext, useContext } from "react";
 import { type LinkHref } from "@/components/ui/link";
-import { AUTH_REDIRECTS } from "@/config/auth";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile-types";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
-import { useSession } from "@/features/auth/auth-client";
-import { useMountEffect } from "@/hooks/use-mount-effect";
-import { useRouter } from "@/i18n/navigation";
+import { ApplicationAuthSync } from "./application-auth-sync";
 import {
   WorkspaceNavigationProvider,
   useWorkspaceNavigation,
@@ -66,15 +63,7 @@ export function ApplicationRoot({
   applicationEntryHref,
   labels,
 }: ApplicationRootProps) {
-  const sessionSnapshot = useSession();
-
-  if (sessionSnapshot.status === "unauthenticated") {
-    return <UnauthenticatedApplicationRedirect />;
-  }
-
-  const currentUser =
-    sessionSnapshot.status === "authenticated" ? (sessionSnapshot.session?.user ?? user) : user;
-  const profileProviderKey = `${currentUser.email}:${currentUser.name ?? ""}:${currentUser.avatarUrl ?? ""}`;
+  const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}`;
   const workspaceNavigationKey = `${activeWorkspaceSlug ?? ""}:${workspaces
     .map((workspace) =>
       [
@@ -89,7 +78,7 @@ export function ApplicationRoot({
     .join("|")}`;
 
   return (
-    <AccountProfileProvider key={profileProviderKey} initialProfile={currentUser}>
+    <AccountProfileProvider key={profileProviderKey} initialProfile={user}>
       <WorkspaceNavigationProvider
         key={workspaceNavigationKey}
         initialWorkspaces={workspaces}
@@ -97,25 +86,16 @@ export function ApplicationRoot({
       >
         <ApplicationRootContext.Provider
           value={{
-            user: currentUser,
+            user,
             userMenuLabels: labels.userMenu,
             mobileMenuLabels: labels.mobileMenu,
             applicationEntryHref,
           }}
         >
+          <ApplicationAuthSync />
           {children}
         </ApplicationRootContext.Provider>
       </WorkspaceNavigationProvider>
     </AccountProfileProvider>
   );
-}
-
-function UnauthenticatedApplicationRedirect() {
-  const router = useRouter();
-
-  useMountEffect(() => {
-    router.replace(AUTH_REDIRECTS.unauthenticatedTo);
-  });
-
-  return null;
 }

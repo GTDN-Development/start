@@ -463,7 +463,11 @@
       "description": "Insights, product updates, and practical guides for modern teams.",
       "readMore": "Read more",
       "loadMore": "Load more",
-      "backToBlog": "Back to blog"
+      "backToBlog": "Back to blog",
+      "empty": {
+        "title": "No posts published yet",
+        "description": "This starter keeps the blog route ready from day one. Publish your first post when you're ready."
+      }
     },
     "gdpr": {
       "title": "Privacy Policy",

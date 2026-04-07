@@ -34,21 +34,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const { locale } = await params;
 
   setRequestLocale(locale as Locale);
-
-  const t = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.contact.sales",
-  });
-
-  const tContact = await getTranslations({
-    locale: locale as Locale,
-    namespace: "pages.contact",
-  });
-
-  const tCommonNavigation = await getTranslations({
-    locale: locale as Locale,
-    namespace: "common.navigation",
-  });
+  const copy = await getSalesPageCopy(locale as Locale);
 
   return (
     <div className="relative pt-20">
@@ -62,17 +48,17 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 backContent={
                   <>
                     <ArrowLeftIcon aria-hidden="true" className="size-4" />
-                    {tCommonNavigation("back")}
+                    {copy.back}
                   </>
                 }
               >
                 <ArrowLeftIcon aria-hidden="true" className="size-4" />
-                {tContact("backToContact")}
+                {copy.backToContact}
               </BackLink>
               <h1 className="font-heading mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-                {t("infoTitle")}
+                {copy.infoTitle}
               </h1>
-              <p className="text-muted-foreground">{t("infoDescription")}</p>
+              <p className="text-muted-foreground">{copy.infoDescription}</p>
             </div>
             <div className="flex flex-col gap-4">
               <ContactCopyItem
@@ -86,30 +72,60 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               />
             </div>
             <div className="mt-2 flex flex-col gap-2">
-              <p className="text-muted-foreground">{t("supportPrompt.title")}</p>
+              <p className="text-muted-foreground">{copy.supportPromptTitle}</p>
               <Link
                 href="/contact/support"
                 className="hover:text-primary inline-flex w-fit items-center gap-1.5 text-base"
               >
-                {t("supportPrompt.cta")}
+                {copy.supportPromptCta}
                 <ChevronRightIcon aria-hidden="true" className="size-4" />
               </Link>
             </div>
           </div>
 
-          <Card>
-            <CardContent className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <h2 className="font-heading text-lg font-semibold tracking-tight">
-                  {t("formTitle")}
-                </h2>
-                <p className="text-muted-foreground text-sm">{t("formDescription")}</p>
-              </div>
-              <ContactForm />
-            </CardContent>
+            <Card>
+              <CardContent className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                  <h2 className="font-heading text-lg font-semibold tracking-tight">
+                    {copy.formTitle}
+                  </h2>
+                  <p className="text-muted-foreground text-sm">{copy.formDescription}</p>
+                </div>
+                <ContactForm />
+              </CardContent>
           </Card>
         </div>
       </Container>
     </div>
   );
+}
+
+async function getSalesPageCopy(locale: Locale) {
+  "use cache";
+
+  const [t, tContact, tCommonNavigation] = await Promise.all([
+    getTranslations({
+      locale,
+      namespace: "pages.contact.sales",
+    }),
+    getTranslations({
+      locale,
+      namespace: "pages.contact",
+    }),
+    getTranslations({
+      locale,
+      namespace: "common.navigation",
+    }),
+  ]);
+
+  return {
+    back: tCommonNavigation("back"),
+    backToContact: tContact("backToContact"),
+    infoTitle: t("infoTitle"),
+    infoDescription: t("infoDescription"),
+    supportPromptTitle: t("supportPrompt.title"),
+    supportPromptCta: t("supportPrompt.cta"),
+    formTitle: t("formTitle"),
+    formDescription: t("formDescription"),
+  };
 }

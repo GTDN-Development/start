@@ -3,7 +3,6 @@ import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
 import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
@@ -14,8 +13,6 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   setRequestLocale(locale as Locale);
 
   const sessionResponse = await getServerAuthSession();
-
-  await applyServerAuthCookies(sessionResponse.setCookie);
 
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 

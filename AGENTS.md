@@ -24,6 +24,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - `params` and `searchParams` must be awaited — they are async in Next.js 16
 - `cookies()`, `headers()`, `draftMode()` must be awaited
 - Never mutate cookies during Server Component/page/layout render. In Next.js 16, cookie writes are allowed only in Server Actions, Route Handlers, or other response-writing server contexts
+- If a service returns `setCookie[]`, treat it as response metadata only. Only Server Actions may commit it with the action cookie writer, and only Route Handlers may commit it on `NextResponse`
+- URL-token auth flows and redirect-plus-cookie handoffs belong in Route Handlers, not in `page.tsx` or `layout.tsx`
+- Keep `proxy.ts` optimistic only: cookie presence checks and fast redirects, never DB-backed auth repair or session mutation
 - Use `"use cache"` directive for caching — not the old `fetch` cache options
 - `revalidateTag(tag, cacheLifeProfile)` requires a cacheLife profile as the 2nd argument
 - Parallel route slots require explicit `default.tsx` files

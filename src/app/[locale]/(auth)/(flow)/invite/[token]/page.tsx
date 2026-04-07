@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
@@ -8,14 +9,11 @@ import {
   getInviteAcceptHref,
   getInviteHref,
   getInviteStartHref,
-  getWorkspaceOverviewHref,
 } from "@/config/routes";
 import { resolveApplicationEntryHref } from "@/server/application/application-entry-href";
 import { getPathname, redirect } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { applyServerAuthCookies } from "@/server/auth/auth-cookies";
 import { getServerAuthSession } from "@/server/auth/auth-session-service";
-import { setActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   getInviteTokenForUser,
   validateInviteToken,
@@ -45,6 +43,8 @@ export async function generateMetadata(props: InviteTokenPageProps): Promise<Met
 }
 
 export default async function Page({ params }: InviteTokenPageProps) {
+  await connection();
+
   const { locale, token } = await params;
   const appLocale = locale as AppLocale;
 
@@ -59,8 +59,6 @@ export default async function Page({ params }: InviteTokenPageProps) {
     namespace: "common.error",
   });
   const sessionResponse = await getServerAuthSession();
-
-  await applyServerAuthCookies(sessionResponse.setCookie);
 
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
@@ -142,10 +140,8 @@ export default async function Page({ params }: InviteTokenPageProps) {
   }
 
   if (inspectResponse.data.result.state === "already_member") {
-    await setActiveWorkspaceSlugCookie(inspectResponse.data.result.workspace.slug);
-
     redirect({
-      href: getWorkspaceOverviewHref(inspectResponse.data.result.workspace.slug),
+      href: getInviteAcceptHref(token),
       locale: locale as Locale,
     });
   }

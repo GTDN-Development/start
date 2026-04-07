@@ -24,9 +24,7 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  WORKSPACE_INVITABLE_ROLE_OPTIONS,
-} from "@/features/workspaces/workspace-role-options";
+import { WORKSPACE_INVITABLE_ROLE_OPTIONS } from "@/features/workspaces/workspace-role-options";
 import {
   isWorkspaceInvitableRole,
   type WorkspaceInvitableRole,
