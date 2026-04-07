@@ -1,10 +1,10 @@
 "use client";
 
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { isCookieConsentEnabled } from "./cookie-consent";
 import { useCookieContext } from "./cookie-context";
-import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
-export function ThirdPartyScripts() {
+export function AnalyticsScripts() {
   const { consent, isReady } = useCookieContext();
 
   if (!isCookieConsentEnabled() || !isReady) {
@@ -14,10 +14,17 @@ export function ThirdPartyScripts() {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
 
-  return (
-    <>
-      {consent.analytics && gaId && <GoogleAnalytics gaId={gaId} />}
-      {consent.analytics && gtmId && <GoogleTagManager gtmId={gtmId} />}
-    </>
-  );
+  if (!consent.analytics) {
+    return null;
+  }
+
+  if (gtmId) {
+    return <GoogleTagManager gtmId={gtmId} />;
+  }
+
+  if (gaId) {
+    return <GoogleAnalytics gaId={gaId} />;
+  }
+
+  return null;
 }

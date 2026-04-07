@@ -9,7 +9,7 @@ import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
 import { TailwindScreen } from "@/components/layout/tailwind-screen";
 import { AppProviders } from "@/features/application/app-providers";
-import { ThirdPartyScripts } from "@/features/cookies/third-party-scripts";
+import { AnalyticsScripts } from "@/features/cookies/analytics-scripts";
 import { CookieConsentBanner } from "@/features/cookies/cookie-consent-banner";
 import { CookieSettingsDialog } from "@/features/cookies/cookie-settings-dialog";
 import { CookieErrorBoundary } from "@/features/cookies/cookie-error-boundary";
@@ -103,7 +103,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
             )}
             <TailwindScreen />
             <Toaster />
-            <ThirdPartyScripts />
+            <AnalyticsScripts />
           </AppProviders>
         </NextIntlClientProvider>
       </body>

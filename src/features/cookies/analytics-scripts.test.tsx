@@ -120,9 +120,9 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
     });
   });
 
-  it("does not render third-party scripts before consent and enables them after accept all", async function testThirdPartyScripts() {
-    const { CookieContextProvider, useCookieContext, ThirdPartyScripts } = await loadCookieUi();
-    const ConsentTestHarness = createConsentTestHarness(useCookieContext, ThirdPartyScripts);
+  it("does not mount analytics before consent and mounts GTM after accept all", async function testMountsGtmAfterConsent() {
+    const { AnalyticsScripts, CookieContextProvider, useCookieContext } = await loadCookieUi();
+    const ConsentTestHarness = createConsentTestHarness(useCookieContext, AnalyticsScripts);
 
     render(
       <CookieContextProvider>
@@ -136,9 +136,10 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
     fireEvent.click(screen.getByRole("button", { name: "Accept all" }));
 
     await waitFor(function expectAnalyticsScripts() {
-      expect(screen.getByTestId("google-analytics").textContent).toBe("ga-test-id");
       expect(screen.getByTestId("google-tag-manager").textContent).toBe("gtm-test-id");
     });
+
+    expect(screen.queryByTestId("google-analytics")).toBeNull();
 
     expect(persistCookieConsentAction).toHaveBeenCalledWith({
       eventType: "accept_all",
@@ -146,18 +147,95 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
       locale: "en",
     });
   });
+
+  it("mounts Google Analytics when GTM is not configured", async function testMountsGaFallback() {
+    process.env.NEXT_PUBLIC_GTM_ID = "";
+
+    const { AnalyticsScripts, CookieContextProvider } = await loadCookieUi();
+
+    document.cookie = [
+      `${COOKIE_NAME}=${serializeConsentCookieValue(acceptAllConsent)}`,
+      "path=/",
+    ].join("; ");
+
+    render(
+      <CookieContextProvider>
+        <AnalyticsScripts />
+      </CookieContextProvider>
+    );
+
+    expect((await screen.findByTestId("google-analytics")).textContent).toBe("ga-test-id");
+    expect(screen.queryByTestId("google-tag-manager")).toBeNull();
+  });
+
+  it("mounts only GTM when both GTM and GA are configured", async function testGtmTakesPriority() {
+    const { AnalyticsScripts, CookieContextProvider } = await loadCookieUi();
+
+    document.cookie = [
+      `${COOKIE_NAME}=${serializeConsentCookieValue(acceptAllConsent)}`,
+      "path=/",
+    ].join("; ");
+
+    render(
+      <CookieContextProvider>
+        <AnalyticsScripts />
+      </CookieContextProvider>
+    );
+
+    expect((await screen.findByTestId("google-tag-manager")).textContent).toBe("gtm-test-id");
+    expect(screen.queryByTestId("google-analytics")).toBeNull();
+  });
+
+  it("mounts nothing when analytics consent is not granted", async function testNoAnalyticsWithoutConsent() {
+    process.env.NEXT_PUBLIC_GTM_ID = "";
+
+    const { AnalyticsScripts, CookieContextProvider } = await loadCookieUi();
+
+    render(
+      <CookieContextProvider>
+        <AnalyticsScripts />
+      </CookieContextProvider>
+    );
+
+    await waitFor(function expectNoAnalyticsScripts() {
+      expect(screen.queryByTestId("google-analytics")).toBeNull();
+      expect(screen.queryByTestId("google-tag-manager")).toBeNull();
+    });
+  });
+
+  it("mounts nothing when cookie consent feature is disabled", async function testNoAnalyticsWhenConsentFeatureDisabled() {
+    process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED = "false";
+
+    const { AnalyticsScripts, CookieContextProvider } = await loadCookieUi();
+
+    document.cookie = [
+      `${COOKIE_NAME}=${serializeConsentCookieValue(acceptAllConsent)}`,
+      "path=/",
+    ].join("; ");
+
+    render(
+      <CookieContextProvider>
+        <AnalyticsScripts />
+      </CookieContextProvider>
+    );
+
+    await waitFor(function expectNoAnalyticsScripts() {
+      expect(screen.queryByTestId("google-analytics")).toBeNull();
+      expect(screen.queryByTestId("google-tag-manager")).toBeNull();
+    });
+  });
 });
 
 function createConsentTestHarness(
   useCookieContext: typeof import("./cookie-context").useCookieContext,
-  ThirdPartyScripts: typeof import("./third-party-scripts").ThirdPartyScripts
+  AnalyticsScripts: typeof import("./analytics-scripts").AnalyticsScripts
 ) {
   function ConsentTestHarness() {
     const { acceptAll } = useCookieContext();
 
     return (
       <>
-        <ThirdPartyScripts />
+        <AnalyticsScripts />
         <button type="button" onClick={acceptAll}>
           Accept all
         </button>
@@ -169,18 +247,18 @@ function createConsentTestHarness(
 }
 
 async function loadCookieUi() {
-  const [{ CookieConsentBanner }, { CookieContextProvider, useCookieContext }, { ThirdPartyScripts }] =
+  const [{ CookieConsentBanner }, { CookieContextProvider, useCookieContext }, { AnalyticsScripts }] =
     await Promise.all([
       import("./cookie-consent-banner"),
       import("./cookie-context"),
-      import("./third-party-scripts"),
+      import("./analytics-scripts"),
     ]);
 
   return {
+    AnalyticsScripts,
     CookieConsentBanner,
     CookieContextProvider,
     useCookieContext,
-    ThirdPartyScripts,
   };
 }
 
