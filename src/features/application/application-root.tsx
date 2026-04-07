@@ -5,6 +5,7 @@ import { type LinkHref } from "@/components/ui/link";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile-types";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
+import { ApplicationAuthSync } from "./application-auth-sync";
 import {
   WorkspaceNavigationProvider,
   useWorkspaceNavigation,
@@ -91,6 +92,7 @@ export function ApplicationRoot({
             applicationEntryHref,
           }}
         >
+          <ApplicationAuthSync />
           {children}
         </ApplicationRootContext.Provider>
       </WorkspaceNavigationProvider>
