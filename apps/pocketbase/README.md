@@ -87,6 +87,8 @@ Set those environment-specific values manually in each PocketBase environment.
 6. Deploy or redeploy the service.
 7. Open `https://your-domain/_/` and sign in with the configured superuser.
 
+`Root Directory = apps/pocketbase` is required in Railway for this monorepo layout. Without it, Railway will build from the repository root instead of the PocketBase app and the deployment will fail or build the wrong service.
+
 The container startup sequence is:
 
 1. `migrate up`

@@ -41,6 +41,7 @@ These commands target the web application by default. PocketBase-specific work i
 
 - Vercel deploys `apps/web`
 - Railway deploys `apps/pocketbase`
+- the Railway service for PocketBase must use `apps/pocketbase` as its `Root Directory`
 - `main` is the production branch
 - `dev` is the shared development branch
 - development and production use separate services, volumes, domains, and environment variables
