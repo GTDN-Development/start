@@ -1,11 +1,19 @@
 FROM alpine:latest
 
 ARG PB_VERSION=0.36.7
+ARG TARGETARCH
 
-RUN apk add --no-cache unzip ca-certificates
+RUN apk add --no-cache unzip ca-certificates wget
 
-ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
-RUN unzip /tmp/pb.zip -d /pb/ && rm /tmp/pb.zip && mkdir -p /pb/pb_migrations /pb/pb_hooks /pb/pb_public
+RUN case "${TARGETARCH}" in \
+    amd64|arm64) pb_arch="${TARGETARCH}" ;; \
+    *) echo "Unsupported target architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+  esac \
+  && wget -O /tmp/pb.zip "https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_${pb_arch}.zip" \
+  && unzip /tmp/pb.zip -d /pb/ \
+  && chmod +x /pb/pocketbase \
+  && rm /tmp/pb.zip \
+  && mkdir -p /pb/pb_migrations /pb/pb_hooks /pb/pb_public
 
 WORKDIR /pb
 
