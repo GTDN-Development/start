@@ -1,118 +1,53 @@
 # Start
 
-Next.js 16 starter app for marketing, auth, and application pages.
+Start is a workspace repository with the web application and the PocketBase backend in one place.
 
-## Stack
+## Repository Layout
 
-- Next.js 16 (App Router)
-- React 19
-- Tailwind CSS v4
-- shadcn/base-ui components
-- next-intl (EN/CS)
-- Cloudflare Turnstile
-- PocketBase (typegen + auth integration)
+- `apps/web` - Next.js 16 application for marketing, auth, and the authenticated app
+- `apps/pocketbase` - PocketBase service with migrations, hooks, public assets, and Railway deployment files
+- `.rules` - project goals and architecture rules
+- `.docs` - implementation notes for key subsystems
 
-## Commands
+## Tooling
+
+- `pnpm` workspaces
+- `turborepo`
+- Next.js 16 / React 19
+- PocketBase
+
+## Common Commands
+
+Run these from the repository root:
 
 ```bash
-npm install
-npm run dev
-npm run lint
-npm run build
-npm run format
-npm run pocketbase:typegen
+pnpm install
+pnpm dev
+pnpm lint
+pnpm lint:fix
+pnpm typecheck
+pnpm test
+pnpm test:e2e
+pnpm build
+pnpm format
+pnpm format:check
+pnpm check
+pnpm pocketbase:typegen
 ```
 
-## Env
+These commands target the web application by default. PocketBase-specific work is handled from `apps/pocketbase`.
 
-Use `.env.example` as the template.
+## Deployment
 
-PocketBase typegen requires:
+- Vercel deploys `apps/web`
+- Railway deploys `apps/pocketbase`
+- `main` is the production branch
+- `dev` is the shared development branch
+- development and production use separate services, volumes, domains, and environment variables
 
-- `NEXT_PUBLIC_PB_URL`
-- `PB_SUPERUSER_EMAIL`
-- `PB_SUPERUSER_PASSWORD`
+## Documentation
 
-## PocketBase Typegen
-
-- Command: `npm run pocketbase:typegen`
-- Output: `src/types/pocketbase.ts`
-- Source: live PocketBase collection schema
-- Do not edit generated types manually
-
-## Structure
-
-- `src/app` - routes, layouts, metadata, API route adapters
-- `src/features` - feature-first modules (`auth`, `account`, `marketing`, `cookies`, `application`)
-- `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `providers`, `dev`)
-- `src/server` - server-only infrastructure (`captcha`, `email`)
-- `src/config` - structural config (menus, links, site data)
-- `src/i18n` + `messages` - routing and translations
-- `src/lib` - shared utilities
-- `src/types` - shared types + generated PocketBase types
-- `scripts/pocketbase-typegen.mjs` - PocketBase type generator
-- `POCKETBASE-INTEGRATION.md` - PocketBase integration notes
-
-## Architecture Conventions
-
-- Feature-first source of truth lives in `src/features/*`
-- No barrel exports (`index.ts` / `index.tsx`) in feature modules
-- No `shared/` folders inside features; feature-wide types/helpers live at feature root
-- Keep `src/components/ui` as the shadcn CLI target
-- Application shell/composition belongs to `src/features/application`; account domain stays in `src/features/account`
-- Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
-- Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
-- Keep common helpers centralized in `src/lib/utils.ts`; avoid splitting utility helpers into many micro files
-- Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
-- API groups are path-based:
-  - Marketing: `/api/marketing/*`
-
-## i18n Routing (EN keys + CS aliases)
-
-- Default locale is `cs`
-- Internal route keys stay in English (e.g. `"/sign-in"`, `"/app"`)
-- Public Czech pathname aliases are configured in `src/i18n/routing.ts` via `pathnames`
-
-Examples:
-
-- Internal key: `"/sign-in"`
-- EN URL: `/en/sign-in`
-- CS URL alias: `/cs/prihlasit-se`
-
-### Important navigation rules
-
-- For internal localized app links use `@/components/ui/link` (re-exports `@/i18n/navigation` `Link`)
-- For external URLs and hash/mailto/tel links use a native `<a>`
-- For localized redirects/path building use `@/i18n/navigation`
-  - `redirect({href: "/sign-in", locale})`
-  - `getPathname({href: "/sign-in", locale})`
-- Do not build localized URLs manually with `/${locale}/...`
-  - This breaks when pathname aliases are enabled
-  - It also affects hidden form redirects, server redirects and metadata canonicals
-
-### Server redirects (localized)
-
-Use `redirect` from `@/i18n/navigation` for route redirects in server components/layouts.
-
-```ts
-import { redirect } from "@/i18n/navigation";
-import { Locale } from "next-intl";
-
-redirect({ href: "/sign-in", locale: locale as Locale });
-```
-
-### Metadata canonicals / alternates
-
-- Route metadata uses localized path generation for canonical URLs and language alternates
-- `createPageMetadata(...)` now expects `locale` and an internal pathname key
-
-## Auth/Account Status
-
-- Auth uses PocketBase via SSR-safe per-request server clients.
-- Auth API is available via catch-all route `src/app/api/auth/[...all]/route.ts`.
-- Implemented actions: `sign-in`, `sign-up`, `sign-out`, `session`.
-- Client DX API is exposed via `src/features/auth/auth-client.ts`:
-  - `signIn`, `signUp`, `useSession`, `signOut`
-- Application routes are protected by:
-  - `src/proxy.ts` cookie-presence redirect guard
-  - server-layout fallback session validation in `src/app/[locale]/(application)/layout.tsx`
+- web app guide: [apps/web/README.md](/Users/fanda/Dev/start/apps/web/README.md)
+- PocketBase service guide: [apps/pocketbase/README.md](/Users/fanda/Dev/start/apps/pocketbase/README.md)
+- project goal: [.rules/start-goal.md](/Users/fanda/Dev/start/.rules/start-goal.md)
+- architecture principles: [.rules/kiss-project-architecture-principles.md](/Users/fanda/Dev/start/.rules/kiss-project-architecture-principles.md)

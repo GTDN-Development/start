@@ -1,10 +1,5 @@
 # Workspace System
 
-Planning note:
-
-- the implementation plan for this target state lives in [workspace-refactor-plan.md](/Users/fanda/Dev/start/.plans/workspace-refactor-plan.md)
-- the UX clarification plan for the current shell lives in [workspace-ux-refactor-plan.md](/Users/fanda/Dev/start/.plans/workspace-ux-refactor-plan.md)
-
 ## What This Solves
 
 This layer handles optional workspace-based collaboration inside an account-first SaaS starter.
@@ -59,7 +54,6 @@ The main application routes are:
 - `/w/[workspaceSlug]/settings`
 - `/w/[workspaceSlug]/settings/members`
 - `/invite/[token]`
-- `/invite/result`
 
 Important route rules:
 
@@ -72,20 +66,22 @@ Important route rules:
 
 ## File Map
 
-- shell scope helpers: [application-scope.ts](/Users/fanda/Dev/start/src/features/application/application-scope.ts)
-- shell route selection helpers: [workspace-routing.ts](/Users/fanda/Dev/start/src/features/application/workspace-routing.ts)
-- shell scope switcher: [scope-switcher.tsx](/Users/fanda/Dev/start/src/features/application/scope-switcher.tsx)
-- personal home page: [personal-home-page.tsx](/Users/fanda/Dev/start/src/features/application/personal-home-page.tsx)
-- access checks: [workspace-access.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-access.ts)
-- write and lifecycle service: [workspace-general-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-general-service.ts)
-- read and resolution service: [workspace-resolution-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-resolution-service.ts)
-- members service: [workspace-members-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-members-service.ts)
-- invite service: [workspace-invite-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-invite-service.ts)
-- repository layer: [workspace-repository.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-repository.ts)
-- cookie helpers: [workspace-cookie.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-cookie.ts)
-- server actions: [workspace-actions.ts](/Users/fanda/Dev/start/src/features/workspaces/actions/workspace-actions.ts)
-- workspace navigation state: [workspace-navigation-context.tsx](/Users/fanda/Dev/start/src/features/workspaces/workspace-navigation-context.tsx)
-- workspace creation UI: [workspace-create-drawer.tsx](/Users/fanda/Dev/start/src/features/workspaces/workspace-create-drawer.tsx)
+- shell scope helpers: [application-scope.ts](/Users/fanda/Dev/start/apps/web/src/features/application/application-scope.ts)
+- shell route selection helpers: [workspace-selection.ts](/Users/fanda/Dev/start/apps/web/src/features/application/workspace-selection.ts)
+- shell scope switcher: [scope-switcher.tsx](/Users/fanda/Dev/start/apps/web/src/features/application/scope-switcher.tsx)
+- personal home route: [page.tsx](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/(application-shell)/app/page.tsx>)
+- access checks: [workspace-access.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-access.ts)
+- write and lifecycle service: [workspace-general-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-general-service.ts)
+- read and resolution service: [workspace-resolution-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-resolution-service.ts)
+- members service: [workspace-members-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-members-service.ts)
+- invite service: [workspace-invite-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-invite-service.ts)
+- invite recipient service: [workspace-invite-recipient-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-invite-recipient-service.ts)
+- repository layer: [workspace-repository.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-repository.ts)
+- cookie helpers: [workspace-cookie.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-cookie.ts)
+- general workspace actions: [workspace-general-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts)
+- members workspace actions: [workspace-members-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-actions.ts)
+- workspace navigation state: [workspace-navigation-context.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/workspace-navigation-context.tsx)
+- workspace creation UI: [workspace-create-drawer.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/workspace-create-drawer.tsx)
 
 ## Service Split
 
@@ -93,9 +89,9 @@ The split remains direct and domain-based.
 
 `workspace-general-service.ts` owns write and lifecycle operations:
 
-- `createOrganizationWorkspaceForCurrentUser()`
+- `createWorkspaceForCurrentUser()`
 - `updateWorkspaceGeneralForCurrentUser()`
-- `deleteOrganizationWorkspaceForCurrentUser()`
+- `deleteWorkspaceForCurrentUser()`
 
 `workspace-resolution-service.ts` owns read and route-selection operations:
 
@@ -104,19 +100,27 @@ The split remains direct and domain-based.
 - `resolvePostAuthDestination()`
 - `switchWorkspaceForCurrentUser()`
 
+Important rule:
+
+- `workspace-resolution-service.ts` is read-only with respect to cookies
+- it may read preference cookies
+- it must not consume `pending_invite` or repair `active_workspace` during render
+
 `workspace-members-service.ts` owns membership changes.
 
-`workspace-invite-service.ts` owns invite validation, acceptance, creation, resend, revoke, and pending invite consumption.
+`workspace-invite-service.ts` owns invite creation, resend, refresh, and revoke.
+
+`workspace-invite-recipient-service.ts` owns invite validation and acceptance for the invited user.
 
 ## Explicit Integration Points
 
 Workspace-specific code is intentionally localized. The main app core touches it only in a few places:
 
-- app shell scope switcher mount in [application-layout.tsx](/Users/fanda/Dev/start/src/features/application/application-layout.tsx)
-- contextual personal/workspace navigation in [application-menu-tree.tsx](/Users/fanda/Dev/start/src/features/application/application-menu-tree.tsx)
-- personal home collaboration CTA in [personal-home-page.tsx](/Users/fanda/Dev/start/src/features/application/personal-home-page.tsx)
-- post-auth invite handoff in [auth-actions.ts](/Users/fanda/Dev/start/src/features/auth/actions/auth-actions.ts) and [post-auth-redirect.ts](/Users/fanda/Dev/start/src/features/auth/post-auth-redirect.ts)
-- invite routes under [src/app/[locale]/(auth)/(flow)/invite](</Users/fanda/Dev/start/src/app/[locale]/(auth)/(flow)/invite>)
+- app shell scope switcher mount in [application-layout.tsx](/Users/fanda/Dev/start/apps/web/src/features/application/application-layout.tsx)
+- contextual personal/workspace navigation in [application-menu-tree.tsx](/Users/fanda/Dev/start/apps/web/src/features/application/application-menu-tree.tsx)
+- personal home route under [page.tsx](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/(application-shell)/app/page.tsx>)
+- post-auth invite handoff in sign-in navigation and [post-auth route](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
+- invite routes under [apps/web/src/app/[locale]/(auth)/(flow)/invite](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/invite>)
 
 That keeps the removal path bounded without adding a runtime feature system.
 
@@ -134,24 +138,30 @@ Used by:
 - scope switcher workspace preference
 - workspace-aware shell links
 - direct invite acceptance
-- application layout repair of stale workspace preference
+- explicit post-auth and invite route handlers
 
-Important rule:
+Important rules:
 
 - `active_workspace` is a UI preference, not a requirement for auth or app entry
+- stale `active_workspace` is ignored during render; it is not repaired or cleared by render-time code
+- only Server Actions and Route Handlers may set or clear it
 
-It may also be used to resume the user's last valid app context from non-shell surfaces such as
-marketing CTA links.
+It may also be used to resume the user's last valid app context from non-shell surfaces such as marketing CTA links.
 
 ### Pending Invite Cookie
 
 - name: `pending_invite`
-- purpose: store the hashed invite token for a guest who opened a workspace invite before signing in
+- purpose: store the invite token for a guest who opened a workspace invite before signing in
 
 Used by:
 
 - `/invite/[token]/start`
-- post-auth invite handoff
+- `/post-auth`
+
+Important rules:
+
+- `pending_invite` may be read during render if needed
+- it is only cleared in explicit response-writing boundaries when an invite redirect is actually chosen
 
 ## Post-Auth Behavior
 
@@ -159,19 +169,23 @@ The default authenticated destination is `/app`.
 
 Post-auth workspace handling only changes the destination when a pending workspace invite exists.
 
-Outside auth flows, non-shell `Go to app` entry points should restore the last valid app context:
+The invite handoff chain is:
+
+- `/invite/[token]/start`
+- `/sign-in`
+- `/post-auth`
+- `/invite/[token]` or `/w/[workspaceSlug]/overview` or `/app`
+
+Outside auth flows, non-shell `Go to app` entry points restore the last valid app context:
 
 - valid `active_workspace` -> `/w/[workspaceSlug]/overview`
 - missing or stale `active_workspace` -> `/app`
 
 Outcome priority:
 
-1. accepted invite -> workspace overview
-2. already-member invite -> workspace overview
-3. invite email mismatch -> `/invite/result`
-4. invite invalid or expired -> `/invite/result`
-5. pending invite transient failure -> explicit `/invite/result?state=error`
-6. no workspace-specific outcome -> `/app`
+1. pending invite -> `/invite/[token]`
+2. valid active workspace -> `/w/[workspaceSlug]/overview`
+3. no workspace-specific outcome -> `/app`
 
 The app no longer bootstraps a personal workspace as part of the universal auth path.
 
@@ -201,7 +215,7 @@ Behavior inside personal routes:
 Behavior outside workspace routes but still inside the application shell:
 
 - the selected workspace comes from `active_workspace`
-- if the cookie is stale, the shell repairs it to the first available workspace
+- if the cookie is stale, the shell ignores it and falls back read-only
 - switching from `/app` or `/account*` to a workspace navigates to `/w/[workspaceSlug]/overview`
 - selecting `Personal` always navigates to `/app`
 - if no workspace exists, the switcher still renders with explicit empty copy plus a separate create action
@@ -273,9 +287,9 @@ Non-goals for this layer:
 If a fork removes workspaces later, the intended bounded deletion path is:
 
 1. remove workspace PocketBase collections
-2. delete [src/server/workspaces](/Users/fanda/Dev/start/src/server/workspaces)
-3. delete [src/features/workspaces](/Users/fanda/Dev/start/src/features/workspaces)
-4. delete [src/app/[locale]/(application)/w/[workspaceSlug]](</Users/fanda/Dev/start/src/app/[locale]/(application)/w/[workspaceSlug]>)
+2. delete [apps/web/src/server/workspaces](/Users/fanda/Dev/start/apps/web/src/server/workspaces)
+3. delete [apps/web/src/features/workspaces](/Users/fanda/Dev/start/apps/web/src/features/workspaces)
+4. delete [apps/web/src/app/[locale]/(application)/w/[workspaceSlug]](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/w/[workspaceSlug]>)
 5. remove workspace shell integrations from scope switcher, contextual navigation, personal home CTA, and post-auth invite handoff
 
 No runtime feature registry or provider-neutral abstraction is required for that future change.

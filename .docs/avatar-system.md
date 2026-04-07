@@ -25,11 +25,11 @@ Short version:
 
 Main entrypoints:
 
-- client image preparation: [avatar-image-processing.ts](/Users/fanda/Dev/start/src/lib/avatar-image-processing.ts)
-- account avatar UI: [avatar-settings-item.tsx](/Users/fanda/Dev/start/src/features/account/general/avatar-settings-item.tsx)
-- workspace avatar UI: [workspace-avatar-settings-item.tsx](/Users/fanda/Dev/start/src/features/workspaces/settings/general/workspace-avatar-settings-item.tsx)
-- account server handling: [account-service.ts](/Users/fanda/Dev/start/src/server/account/account-service.ts)
-- workspace server handling: [workspace-general-service.ts](/Users/fanda/Dev/start/src/server/workspaces/workspace-general-service.ts)
+- client image preparation: [avatar-image-processing.ts](/Users/fanda/Dev/start/apps/web/src/lib/avatar-image-processing.ts)
+- account avatar UI: [avatar-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/account/profile/avatar-settings-item.tsx)
+- workspace avatar UI: [workspace-avatar-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/general/workspace-avatar-settings-item.tsx)
+- account server handling: [account-profile-service.ts](/Users/fanda/Dev/start/apps/web/src/server/account/account-profile-service.ts)
+- workspace server handling: [workspace-general-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-general-service.ts)
 
 ## Client-Side Image Processing
 
@@ -54,7 +54,7 @@ Even after client-side processing, the server still validates MIME type and fina
 
 ## Fallback Initials And Colors
 
-Fallback initials come from `getUserInitials()` in [app-utils.ts](/Users/fanda/Dev/start/src/lib/app-utils.ts).
+Fallback initials come from `getUserInitials()` in [app-utils.ts](/Users/fanda/Dev/start/apps/web/src/lib/app-utils.ts).
 
 Fallback colors come from `getAvatarColorClass()` in the same file. The helper hashes a stable seed string and selects one class pair from a fixed Tailwind palette.
 

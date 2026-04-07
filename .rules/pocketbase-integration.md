@@ -38,6 +38,14 @@ export async function createServerPB() {
 }
 ```
 
+### Next.js 16 Cookie Boundary
+
+* ✅ **REQUIRED:** Treat render-time server code as cookie-read-only. Pages, layouts, and other Server Components may read `cookies()`, but must never call `.set()` or `.delete()`.
+* ✅ **REQUIRED:** Commit cookie writes only in Server Actions, Route Handlers, or other response-writing contexts.
+* ✅ **REQUIRED:** If a service returns serialized `setCookie[]`, that is response metadata only. A Server Action must commit it explicitly, or a Route Handler must append it to `NextResponse`.
+* ✅ **REQUIRED:** URL-token auth flows, such as email verification completion, should terminate in Route Handlers rather than mutating state in `page.tsx`.
+* ✅ **REQUIRED:** Keep `proxy.ts` optimistic only. Real auth validation and cleanup must happen in per-request server logic near the data.
+
 ## 3. Disabling Next.js Fetch Cache
 The default `fetch` in Next.js can aggressively cache responses, causing PocketBase to return stale data.
 * **Solution:** When fetching data, modify the `fetch` behavior directly in the PocketBase method using the `SendOptions` object (the last argument):

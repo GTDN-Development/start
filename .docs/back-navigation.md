@@ -13,7 +13,7 @@ The goal is a simple shared UI primitive without coupling page code to browser h
 
 File:
 
-- [back-navigation.tsx](/Users/fanda/Dev/start/src/components/ui/back-navigation.tsx)
+- [back-navigation.tsx](/Users/fanda/Dev/start/apps/web/src/components/ui/back-navigation.tsx)
 
 Exports:
 
@@ -42,6 +42,6 @@ Use `useBackNavigation()` or `BackNavigation` when a custom render is needed.
 
 ## Current Consumers
 
-- [support page](/Users/fanda/Dev/start/src/app/[locale]/(marketing)/contact/support/page.tsx)
-- [sales page](/Users/fanda/Dev/start/src/app/[locale]/(marketing)/contact/sales/page.tsx)
-- [blog detail page](/Users/fanda/Dev/start/src/app/[locale]/(marketing)/blog/[slug]/page.tsx)
+- [support page](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/contact/support/page.tsx)
+- [sales page](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/contact/sales/page.tsx)
+- [blog detail page](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/blog/[slug]/page.tsx)

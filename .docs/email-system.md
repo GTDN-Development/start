@@ -16,8 +16,8 @@ The goal is a simple flow without extra framework layers.
 - `nodemailer`: actual SMTP delivery
 - `@react-email/components`: React components for email markup
 - `@react-email/render`: rendering React templates to `html` and `text`
-- `react-email`: local preview via `npm run email:dev`
-- `next-intl`: email copy from `messages/*.json`
+- `react-email`: local preview via `pnpm email:dev`
+- `next-intl`: email copy from `apps/web/messages/*.json`
 
 ## Out Of Scope
 
@@ -25,11 +25,11 @@ This is not a universal email system for everything in the project.
 
 - it only covers emails sent from app code
 - PocketBase system emails are outside this layer
-- if PocketBase sends its own internal email, it does not go through the React Email / Nodemailer flow in `src/server/email`
+- if PocketBase sends its own internal email, it does not go through the React Email / Nodemailer flow in `apps/web/src/server/email`
 
 In practice:
 
-- app-driven emails: go through `src/server/email/*`
+- app-driven emails: go through `apps/web/src/server/email/*`
 - PocketBase-native emails: are separate and need to be handled separately
 
 ## How It Works
@@ -50,15 +50,15 @@ Short version:
 
 ## File Map
 
-- transport: [email-transport.ts](/Users/fanda/Dev/start/src/server/email/email-transport.ts)
-- render helper: [render-email.ts](/Users/fanda/Dev/start/src/server/email/render-email.ts)
-- shared messages helper: [email-messages.ts](/Users/fanda/Dev/start/src/server/email/email-messages.ts)
-- shared theme: [email-theme.ts](/Users/fanda/Dev/start/src/server/email/email-theme.ts)
-- shared layout: [email-layout.tsx](/Users/fanda/Dev/start/src/server/email/email-layout.tsx)
-- shared form styles: [email-styles.ts](/Users/fanda/Dev/start/src/server/email/email-styles.ts)
-- template and builder files: `/src/server/email/templates/*`
-- email image assets: `/public/email/*`
-- translations: `messages/en.json` and `messages/cs.json` under `emails`
+- transport: [email-transport.ts](/Users/fanda/Dev/start/apps/web/src/server/email/email-transport.ts)
+- render helper: [render-email.ts](/Users/fanda/Dev/start/apps/web/src/server/email/render-email.ts)
+- shared messages helper: [email-messages.ts](/Users/fanda/Dev/start/apps/web/src/server/email/email-messages.ts)
+- shared theme: [email-theme.ts](/Users/fanda/Dev/start/apps/web/src/server/email/email-theme.ts)
+- shared layout: [email-layout.tsx](/Users/fanda/Dev/start/apps/web/src/server/email/email-layout.tsx)
+- shared form styles: [email-styles.ts](/Users/fanda/Dev/start/apps/web/src/server/email/email-styles.ts)
+- template and builder files: `/apps/web/src/server/email/templates/*`
+- email image assets: `/apps/web/public/email/*`
+- translations: `apps/web/messages/en.json` and `apps/web/messages/cs.json` under `emails`
 
 ## Template Vs Builder
 
@@ -84,11 +84,11 @@ Rule of thumb:
 
 Typical flow:
 
-1. `src/server/email/templates/my-email.tsx`
-2. `src/server/email/templates/my-email.builder.ts`
+1. `apps/web/src/server/email/templates/my-email.tsx`
+2. `apps/web/src/server/email/templates/my-email.builder.ts`
 3. `getEmailMessages()` inside the builder
 4. `formatEmailTimestamp()` when date/time formatting is needed
-5. copy in `messages/en.json` and `messages/cs.json` under `emails`
+5. copy in `apps/web/messages/en.json` and `apps/web/messages/cs.json` under `emails`
 6. caller flow using this pattern:
 
 ```ts
@@ -104,9 +104,9 @@ For internal inbox emails, `sendFormEmail()` is usually the better fit than `sen
 
 Global changes:
 
-- wrapper, footer, base layout: [email-layout.tsx](/Users/fanda/Dev/start/src/server/email/email-layout.tsx)
-- colors, spacing tokens, brand values: [email-theme.ts](/Users/fanda/Dev/start/src/server/email/email-theme.ts)
-- shared form-email styles: [email-styles.ts](/Users/fanda/Dev/start/src/server/email/email-styles.ts)
+- wrapper, footer, base layout: [email-layout.tsx](/Users/fanda/Dev/start/apps/web/src/server/email/email-layout.tsx)
+- colors, spacing tokens, brand values: [email-theme.ts](/Users/fanda/Dev/start/apps/web/src/server/email/email-theme.ts)
+- shared form-email styles: [email-styles.ts](/Users/fanda/Dev/start/apps/web/src/server/email/email-styles.ts)
 
 Local changes:
 
@@ -116,11 +116,11 @@ Local changes:
 
 Current asset:
 
-- [start-logo-email.png](/Users/fanda/Dev/start/public/email/start-logo-email.png)
+- [start-logo-email.png](/Users/fanda/Dev/start/apps/web/public/email/start-logo-email.png)
 
 Current convention:
 
-- email-specific hosted images live in `/public/email`
+- email-specific hosted images live in `/apps/web/public/email`
 - logo asset is a `PNG`
 - current size is `300 x 80 px`
 - a solid white background is preferred over transparency for email-client safety
@@ -128,7 +128,7 @@ Current convention:
 Why `public`:
 
 - email clients need a stable external URL
-- `/public/email/...` maps cleanly to `/email/...`
+- `/apps/web/public/email/...` maps cleanly to `/email/...`
 - this is more predictable than relying on Next build asset paths for email-hosted images
 
 Reason:
@@ -139,8 +139,8 @@ Reason:
 
 ## Changing Copy
 
-- copy lives in `messages/en.json`
-- copy lives in `messages/cs.json`
+- copy lives in `apps/web/messages/en.json`
+- copy lives in `apps/web/messages/cs.json`
 - email keys stay under `emails`
 
 There should not be a second email i18n system outside `next-intl`.
@@ -169,8 +169,8 @@ Examples:
 
 ## Preview And Local Development
 
-- main preview workflow: `npm run email:dev`
-- preview reads `src/server/email/templates`
+- main preview workflow: `pnpm email:dev`
+- preview reads `apps/web/src/server/email/templates`
 - templates need `export default`
 - preview data lives in `PreviewProps` inside the template file
 
@@ -180,7 +180,7 @@ This is the main workflow for visual and copy iteration.
 
 When the issue is visual:
 
-- `npm run email:dev` is usually the first step
+- `pnpm email:dev` is usually the first step
 - `PreviewProps` is the fastest local input to adjust
 - the problem is usually in the `.tsx` template or shared layout/styles
 
@@ -188,7 +188,7 @@ When the issue is data-related:
 
 - the builder is usually the main place to inspect
 - builder input is the first thing to verify
-- translations in `messages/*.json` are the second common place to check
+- translations in `apps/web/messages/*.json` are the second common place to check
 
 When plain text output looks wrong:
 
@@ -214,7 +214,7 @@ Subject change:
 
 Copy change:
 
-- handled in `messages/en.json` and `messages/cs.json`
+- handled in `apps/web/messages/en.json` and `apps/web/messages/cs.json`
 
 CTA URL change:
 
@@ -238,6 +238,6 @@ Attachment support:
 
 ## Checklist After Changes
 
-- `npm run lint`
-- `npx tsc --noEmit`
-- if the change is visual, also check `npm run email:dev`
+- `pnpm lint`
+- `pnpm typecheck`
+- if the change is visual, also check `pnpm email:dev`
