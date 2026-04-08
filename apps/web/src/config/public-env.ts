@@ -1,11 +1,16 @@
 type PublicEnvName = "NEXT_PUBLIC_APP_URL" | "NEXT_PUBLIC_PB_URL";
 type PublicEnv = Record<string, string | undefined>;
 
-export function getPublicAppUrl(env: PublicEnv = process.env): string {
+const runtimePublicEnv: PublicEnv = {
+  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+  NEXT_PUBLIC_PB_URL: process.env.NEXT_PUBLIC_PB_URL,
+};
+
+export function getPublicAppUrl(env: PublicEnv = runtimePublicEnv): string {
   return getRequiredPublicUrl("NEXT_PUBLIC_APP_URL", env);
 }
 
-export function getPocketBaseUrl(env: PublicEnv = process.env): string {
+export function getPocketBaseUrl(env: PublicEnv = runtimePublicEnv): string {
   return getRequiredPublicUrl("NEXT_PUBLIC_PB_URL", env);
 }
 
