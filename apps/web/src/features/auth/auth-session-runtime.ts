@@ -1,8 +1,6 @@
 import type { AuthSession, AuthSessionSnapshot, SessionResponse } from "@/features/auth/auth-types";
 
 const SESSION_ENDPOINT_PATH = "/api/auth/session";
-
-/** Min interval between refetches from cross-tab sync, tab focus, or online recovery. */
 const REFETCH_RATE_LIMIT_MS = 5_000;
 
 const sessionSubscribers = new Set<() => void>();
@@ -14,6 +12,13 @@ let sessionState: AuthSessionSnapshot = {
 
 let pendingSessionRequest: Promise<void> | null = null;
 let lastSessionRequestAt = 0;
+
+const sessionSyncController = createSessionSyncController({
+  getSessionSnapshot,
+  isSessionRefetchAllowed,
+  refreshSession,
+  setSessionState,
+});
 
 export function subscribeToSessionStore(listener: () => void) {
   sessionSubscribers.add(listener);
@@ -67,6 +72,139 @@ export async function refreshSession(): Promise<SessionResponse> {
   return createSessionResponseFromSnapshot(getSessionSnapshot());
 }
 
+export function createSessionSyncController(input: {
+  getSessionSnapshot: () => AuthSessionSnapshot;
+  isSessionRefetchAllowed: () => boolean;
+  refreshSession: () => Promise<SessionResponse>;
+  setSessionState: (nextState: AuthSessionSnapshot) => void;
+}) {
+  let syncChannel: BroadcastChannel | null = null;
+  let syncInitialized = false;
+
+  return {
+    ensureSessionSyncInitialized() {
+      if (syncInitialized || typeof window === "undefined") {
+        return;
+      }
+
+      syncInitialized = true;
+
+      initSessionSync();
+      initVisibilityRefresh();
+      initWindowFocusRefresh();
+      initOnlineRecovery();
+    },
+    broadcastSessionChanged() {
+      syncChannel?.postMessage("session-changed" satisfies SyncSignal);
+    },
+    broadcastSignedOut() {
+      syncChannel?.postMessage("signed-out" satisfies SyncSignal);
+    },
+  };
+
+  function initSessionSync() {
+    if (typeof BroadcastChannel === "undefined") {
+      return;
+    }
+
+    syncChannel?.close();
+    syncChannel = new BroadcastChannel("auth-sync");
+    syncChannel.onmessage = handleSyncMessage;
+  }
+
+  function handleSyncMessage(event: MessageEvent) {
+    const signal = event.data;
+
+    if (!isSyncSignal(signal)) {
+      return;
+    }
+
+    if (signal === "signed-out") {
+      input.setSessionState({
+        status: "unauthenticated",
+        session: null,
+      });
+      return;
+    }
+
+    if (!isOnline() || !input.isSessionRefetchAllowed()) {
+      return;
+    }
+
+    void input.refreshSession();
+  }
+
+  function initVisibilityRefresh() {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  }
+
+  function handleVisibilityChange() {
+    if (document.visibilityState !== "visible") {
+      return;
+    }
+
+    if (input.getSessionSnapshot().status !== "authenticated") {
+      return;
+    }
+
+    if (!isOnline() || !input.isSessionRefetchAllowed()) {
+      return;
+    }
+
+    void input.refreshSession();
+  }
+
+  function initWindowFocusRefresh() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.addEventListener("focus", handleWindowFocus);
+  }
+
+  function handleWindowFocus() {
+    if (input.getSessionSnapshot().status !== "authenticated") {
+      return;
+    }
+
+    if (!isOnline() || !input.isSessionRefetchAllowed()) {
+      return;
+    }
+
+    void input.refreshSession();
+  }
+
+  function initOnlineRecovery() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.addEventListener("online", handleOnlineRecovery);
+  }
+
+  function handleOnlineRecovery() {
+    if (input.getSessionSnapshot().status !== "authenticated") {
+      return;
+    }
+
+    if (!input.isSessionRefetchAllowed()) {
+      return;
+    }
+
+    void input.refreshSession();
+  }
+}
+
+export const ensureSessionSyncInitialized = sessionSyncController.ensureSessionSyncInitialized;
+export const broadcastSessionChanged = sessionSyncController.broadcastSessionChanged;
+export const broadcastSignedOut = sessionSyncController.broadcastSignedOut;
+
+type SyncSignal = "session-changed" | "signed-out";
+
 async function executeSessionRefresh() {
   lastSessionRequestAt = Date.now();
 
@@ -88,11 +226,9 @@ async function executeSessionRefresh() {
     return;
   }
 
-  const session = response.data.session;
-
   setSessionState({
-    status: session ? "authenticated" : "unauthenticated",
-    session,
+    status: response.data.session ? "authenticated" : "unauthenticated",
+    session: response.data.session,
   });
 }
 
@@ -102,7 +238,6 @@ async function requestSessionEndpoint(): Promise<SessionResponse> {
       method: "GET",
       cache: "no-store",
     });
-
     const rawPayload = (await response.json()) as unknown;
 
     if (isSessionResponse(rawPayload)) {
@@ -176,4 +311,12 @@ function isSessionResponse(value: unknown): value is SessionResponse {
   }
 
   return false;
+}
+
+function isSyncSignal(value: unknown): value is SyncSignal {
+  return value === "session-changed" || value === "signed-out";
+}
+
+function isOnline() {
+  return typeof navigator === "undefined" || navigator.onLine;
 }

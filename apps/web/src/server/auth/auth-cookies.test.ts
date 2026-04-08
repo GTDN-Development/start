@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { applyServerActionAuthCookies, appendAuthCookiesToResponse } from "./auth-cookies";
+import { applyServerActionAuthCookies } from "./auth-cookies";
 
 type CookieStore = Awaited<ReturnType<typeof cookies>>;
 const setCookie = vi.fn();
@@ -39,16 +38,6 @@ describe("auth-cookies", function describeAuthCookies() {
       expires: new Date(0),
       httpOnly: true,
     });
-  });
-
-  it("appends serialized auth cookies to route handler responses", function testRouteHandlerWriter() {
-    const response = NextResponse.redirect(new URL("https://example.com/cs/sign-in"), {
-      status: 303,
-    });
-
-    appendAuthCookiesToResponse(response, ["pb_auth=token; Path=/; HttpOnly; SameSite=Lax"]);
-
-    expect(response.headers.get("set-cookie")).toContain("pb_auth=token");
   });
 });
 

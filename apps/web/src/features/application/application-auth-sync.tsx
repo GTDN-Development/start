@@ -4,10 +4,10 @@ import { useRef } from "react";
 import { useLocale } from "next-intl";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { useSession } from "@/features/auth/auth-client";
-import { getSessionSnapshot, subscribeToSessionStore } from "@/features/auth/auth-client-store";
+import type { AuthSessionSnapshot } from "@/features/auth/auth-types";
+import { getSessionSnapshot, subscribeToSessionStore } from "@/features/auth/auth-session-runtime";
 import { useMountEffect } from "@/hooks/use-mount-effect";
 import { getPathname } from "@/i18n/navigation";
-import type { AuthSessionSnapshot } from "@/features/auth/auth-types";
 
 export function ApplicationAuthSync() {
   const locale = useLocale();
@@ -15,7 +15,7 @@ export function ApplicationAuthSync() {
 
   useSession();
 
-  useMountEffect(function mountApplicationAuthSync() {
+  useMountEffect(function mountApplicationAuthRedirect() {
     function handleSessionSnapshot(snapshot: AuthSessionSnapshot) {
       if (snapshot.status === "authenticated") {
         hasRedirectedRef.current = false;

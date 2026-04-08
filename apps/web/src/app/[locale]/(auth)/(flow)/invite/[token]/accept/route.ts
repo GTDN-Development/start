@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getInviteHref, getInviteStartHref, getWorkspaceOverviewHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
 import { setActiveWorkspaceSlugResponseCookie } from "@/server/workspaces/workspace-cookie";
 import {
@@ -50,9 +49,8 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
     );
   }
 
-  const response = redirectWithAuthCookies(
+  const response = createRedirectResponse(
     request,
-    sessionResponse.setCookie,
     getPathname({
       href: getWorkspaceOverviewHref(inspectResponse.data.result.workspace.slug),
       locale: appLocale,
@@ -60,6 +58,7 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
   );
 
   setActiveWorkspaceSlugResponseCookie(response, inspectResponse.data.result.workspace.slug);
+  appendAuthSetCookieHeaders(response, sessionResponse.setCookie);
 
   return response;
 }
@@ -102,9 +101,8 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
     acceptResponse.data.result.state === "accepted" ||
     acceptResponse.data.result.state === "already_member"
   ) {
-    const response = redirectWithAuthCookies(
+    const response = createRedirectResponse(
       request,
-      sessionResponse.setCookie,
       getPathname({
         href: getWorkspaceOverviewHref(acceptResponse.data.result.workspace.slug),
         locale: appLocale,
@@ -112,6 +110,7 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
     );
 
     setActiveWorkspaceSlugResponseCookie(response, acceptResponse.data.result.workspace.slug);
+    appendAuthSetCookieHeaders(response, sessionResponse.setCookie);
 
     return response;
   }
@@ -131,9 +130,24 @@ function redirectWithAuthCookies(
   setCookie: string[] | undefined,
   pathname: string
 ): NextResponse {
-  const response = NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
+  const response = createRedirectResponse(request, pathname);
+  appendAuthSetCookieHeaders(response, setCookie);
+
+  return response;
+}
+
+function createRedirectResponse(request: NextRequest, pathname: string): NextResponse {
+  return NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
     status: 303,
   });
+}
 
-  return appendAuthCookiesToResponse(response, setCookie);
+function appendAuthSetCookieHeaders(response: NextResponse, setCookie: string[] | undefined): void {
+  if (!setCookie?.length) {
+    return;
+  }
+
+  for (const cookieValue of setCookie) {
+    response.headers.append("set-cookie", cookieValue);
+  }
 }

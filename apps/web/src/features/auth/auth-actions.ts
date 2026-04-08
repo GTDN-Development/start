@@ -16,7 +16,7 @@ import type {
   RequestEmailVerificationInput,
   RequestPasswordResetInput,
   SignUpActionInput,
-} from "@/features/auth/auth-action-types";
+} from "@/features/auth/auth-schemas";
 import {
   signInInputSchema,
   signUpInputSchema,
