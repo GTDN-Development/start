@@ -89,6 +89,10 @@ For dev/test mail flows, prefer the repository-managed Mailpit apply script over
 
 `Root Directory = apps/pocketbase` is required in Railway for this monorepo layout. Without it, Railway will build from the repository root instead of the PocketBase app and the deployment will fail or build the wrong service.
 
+Environment examples:
+
+- `.env.example` as the shared base for both `dev` and `prod`
+
 ## Dev/Test Mailpit Setup
 
 Use `pnpm pocketbase:mailpit:apply` from the repository root to apply the dev/test mail baseline to PocketBase.
@@ -103,12 +107,16 @@ The script sets:
 
 Required envs:
 
-- `PB_URL` or `NEXT_PUBLIC_PB_URL`
+- `NEXT_PUBLIC_PB_URL`
 - `PB_SUPERUSER_EMAIL`
 - `PB_SUPERUSER_PASSWORD`
-- `PB_APP_URL`
-- `PB_MAIL_FROM_NAME`
-- `PB_MAIL_FROM_ADDRESS`
+- `NEXT_PUBLIC_APP_URL`
+- `MAIL_FROM_NAME`
+- `MAIL_FROM_ADDRESS`
+
+URL convention:
+
+- use base URLs without a trailing slash
 
 Safety rules:
 

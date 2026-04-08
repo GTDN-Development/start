@@ -58,6 +58,15 @@ These commands target the web application by default. PocketBase-specific work i
 - Playwright reads inbox content through the official Mailpit API and rendered message endpoints
 - production email delivery is intentionally out of scope for this setup
 
+## Environment Contract
+
+- public values shared by client and server use one `NEXT_PUBLIC_*` variable
+- `NEXT_PUBLIC_APP_URL` is the canonical public app URL
+- `NEXT_PUBLIC_PB_URL` is the canonical PocketBase base URL
+- base URLs are written without a trailing slash
+- sender identity uses `MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS`
+- normal local dev stays SMTP-first; E2E/dev-test switches web mail to Mailpit with `MAIL_TRANSPORT="mailpit-api"`
+
 ## Documentation
 
 - web app guide: [apps/web/README.md](/Users/fanda/Dev/start/apps/web/README.md)
@@ -65,3 +74,8 @@ These commands target the web application by default. PocketBase-specific work i
 - Mailpit service guide: [apps/mailpit/README.md](/Users/fanda/Dev/start/apps/mailpit/README.md)
 - project goal: [.rules/start-goal.md](/Users/fanda/Dev/start/.rules/start-goal.md)
 - architecture principles: [.rules/kiss-project-architecture-principles.md](/Users/fanda/Dev/start/.rules/kiss-project-architecture-principles.md)
+
+Environment examples live inside the owning app directories:
+
+- `apps/web/.env.local.example`, `apps/web/.env.prod.example`, `apps/web/.env.test.example`
+- `apps/pocketbase/.env.example`

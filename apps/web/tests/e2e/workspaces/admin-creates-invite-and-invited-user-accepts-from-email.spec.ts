@@ -128,7 +128,7 @@ function extractWorkspaceInvitePathFromHtml(html: string): string {
 
 function tryParseInviteUrl(value: string): URL | null {
   try {
-    return new URL(value, "https://start.gtdn.online");
+    return new URL(value, process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3100");
   } catch {
     return null;
   }

@@ -1,4 +1,5 @@
 import PocketBase, { cookieSerialize, type SendOptions, type SerializeOptions } from "pocketbase";
+import { getPocketBaseUrl as getConfiguredPocketBaseUrl } from "@/config/public-env";
 import { cookies } from "next/headers";
 import { authConfig } from "@/config/auth";
 import { getBaseServerCookieOptions } from "@/server/cookies";
@@ -135,11 +136,5 @@ function getBaseCookieOptions(): SerializeOptions {
 }
 
 function getPocketBaseUrl() {
-  const pocketBaseUrl = process.env.NEXT_PUBLIC_PB_URL;
-
-  if (!pocketBaseUrl) {
-    throw new Error("Missing NEXT_PUBLIC_PB_URL environment variable.");
-  }
-
-  return pocketBaseUrl;
+  return getConfiguredPocketBaseUrl();
 }

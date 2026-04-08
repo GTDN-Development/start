@@ -5,7 +5,7 @@ import process from "node:process";
 import PocketBase from "pocketbase";
 
 const DEFAULT_OUTPUT_PATH = "src/types/pocketbase.ts";
-const ENV_FILES = [".env.example", ".env", ".env.local"];
+const ENV_FILES = [".env.local.example", ".env", ".env.local"];
 const BASE_RECORD_FIELDS = new Set(["id", "collectionId", "collectionName", "created", "updated"]);
 const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
@@ -105,12 +105,15 @@ function parseEnvValue(rawValue) {
     return "";
   }
 
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-  ) {
+  if (value.startsWith('"') || value.startsWith("'")) {
     const quote = value[0];
-    const innerValue = value.slice(1, -1);
+    const closingQuoteIndex = findClosingQuoteIndex(value, quote);
+
+    if (closingQuoteIndex === -1) {
+      throw new Error(`Invalid quoted env value: ${rawValue}`);
+    }
+
+    const innerValue = value.slice(1, closingQuoteIndex);
 
     if (quote === '"') {
       return innerValue
@@ -125,6 +128,26 @@ function parseEnvValue(rawValue) {
   }
 
   return value.replace(/\s+#.*$/, "").trim();
+}
+
+function findClosingQuoteIndex(value, quote) {
+  for (let index = 1; index < value.length; index += 1) {
+    if (value[index] !== quote) {
+      continue;
+    }
+
+    let backslashCount = 0;
+
+    for (let escapeIndex = index - 1; escapeIndex >= 0 && value[escapeIndex] === "\\"; escapeIndex -= 1) {
+      backslashCount += 1;
+    }
+
+    if (backslashCount % 2 === 0) {
+      return index;
+    }
+  }
+
+  return -1;
 }
 
 function getRequiredEnv(names) {

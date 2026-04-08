@@ -1,7 +1,6 @@
 import { cacheLife } from "next/cache";
+import { getPocketBaseUrl as getConfiguredPocketBaseUrl } from "@/config/public-env";
 import type { PostsRecord } from "@/types/pocketbase";
-
-const PB_URL = process.env.NEXT_PUBLIC_PB_URL;
 
 export type BlogPost = {
   id: string;
@@ -27,11 +26,7 @@ type PBListResponse<T> = {
 };
 
 function getPocketBaseUrl(): string {
-  if (!PB_URL) {
-    throw new Error("Missing NEXT_PUBLIC_PB_URL environment variable.");
-  }
-
-  return PB_URL.replace(/\/$/, "");
+  return getConfiguredPocketBaseUrl();
 }
 
 function getFileUrl(collectionId: string, recordId: string, filename: string): string {

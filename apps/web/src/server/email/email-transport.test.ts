@@ -117,6 +117,7 @@ describe("email-transport", function describeEmailTransport() {
   it("uses SMTP transport by default", async function testSmtpTransport() {
     sendMailMock.mockResolvedValue(undefined);
 
+    delete process.env.MAIL_TRANSPORT;
     process.env.MAIL_HOST = "smtp.example.com";
     process.env.MAIL_PORT = "2525";
     process.env.EMAIL_SECURE = "false";

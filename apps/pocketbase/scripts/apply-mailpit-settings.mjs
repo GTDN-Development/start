@@ -29,26 +29,27 @@ export async function applyMailpitSettings(env = process.env) {
 }
 
 export function resolveMailpitApplyConfig(env = process.env) {
-  const pbUrl = env.PB_URL?.trim() || env.NEXT_PUBLIC_PB_URL?.trim() || "";
+  const pbUrl = env.NEXT_PUBLIC_PB_URL?.trim() || "";
   const pbSuperuserEmail = env.PB_SUPERUSER_EMAIL?.trim() || "";
   const pbSuperuserPassword = env.PB_SUPERUSER_PASSWORD?.trim() || "";
-  const pbAppUrl = env.PB_APP_URL?.trim() || "http://localhost:3100";
-  const senderName = env.PB_MAIL_FROM_NAME?.trim() || env.MAIL_FROM_NAME?.trim() || "";
-  const senderAddress =
-    env.PB_MAIL_FROM_ADDRESS?.trim() || env.MAIL_FROM_ADDRESS?.trim() || "";
+  const pbAppUrl = env.NEXT_PUBLIC_APP_URL?.trim() || "";
+  const senderName = env.MAIL_FROM_NAME?.trim() || "";
+  const senderAddress = env.MAIL_FROM_ADDRESS?.trim() || "";
 
   if (!pbUrl) {
-    throw new Error("PB_URL or NEXT_PUBLIC_PB_URL is required.");
+    throw new Error("NEXT_PUBLIC_PB_URL is required.");
   }
 
   if (!pbSuperuserEmail || !pbSuperuserPassword) {
     throw new Error("PB_SUPERUSER_EMAIL and PB_SUPERUSER_PASSWORD are required.");
   }
 
+  if (!pbAppUrl) {
+    throw new Error("NEXT_PUBLIC_APP_URL is required.");
+  }
+
   if (!senderName || !senderAddress) {
-    throw new Error(
-      "PB_MAIL_FROM_NAME/PB_MAIL_FROM_ADDRESS or MAIL_FROM_NAME/MAIL_FROM_ADDRESS are required."
-    );
+    throw new Error("MAIL_FROM_NAME and MAIL_FROM_ADDRESS are required.");
   }
 
   return {

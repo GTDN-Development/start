@@ -32,7 +32,22 @@ You can run these commands from `apps/web` or from the repository root.
 
 ## Env
 
-Use `.env.example` as the template.
+Use `.env.local.example` as the quickest local template.
+
+Explicit examples:
+
+- `.env.local.example` for local development on your machine
+- use the same `.env.local.example` shape for the shared `dev` environment / preview deployment values
+- `.env.prod.example` for production deployment values
+- `.env.test.example` for Playwright and Mailpit-backed test runs
+
+Canonical public/runtime envs:
+
+- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_PB_URL`
+- `MAIL_FROM_NAME`
+- `MAIL_FROM_ADDRESS`
+- base URLs should be written without a trailing slash
 
 PocketBase typegen requires:
 
@@ -56,6 +71,11 @@ Local testing uses `.env.test`.
 - `pnpm test:e2e` first applies the PocketBase Mailpit dev/test settings, then builds the app with test env and runs Playwright against `next start` on `http://localhost:3100`
 - `pnpm test:e2e:ui` is the local Playwright debugging variant with the same Mailpit/PocketBase prep step
 - auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias` recipients from it
+
+Local email defaults:
+
+- normal local dev stays on SMTP unless `MAIL_TRANSPORT` is explicitly changed
+- E2E/test uses `MAIL_TRANSPORT="mailpit-api"`
 
 Mailpit contract for dev/test:
 

@@ -8,23 +8,24 @@ import {
   resolveMailpitApplyConfig,
 } from "./apply-mailpit-settings.mjs";
 
-test("resolveMailpitApplyConfig prefers PB_URL over NEXT_PUBLIC_PB_URL", function testResolve() {
+test("resolveMailpitApplyConfig uses the canonical public env contract", function testResolve() {
   const config = resolveMailpitApplyConfig({
-    PB_URL: "https://pb-dev.example.com",
-    NEXT_PUBLIC_PB_URL: "https://ignored.example.com",
+    NEXT_PUBLIC_PB_URL: "https://pb-dev.example.com",
+    NEXT_PUBLIC_APP_URL: "http://localhost:3100",
     PB_SUPERUSER_EMAIL: "admin@example.com",
     PB_SUPERUSER_PASSWORD: "secret",
-    PB_APP_URL: "http://localhost:3100",
-    PB_MAIL_FROM_NAME: "Support",
-    PB_MAIL_FROM_ADDRESS: "support@example.com",
+    MAIL_FROM_NAME: "Support",
+    MAIL_FROM_ADDRESS: "support@example.com",
   });
 
   assert.equal(config.pbUrl, "https://pb-dev.example.com");
+  assert.equal(config.pbAppUrl, "http://localhost:3100");
 });
 
-test("resolveMailpitApplyConfig falls back to shared mail sender values", function testSenderFallback() {
+test("resolveMailpitApplyConfig requires shared mail sender values", function testSenderContract() {
   const config = resolveMailpitApplyConfig({
     NEXT_PUBLIC_PB_URL: "https://pb-dev.example.com",
+    NEXT_PUBLIC_APP_URL: "http://localhost:3100",
     PB_SUPERUSER_EMAIL: "admin@example.com",
     PB_SUPERUSER_PASSWORD: "secret",
     MAIL_FROM_NAME: "Start App (Test)",
@@ -34,6 +35,18 @@ test("resolveMailpitApplyConfig falls back to shared mail sender values", functi
   assert.equal(config.pbAppUrl, "http://localhost:3100");
   assert.equal(config.senderName, "Start App (Test)");
   assert.equal(config.senderAddress, "support@example.com");
+});
+
+test("resolveMailpitApplyConfig requires NEXT_PUBLIC_APP_URL", function testMissingAppUrl() {
+  assert.throws(function expectThrow() {
+    resolveMailpitApplyConfig({
+      NEXT_PUBLIC_PB_URL: "https://pb-dev.example.com",
+      PB_SUPERUSER_EMAIL: "admin@example.com",
+      PB_SUPERUSER_PASSWORD: "secret",
+      MAIL_FROM_NAME: "Support",
+      MAIL_FROM_ADDRESS: "support@example.com",
+    });
+  }, /NEXT_PUBLIC_APP_URL is required\./);
 });
 
 test("assertSafePocketBaseTarget rejects production-like hosts by default", function testGuard() {

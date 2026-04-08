@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
 import PocketBase, { ClientResponseError, type SendOptions } from "pocketbase";
+import { getPocketBaseUrl as getConfiguredPocketBaseUrl } from "@/config/public-env";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
   COOKIE_CONSENT_VERSION,
@@ -120,11 +121,5 @@ function withNoStoreFetch(url: string, options: SendOptions) {
 }
 
 function getPocketBaseUrl(): string {
-  const pocketBaseUrl = process.env.NEXT_PUBLIC_PB_URL;
-
-  if (!pocketBaseUrl) {
-    throw new Error("Missing NEXT_PUBLIC_PB_URL environment variable.");
-  }
-
-  return pocketBaseUrl;
+  return getConfiguredPocketBaseUrl();
 }
