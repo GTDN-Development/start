@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { getPocketBaseUrl as getConfiguredPocketBaseUrl } from "@/config/public-env";
+import { getPocketBaseUrl } from "@/config/public-env";
 import type { PostsRecord } from "@/types/pocketbase";
 
 export type BlogPost = {
@@ -24,10 +24,6 @@ type PBListResponse<T> = {
   totalItems: number;
   totalPages: number;
 };
-
-function getPocketBaseUrl(): string {
-  return getConfiguredPocketBaseUrl();
-}
 
 function getFileUrl(collectionId: string, recordId: string, filename: string): string {
   return `${getPocketBaseUrl()}/api/files/${collectionId}/${recordId}/${filename}`;

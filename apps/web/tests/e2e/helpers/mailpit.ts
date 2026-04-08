@@ -274,7 +274,7 @@ function truncateErrorBody(value: string): string {
   return `${trimmedValue.slice(0, 297)}...`;
 }
 
-function decodeHtmlAttribute(value: string): string {
+export function decodeHtmlAttribute(value: string): string {
   return value.replaceAll("&amp;", "&").replaceAll("&quot;", '"').replaceAll("&#39;", "'").trim();
 }
 

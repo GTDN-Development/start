@@ -1,7 +1,11 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import type PocketBase from "pocketbase";
 import type { WorkspaceMembersRecord } from "../../../src/types/pocketbase";
-import { getMailpitMessageHtml, waitForMailpitMessage } from "../helpers/mailpit";
+import {
+  decodeHtmlAttribute,
+  getMailpitMessageHtml,
+  waitForMailpitMessage,
+} from "../helpers/mailpit";
 import { DEFAULT_AUTH_TEST_PASSWORD, expectSignInPage, signInUser } from "../helpers/auth";
 import {
   createPocketBaseAdminClient,
@@ -132,10 +136,6 @@ function tryParseInviteUrl(value: string): URL | null {
   } catch {
     return null;
   }
-}
-
-function decodeHtmlAttribute(value: string): string {
-  return value.replaceAll("&amp;", "&").replaceAll("&quot;", '"').replaceAll("&#39;", "'").trim();
 }
 
 async function copySessionCookiesToLocalhost(page: Page): Promise<void> {

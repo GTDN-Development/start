@@ -12,7 +12,7 @@ import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/c
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { resetPasswordWithToken } from "@/features/auth/auth-client";
-import { createAuthPasswordSchema } from "@/features/auth/auth-schemas";
+import { authPasswordSchema } from "@/lib/schemas";
 import { AlertCircleIcon, KeyRoundIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,10 +37,10 @@ export function ResetPasswordForm({
 
   const resetPasswordFormSchema = z
     .object({
-      password: createAuthPasswordSchema({
+      password: authPasswordSchema({
         min: t("validation.password"),
       }),
-      confirmPassword: createAuthPasswordSchema({
+      confirmPassword: authPasswordSchema({
         min: t("validation.password"),
       }),
     })

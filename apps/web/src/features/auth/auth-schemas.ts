@@ -35,25 +35,17 @@ export const signUpInputSchema = createSignUpInputSchema();
 export type SignInInput = z.infer<typeof signInInputSchema>;
 export type SignUpInput = z.infer<typeof signUpInputSchema>;
 
-export function createAuthPasswordSchema(messages?: AuthPasswordValidationMessages) {
-  return authPasswordSchema(messages);
-}
-
 export function createSignInFormSchema(messages: SignInValidationMessages) {
   return z.object({
     email: z.email({
       message: messages.email,
     }),
-    password: createAuthPasswordSchema({
+    password: authPasswordSchema({
       min: messages.passwordMin,
       max: messages.passwordMax,
     }),
     rememberMe: z.boolean(),
   });
-}
-
-export function createSignUpFormSchema(messages: SignUpValidationMessages) {
-  return createSignUpFormInputSchema(messages);
 }
 
 function createSignUpInputSchema() {
@@ -71,7 +63,7 @@ function createSignUpInputSchema() {
   });
 }
 
-function createSignUpFormInputSchema(messages: SignUpValidationMessages) {
+export function createSignUpFormSchema(messages: SignUpValidationMessages) {
   return z.object({
     firstName: z
       .string()
@@ -92,7 +84,7 @@ function createSignUpFormInputSchema(messages: SignUpValidationMessages) {
     email: z.email({
       message: messages.email,
     }),
-    password: createAuthPasswordSchema({
+    password: authPasswordSchema({
       min: messages.passwordMin,
       max: messages.passwordMax,
     }),

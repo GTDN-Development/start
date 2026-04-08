@@ -56,16 +56,12 @@ export function setPendingInviteTokenResponseCookie(
   response.cookies.set(createPendingInviteTokenCookie(inviteToken));
 }
 
-function getBaseCookieOptions() {
-  return getBaseServerCookieOptions();
-}
-
 function createActiveWorkspaceSlugCookie(workspaceSlug: string) {
   return {
     name: ACTIVE_WORKSPACE_COOKIE_NAME,
     value: workspaceSlug,
     maxAge: ACTIVE_WORKSPACE_COOKIE_MAX_AGE_SECONDS,
-    ...getBaseCookieOptions(),
+    ...getBaseServerCookieOptions(),
   };
 }
 
@@ -74,7 +70,7 @@ function createPendingInviteTokenCookie(inviteToken: string) {
     name: PENDING_INVITE_COOKIE_NAME,
     value: inviteToken,
     maxAge: PENDING_INVITE_COOKIE_MAX_AGE_SECONDS,
-    ...getBaseCookieOptions(),
+    ...getBaseServerCookieOptions(),
   };
 }
 
@@ -84,7 +80,7 @@ function createClearedCookie(name: string) {
     value: "",
     maxAge: 0,
     expires: new Date(0),
-    ...getBaseCookieOptions(),
+    ...getBaseServerCookieOptions(),
   };
 }
 

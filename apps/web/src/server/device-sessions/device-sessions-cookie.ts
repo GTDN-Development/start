@@ -33,7 +33,7 @@ export async function readDeviceSessionCookie(): Promise<string | null> {
 
 export function createClearedDeviceSessionCookie(): string {
   return cookieSerialize(DEVICE_SESSION_COOKIE_NAME, "", {
-    ...getBaseCookieOptions(),
+    ...getBaseServerCookieOptions(),
     maxAge: 0,
     expires: new Date(0),
   });
@@ -44,7 +44,7 @@ export function createClearedAuthAndDeviceCookies(): string[] {
 }
 
 function getDeviceCookieOptions(rememberMe: boolean): SerializeOptions {
-  const baseOptions = getBaseCookieOptions();
+  const baseOptions = getBaseServerCookieOptions();
 
   if (!rememberMe) {
     return {
@@ -58,8 +58,4 @@ function getDeviceCookieOptions(rememberMe: boolean): SerializeOptions {
     ...baseOptions,
     maxAge: DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS,
   };
-}
-
-function getBaseCookieOptions(): SerializeOptions {
-  return getBaseServerCookieOptions();
 }

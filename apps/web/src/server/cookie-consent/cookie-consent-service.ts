@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
-import PocketBase, { ClientResponseError, type SendOptions } from "pocketbase";
-import { getPocketBaseUrl as getConfiguredPocketBaseUrl } from "@/config/public-env";
+import { ClientResponseError } from "pocketbase";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
   COOKIE_CONSENT_VERSION,
@@ -10,6 +9,7 @@ import {
   type CookieConsentEventType,
 } from "@/features/cookies/cookie-consent";
 import { routing } from "@/i18n/routing";
+import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
 import { logServiceError } from "@/server/pocketbase/pocketbase-utils";
 
 const COOKIE_CONSENT_SUBJECT_COOKIE_NAME = "cookie_consent_subject";
@@ -34,7 +34,7 @@ export async function recordCookieConsentEvent(
   const normalizedLocale = normalizeLocale(input.locale);
 
   try {
-    const pb = createCookieConsentPocketBaseClient();
+    const pb = createPocketBaseClient();
 
     await pb.collection("cookie_consent_events").create({
       subject_key: subjectKey,
@@ -98,28 +98,4 @@ function normalizeLocale(locale: string): string {
   }
 
   return routing.defaultLocale;
-}
-
-function createCookieConsentPocketBaseClient(): PocketBase {
-  const pocketBaseUrl = getPocketBaseUrl();
-  const pb = new PocketBase(pocketBaseUrl);
-
-  pb.autoCancellation(false);
-  pb.beforeSend = withNoStoreFetch;
-
-  return pb;
-}
-
-function withNoStoreFetch(url: string, options: SendOptions) {
-  return {
-    url,
-    options: {
-      ...options,
-      cache: "no-store",
-    },
-  };
-}
-
-function getPocketBaseUrl(): string {
-  return getConfiguredPocketBaseUrl();
 }

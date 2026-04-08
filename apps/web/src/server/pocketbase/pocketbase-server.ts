@@ -1,7 +1,7 @@
-import PocketBase, { cookieSerialize, type SendOptions, type SerializeOptions } from "pocketbase";
-import { getPocketBaseUrl as getConfiguredPocketBaseUrl } from "@/config/public-env";
 import { cookies } from "next/headers";
+import PocketBase, { cookieSerialize, type SendOptions, type SerializeOptions } from "pocketbase";
 import { authConfig } from "@/config/auth";
+import { getPocketBaseUrl } from "@/config/public-env";
 import { getBaseServerCookieOptions } from "@/server/cookies";
 
 export type CreatePocketBaseServerClientResult = {
@@ -96,7 +96,7 @@ function withNoStoreFetch(url: string, options: SendOptions) {
 function getPocketBaseAuthCookieOptions(
   options: ExportPocketBaseAuthCookieOptions
 ): SerializeOptions {
-  const cookieOptions = getBaseCookieOptions();
+  const cookieOptions = getBaseServerCookieOptions();
 
   if (options.sessionOnly) {
     return {
@@ -110,7 +110,7 @@ function getPocketBaseAuthCookieOptions(
 }
 
 function createPersistSessionCookie(options: { sessionOnly: boolean }) {
-  const cookieOptions = getBaseCookieOptions();
+  const cookieOptions: SerializeOptions = getBaseServerCookieOptions();
 
   if (!options.sessionOnly) {
     cookieOptions.maxAge = authConfig.cookies.persistCookieMaxAgeSeconds;
@@ -125,16 +125,8 @@ function createPersistSessionCookie(options: { sessionOnly: boolean }) {
 
 function createClearedPersistSessionCookie() {
   return cookieSerialize(authConfig.cookies.persistCookieName, "", {
-    ...getBaseCookieOptions(),
+    ...getBaseServerCookieOptions(),
     maxAge: 0,
     expires: new Date(0),
   });
-}
-
-function getBaseCookieOptions(): SerializeOptions {
-  return getBaseServerCookieOptions();
-}
-
-function getPocketBaseUrl() {
-  return getConfiguredPocketBaseUrl();
 }

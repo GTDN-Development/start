@@ -126,16 +126,12 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
   );
 }
 
-function createLocalizedUrl(request: NextRequest, pathname: string): URL {
-  return new URL(pathname, request.nextUrl.origin);
-}
-
 function redirectWithAuthCookies(
   request: NextRequest,
   setCookie: string[] | undefined,
   pathname: string
 ): NextResponse {
-  const response = NextResponse.redirect(createLocalizedUrl(request, pathname), {
+  const response = NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
     status: 303,
   });
 

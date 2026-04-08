@@ -19,31 +19,27 @@ export async function GET(request: NextRequest, context: InviteStartRouteContext
 
   if (!validationResponse.ok || !validationResponse.data.isValid) {
     return NextResponse.redirect(
-      createLocalizedUrl(
-        request,
+      new URL(
         getPathname({
           href: getInviteHref(token),
           locale: appLocale,
-        })
+        }),
+        request.nextUrl.origin
       )
     );
   }
 
   const response = NextResponse.redirect(
-    createLocalizedUrl(
-      request,
+    new URL(
       getPathname({
         href: SIGN_IN_PATH,
         locale: appLocale,
-      })
+      }),
+      request.nextUrl.origin
     )
   );
 
   setPendingInviteTokenResponseCookie(response, token);
 
   return response;
-}
-
-export function createLocalizedUrl(request: NextRequest, pathname: string): URL {
-  return new URL(pathname, request.nextUrl.origin);
 }
