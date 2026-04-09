@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { sendEmail } from "./email-transport";
+import { sendEmail, sendFormEmail } from "./email-transport";
 
 const { sendMailMock, createTransportMock } = vi.hoisted(function createTransportMocks() {
   const sendMailMock = vi.fn();
@@ -149,5 +149,80 @@ describe("email-transport", function describeEmailTransport() {
       text: "Plain text",
       html: "<p>Hello</p>",
     });
+  });
+
+  it("requires a forms recipient for form emails", async function testRequiresFormsRecipient() {
+    delete process.env.GENERAL_FORMS_RECIPIENT;
+
+    await expect(
+      sendFormEmail({
+        subject: "Support request",
+        text: "Plain text body",
+        html: "<p>HTML body</p>",
+      })
+    ).rejects.toThrow("GENERAL_FORMS_RECIPIENT is required for form emails.");
+
+    expect(createTransportMock).not.toHaveBeenCalled();
+    expect(sendMailMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects unsupported mail transport modes", async function testRejectsUnsupportedMailTransportModes() {
+    process.env.MAIL_TRANSPORT = "resend";
+
+    await expect(
+      sendEmail({
+        to: "invitee@example.com",
+        subject: "Hello",
+        text: "Plain text",
+        html: "<p>Hello</p>",
+      })
+    ).rejects.toThrow('MAIL_TRANSPORT must be "smtp" or "mailpit-api".');
+
+    expect(createTransportMock).not.toHaveBeenCalled();
+    expect(sendMailMock).not.toHaveBeenCalled();
+  });
+
+  it("requires SMTP host configuration before creating a transporter", async function testRequiresSmtpHostConfiguration() {
+    delete process.env.MAIL_TRANSPORT;
+    delete process.env.MAIL_HOST;
+    process.env.MAIL_PORT = "2525";
+    process.env.EMAIL_SECURE = "false";
+    process.env.MAIL_USERNAME = "smtp-user";
+    process.env.MAIL_PASSWORD = "smtp-pass";
+    process.env.MAIL_FROM_NAME = "Support";
+    process.env.MAIL_FROM_ADDRESS = "support@example.com";
+
+    await expect(
+      sendEmail({
+        to: "invitee@example.com",
+        subject: "Hello",
+        text: "Plain text",
+        html: "<p>Hello</p>",
+      })
+    ).rejects.toThrow("Missing MAIL_HOST environment variable.");
+
+    expect(createTransportMock).not.toHaveBeenCalled();
+    expect(sendMailMock).not.toHaveBeenCalled();
+  });
+
+  it("requires Mailpit API configuration when mailpit-api transport is enabled", async function testRequiresMailpitApiConfiguration() {
+    process.env.MAIL_TRANSPORT = "mailpit-api";
+    process.env.MAIL_FROM_NAME = "Support";
+    process.env.MAIL_FROM_ADDRESS = "support@example.com";
+    delete process.env.MAILPIT_BASE_URL;
+    delete process.env.MAILPIT_SEND_API_USERNAME;
+    delete process.env.MAILPIT_SEND_API_PASSWORD;
+
+    await expect(
+      sendEmail({
+        to: "invitee@example.com",
+        subject: "Hello",
+        text: "Plain text",
+        html: "<p>Hello</p>",
+      })
+    ).rejects.toThrow("MAILPIT_BASE_URL is required when MAIL_TRANSPORT=mailpit-api.");
+
+    expect(createTransportMock).not.toHaveBeenCalled();
+    expect(sendMailMock).not.toHaveBeenCalled();
   });
 });

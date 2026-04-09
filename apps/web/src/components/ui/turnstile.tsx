@@ -2,7 +2,7 @@
 
 import { Turnstile as TurnstilePrimitive, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { useImperativeHandle, useRef } from "react";
-import { isTurnstileEnabled } from "@/config/security";
+import { getTurnstileConfig } from "@/config/security";
 
 export type TurnstileRef = TurnstileInstance | undefined;
 
@@ -21,19 +21,18 @@ export function Turnstile({
   ref,
 }: TurnstileProps & { ref?: React.Ref<TurnstileRef> }) {
   const turnstileRef = useRef<TurnstileRef>(undefined);
-  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-  const turnstileEnabled = isTurnstileEnabled();
+  const turnstileConfig = getTurnstileConfig();
 
   useImperativeHandle(ref, function resolveTurnstileRef() {
     return turnstileRef.current;
   });
 
-  if (!turnstileEnabled) {
+  if (!turnstileConfig.enabled) {
     return null;
   }
 
   // Show placeholder in development when API key is not defined.
-  if ((!siteKey || siteKey === "") && process.env.NODE_ENV !== "production") {
+  if (!turnstileConfig.siteKey && process.env.NODE_ENV !== "production") {
     return (
       <div
         className={`bg-destructive/20 text-destructive flex items-center justify-center p-2 ${className}`}
@@ -47,7 +46,7 @@ export function Turnstile({
   return (
     <TurnstilePrimitive
       ref={turnstileRef}
-      siteKey={siteKey ?? ""}
+      siteKey={turnstileConfig.siteKey ?? ""}
       onSuccess={onSuccess}
       onError={onError}
       onExpire={onExpire}

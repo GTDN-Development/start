@@ -1,7 +1,12 @@
 import nodemailer from "nodemailer";
 import type Mail from "nodemailer/lib/mailer";
-
-const MAIL_TRANSPORT_MAILPIT_API = "mailpit-api";
+import {
+  formatMailSender,
+  getFormEmailRecipient,
+  getMailTransportConfig,
+  type MailpitApiMailTransportConfig,
+  type SmtpMailTransportConfig,
+} from "./email-env";
 
 type BaseEmailMessage = {
   subject: string;
@@ -16,53 +21,46 @@ type EmailMessage = BaseEmailMessage & {
 };
 
 export async function sendFormEmail(message: BaseEmailMessage) {
-  const recipientEmail = process.env.GENERAL_FORMS_RECIPIENT ?? "";
-
   await sendEmail({
-    to: recipientEmail,
+    to: getFormEmailRecipient(),
     ...message,
   });
 }
 
 export async function sendEmail(message: EmailMessage) {
-  const fromName = process.env.MAIL_FROM_NAME?.trim() ?? "";
-  const fromAddress = process.env.MAIL_FROM_ADDRESS?.trim() ?? "";
+  const transport = getMailTransportConfig();
 
-  if (getMailTransportMode() === MAIL_TRANSPORT_MAILPIT_API) {
+  if (transport.mode === "mailpit-api") {
     await sendMailpitApiEmail({
-      fromName,
-      fromAddress,
+      transport,
       message,
     });
 
     return;
   }
 
-  const transporter = getOrCreateMailTransporter();
+  const transporter = getOrCreateMailTransporter(transport);
   const { to, ...messageContent } = message;
 
   await transporter.sendMail({
-    from: fromName ? `${fromName} <${fromAddress}>` : fromAddress,
+    from: formatMailSender(transport.sender),
     to,
     ...messageContent,
   });
 }
 
-function getOrCreateMailTransporter() {
+function getOrCreateMailTransporter(transport: SmtpMailTransportConfig) {
   if (globalThis.__startMailTransporter) {
     return globalThis.__startMailTransporter;
   }
 
-  const port = Number.parseInt(process.env.MAIL_PORT || "587", 10);
-  const secure = getMailTransportSecureValue(port);
-
   const transporter = nodemailer.createTransport({
-    host: process.env.MAIL_HOST,
-    port,
-    secure,
+    host: transport.host,
+    port: transport.port,
+    secure: transport.secure,
     auth: {
-      user: process.env.MAIL_USERNAME,
-      pass: process.env.MAIL_PASSWORD,
+      user: transport.auth.user,
+      pass: transport.auth.pass,
     },
   });
 
@@ -71,34 +69,15 @@ function getOrCreateMailTransporter() {
   return transporter;
 }
 
-function getMailTransportSecureValue(port: number) {
-  const secureValue = process.env.EMAIL_SECURE?.trim().toLowerCase();
-
-  if (secureValue === "true") {
-    return true;
-  }
-
-  if (secureValue === "false") {
-    return false;
-  }
-
-  return port === 465;
-}
-
-function getMailTransportMode(): string {
-  return process.env.MAIL_TRANSPORT?.trim().toLowerCase() ?? "smtp";
-}
-
 async function sendMailpitApiEmail(options: {
-  fromName: string;
-  fromAddress: string;
+  transport: MailpitApiMailTransportConfig;
   message: EmailMessage;
 }) {
-  const response = await fetch(new URL("/api/v1/send", getMailpitBaseUrl()), {
+  const response = await fetch(new URL("/api/v1/send", `${options.transport.baseUrl}/`), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: createMailpitSendApiAuthorizationHeader(),
+      Authorization: options.transport.authorizationHeader,
     },
     body: JSON.stringify(createMailpitSendRequest(options)),
   });
@@ -109,8 +88,7 @@ async function sendMailpitApiEmail(options: {
 }
 
 function createMailpitSendRequest(options: {
-  fromName: string;
-  fromAddress: string;
+  transport: MailpitApiMailTransportConfig;
   message: EmailMessage;
 }) {
   const request: {
@@ -122,7 +100,7 @@ function createMailpitSendRequest(options: {
     ReplyTo?: MailpitAddress[];
     Attachments?: MailpitAttachment[];
   } = {
-    From: createMailpitAddress(options.fromAddress, options.fromName),
+    From: createMailpitAddress(options.transport.sender.address, options.transport.sender.name),
     To: normalizeMailpitAddresses(options.message.to, "to"),
     Subject: options.message.subject,
     Text: options.message.text,
@@ -263,31 +241,6 @@ function createMailpitAddress(address: string, name?: string): MailpitAddress {
   return {
     Email: normalizedAddress,
   };
-}
-
-function getMailpitBaseUrl(): string {
-  const baseUrl = process.env.MAILPIT_BASE_URL?.trim();
-
-  if (!baseUrl) {
-    throw new Error("MAILPIT_BASE_URL is required when MAIL_TRANSPORT=mailpit-api.");
-  }
-
-  return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-}
-
-function createMailpitSendApiAuthorizationHeader(): string {
-  const username = process.env.MAILPIT_SEND_API_USERNAME?.trim();
-  const password = process.env.MAILPIT_SEND_API_PASSWORD?.trim();
-
-  if (!username || !password) {
-    throw new Error(
-      "MAILPIT_SEND_API_USERNAME and MAILPIT_SEND_API_PASSWORD are required for mailpit-api transport."
-    );
-  }
-
-  const credentials = Buffer.from(`${username}:${password}`, "utf8").toString("base64");
-
-  return `Basic ${credentials}`;
 }
 
 async function createMailpitApiError(response: Response): Promise<Error> {

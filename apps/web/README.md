@@ -14,6 +14,8 @@
 
 ## Commands
 
+Inside `apps/web`:
+
 ```bash
 pnpm install
 pnpm dev
@@ -28,7 +30,21 @@ pnpm format:check
 pnpm pocketbase:typegen
 ```
 
-You can run these commands from `apps/web` or from the repository root.
+From the repository root, use the explicit web shortcuts instead of the repo-wide quality commands:
+
+```bash
+pnpm web:build
+pnpm web:lint
+pnpm web:test
+pnpm web:typecheck
+pnpm web:format
+pnpm web:format:check
+pnpm web:check
+pnpm web:test:e2e
+pnpm web:test:e2e:ui
+```
+
+Root `pnpm build`, `pnpm lint`, `pnpm test`, `pnpm typecheck`, `pnpm format`, `pnpm format:check`, and `pnpm check` now run at repo scope.
 
 ## Env
 
@@ -48,6 +64,11 @@ Canonical public/runtime envs:
 - `MAIL_FROM_NAME`
 - `MAIL_FROM_ADDRESS`
 - base URLs should be written without a trailing slash
+
+Feature-specific envs:
+
+- Turnstile uses `NEXT_PUBLIC_TURNSTILE_ENABLED`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, and `TURNSTILE_SECRET_KEY`
+- optional public feature flags such as `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_GTM_ID`, and `NEXT_PUBLIC_COOKIE_CONSENT_ENABLED` are non-canonical and may stay unset
 
 PocketBase typegen requires:
 

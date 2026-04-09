@@ -14,10 +14,7 @@ import {
   revokeCurrentDeviceSession,
 } from "@/server/device-sessions/device-sessions-service";
 import { formatServiceError, isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
-import {
-  logAuthServiceError,
-  mapSignInErrorCode,
-} from "@/server/auth/auth-errors";
+import { logAuthServiceError, mapSignInErrorCode } from "@/server/auth/auth-errors";
 import { createAuthAndDeviceCookies, createAuthSession } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import { requireCurrentUser } from "@/server/auth/current-user";

@@ -329,11 +329,7 @@ export async function resendWorkspaceInviteForCurrentUser(
       };
     }
 
-    const inviteRecord = await findInviteById(
-      currentUser.context.pb,
-      workspace.id,
-      inviteId
-    );
+    const inviteRecord = await findInviteById(currentUser.context.pb, workspace.id, inviteId);
 
     if (!inviteRecord) {
       return {
@@ -485,11 +481,7 @@ export async function refreshWorkspaceInviteLinkForCurrentUser(
       };
     }
 
-    const inviteRecord = await findInviteById(
-      currentUser.context.pb,
-      workspace.id,
-      inviteId
-    );
+    const inviteRecord = await findInviteById(currentUser.context.pb, workspace.id, inviteId);
 
     if (!inviteRecord) {
       return {
@@ -596,11 +588,7 @@ export async function revokeWorkspaceInviteForCurrentUser(
       };
     }
 
-    const inviteRecord = await findInviteById(
-      currentUser.context.pb,
-      workspace.id,
-      inviteId
-    );
+    const inviteRecord = await findInviteById(currentUser.context.pb, workspace.id, inviteId);
 
     if (!inviteRecord) {
       return {

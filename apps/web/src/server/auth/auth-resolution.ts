@@ -57,16 +57,14 @@ export async function resolveActionAuthUser(): Promise<ResolvedActionAuthUserRes
   return resolveAuth("actionUser");
 }
 
-export async function resolveResponseAuthSession(): Promise<ServerAuthResponse<AuthSessionPayload>> {
+export async function resolveResponseAuthSession(): Promise<
+  ServerAuthResponse<AuthSessionPayload>
+> {
   return resolveAuth("responseSession");
 }
 
-async function resolveAuth(
-  mode: "readOnlyUser"
-): Promise<ResolvedReadOnlyAuthUserResult>;
-async function resolveAuth(
-  mode: "actionUser"
-): Promise<ResolvedActionAuthUserResult>;
+async function resolveAuth(mode: "readOnlyUser"): Promise<ResolvedReadOnlyAuthUserResult>;
+async function resolveAuth(mode: "actionUser"): Promise<ResolvedActionAuthUserResult>;
 async function resolveAuth(
   mode: "responseSession"
 ): Promise<ServerAuthResponse<AuthSessionPayload>>;
@@ -260,7 +258,9 @@ async function resolveResponseSession(
     );
   } catch (error) {
     if (error instanceof ClientResponseError && error.status === 404) {
-      console.warn("[auth-service] getResponseAuthSession: user record not found, clearing session");
+      console.warn(
+        "[auth-service] getResponseAuthSession: user record not found, clearing session"
+      );
 
       return createSessionResponse(null, createClearedAuthAndDeviceCookies());
     }
@@ -322,9 +322,7 @@ function createReadOnlyUnauthorizedResult(): ResolvedReadOnlyAuthUserResult {
   };
 }
 
-function createActionUnauthorizedResult(
-  setCookie?: string[]
-): ResolvedActionAuthUserResult {
+function createActionUnauthorizedResult(setCookie?: string[]): ResolvedActionAuthUserResult {
   return {
     ok: false,
     errorCode: "UNAUTHORIZED",
