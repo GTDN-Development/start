@@ -146,16 +146,6 @@ export async function countWorkspaceOwners(pb: PocketBase, workspaceId: string):
   return listResponse.totalItems;
 }
 
-export async function countWorkspaceMembers(pb: PocketBase, workspaceId: string): Promise<number> {
-  const listResponse = await pb
-    .collection("workspace_members")
-    .getList<WorkspaceMembersRecord>(1, 1, {
-      filter: pb.filter("workspace = {:workspaceId}", { workspaceId }),
-    });
-
-  return listResponse.totalItems;
-}
-
 export async function listWorkspaceMemberRecordsByWorkspace(
   pb: PocketBase,
   workspaceId: string

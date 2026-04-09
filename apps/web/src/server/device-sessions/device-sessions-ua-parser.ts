@@ -16,8 +16,6 @@ export function parseDeviceInfo(userAgent: string): ParsedDeviceInfo {
   return {
     deviceLabel: buildDeviceLabel(os, browser),
     deviceType,
-    browser,
-    os,
   };
 }
 

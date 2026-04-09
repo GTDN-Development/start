@@ -25,7 +25,6 @@ export async function registerOrRefreshDeviceSession(input: {
   pb: PocketBase;
   userId: string;
   sessionToken: string;
-  rememberMe: boolean;
   requestHeaders: Headers;
 }): Promise<void> {
   const sessionIdHash = hashSessionToken(input.sessionToken);
@@ -40,9 +39,6 @@ export async function registerOrRefreshDeviceSession(input: {
     session_id_hash: sessionIdHash,
     device_label: parsedDeviceInfo.deviceLabel,
     device_type: parsedDeviceInfo.deviceType,
-    browser: parsedDeviceInfo.browser,
-    os: parsedDeviceInfo.os,
-    user_agent: userAgent,
     last_seen_at: nowIso,
     expires_at: createExpiresAt(now),
   };
@@ -416,11 +412,7 @@ function mapDeviceSessionListItem(
     id: session.id,
     deviceLabel: session.device_label,
     deviceType: session.device_type,
-    browser: getNullableString(session.browser),
-    os: getNullableString(session.os),
-    userAgent: getNullableString(session.user_agent),
     lastSeenAt: session.last_seen_at,
-    createdAt: session.created,
     isCurrentDevice: session.session_id_hash === currentSessionIdHash,
   };
 }
@@ -455,20 +447,6 @@ function createExpiresAt(now: Date): string {
 
 function getUserAgent(requestHeaders: Headers): string {
   return requestHeaders.get("user-agent")?.trim() ?? "";
-}
-
-function getNullableString(value: string | null | undefined): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const normalizedValue = value.trim();
-
-  if (normalizedValue.length === 0) {
-    return null;
-  }
-
-  return normalizedValue;
 }
 
 function isNotFoundError(error: unknown): boolean {

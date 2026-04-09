@@ -24,6 +24,19 @@ export async function createPocketBaseAdminClient(): Promise<PocketBase> {
   return pb;
 }
 
+export async function createPocketBaseUserClient(options: {
+  email: string;
+  password: string;
+}): Promise<PocketBase> {
+  const pb = new PocketBase(getRequiredTestEnv("NEXT_PUBLIC_PB_URL"));
+
+  pb.autoCancellation(false);
+
+  await pb.collection("users").authWithPassword(options.email, options.password);
+
+  return pb;
+}
+
 export async function deleteSignedUpUsersByEmail(pb: PocketBase, email: string): Promise<void> {
   const users = await pb.collection("users").getFullList<RecordModel>({
     filter: pb.filter("email = {:email}", {
@@ -88,6 +101,7 @@ export async function createWorkspace(options: {
     name: options.name,
     slug: options.slug,
     kind: "organization",
+    created_by: options.userId,
   });
   const membership = await options.pb
     .collection("workspace_members")

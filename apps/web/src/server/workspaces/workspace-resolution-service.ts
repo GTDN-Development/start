@@ -1,7 +1,6 @@
 import type PocketBase from "pocketbase";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
-import { requireWorkspaceAccess } from "@/server/workspaces/workspace-access";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   mapWorkspaceErrorCode,
@@ -9,7 +8,6 @@ import {
 } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary, sortUserWorkspaces } from "@/server/workspaces/workspace-mappers";
 import {
-  countWorkspaceMembers,
   findWorkspaceBySlug,
   findWorkspaceMembershipByWorkspaceAndUser,
   listUserWorkspaceMembershipRecords,
@@ -19,14 +17,6 @@ import type {
   ServerWorkspaceResponse,
   UserWorkspace,
 } from "@/server/workspaces/workspace-types";
-
-export async function listUserWorkspaces(
-  userId: string
-): Promise<ServerWorkspaceResponse<{ workspaces: UserWorkspace[] }>> {
-  const { pb } = await createPocketBaseServerClient();
-
-  return listUserWorkspacesWithClient(pb, userId);
-}
 
 export async function listUserWorkspacesWithClient(
   pb: PocketBase,
@@ -109,12 +99,7 @@ export async function resolveWorkspaceForUserBySlugWithClient(
     return {
       ok: true,
       data: {
-        workspace: mapUserWorkspaceSummary(
-          pb,
-          workspace,
-          membership,
-          await countWorkspaceMembers(pb, workspace.id)
-        ),
+        workspace: mapUserWorkspaceSummary(pb, workspace, membership),
       },
     };
   } catch (error) {
@@ -147,7 +132,6 @@ export async function resolveWorkspaceForUserBySlugWithClient(
 
 export async function resolvePostAuthDestination(input: {
   userId: string;
-  userEmail: string;
   pendingInviteToken?: string | null;
 }): Promise<ServerWorkspaceResponse<PostAuthDestination>> {
   if (input.pendingInviteToken) {
@@ -194,21 +178,32 @@ export async function switchWorkspaceForCurrentUser(
   }
 
   try {
-    const access = await requireWorkspaceAccess(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!access.ok) {
-      return access.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     return {
       ok: true,
       data: {
-        workspace: mapUserWorkspaceSummary(
-          access.context.pb,
-          access.context.workspace,
-          access.context.membership,
-          await countWorkspaceMembers(access.context.pb, access.context.workspace.id)
-        ),
+        workspace: mapUserWorkspaceSummary(currentUser.context.pb, workspace, membership),
       },
     };
   } catch (error) {
@@ -281,22 +276,15 @@ async function listUserWorkspaceMemberships(
 ): Promise<UserWorkspace[]> {
   const membershipRecords = await listUserWorkspaceMembershipRecords(pb, userId);
 
-  const workspaces = await Promise.all(
-    membershipRecords.map(async (membershipRecord) => {
-      const expandedWorkspace = membershipRecord.expand?.workspace;
+  const workspaces = membershipRecords.map((membershipRecord) => {
+    const expandedWorkspace = membershipRecord.expand?.workspace;
 
-      if (!expandedWorkspace) {
-        return null;
-      }
+    if (!expandedWorkspace) {
+      return null;
+    }
 
-      return mapUserWorkspaceSummary(
-        pb,
-        expandedWorkspace,
-        membershipRecord,
-        await countWorkspaceMembers(pb, expandedWorkspace.id)
-      );
-    })
-  );
+    return mapUserWorkspaceSummary(pb, expandedWorkspace, membershipRecord);
+  });
 
   return workspaces
     .filter((workspace): workspace is UserWorkspace => workspace !== null)

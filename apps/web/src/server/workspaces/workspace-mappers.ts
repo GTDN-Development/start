@@ -16,26 +16,23 @@ import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pock
 
 export function mapWorkspaceSummary(
   pb: PocketBase,
-  workspace: WorkspacesRecord,
-  memberCount: number
+  workspace: WorkspacesRecord
 ): WorkspaceSummary {
   return {
     id: workspace.id,
     name: workspace.name,
     slug: workspace.slug,
     avatarUrl: getWorkspaceAvatarUrl(pb, workspace),
-    memberCount,
   };
 }
 
 export function mapUserWorkspaceSummary(
   pb: PocketBase,
   workspace: WorkspacesRecord,
-  membership: WorkspaceMembersRecord,
-  memberCount: number
+  membership: WorkspaceMembersRecord
 ): UserWorkspace {
   return {
-    ...mapWorkspaceSummary(pb, workspace, memberCount),
+    ...mapWorkspaceSummary(pb, workspace),
     membershipId: membership.id,
     role: membership.role,
   };

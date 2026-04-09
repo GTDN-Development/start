@@ -3,7 +3,6 @@ import type { WorkspaceInvitesRecord } from "@/types/pocketbase";
 import type { AppLocale } from "@/i18n/routing";
 import { workspaceConfig } from "@/config/workspace";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
-import { requireAdminWorkspaceAccessBySlug } from "@/server/workspaces/workspace-access";
 import {
   requireWorkspaceActionContext,
   requireWorkspaceAuthContext,
@@ -25,6 +24,8 @@ import { normalizeEmail } from "@/server/workspaces/workspace-normalization";
 import {
   findInviteById,
   findInviteByWorkspaceAndEmail,
+  findWorkspaceBySlug,
+  findWorkspaceMembershipByWorkspaceAndUser,
   listWorkspaceInviteRecordsByWorkspace,
   listWorkspaceMemberRecordsByWorkspace,
   safeDeleteInvite,
@@ -51,15 +52,38 @@ export async function listWorkspaceInvites(
   }
 
   try {
-    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!adminAccess.ok) {
-      return adminAccess.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
+    }
+
+    if (membership.role === "member") {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     const inviteRecords = await listWorkspaceInviteRecordsByWorkspace(
-      adminAccess.context.pb,
-      adminAccess.context.workspace.id
+      currentUser.context.pb,
+      workspace.id
     );
     const now = Date.now();
     const invites = inviteRecords
@@ -116,15 +140,38 @@ export async function createWorkspaceInviteForCurrentUser(
   }
 
   try {
-    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!adminAccess.ok) {
-      return adminAccess.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
+    }
+
+    if (membership.role === "member") {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     const workspaceMembers = await listWorkspaceMemberRecordsByWorkspace(
-      adminAccess.context.pb,
-      adminAccess.context.workspace.id
+      currentUser.context.pb,
+      workspace.id
     );
 
     if (hasMemberWithEmail(workspaceMembers, normalizedEmail)) {
@@ -135,8 +182,8 @@ export async function createWorkspaceInviteForCurrentUser(
     }
 
     const existingInviteRecord = await findInviteByWorkspaceAndEmail(
-      adminAccess.context.pb,
-      adminAccess.context.workspace.id,
+      currentUser.context.pb,
+      workspace.id,
       normalizedEmail
     );
 
@@ -148,28 +195,28 @@ export async function createWorkspaceInviteForCurrentUser(
     }
 
     if (existingInviteRecord && isDateStringExpired(existingInviteRecord.expires_at)) {
-      await safeDeleteInvite(adminAccess.context.pb, existingInviteRecord.id);
+      await safeDeleteInvite(currentUser.context.pb, existingInviteRecord.id);
     }
 
     const inviteToken = createInviteToken();
     const inviteHash = hashInviteToken(inviteToken);
-    const inviteRecord = await adminAccess.context.pb
+    const inviteRecord = await currentUser.context.pb
       .collection("workspace_invites")
       .create<WorkspaceInvitesRecord>({
-        workspace: adminAccess.context.workspace.id,
+        workspace: workspace.id,
         email_normalized: normalizedEmail,
         role: input.role,
         token_hash: inviteHash,
         expires_at: createInviteExpiryDate(),
-        invited_by: adminAccess.context.user.id,
+        invited_by: currentUser.context.user.id,
       });
 
     try {
       await sendWorkspaceInviteEmail({
         locale: input.locale,
         email: normalizedEmail,
-        workspaceName: adminAccess.context.workspace.name,
-        inviterName: getNullableTrimmedString(adminAccess.context.user.name),
+        workspaceName: workspace.name,
+        inviterName: getNullableTrimmedString(currentUser.context.user.name),
         inviteToken,
       });
     } catch (emailError) {
@@ -178,7 +225,7 @@ export async function createWorkspaceInviteForCurrentUser(
         emailError
       );
 
-      await safeDeleteInvite(adminAccess.context.pb, inviteRecord.id);
+      await safeDeleteInvite(currentUser.context.pb, inviteRecord.id);
 
       return {
         ok: false,
@@ -195,7 +242,7 @@ export async function createWorkspaceInviteForCurrentUser(
           role: inviteRecord.role,
           expiresAt: inviteRecord.expires_at,
           updatedAt: inviteRecord.updated,
-          invitedByName: getNullableTrimmedString(adminAccess.context.user.name),
+          invitedByName: getNullableTrimmedString(currentUser.context.user.name),
           inviteUrl: createWorkspaceInviteUrl(inviteToken, input.locale),
         },
       },
@@ -253,15 +300,38 @@ export async function resendWorkspaceInviteForCurrentUser(
   }
 
   try {
-    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!adminAccess.ok) {
-      return adminAccess.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
+    }
+
+    if (membership.role === "member") {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     const inviteRecord = await findInviteById(
-      adminAccess.context.pb,
-      adminAccess.context.workspace.id,
+      currentUser.context.pb,
+      workspace.id,
       inviteId
     );
 
@@ -273,7 +343,7 @@ export async function resendWorkspaceInviteForCurrentUser(
     }
 
     if (isDateStringExpired(inviteRecord.expires_at)) {
-      await safeDeleteInvite(adminAccess.context.pb, inviteRecord.id);
+      await safeDeleteInvite(currentUser.context.pb, inviteRecord.id);
 
       return {
         ok: false,
@@ -298,7 +368,7 @@ export async function resendWorkspaceInviteForCurrentUser(
     const previousInviteTokenHash = inviteRecord.token_hash;
     const previousInviteExpiresAt = inviteRecord.expires_at;
 
-    const updatedInviteRecord = await adminAccess.context.pb
+    const updatedInviteRecord = await currentUser.context.pb
       .collection("workspace_invites")
       .update<WorkspaceInvitesRecord>(inviteRecord.id, {
         token_hash: nextInviteHash,
@@ -309,8 +379,8 @@ export async function resendWorkspaceInviteForCurrentUser(
       await sendWorkspaceInviteEmail({
         locale,
         email: inviteRecord.email_normalized,
-        workspaceName: adminAccess.context.workspace.name,
-        inviterName: getNullableTrimmedString(adminAccess.context.user.name),
+        workspaceName: workspace.name,
+        inviterName: getNullableTrimmedString(currentUser.context.user.name),
         inviteToken: nextInviteToken,
       });
     } catch (emailError) {
@@ -319,7 +389,7 @@ export async function resendWorkspaceInviteForCurrentUser(
         emailError
       );
 
-      await rollbackInviteAfterFailedResend(adminAccess.context.pb, inviteRecord.id, {
+      await rollbackInviteAfterFailedResend(currentUser.context.pb, inviteRecord.id, {
         tokenHash: previousInviteTokenHash,
         expiresAt: previousInviteExpiresAt,
       });
@@ -386,15 +456,38 @@ export async function refreshWorkspaceInviteLinkForCurrentUser(
   }
 
   try {
-    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!adminAccess.ok) {
-      return adminAccess.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
+    }
+
+    if (membership.role === "member") {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     const inviteRecord = await findInviteById(
-      adminAccess.context.pb,
-      adminAccess.context.workspace.id,
+      currentUser.context.pb,
+      workspace.id,
       inviteId
     );
 
@@ -406,7 +499,7 @@ export async function refreshWorkspaceInviteLinkForCurrentUser(
     }
 
     if (isDateStringExpired(inviteRecord.expires_at)) {
-      await safeDeleteInvite(adminAccess.context.pb, inviteRecord.id);
+      await safeDeleteInvite(currentUser.context.pb, inviteRecord.id);
 
       return {
         ok: false,
@@ -416,7 +509,7 @@ export async function refreshWorkspaceInviteLinkForCurrentUser(
 
     const nextInviteToken = createInviteToken();
     const nextInviteHash = hashInviteToken(nextInviteToken);
-    const updatedInviteRecord = await adminAccess.context.pb
+    const updatedInviteRecord = await currentUser.context.pb
       .collection("workspace_invites")
       .update<WorkspaceInvitesRecord>(inviteRecord.id, {
         token_hash: nextInviteHash,
@@ -474,15 +567,38 @@ export async function revokeWorkspaceInviteForCurrentUser(
   }
 
   try {
-    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!adminAccess.ok) {
-      return adminAccess.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
+    }
+
+    if (membership.role === "member") {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     const inviteRecord = await findInviteById(
-      adminAccess.context.pb,
-      adminAccess.context.workspace.id,
+      currentUser.context.pb,
+      workspace.id,
       inviteId
     );
 
@@ -493,7 +609,7 @@ export async function revokeWorkspaceInviteForCurrentUser(
       };
     }
 
-    await adminAccess.context.pb.collection("workspace_invites").delete(inviteRecord.id);
+    await currentUser.context.pb.collection("workspace_invites").delete(inviteRecord.id);
 
     return {
       ok: true,

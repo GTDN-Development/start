@@ -34,7 +34,6 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
   const pendingInviteToken = await getPendingInviteTokenCookie();
   const destinationResponse = await resolvePostAuthDestination({
     userId: session.user.id,
-    userEmail: session.user.email,
     pendingInviteToken,
   });
   const authCookies = [

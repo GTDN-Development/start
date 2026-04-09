@@ -737,23 +737,23 @@
         },
         "devices": {
           "title": "Vaše zařízení",
-          "description": "Zařízení, na kterých je váš účet aktuálně přihlášený.",
+          "description": "Prohlížeče a zařízení, přes která jste se k účtu nedávno přihlásili.",
           "loading": "Načítám zařízení...",
-          "empty": "Nebyla nalezena žádná aktivní zařízení.",
+          "empty": "Nebyla nalezena žádná nedávno použitá zařízení.",
           "currentBadge": "Toto zařízení",
           "unknownDevice": "Neznámé zařízení",
           "unknownLastSeen": "Neznámý čas",
           "sessionMeta": "Naposledy aktivní {lastSeen}",
-          "footerHint": "Odhlaste všechna ostatní zařízení kromě tohoto.",
+          "footerHint": "Odhlaste všechna ostatní zařízení zobrazená v tomto seznamu kromě tohoto.",
           "actions": {
             "signOut": "Odhlásit",
-            "signOutAll": "Odhlásit všechna zařízení",
+            "signOutAll": "Odhlásit všechna ostatní zařízení",
             "signOutAllPending": "Odhlašování...",
-            "signOutAllConfirm": "Odhlásit vše"
+            "signOutAllConfirm": "Odhlásit ostatní"
           },
           "dialog": {
             "title": "Odhlásit všechna ostatní zařízení?",
-            "description": "Tímto ukončíte aktivní relace na všech ostatních prohlížečích a zařízeních. Na tomto zařízení zůstanete přihlášeni."
+            "description": "Tímto odhlásíte účet na ostatních prohlížečích a zařízeních zobrazených v tomto seznamu. Na tomto zařízení zůstanete přihlášeni."
           },
           "status": {
             "loadError": "Seznam zařízení se teď nepodařilo načíst. Zkuste to prosím znovu.",
@@ -763,7 +763,7 @@
             "signOutAllError": "Ostatní zařízení se teď nepodařilo odhlásit. Zkuste to prosím znovu.",
             "invalidRequest": "Tento požadavek není platný.",
             "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu.",
-            "notFound": "Relace tohoto zařízení už neexistuje."
+            "notFound": "Toto zařízení už není v seznamu dostupné."
           }
         }
       }

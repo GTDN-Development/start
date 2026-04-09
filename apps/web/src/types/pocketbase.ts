@@ -39,9 +39,6 @@ export interface UserDeviceSessionsRecord extends PocketBaseSystemFields {
   session_id_hash: string;
   device_label: string;
   device_type: "desktop" | "phone" | "tablet" | "unknown";
-  browser?: string;
-  os?: string;
-  user_agent?: string;
   last_seen_at: string;
   expires_at: string;
 }
@@ -75,19 +72,19 @@ export interface WorkspacesRecord extends PocketBaseSystemFields {
   name: string;
   slug: string;
   kind: "organization";
+  created_by?: string;
   avatar?: string;
 }
 
 export interface PocketBaseCollections {
-  cookie_consent_events: CookieConsentEventsRecord;
-  posts: PostsRecord;
-  user_device_sessions: UserDeviceSessionsRecord;
-  users: UsersRecord;
-  workspace_invites: WorkspaceInvitesRecord;
-  workspace_members: WorkspaceMembersRecord;
-  workspaces: WorkspacesRecord;
+  "cookie_consent_events": CookieConsentEventsRecord;
+  "posts": PostsRecord;
+  "user_device_sessions": UserDeviceSessionsRecord;
+  "users": UsersRecord;
+  "workspace_invites": WorkspaceInvitesRecord;
+  "workspace_members": WorkspaceMembersRecord;
+  "workspaces": WorkspacesRecord;
 }
 
 export type PocketBaseCollectionName = keyof PocketBaseCollections;
-export type PocketBaseCollectionRecord<TName extends PocketBaseCollectionName> =
-  PocketBaseCollections[TName];
+export type PocketBaseCollectionRecord<TName extends PocketBaseCollectionName> = PocketBaseCollections[TName];
