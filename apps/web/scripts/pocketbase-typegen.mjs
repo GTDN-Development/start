@@ -138,11 +138,7 @@ function findClosingQuoteIndex(value, quote) {
 
     let backslashCount = 0;
 
-    for (
-      let escapeIndex = index - 1;
-      escapeIndex >= 0 && value[escapeIndex] === "\\";
-      escapeIndex -= 1
-    ) {
+    for (let escapeIndex = index - 1; escapeIndex >= 0 && value[escapeIndex] === "\\"; escapeIndex -= 1) {
       backslashCount += 1;
     }
 

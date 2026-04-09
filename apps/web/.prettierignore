@@ -1,9 +1,14 @@
 .next
-.turbo
 build
 coverage
 node_modules
 out
 test-results
 tsconfig.tsbuildinfo
-messages/en.d.json.ts
+package-lock.json
+.docs
+.plans
+.rules
+.specs
+AGENTS.md
+CLAUDE.md

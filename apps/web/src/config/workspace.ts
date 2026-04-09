@@ -3,6 +3,8 @@ export const workspaceConfig = {
     nameMaxLength: 32,
     slugMaxLength: 48,
     avatarMaxSizeBytes: 1024 * 1024,
+    maxWorkspacesPerUser: null as number | null,
+    maxMembersPerWorkspace: null as number | null,
   },
   validation: {
     slugPattern: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,

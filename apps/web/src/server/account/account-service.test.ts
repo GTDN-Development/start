@@ -1,7 +1,5 @@
 import type PocketBase from "pocketbase";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { authConfig } from "@/config/auth";
-import { securityConfig } from "@/config/security";
 import type { UsersRecord, WorkspaceMembersRecord } from "@/types/pocketbase";
 
 vi.mock("@/server/auth/current-user", function mockCurrentUser() {
@@ -48,11 +46,6 @@ import {
   updateCurrentUserPassword,
 } from "./account-security-service";
 
-const AUTH_COOKIE_NAME = authConfig.cookies.authCookieName;
-const DEVICE_COOKIE_NAME = securityConfig.deviceSessions.cookieName;
-const CLEARED_AUTH_COOKIE = `${AUTH_COOKIE_NAME}=; Max-Age=0`;
-const CLEARED_DEVICE_COOKIE = `${DEVICE_COOKIE_NAME}=; Max-Age=0`;
-
 describe("account-service", function describeAccountService() {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
@@ -62,8 +55,8 @@ describe("account-service", function describeAccountService() {
       return undefined;
     });
     vi.mocked(createClearedAuthAndDeviceCookies).mockReturnValue([
-      CLEARED_AUTH_COOKIE,
-      CLEARED_DEVICE_COOKIE,
+      "pb_auth=; Max-Age=0",
+      "device_session=; Max-Age=0",
     ]);
   });
 
@@ -114,7 +107,7 @@ describe("account-service", function describeAccountService() {
       data: {
         deleted: true,
       },
-      setCookie: [CLEARED_AUTH_COOKIE, CLEARED_DEVICE_COOKIE],
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
     expect(currentUser.workspaceMembersCollection.delete).toHaveBeenCalledTimes(2);
     expect(currentUser.workspaceMembersCollection.delete).toHaveBeenNthCalledWith(
@@ -147,7 +140,7 @@ describe("account-service", function describeAccountService() {
       data: {
         passwordUpdated: true,
       },
-      setCookie: [CLEARED_AUTH_COOKIE, CLEARED_DEVICE_COOKIE],
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
     expect(currentUser.usersCollection.update).toHaveBeenCalledWith(currentUser.user.id, {
       oldPassword: "current-password",
@@ -183,7 +176,7 @@ describe("account-service", function describeAccountService() {
       data: {
         passwordUpdated: true,
       },
-      setCookie: [CLEARED_AUTH_COOKIE, CLEARED_DEVICE_COOKIE],
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
     expect(revokeAllDeviceSessions).toHaveBeenCalledWith({
       pb: cleanupClient.pb,

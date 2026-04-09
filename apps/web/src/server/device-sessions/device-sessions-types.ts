@@ -13,13 +13,19 @@ export type DeviceSessionDeviceType = UserDeviceSessionsRecord["device_type"];
 export type ParsedDeviceInfo = {
   deviceLabel: string;
   deviceType: DeviceSessionDeviceType;
+  browser: string;
+  os: string;
 };
 
 export type DeviceSessionListItem = {
   id: string;
   deviceLabel: string;
   deviceType: DeviceSessionDeviceType;
+  browser: string | null;
+  os: string | null;
+  userAgent: string | null;
   lastSeenAt: string;
+  createdAt: string;
   isCurrentDevice: boolean;
 };
 

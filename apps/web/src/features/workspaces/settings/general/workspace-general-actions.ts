@@ -215,5 +215,6 @@ function mapWorkspaceNavigationItem(workspace: UserWorkspace): WorkspaceNavigati
     name: workspace.name,
     role: workspace.role,
     avatarUrl: workspace.avatarUrl,
+    memberCount: workspace.memberCount,
   };
 }

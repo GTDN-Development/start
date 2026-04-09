@@ -7,24 +7,8 @@ export const securityConfig = {
   },
 } as const;
 
-type SecurityEnv = Record<string, string | undefined>;
-
-export type TurnstileConfig = {
-  enabled: boolean;
-  siteKey?: string;
-  secretKey?: string;
-};
-
-export function getTurnstileConfig(env: SecurityEnv = process.env): TurnstileConfig {
-  return {
-    enabled: parseSecurityEnvBoolean(env.NEXT_PUBLIC_TURNSTILE_ENABLED, true),
-    siteKey: getOptionalSecurityEnvValue("NEXT_PUBLIC_TURNSTILE_SITE_KEY", env),
-    secretKey: getOptionalSecurityEnvValue("TURNSTILE_SECRET_KEY", env),
-  };
-}
-
-export function isTurnstileEnabled(env: SecurityEnv = process.env) {
-  return getTurnstileConfig(env).enabled;
+export function isTurnstileEnabled() {
+  return parseSecurityEnvBoolean(process.env.NEXT_PUBLIC_TURNSTILE_ENABLED, true);
 }
 
 function parseSecurityEnvBoolean(value: string | undefined, defaultValue: boolean) {
@@ -43,10 +27,4 @@ function parseSecurityEnvBoolean(value: string | undefined, defaultValue: boolea
   }
 
   return defaultValue;
-}
-
-function getOptionalSecurityEnvValue(name: string, env: SecurityEnv): string | undefined {
-  const value = env[name]?.trim();
-
-  return value ? value : undefined;
 }

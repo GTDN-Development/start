@@ -32,7 +32,7 @@ vi.mock("@/features/auth/auth-client", function mockAuthClient() {
   };
 });
 
-vi.mock("@/features/auth/auth-session-runtime", function mockAuthSessionRuntime() {
+vi.mock("@/features/auth/auth-client-store", function mockAuthClientStore() {
   return {
     getSessionSnapshot: getSessionSnapshotMock,
     subscribeToSessionStore: subscribeToSessionStoreMock,

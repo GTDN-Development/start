@@ -6,4 +6,5 @@ export type WorkspaceNavigationItem = {
   name: string;
   role: WorkspaceMemberRole;
   avatarUrl: string | null;
+  memberCount: number;
 };

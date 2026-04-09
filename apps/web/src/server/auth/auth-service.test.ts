@@ -1,8 +1,6 @@
 import type PocketBase from "pocketbase";
 import { ClientResponseError } from "pocketbase";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { authConfig } from "@/config/auth";
-import { securityConfig } from "@/config/security";
 import type { UsersRecord } from "@/types/pocketbase";
 
 vi.mock("next/headers", function mockNextHeaders() {
@@ -66,14 +64,6 @@ import {
 import { signUpWithPassword } from "./auth-sign-up-service";
 import { signInWithPassword } from "./auth-session-service";
 
-const AUTH_COOKIE_NAME = authConfig.cookies.authCookieName;
-const PERSIST_COOKIE_NAME = authConfig.cookies.persistCookieName;
-const DEVICE_COOKIE_NAME = securityConfig.deviceSessions.cookieName;
-const CLEARED_DEVICE_COOKIE = `${DEVICE_COOKIE_NAME}=; Max-Age=0`;
-const DEVICE_COOKIE_VALUE = `${DEVICE_COOKIE_NAME}=device-token-new`;
-const PERSIST_COOKIE_ENABLED = `${PERSIST_COOKIE_NAME}=1`;
-const PERSIST_COOKIE_DISABLED = `${PERSIST_COOKIE_NAME}=0`;
-
 describe("auth-service", function describeAuthService() {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
   let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
@@ -87,22 +77,17 @@ describe("auth-service", function describeAuthService() {
       return undefined;
     });
     vi.mocked(createClearedAuthAndDeviceCookies).mockReturnValue([
-      `${AUTH_COOKIE_NAME}=; Max-Age=0`,
-      CLEARED_DEVICE_COOKIE,
+      "pb_auth=; Max-Age=0",
+      "device_session=; Max-Age=0",
     ]);
     vi.mocked(generateDeviceSessionCookie).mockReturnValue({
       token: "device-token-new",
-      setCookie: DEVICE_COOKIE_VALUE,
+      setCookie: "device_session=device-token-new",
     });
-    vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue([
-      `${AUTH_COOKIE_NAME}=; Max-Age=0`,
-    ]);
+    vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue(["pb_auth=; Max-Age=0"]);
     vi.mocked(exportPocketBaseAuthCookies).mockImplementation(
       function exportAuthCookies(_pb, options) {
-        return [
-          `${AUTH_COOKIE_NAME}=token`,
-          options?.sessionOnly ? PERSIST_COOKIE_DISABLED : PERSIST_COOKIE_ENABLED,
-        ];
+        return ["pb_auth=token", options?.sessionOnly ? "pb_persist=0" : "pb_persist=1"];
       }
     );
   });
@@ -157,7 +142,7 @@ describe("auth-service", function describeAuthService() {
       data: {
         sent: true,
       },
-      setCookie: [`${AUTH_COOKIE_NAME}=; Max-Age=0`, CLEARED_DEVICE_COOKIE],
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
   });
 
@@ -174,7 +159,7 @@ describe("auth-service", function describeAuthService() {
     expect(response).toEqual({
       ok: false,
       errorCode: "RATE_LIMITED",
-      setCookie: [`${AUTH_COOKIE_NAME}=; Max-Age=0`, CLEARED_DEVICE_COOKIE],
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
   });
 
@@ -195,7 +180,7 @@ describe("auth-service", function describeAuthService() {
       data: {
         passwordReset: true,
       },
-      setCookie: [`${AUTH_COOKIE_NAME}=; Max-Age=0`, CLEARED_DEVICE_COOKIE],
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
   });
 
@@ -215,7 +200,7 @@ describe("auth-service", function describeAuthService() {
       data: {
         emailChanged: true,
       },
-      setCookie: [`${AUTH_COOKIE_NAME}=; Max-Age=0`, CLEARED_DEVICE_COOKIE],
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
   });
 
@@ -235,7 +220,7 @@ describe("auth-service", function describeAuthService() {
     expect(response).toEqual({
       ok: false,
       errorCode: "BAD_REQUEST",
-      setCookie: [`${AUTH_COOKIE_NAME}=; Max-Age=0`, CLEARED_DEVICE_COOKIE],
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
   });
 
@@ -258,7 +243,7 @@ describe("auth-service", function describeAuthService() {
     expect(response).toEqual({
       ok: false,
       errorCode: "EMAIL_NOT_VERIFIED",
-      setCookie: [`${AUTH_COOKIE_NAME}=token`, PERSIST_COOKIE_ENABLED],
+      setCookie: ["pb_auth=token", "pb_persist=1"],
     });
     expect(exportPocketBaseAuthCookies).toHaveBeenCalledWith(context.pb, {
       sessionOnly: false,
@@ -294,7 +279,7 @@ describe("auth-service", function describeAuthService() {
       data: {
         created: true,
       },
-      setCookie: [`${AUTH_COOKIE_NAME}=token`, PERSIST_COOKIE_DISABLED],
+      setCookie: ["pb_auth=token", "pb_persist=0"],
     });
     expect(exportPocketBaseAuthCookies).toHaveBeenCalledWith(context.pb, {
       sessionOnly: true,
@@ -334,7 +319,7 @@ describe("auth-service", function describeAuthService() {
           },
         },
       },
-      setCookie: [`${AUTH_COOKIE_NAME}=token`, PERSIST_COOKIE_ENABLED, DEVICE_COOKIE_VALUE],
+      setCookie: ["pb_auth=token", "pb_persist=1", "device_session=device-token-new"],
     });
     expect(registerOrRefreshDeviceSession).toHaveBeenCalledTimes(1);
   });
@@ -459,7 +444,7 @@ describe("auth-service", function describeAuthService() {
     vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
     vi.mocked(validateDeviceSessionOrInvalidate).mockResolvedValue({
       status: "invalid",
-      clearCookies: [CLEARED_DEVICE_COOKIE],
+      clearCookies: ["device_session=; Max-Age=0"],
     });
 
     const response = await getResponseAuthSession();
@@ -469,7 +454,7 @@ describe("auth-service", function describeAuthService() {
       data: {
         session: null,
       },
-      setCookie: [CLEARED_DEVICE_COOKIE],
+      setCookie: ["device_session=; Max-Age=0"],
     });
     expect(context.usersCollection.authRefresh).not.toHaveBeenCalled();
   });
@@ -500,7 +485,7 @@ describe("auth-service", function describeAuthService() {
       data: {
         session: null,
       },
-      setCookie: [`${AUTH_COOKIE_NAME}=token`, PERSIST_COOKIE_ENABLED],
+      setCookie: ["pb_auth=token", "pb_persist=1"],
     });
     expect(exportPocketBaseAuthCookies).toHaveBeenCalledWith(context.pb, {
       sessionOnly: false,

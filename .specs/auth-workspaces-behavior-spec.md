@@ -57,13 +57,13 @@
 ## Device Session Behavior
 
 - The user-facing "Your Devices" list is backed by the custom `user_device_sessions` collection, not PocketBase `_authOrigins`.
-- The list includes only non-expired tracked device entries for the current user.
+- The list includes only active, non-expired device sessions for the current user.
 - The current device is explicitly marked in the list.
-- The user can revoke any non-current tracked device entry from the list.
-- The user can revoke all other non-expired tracked device entries in a single action.
+- The user can revoke any non-current device session from the list.
+- The user can revoke all other active device sessions in a single action.
 - The current device is not revocable from the per-device list action; signing out the current device uses the standard sign-out flow.
-- When the device-session limit is exceeded, the oldest non-current non-expired entries are deleted based on `last_seen_at`.
-- Password change revokes every non-expired tracked device entry, including the current one.
+- When the device-session limit is exceeded, the oldest non-current active sessions are deleted based on `last_seen_at`.
+- Password change revokes every active device session, including the current one.
 - PocketBase `_authOrigins` may still exist for auth-alert and origin-tracking behavior, but they are not the product's session-management model.
 
 ## Workspace Behavior
@@ -159,7 +159,7 @@
 15. Final remaining owner attempts to leave and is blocked.
 16. User opens an inaccessible workspace URL and gets workspace-scoped 404.
 17. User removed from a workspace elsewhere loses that workspace on next app entry and falls back to `/app`.
-18. Account security shows tracked devices, allows revoking a non-current device, and allows signing out all other devices.
+18. Account security shows active device sessions, allows revoking a non-current device, and allows signing out all other devices.
 
 ## Candidate Business-Rule / Unit Scenarios
 
@@ -172,7 +172,7 @@
 7. Reset password marks an unverified account verified only when the reset token email still matches the current account email.
 8. Change password revokes all sessions and requires fresh sign-in.
 9. Email-change confirmation succeeds without an active session when token and password are valid, then requires sign-in with the new email.
-10. Custom device-session rules match the product behavior: non-expired tracked devices only, current device flagged, non-current revoke allowed, revoke-other-devices allowed, and oldest non-current devices are deleted when the limit is exceeded.
+10. Custom device-session rules match the product behavior: active sessions only, current device flagged, non-current revoke allowed, revoke-other-devices allowed, and oldest sessions are deleted when the limit is exceeded.
 11. Member/admin/owner capability matrix matches the access rules above.
 12. Admin cannot manage owners or assign owner role.
 13. Owner can promote another user to owner and multiple owners can coexist.

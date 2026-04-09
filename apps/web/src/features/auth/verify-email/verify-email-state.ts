@@ -1,5 +1,6 @@
 import type { AppHref } from "@/i18n/navigation";
 import { VERIFY_EMAIL_COMPLETE_PATH, VERIFY_EMAIL_PATH } from "@/config/routes";
+import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
 
 export type VerifyEmailResultState = "pending" | "verified" | "invalid";
 
@@ -56,7 +57,7 @@ export function createVerifyEmailCompletionHref(input: {
 export function parseVerifyEmailPageState(
   searchParams: VerifyEmailSearchParams
 ): VerifyEmailPageState {
-  const token = getSingleQueryValue(searchParams.token);
+  const token = parseAuthFlowToken(searchParams.token);
   const email = getSingleQueryValue(searchParams.email);
   const result = parseVerifyEmailResult(searchParams.result) ?? (email ? "pending" : "invalid");
 

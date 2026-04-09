@@ -1,13 +1,10 @@
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { authConfig } from "@/config/auth";
-import { securityConfig } from "@/config/security";
-import { applyServerActionAuthCookies } from "./auth-cookies";
+import { applyServerActionAuthCookies, appendAuthCookiesToResponse } from "./auth-cookies";
 
 type CookieStore = Awaited<ReturnType<typeof cookies>>;
 const setCookie = vi.fn();
-const AUTH_COOKIE_NAME = authConfig.cookies.authCookieName;
-const DEVICE_COOKIE_NAME = securityConfig.deviceSessions.cookieName;
 
 vi.mock("next/headers", function mockNextHeaders() {
   return {
@@ -23,25 +20,35 @@ describe("auth-cookies", function describeAuthCookies() {
 
   it("applies serialized auth cookies inside server actions", async function testServerActionWriter() {
     await applyServerActionAuthCookies([
-      `${AUTH_COOKIE_NAME}=token; Path=/; HttpOnly; SameSite=Lax`,
-      `${DEVICE_COOKIE_NAME}=; Max-Age=0; Path=/; HttpOnly`,
+      "pb_auth=token; Path=/; HttpOnly; SameSite=Lax",
+      "device_session=; Max-Age=0; Path=/; HttpOnly",
     ]);
 
     expect(setCookie).toHaveBeenNthCalledWith(1, {
-      name: AUTH_COOKIE_NAME,
+      name: "pb_auth",
       value: "token",
       path: "/",
       httpOnly: true,
       sameSite: "lax",
     });
     expect(setCookie).toHaveBeenNthCalledWith(2, {
-      name: DEVICE_COOKIE_NAME,
+      name: "device_session",
       value: "",
       path: "/",
       maxAge: 0,
       expires: new Date(0),
       httpOnly: true,
     });
+  });
+
+  it("appends serialized auth cookies to route handler responses", function testRouteHandlerWriter() {
+    const response = NextResponse.redirect(new URL("https://example.com/cs/sign-in"), {
+      status: 303,
+    });
+
+    appendAuthCookiesToResponse(response, ["pb_auth=token; Path=/; HttpOnly; SameSite=Lax"]);
+
+    expect(response.headers.get("set-cookie")).toContain("pb_auth=token");
   });
 });
 

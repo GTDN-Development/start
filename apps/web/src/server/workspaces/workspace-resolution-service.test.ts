@@ -16,6 +16,7 @@ vi.mock("@/server/workspaces/workspace-cookie", function mockWorkspaceCookie() {
 
 vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceRepository() {
   return {
+    countWorkspaceMembers: vi.fn(),
     findWorkspaceBySlug: vi.fn(),
     findWorkspaceMembershipByWorkspaceAndUser: vi.fn(),
     listUserWorkspaceMembershipRecords: vi.fn(),
@@ -33,6 +34,7 @@ import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-ser
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
 import {
+  countWorkspaceMembers,
   findWorkspaceBySlug,
   findWorkspaceMembershipByWorkspaceAndUser,
 } from "@/server/workspaces/workspace-repository";
@@ -49,6 +51,7 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
   it("prioritizes a pending invite over active workspace resolution", async function testInvitePriority() {
     const response = await resolvePostAuthDestination({
       userId: "user-1",
+      userEmail: "user@example.com",
       pendingInviteToken: "invite-token",
     });
 
@@ -76,17 +79,20 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
     vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue("team-space");
     vi.mocked(findWorkspaceBySlug).mockResolvedValue(workspace);
     vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(membership);
+    vi.mocked(countWorkspaceMembers).mockResolvedValue(3);
     vi.mocked(mapUserWorkspaceSummary).mockReturnValue({
       id: workspace.id,
       name: workspace.name,
       slug: workspace.slug,
       avatarUrl: null,
+      memberCount: 3,
       membershipId: membership.id,
       role: membership.role,
     });
 
     const response = await resolvePostAuthDestination({
       userId: "user-1",
+      userEmail: "user@example.com",
       pendingInviteToken: null,
     });
 
@@ -112,6 +118,7 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
 
     const response = await resolvePostAuthDestination({
       userId: "user-1",
+      userEmail: "user@example.com",
       pendingInviteToken: null,
     });
 

@@ -14,22 +14,28 @@ import type {
 import type { WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 
-export function mapWorkspaceSummary(pb: PocketBase, workspace: WorkspacesRecord): WorkspaceSummary {
+export function mapWorkspaceSummary(
+  pb: PocketBase,
+  workspace: WorkspacesRecord,
+  memberCount: number
+): WorkspaceSummary {
   return {
     id: workspace.id,
     name: workspace.name,
     slug: workspace.slug,
     avatarUrl: getWorkspaceAvatarUrl(pb, workspace),
+    memberCount,
   };
 }
 
 export function mapUserWorkspaceSummary(
   pb: PocketBase,
   workspace: WorkspacesRecord,
-  membership: WorkspaceMembersRecord
+  membership: WorkspaceMembersRecord,
+  memberCount: number
 ): UserWorkspace {
   return {
-    ...mapWorkspaceSummary(pb, workspace),
+    ...mapWorkspaceSummary(pb, workspace, memberCount),
     membershipId: membership.id,
     role: membership.role,
   };

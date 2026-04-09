@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { POST_AUTH_PATH } from "@/config/routes";
 import { getPathname, type AppHref } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
+import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
 import { confirmEmailVerificationToken } from "@/server/auth/auth-email-verification-service";
 import {
   createVerifyEmailResultHref,
@@ -77,11 +78,5 @@ function redirectWithAuthCookies(
     status: 303,
   });
 
-  if (setCookie?.length) {
-    for (const cookieValue of setCookie) {
-      response.headers.append("set-cookie", cookieValue);
-    }
-  }
-
-  return response;
+  return appendAuthCookiesToResponse(response, setCookie);
 }

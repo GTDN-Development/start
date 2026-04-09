@@ -270,10 +270,20 @@ function DeviceIcon({ deviceType }: Pick<DeviceSessionListItem, "deviceType">) {
 }
 
 function resolveDeviceTitle(session: DeviceSessionListItem, t: AccountTranslationFn): string {
-  const trimmedDeviceLabel = session.deviceLabel.trim();
+  if (session.deviceLabel.trim()) {
+    return session.deviceLabel;
+  }
 
-  if (trimmedDeviceLabel.length > 0) {
-    return trimmedDeviceLabel;
+  if (session.os && session.browser) {
+    return `${session.os} · ${session.browser}`;
+  }
+
+  if (session.os) {
+    return session.os;
+  }
+
+  if (session.browser) {
+    return session.browser;
   }
 
   return t("security.devices.unknownDevice");

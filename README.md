@@ -24,26 +24,20 @@ Run these from the repository root:
 ```bash
 pnpm install
 pnpm dev
-pnpm build
 pnpm lint
-pnpm test
+pnpm lint:fix
 pnpm typecheck
+pnpm test
+pnpm test:e2e
+pnpm build
 pnpm format
 pnpm format:check
 pnpm check
-pnpm web:test:e2e
-pnpm web:test:e2e:ui
-pnpm web:lint:fix
 pnpm pocketbase:typegen
 pnpm pocketbase:mailpit:apply
 ```
 
-Command scope:
-
-- `pnpm build`, `pnpm lint`, `pnpm test`, `pnpm typecheck`, `pnpm format`, `pnpm format:check`, and `pnpm check` run at repo scope
-- `pnpm dev`, `pnpm start`, and `pnpm email:dev` stay targeted to `apps/web`
-- `pnpm web:*` commands are the explicit web-only shortcuts when you want to target just `apps/web`
-- PocketBase-specific work stays explicit through `pnpm pocketbase:*`
+These commands target the web application by default. PocketBase-specific work is handled from `apps/pocketbase`.
 
 ## Deployment
 
@@ -72,7 +66,6 @@ Command scope:
 - base URLs are written without a trailing slash
 - sender identity uses `MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS`
 - normal local dev stays SMTP-first; E2E/dev-test switches web mail to Mailpit with `MAIL_TRANSPORT="mailpit-api"`
-- optional public feature flags such as `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_GTM_ID`, and `NEXT_PUBLIC_COOKIE_CONSENT_ENABLED` are non-canonical and may stay unset
 
 ## Documentation
 

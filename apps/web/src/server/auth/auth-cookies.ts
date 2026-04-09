@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import type { NextResponse } from "next/server";
 
 type ParsedSetCookie = {
   name: string;
@@ -28,6 +29,27 @@ export async function applyServerActionAuthCookies(setCookie: string[] | undefin
 
     cookieStore.set(getWritableCookie(parsedCookie));
   }
+}
+
+export function appendAuthCookiesToResponse(
+  response: NextResponse,
+  setCookie: string[] | undefined
+): NextResponse {
+  if (!setCookie?.length) {
+    return response;
+  }
+
+  for (const setCookieValue of setCookie) {
+    const parsedCookie = parseSetCookie(setCookieValue);
+
+    if (!parsedCookie) {
+      continue;
+    }
+
+    response.cookies.set(getWritableCookie(parsedCookie));
+  }
+
+  return response;
 }
 
 function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {

@@ -34,16 +34,6 @@ export const signUpInputSchema = createSignUpInputSchema();
 
 export type SignInInput = z.infer<typeof signInInputSchema>;
 export type SignUpInput = z.infer<typeof signUpInputSchema>;
-export type SignUpActionInput = SignUpInput & {
-  turnstileToken?: string;
-};
-export type RequestPasswordResetInput = {
-  email: string;
-  turnstileToken?: string;
-};
-export type RequestEmailVerificationInput = {
-  email: string;
-};
 
 export function createSignInFormSchema(messages: SignInValidationMessages) {
   return z.object({
