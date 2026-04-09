@@ -737,33 +737,33 @@
         },
         "devices": {
           "title": "Your devices",
-          "description": "Devices where your account is currently signed in.",
+          "description": "Browsers and devices that recently signed in to your account.",
           "loading": "Loading devices...",
-          "empty": "No active devices found.",
+          "empty": "No recent devices found.",
           "currentBadge": "This device",
           "unknownDevice": "Unknown device",
           "unknownLastSeen": "Unknown time",
           "sessionMeta": "Last seen {lastSeen}",
-          "footerHint": "Sign out of all other devices except this one.",
+          "footerHint": "Sign out of all other devices shown here except this one.",
           "actions": {
             "signOut": "Sign out",
-            "signOutAll": "Sign out from all devices",
+            "signOutAll": "Sign out all other devices",
             "signOutAllPending": "Signing out...",
-            "signOutAllConfirm": "Sign out all"
+            "signOutAllConfirm": "Sign out others"
           },
           "dialog": {
             "title": "Sign out of all other devices?",
-            "description": "This will end active sessions on all other browsers and devices. You will remain signed in on this current device."
+            "description": "This will sign your account out on the other browsers and devices shown here. You will remain signed in on this device."
           },
           "status": {
-            "loadError": "We couldn't load your device sessions right now. Please try again.",
+            "loadError": "We couldn't load your devices right now. Please try again.",
             "signOutSuccess": "Device signed out.",
             "signOutError": "We couldn't sign out this device right now. Please try again.",
             "signOutAllSuccess": "All other devices were signed out.",
             "signOutAllError": "We couldn't sign out other devices right now. Please try again.",
             "invalidRequest": "This request is invalid.",
             "unauthorized": "Your session expired. Please sign in again.",
-            "notFound": "This device session no longer exists."
+            "notFound": "This device is no longer available."
           }
         }
       }

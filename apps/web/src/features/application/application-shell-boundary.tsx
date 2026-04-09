@@ -71,7 +71,6 @@ export async function ApplicationShellBoundary({
         name: workspace.name,
         role: workspace.role,
         avatarUrl: workspace.avatarUrl,
-        memberCount: workspace.memberCount,
       }))
     : [];
   const activeWorkspaceResponse = await resolveActiveWorkspaceForUserWithClient(

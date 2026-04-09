@@ -33,10 +33,12 @@ test("sign out all other devices keeps current device signed in", async ({ page,
     await expect(secondPage).toHaveURL(/\/cs\/aplikace$/);
 
     await openAccountSecurityPage(page);
-    await expect(page.getByRole("button", { name: "Odhlásit všechna zařízení" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Odhlásit všechna ostatní zařízení" })
+    ).toBeVisible();
 
-    await page.getByRole("button", { name: "Odhlásit všechna zařízení" }).click();
-    await page.getByRole("button", { name: "Odhlásit vše" }).click();
+    await page.getByRole("button", { name: "Odhlásit všechna ostatní zařízení" }).click();
+    await page.getByRole("button", { name: "Odhlásit ostatní" }).click();
 
     await expect(page.getByText("Všechna ostatní zařízení byla odhlášena.")).toBeVisible();
     await page.goto("/cs/aplikace");

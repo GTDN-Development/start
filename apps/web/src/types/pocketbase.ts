@@ -39,9 +39,6 @@ export interface UserDeviceSessionsRecord extends PocketBaseSystemFields {
   session_id_hash: string;
   device_label: string;
   device_type: "desktop" | "phone" | "tablet" | "unknown";
-  browser?: string;
-  os?: string;
-  user_agent?: string;
   last_seen_at: string;
   expires_at: string;
 }
@@ -75,6 +72,7 @@ export interface WorkspacesRecord extends PocketBaseSystemFields {
   name: string;
   slug: string;
   kind: "organization";
+  created_by?: string;
   avatar?: string;
 }
 

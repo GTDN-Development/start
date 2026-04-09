@@ -11,7 +11,7 @@ export type WorkspaceMemberRoleTranslationKey =
   | WorkspaceMemberRoleDescriptionKey;
 export type WorkspaceMemberRoleTranslationFn = (key: WorkspaceMemberRoleTranslationKey) => string;
 
-export const WORKSPACE_MEMBER_ROLE_OPTIONS: Array<{
+const WORKSPACE_MEMBER_ROLE_OPTIONS: Array<{
   value: WorkspaceMemberRole;
   labelKey: WorkspaceMemberRoleLabelKey;
   descriptionKey: WorkspaceMemberRoleDescriptionKey;

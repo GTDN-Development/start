@@ -20,21 +20,8 @@ const authSyncStoreState = {
   isRefetchAllowed: true,
 };
 
-vi.mock("./auth-client-store", function mockAuthClientStore() {
-  return {
-    getSessionSnapshot: vi.fn(function getSessionSnapshot() {
-      return authSyncStoreState.sessionSnapshot;
-    }),
-    isSessionRefetchAllowed: vi.fn(function isSessionRefetchAllowed() {
-      return authSyncStoreState.isRefetchAllowed;
-    }),
-    refreshSession: refreshSessionMock,
-    setSessionState: setSessionStateMock,
-  };
-});
-
 describe("auth client sync", function describeAuthClientSync() {
-  let authClientSyncModule: typeof import("./auth-client-sync");
+  let authSessionRuntimeModule: typeof import("./auth-session-runtime");
   let online = true;
   let visibilityState: DocumentVisibilityState = "visible";
 
@@ -54,9 +41,19 @@ describe("auth client sync", function describeAuthClientSync() {
     });
 
     vi.stubGlobal("BroadcastChannel", MockBroadcastChannel);
-
-    authClientSyncModule = await import("./auth-client-sync");
-    authClientSyncModule.ensureSessionSyncInitialized();
+    authSessionRuntimeModule = await import("./auth-session-runtime");
+    authSessionRuntimeModule
+      .createSessionSyncController({
+        getSessionSnapshot: function getSessionSnapshot() {
+          return authSyncStoreState.sessionSnapshot;
+        },
+        isSessionRefetchAllowed: function isSessionRefetchAllowed() {
+          return authSyncStoreState.isRefetchAllowed;
+        },
+        refreshSession: refreshSessionMock,
+        setSessionState: setSessionStateMock,
+      })
+      .ensureSessionSyncInitialized();
   });
 
   beforeEach(function resetAuthClientSyncState() {

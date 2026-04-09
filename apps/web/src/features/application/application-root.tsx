@@ -72,7 +72,6 @@ export function ApplicationRoot({
         workspace.name,
         workspace.role,
         workspace.avatarUrl ?? "",
-        String(workspace.memberCount),
       ].join(":")
     )
     .join("|")}`;

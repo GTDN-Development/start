@@ -1,15 +1,12 @@
-import type PocketBase from "pocketbase";
+import PocketBase, { ClientResponseError } from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
 import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
 import {
-  requireAdminWorkspaceAccessBySlug,
-  requireWorkspaceAccess,
-  type WorkspaceAccessContext,
-} from "@/server/workspaces/workspace-access";
-import {
   countWorkspaceOwners,
+  findWorkspaceBySlug,
   findWorkspaceMemberById,
+  findWorkspaceMembershipByWorkspaceAndUser,
 } from "@/server/workspaces/workspace-repository";
 import {
   changeWorkspaceMemberRoleForCurrentUser,
@@ -23,17 +20,12 @@ vi.mock("@/server/workspaces/workspace-auth-context", function mockWorkspaceAuth
   };
 });
 
-vi.mock("@/server/workspaces/workspace-access", function mockWorkspaceAccess() {
-  return {
-    requireAdminWorkspaceAccessBySlug: vi.fn(),
-    requireWorkspaceAccess: vi.fn(),
-  };
-});
-
 vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceRepository() {
   return {
     countWorkspaceOwners: vi.fn(),
+    findWorkspaceBySlug: vi.fn(),
     findWorkspaceMemberById: vi.fn(),
+    findWorkspaceMembershipByWorkspaceAndUser: vi.fn(),
     listWorkspaceMemberRecordsByWorkspace: vi.fn(),
   };
 });
@@ -51,9 +43,8 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
       createWorkspaceAuthSuccess(pb, user)
     );
-    vi.mocked(requireWorkspaceAccess).mockResolvedValue(
-      createWorkspaceAccessSuccess(pb, user, membership)
-    );
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(membership);
 
     const response = await leaveWorkspaceForCurrentUser("team-space");
 
@@ -74,9 +65,8 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
       createWorkspaceAuthSuccess(pb, user)
     );
-    vi.mocked(requireWorkspaceAccess).mockResolvedValue(
-      createWorkspaceAccessSuccess(pb, user, membership)
-    );
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(membership);
     vi.mocked(countWorkspaceOwners).mockResolvedValue(1);
 
     const response = await leaveWorkspaceForCurrentUser("team-space");
@@ -97,10 +87,11 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
       createWorkspaceAuthSuccess(pb, user)
     );
-    vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
-      createWorkspaceAccessSuccess(pb, user, adminMembership)
-    );
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(adminMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
+    vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
+    updateSpy.mockRejectedValue(createNotFoundError());
 
     const response = await changeWorkspaceMemberRoleForCurrentUser(
       "team-space",
@@ -112,7 +103,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
       ok: false,
       errorCode: "FORBIDDEN",
     });
-    expect(updateSpy).not.toHaveBeenCalled();
+    expect(updateSpy).toHaveBeenCalledWith(ownerMembership.id, {
+      role: "member",
+    });
   });
 
   it("prevents admins from assigning the owner role", async function testAdminCannotAssignOwner() {
@@ -128,10 +121,10 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
       createWorkspaceAuthSuccess(pb, user)
     );
-    vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
-      createWorkspaceAccessSuccess(pb, user, adminMembership)
-    );
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(adminMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(memberMembership);
+    updateSpy.mockRejectedValue(createNotFoundError());
 
     const response = await changeWorkspaceMemberRoleForCurrentUser(
       "team-space",
@@ -143,7 +136,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
       ok: false,
       errorCode: "FORBIDDEN",
     });
-    expect(updateSpy).not.toHaveBeenCalled();
+    expect(updateSpy).toHaveBeenCalledWith(memberMembership.id, {
+      role: "owner",
+    });
   });
 
   it("allows owners to promote another member to owner", async function testOwnerPromotion() {
@@ -159,9 +154,8 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
       createWorkspaceAuthSuccess(pb, user)
     );
-    vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
-      createWorkspaceAccessSuccess(pb, user, ownerMembership)
-    );
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(ownerMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(memberMembership);
 
     const response = await changeWorkspaceMemberRoleForCurrentUser(
@@ -189,9 +183,8 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
       createWorkspaceAuthSuccess(pb, user)
     );
-    vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
-      createWorkspaceAccessSuccess(pb, user, ownerMembership)
-    );
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(ownerMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
     vi.mocked(countWorkspaceOwners).mockResolvedValue(1);
 
@@ -217,10 +210,11 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
       createWorkspaceAuthSuccess(pb, user)
     );
-    vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
-      createWorkspaceAccessSuccess(pb, user, adminMembership)
-    );
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(adminMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
+    vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
+    deleteSpy.mockRejectedValue(createNotFoundError());
 
     const response = await removeWorkspaceMemberForCurrentUser("team-space", ownerMembership.id);
 
@@ -228,7 +222,7 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
       ok: false,
       errorCode: "FORBIDDEN",
     });
-    expect(deleteSpy).not.toHaveBeenCalled();
+    expect(deleteSpy).toHaveBeenCalledWith(ownerMembership.id);
   });
 });
 
@@ -253,6 +247,16 @@ function createPocketBaseMock() {
     deleteSpy,
     updateSpy,
   };
+}
+
+function createNotFoundError() {
+  const error = new ClientResponseError({
+    url: "https://example.com/api/collections/workspace_members/records/member-1",
+    status: 404,
+    response: {},
+  });
+  error.status = 404;
+  return error;
 }
 
 function createUserRecord(id: string, email: string): UsersRecord {
@@ -304,25 +308,6 @@ function createWorkspaceAuthSuccess(pb: PocketBase, user: UsersRecord) {
     context: {
       pb,
       user,
-    },
-  };
-}
-
-function createWorkspaceAccessSuccess(
-  pb: PocketBase,
-  user: UsersRecord,
-  membership: WorkspaceMembersRecord
-): {
-  ok: true;
-  context: WorkspaceAccessContext;
-} {
-  return {
-    ok: true,
-    context: {
-      pb,
-      user,
-      workspace: createWorkspaceRecord(),
-      membership,
     },
   };
 }

@@ -11,7 +11,6 @@ import {
 } from "@/features/auth/auth-page-shell";
 import { Link } from "@/components/ui/link";
 import { SIGN_IN_PATH } from "@/config/routes";
-import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
 
 type ConfirmEmailChangePageProps = {
   params: Promise<{
@@ -57,7 +56,7 @@ async function ConfirmEmailChangePageContent({
     locale: locale as Locale,
     namespace: "pages.confirmEmailChange",
   });
-  const token = parseAuthFlowToken(query.token);
+  const token = getSingleQueryValue(query.token);
 
   return (
     <div className="relative">
@@ -82,4 +81,20 @@ async function ConfirmEmailChangePageContent({
       </div>
     </div>
   );
+}
+
+function getSingleQueryValue(value: string | string[] | undefined): string | null {
+  if (typeof value === "string") {
+    const normalizedValue = value.trim();
+
+    return normalizedValue ? normalizedValue : null;
+  }
+
+  if (Array.isArray(value) && typeof value[0] === "string") {
+    const normalizedValue = value[0].trim();
+
+    return normalizedValue ? normalizedValue : null;
+  }
+
+  return null;
 }

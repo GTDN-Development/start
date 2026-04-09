@@ -11,10 +11,9 @@ export async function applyMailpitSettings(env = process.env) {
 
   const pb = new PocketBase(config.pbUrl);
 
-  await pb.collection("_superusers").authWithPassword(
-    config.pbSuperuserEmail,
-    config.pbSuperuserPassword
-  );
+  await pb
+    .collection("_superusers")
+    .authWithPassword(config.pbSuperuserEmail, config.pbSuperuserPassword);
 
   const currentSettings = await pb.settings.getAll();
   const updatedSettings = createMailpitSettingsPatch(currentSettings, config);

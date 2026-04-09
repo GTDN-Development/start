@@ -11,7 +11,6 @@ import {
   AuthHeroDescription,
   AuthHeroTitle,
 } from "@/features/auth/auth-page-shell";
-import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
 
 type ResetPasswordPageProps = PageProps<"/[locale]/reset-password">;
 
@@ -47,7 +46,7 @@ async function ResetPasswordPageContent({ params, searchParams }: ResetPasswordP
     locale: locale as Locale,
     namespace: "pages.resetPassword",
   });
-  const token = parseAuthFlowToken(query.token);
+  const token = getSingleQueryValue(query.token);
 
   return (
     <div className="relative">
@@ -72,4 +71,20 @@ async function ResetPasswordPageContent({ params, searchParams }: ResetPasswordP
       </div>
     </div>
   );
+}
+
+function getSingleQueryValue(value: string | string[] | undefined): string | null {
+  if (typeof value === "string") {
+    const normalizedValue = value.trim();
+
+    return normalizedValue ? normalizedValue : null;
+  }
+
+  if (Array.isArray(value) && typeof value[0] === "string") {
+    const normalizedValue = value[0].trim();
+
+    return normalizedValue ? normalizedValue : null;
+  }
+
+  return null;
 }

@@ -25,8 +25,6 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
     vi.mocked(parseDeviceInfo).mockReturnValue({
       deviceLabel: "MacBook Pro",
       deviceType: "desktop",
-      browser: "Chrome",
-      os: "macOS",
     });
   });
 
@@ -221,7 +219,6 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       pb,
       userId: "user-1",
       sessionToken: "current-session-token",
-      rememberMe: true,
       requestHeaders: new Headers({
         "user-agent": "Mozilla/5.0",
       }),
@@ -235,9 +232,6 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
         session_id_hash: currentSessionHash,
         device_label: "MacBook Pro",
         device_type: "desktop",
-        browser: "Chrome",
-        os: "macOS",
-        user_agent: "Mozilla/5.0",
       })
     );
     expect(getFullListSpy).toHaveBeenNthCalledWith(1, {
@@ -303,15 +297,12 @@ function createDeviceSessionRecord(
     collectionName: "user_device_sessions",
     created: input.created ?? "2026-01-02T00:00:00.000Z",
     updated: "2026-01-02T00:00:00.000Z",
-    browser: "Chrome",
     device_label: "MacBook Pro",
     device_type: "desktop",
     expires_at: input.expiresAt,
     last_seen_at: input.lastSeenAt ?? "2026-01-02T00:00:00.000Z",
-    os: "macOS",
     session_id_hash: input.sessionIdHash,
     user: input.userId ?? "user-1",
-    user_agent: "Mozilla/5.0",
   };
 }
 

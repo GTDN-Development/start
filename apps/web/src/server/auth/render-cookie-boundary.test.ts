@@ -10,7 +10,6 @@ const MARKETING_LAYOUT_PATH = path.join(WEB_ROOT, "src/features/marketing/market
 const APPLICATION_ROOT_PATH = path.join(WEB_ROOT, "src/features/application/application-root.tsx");
 const FORBIDDEN_RENDER_MUTATORS = [
   "applyServerActionAuthCookies",
-  "appendAuthCookiesToResponse",
   "setActiveWorkspaceSlugCookie",
   "clearActiveWorkspaceSlugCookie",
   "clearPendingInviteTokenCookie",

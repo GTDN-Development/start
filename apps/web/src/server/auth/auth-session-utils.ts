@@ -40,7 +40,6 @@ export async function createAuthAndDeviceCookies(input: {
       pb: input.pb,
       userId: input.userId,
       sessionToken: nextDeviceSession.token,
-      rememberMe: input.rememberMe,
       requestHeaders,
     });
   } catch (error) {

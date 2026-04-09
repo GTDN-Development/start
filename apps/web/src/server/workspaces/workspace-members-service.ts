@@ -3,10 +3,6 @@ import {
   requireWorkspaceAuthContext,
 } from "@/server/workspaces/workspace-auth-context";
 import {
-  requireAdminWorkspaceAccessBySlug,
-  requireWorkspaceAccess,
-} from "@/server/workspaces/workspace-access";
-import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
 } from "@/server/workspaces/workspace-errors";
@@ -15,12 +11,10 @@ import {
   sortWorkspaceMembers,
 } from "@/server/workspaces/workspace-mappers";
 import {
-  canAssignWorkspaceMemberRole,
-  canManageWorkspaceMemberRole,
-} from "@/features/workspaces/workspace-role-rules";
-import {
   countWorkspaceOwners,
+  findWorkspaceBySlug,
   findWorkspaceMemberById,
+  findWorkspaceMembershipByWorkspaceAndUser,
   listWorkspaceMemberRecordsByWorkspace,
 } from "@/server/workspaces/workspace-repository";
 import type {
@@ -39,18 +33,34 @@ export async function listWorkspaceMembers(
   }
 
   try {
-    const access = await requireWorkspaceAccess(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!access.ok) {
-      return access.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     const memberRecords = await listWorkspaceMemberRecordsByWorkspace(
-      access.context.pb,
-      access.context.workspace.id
+      currentUser.context.pb,
+      workspace.id
     );
     const members = memberRecords
-      .map((memberRecord) => mapWorkspaceMemberSummary(access.context.pb, memberRecord))
+      .map((memberRecord) => mapWorkspaceMemberSummary(currentUser.context.pb, memberRecord))
       .filter((value): value is WorkspaceMemberSummary => value !== null)
       .sort(sortWorkspaceMembers);
 
@@ -94,14 +104,30 @@ export async function leaveWorkspaceForCurrentUser(
   }
 
   try {
-    const access = await requireWorkspaceAccess(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!access.ok) {
-      return access.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
     }
 
-    if (access.context.membership.role === "owner") {
-      const ownerCount = await countWorkspaceOwners(access.context.pb, access.context.workspace.id);
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
+    }
+
+    if (membership.role === "owner") {
+      const ownerCount = await countWorkspaceOwners(currentUser.context.pb, workspace.id);
 
       if (ownerCount <= 1) {
         return {
@@ -111,7 +137,7 @@ export async function leaveWorkspaceForCurrentUser(
       }
     }
 
-    await access.context.pb.collection("workspace_members").delete(access.context.membership.id);
+    await currentUser.context.pb.collection("workspace_members").delete(membership.id);
 
     return {
       ok: true,
@@ -155,15 +181,31 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
   }
 
   try {
-    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!adminAccess.ok) {
-      return adminAccess.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     const memberRecord = await findWorkspaceMemberById(
-      adminAccess.context.pb,
-      adminAccess.context.workspace.id,
+      currentUser.context.pb,
+      workspace.id,
       memberId
     );
 
@@ -183,21 +225,8 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
       };
     }
 
-    if (
-      !canManageWorkspaceMemberRole(adminAccess.context.membership.role, memberRecord.role) ||
-      !canAssignWorkspaceMemberRole(adminAccess.context.membership.role, role)
-    ) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
     if (memberRecord.role === "owner" && role !== "owner") {
-      const ownerCount = await countWorkspaceOwners(
-        adminAccess.context.pb,
-        adminAccess.context.workspace.id
-      );
+      const ownerCount = await countWorkspaceOwners(currentUser.context.pb, workspace.id);
 
       if (ownerCount <= 1) {
         return {
@@ -207,7 +236,7 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
       }
     }
 
-    await adminAccess.context.pb.collection("workspace_members").update(memberRecord.id, {
+    await currentUser.context.pb.collection("workspace_members").update(memberRecord.id, {
       role,
     });
 
@@ -228,7 +257,7 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
       }
 
       if (pocketBaseError.status === 404) {
-        return "NOT_FOUND";
+        return "FORBIDDEN";
       }
 
       return null;
@@ -256,15 +285,31 @@ export async function removeWorkspaceMemberForCurrentUser(
   }
 
   try {
-    const adminAccess = await requireAdminWorkspaceAccessBySlug(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!adminAccess.ok) {
-      return adminAccess.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     const memberRecord = await findWorkspaceMemberById(
-      adminAccess.context.pb,
-      adminAccess.context.workspace.id,
+      currentUser.context.pb,
+      workspace.id,
       memberId
     );
 
@@ -275,14 +320,7 @@ export async function removeWorkspaceMemberForCurrentUser(
       };
     }
 
-    if (memberRecord.id === adminAccess.context.membership.id) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    if (!canManageWorkspaceMemberRole(adminAccess.context.membership.role, memberRecord.role)) {
+    if (memberRecord.id === membership.id) {
       return {
         ok: false,
         errorCode: "FORBIDDEN",
@@ -290,10 +328,7 @@ export async function removeWorkspaceMemberForCurrentUser(
     }
 
     if (memberRecord.role === "owner") {
-      const ownerCount = await countWorkspaceOwners(
-        adminAccess.context.pb,
-        adminAccess.context.workspace.id
-      );
+      const ownerCount = await countWorkspaceOwners(currentUser.context.pb, workspace.id);
 
       if (ownerCount <= 1) {
         return {
@@ -303,7 +338,7 @@ export async function removeWorkspaceMemberForCurrentUser(
       }
     }
 
-    await adminAccess.context.pb.collection("workspace_members").delete(memberRecord.id);
+    await currentUser.context.pb.collection("workspace_members").delete(memberRecord.id);
 
     return {
       ok: true,
@@ -318,7 +353,7 @@ export async function removeWorkspaceMemberForCurrentUser(
       }
 
       if (pocketBaseError.status === 404) {
-        return "NOT_FOUND";
+        return "FORBIDDEN";
       }
 
       return null;

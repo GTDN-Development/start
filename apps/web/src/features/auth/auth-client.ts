@@ -15,7 +15,7 @@ import type {
   RequestEmailVerificationInput,
   RequestPasswordResetInput,
   SignUpActionInput,
-} from "@/features/auth/auth-action-types";
+} from "@/features/auth/auth-schemas";
 import {
   confirmEmailChangeAction,
   requestEmailVerificationAction,
@@ -29,14 +29,12 @@ import {
   broadcastSessionChanged,
   broadcastSignedOut,
   ensureSessionSyncInitialized,
-} from "@/features/auth/auth-client-sync";
-import {
   getSessionSnapshot,
   isSessionIdle,
   refreshSession,
   setSessionState,
   subscribeToSessionStore,
-} from "@/features/auth/auth-client-store";
+} from "@/features/auth/auth-session-runtime";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import { runAsyncTransition } from "@/lib/app-utils";
 
