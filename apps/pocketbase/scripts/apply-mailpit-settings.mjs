@@ -1,13 +1,11 @@
 import PocketBase from "pocketbase";
 import { pathToFileURL } from "node:url";
 
-export const MAILPIT_SMTP_HOST = "mailpit.railway.internal";
+export const MAILPIT_SMTP_HOST = "mailpit";
 export const MAILPIT_SMTP_PORT = 1025;
 
 export async function applyMailpitSettings(env = process.env) {
   const config = resolveMailpitApplyConfig(env);
-
-  assertSafePocketBaseTarget(config.pbUrl, env);
 
   const pb = new PocketBase(config.pbUrl);
 
@@ -60,25 +58,6 @@ export function resolveMailpitApplyConfig(env = process.env) {
     senderName,
     senderAddress,
   };
-}
-
-export function assertSafePocketBaseTarget(pbUrl, env = process.env) {
-  if (env.ALLOW_PB_SETTINGS_WRITE?.trim() === "production") {
-    return;
-  }
-
-  const url = new URL(pbUrl);
-  const host = url.hostname.trim().toLowerCase();
-  const safeHostMarkers = ["dev", "test", "staging", "localhost", "127.0.0.1"];
-  const isSafeHost = safeHostMarkers.some(function hasSafeHostMarker(marker) {
-    return host === marker || host.includes(marker);
-  });
-
-  if (!isSafeHost) {
-    throw new Error(
-      `Refusing to apply PocketBase settings to "${pbUrl}". Set ALLOW_PB_SETTINGS_WRITE=production to override intentionally.`
-    );
-  }
 }
 
 export function createMailpitSettingsPatch(currentSettings, config) {

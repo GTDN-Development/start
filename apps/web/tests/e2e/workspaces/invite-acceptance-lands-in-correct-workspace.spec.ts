@@ -9,6 +9,7 @@ import {
   deleteSignedUpUsersByEmail,
   deleteWorkspaceGraph,
 } from "../helpers/pocketbase-test-admin";
+import { getRequiredTestEnv } from "../helpers/test-env";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("invited user accepts invite and lands in the correct workspace", async ({ page }) => {
@@ -77,7 +78,7 @@ async function copySessionCookiesToLocalhost(page: Page): Promise<void> {
     sessionCookies.map((cookie) => ({
       name: cookie.name,
       value: cookie.value,
-      url: "http://localhost:3100",
+      url: getRequiredTestEnv("NEXT_PUBLIC_APP_URL"),
       expires: cookie.expires,
       httpOnly: cookie.httpOnly,
       secure: cookie.secure,

@@ -4,6 +4,7 @@
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "pnpm --filter @start/web run dev",
+    "local:down": "COMPOSE_PROJECT_NAME=start-dev docker compose --file ./compose.yaml down --remove-orphans",
     "build": "pnpm --filter @start/web run build",
     "start": "pnpm --filter @start/web run start",
     "email:dev": "pnpm --filter @start/web run email:dev",

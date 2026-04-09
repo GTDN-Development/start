@@ -3,7 +3,6 @@ import test from "node:test";
 import {
   MAILPIT_SMTP_HOST,
   MAILPIT_SMTP_PORT,
-  assertSafePocketBaseTarget,
   createMailpitSettingsPatch,
   resolveMailpitApplyConfig,
 } from "./apply-mailpit-settings.mjs";
@@ -47,20 +46,6 @@ test("resolveMailpitApplyConfig requires NEXT_PUBLIC_APP_URL", function testMiss
       MAIL_FROM_ADDRESS: "support@example.com",
     });
   }, /NEXT_PUBLIC_APP_URL is required\./);
-});
-
-test("assertSafePocketBaseTarget rejects production-like hosts by default", function testGuard() {
-  assert.throws(function expectThrow() {
-    assertSafePocketBaseTarget("https://pocketbase-start.up.railway.app", {});
-  });
-});
-
-test("assertSafePocketBaseTarget allows explicit production override", function testOverride() {
-  assert.doesNotThrow(function expectNoThrow() {
-    assertSafePocketBaseTarget("https://pocketbase-start.up.railway.app", {
-      ALLOW_PB_SETTINGS_WRITE: "production",
-    });
-  });
 });
 
 test("createMailpitSettingsPatch preserves unrelated settings", function testPatch() {

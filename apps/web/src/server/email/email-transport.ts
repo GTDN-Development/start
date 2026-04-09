@@ -98,7 +98,6 @@ async function sendMailpitApiEmail(options: {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: createMailpitSendApiAuthorizationHeader(),
     },
     body: JSON.stringify(createMailpitSendRequest(options)),
   });
@@ -273,21 +272,6 @@ function getMailpitBaseUrl(): string {
   }
 
   return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-}
-
-function createMailpitSendApiAuthorizationHeader(): string {
-  const username = process.env.MAILPIT_SEND_API_USERNAME?.trim();
-  const password = process.env.MAILPIT_SEND_API_PASSWORD?.trim();
-
-  if (!username || !password) {
-    throw new Error(
-      "MAILPIT_SEND_API_USERNAME and MAILPIT_SEND_API_PASSWORD are required for mailpit-api transport."
-    );
-  }
-
-  const credentials = Buffer.from(`${username}:${password}`, "utf8").toString("base64");
-
-  return `Basic ${credentials}`;
 }
 
 async function createMailpitApiError(response: Response): Promise<Error> {

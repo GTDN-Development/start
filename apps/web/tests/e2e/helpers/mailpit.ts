@@ -212,9 +212,7 @@ function wasMessageReceivedAfter(message: MailpitMessageSummary, receivedAfter: 
 }
 
 async function requestMailpitJson<TResponse>(path: string): Promise<TResponse> {
-  const response = await fetch(new URL(path, getMailpitBaseUrl()), {
-    headers: createMailpitUIHeaders(),
-  });
+  const response = await fetch(new URL(path, getMailpitBaseUrl()));
 
   if (!response.ok) {
     throw await createMailpitError(response);
@@ -224,9 +222,7 @@ async function requestMailpitJson<TResponse>(path: string): Promise<TResponse> {
 }
 
 async function requestMailpitText(path: string): Promise<string> {
-  const response = await fetch(new URL(path, getMailpitBaseUrl()), {
-    headers: createMailpitUIHeaders(),
-  });
+  const response = await fetch(new URL(path, getMailpitBaseUrl()));
 
   if (!response.ok) {
     throw await createMailpitError(response);
@@ -235,25 +231,10 @@ async function requestMailpitText(path: string): Promise<string> {
   return await response.text();
 }
 
-function createMailpitUIHeaders(): HeadersInit {
-  const username = getRequiredTestEnv("MAILPIT_UI_USERNAME");
-  const password = getRequiredTestEnv("MAILPIT_UI_PASSWORD");
-
-  return {
-    Authorization: createBasicAuthHeaderValue(username, password),
-  };
-}
-
 function getMailpitBaseUrl(): string {
   const baseUrl = getRequiredTestEnv("MAILPIT_BASE_URL");
 
   return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-}
-
-function createBasicAuthHeaderValue(username: string, password: string): string {
-  const credentials = Buffer.from(`${username}:${password}`, "utf8").toString("base64");
-
-  return `Basic ${credentials}`;
 }
 
 async function createMailpitError(response: Response): Promise<Error> {

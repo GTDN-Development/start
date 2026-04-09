@@ -4,7 +4,7 @@ import testEnv from "./tests/load-test-env.cjs";
 const { loadTestEnv } = testEnv;
 loadTestEnv();
 
-const e2ePort = 3100;
+const e2ePort = Number.parseInt(process.env.PORT ?? "3100", 10);
 const e2eBaseUrl = `http://localhost:${e2ePort}`;
 
 export default defineConfig({

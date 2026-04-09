@@ -29,12 +29,12 @@ pnpm lint:fix
 pnpm typecheck
 pnpm test
 pnpm test:e2e
+pnpm local:down
 pnpm build
 pnpm format
 pnpm format:check
 pnpm check
 pnpm pocketbase:typegen
-pnpm pocketbase:mailpit:apply
 ```
 
 These commands target the web application by default. PocketBase-specific work is handled from `apps/pocketbase`.
@@ -43,19 +43,19 @@ These commands target the web application by default. PocketBase-specific work i
 
 - Vercel deploys `apps/web`
 - Railway deploys `apps/pocketbase`
-- Railway deploys `apps/mailpit` only in development/testing environments
 - the Railway service for PocketBase must use `apps/pocketbase` as its `Root Directory`
-- the Railway service for Mailpit must be named `mailpit` so the internal SMTP host resolves as `mailpit.railway.internal`
 - `main` is the production branch
 - `dev` is the shared development branch
 - development and production use separate services, volumes, domains, and environment variables
 
 ## Dev/Test Mail Flow
 
-- Mailpit exists only for development and testing
-- PocketBase auth emails still use SMTP and are delivered to Mailpit over Railway private networking
-- local web app test emails use the Mailpit HTTP Send API instead of SMTP
-- Playwright reads inbox content through the official Mailpit API and rendered message endpoints
+- `pnpm dev` starts the local PocketBase + Mailpit Docker stack before the Next.js app
+- `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app, and runs Playwright against it
+- `pnpm local:down` stops the persistent local dev stack
+- PocketBase auth emails still use SMTP and are delivered to the local Mailpit container
+- local web app emails use the local Mailpit HTTP Send API
+- Playwright reads inbox content through the local Mailpit API and rendered message endpoints
 - production email delivery is intentionally out of scope for this setup
 
 ## Environment Contract
@@ -65,7 +65,7 @@ These commands target the web application by default. PocketBase-specific work i
 - `NEXT_PUBLIC_PB_URL` is the canonical PocketBase base URL
 - base URLs are written without a trailing slash
 - sender identity uses `MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS`
-- normal local dev stays SMTP-first; E2E/dev-test switches web mail to Mailpit with `MAIL_TRANSPORT="mailpit-api"`
+- local dev and E2E both use `MAIL_TRANSPORT="mailpit-api"`
 
 ## Documentation
 

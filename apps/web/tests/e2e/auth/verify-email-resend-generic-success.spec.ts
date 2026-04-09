@@ -11,7 +11,7 @@ test("verification resend shows generic success for an unknown email", async ({ 
   await expect(page).toHaveURL(
     new RegExp(`/cs/overit-email\\?email=${encodeURIComponent(unknownEmail)}`)
   );
-  await expect(page.getByText("Zkontrolujte e-mail")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Zkontrolujte e-mail" })).toBeVisible();
   await expect(
     page.getByText(
       "Pokud tato e-mailová adresa existuje a stále čeká na ověření, poslali jsme nový ověřovací e-mail."

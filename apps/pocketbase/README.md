@@ -12,25 +12,23 @@
 
 This service stays close to the default PocketBase standalone workflow.
 
-It keeps backend state in versioned migrations and deploys as a single Railway service.
+It keeps backend state in versioned migrations, runs locally in Docker, and deploys as a single Railway service.
 
 ## Local Development
 
-1. Download PocketBase `0.36.7` from the [official releases page](https://github.com/pocketbase/pocketbase/releases/tag/v0.36.7).
-2. Change into `apps/pocketbase`.
-3. Extract the binary into this directory as `./pocketbase`.
-4. Start PocketBase locally:
+Start the repository Docker stack from the repo root:
 
 ```sh
-./pocketbase serve
+pnpm dev
 ```
 
 Useful commands:
 
 ```sh
-./pocketbase migrate create add_something
-./pocketbase migrate collections
-./pocketbase migrate history-sync
+docker compose exec pocketbase ./pocketbase migrate create add_something --dir=/pb_data --migrationsDir=/pb/pb_migrations
+docker compose exec pocketbase ./pocketbase migrate collections --dir=/pb_data --migrationsDir=/pb/pb_migrations
+docker compose exec pocketbase ./pocketbase migrate history-sync --dir=/pb_data --migrationsDir=/pb/pb_migrations
+pnpm local:down
 ```
 
 Default local URLs:
@@ -38,7 +36,7 @@ Default local URLs:
 - app: `http://127.0.0.1:8090`
 - admin UI: `http://127.0.0.1:8090/_/`
 
-Local runtime data is stored in `pb_data/` and is not committed.
+Local runtime data lives in the Docker volume for the `pocketbase` service and is not committed.
 
 ## Project Structure
 
@@ -50,7 +48,7 @@ Local runtime data is stored in `pb_data/` and is not committed.
 
 Recommended workflow:
 
-1. Run PocketBase locally.
+1. Run `pnpm dev`.
 2. Update collections or auth settings in the PocketBase admin UI.
 3. Let PocketBase generate new migration files in `pb_migrations/`.
 4. Add JS hooks in `pb_hooks/` when you need custom event logic.
@@ -95,7 +93,7 @@ Environment examples:
 
 ## Dev/Test Mailpit Setup
 
-Use `pnpm pocketbase:mailpit:apply` from the repository root to apply the dev/test mail baseline to PocketBase.
+Use `pnpm pocketbase:mailpit:apply` from the repository root to apply the local mail baseline to PocketBase.
 
 The script sets:
 
@@ -103,7 +101,7 @@ The script sets:
 - `meta.senderName`
 - `meta.senderAddress`
 - Mailpit SMTP host/port/TLS/auth settings
-- SMTP host is fixed to `mailpit.railway.internal`, so the Railway Mailpit service must be named `mailpit`
+- SMTP host is fixed to `mailpit`, the Docker Compose service hostname
 
 Required envs:
 
@@ -117,12 +115,7 @@ Required envs:
 URL convention:
 
 - use base URLs without a trailing slash
-
-Safety rules:
-
-- the script refuses production-like targets by default
-- production writes require `ALLOW_PB_SETTINGS_WRITE=production`
-- Mailpit is for development and testing only
+- Mailpit is for local development and testing only
 
 The container startup sequence is:
 

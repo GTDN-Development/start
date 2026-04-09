@@ -55,8 +55,6 @@ describe("email-transport", function describeEmailTransport() {
     process.env.MAIL_FROM_NAME = "Support";
     process.env.MAIL_FROM_ADDRESS = "support@example.com";
     process.env.MAILPIT_BASE_URL = "https://mailpit.example.com";
-    process.env.MAILPIT_SEND_API_USERNAME = "send-user";
-    process.env.MAILPIT_SEND_API_PASSWORD = "send-pass";
 
     await sendEmail({
       to: "Invitee <invitee@example.com>",
@@ -83,7 +81,6 @@ describe("email-transport", function describeEmailTransport() {
     expect(init?.method).toBe("POST");
     expect(init?.headers).toMatchObject({
       "Content-Type": "application/json",
-      Authorization: `Basic ${Buffer.from("send-user:send-pass").toString("base64")}`,
     });
     expect(requestBody).toEqual({
       From: {

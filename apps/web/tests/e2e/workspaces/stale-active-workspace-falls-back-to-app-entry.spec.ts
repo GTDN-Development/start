@@ -9,6 +9,7 @@ import {
   deleteSignedUpUsersByEmail,
   deleteWorkspaceGraph,
 } from "../helpers/pocketbase-test-admin";
+import { getRequiredTestEnv } from "../helpers/test-env";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("stale active workspace falls back to personal app entry after external access loss", async ({
@@ -52,7 +53,7 @@ test("stale active workspace falls back to personal app entry after external acc
       {
         name: "active_workspace",
         value: workspaceSlug,
-        url: "http://localhost:3100",
+        url: getRequiredTestEnv("NEXT_PUBLIC_APP_URL"),
       },
     ]);
 

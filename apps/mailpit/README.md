@@ -1,30 +1,26 @@
 # Start Mailpit
 
-`apps/mailpit` is the dev/test-only Mailpit service for Start.
+`apps/mailpit` is the local Mailpit image used by the repository Docker stack.
 
-It exists to capture PocketBase auth emails and local web app test emails during development and end-to-end testing.
+It captures PocketBase auth emails and local web app emails during development and end-to-end testing.
 
-## Deployment
+## Local Usage
 
-Create a dedicated Railway service from this app directory.
+The repository root `compose.yaml` builds this image and exposes:
 
-- service name must be `mailpit`
-- `Root Directory = apps/mailpit`
-- generate a public HTTPS domain for the web UI and API
-- do not attach a volume
-- do not expose SMTP publicly
-- use `/readyz` as the healthcheck path
+- HTTP UI / API on host port `8025` by default
+- SMTP on host port `1025` by default
 
-Recommended Railway environment variables:
+Default commands:
 
-- `MP_UI_AUTH=<user>:<password>`
-- `MP_SEND_API_AUTH=<user>:<password>`
-- `MP_MAX_MESSAGES=2000`
-- `MP_MAX_AGE=7d`
+```sh
+pnpm dev
+pnpm test:e2e
+pnpm local:down
+```
 
-The SMTP listener stays internal on Railway private networking:
+Operational notes:
 
-- host: `mailpit.railway.internal`
-- port: `1025`
-
-This service should exist only in development and testing environments. Do not create it in production.
+- the local stack keeps Mailpit unauthenticated because it runs only in trusted dev/test environments
+- PocketBase talks to Mailpit over the Docker network hostname `mailpit`
+- the web app talks to Mailpit over the injected local `MAILPIT_BASE_URL`

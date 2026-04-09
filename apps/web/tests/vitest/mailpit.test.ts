@@ -12,8 +12,6 @@ describe("mailpit helper", function describeMailpitHelper() {
     process.env = {
       ...originalEnv,
       MAILPIT_BASE_URL: "https://mailpit.example.com",
-      MAILPIT_UI_USERNAME: "mailpit-ui",
-      MAILPIT_UI_PASSWORD: "mailpit-ui-password",
     };
     vi.useFakeTimers();
   });
@@ -83,11 +81,7 @@ describe("mailpit helper", function describeMailpitHelper() {
     });
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain("/api/v1/search?query=");
-    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
-      headers: {
-        Authorization: `Basic ${Buffer.from("mailpit-ui:mailpit-ui-password").toString("base64")}`,
-      },
-    });
+    expect(fetchMock.mock.calls[0]?.[1]).toBeUndefined();
   });
 
   it("fetches Mailpit message metadata and rendered html", async function testReadMessage() {

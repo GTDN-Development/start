@@ -37,9 +37,8 @@ Use `.env.local.example` as the quickest local template.
 Explicit examples:
 
 - `.env.local.example` for local development on your machine
-- use the same `.env.local.example` shape for the shared `dev` environment / preview deployment values
 - `.env.prod.example` for production deployment values
-- `.env.test.example` for Playwright and Mailpit-backed test runs
+- `.env.test.example` for Playwright runs against the local Docker stack
 
 Canonical public/runtime envs:
 
@@ -68,21 +67,22 @@ Local testing uses `.env.test`.
 
 - `pnpm test` runs the Vitest suite once
 - `pnpm test:watch` runs Vitest in watch mode
-- `pnpm test:e2e` first applies the PocketBase Mailpit dev/test settings, then builds the app with test env and runs Playwright against `next start` on `http://localhost:3100`
-- `pnpm test:e2e:ui` is the local Playwright debugging variant with the same Mailpit/PocketBase prep step
+- `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app with test env, runs Playwright, and tears the stack down again
+- `pnpm test:e2e:ui` is the same local stack with Playwright UI enabled
 - auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias` recipients from it
 
 Local email defaults:
 
-- normal local dev stays on SMTP unless `MAIL_TRANSPORT` is explicitly changed
-- E2E/test uses `MAIL_TRANSPORT="mailpit-api"`
-
-Mailpit contract for dev/test:
-
-- PocketBase auth emails still exercise SMTP delivery
-- local web app test emails use Mailpit HTTP Send API instead of SMTP
-- this split is intentional because PocketBase runs on Railway while the E2E Next.js app runs locally
+- `pnpm dev` and `pnpm test:e2e` both use `MAIL_TRANSPORT="mailpit-api"`
+- PocketBase auth emails still use SMTP delivery, but they deliver to the local Mailpit container
+- local web app emails go through the local Mailpit HTTP Send API
 - production email delivery is out of scope here
+
+Local stack contract:
+
+- `pnpm dev` starts the persistent local PocketBase + Mailpit stack before `next dev`
+- `pnpm test:e2e` starts a fresh isolated stack and removes its Docker volume after the run
+- `pnpm local:down` stops the persistent local dev stack
 
 ## Tooling
 
@@ -95,7 +95,7 @@ Conventions:
 - colocate unit tests as `*.test.ts` / `*.test.tsx` inside `src/**`
 - keep E2E tests in `tests/e2e/**`
 - use explicit locale-prefixed URLs in E2E, preferably `/cs/...`
-- keep PocketBase superuser credentials inside test helpers only, never in app runtime
+- keep PocketBase superuser credentials in local tooling only, never in app runtime
 
 ## Structure
 

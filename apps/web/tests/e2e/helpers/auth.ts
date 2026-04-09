@@ -59,7 +59,13 @@ export async function expectSignInPage(page: Page): Promise<void> {
 
 export async function openAccountEmailChangeDialog(page: Page): Promise<void> {
   await page.goto("/cs/ucet");
-  await page.getByRole("button", { name: "Změnit e-mail" }).click();
+  await expect(page).toHaveURL(/\/cs\/ucet$/);
+
+  const openDialogButton = page.getByRole("button", { name: "Změnit e-mail" });
+
+  await expect(openDialogButton).toBeVisible();
+  await openDialogButton.click();
+  await expect(page.locator("#account-email-change-newEmail")).toBeVisible();
 }
 
 export async function requestAccountEmailChange(options: {

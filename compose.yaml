@@ -1,0 +1,22 @@
+services:
+  pocketbase:
+    build:
+      context: ./apps/pocketbase
+    environment:
+      PORT: 8080
+      PB_SUPERUSER_EMAIL: ${PB_SUPERUSER_EMAIL:-local-admin@example.com}
+      PB_SUPERUSER_PASSWORD: ${PB_SUPERUSER_PASSWORD:-local-dev-password}
+    ports:
+      - "${POCKETBASE_PORT:-8090}:8080"
+    volumes:
+      - pocketbase_data:/pb_data
+
+  mailpit:
+    build:
+      context: ./apps/mailpit
+    ports:
+      - "${MAILPIT_HTTP_PORT:-8025}:8025"
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+
+volumes:
+  pocketbase_data:
