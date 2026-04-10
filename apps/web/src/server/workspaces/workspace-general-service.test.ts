@@ -5,6 +5,7 @@ import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/ty
 vi.mock("@/server/workspaces/workspace-auth-context", function mockWorkspaceAuthContext() {
   return {
     requireWorkspaceActionContext: vi.fn(),
+    requireWorkspaceAuthContext: vi.fn(),
   };
 });
 

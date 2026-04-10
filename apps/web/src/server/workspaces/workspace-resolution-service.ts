@@ -1,6 +1,5 @@
 import type PocketBase from "pocketbase";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
-import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   mapWorkspaceErrorCode,
@@ -8,9 +7,11 @@ import {
 } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary, sortUserWorkspaces } from "@/server/workspaces/workspace-mappers";
 import {
+  requireWorkspaceActionMembershipContext,
+  resolveWorkspaceMembershipContextBySlug,
+} from "@/server/workspaces/workspace-membership-context";
+import {
   countWorkspaceMembers,
-  findWorkspaceBySlug,
-  findWorkspaceMembershipByWorkspaceAndUser,
   listUserWorkspaceMembershipRecords,
 } from "@/server/workspaces/workspace-repository";
 import type {
@@ -83,20 +84,9 @@ export async function resolveWorkspaceForUserBySlugWithClient(
   slug: string
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>> {
   try {
-    const workspace = await findWorkspaceBySlug(pb, slug);
+    const workspaceMembership = await resolveWorkspaceMembershipContextBySlug(pb, userId, slug);
 
-    if (!workspace) {
-      return {
-        ok: true,
-        data: {
-          workspace: null,
-        },
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(pb, workspace.id, userId);
-
-    if (!membership) {
+    if (workspaceMembership.state !== "ready") {
       return {
         ok: true,
         data: {
@@ -110,9 +100,9 @@ export async function resolveWorkspaceForUserBySlugWithClient(
       data: {
         workspace: mapUserWorkspaceSummary(
           pb,
-          workspace,
-          membership,
-          await countWorkspaceMembers(pb, workspace.id)
+          workspaceMembership.workspace,
+          workspaceMembership.membership,
+          await countWorkspaceMembers(pb, workspaceMembership.workspace.id)
         ),
       },
     };
@@ -186,43 +176,23 @@ export async function resolvePostAuthDestination(input: {
 export async function switchWorkspaceForCurrentUser(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace }>> {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
+    const { pb, membership, workspace } = workspaceAccess.context;
 
     return {
       ok: true,
       data: {
         workspace: mapUserWorkspaceSummary(
-          currentUser.context.pb,
+          pb,
           workspace,
           membership,
-          await countWorkspaceMembers(currentUser.context.pb, workspace.id)
+          await countWorkspaceMembers(pb, workspace.id)
         ),
       },
     };

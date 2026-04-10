@@ -7,6 +7,7 @@ import {
   logWorkspaceServiceError,
 } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
+import { requireWorkspaceActionMembershipContext } from "@/server/workspaces/workspace-membership-context";
 import {
   normalizeWorkspaceName,
   resolveUniqueWorkspaceSlug,
@@ -15,7 +16,6 @@ import {
   countWorkspaceMembers,
   ensureWorkspaceMembership,
   findWorkspaceBySlug,
-  findWorkspaceMembershipByWorkspaceAndUser,
 } from "@/server/workspaces/workspace-repository";
 import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
 
@@ -101,34 +101,14 @@ export async function updateWorkspaceGeneralForCurrentUser(
   workspaceSlug: string,
   input: UpdateWorkspaceGeneralInput
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace; previousSlug: string }>> {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
+    const { pb, membership, workspace } = workspaceAccess.context;
 
     const updateData: Record<string, string | File | null> = {};
 
@@ -156,7 +136,7 @@ export async function updateWorkspaceGeneralForCurrentUser(
       }
 
       const normalizedSlug = toWorkspaceSlug(normalizedSlugInput);
-      const existingWorkspace = await findWorkspaceBySlug(currentUser.context.pb, normalizedSlug);
+      const existingWorkspace = await findWorkspaceBySlug(pb, normalizedSlug);
 
       if (existingWorkspace && existingWorkspace.id !== workspace.id) {
         return {
@@ -181,7 +161,7 @@ export async function updateWorkspaceGeneralForCurrentUser(
       };
     }
 
-    const updatedWorkspace = await currentUser.context.pb
+    const updatedWorkspace = await pb
       .collection("workspaces")
       .update<WorkspacesRecord>(workspace.id, updateData);
 
@@ -189,10 +169,10 @@ export async function updateWorkspaceGeneralForCurrentUser(
       ok: true,
       data: {
         workspace: mapUserWorkspaceSummary(
-          currentUser.context.pb,
+          pb,
           updatedWorkspace,
           membership,
-          await countWorkspaceMembers(currentUser.context.pb, workspace.id)
+          await countWorkspaceMembers(pb, workspace.id)
         ),
         previousSlug: workspace.slug,
       },
@@ -232,36 +212,15 @@ export async function updateWorkspaceGeneralForCurrentUser(
 export async function deleteWorkspaceForCurrentUser(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ deleted: true }>> {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    await currentUser.context.pb.collection("workspaces").delete(workspace.id);
+    const { pb, workspace } = workspaceAccess.context;
+    await pb.collection("workspaces").delete(workspace.id);
 
     return {
       ok: true,

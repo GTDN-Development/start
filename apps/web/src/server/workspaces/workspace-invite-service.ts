@@ -4,10 +4,6 @@ import type { AppLocale } from "@/i18n/routing";
 import { workspaceConfig } from "@/config/workspace";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
 import {
-  requireWorkspaceActionContext,
-  requireWorkspaceAuthContext,
-} from "@/server/workspaces/workspace-auth-context";
-import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
 } from "@/server/workspaces/workspace-errors";
@@ -20,12 +16,14 @@ import {
 } from "@/server/workspaces/workspace-invite-utils";
 import { createWorkspaceInviteUrl } from "@/server/workspaces/workspace-invite-url";
 import { mapWorkspaceInviteSummary } from "@/server/workspaces/workspace-mappers";
+import {
+  requireWorkspaceActionMembershipContext,
+  requireWorkspaceMembershipContext,
+} from "@/server/workspaces/workspace-membership-context";
 import { normalizeEmail } from "@/server/workspaces/workspace-normalization";
 import {
   findInviteById,
   findInviteByWorkspaceAndEmail,
-  findWorkspaceBySlug,
-  findWorkspaceMembershipByWorkspaceAndUser,
   listWorkspaceInviteRecordsByWorkspace,
   listWorkspaceMemberRecordsByWorkspace,
   safeDeleteInvite,
@@ -45,39 +43,15 @@ export type CreateWorkspaceInviteInput = {
 export async function listWorkspaceInvites(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ invites: WorkspaceInviteSummary[] }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const workspaceAccess = await requireWorkspaceMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    const inviteRecords = await listWorkspaceInviteRecordsByWorkspace(
-      currentUser.context.pb,
-      workspace.id
-    );
+    const { pb, workspace } = workspaceAccess.context;
+    const inviteRecords = await listWorkspaceInviteRecordsByWorkspace(pb, workspace.id);
     const now = Date.now();
     const invites = inviteRecords
       .filter((inviteRecord) => !isDateStringExpired(inviteRecord.expires_at, now))
@@ -117,10 +91,10 @@ export async function createWorkspaceInviteForCurrentUser(
   workspaceSlug: string,
   input: CreateWorkspaceInviteInput
 ): Promise<ServerWorkspaceResponse<{ invite: WorkspaceInviteSummary }>> {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   const normalizedEmail = normalizeEmail(input.email);
@@ -133,32 +107,8 @@ export async function createWorkspaceInviteForCurrentUser(
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    const workspaceMembers = await listWorkspaceMemberRecordsByWorkspace(
-      currentUser.context.pb,
-      workspace.id
-    );
+    const { pb, user, workspace } = workspaceAccess.context;
+    const workspaceMembers = await listWorkspaceMemberRecordsByWorkspace(pb, workspace.id);
 
     if (hasMemberWithEmail(workspaceMembers, normalizedEmail)) {
       return {
@@ -168,7 +118,7 @@ export async function createWorkspaceInviteForCurrentUser(
     }
 
     const existingInviteRecord = await findInviteByWorkspaceAndEmail(
-      currentUser.context.pb,
+      pb,
       workspace.id,
       normalizedEmail
     );
@@ -181,28 +131,26 @@ export async function createWorkspaceInviteForCurrentUser(
     }
 
     if (existingInviteRecord && isDateStringExpired(existingInviteRecord.expires_at)) {
-      await safeDeleteInvite(currentUser.context.pb, existingInviteRecord.id);
+      await safeDeleteInvite(pb, existingInviteRecord.id);
     }
 
     const inviteToken = createInviteToken();
     const inviteHash = hashInviteToken(inviteToken);
-    const inviteRecord = await currentUser.context.pb
-      .collection("workspace_invites")
-      .create<WorkspaceInvitesRecord>({
-        workspace: workspace.id,
-        email_normalized: normalizedEmail,
-        role: input.role,
-        token_hash: inviteHash,
-        expires_at: createInviteExpiryDate(),
-        invited_by: currentUser.context.user.id,
-      });
+    const inviteRecord = await pb.collection("workspace_invites").create<WorkspaceInvitesRecord>({
+      workspace: workspace.id,
+      email_normalized: normalizedEmail,
+      role: input.role,
+      token_hash: inviteHash,
+      expires_at: createInviteExpiryDate(),
+      invited_by: user.id,
+    });
 
     try {
       await sendWorkspaceInviteEmail({
         locale: input.locale,
         email: normalizedEmail,
         workspaceName: workspace.name,
-        inviterName: getNullableTrimmedString(currentUser.context.user.name),
+        inviterName: getNullableTrimmedString(user.name),
         inviteToken,
       });
     } catch (emailError) {
@@ -211,7 +159,7 @@ export async function createWorkspaceInviteForCurrentUser(
         emailError
       );
 
-      await safeDeleteInvite(currentUser.context.pb, inviteRecord.id);
+      await safeDeleteInvite(pb, inviteRecord.id);
 
       return {
         ok: false,
@@ -228,7 +176,7 @@ export async function createWorkspaceInviteForCurrentUser(
           role: inviteRecord.role,
           expiresAt: inviteRecord.expires_at,
           updatedAt: inviteRecord.updated,
-          invitedByName: getNullableTrimmedString(currentUser.context.user.name),
+          invitedByName: getNullableTrimmedString(user.name),
           inviteUrl: createWorkspaceInviteUrl(inviteToken, input.locale),
         },
       },
@@ -283,36 +231,15 @@ export async function resendWorkspaceInviteForCurrentUser(
     inviteUrl: string;
   }>
 > {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    const inviteRecord = await findInviteById(currentUser.context.pb, workspace.id, inviteId);
+    const { pb, user, workspace } = workspaceAccess.context;
+    const inviteRecord = await findInviteById(pb, workspace.id, inviteId);
 
     if (!inviteRecord) {
       return {
@@ -322,7 +249,7 @@ export async function resendWorkspaceInviteForCurrentUser(
     }
 
     if (isDateStringExpired(inviteRecord.expires_at)) {
-      await safeDeleteInvite(currentUser.context.pb, inviteRecord.id);
+      await safeDeleteInvite(pb, inviteRecord.id);
 
       return {
         ok: false,
@@ -347,7 +274,7 @@ export async function resendWorkspaceInviteForCurrentUser(
     const previousInviteTokenHash = inviteRecord.token_hash;
     const previousInviteExpiresAt = inviteRecord.expires_at;
 
-    const updatedInviteRecord = await currentUser.context.pb
+    const updatedInviteRecord = await pb
       .collection("workspace_invites")
       .update<WorkspaceInvitesRecord>(inviteRecord.id, {
         token_hash: nextInviteHash,
@@ -359,7 +286,7 @@ export async function resendWorkspaceInviteForCurrentUser(
         locale,
         email: inviteRecord.email_normalized,
         workspaceName: workspace.name,
-        inviterName: getNullableTrimmedString(currentUser.context.user.name),
+        inviterName: getNullableTrimmedString(user.name),
         inviteToken: nextInviteToken,
       });
     } catch (emailError) {
@@ -368,7 +295,7 @@ export async function resendWorkspaceInviteForCurrentUser(
         emailError
       );
 
-      await rollbackInviteAfterFailedResend(currentUser.context.pb, inviteRecord.id, {
+      await rollbackInviteAfterFailedResend(pb, inviteRecord.id, {
         tokenHash: previousInviteTokenHash,
         expiresAt: previousInviteExpiresAt,
       });
@@ -428,36 +355,15 @@ export async function refreshWorkspaceInviteLinkForCurrentUser(
     inviteUrl: string;
   }>
 > {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    const inviteRecord = await findInviteById(currentUser.context.pb, workspace.id, inviteId);
+    const { pb, workspace } = workspaceAccess.context;
+    const inviteRecord = await findInviteById(pb, workspace.id, inviteId);
 
     if (!inviteRecord) {
       return {
@@ -467,7 +373,7 @@ export async function refreshWorkspaceInviteLinkForCurrentUser(
     }
 
     if (isDateStringExpired(inviteRecord.expires_at)) {
-      await safeDeleteInvite(currentUser.context.pb, inviteRecord.id);
+      await safeDeleteInvite(pb, inviteRecord.id);
 
       return {
         ok: false,
@@ -477,7 +383,7 @@ export async function refreshWorkspaceInviteLinkForCurrentUser(
 
     const nextInviteToken = createInviteToken();
     const nextInviteHash = hashInviteToken(nextInviteToken);
-    const updatedInviteRecord = await currentUser.context.pb
+    const updatedInviteRecord = await pb
       .collection("workspace_invites")
       .update<WorkspaceInvitesRecord>(inviteRecord.id, {
         token_hash: nextInviteHash,
@@ -528,36 +434,15 @@ export async function revokeWorkspaceInviteForCurrentUser(
   workspaceSlug: string,
   inviteId: string
 ): Promise<ServerWorkspaceResponse<{ revoked: true }>> {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    const inviteRecord = await findInviteById(currentUser.context.pb, workspace.id, inviteId);
+    const { pb, workspace } = workspaceAccess.context;
+    const inviteRecord = await findInviteById(pb, workspace.id, inviteId);
 
     if (!inviteRecord) {
       return {
@@ -566,7 +451,7 @@ export async function revokeWorkspaceInviteForCurrentUser(
       };
     }
 
-    await currentUser.context.pb.collection("workspace_invites").delete(inviteRecord.id);
+    await pb.collection("workspace_invites").delete(inviteRecord.id);
 
     return {
       ok: true,

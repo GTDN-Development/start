@@ -1,20 +1,18 @@
 import {
-  requireWorkspaceActionContext,
-  requireWorkspaceAuthContext,
-} from "@/server/workspaces/workspace-auth-context";
-import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
 } from "@/server/workspaces/workspace-errors";
+import {
+  requireWorkspaceActionMembershipContext,
+  requireWorkspaceMembershipContext,
+} from "@/server/workspaces/workspace-membership-context";
 import {
   mapWorkspaceMemberSummary,
   sortWorkspaceMembers,
 } from "@/server/workspaces/workspace-mappers";
 import {
   countWorkspaceOwners,
-  findWorkspaceBySlug,
   findWorkspaceMemberById,
-  findWorkspaceMembershipByWorkspaceAndUser,
   listWorkspaceMemberRecordsByWorkspace,
 } from "@/server/workspaces/workspace-repository";
 import type {
@@ -26,41 +24,17 @@ import type {
 export async function listWorkspaceMembers(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ members: WorkspaceMemberSummary[] }>> {
-  const currentUser = await requireWorkspaceAuthContext();
+  const workspaceAccess = await requireWorkspaceMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    const memberRecords = await listWorkspaceMemberRecordsByWorkspace(
-      currentUser.context.pb,
-      workspace.id
-    );
+    const { pb, workspace } = workspaceAccess.context;
+    const memberRecords = await listWorkspaceMemberRecordsByWorkspace(pb, workspace.id);
     const members = memberRecords
-      .map((memberRecord) => mapWorkspaceMemberSummary(currentUser.context.pb, memberRecord))
+      .map((memberRecord) => mapWorkspaceMemberSummary(pb, memberRecord))
       .filter((value): value is WorkspaceMemberSummary => value !== null)
       .sort(sortWorkspaceMembers);
 
@@ -97,37 +71,17 @@ export async function listWorkspaceMembers(
 export async function leaveWorkspaceForCurrentUser(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ left: true }>> {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
+    const { pb, membership, workspace } = workspaceAccess.context;
 
     if (membership.role === "owner") {
-      const ownerCount = await countWorkspaceOwners(currentUser.context.pb, workspace.id);
+      const ownerCount = await countWorkspaceOwners(pb, workspace.id);
 
       if (ownerCount <= 1) {
         return {
@@ -137,7 +91,7 @@ export async function leaveWorkspaceForCurrentUser(
       }
     }
 
-    await currentUser.context.pb.collection("workspace_members").delete(membership.id);
+    await pb.collection("workspace_members").delete(membership.id);
 
     return {
       ok: true,
@@ -174,40 +128,15 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
   memberId: string,
   role: WorkspaceMemberRole
 ): Promise<ServerWorkspaceResponse<{ updated: true }>> {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    const memberRecord = await findWorkspaceMemberById(
-      currentUser.context.pb,
-      workspace.id,
-      memberId
-    );
+    const { pb, workspace } = workspaceAccess.context;
+    const memberRecord = await findWorkspaceMemberById(pb, workspace.id, memberId);
 
     if (!memberRecord) {
       return {
@@ -226,7 +155,7 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
     }
 
     if (memberRecord.role === "owner" && role !== "owner") {
-      const ownerCount = await countWorkspaceOwners(currentUser.context.pb, workspace.id);
+      const ownerCount = await countWorkspaceOwners(pb, workspace.id);
 
       if (ownerCount <= 1) {
         return {
@@ -236,7 +165,7 @@ export async function changeWorkspaceMemberRoleForCurrentUser(
       }
     }
 
-    await currentUser.context.pb.collection("workspace_members").update(memberRecord.id, {
+    await pb.collection("workspace_members").update(memberRecord.id, {
       role,
     });
 
@@ -278,40 +207,15 @@ export async function removeWorkspaceMemberForCurrentUser(
   workspaceSlug: string,
   memberId: string
 ): Promise<ServerWorkspaceResponse<{ removed: true }>> {
-  const currentUser = await requireWorkspaceActionContext();
+  const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
 
-  if (!currentUser.ok) {
-    return currentUser.response;
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
   }
 
   try {
-    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
-
-    if (!workspace) {
-      return {
-        ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id
-    );
-
-    if (!membership) {
-      return {
-        ok: false,
-        errorCode: "FORBIDDEN",
-      };
-    }
-
-    const memberRecord = await findWorkspaceMemberById(
-      currentUser.context.pb,
-      workspace.id,
-      memberId
-    );
+    const { pb, membership, workspace } = workspaceAccess.context;
+    const memberRecord = await findWorkspaceMemberById(pb, workspace.id, memberId);
 
     if (!memberRecord) {
       return {
@@ -328,7 +232,7 @@ export async function removeWorkspaceMemberForCurrentUser(
     }
 
     if (memberRecord.role === "owner") {
-      const ownerCount = await countWorkspaceOwners(currentUser.context.pb, workspace.id);
+      const ownerCount = await countWorkspaceOwners(pb, workspace.id);
 
       if (ownerCount <= 1) {
         return {
@@ -338,7 +242,7 @@ export async function removeWorkspaceMemberForCurrentUser(
       }
     }
 
-    await currentUser.context.pb.collection("workspace_members").delete(memberRecord.id);
+    await pb.collection("workspace_members").delete(memberRecord.id);
 
     return {
       ok: true,

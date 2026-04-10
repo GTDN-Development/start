@@ -17,8 +17,6 @@ vi.mock("@/server/workspaces/workspace-cookie", function mockWorkspaceCookie() {
 vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceRepository() {
   return {
     countWorkspaceMembers: vi.fn(),
-    findWorkspaceBySlug: vi.fn(),
-    findWorkspaceMembershipByWorkspaceAndUser: vi.fn(),
     listUserWorkspaceMembershipRecords: vi.fn(),
   };
 });
@@ -30,14 +28,21 @@ vi.mock("@/server/workspaces/workspace-mappers", function mockWorkspaceMappers()
   };
 });
 
+vi.mock(
+  "@/server/workspaces/workspace-membership-context",
+  function mockWorkspaceMembershipContext() {
+    return {
+      requireWorkspaceActionMembershipContext: vi.fn(),
+      resolveWorkspaceMembershipContextBySlug: vi.fn(),
+    };
+  }
+);
+
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
-import {
-  countWorkspaceMembers,
-  findWorkspaceBySlug,
-  findWorkspaceMembershipByWorkspaceAndUser,
-} from "@/server/workspaces/workspace-repository";
+import { resolveWorkspaceMembershipContextBySlug } from "@/server/workspaces/workspace-membership-context";
+import { countWorkspaceMembers } from "@/server/workspaces/workspace-repository";
 import {
   resolveActiveWorkspaceForUserWithClient,
   resolvePostAuthDestination,
@@ -77,8 +82,11 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
       shouldPersistSession: true,
     });
     vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue("team-space");
-    vi.mocked(findWorkspaceBySlug).mockResolvedValue(workspace);
-    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(membership);
+    vi.mocked(resolveWorkspaceMembershipContextBySlug).mockResolvedValue({
+      state: "ready",
+      workspace,
+      membership,
+    });
     vi.mocked(countWorkspaceMembers).mockResolvedValue(3);
     vi.mocked(mapUserWorkspaceSummary).mockReturnValue({
       id: workspace.id,
@@ -147,11 +155,11 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
 
   it("falls back without clearing stale active workspace cookies during render", async function testStaleCookie() {
     const pb = createPocketBaseMock();
-    const workspace = createWorkspaceRecord("team-space");
 
     vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue("team-space");
-    vi.mocked(findWorkspaceBySlug).mockResolvedValue(workspace);
-    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(null);
+    vi.mocked(resolveWorkspaceMembershipContextBySlug).mockResolvedValue({
+      state: "membership_not_found",
+    });
 
     const response = await resolveActiveWorkspaceForUserWithClient(pb, "user-1");
 

@@ -1,12 +1,10 @@
 import PocketBase, { ClientResponseError } from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
-import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
+import { requireWorkspaceActionMembershipContext } from "@/server/workspaces/workspace-membership-context";
 import {
   countWorkspaceOwners,
-  findWorkspaceBySlug,
   findWorkspaceMemberById,
-  findWorkspaceMembershipByWorkspaceAndUser,
 } from "@/server/workspaces/workspace-repository";
 import {
   changeWorkspaceMemberRoleForCurrentUser,
@@ -14,18 +12,20 @@ import {
   removeWorkspaceMemberForCurrentUser,
 } from "./workspace-members-service";
 
-vi.mock("@/server/workspaces/workspace-auth-context", function mockWorkspaceAuthContext() {
-  return {
-    requireWorkspaceActionContext: vi.fn(),
-  };
-});
+vi.mock(
+  "@/server/workspaces/workspace-membership-context",
+  function mockWorkspaceMembershipContext() {
+    return {
+      requireWorkspaceActionMembershipContext: vi.fn(),
+      requireWorkspaceMembershipContext: vi.fn(),
+    };
+  }
+);
 
 vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceRepository() {
   return {
     countWorkspaceOwners: vi.fn(),
-    findWorkspaceBySlug: vi.fn(),
     findWorkspaceMemberById: vi.fn(),
-    findWorkspaceMembershipByWorkspaceAndUser: vi.fn(),
     listWorkspaceMemberRecordsByWorkspace: vi.fn(),
   };
 });
@@ -40,11 +40,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const user = createUserRecord("user-member", "member@example.com");
     const membership = createWorkspaceMemberRecord("membership-member", user.id, "member");
 
-    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
-      createWorkspaceAuthSuccess(pb, user)
+    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+      createWorkspaceMembershipContextSuccess(pb, user, membership)
     );
-    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
-    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(membership);
 
     const response = await leaveWorkspaceForCurrentUser("team-space");
 
@@ -62,11 +60,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const user = createUserRecord("user-owner", "owner@example.com");
     const membership = createWorkspaceMemberRecord("membership-owner", user.id, "owner");
 
-    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
-      createWorkspaceAuthSuccess(pb, user)
+    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+      createWorkspaceMembershipContextSuccess(pb, user, membership)
     );
-    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
-    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(membership);
     vi.mocked(countWorkspaceOwners).mockResolvedValue(1);
 
     const response = await leaveWorkspaceForCurrentUser("team-space");
@@ -84,11 +80,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
     const ownerMembership = createWorkspaceMemberRecord("membership-owner", "user-owner", "owner");
 
-    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
-      createWorkspaceAuthSuccess(pb, user)
+    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+      createWorkspaceMembershipContextSuccess(pb, user, adminMembership)
     );
-    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
-    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(adminMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
     vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
     updateSpy.mockRejectedValue(createNotFoundError());
@@ -118,11 +112,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
       "member"
     );
 
-    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
-      createWorkspaceAuthSuccess(pb, user)
+    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+      createWorkspaceMembershipContextSuccess(pb, user, ownerMembership)
     );
-    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
-    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(ownerMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(memberMembership);
 
     const response = await changeWorkspaceMemberRoleForCurrentUser(
@@ -147,11 +139,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const user = createUserRecord("user-owner", "owner@example.com");
     const ownerMembership = createWorkspaceMemberRecord("membership-owner", user.id, "owner");
 
-    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
-      createWorkspaceAuthSuccess(pb, user)
+    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+      createWorkspaceMembershipContextSuccess(pb, user, ownerMembership)
     );
-    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
-    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(ownerMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
     vi.mocked(countWorkspaceOwners).mockResolvedValue(1);
 
@@ -173,11 +163,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const user = createUserRecord("user-admin", "admin@example.com");
     const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
 
-    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
-      createWorkspaceAuthSuccess(pb, user)
+    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+      createWorkspaceMembershipContextSuccess(pb, user, adminMembership)
     );
-    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
-    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(adminMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(adminMembership);
 
     const response = await removeWorkspaceMemberForCurrentUser("team-space", adminMembership.id);
@@ -195,11 +183,9 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
     const ownerMembership = createWorkspaceMemberRecord("membership-owner", "user-owner", "owner");
 
-    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
-      createWorkspaceAuthSuccess(pb, user)
+    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+      createWorkspaceMembershipContextSuccess(pb, user, adminMembership)
     );
-    vi.mocked(findWorkspaceBySlug).mockResolvedValue(createWorkspaceRecord());
-    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(adminMembership);
     vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
     vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
     deleteSpy.mockRejectedValue(createNotFoundError());
@@ -290,12 +276,18 @@ function createWorkspaceMemberRecord(
   };
 }
 
-function createWorkspaceAuthSuccess(pb: PocketBase, user: UsersRecord) {
+function createWorkspaceMembershipContextSuccess(
+  pb: PocketBase,
+  user: UsersRecord,
+  membership: WorkspaceMembersRecord
+) {
   return {
     ok: true as const,
     context: {
       pb,
       user,
+      workspace: createWorkspaceRecord(),
+      membership,
     },
   };
 }
