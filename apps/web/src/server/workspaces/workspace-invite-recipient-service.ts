@@ -1,6 +1,9 @@
 import type PocketBase from "pocketbase";
 import type { WorkspaceInvitesRecord, WorkspacesRecord } from "@/types/pocketbase";
-import { createPocketBaseClient, createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
+import {
+  createPocketBaseClient,
+  createPocketBaseServerClient,
+} from "@/server/pocketbase/pocketbase-server";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
@@ -260,7 +263,9 @@ async function validateInviteByHashForUser(
   };
 }
 
-async function inspectInviteTokenAsGuest(inviteToken: string): Promise<PocketBaseInviteInspectState> {
+async function inspectInviteTokenAsGuest(
+  inviteToken: string
+): Promise<PocketBaseInviteInspectState> {
   const pb = createPocketBaseClient();
   const response = await pb.send<{
     state: PocketBaseInviteInspectState;
@@ -298,6 +303,9 @@ type ValidatedInviteForUserResult =
       alreadyMember: boolean;
     };
 
-type ResolvedInviteForUserResult = Exclude<ValidatedInviteForUserResult, { state: "direct_read_miss" }>;
+type ResolvedInviteForUserResult = Exclude<
+  ValidatedInviteForUserResult,
+  { state: "direct_read_miss" }
+>;
 
 type PocketBaseInviteInspectState = "invalid_or_expired" | "valid_guest";

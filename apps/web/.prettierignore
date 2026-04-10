@@ -10,5 +10,6 @@ package-lock.json
 .plans
 .rules
 .specs
+messages/*.d.json.ts
 AGENTS.md
 CLAUDE.md

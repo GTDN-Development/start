@@ -59,11 +59,14 @@ vi.mock("@/server/workspaces/workspace-members-service", function mockWorkspaceM
   };
 });
 
-vi.mock("@/server/workspaces/workspace-resolution-service", function mockWorkspaceResolutionService() {
-  return {
-    switchWorkspaceForCurrentUser,
-  };
-});
+vi.mock(
+  "@/server/workspaces/workspace-resolution-service",
+  function mockWorkspaceResolutionService() {
+    return {
+      switchWorkspaceForCurrentUser,
+    };
+  }
+);
 
 import { updateWorkspaceGeneralAction } from "./workspace-general-actions";
 

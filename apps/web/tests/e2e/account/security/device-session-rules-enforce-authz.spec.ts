@@ -116,12 +116,12 @@ test("PocketBase user device session rules enforce owner-only access", async () 
     );
     expect(updatedUserASession.user).toBe(userA.id);
 
-    const refreshedUserASession = await adminPb.collection("user_device_sessions").getOne(
-      userASession.id
-    );
-    const refreshedUserBSession = await adminPb.collection("user_device_sessions").getOne(
-      userBSession.id
-    );
+    const refreshedUserASession = await adminPb
+      .collection("user_device_sessions")
+      .getOne(userASession.id);
+    const refreshedUserBSession = await adminPb
+      .collection("user_device_sessions")
+      .getOne(userBSession.id);
 
     expect(normalizeIsoDate(refreshedUserASession.last_seen_at)).toBe(
       normalizeIsoDate(nextLastSeenAt)

@@ -55,7 +55,11 @@ test("PocketBase workspace rules enforce membership and role boundaries", async 
       password,
     });
     const invitee = await createVerifiedUser({ pb: adminPb, email: inviteEmail, password });
-    const bootstrapUser = await createVerifiedUser({ pb: adminPb, email: bootstrapEmail, password });
+    const bootstrapUser = await createVerifiedUser({
+      pb: adminPb,
+      email: bootstrapEmail,
+      password,
+    });
     await createVerifiedUser({ pb: adminPb, email: outsiderEmail, password });
 
     const { workspace } = await createWorkspace({
@@ -115,7 +119,9 @@ test("PocketBase workspace rules enforce membership and role boundaries", async 
       password,
     });
 
-    await expect(outsiderClient.collection("workspaces").getOne(workspace.id)).rejects.toMatchObject({
+    await expect(
+      outsiderClient.collection("workspaces").getOne(workspace.id)
+    ).rejects.toMatchObject({
       status: 404,
     });
 
@@ -126,12 +132,11 @@ test("PocketBase workspace rules enforce membership and role boundaries", async 
     });
     expect(visibleMembers).toHaveLength(5);
 
-    const updatedManagedMember = await adminClient.collection("workspace_members").update(
-      managedMemberMembership.id,
-      {
+    const updatedManagedMember = await adminClient
+      .collection("workspace_members")
+      .update(managedMemberMembership.id, {
         role: "admin",
-      }
-    );
+      });
     expect(updatedManagedMember.role).toBe("admin");
 
     const inviteToken = randomBytes(32).toString("hex");
@@ -181,11 +186,11 @@ test("PocketBase workspace rules enforce membership and role boundaries", async 
     expect(bootstrapMembership.user).toBe(bootstrapUser.id);
 
     await selfLeaveClient.collection("workspace_members").delete(selfLeaveMembership.id);
-    await expect(adminPb.collection("workspace_members").getOne(selfLeaveMembership.id)).rejects.toMatchObject(
-      {
-        status: 404,
-      }
-    );
+    await expect(
+      adminPb.collection("workspace_members").getOne(selfLeaveMembership.id)
+    ).rejects.toMatchObject({
+      status: 404,
+    });
   } finally {
     if (adminPb) {
       await deleteWorkspaceGraph({

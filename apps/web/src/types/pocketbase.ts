@@ -80,15 +80,15 @@ export interface WorkspacesRecord extends PocketBaseSystemFields {
 }
 
 export interface PocketBaseCollections {
-  "cookie_consent_events": CookieConsentEventsRecord;
-  "posts": PostsRecord;
-  "user_device_sessions": UserDeviceSessionsRecord;
-  "users": UsersRecord;
-  "workspace_invites": WorkspaceInvitesRecord;
-  "workspace_members": WorkspaceMembersRecord;
-  "workspaces": WorkspacesRecord;
+  cookie_consent_events: CookieConsentEventsRecord;
+  posts: PostsRecord;
+  user_device_sessions: UserDeviceSessionsRecord;
+  users: UsersRecord;
+  workspace_invites: WorkspaceInvitesRecord;
+  workspace_members: WorkspaceMembersRecord;
+  workspaces: WorkspacesRecord;
 }
 
 export type PocketBaseCollectionName = keyof PocketBaseCollections;
-export type PocketBaseCollectionRecord<TName extends PocketBaseCollectionName> = PocketBaseCollections[TName];
-
+export type PocketBaseCollectionRecord<TName extends PocketBaseCollectionName> =
+  PocketBaseCollections[TName];

@@ -36,9 +36,7 @@ test("support form requires sign-in and sends the submitted message with attachm
     });
 
     await page.goto("/cs/kontakt/podpora");
-    await expect(
-      page.getByText("Přihlaste se, abychom vám mohli pomoci rychleji")
-    ).toBeVisible();
+    await expect(page.getByText("Přihlaste se, abychom vám mohli pomoci rychleji")).toBeVisible();
     await expect(page.getByRole("button", { name: "Přihlásit se" })).toBeVisible();
     await expect(page.locator("#support-message")).toHaveCount(0);
     await expect(page.locator("#support-attachments")).toHaveCount(0);

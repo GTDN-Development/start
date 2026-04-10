@@ -130,7 +130,11 @@ function getWorkspaceMemberRow(page: Page, memberIdentifier: string) {
   return page.locator("tbody tr").filter({ hasText: memberIdentifier }).first();
 }
 
-async function openAlertDialog(page: Page, buttonName: string, dialogHeading: ReturnType<Page["getByRole"]>) {
+async function openAlertDialog(
+  page: Page,
+  buttonName: string,
+  dialogHeading: ReturnType<Page["getByRole"]>
+) {
   const trigger = page.getByRole("button", { name: buttonName });
 
   await expect(trigger).toBeVisible();

@@ -9,10 +9,7 @@ import {
   deleteSignedUpUsersByEmail,
   deleteWorkspaceGraph,
 } from "../helpers/pocketbase-test-admin";
-import {
-  changeWorkspaceMemberRole,
-  leaveWorkspaceFromSettings,
-} from "../helpers/workspaces";
+import { changeWorkspaceMemberRole, leaveWorkspaceFromSettings } from "../helpers/workspaces";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("owner promotes another member to owner, then leaves the workspace successfully", async ({

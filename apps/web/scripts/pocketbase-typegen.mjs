@@ -138,7 +138,11 @@ function findClosingQuoteIndex(value, quote) {
 
     let backslashCount = 0;
 
-    for (let escapeIndex = index - 1; escapeIndex >= 0 && value[escapeIndex] === "\\"; escapeIndex -= 1) {
+    for (
+      let escapeIndex = index - 1;
+      escapeIndex >= 0 && value[escapeIndex] === "\\";
+      escapeIndex -= 1
+    ) {
       backslashCount += 1;
     }
 
@@ -240,15 +244,14 @@ function renderPocketBaseTypesFile(collections) {
       continue;
     }
 
-    lines.push(`  ${JSON.stringify(collection.name)}: ${interfaceName};`);
+    lines.push(`  ${renderPropertyName(collection.name)}: ${interfaceName};`);
   }
 
   lines.push("}");
   lines.push("");
   lines.push("export type PocketBaseCollectionName = keyof PocketBaseCollections;");
-  lines.push(
-    "export type PocketBaseCollectionRecord<TName extends PocketBaseCollectionName> = PocketBaseCollections[TName];"
-  );
+  lines.push("export type PocketBaseCollectionRecord<TName extends PocketBaseCollectionName> =");
+  lines.push("  PocketBaseCollections[TName];");
   lines.push("");
 
   return `${lines.join("\n")}\n`;
