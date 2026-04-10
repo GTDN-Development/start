@@ -695,7 +695,7 @@ declare const messages: {
           "success": "Your account has been deleted.",
           "error": "We couldn't delete your account right now. Please try again.",
           "unauthorized": "Your session expired. Please sign in again.",
-          "deleteNotAllowed": "Account deletion is not enabled in the backend yet.",
+          "blockedLastOwner": "You can't delete your account right now because you're the last owner of at least one workspace.",
           "invalidCredentials": "Current password is incorrect."
         }
       },

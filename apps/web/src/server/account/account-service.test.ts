@@ -82,6 +82,7 @@ describe("account-service", function describeAccountService() {
       ok: false,
       errorCode: "ACCOUNT_DELETE_BLOCKED_LAST_OWNER",
     });
+    expect(revokeAllDeviceSessions).not.toHaveBeenCalled();
     expect(currentUser.workspaceMembersCollection.delete).not.toHaveBeenCalled();
     expect(currentUser.usersCollection.delete).not.toHaveBeenCalled();
   });
@@ -118,6 +119,10 @@ describe("account-service", function describeAccountService() {
       2,
       "membership-member"
     );
+    expect(revokeAllDeviceSessions).toHaveBeenCalledWith({
+      pb: currentUser.pb,
+      userId: currentUser.user.id,
+    });
     expect(currentUser.usersCollection.delete).toHaveBeenCalledWith(currentUser.user.id);
   });
 

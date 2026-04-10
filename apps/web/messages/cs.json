@@ -692,7 +692,7 @@
           "success": "Účet byl smazán.",
           "error": "Účet se teď nepodařilo smazat. Zkuste to prosím znovu.",
           "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu.",
-          "deleteNotAllowed": "Mazání účtů zatím není na backendu povolené.",
+          "blockedLastOwner": "Účet teď nelze smazat, protože jste poslední vlastník alespoň jednoho workspace.",
           "invalidCredentials": "Aktuální heslo není správné."
         }
       },

@@ -84,6 +84,35 @@ export async function requestAccountEmailChange(options: {
 
 export async function openAccountSecurityPage(page: Page): Promise<void> {
   await page.goto("/cs/ucet/zabezpeceni");
+  await expect(page).toHaveURL(/\/cs\/ucet\/zabezpeceni$/);
+}
+
+export async function deleteAccountFromSettings(options: {
+  page: Page;
+  password: string;
+}): Promise<void> {
+  await options.page.goto("/cs/ucet");
+  await expect(options.page).toHaveURL(/\/cs\/ucet$/);
+
+  const openDialogButton = options.page.getByRole("button", {
+    name: "Trvale smazat účet",
+  });
+
+  await expect(openDialogButton).toBeVisible();
+  await openDialogButton.click();
+
+  const dialog = options.page.getByRole("alertdialog");
+
+  await expect(dialog.getByRole("heading", { name: "Trvale smazat účet" })).toBeVisible();
+  await expect(dialog.locator("#account-delete-password")).toBeVisible();
+
+  await dialog.locator("#account-delete-password").fill(options.password);
+  await dialog
+    .getByRole("checkbox", {
+      name: "Rozumím, že touto akcí bude nevratně smazán účet a s ním spojená veškerá data.",
+    })
+    .click();
+  await dialog.getByRole("button", { name: "Smazat trvale" }).click();
 }
 
 export async function changeAccountPassword(options: {

@@ -36,7 +36,6 @@ test("your devices shows current device and allows signing out another device", 
     await expect(secondPage).toHaveURL(/\/cs\/aplikace$/);
 
     await openAccountSecurityPage(page);
-    await expect(page).toHaveURL(/\/cs\/ucet\/zabezpeceni$/);
     await expect(page.getByText("Toto zařízení").first()).toBeVisible();
     await expect(page.getByRole("button", { name: "Odhlásit" }).first()).toBeVisible();
 

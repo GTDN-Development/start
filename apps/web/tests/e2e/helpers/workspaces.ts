@@ -87,6 +87,27 @@ export async function updateWorkspaceSlug(options: {
   await expect(options.page).toHaveURL(new RegExp(`/cs/w/${options.nextSlug}/nastaveni$`));
 }
 
+export async function deleteWorkspaceFromSettings(options: {
+  page: Page;
+  workspaceSlug: string;
+}): Promise<void> {
+  await options.page.goto(`/cs/w/${options.workspaceSlug}/nastaveni`);
+  await expect(options.page).toHaveURL(new RegExp(`/cs/w/${options.workspaceSlug}/nastaveni$`));
+
+  await options.page.getByRole("button", { name: "Smazat workspace" }).click();
+
+  const dialog = options.page.getByRole("alertdialog");
+
+  await expect(dialog.getByRole("heading", { name: "Smazat workspace?" })).toBeVisible();
+  await dialog.locator("#workspace-delete-confirmationUrl").fill(options.workspaceSlug);
+  await dialog
+    .getByRole("checkbox", {
+      name: "Rozumím, že tuto akci nelze vrátit zpět.",
+    })
+    .click();
+  await dialog.getByRole("button", { name: "Smazat workspace" }).click();
+}
+
 function getWorkspaceMemberRow(page: Page, memberIdentifier: string) {
   return page.locator("tbody tr").filter({ hasText: memberIdentifier }).first();
 }
