@@ -1,7 +1,7 @@
 // Server side docs:
 // https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
 
-import { isTurnstileEnabled } from "@/config/security";
+import { getTurnstileConfig } from "@/config/security";
 
 const VERIFY_ENDPOINT_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const VERIFICATION_TIMEOUT_MS = 10000; // 10 second timeout
@@ -30,7 +30,9 @@ export async function verifyTurnstileToken(
   token: string,
   remoteip?: string
 ): Promise<TurnstileVerificationResult> {
-  if (!isTurnstileEnabled()) {
+  const turnstileConfig = getTurnstileConfig();
+
+  if (!turnstileConfig.enabled) {
     return {
       success: true,
       hostname: "turnstile-disabled",
@@ -38,7 +40,7 @@ export async function verifyTurnstileToken(
   }
 
   try {
-    const secret = process.env.TURNSTILE_SECRET_KEY;
+    const secret = turnstileConfig.secretKey;
 
     if (!secret) {
       return {
