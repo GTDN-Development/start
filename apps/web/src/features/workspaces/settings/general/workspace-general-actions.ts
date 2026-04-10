@@ -100,7 +100,11 @@ export async function updateWorkspaceGeneralAction(
   if (response.ok) {
     const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
     const workspaceSlugChanged = response.data.previousSlug !== response.data.workspace.slug;
-    const shouldUpdateActiveWorkspaceCookie = activeWorkspaceSlug !== response.data.workspace.slug;
+    const isCurrentWorkspaceRoute = parsedWorkspaceSlug.data === response.data.previousSlug;
+    const shouldUpdateActiveWorkspaceCookie =
+      workspaceSlugChanged &&
+      (activeWorkspaceSlug === response.data.previousSlug ||
+        (!activeWorkspaceSlug && isCurrentWorkspaceRoute));
 
     if (shouldUpdateActiveWorkspaceCookie) {
       await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
