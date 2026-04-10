@@ -31,22 +31,13 @@ type InviteRecipientUser = {
 export async function validateInviteToken(
   inviteToken: string
 ): Promise<ServerWorkspaceResponse<{ isValid: boolean }>> {
-  const pb = createPocketBaseClient();
-
   try {
-    const response = await pb.send<{
-      state: "invalid_or_expired" | "valid_guest";
-    }>("/api/start/workspace-invites/inspect", {
-      method: "POST",
-      body: {
-        token: inviteToken,
-      },
-    });
+    const guestInspectState = await inspectInviteTokenAsGuest(inviteToken);
 
     return {
       ok: true,
       data: {
-        isValid: response.state === "valid_guest",
+        isValid: guestInspectState === "valid_guest",
       },
     };
   } catch (error) {
@@ -74,65 +65,19 @@ export async function validateInviteToken(
 }
 
 export async function getInviteTokenForUser(
-  inviteToken: string
+  inviteToken: string,
+  user: InviteRecipientUser
 ): Promise<ServerWorkspaceResponse<{ result: WorkspaceInviteInspectResult }>> {
   const { pb } = await createPocketBaseServerClient();
 
   try {
-    const inspectResult = await pb.send<PocketBaseInviteInspectResponse>(
-      "/api/start/workspace-invites/inspect",
-      {
-        method: "POST",
-        body: {
-          token: inviteToken,
-        },
-      }
-    );
+    const result = await inspectInviteForUser(pb, inviteToken, user);
 
-    if (inspectResult.state === "invalid_or_expired") {
+    if (result.state === "invalid_or_expired" || result.state === "email_mismatch") {
       return {
         ok: true,
         data: {
-          result: {
-            state: "invalid_or_expired",
-          },
-        },
-      };
-    }
-
-    if (inspectResult.state === "email_mismatch") {
-      return {
-        ok: true,
-        data: {
-          result: {
-            state: "email_mismatch",
-            invitedEmail: inspectResult.invitedEmail,
-            currentEmail: inspectResult.currentEmail,
-          },
-        },
-      };
-    }
-
-    if (inspectResult.state === "valid_guest") {
-      return {
-        ok: true,
-        data: {
-          result: {
-            state: "invalid_or_expired",
-          },
-        },
-      };
-    }
-
-    const workspace = await findWorkspaceById(pb, inspectResult.workspaceId);
-
-    if (!workspace) {
-      return {
-        ok: true,
-        data: {
-          result: {
-            state: "invalid_or_expired",
-          },
+          result,
         },
       };
     }
@@ -140,14 +85,14 @@ export async function getInviteTokenForUser(
     return {
       ok: true,
       data: {
-        result: inspectResult.state === "already_member"
+        result: result.alreadyMember
           ? {
               state: "already_member",
-              workspace: await mapWorkspaceSummaryWithMemberCount(pb, workspace),
+              workspace: await mapWorkspaceSummaryWithMemberCount(pb, result.workspace),
             }
           : {
               state: "pending",
-              workspace: mapWorkspaceSummary(pb, workspace, 0),
+              workspace: mapWorkspaceSummary(pb, result.workspace, 0),
             },
       },
     };
@@ -182,8 +127,7 @@ export async function acceptInviteTokenForUser(
   const { pb } = await createPocketBaseServerClient();
 
   try {
-    const inviteHash = hashInviteToken(inviteToken);
-    const result = await acceptInviteByHash(pb, inviteHash, user);
+    const result = await acceptInviteByToken(pb, inviteToken, user);
 
     return {
       ok: true,
@@ -215,12 +159,12 @@ export async function acceptInviteTokenForUser(
   }
 }
 
-async function acceptInviteByHash(
+async function acceptInviteByToken(
   pb: PocketBase,
-  inviteHash: string,
+  inviteToken: string,
   user: InviteRecipientUser
 ): Promise<WorkspaceInviteAcceptResult> {
-  const result = await validateInviteByHashForUser(pb, inviteHash, user);
+  const result = await inspectInviteForUser(pb, inviteToken, user);
 
   if (result.state === "invalid_or_expired" || result.state === "email_mismatch") {
     return result;
@@ -244,6 +188,31 @@ async function acceptInviteByHash(
   };
 }
 
+async function inspectInviteForUser(
+  pb: PocketBase,
+  inviteToken: string,
+  user: InviteRecipientUser
+): Promise<ResolvedInviteForUserResult> {
+  const inviteHash = hashInviteToken(inviteToken);
+  const result = await validateInviteByHashForUser(pb, inviteHash, user);
+
+  if (result.state !== "direct_read_miss") {
+    return result;
+  }
+
+  const guestInspectState = await inspectInviteTokenAsGuest(inviteToken);
+
+  if (guestInspectState === "valid_guest") {
+    return {
+      state: "email_mismatch",
+    };
+  }
+
+  return {
+    state: "invalid_or_expired",
+  };
+}
+
 async function validateInviteByHashForUser(
   pb: PocketBase,
   inviteHash: string,
@@ -253,7 +222,7 @@ async function validateInviteByHashForUser(
 
   if (!inviteRecord) {
     return {
-      state: "invalid_or_expired",
+      state: "direct_read_miss",
     };
   }
 
@@ -265,13 +234,9 @@ async function validateInviteByHashForUser(
     };
   }
 
-  const normalizedCurrentEmail = normalizeEmail(user.email);
-
-  if (inviteRecord.email_normalized !== normalizedCurrentEmail) {
+  if (inviteRecord.email_normalized !== normalizeEmail(user.email)) {
     return {
       state: "email_mismatch",
-      invitedEmail: inviteRecord.email_normalized,
-      currentEmail: normalizedCurrentEmail,
     };
   }
 
@@ -295,6 +260,20 @@ async function validateInviteByHashForUser(
   };
 }
 
+async function inspectInviteTokenAsGuest(inviteToken: string): Promise<PocketBaseInviteInspectState> {
+  const pb = createPocketBaseClient();
+  const response = await pb.send<{
+    state: PocketBaseInviteInspectState;
+  }>("/api/start/workspace-invites/inspect", {
+    method: "POST",
+    body: {
+      token: inviteToken,
+    },
+  });
+
+  return response.state;
+}
+
 async function mapWorkspaceSummaryWithMemberCount(
   pb: PocketBase,
   workspace: WorkspacesRecord
@@ -304,12 +283,13 @@ async function mapWorkspaceSummaryWithMemberCount(
 
 type ValidatedInviteForUserResult =
   | {
+      state: "direct_read_miss";
+    }
+  | {
       state: "invalid_or_expired";
     }
   | {
       state: "email_mismatch";
-      invitedEmail: string;
-      currentEmail: string;
     }
   | {
       state: "ready";
@@ -318,19 +298,6 @@ type ValidatedInviteForUserResult =
       alreadyMember: boolean;
     };
 
-type PocketBaseInviteInspectResponse =
-  | {
-      state: "invalid_or_expired";
-    }
-  | {
-      state: "valid_guest";
-    }
-  | {
-      state: "email_mismatch";
-      invitedEmail: string;
-      currentEmail: string;
-    }
-  | {
-      state: "pending" | "already_member";
-      workspaceId: string;
-    };
+type ResolvedInviteForUserResult = Exclude<ValidatedInviteForUserResult, { state: "direct_read_miss" }>;
+
+type PocketBaseInviteInspectState = "invalid_or_expired" | "valid_guest";

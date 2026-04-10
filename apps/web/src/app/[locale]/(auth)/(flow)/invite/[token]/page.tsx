@@ -110,7 +110,10 @@ export default async function Page({ params }: InviteTokenPageProps) {
     return null;
   }
 
-  const inspectResponse = await getInviteTokenForUser(token);
+  const inspectResponse = await getInviteTokenForUser(token, {
+    id: session.user.id,
+    email: session.user.email,
+  });
   const applicationEntryHref = await resolveApplicationEntryHref(session.user.id);
   const acceptAction = getPathname({
     href: getInviteAcceptHref(token),
@@ -185,10 +188,10 @@ export default async function Page({ params }: InviteTokenPageProps) {
         description={
           <>
             <p>{t("states.email_mismatch.description")}</p>
+            <p>{t("states.email_mismatch.secondary")}</p>
             <p>
-              {t.rich("states.email_mismatch.secondary", {
-                invitedEmail: inspectResponse.data.result.invitedEmail,
-                currentEmail: inspectResponse.data.result.currentEmail,
+              {t.rich("shared.continueAs", {
+                email: session.user.email,
                 strong: (chunks) => (
                   <strong className="text-foreground font-medium">{chunks}</strong>
                 ),

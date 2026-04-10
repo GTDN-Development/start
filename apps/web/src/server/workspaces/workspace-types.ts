@@ -15,7 +15,6 @@ export type WorkspaceErrorCode =
   | "RATE_LIMITED"
   | "LAST_OWNER_GUARD"
   | "INVITE_INVALID_OR_EXPIRED"
-  | "INVITE_EMAIL_MISMATCH"
   | "UNKNOWN_ERROR";
 
 export type WorkspaceSummary = {
@@ -64,8 +63,6 @@ export type WorkspaceInviteInspectResult =
     }
   | {
       state: "email_mismatch";
-      invitedEmail: string;
-      currentEmail: string;
     };
 
 export type WorkspaceInviteAcceptResult =
@@ -82,8 +79,6 @@ export type WorkspaceInviteAcceptResult =
     }
   | {
       state: "email_mismatch";
-      invitedEmail: string;
-      currentEmail: string;
     };
 
 export type PostAuthDestination =

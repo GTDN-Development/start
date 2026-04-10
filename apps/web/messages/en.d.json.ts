@@ -291,11 +291,11 @@ declare const messages: {
         "email_mismatch": {
           "title": "Email mismatch",
           "description": "This invitation was sent to a different email address.",
-          "secondary": "Sign out and continue with <strong>{invitedEmail}</strong>. You're currently signed in as <strong>{currentEmail}</strong>.",
+          "secondary": "Sign out and continue with the correct account.",
           "cta": "Sign out and continue with another account",
           "alert": {
             "title": "Use the invited account",
-            "description": "Sign out and continue with <strong>{invitedEmail}</strong>. You're currently signed in as <strong>{currentEmail}</strong>."
+            "description": "Sign out and continue with the correct account."
           }
         },
         "error": {

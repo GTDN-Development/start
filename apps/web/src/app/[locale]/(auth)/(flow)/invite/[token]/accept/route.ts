@@ -34,7 +34,10 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
     );
   }
 
-  const inspectResponse = await getInviteTokenForUser(token);
+  const inspectResponse = await getInviteTokenForUser(token, {
+    id: session.user.id,
+    email: session.user.email,
+  });
 
   if (!inspectResponse.ok || inspectResponse.data.result.state !== "already_member") {
     return redirectWithAuthCookies(

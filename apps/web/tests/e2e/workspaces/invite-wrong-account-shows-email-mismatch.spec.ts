@@ -51,8 +51,11 @@ test("wrong account opening invite sees email mismatch and recoverable state", a
     await page.goto(`/cs/invite/${token}`);
     await expect(page).toHaveURL(new RegExp(`/cs/invite/${token}$`));
     await expect(page.getByRole("heading", { name: "E-mail nesouhlasí" })).toBeVisible();
-    await expect(page.getByText(invitedEmail)).toBeVisible();
-    await expect(page.getByText(wrongEmail)).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "Odhlásit se a pokračovat jiným účtem",
+      })
+    ).toBeVisible();
 
     await page
       .getByRole("button", {

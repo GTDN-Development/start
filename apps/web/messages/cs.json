@@ -288,11 +288,11 @@
         "email_mismatch": {
           "title": "E-mail nesouhlasí",
           "description": "Tato pozvánka byla odeslána na jinou e-mailovou adresu.",
-          "secondary": "Odhlaste se a pokračujte účtem <strong>{invitedEmail}</strong>. Teď jste přihlášeni jako <strong>{currentEmail}</strong>.",
+          "secondary": "Odhlaste se a pokračujte správným účtem.",
           "cta": "Odhlásit se a pokračovat jiným účtem",
           "alert": {
             "title": "Použijte pozvaný účet",
-            "description": "Odhlaste se a pokračujte účtem <strong>{invitedEmail}</strong>. Teď jste přihlášeni jako <strong>{currentEmail}</strong>."
+            "description": "Odhlaste se a pokračujte správným účtem."
           }
         },
         "error": {

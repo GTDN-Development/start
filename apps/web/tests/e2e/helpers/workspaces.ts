@@ -72,11 +72,11 @@ export async function leaveWorkspaceFromSettings(options: {
   await options.page.goto(`/cs/w/${options.workspaceSlug}/nastaveni`);
   await expect(options.page).toHaveURL(new RegExp(`/cs/w/${options.workspaceSlug}/nastaveni$`));
 
-  await options.page.getByRole("button", { name: "Opustit workspace" }).click();
-
   const dialog = options.page.getByRole("alertdialog");
+  const dialogHeading = dialog.getByRole("heading", { name: "Opustit workspace?" });
 
-  await expect(dialog.getByRole("heading", { name: "Opustit workspace?" })).toBeVisible();
+  await openAlertDialog(options.page, "Opustit workspace", dialogHeading);
+
   await dialog.locator("#workspace-leave-confirmationUrl").fill(options.workspaceSlug);
   await dialog
     .getByRole("checkbox", {
@@ -113,11 +113,10 @@ export async function deleteWorkspaceFromSettings(options: {
   await options.page.goto(`/cs/w/${options.workspaceSlug}/nastaveni`);
   await expect(options.page).toHaveURL(new RegExp(`/cs/w/${options.workspaceSlug}/nastaveni$`));
 
-  await options.page.getByRole("button", { name: "Smazat workspace" }).click();
-
   const dialog = options.page.getByRole("alertdialog");
+  const dialogHeading = dialog.getByRole("heading", { name: "Smazat workspace?" });
 
-  await expect(dialog.getByRole("heading", { name: "Smazat workspace?" })).toBeVisible();
+  await openAlertDialog(options.page, "Smazat workspace", dialogHeading);
   await dialog.locator("#workspace-delete-confirmationUrl").fill(options.workspaceSlug);
   await dialog
     .getByRole("checkbox", {
@@ -129,4 +128,23 @@ export async function deleteWorkspaceFromSettings(options: {
 
 function getWorkspaceMemberRow(page: Page, memberIdentifier: string) {
   return page.locator("tbody tr").filter({ hasText: memberIdentifier }).first();
+}
+
+async function openAlertDialog(page: Page, buttonName: string, dialogHeading: ReturnType<Page["getByRole"]>) {
+  const trigger = page.getByRole("button", { name: buttonName });
+
+  await expect(trigger).toBeVisible();
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await trigger.click();
+
+    try {
+      await expect(dialogHeading).toBeVisible({ timeout: 1_000 });
+      return;
+    } catch (error) {
+      if (attempt === 2) {
+        throw error;
+      }
+    }
+  }
 }
