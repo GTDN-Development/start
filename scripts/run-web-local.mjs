@@ -1,5 +1,7 @@
 import { spawn } from "node:child_process";
+import { rm } from "node:fs/promises";
 import { createRequire } from "node:module";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   createDevStackConfig,
@@ -35,15 +37,23 @@ async function main() {
 
     const config = await createE2EStackConfig();
     const env = createWebAppEnv(config, getAppPort(DEFAULT_E2E_APP_PORT));
+    const playwrightArgs = process.argv
+      .slice(3)
+      .filter((argument) => argument !== "--ui");
 
     try {
       await prepareLocalStack(config, env);
+      await rm(path.join(WEB_APP_DIR, ".next"), {
+        force: true,
+        recursive: true,
+      });
       await runWebCommand(["exec", "node", "./tests/scripts/run-next-with-test-env.cjs", "build"], env);
       await runWebCommand(
         [
           "exec",
           "playwright",
           "test",
+          ...playwrightArgs,
           ...(process.argv.includes("--ui") ? ["--ui"] : []),
           "--pass-with-no-tests",
         ],

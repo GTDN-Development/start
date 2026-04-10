@@ -66,6 +66,30 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     expect(deleteSpy).toHaveBeenCalledWith(membership.id);
   });
 
+  it("allows an owner to leave when another owner still remains", async function testOwnerLeave() {
+    const { pb, deleteSpy } = createPocketBaseMock();
+    const user = createUserRecord("user-owner", "owner@example.com");
+    const membership = createWorkspaceMemberRecord("membership-owner", user.id, "owner");
+
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
+      createWorkspaceAuthSuccess(pb, user)
+    );
+    vi.mocked(requireWorkspaceAccess).mockResolvedValue(
+      createWorkspaceAccessSuccess(pb, user, membership)
+    );
+    vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
+
+    const response = await leaveWorkspaceForCurrentUser("team-space");
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        left: true,
+      },
+    });
+    expect(deleteSpy).toHaveBeenCalledWith(membership.id);
+  });
+
   it("blocks the final owner from leaving", async function testLastOwnerLeaveGuard() {
     const { pb, deleteSpy } = createPocketBaseMock();
     const user = createUserRecord("user-owner", "owner@example.com");
@@ -227,6 +251,30 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     expect(response).toEqual({
       ok: false,
       errorCode: "FORBIDDEN",
+    });
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
+
+  it("blocks removing the final owner", async function testLastOwnerRemoveGuard() {
+    const { pb, deleteSpy } = createPocketBaseMock();
+    const user = createUserRecord("user-owner-actor", "owner-actor@example.com");
+    const actorMembership = createWorkspaceMemberRecord("membership-owner-actor", user.id, "owner");
+    const ownerMembership = createWorkspaceMemberRecord("membership-owner-target", "user-owner", "owner");
+
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue(
+      createWorkspaceAuthSuccess(pb, user)
+    );
+    vi.mocked(requireAdminWorkspaceAccessBySlug).mockResolvedValue(
+      createWorkspaceAccessSuccess(pb, user, actorMembership)
+    );
+    vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
+    vi.mocked(countWorkspaceOwners).mockResolvedValue(1);
+
+    const response = await removeWorkspaceMemberForCurrentUser("team-space", ownerMembership.id);
+
+    expect(response).toEqual({
+      ok: false,
+      errorCode: "LAST_OWNER_GUARD",
     });
     expect(deleteSpy).not.toHaveBeenCalled();
   });

@@ -80,7 +80,9 @@ export function sortWorkspaceMembers(
   secondMember: WorkspaceMemberSummary
 ): number {
   if (firstMember.role === secondMember.role) {
-    return firstMember.email.localeCompare(secondMember.email);
+    return getWorkspaceMemberSortKey(firstMember).localeCompare(
+      getWorkspaceMemberSortKey(secondMember)
+    );
   }
 
   return getWorkspaceRoleOrder(firstMember.role) - getWorkspaceRoleOrder(secondMember.role);
@@ -113,4 +115,8 @@ function getWorkspaceRoleOrder(role: WorkspaceMemberRole | WorkspaceInviteRole):
   }
 
   return 2;
+}
+
+function getWorkspaceMemberSortKey(member: WorkspaceMemberSummary): string {
+  return member.email || member.name || member.userId;
 }

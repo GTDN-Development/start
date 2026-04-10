@@ -112,8 +112,14 @@ function sortWorkspaceSettingsMembers(members: WorkspaceSettingsMember[]) {
       return roleOrderDifference;
     }
 
-    return firstMember.email.localeCompare(secondMember.email);
+    return getWorkspaceMemberSortKey(firstMember).localeCompare(
+      getWorkspaceMemberSortKey(secondMember)
+    );
   });
+}
+
+function getWorkspaceMemberSortKey(member: WorkspaceSettingsMember) {
+  return member.email || member.name || member.userId;
 }
 
 function getWorkspaceRoleOrder(role: WorkspaceSettingsMember["role"]) {

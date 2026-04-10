@@ -146,6 +146,25 @@ describe("auth-service", function describeAuthService() {
     });
   });
 
+  it("keeps email verification requests generic for already verified emails", async function testVerificationRequestAlreadyVerified() {
+    const context = createAuthServiceContext({
+      hadInvalidAuthCookie: true,
+    });
+
+    context.usersCollection.requestVerification.mockRejectedValue(createClientResponseError(400));
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+
+    const response = await requestEmailVerificationForEmail("verified@example.com");
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        sent: true,
+      },
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+    });
+  });
+
   it("returns rate-limited for email verification throttling and clears invalid cookies", async function testVerificationRequestRateLimit() {
     const context = createAuthServiceContext({
       hadInvalidAuthCookie: true,

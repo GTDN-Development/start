@@ -60,6 +60,22 @@ export async function createVerifiedUser(options: {
   });
 }
 
+export async function createUser(options: {
+  pb: PocketBase;
+  email: string;
+  password: string;
+  name?: string;
+  verified?: boolean;
+}): Promise<RecordModel> {
+  return await options.pb.collection("users").create({
+    email: options.email,
+    password: options.password,
+    passwordConfirm: options.password,
+    name: options.name ?? "E2E User",
+    verified: options.verified ?? false,
+  });
+}
+
 export async function deleteUserDeviceSessionsByUserId(
   pb: PocketBase,
   userId: string
@@ -101,6 +117,19 @@ export async function createWorkspace(options: {
     workspace,
     membership,
   };
+}
+
+export async function createWorkspaceMembership(options: {
+  pb: PocketBase;
+  workspaceId: string;
+  userId: string;
+  role: WorkspaceMembersRecord["role"];
+}): Promise<WorkspaceMembersRecord> {
+  return await options.pb.collection("workspace_members").create<WorkspaceMembersRecord>({
+    workspace: options.workspaceId,
+    user: options.userId,
+    role: options.role,
+  });
 }
 
 export async function createWorkspaceInvite(options: {
