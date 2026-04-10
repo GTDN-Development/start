@@ -46,6 +46,25 @@ export async function changeWorkspaceMemberRole(options: {
   await expect(memberRow).toContainText(options.nextRoleLabel);
 }
 
+export async function removeWorkspaceMember(options: {
+  page: Page;
+  memberIdentifier: string;
+}): Promise<void> {
+  const memberRow = getWorkspaceMemberRow(options.page, options.memberIdentifier);
+  const actionButton = memberRow.getByRole("button", { name: "Otevřít akce člena" });
+
+  await expect(memberRow).toBeVisible();
+  await expect(actionButton).toBeVisible();
+  await actionButton.focus();
+  await options.page.keyboard.press("Enter");
+  await options.page.getByRole("menuitem", { name: "Odebrat z workspace" }).click();
+
+  const dialog = options.page.getByRole("alertdialog");
+
+  await expect(dialog.getByRole("heading", { name: "Odebrat člena z workspace?" })).toBeVisible();
+  await dialog.getByRole("button", { name: "Odebrat člena" }).click();
+}
+
 export async function leaveWorkspaceFromSettings(options: {
   page: Page;
   workspaceSlug: string;
