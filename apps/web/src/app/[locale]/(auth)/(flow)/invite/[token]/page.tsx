@@ -110,10 +110,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
     return null;
   }
 
-  const inspectResponse = await getInviteTokenForUser(token, {
-    id: session.user.id,
-    email: session.user.email,
-  });
+  const inspectResponse = await getInviteTokenForUser(token);
   const applicationEntryHref = await resolveApplicationEntryHref(session.user.id);
   const acceptAction = getPathname({
     href: getInviteAcceptHref(token),

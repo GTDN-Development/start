@@ -1,6 +1,6 @@
 import type PocketBase from "pocketbase";
 import type { WorkspaceInvitesRecord, WorkspacesRecord } from "@/types/pocketbase";
-import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
+import { createPocketBaseClient, createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
@@ -31,36 +31,22 @@ type InviteRecipientUser = {
 export async function validateInviteToken(
   inviteToken: string
 ): Promise<ServerWorkspaceResponse<{ isValid: boolean }>> {
-  const { pb } = await createPocketBaseServerClient();
+  const pb = createPocketBaseClient();
 
   try {
-    const inviteHash = hashInviteToken(inviteToken);
-    const inviteRecord = await findInviteByHash(pb, inviteHash);
-
-    if (!inviteRecord) {
-      return {
-        ok: true,
-        data: {
-          isValid: false,
-        },
-      };
-    }
-
-    if (isDateStringExpired(inviteRecord.expires_at)) {
-      await safeDeleteInvite(pb, inviteRecord.id);
-
-      return {
-        ok: true,
-        data: {
-          isValid: false,
-        },
-      };
-    }
+    const response = await pb.send<{
+      state: "invalid_or_expired" | "valid_guest";
+    }>("/api/start/workspace-invites/inspect", {
+      method: "POST",
+      body: {
+        token: inviteToken,
+      },
+    });
 
     return {
       ok: true,
       data: {
-        isValid: true,
+        isValid: response.state === "valid_guest",
       },
     };
   } catch (error) {
@@ -88,37 +74,80 @@ export async function validateInviteToken(
 }
 
 export async function getInviteTokenForUser(
-  inviteToken: string,
-  user: InviteRecipientUser
+  inviteToken: string
 ): Promise<ServerWorkspaceResponse<{ result: WorkspaceInviteInspectResult }>> {
   const { pb } = await createPocketBaseServerClient();
 
   try {
-    const inviteHash = hashInviteToken(inviteToken);
-    const result = await validateInviteByHashForUser(pb, inviteHash, user);
+    const inspectResult = await pb.send<PocketBaseInviteInspectResponse>(
+      "/api/start/workspace-invites/inspect",
+      {
+        method: "POST",
+        body: {
+          token: inviteToken,
+        },
+      }
+    );
 
-    if (result.state === "invalid_or_expired" || result.state === "email_mismatch") {
+    if (inspectResult.state === "invalid_or_expired") {
       return {
         ok: true,
         data: {
-          result,
+          result: {
+            state: "invalid_or_expired",
+          },
         },
       };
     }
 
-    const workspace = await mapWorkspaceSummaryWithMemberCount(pb, result.workspace);
+    if (inspectResult.state === "email_mismatch") {
+      return {
+        ok: true,
+        data: {
+          result: {
+            state: "email_mismatch",
+            invitedEmail: inspectResult.invitedEmail,
+            currentEmail: inspectResult.currentEmail,
+          },
+        },
+      };
+    }
+
+    if (inspectResult.state === "valid_guest") {
+      return {
+        ok: true,
+        data: {
+          result: {
+            state: "invalid_or_expired",
+          },
+        },
+      };
+    }
+
+    const workspace = await findWorkspaceById(pb, inspectResult.workspaceId);
+
+    if (!workspace) {
+      return {
+        ok: true,
+        data: {
+          result: {
+            state: "invalid_or_expired",
+          },
+        },
+      };
+    }
 
     return {
       ok: true,
       data: {
-        result: result.alreadyMember
+        result: inspectResult.state === "already_member"
           ? {
               state: "already_member",
-              workspace,
+              workspace: await mapWorkspaceSummaryWithMemberCount(pb, workspace),
             }
           : {
               state: "pending",
-              workspace,
+              workspace: mapWorkspaceSummary(pb, workspace, 0),
             },
       },
     };
@@ -287,4 +316,21 @@ type ValidatedInviteForUserResult =
       inviteRecord: WorkspaceInvitesRecord;
       workspace: WorkspacesRecord;
       alreadyMember: boolean;
+    };
+
+type PocketBaseInviteInspectResponse =
+  | {
+      state: "invalid_or_expired";
+    }
+  | {
+      state: "valid_guest";
+    }
+  | {
+      state: "email_mismatch";
+      invitedEmail: string;
+      currentEmail: string;
+    }
+  | {
+      state: "pending" | "already_member";
+      workspaceId: string;
     };

@@ -1,7 +1,6 @@
 import type PocketBase from "pocketbase";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
-import { requireWorkspaceAccess } from "@/server/workspaces/workspace-access";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import {
   mapWorkspaceErrorCode,
@@ -194,20 +193,36 @@ export async function switchWorkspaceForCurrentUser(
   }
 
   try {
-    const access = await requireWorkspaceAccess(currentUser.context, workspaceSlug);
+    const workspace = await findWorkspaceBySlug(currentUser.context.pb, workspaceSlug);
 
-    if (!access.ok) {
-      return access.response;
+    if (!workspace) {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    const membership = await findWorkspaceMembershipByWorkspaceAndUser(
+      currentUser.context.pb,
+      workspace.id,
+      currentUser.context.user.id
+    );
+
+    if (!membership) {
+      return {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      };
     }
 
     return {
       ok: true,
       data: {
         workspace: mapUserWorkspaceSummary(
-          access.context.pb,
-          access.context.workspace,
-          access.context.membership,
-          await countWorkspaceMembers(access.context.pb, access.context.workspace.id)
+          currentUser.context.pb,
+          workspace,
+          membership,
+          await countWorkspaceMembers(currentUser.context.pb, workspace.id)
         ),
       },
     };
