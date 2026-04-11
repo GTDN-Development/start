@@ -21,7 +21,6 @@ vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceReposi
     ensureWorkspaceMembership: vi.fn(),
     findWorkspaceBySlug: vi.fn(),
     findWorkspaceMembershipByWorkspaceAndUser: vi.fn(),
-    countWorkspaceMembers: vi.fn(),
   };
 });
 
@@ -62,7 +61,6 @@ describe("workspace-general-service", function describeWorkspaceGeneralService()
       name: "Team Space",
       slug: "team-space",
       avatarUrl: null,
-      memberCount: 1,
       membershipId: membership.id,
       role: membership.role,
     });
@@ -85,7 +83,6 @@ describe("workspace-general-service", function describeWorkspaceGeneralService()
           name: "Team Space",
           slug: "team-space",
           avatarUrl: null,
-          memberCount: 1,
           membershipId: membership.id,
           role: membership.role,
         },

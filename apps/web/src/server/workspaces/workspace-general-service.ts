@@ -12,11 +12,7 @@ import {
   normalizeWorkspaceName,
   resolveUniqueWorkspaceSlug,
 } from "@/server/workspaces/workspace-normalization";
-import {
-  countWorkspaceMembers,
-  ensureWorkspaceMembership,
-  findWorkspaceBySlug,
-} from "@/server/workspaces/workspace-repository";
+import { ensureWorkspaceMembership, findWorkspaceBySlug } from "@/server/workspaces/workspace-repository";
 import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
 
 export type CreateWorkspaceInput = {
@@ -70,7 +66,7 @@ export async function createWorkspaceForCurrentUser(
     return {
       ok: true,
       data: {
-        workspace: mapUserWorkspaceSummary(currentUser.context.pb, workspace, membership, 1),
+        workspace: mapUserWorkspaceSummary(currentUser.context.pb, workspace, membership),
       },
     };
   } catch (error) {
@@ -168,12 +164,7 @@ export async function updateWorkspaceGeneralForCurrentUser(
     return {
       ok: true,
       data: {
-        workspace: mapUserWorkspaceSummary(
-          pb,
-          updatedWorkspace,
-          membership,
-          await countWorkspaceMembers(pb, workspace.id)
-        ),
+        workspace: mapUserWorkspaceSummary(pb, updatedWorkspace, membership),
         previousSlug: workspace.slug,
       },
     };

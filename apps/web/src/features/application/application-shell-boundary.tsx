@@ -5,10 +5,8 @@ import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
-import {
-  listUserWorkspacesWithClient,
-  resolveActiveWorkspaceForUserWithClient,
-} from "@/server/workspaces/workspace-resolution-service";
+import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import { listUserWorkspacesWithClient } from "@/server/workspaces/workspace-resolution-service";
 import { ApplicationRoot } from "./application-root";
 
 type ApplicationShellBoundaryProps = {
@@ -71,35 +69,14 @@ export async function ApplicationShellBoundary({
         name: workspace.name,
         role: workspace.role,
         avatarUrl: workspace.avatarUrl,
-        memberCount: workspace.memberCount,
       }))
     : [];
-  const activeWorkspaceResponse = await resolveActiveWorkspaceForUserWithClient(
-    currentUser.pb,
-    currentUser.user.id
-  );
-
-  if (!activeWorkspaceResponse.ok) {
-    if (
-      activeWorkspaceResponse.errorCode === "UNAUTHORIZED" ||
-      activeWorkspaceResponse.errorCode === "FORBIDDEN"
-    ) {
-      redirect({
-        href: AUTH_REDIRECTS.unauthenticatedTo,
-        locale: appLocale,
-      });
-
-      return null;
-    }
-
-    console.error(
-      `[application-root] Failed to resolve active workspace: ${activeWorkspaceResponse.errorCode}`
-    );
-  }
-
-  const activeWorkspaceSlug = activeWorkspaceResponse.ok
-    ? (activeWorkspaceResponse.data.workspace?.slug ?? null)
-    : null;
+  const requestedActiveWorkspaceSlug = await getActiveWorkspaceSlugCookie();
+  const activeWorkspaceSlug =
+    requestedActiveWorkspaceSlug &&
+    workspaces.some((workspace) => workspace.slug === requestedActiveWorkspaceSlug)
+      ? requestedActiveWorkspaceSlug
+      : null;
   const applicationEntryHref = activeWorkspaceSlug
     ? getWorkspaceOverviewHref(activeWorkspaceSlug)
     : APP_HOME_PATH;

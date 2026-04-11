@@ -15,7 +15,6 @@ vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer()
 
 vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceRepository() {
   return {
-    countWorkspaceMembers: vi.fn(),
     ensureWorkspaceMembership: vi.fn(),
     findInviteByHash: vi.fn(),
     findWorkspaceById: vi.fn(),
@@ -26,17 +25,12 @@ vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceReposi
 
 vi.mock("@/server/workspaces/workspace-mappers", function mockWorkspaceMappers() {
   return {
-    mapWorkspaceSummary: vi.fn(function mapWorkspaceSummary(
-      _pb: PocketBase,
-      workspace: WorkspacesRecord,
-      memberCount: number
-    ) {
+    mapWorkspaceSummary: vi.fn(function mapWorkspaceSummary(_pb: PocketBase, workspace: WorkspacesRecord) {
       return {
         id: workspace.id,
         name: workspace.name,
         slug: workspace.slug,
         avatarUrl: null,
-        memberCount,
       };
     }),
   };
@@ -58,7 +52,6 @@ import {
   createPocketBaseServerClient,
 } from "@/server/pocketbase/pocketbase-server";
 import {
-  countWorkspaceMembers,
   ensureWorkspaceMembership,
   findInviteByHash,
   findWorkspaceById,
@@ -157,7 +150,6 @@ describe("workspace-invite-recipient-service", function describeWorkspaceInviteR
             name: "Team Space",
             slug: "team-space",
             avatarUrl: null,
-            memberCount: 0,
           },
         },
       },
@@ -175,7 +167,6 @@ describe("workspace-invite-recipient-service", function describeWorkspaceInviteR
     vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(
       createMembershipRecord("membership-1", "user-1")
     );
-    vi.mocked(countWorkspaceMembers).mockResolvedValue(3);
 
     const response = await getInviteTokenForUser("invite-token", {
       id: "user-1",
@@ -192,7 +183,6 @@ describe("workspace-invite-recipient-service", function describeWorkspaceInviteR
             name: "Team Space",
             slug: "team-space",
             avatarUrl: null,
-            memberCount: 3,
           },
         },
       },
@@ -315,7 +305,6 @@ describe("workspace-invite-recipient-service", function describeWorkspaceInviteR
     vi.mocked(ensureWorkspaceMembership).mockResolvedValue(
       createMembershipRecord("membership-1", "user-1")
     );
-    vi.mocked(countWorkspaceMembers).mockResolvedValue(2);
 
     const response = await acceptInviteTokenForUser("invite-token", {
       id: "user-1",
@@ -332,7 +321,6 @@ describe("workspace-invite-recipient-service", function describeWorkspaceInviteR
             name: "Team Space",
             slug: "team-space",
             avatarUrl: null,
-            memberCount: 2,
           },
         },
       },
@@ -355,7 +343,6 @@ describe("workspace-invite-recipient-service", function describeWorkspaceInviteR
     vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(
       createMembershipRecord("membership-1", "user-1")
     );
-    vi.mocked(countWorkspaceMembers).mockResolvedValue(3);
 
     const response = await acceptInviteTokenForUser("invite-token", {
       id: "user-1",
@@ -372,7 +359,6 @@ describe("workspace-invite-recipient-service", function describeWorkspaceInviteR
             name: "Team Space",
             slug: "team-space",
             avatarUrl: null,
-            memberCount: 3,
           },
         },
       },

@@ -1,13 +1,13 @@
 import type { AppHref } from "@/i18n/navigation";
 import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
-import { resolveActiveWorkspaceForUser } from "@/server/workspaces/workspace-resolution-service";
+import { resolveActiveWorkspaceSlugForUser } from "@/server/workspaces/workspace-resolution-service";
 
 export async function resolveApplicationEntryHref(userId: string): Promise<AppHref> {
-  const workspaceResponse = await resolveActiveWorkspaceForUser(userId);
+  const workspaceResponse = await resolveActiveWorkspaceSlugForUser(userId);
 
-  if (!workspaceResponse.ok || !workspaceResponse.data.workspace) {
+  if (!workspaceResponse.ok || !workspaceResponse.data.workspaceSlug) {
     return APP_HOME_PATH;
   }
 
-  return getWorkspaceOverviewHref(workspaceResponse.data.workspace.slug);
+  return getWorkspaceOverviewHref(workspaceResponse.data.workspaceSlug);
 }

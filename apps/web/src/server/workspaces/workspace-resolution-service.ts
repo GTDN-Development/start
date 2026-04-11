@@ -10,10 +10,7 @@ import {
   requireWorkspaceActionMembershipContext,
   resolveWorkspaceMembershipContextBySlug,
 } from "@/server/workspaces/workspace-membership-context";
-import {
-  countWorkspaceMembers,
-  listUserWorkspaceMembershipRecords,
-} from "@/server/workspaces/workspace-repository";
+import { listUserWorkspaceMembershipRecords } from "@/server/workspaces/workspace-repository";
 import type {
   PostAuthDestination,
   ServerWorkspaceResponse,
@@ -101,8 +98,7 @@ export async function resolveWorkspaceForUserBySlugWithClient(
         workspace: mapUserWorkspaceSummary(
           pb,
           workspaceMembership.workspace,
-          workspaceMembership.membership,
-          await countWorkspaceMembers(pb, workspaceMembership.workspace.id)
+          workspaceMembership.membership
         ),
       },
     };
@@ -149,18 +145,18 @@ export async function resolvePostAuthDestination(input: {
     };
   }
 
-  const activeWorkspaceResponse = await resolveActiveWorkspaceForUser(input.userId);
+  const activeWorkspaceResponse = await resolveActiveWorkspaceSlugForUser(input.userId);
 
   if (!activeWorkspaceResponse.ok) {
     return activeWorkspaceResponse;
   }
 
-  if (activeWorkspaceResponse.data.workspace) {
+  if (activeWorkspaceResponse.data.workspaceSlug) {
     return {
       ok: true,
       data: {
         state: "workspace_redirect",
-        workspaceSlug: activeWorkspaceResponse.data.workspace.slug,
+        workspaceSlug: activeWorkspaceResponse.data.workspaceSlug,
       },
     };
   }
@@ -188,12 +184,7 @@ export async function switchWorkspaceForCurrentUser(
     return {
       ok: true,
       data: {
-        workspace: mapUserWorkspaceSummary(
-          pb,
-          workspace,
-          membership,
-          await countWorkspaceMembers(pb, workspace.id)
-        ),
+        workspace: mapUserWorkspaceSummary(pb, workspace, membership),
       },
     };
   } catch (error) {
@@ -224,40 +215,69 @@ export async function switchWorkspaceForCurrentUser(
   }
 }
 
-export async function resolveActiveWorkspaceForUser(
+export async function resolveActiveWorkspaceSlugForUser(
   userId: string
-): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>> {
+): Promise<ServerWorkspaceResponse<{ workspaceSlug: string | null }>> {
   const { pb } = await createPocketBaseServerClient();
 
-  return resolveActiveWorkspaceForUserWithClient(pb, userId);
+  return resolveActiveWorkspaceSlugForUserWithClient(pb, userId);
 }
 
-export async function resolveActiveWorkspaceForUserWithClient(
+export async function resolveActiveWorkspaceSlugForUserWithClient(
   pb: PocketBase,
   userId: string
-): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>> {
+): Promise<ServerWorkspaceResponse<{ workspaceSlug: string | null }>> {
   const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
 
   if (!activeWorkspaceSlug) {
     return {
       ok: true,
       data: {
-        workspace: null,
+        workspaceSlug: null,
       },
     };
   }
 
-  const workspaceResponse = await resolveWorkspaceForUserBySlugWithClient(
-    pb,
-    userId,
-    activeWorkspaceSlug
-  );
+  try {
+    const workspaceMembership = await resolveWorkspaceMembershipContextBySlug(
+      pb,
+      userId,
+      activeWorkspaceSlug
+    );
 
-  if (!workspaceResponse.ok) {
-    return workspaceResponse;
+    return {
+      ok: true,
+      data: {
+        workspaceSlug:
+          workspaceMembership.state === "ready" ? workspaceMembership.workspace.slug : null,
+      },
+    };
+  } catch (error) {
+    const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
+      if (pocketBaseError.status === 400) {
+        return "BAD_REQUEST";
+      }
+
+      if (pocketBaseError.status === 401) {
+        return "UNAUTHORIZED";
+      }
+
+      if (pocketBaseError.status === 403) {
+        return "FORBIDDEN";
+      }
+
+      return null;
+    });
+
+    if (errorCode === "UNKNOWN_ERROR") {
+      logWorkspaceServiceError("resolveActiveWorkspaceSlugForUser", error);
+    }
+
+    return {
+      ok: false,
+      errorCode,
+    };
   }
-
-  return workspaceResponse;
 }
 
 async function listUserWorkspaceMemberships(
@@ -277,8 +297,7 @@ async function listUserWorkspaceMemberships(
       return mapUserWorkspaceSummary(
         pb,
         expandedWorkspace,
-        membershipRecord,
-        await countWorkspaceMembers(pb, expandedWorkspace.id)
+        membershipRecord
       );
     })
   );

@@ -96,7 +96,6 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
         workspace: expect.objectContaining({
           id: "workspace-1",
           slug: "renamed-space",
-          memberCount: 5,
         }),
       },
     });
@@ -128,7 +127,6 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
         workspace: expect.objectContaining({
           id: "workspace-1",
           slug: "renamed-space",
-          memberCount: 5,
         }),
       },
     });
@@ -161,7 +159,6 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
           name: "Updated Team Space",
           role: "owner",
           avatarUrl: "https://example.com/avatar.png",
-          memberCount: 5,
         },
       },
     });
@@ -189,7 +186,6 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
         workspace: expect.objectContaining({
           id: "workspace-1",
           slug: "renamed-space",
-          memberCount: 5,
         }),
       },
     });
@@ -215,7 +211,6 @@ function createUpdateWorkspaceResponse(input: {
         avatarUrl: input.avatarUrl ?? null,
         membershipId: "membership-1",
         role: "owner" as const,
-        memberCount: 5,
       },
     },
   };

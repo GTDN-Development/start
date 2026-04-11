@@ -11,7 +11,6 @@ import {
 import { mapWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
 import { normalizeEmail } from "@/server/workspaces/workspace-normalization";
 import {
-  countWorkspaceMembers,
   ensureWorkspaceMembership,
   findInviteByHash,
   findWorkspaceById,
@@ -23,7 +22,6 @@ import type {
   ServerWorkspaceResponse,
   WorkspaceInviteAcceptResult,
   WorkspaceInviteInspectResult,
-  WorkspaceSummary,
 } from "@/server/workspaces/workspace-types";
 
 type InviteRecipientUser = {
@@ -91,11 +89,11 @@ export async function getInviteTokenForUser(
         result: result.alreadyMember
           ? {
               state: "already_member",
-              workspace: await mapWorkspaceSummaryWithMemberCount(pb, result.workspace),
+              workspace: mapWorkspaceSummary(pb, result.workspace),
             }
           : {
               state: "pending",
-              workspace: mapWorkspaceSummary(pb, result.workspace, 0),
+              workspace: mapWorkspaceSummary(pb, result.workspace),
             },
       },
     };
@@ -178,7 +176,7 @@ async function acceptInviteByToken(
 
     return {
       state: "already_member",
-      workspace: await mapWorkspaceSummaryWithMemberCount(pb, result.workspace),
+      workspace: mapWorkspaceSummary(pb, result.workspace),
     };
   }
 
@@ -187,7 +185,7 @@ async function acceptInviteByToken(
 
   return {
     state: "accepted",
-    workspace: await mapWorkspaceSummaryWithMemberCount(pb, result.workspace),
+    workspace: mapWorkspaceSummary(pb, result.workspace),
   };
 }
 
@@ -277,13 +275,6 @@ async function inspectInviteTokenAsGuest(
   });
 
   return response.state;
-}
-
-async function mapWorkspaceSummaryWithMemberCount(
-  pb: PocketBase,
-  workspace: WorkspacesRecord
-): Promise<WorkspaceSummary> {
-  return mapWorkspaceSummary(pb, workspace, await countWorkspaceMembers(pb, workspace.id));
 }
 
 type ValidatedInviteForUserResult =
