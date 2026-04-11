@@ -20,7 +20,7 @@ import {
   SettingsItemFooter,
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { getPathname, usePathname } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 
 export function AccountLanguageSettingsItem() {
@@ -28,7 +28,6 @@ export function AccountLanguageSettingsItem() {
   const t = useTranslations("pages.account.preferences");
   const tLocale = useTranslations("common.localeSwitcher");
 
-  const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
   const [isPending, startTransition] = useTransition();
@@ -39,11 +38,13 @@ export function AccountLanguageSettingsItem() {
     }
 
     startTransition(() => {
-      router.replace(
+      const localizedPathname = getPathname({
         // @ts-expect-error -- TypeScript validates params against the current pathname.
-        { pathname, params },
-        { locale: nextLocale as Locale }
-      );
+        href: { pathname, params },
+        locale: nextLocale as Locale,
+      });
+
+      window.location.replace(`${localizedPathname}${window.location.search}${window.location.hash}`);
     });
   }
 
