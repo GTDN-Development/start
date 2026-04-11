@@ -1,12 +1,13 @@
 "use client";
 
-import { LocalizedPathLink } from "@/components/ui/link";
+import { Locale, useTranslations } from "next-intl";
 import { LogoStart } from "@/components/brand/logo-start";
 import { CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
-import { NavLink } from "@/components/layout/nav-link";
 import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { SocialMediaIcons } from "@/components/brand/social-media-icons";
+import { LocalizedNavLink } from "@/components/layout/localized-nav-link";
+import { NavLink } from "@/components/layout/nav-link";
 import {
   isNested,
   legalItems,
@@ -22,7 +23,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { app } from "@/config/app";
-import { useTranslations } from "next-intl";
 import { CopyButton } from "@/components/ui/copy-button";
 import { legal } from "@/config/legal";
 import { toast } from "sonner";
@@ -81,7 +81,8 @@ function FooterNavigation({
           <li key={item.href}>
             <NavLink
               href={item.href}
-              className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+              matchNested={item.href === "/blog" || item.href === "/contact"}
+              className="text-muted-foreground hover:text-foreground data-current:text-foreground text-sm transition-colors"
             >
               {translate(item.labelKey)}
             </NavLink>
@@ -94,9 +95,12 @@ function FooterNavigation({
 
 export function MarketingFooter({
   accountSection,
-  homeHref,
+  locale,
   ...props
-}: React.ComponentProps<"footer"> & { accountSection: React.ReactNode; homeHref: string }) {
+}: React.ComponentProps<"footer"> & {
+  accountSection: React.ReactNode;
+  locale: Locale;
+}) {
   const t = useTranslations("layout.footer");
   const tNav = useTranslations("layout.navigation.items");
   const cookieConsentEnabled = isCookieConsentEnabled();
@@ -108,9 +112,9 @@ export function MarketingFooter({
       {/* First row - Logo & socials */}
       <Container className="flex flex-wrap items-center justify-between gap-8 pt-16">
         <div className="flex flex-col items-start justify-start gap-7 min-[24rem]:col-span-2 md:col-span-4 lg:col-span-1">
-          <LocalizedPathLink href={homeHref} aria-label={t("homeAriaLabel")}>
+          <LocalizedNavLink href="/" locale={locale} aria-label={t("homeAriaLabel")}>
             <LogoStart aria-hidden="true" className="w-18" />
-          </LocalizedPathLink>
+          </LocalizedNavLink>
         </div>
 
         <SocialMediaIcons />
@@ -163,7 +167,7 @@ export function MarketingFooter({
               <li key={item.href}>
                 <NavLink
                   href={item.href}
-                  className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                  className="text-muted-foreground hover:text-foreground data-current:text-foreground text-sm transition-colors"
                 >
                   {tNav(item.labelKey)}
                 </NavLink>

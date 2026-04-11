@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { getPathname } from "@/i18n/navigation";
 import { MarketingLayout } from "@/features/marketing/marketing-layout";
 import {
   MarketingFooterAccountSectionSkeleton,
@@ -29,7 +28,7 @@ export default async function Layout({ children, params }: MarketingRouteLayoutP
   return (
     <MarketingLayout
       skipToContentLabel={copy.skipToContent}
-      homeHref={copy.homeHref}
+      locale={locale as Locale}
       headerDesktopAuthSlot={
         <Suspense fallback={<MarketingHeaderDesktopAuthSkeleton />}>
           <MarketingHeaderDesktopAuthSlot />
@@ -52,7 +51,7 @@ export default async function Layout({ children, params }: MarketingRouteLayoutP
       }
       footerAccountSection={
         <Suspense fallback={<MarketingFooterAccountSectionSkeleton />}>
-          <MarketingFooterAccountSectionSlot />
+          <MarketingFooterAccountSectionSlot locale={locale as Locale} />
         </Suspense>
       }
     >
@@ -71,9 +70,5 @@ async function getMarketingLayoutCopy(locale: Locale) {
 
   return {
     skipToContent: t("skipToContent"),
-    homeHref: getPathname({
-      href: "/",
-      locale,
-    }),
   };
 }

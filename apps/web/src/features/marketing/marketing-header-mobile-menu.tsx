@@ -107,7 +107,7 @@ function MobileNavigation({
                             render={
                               <NavLink
                                 href={subItem.href}
-                                className="text-foreground block w-full py-3"
+                                className="text-foreground block w-full py-3 data-current:font-medium"
                               />
                             }
                           >
@@ -126,7 +126,13 @@ function MobileNavigation({
         return (
           <li key={item.href}>
             <MobileMenuClose
-              render={<NavLink href={item.href} className="text-foreground block w-full py-3" />}
+              render={
+                <NavLink
+                  href={item.href}
+                  matchNested={item.href === "/blog" || item.href === "/contact"}
+                  className="text-foreground block w-full py-3 data-current:font-medium"
+                />
+              }
             >
               {translate(item.labelKey)}
             </MobileMenuClose>

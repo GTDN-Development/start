@@ -1,8 +1,9 @@
 "use client";
 
-import { Link, type LinkHref } from "@/components/ui/link";
 import { useBrowserPathnameState } from "@/hooks/use-browser-pathname-state";
+import { type AppHref } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import { Link } from "@/components/ui/link";
 
 type BackNavigationContextValue = {
   previousPathname?: string;
@@ -17,7 +18,7 @@ export type BackNavigationProps = {
 };
 
 export type BackLinkProps = {
-  fallbackHref: LinkHref;
+  fallbackHref: AppHref;
   className?: string;
   backContent?: React.ReactNode;
   children: React.ReactNode;

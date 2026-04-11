@@ -8,13 +8,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Link, type LinkHref } from "@/components/ui/link";
-import { usePathname } from "@/i18n/navigation";
+import { Link } from "@/components/ui/link";
+import { type AppHref, usePathname } from "@/i18n/navigation";
 import type { InnerSidebarNavItem } from "./inner-sidebar-types";
 
 type InnerSidebarBreadcrumbsProps = {
   items: InnerSidebarNavItem[];
-  rootHref: LinkHref;
+  rootHref: AppHref;
   rootLabel: string;
 };
 
@@ -86,7 +86,7 @@ function isCurrentInnerSidebarNavItem(pathname: string, item: InnerSidebarNavIte
   return pathname === itemPathname;
 }
 
-function getHrefPathname(href: LinkHref): string {
+function getHrefPathname(href: AppHref): string {
   if (typeof href === "string") {
     return href;
   }

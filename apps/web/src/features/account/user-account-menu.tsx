@@ -12,12 +12,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Link, type LinkHref } from "@/components/ui/link";
+import { Link } from "@/components/ui/link";
 import { ACCOUNT_PATH } from "@/config/routes";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthUser } from "@/features/auth/auth-types";
 import { useSignOut } from "@/features/auth/use-sign-out";
 import { useBrowserPathnameState } from "@/hooks/use-browser-pathname-state";
+import { type AppHref } from "@/i18n/navigation";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { GlobeIcon, LayoutDashboardIcon, LogOutIcon, UserIcon } from "lucide-react";
 
@@ -34,7 +35,7 @@ export type UserAccountMenuLabels = {
 type UserAccountMenuProps = {
   viewer: UserAccountMenuViewer;
   labels: UserAccountMenuLabels;
-  applicationEntryHref: LinkHref;
+  applicationEntryHref: AppHref;
   className?: string;
 };
 

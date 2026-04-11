@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { type LinkHref } from "@/components/ui/link";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile-types";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
@@ -11,6 +10,7 @@ import {
   useWorkspaceNavigation,
 } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
+import { type AppHref } from "@/i18n/navigation";
 
 type ApplicationMobileMenuLabels = {
   openAriaLabel: string;
@@ -22,7 +22,7 @@ type ApplicationRootContextValue = {
   user: AccountProfileSnapshot;
   userMenuLabels: UserAccountMenuLabels;
   mobileMenuLabels: ApplicationMobileMenuLabels;
-  applicationEntryHref: LinkHref;
+  applicationEntryHref: AppHref;
 };
 
 export type ApplicationRootLabels = {
@@ -35,7 +35,7 @@ type ApplicationRootProps = {
   user: AccountProfileSnapshot;
   workspaces: WorkspaceNavigationItem[];
   activeWorkspaceSlug: string | null;
-  applicationEntryHref: LinkHref;
+  applicationEntryHref: AppHref;
   labels: ApplicationRootLabels;
 };
 

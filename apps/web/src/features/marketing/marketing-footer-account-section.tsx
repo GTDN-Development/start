@@ -1,13 +1,15 @@
 "use client";
 
-import { NavLink } from "@/components/layout/nav-link";
-import type { LinkHref } from "@/components/ui/link";
 import { useSignOut } from "@/features/auth/use-sign-out";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
+import { type AppHref } from "@/i18n/navigation";
+import { Locale } from "next-intl";
+import { LocalizedNavLink } from "@/components/layout/localized-nav-link";
 
 type MarketingFooterAccountSectionProps = {
   viewer: UserAccountMenuViewer | null;
-  applicationEntryHref: LinkHref;
+  applicationEntryHref: AppHref;
+  locale: Locale;
   labels: {
     heading: string;
     signedInAs: string;
@@ -22,6 +24,7 @@ type MarketingFooterAccountSectionProps = {
 export function MarketingFooterAccountSection({
   viewer,
   applicationEntryHref,
+  locale,
   labels,
 }: MarketingFooterAccountSectionProps) {
   const { handleSignOut, isPending: isSignOutPending } = useSignOut();
@@ -43,20 +46,22 @@ export function MarketingFooterAccountSection({
         {viewer ? (
           <>
             <li>
-              <NavLink
+              <LocalizedNavLink
                 href={applicationEntryHref}
+                locale={locale}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 {labels.home}
-              </NavLink>
+              </LocalizedNavLink>
             </li>
             <li>
-              <NavLink
+              <LocalizedNavLink
                 href="/account"
+                locale={locale}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 {labels.myAccount}
-              </NavLink>
+              </LocalizedNavLink>
             </li>
             <li>
               <button
@@ -72,20 +77,22 @@ export function MarketingFooterAccountSection({
         ) : (
           <>
             <li>
-              <NavLink
+              <LocalizedNavLink
                 href="/sign-in"
+                locale={locale}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 {labels.signIn}
-              </NavLink>
+              </LocalizedNavLink>
             </li>
             <li>
-              <NavLink
+              <LocalizedNavLink
                 href="/sign-up"
+                locale={locale}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 {labels.signUp}
-              </NavLink>
+              </LocalizedNavLink>
             </li>
           </>
         )}

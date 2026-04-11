@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { ChevronRightIcon } from "lucide-react";
+import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
@@ -189,7 +190,7 @@ export function MarketingHeaderMobileFooterActionsSkeleton() {
   );
 }
 
-export async function MarketingFooterAccountSectionSlot() {
+export async function MarketingFooterAccountSectionSlot({ locale }: { locale: Locale }) {
   const [{ viewer, applicationEntryHref }, tApplication, tNav] = await Promise.all([
     getMarketingAuthState(),
     getTranslations("layout.application"),
@@ -200,6 +201,7 @@ export async function MarketingFooterAccountSectionSlot() {
     <MarketingFooterAccountSection
       viewer={viewer}
       applicationEntryHref={applicationEntryHref}
+      locale={locale}
       labels={{
         heading: tNav("myAccount"),
         signedInAs: tApplication("signedInAs"),

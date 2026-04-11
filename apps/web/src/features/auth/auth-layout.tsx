@@ -1,18 +1,19 @@
+import { Locale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/container";
-import { LocalizedPathLink } from "@/components/ui/link";
 import { LogoStart } from "@/components/brand/logo-start";
+import { LocalizedNavLink } from "@/components/layout/localized-nav-link";
 
 type AuthLayoutProps = React.ComponentProps<"div"> & {
   homeAriaLabel: string;
-  homeHref: string;
+  locale: Locale;
 };
 
 export function AuthLayout({
   children,
   className,
   homeAriaLabel,
-  homeHref,
+  locale,
   ...props
 }: AuthLayoutProps) {
   return (
@@ -30,9 +31,9 @@ export function AuthLayout({
         render={<header />}
         className="flex h-(--navbar-height) items-center justify-center"
       >
-        <LocalizedPathLink href={homeHref} aria-label={homeAriaLabel}>
+        <LocalizedNavLink href="/" locale={locale} aria-label={homeAriaLabel}>
           <LogoStart aria-hidden="true" className="w-18" />
-        </LocalizedPathLink>
+        </LocalizedNavLink>
       </Container>
 
       {/* Main content */}

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { getPathname } from "@/i18n/navigation";
 import { AuthLayout } from "@/features/auth/auth-layout";
 
 export const metadata: Metadata = {
@@ -23,7 +22,7 @@ export default async function Layout({ children, params }: AuthRouteLayoutProps)
   const copy = await getAuthLayoutCopy(locale as Locale);
 
   return (
-    <AuthLayout homeAriaLabel={copy.homeAriaLabel} homeHref={copy.homeHref}>
+    <AuthLayout homeAriaLabel={copy.homeAriaLabel} locale={locale as Locale}>
       {children}
     </AuthLayout>
   );
@@ -39,9 +38,5 @@ async function getAuthLayoutCopy(locale: Locale) {
 
   return {
     homeAriaLabel: t("homeAriaLabel"),
-    homeHref: getPathname({
-      href: "/",
-      locale,
-    }),
   };
 }

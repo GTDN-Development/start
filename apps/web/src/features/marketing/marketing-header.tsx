@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { Locale } from "next-intl";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,11 +7,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FloatingBar } from "@/components/layout/floating-bar";
-import { LocalizedPathLink } from "@/components/ui/link";
+import { LocalizedNavLink } from "@/components/layout/localized-nav-link";
+import { NavLink } from "@/components/layout/nav-link";
 import { Container } from "@/components/ui/container";
 import { ChevronDownIcon } from "lucide-react";
 import { LogoStart } from "@/components/brand/logo-start";
-import { NavLink } from "@/components/layout/nav-link";
 import { isNested, marketingMenu, type MenuItem, type MenuLabelKey } from "@/config/menu";
 import { useTranslations } from "next-intl";
 import { MarketingHeaderMobileMenu } from "./marketing-header-mobile-menu";
@@ -62,6 +63,7 @@ function Navigation({
           <li key={item.href}>
             <NavLink
               href={item.href}
+              matchNested={item.href === "/blog" || item.href === "/contact"}
               className="text-muted-foreground hover:text-foreground data-current:text-foreground inline-flex items-center justify-center rounded-md text-sm whitespace-nowrap underline-offset-2 transition-colors data-current:underline"
             >
               {translate(item.labelKey)}
@@ -78,13 +80,13 @@ export function MarketingHeader({
   mobileTopAuthSlot,
   mobileViewerSlot,
   mobileFooterActionsSlot,
-  homeHref,
+  locale,
 }: {
   desktopAuthSlot: React.ReactNode;
   mobileTopAuthSlot: React.ReactNode;
   mobileViewerSlot: React.ReactNode;
   mobileFooterActionsSlot: React.ReactNode;
-  homeHref: string;
+  locale: Locale;
 }) {
   const t = useTranslations("layout.header");
   const tNav = useTranslations("layout.navigation.items");
@@ -108,9 +110,9 @@ export function MarketingHeader({
       <Container size="full" className="flex h-full items-center justify-between gap-8">
         {/* Left side */}
         <div className="flex flex-1 items-center gap-4">
-          <LocalizedPathLink href={homeHref} aria-label={t("homeAriaLabel")}>
+          <LocalizedNavLink href="/" locale={locale} aria-label={t("homeAriaLabel")}>
             <LogoStart aria-hidden="true" className="w-18" />
-          </LocalizedPathLink>
+          </LocalizedNavLink>
         </div>
 
         {/* Center */}

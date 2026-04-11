@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { Locale } from "next-intl";
 import { SkipToContent } from "@/components/layout/skip-to-content";
 import { MarketingFooter } from "./marketing-footer";
 import { MarketingHeader } from "./marketing-header";
@@ -11,7 +12,7 @@ export function MarketingLayout({
   headerMobileFooterActionsSlot,
   footerAccountSection,
   skipToContentLabel,
-  homeHref,
+  locale,
 }: {
   children: React.ReactNode;
   headerDesktopAuthSlot: React.ReactNode;
@@ -20,7 +21,7 @@ export function MarketingLayout({
   headerMobileFooterActionsSlot: React.ReactNode;
   footerAccountSection: React.ReactNode;
   skipToContentLabel: string;
-  homeHref: string;
+  locale: Locale;
 }) {
   const contentId = "gtdn-app-content";
 
@@ -38,14 +39,14 @@ export function MarketingLayout({
         mobileTopAuthSlot={headerMobileTopAuthSlot}
         mobileViewerSlot={headerMobileViewerSlot}
         mobileFooterActionsSlot={headerMobileFooterActionsSlot}
-        homeHref={homeHref}
+        locale={locale}
       />
 
       <main id={contentId} data-slot="main" className="min-w-0">
         {children}
       </main>
 
-      <MarketingFooter accountSection={footerAccountSection} homeHref={homeHref} />
+      <MarketingFooter accountSection={footerAccountSection} locale={locale} />
     </div>
   );
 }

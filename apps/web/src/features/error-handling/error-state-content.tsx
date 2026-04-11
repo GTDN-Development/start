@@ -1,7 +1,8 @@
 import { TriangleAlertIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Link, type LinkHref } from "@/components/ui/link";
+import { Link } from "@/components/ui/link";
+import { type AppHref } from "@/i18n/navigation";
 import {
   Problem,
   ProblemActions,
@@ -14,7 +15,7 @@ import {
 type ErrorStateContentProps = {
   className?: string;
   error?: Error & { digest?: string };
-  href?: LinkHref;
+  href?: AppHref;
   hrefLabel?: string;
   reset?: () => void;
 };
