@@ -1610,6 +1610,11 @@
       "duration": {
         "session": "Relace",
         "persistent": "Trvalé",
+        "conditional": {
+          "sessionOrTokenExpiry": "Relace nebo do vypršení tokenu",
+          "sessionOrOneYear": "Relace nebo 1 rok",
+          "sessionOrNinetyDays": "Relace nebo 90 dní"
+        },
         "relative": {
           "minute": "{count, plural, one {# minuta} few {# minuty} other {# minut}}",
           "hour": "{count, plural, one {# hodina} few {# hodiny} other {# hodin}}",
@@ -1620,12 +1625,17 @@
       },
       "purposesCatalog": {
         "cookieConsent": "Ukládá preference souhlasu s cookies.",
+        "consentSubject": "Ukládá pseudonymní identifikátor pro auditní historii souhlasů.",
+        "authSession": "Ukládá autentizovanou PocketBase relaci přihlášeného uživatele.",
+        "authPersist": "Ukládá, zda má tento prohlížeč zachovat přihlášení i po zavření okna.",
+        "deviceSession": "Ukládá token aktuální session zařízení pro ověřování relace a správu zařízení.",
+        "pendingInvite": "Dočasně ukládá token pozvánky během přihlášení a přijetí pozvánky.",
+        "locale": "Ukládá zvolený jazyk webu pro tento prohlížeč.",
         "theme": "Ukládá preferenci motivu (systémový/světlý/tmavý režim).",
-        "ga": "Rozlišuje uživatele pro analytiku (se souhlasem).",
-        "gaWildcard": "Uchovává stav relace GA4 (se souhlasem).",
-        "gid": "Rozlišuje uživatele po dobu 24 hodin (se souhlasem).",
-        "gat": "Omezuje četnost požadavků GA (se souhlasem).",
-        "gclAu": "Experimenty efektivity AdSense (se souhlasem)."
+        "sidebarState": "Ukládá, zda je postranní panel aplikace na tomto zařízení rozbalený nebo sbalený.",
+        "activeWorkspace": "Ukládá naposledy aktivní workspace pro rychlejší navigaci v aplikaci.",
+        "ga": "Používá Google Analytics 4 k rozlišení uživatelů (se souhlasem).",
+        "gaWildcard": "Používá Google Analytics 4 k uchování stavu relace (se souhlasem)."
       }
     },
     "gdprPolicy": {

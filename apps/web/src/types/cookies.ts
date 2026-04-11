@@ -3,12 +3,17 @@ export type CookieStorageType = "cookie" | "localStorage" | "sessionStorage";
 
 export type CookiePurposeKey =
   | "cookieConsent"
+  | "consentSubject"
+  | "authSession"
+  | "authPersist"
+  | "deviceSession"
+  | "pendingInvite"
+  | "locale"
   | "theme"
+  | "sidebarState"
+  | "activeWorkspace"
   | "ga"
-  | "gaWildcard"
-  | "gid"
-  | "gat"
-  | "gclAu";
+  | "gaWildcard";
 
 export type CookieDuration =
   | {
@@ -16,6 +21,10 @@ export type CookieDuration =
     }
   | {
       kind: "persistent";
+    }
+  | {
+      kind: "conditional";
+      labelKey: "sessionOrTokenExpiry" | "sessionOrOneYear" | "sessionOrNinetyDays";
     }
   | {
       kind: "relative";

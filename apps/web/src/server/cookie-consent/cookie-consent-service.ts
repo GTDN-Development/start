@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { ClientResponseError } from "pocketbase";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
+  COOKIE_CONSENT_SUBJECT_COOKIE_NAME,
   COOKIE_CONSENT_VERSION,
   normalizeConsent,
   type ConsentState,
@@ -12,7 +13,6 @@ import { routing } from "@/i18n/routing";
 import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
 import { logServiceError } from "@/server/pocketbase/pocketbase-utils";
 
-const COOKIE_CONSENT_SUBJECT_COOKIE_NAME = "cookie_consent_subject";
 const COOKIE_CONSENT_SUBJECT_COOKIE_PATTERN = /^[a-z0-9-]{16,64}$/i;
 
 export type RecordCookieConsentEventInput = {

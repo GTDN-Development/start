@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SIGN_IN_PATH } from "@/config/routes";
 import { getPathname, type AppPathname } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
+import { LOCALE_COOKIE_NAME, routing } from "@/i18n/routing";
 import { authConfig, type AuthEmailLinkAction } from "@/config/auth";
 
 type AppLocale = (typeof routing.locales)[number];
@@ -48,7 +48,7 @@ function parseToken(value: string | null) {
 }
 
 function resolveLocale(request: NextRequest): AppLocale {
-  const localeFromCookie = request.cookies.get("NEXT_LOCALE")?.value;
+  const localeFromCookie = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
 
   if (isAppLocale(localeFromCookie)) {
     return localeFromCookie;

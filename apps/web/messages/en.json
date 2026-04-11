@@ -1610,6 +1610,11 @@
       "duration": {
         "session": "Session",
         "persistent": "Persistent",
+        "conditional": {
+          "sessionOrTokenExpiry": "Session or token expiry",
+          "sessionOrOneYear": "Session or 1 year",
+          "sessionOrNinetyDays": "Session or 90 days"
+        },
         "relative": {
           "minute": "{count, plural, one {# minute} other {# minutes}}",
           "hour": "{count, plural, one {# hour} other {# hours}}",
@@ -1620,12 +1625,17 @@
       },
       "purposesCatalog": {
         "cookieConsent": "Stores cookie consent preferences.",
+        "consentSubject": "Stores a pseudonymous browser identifier for the consent audit trail.",
+        "authSession": "Stores the authenticated PocketBase session for signed-in users.",
+        "authPersist": "Stores whether this browser should keep the signed-in session after closing the browser.",
+        "deviceSession": "Stores the current device session token used for session validation and device management.",
+        "pendingInvite": "Temporarily stores an invite token during sign-in and invite acceptance flows.",
+        "locale": "Stores the selected site language for this browser.",
         "theme": "Stores theme preference (system/light/dark mode).",
-        "ga": "Distinguishes users for analytics (with consent).",
-        "gaWildcard": "Stores GA4 session state (with consent).",
-        "gid": "Distinguishes users for 24 hours (with consent).",
-        "gat": "Limits GA request rate (with consent).",
-        "gclAu": "Ad measurement experiments (with consent)."
+        "sidebarState": "Stores whether the app sidebar is expanded or collapsed on this device.",
+        "activeWorkspace": "Stores the last active workspace selection for faster navigation in the app.",
+        "ga": "Used by Google Analytics 4 to distinguish users (with consent).",
+        "gaWildcard": "Used by Google Analytics 4 to persist session state (with consent)."
       }
     },
     "gdprPolicy": {

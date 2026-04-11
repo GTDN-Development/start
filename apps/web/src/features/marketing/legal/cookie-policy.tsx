@@ -69,6 +69,10 @@ export function CookiePolicy({
       return t("duration.persistent");
     }
 
+    if (cookie.duration.kind === "conditional") {
+      return t(`duration.conditional.${cookie.duration.labelKey}`);
+    }
+
     return t(`duration.relative.${cookie.duration.unit}`, {
       count: cookie.duration.value,
     });
