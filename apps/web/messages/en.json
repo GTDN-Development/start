@@ -1482,12 +1482,12 @@
         "article1": "We may use in particular the following categories of cookies:",
         "essential": {
           "title": "Essential cookies",
-          "article1": "These cookies are necessary for the basic operation of the website, application, and security features. Without them, some parts of the service may not function properly.",
+          "article1": "These cookies are necessary for the basic operation of the website, application, security features, and core interface behavior such as keeping the language or appearance you actively choose. Without them, some parts of the service may not function properly.",
           "article2": "Essential cookies generally do not require consent because they are used for the purpose of providing the service you requested or to meet our legitimate technical and security needs."
         },
         "functional": {
           "title": "Functional cookies",
-          "article1": "Functional cookies allow us to remember your settings, preferences, and choices, such as language, appearance, active workspace, or other personalization elements.",
+          "article1": "Functional cookies allow us to remember optional personalization choices in the application, such as the last active workspace or similar convenience settings.",
           "article2": "These cookies may be used only where they are active in the specific implementation."
         },
         "analytics": {
@@ -2195,12 +2195,12 @@
             "label": "Necessary",
             "alwaysEnabled": "Always enabled",
             "ariaLabel": "Necessary cookies (always enabled)",
-            "description": "Required for the website and app to function, including security, session handling and storing your cookie choices."
+            "description": "Required for the website and app to function, including security, session handling, storing your cookie choices, and keeping core language or appearance preferences you actively choose."
           },
           "functional": {
             "label": "Functional",
             "ariaLabel": "Functional cookies",
-            "description": "Help remember your settings and preferences, such as language, appearance and other environment choices."
+            "description": "Help remember optional app personalization choices, such as the last active workspace."
           },
           "analytics": {
             "label": "Analytics",

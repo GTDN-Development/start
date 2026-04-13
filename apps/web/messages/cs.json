@@ -1482,12 +1482,12 @@
         "article1": "Používat můžeme zejména tyto kategorie cookies:",
         "essential": {
           "title": "Nezbytné cookies",
-          "article1": "Tyto cookies jsou nutné pro základní fungování webu, aplikace a bezpečnostních funkcí. Bez nich by některé části služby nemusely fungovat správně.",
+          "article1": "Tyto cookies jsou nutné pro základní fungování webu, aplikace, bezpečnostních funkcí a základního chování rozhraní, například pro zachování jazyka nebo vzhledu, které si aktivně zvolíte. Bez nich by některé části služby nemusely fungovat správně.",
           "article2": "Nezbytné cookies zpravidla nevyžadují souhlas, protože jsou používány za účelem poskytování služby, kterou jste si vyžádali, nebo za účelem splnění našich oprávněných technických a bezpečnostních potřeb."
         },
         "functional": {
           "title": "Funkční cookies",
-          "article1": "Funkční cookies umožňují zapamatovat si vaše nastavení, preference a volby, například jazyk, vzhled, aktivní workspace nebo jiné personalizační prvky.",
+          "article1": "Funkční cookies umožňují zapamatovat si volitelné personalizační volby v aplikaci, například naposledy aktivní workspace nebo podobná nastavení pro větší pohodlí.",
           "article2": "Tyto cookies mohou být používány pouze tehdy, pokud jsou v konkrétní implementaci aktivní."
         },
         "analytics": {
@@ -2195,12 +2195,12 @@
             "label": "Nezbytné",
             "alwaysEnabled": "Vždy zapnuté",
             "ariaLabel": "Nezbytné cookies (vždy povolené)",
-            "description": "Jsou nutné pro fungování webu a aplikace, zabezpečení, udržení relace a uložení vašich voleb ohledně cookies."
+            "description": "Jsou nutné pro fungování webu a aplikace, zabezpečení, udržení relace, uložení vašich voleb ohledně cookies a zachování základních preferencí jazyka nebo vzhledu, které si aktivně zvolíte."
           },
           "functional": {
             "label": "Funkční",
             "ariaLabel": "Funkční cookies",
-            "description": "Pomáhají si zapamatovat vaše nastavení a preference, například zvolený jazyk, vzhled nebo další volby prostředí."
+            "description": "Pomáhají si zapamatovat volitelné personalizační volby v aplikaci, například naposledy aktivní workspace."
           },
           "analytics": {
             "label": "Analytické",

@@ -39,9 +39,11 @@ export async function persistCookieConsentAction(input: {
     return createErrorResponse("BAD_REQUEST");
   }
 
+  const normalizedConsent = normalizeConsent(parsedInput.data.consent);
+
   const response = await recordCookieConsentEvent({
     eventType: parsedInput.data.eventType,
-    consent: normalizeConsent(parsedInput.data.consent),
+    consent: normalizedConsent,
     locale: parsedInput.data.locale,
   });
 
