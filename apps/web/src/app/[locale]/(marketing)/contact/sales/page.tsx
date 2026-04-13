@@ -62,20 +62,23 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             </div>
             <div className="flex flex-col gap-4">
               <ContactCopyItem
-                value={legal.contact.sales.email}
-                buttonClassName="hover:text-primary"
-              />
+                toCopy={legal.contact.sales.email}
+                className="text-foreground w-fit text-left underline underline-offset-2 transition-colors hover:no-underline"
+              >
+                {legal.contact.sales.email}
+              </ContactCopyItem>
               <ContactCopyItem
-                value={legal.contact.sales.phone}
-                displayValue={formatPhoneNumber(legal.contact.sales.phone)}
-                buttonClassName="hover:text-primary"
-              />
+                toCopy={legal.contact.sales.phone}
+                className="text-foreground w-fit text-left underline underline-offset-2 transition-colors hover:no-underline"
+              >
+                {formatPhoneNumber(legal.contact.sales.phone)}
+              </ContactCopyItem>
             </div>
-            <div className="mt-2 flex flex-col gap-2">
+            <div className="mt-5 flex flex-col gap-2">
               <p className="text-muted-foreground">{copy.supportPromptTitle}</p>
               <Link
                 href="/contact/support"
-                className="hover:text-primary inline-flex w-fit items-center gap-1.5 text-base"
+                className="text-foreground inline-flex w-fit items-center gap-1.5 text-base underline underline-offset-2 hover:no-underline"
               >
                 {copy.supportPromptCta}
                 <ChevronRightIcon aria-hidden="true" className="size-4" />

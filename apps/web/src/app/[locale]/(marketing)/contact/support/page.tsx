@@ -61,9 +61,11 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <p className="text-muted-foreground">{copy.infoDescription}</p>
             </div>
             <ContactCopyItem
-              value={legal.contact.support.email}
-              buttonClassName="hover:text-primary"
-            />
+              toCopy={legal.contact.support.email}
+              className="text-foreground w-fit text-left underline underline-offset-2 transition-colors hover:no-underline"
+            >
+              {legal.contact.support.email}
+            </ContactCopyItem>
           </div>
 
           <Card>

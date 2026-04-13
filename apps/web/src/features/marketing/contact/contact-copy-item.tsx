@@ -7,39 +7,34 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { cn } from "@/lib/utils";
 
 export function ContactCopyItem({
-  label,
-  value,
-  displayValue,
+  children,
+  toCopy,
   className,
-  buttonClassName,
 }: {
-  label?: string;
-  value: string;
-  displayValue?: string;
+  children: React.ReactNode;
+  toCopy: string;
   className?: string;
-  buttonClassName?: string;
 }) {
   const t = useTranslations("layout.footer");
 
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
-      {label && <p className="text-muted-foreground text-sm font-medium">{label}</p>}
-      <CopyButton
-        toCopy={value}
-        onCopy={() => toast(t("copiedValueToClipboard", { value }), { position: "bottom-center" })}
-        className={cn("flex items-center gap-2 transition-colors", buttonClassName)}
-      >
-        {({ isCopied }) => (
-          <>
-            <span>{displayValue ?? value}</span>
-            {isCopied ? (
-              <CheckIcon className="size-[1em]" aria-hidden="true" />
-            ) : (
-              <CopyIcon className="size-[1em]" aria-hidden="true" />
-            )}
-          </>
-        )}
-      </CopyButton>
-    </div>
+    <CopyButton
+      toCopy={toCopy}
+      onCopy={() =>
+        toast(t("copiedValueToClipboard", { value: toCopy }), { position: "bottom-center" })
+      }
+      className={cn("relative", className)}
+    >
+      {({ isCopied }) => (
+        <>
+          {children}
+          {isCopied ? (
+            <CheckIcon aria-hidden="true" className="ml-2 inline size-[1em] opacity-60" />
+          ) : (
+            <CopyIcon aria-hidden="true" className="ml-2 inline size-[1em] opacity-60" />
+          )}
+        </>
+      )}
+    </CopyButton>
   );
 }
