@@ -1,7 +1,10 @@
 import type PocketBase from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord } from "@/types/pocketbase";
-import { resolveAuthenticatedUser } from "./auth-user-resolution";
+import {
+  resolveRenderAuthenticatedUser,
+  resolveWritableAuthenticatedUser,
+} from "./auth-user-resolution";
 
 const {
   isTransientErrorMock,
@@ -58,7 +61,7 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
     vi.clearAllMocks();
   });
 
-  it("keeps render-time auth resolution read-only", async function testRenderMode() {
+  it("keeps render-time auth resolution read-only", async function testRenderResolver() {
     const context = createAuthResolutionContext();
 
     createPocketBaseServerClientMock.mockResolvedValue(context.client);
@@ -68,9 +71,7 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
     });
     context.usersCollection.getOne.mockResolvedValue(context.user);
 
-    const response = await resolveAuthenticatedUser({
-      mode: "render",
-    });
+    const response = await resolveRenderAuthenticatedUser();
 
     expect(resolveCurrentAuthDeviceSessionMock).toHaveBeenCalledWith({
       pb: context.pb,
@@ -88,7 +89,7 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
     });
   });
 
-  it("keeps action-time auth resolution on the write-capable device-session path", async function testActionMode() {
+  it("keeps writable auth resolution on the write-capable device-session path", async function testWritableResolver() {
     const context = createAuthResolutionContext();
 
     createPocketBaseServerClientMock.mockResolvedValue(context.client);
@@ -100,9 +101,7 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
       record: context.user,
     });
 
-    const response = await resolveAuthenticatedUser({
-      mode: "action",
-    });
+    const response = await resolveWritableAuthenticatedUser();
 
     expect(resolveCurrentAuthDeviceSessionMock).toHaveBeenCalledWith({
       pb: context.pb,
@@ -112,14 +111,15 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
     expect(context.usersCollection.authRefresh).toHaveBeenCalledTimes(1);
     expect(context.usersCollection.getOne).not.toHaveBeenCalled();
     expect(response).toEqual({
-      ok: true,
+      status: "authenticated",
       pb: context.pb,
       user: context.user,
       currentSessionIdHash: "session-hash-1",
+      setCookie: ["pb_auth=token", "pb_persist=1"],
     });
   });
 
-  it("returns auth metadata for unverified response-mode sessions without pulling verify-email side effects into the evaluator", async function testResponseModeUnverified() {
+  it("returns auth metadata for unverified writable sessions", async function testWritableResolverUnverified() {
     const context = createAuthResolutionContext({
       shouldPersistSession: true,
     });
@@ -135,17 +135,14 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
       }),
     });
 
-    const response = await resolveAuthenticatedUser({
-      mode: "response",
-    });
+    const response = await resolveWritableAuthenticatedUser();
 
     expect(exportPocketBaseAuthCookiesMock).toHaveBeenCalledWith(context.pb, {
       sessionOnly: false,
     });
     expect(createClearedAuthAndDeviceCookiesMock).not.toHaveBeenCalled();
     expect(response).toEqual({
-      ok: false,
-      errorCode: "UNAUTHORIZED",
+      status: "unverified",
       setCookie: ["pb_auth=token", "pb_persist=1"],
     });
   });

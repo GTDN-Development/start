@@ -76,10 +76,3 @@ export type ResetPasswordResponse = AuthResponse<ResetPasswordPayload>;
 export type RequestPasswordResetResponse = AuthResponse<RequestPasswordResetPayload>;
 export type RequestEmailVerificationResponse = AuthResponse<RequestEmailVerificationPayload>;
 export type ConfirmEmailChangeResponse = AuthResponse<ConfirmEmailChangePayload>;
-
-export type AuthSessionStatus = "idle" | "loading" | "authenticated" | "unauthenticated";
-
-export type AuthSessionSnapshot = {
-  status: AuthSessionStatus;
-  session: AuthSession | null;
-};

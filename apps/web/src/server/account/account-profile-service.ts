@@ -13,7 +13,7 @@ import {
   mapRequestEmailChangeErrorCode,
   mapUpdateProfileErrorCode,
 } from "@/server/account/account-errors";
-import { requireCurrentAccountUser } from "@/server/account/account-current-user";
+import { requireCurrentWritableUser } from "@/server/auth/current-user";
 
 type RequestAccountEmailChangePayload = {
   sent: true;
@@ -31,10 +31,14 @@ export async function updateCurrentUserProfileName(
     };
   }
 
-  const currentUser = await requireCurrentAccountUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return currentUser.response;
+    return {
+      ok: false,
+      errorCode: currentUser.errorCode,
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+    };
   }
 
   try {
@@ -82,10 +86,14 @@ export async function updateCurrentUserAvatar(
     };
   }
 
-  const currentUser = await requireCurrentAccountUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return currentUser.response;
+    return {
+      ok: false,
+      errorCode: currentUser.errorCode,
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+    };
   }
 
   try {
@@ -119,10 +127,14 @@ export async function updateCurrentUserAvatar(
 export async function removeCurrentUserAvatar(): Promise<
   ServerAuthResponse<AccountProfilePayload>
 > {
-  const currentUser = await requireCurrentAccountUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return currentUser.response;
+    return {
+      ok: false,
+      errorCode: currentUser.errorCode,
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+    };
   }
 
   try {
@@ -156,10 +168,14 @@ export async function removeCurrentUserAvatar(): Promise<
 export async function requestEmailChangeForCurrentUser(
   newEmail: string
 ): Promise<ServerAuthResponse<RequestAccountEmailChangePayload>> {
-  const currentUser = await requireCurrentAccountUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return currentUser.response;
+    return {
+      ok: false,
+      errorCode: currentUser.errorCode,
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+    };
   }
 
   try {

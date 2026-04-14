@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { resolveAuthenticatedUser } from "@/server/auth/auth-user-resolution";
-import { requireCurrentActionUser, requireCurrentUser } from "./current-user";
+import {
+  resolveRenderAuthenticatedUser,
+  resolveWritableAuthenticatedUser,
+} from "@/server/auth/auth-user-resolution";
+import { requireCurrentUser, requireCurrentWritableUser } from "./current-user";
 
 vi.mock("@/server/auth/auth-user-resolution", function mockAuthUserResolution() {
   return {
-    resolveAuthenticatedUser: vi.fn(),
+    resolveRenderAuthenticatedUser: vi.fn(),
+    resolveWritableAuthenticatedUser: vi.fn(),
   };
 });
 
@@ -13,8 +17,8 @@ describe("current-user", function describeCurrentUser() {
     vi.clearAllMocks();
   });
 
-  it("delegates render-time auth resolution to the auth evaluator", async function testRequireCurrentUser() {
-    vi.mocked(resolveAuthenticatedUser).mockResolvedValue({
+  it("delegates render-time auth resolution to the render resolver", async function testRequireCurrentUser() {
+    vi.mocked(resolveRenderAuthenticatedUser).mockResolvedValue({
       ok: true,
       pb: "pb-client" as never,
       user: {
@@ -35,13 +39,11 @@ describe("current-user", function describeCurrentUser() {
       },
       currentSessionIdHash: "session-hash-1",
     });
-    expect(resolveAuthenticatedUser).toHaveBeenCalledWith({
-      mode: "render",
-    });
+    expect(resolveRenderAuthenticatedUser).toHaveBeenCalledTimes(1);
   });
 
   it("returns only the auth error code for render-time failures", async function testRequireCurrentUserFailure() {
-    vi.mocked(resolveAuthenticatedUser).mockResolvedValue({
+    vi.mocked(resolveRenderAuthenticatedUser).mockResolvedValue({
       ok: false,
       errorCode: "UNAUTHORIZED",
     });
@@ -54,22 +56,19 @@ describe("current-user", function describeCurrentUser() {
     });
   });
 
-  it("keeps action-only cookie cleanup metadata on auth failures", async function testRequireCurrentActionUserFailure() {
-    vi.mocked(resolveAuthenticatedUser).mockResolvedValue({
-      ok: false,
-      errorCode: "UNAUTHORIZED",
+  it("keeps writable cookie cleanup metadata on auth failures", async function testRequireCurrentWritableUserFailure() {
+    vi.mocked(resolveWritableAuthenticatedUser).mockResolvedValue({
+      status: "unauthorized",
       setCookie: ["pb_auth=; Max-Age=0"],
     });
 
-    const response = await requireCurrentActionUser();
+    const response = await requireCurrentWritableUser();
 
     expect(response).toEqual({
       ok: false,
       errorCode: "UNAUTHORIZED",
       setCookie: ["pb_auth=; Max-Age=0"],
     });
-    expect(resolveAuthenticatedUser).toHaveBeenCalledWith({
-      mode: "action",
-    });
+    expect(resolveWritableAuthenticatedUser).toHaveBeenCalledTimes(1);
   });
 });

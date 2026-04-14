@@ -1,6 +1,9 @@
 import type PocketBase from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
-import { resolveAuthenticatedUser } from "@/server/auth/auth-user-resolution";
+import {
+  resolveRenderAuthenticatedUser,
+  resolveWritableAuthenticatedUser,
+} from "@/server/auth/auth-user-resolution";
 
 type RequireCurrentUserErrorCode = "UNAUTHORIZED" | "UNKNOWN_ERROR";
 
@@ -16,7 +19,7 @@ export type RequireCurrentUserResult =
       errorCode: RequireCurrentUserErrorCode;
     };
 
-export type RequireCurrentActionUserResult =
+export type RequireCurrentWritableUserResult =
   | {
       ok: true;
       pb: PocketBase;
@@ -30,9 +33,7 @@ export type RequireCurrentActionUserResult =
     };
 
 export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
-  const currentUser = await resolveAuthenticatedUser({
-    mode: "render",
-  });
+  const currentUser = await resolveRenderAuthenticatedUser();
 
   if (!currentUser.ok) {
     return {
@@ -49,15 +50,13 @@ export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
   };
 }
 
-export async function requireCurrentActionUser(): Promise<RequireCurrentActionUserResult> {
-  const currentUser = await resolveAuthenticatedUser({
-    mode: "action",
-  });
+export async function requireCurrentWritableUser(): Promise<RequireCurrentWritableUserResult> {
+  const currentUser = await resolveWritableAuthenticatedUser();
 
-  if (!currentUser.ok) {
+  if (currentUser.status !== "authenticated") {
     return {
       ok: false,
-      errorCode: currentUser.errorCode,
+      errorCode: currentUser.status === "unknown_error" ? "UNKNOWN_ERROR" : "UNAUTHORIZED",
       ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
     };
   }

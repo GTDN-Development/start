@@ -10,6 +10,7 @@ import {
   createAccountProfileNameFormSchema,
 } from "@/features/account/account-schemas";
 import { useAccountProfile } from "@/features/account/account-profile-context";
+import { emitAuthChanged } from "@/features/auth/auth-client-events";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -66,6 +67,7 @@ export function AccountDisplayNameSettingsItem() {
           form.reset();
           form.setFieldValue("name", nextName);
         });
+        emitAuthChanged();
         toast.success(t("profile.status.savedMessage"), {
           id: nameToastId,
         });

@@ -9,6 +9,7 @@ import {
 } from "@/features/account/profile/account-profile-actions";
 import { accountAvatarMaxSizeBytes } from "@/features/account/account-schemas";
 import { useAccountProfile } from "@/features/account/account-profile-context";
+import { emitAuthChanged } from "@/features/auth/auth-client-events";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -91,6 +92,7 @@ export function AccountAvatarSettingsItem() {
           patchProfile(response.data.profile);
           setFailedAvatarUrl(null);
         });
+        emitAuthChanged();
         toast.success(t("avatar.status.updated"), {
           id: avatarToastId,
         });
@@ -124,6 +126,7 @@ export function AccountAvatarSettingsItem() {
         patchProfile(response.data.profile);
         setFailedAvatarUrl(null);
       });
+      emitAuthChanged();
       toast.success(t("avatar.status.removed"), {
         id: avatarToastId,
       });

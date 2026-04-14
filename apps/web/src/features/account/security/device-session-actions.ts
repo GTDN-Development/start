@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import type { AuthResponse } from "@/features/auth/auth-types";
-import { requireCurrentActionUser } from "@/server/auth/current-user";
+import { requireCurrentWritableUser } from "@/server/auth/current-user";
 import { finalizeAuthAction } from "@/server/auth/auth-response";
 import {
   revokeDeviceSessionById,
@@ -25,7 +25,7 @@ type SignOutDevicePayload = {
 export async function signOutOtherDevicesAction(): Promise<
   AuthResponse<SignOutOtherDevicesPayload>
 > {
-  const currentUser = await requireCurrentActionUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
     return finalizeAuthAction({
@@ -67,7 +67,7 @@ export async function signOutDeviceAction(input: {
     return createBadRequestResponse();
   }
 
-  const currentUser = await requireCurrentActionUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
     return finalizeAuthAction({

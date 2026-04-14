@@ -9,7 +9,6 @@ import {
 } from "@/server/pocketbase/pocketbase-server";
 import { isUsersRecord, logServiceError } from "@/server/pocketbase/pocketbase-utils";
 
-type AuthResolutionMode = "render" | "action" | "response";
 type AuthResolutionErrorCode = "UNAUTHORIZED" | "UNKNOWN_ERROR";
 
 type RefreshedAuthRecordResult =
@@ -24,37 +23,96 @@ type RefreshedAuthRecordResult =
       status: "unauthorized";
     };
 
-export type ResolvedAuthenticatedUserResult =
+export type ResolvedRenderAuthenticatedUserResult =
   | {
       ok: true;
+      pb: PocketBase;
+      user: UsersRecord;
+      currentSessionIdHash: string;
+    }
+  | {
+      ok: false;
+      errorCode: AuthResolutionErrorCode;
+    };
+
+export type ResolvedWritableAuthenticatedUserResult =
+  | {
+      status: "authenticated";
       pb: PocketBase;
       user: UsersRecord;
       currentSessionIdHash: string;
       setCookie?: string[];
     }
   | {
-      ok: false;
-      errorCode: AuthResolutionErrorCode;
+      status: "unverified";
+      setCookie: string[];
+    }
+  | {
+      status: "unauthorized";
+      setCookie?: string[];
+    }
+  | {
+      status: "unknown_error";
       setCookie?: string[];
       staleUser?: UsersRecord;
       pb?: PocketBase;
     };
 
-export async function resolveAuthenticatedUser(input: {
-  mode: AuthResolutionMode;
-}): Promise<ResolvedAuthenticatedUserResult> {
-  const { pb, hasAuthCookie, hadInvalidAuthCookie, shouldPersistSession } =
-    await createPocketBaseServerClient();
+export async function resolveRenderAuthenticatedUser(): Promise<ResolvedRenderAuthenticatedUserResult> {
+  const { pb, hadInvalidAuthCookie } = await createPocketBaseServerClient();
 
   if (hadInvalidAuthCookie) {
-    return createUnauthorizedResolution(input.mode, createClearedAuthAndDeviceCookies());
+    return createRenderAuthFailure("UNAUTHORIZED");
   }
 
   const authenticatedUser = getAuthenticatedUserFromStore(pb);
 
   if (!authenticatedUser) {
-    return createUnauthorizedResolution(
-      input.mode,
+    return createRenderAuthFailure("UNAUTHORIZED");
+  }
+
+  try {
+    const deviceSessionCheck = await resolveCurrentAuthDeviceSession({
+      pb,
+      userId: authenticatedUser.id,
+      mode: "read",
+    });
+
+    if (deviceSessionCheck.status === "invalid") {
+      return createRenderAuthFailure("UNAUTHORIZED");
+    }
+
+    const user = await getVerifiedUserRecordReadOnly(pb, authenticatedUser);
+
+    if (!user) {
+      return createRenderAuthFailure("UNAUTHORIZED");
+    }
+
+    return {
+      ok: true,
+      pb,
+      user,
+      currentSessionIdHash: deviceSessionCheck.sessionIdHash,
+    };
+  } catch (error) {
+    logServiceError("auth-user-resolution", "resolveRenderAuthenticatedUser", error);
+
+    return createRenderAuthFailure("UNKNOWN_ERROR");
+  }
+}
+
+export async function resolveWritableAuthenticatedUser(): Promise<ResolvedWritableAuthenticatedUserResult> {
+  const { pb, hasAuthCookie, hadInvalidAuthCookie, shouldPersistSession } =
+    await createPocketBaseServerClient();
+
+  if (hadInvalidAuthCookie) {
+    return createWritableUnauthorizedResolution(createClearedAuthAndDeviceCookies());
+  }
+
+  const authenticatedUser = getAuthenticatedUserFromStore(pb);
+
+  if (!authenticatedUser) {
+    return createWritableUnauthorizedResolution(
       hasAuthCookie ? createClearedAuthAndDeviceCookies() : undefined
     );
   }
@@ -63,84 +121,54 @@ export async function resolveAuthenticatedUser(input: {
     const deviceSessionCheck = await resolveCurrentAuthDeviceSession({
       pb,
       userId: authenticatedUser.id,
-      mode: input.mode === "render" ? "read" : "write",
+      mode: "write",
     });
 
     if (deviceSessionCheck.status === "invalid") {
-      return createUnauthorizedResolution(input.mode, deviceSessionCheck.setCookie);
-    }
-
-    if (input.mode === "render") {
-      const user = await getVerifiedUserRecordReadOnly(pb, authenticatedUser);
-
-      if (!user) {
-        return createUnauthorizedResolution(input.mode);
-      }
-
-      return {
-        ok: true,
-        pb,
-        user,
-        currentSessionIdHash: deviceSessionCheck.sessionIdHash,
-      };
+      return createWritableUnauthorizedResolution(deviceSessionCheck.setCookie);
     }
 
     const refreshedAuth = await refreshCurrentAuthRecord(pb);
 
     if (refreshedAuth.status === "verified") {
       return {
-        ok: true,
+        status: "authenticated",
         pb,
         user: refreshedAuth.user,
         currentSessionIdHash: deviceSessionCheck.sessionIdHash,
-        ...(input.mode === "response"
-          ? {
-              setCookie: exportPocketBaseAuthCookies(pb, {
-                sessionOnly: !shouldPersistSession,
-              }),
-            }
-          : {}),
+        setCookie: exportPocketBaseAuthCookies(pb, {
+          sessionOnly: !shouldPersistSession,
+        }),
       };
     }
 
-    if (input.mode === "response" && refreshedAuth.status === "unverified") {
-      return createUnauthorizedResolution(
-        input.mode,
-        exportPocketBaseAuthCookies(pb, {
+    if (refreshedAuth.status === "unverified") {
+      return {
+        status: "unverified",
+        setCookie: exportPocketBaseAuthCookies(pb, {
           sessionOnly: !shouldPersistSession,
-        })
-      );
+        }),
+      };
     }
 
-    return createUnauthorizedResolution(input.mode, createClearedAuthAndDeviceCookies());
+    return createWritableUnauthorizedResolution(createClearedAuthAndDeviceCookies());
   } catch (error) {
-    if (
-      input.mode === "response" &&
-      isTransientError(error) &&
-      authenticatedUser.verified === true
-    ) {
-      console.warn("[auth-user-resolution] resolveAuthenticatedUser.response stale session");
+    if (isTransientError(error) && authenticatedUser.verified === true) {
+      console.warn("[auth-user-resolution] resolveWritableAuthenticatedUser stale session");
 
       return {
-        ok: false,
-        errorCode: "UNKNOWN_ERROR",
+        status: "unknown_error",
         pb,
         staleUser: authenticatedUser,
       };
     }
 
-    logServiceError("auth-user-resolution", `resolveAuthenticatedUser.${input.mode}`, error);
+    logServiceError("auth-user-resolution", "resolveWritableAuthenticatedUser", error);
 
-    return input.mode === "response"
-      ? {
-          ok: false,
-          errorCode: "UNKNOWN_ERROR",
-          setCookie: createClearedAuthAndDeviceCookies(),
-        }
-      : {
-          ok: false,
-          errorCode: "UNKNOWN_ERROR",
-        };
+    return {
+      status: "unknown_error",
+      setCookie: createClearedAuthAndDeviceCookies(),
+    };
   }
 }
 
@@ -209,20 +237,20 @@ export async function refreshCurrentAuthRecord(pb: PocketBase): Promise<Refreshe
   }
 }
 
-function createUnauthorizedResolution(
-  mode: AuthResolutionMode,
-  setCookie?: string[]
-): ResolvedAuthenticatedUserResult {
-  if (mode === "render") {
-    return {
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-    };
-  }
-
+function createRenderAuthFailure(
+  errorCode: AuthResolutionErrorCode
+): ResolvedRenderAuthenticatedUserResult {
   return {
     ok: false,
-    errorCode: "UNAUTHORIZED",
+    errorCode,
+  };
+}
+
+function createWritableUnauthorizedResolution(
+  setCookie?: string[]
+): ResolvedWritableAuthenticatedUserResult {
+  return {
+    status: "unauthorized",
     ...(setCookie ? { setCookie } : {}),
   };
 }

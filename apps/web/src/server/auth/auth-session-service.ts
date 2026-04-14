@@ -11,7 +11,7 @@ import {
   createAuthAndDeviceCookies,
   revokeCurrentAuthDeviceSession,
 } from "@/server/auth/auth-device-session-integration";
-import { resolveAuthenticatedUser } from "@/server/auth/auth-user-resolution";
+import { resolveWritableAuthenticatedUser } from "@/server/auth/auth-user-resolution";
 import { createAuthSession } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import { requireCurrentUser } from "@/server/auth/current-user";
@@ -125,17 +125,16 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
 }
 
 export async function getResponseAuthSession(): Promise<ServerAuthResponse<AuthSessionPayload>> {
-  const currentUser = await resolveAuthenticatedUser({
-    mode: "response",
-  });
+  const currentUser = await resolveWritableAuthenticatedUser();
 
-  if (!currentUser.ok) {
-    if (currentUser.staleUser && currentUser.pb) {
+  if (currentUser.status !== "authenticated") {
+    if (currentUser.status === "unknown_error" && currentUser.staleUser && currentUser.pb) {
       return {
         ok: true,
         data: {
           session: createAuthSession(currentUser.pb, currentUser.staleUser),
         },
+        ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
       };
     }
 

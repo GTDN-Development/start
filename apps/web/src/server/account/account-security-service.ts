@@ -13,7 +13,7 @@ import {
   mapDeleteAccountPasswordErrorCode,
   mapUpdatePasswordErrorCode,
 } from "@/server/account/account-errors";
-import { requireCurrentAccountUser } from "@/server/account/account-current-user";
+import { requireCurrentWritableUser } from "@/server/auth/current-user";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 
 type DeleteAccountPayload = {
@@ -34,10 +34,14 @@ export async function deleteCurrentUserAccountWithPassword(
     };
   }
 
-  const currentUser = await requireCurrentAccountUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return currentUser.response;
+    return {
+      ok: false,
+      errorCode: currentUser.errorCode,
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+    };
   }
 
   try {
@@ -123,10 +127,14 @@ export async function updateCurrentUserPassword(input: {
     };
   }
 
-  const currentUser = await requireCurrentAccountUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return currentUser.response;
+    return {
+      ok: false,
+      errorCode: currentUser.errorCode,
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+    };
   }
 
   try {

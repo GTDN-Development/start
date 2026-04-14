@@ -8,7 +8,7 @@ import { isTurnstileEnabled } from "@/config/security";
 import { normalizedEmailSchema, turnstileTokenSchema } from "@/lib/schemas";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
-import { requireCurrentActionUser } from "@/server/auth/current-user";
+import { requireCurrentWritableUser } from "@/server/auth/current-user";
 import { sendFormEmail } from "@/server/email/email-transport";
 import { renderEmail } from "@/server/email/render-email";
 import { buildContactFormEmail } from "@/server/email/templates/contact-form.builder";
@@ -102,7 +102,7 @@ export async function submitSupportFormAction(input: {
   message: string;
   attachments?: SupportAttachmentValue[];
 }): Promise<MarketingActionResponse> {
-  const currentUser = await requireCurrentActionUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
     await applyServerActionAuthCookies(currentUser.setCookie);

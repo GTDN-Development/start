@@ -12,6 +12,7 @@ import {
   type AccountPasswordFormValues,
 } from "@/features/account/account-schemas";
 import type { InlineStatus } from "@/features/account/account-types";
+import { emitSignedOut } from "@/features/auth/auth-client-events";
 import { useRouter } from "@/i18n/navigation";
 import {
   SettingsItem,
@@ -56,6 +57,7 @@ export function AccountChangePasswordItem() {
       const response = await runAsyncTransition(() => updateAccountPasswordAction(value));
 
       if (response.ok) {
+        emitSignedOut();
         form.reset();
         toast.success(t("security.password.status.savedAndSignIn"));
         router.replace(SIGN_IN_PATH);

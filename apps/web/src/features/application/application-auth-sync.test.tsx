@@ -1,22 +1,19 @@
 "use client";
 
 import { render, waitFor } from "@testing-library/react";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AuthSessionSnapshot } from "@/features/auth/auth-types";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
-  getSessionSnapshotMock,
   getPathnameMock,
-  subscribeToSessionStoreMock,
+  subscribeToAuthClientEventsMock,
+  useAccountProfileMock,
   useLocaleMock,
-  useSessionMock,
 } = vi.hoisted(function hoistApplicationAuthSyncMocks() {
   return {
-    getSessionSnapshotMock: vi.fn(),
     getPathnameMock: vi.fn(),
-    subscribeToSessionStoreMock: vi.fn(),
+    subscribeToAuthClientEventsMock: vi.fn(),
+    useAccountProfileMock: vi.fn(),
     useLocaleMock: vi.fn(),
-    useSessionMock: vi.fn(),
   };
 });
 
@@ -26,16 +23,15 @@ vi.mock("next-intl", function mockNextIntl() {
   };
 });
 
-vi.mock("@/features/auth/auth-client", function mockAuthClient() {
+vi.mock("@/features/account/account-profile-context", function mockAccountProfileContext() {
   return {
-    useSession: useSessionMock,
+    useAccountProfile: useAccountProfileMock,
   };
 });
 
-vi.mock("@/features/auth/auth-client-store", function mockAuthClientStore() {
+vi.mock("@/features/auth/auth-client-events", function mockAuthClientEvents() {
   return {
-    getSessionSnapshot: getSessionSnapshotMock,
-    subscribeToSessionStore: subscribeToSessionStoreMock,
+    subscribeToAuthClientEvents: subscribeToAuthClientEventsMock,
   };
 });
 
@@ -46,34 +42,49 @@ vi.mock("@/i18n/navigation", function mockNavigation() {
 });
 
 describe("application auth sync", function describeApplicationAuthSync() {
-  let sessionSnapshot: AuthSessionSnapshot;
+  let authEventListener: ((event: "auth-changed" | "signed-out") => void) | null;
   let assignMock: ReturnType<typeof vi.fn>;
+  let fetchMock: ReturnType<typeof vi.fn>;
   let originalLocation: Location;
-  let storeSubscribers: Set<() => void>;
+  let patchProfileMock: ReturnType<typeof vi.fn>;
+  let dateNowSpy: ReturnType<typeof vi.spyOn>;
+  let now: number;
+  let profile: {
+    id: string;
+    email: string;
+    name: string | null;
+    avatarUrl: string | null;
+  };
 
   beforeAll(function captureOriginalLocation() {
     originalLocation = window.location;
   });
 
   beforeEach(function resetApplicationAuthSyncTestState() {
-    sessionSnapshot = createAuthenticatedSnapshot();
+    authEventListener = null;
     assignMock = vi.fn();
-    storeSubscribers = new Set();
+    fetchMock = vi.fn();
+    patchProfileMock = vi.fn();
+    now = new Date("2026-04-14T10:00:00.000Z").getTime();
+    profile = createProfileSnapshot();
+    dateNowSpy = vi.spyOn(Date, "now").mockImplementation(function mockDateNow() {
+      return now;
+    });
 
     useLocaleMock.mockReturnValue("cs");
-    useSessionMock.mockImplementation(function getSessionSnapshot() {
-      return sessionSnapshot;
+    useAccountProfileMock.mockImplementation(function useAccountProfile() {
+      return {
+        profile,
+        patchProfile: patchProfileMock,
+      };
     });
-    getSessionSnapshotMock.mockImplementation(function getSessionSnapshot() {
-      return sessionSnapshot;
-    });
-    subscribeToSessionStoreMock.mockImplementation(function subscribeToSessionStore(
-      listener: () => void
+    subscribeToAuthClientEventsMock.mockImplementation(function subscribeToAuthClientEvents(
+      listener: (event: "auth-changed" | "signed-out") => void
     ) {
-      storeSubscribers.add(listener);
+      authEventListener = listener;
 
-      return function unsubscribeSessionStore() {
-        storeSubscribers.delete(listener);
+      return function unsubscribeAuthClientEvents() {
+        authEventListener = null;
       };
     });
     getPathnameMock.mockImplementation(function getPathname({
@@ -86,6 +97,8 @@ describe("application auth sync", function describeApplicationAuthSync() {
       return `/${locale}${href}`;
     });
 
+    vi.stubGlobal("fetch", fetchMock);
+
     Object.defineProperty(window, "location", {
       configurable: true,
       value: {
@@ -95,37 +108,26 @@ describe("application auth sync", function describeApplicationAuthSync() {
     });
   });
 
-  it("does not redirect while session is loading or authenticated", async function testNoRedirect() {
-    const { ApplicationAuthSync } = await import("./application-auth-sync");
-
-    sessionSnapshot = {
-      status: "loading",
-      session: null,
-    };
-
-    const { rerender } = render(<ApplicationAuthSync />);
-
-    await waitFor(function expectNoRedirectForLoading() {
-      expect(assignMock).not.toHaveBeenCalled();
-    });
-
-    sessionSnapshot = createAuthenticatedSnapshot();
-    rerender(<ApplicationAuthSync />);
-
-    await waitFor(function expectNoRedirectForAuthenticated() {
-      expect(assignMock).not.toHaveBeenCalled();
+  afterEach(function cleanupApplicationAuthSyncTestState() {
+    dateNowSpy.mockRestore();
+    vi.unstubAllGlobals();
+    Object.defineProperty(window, "location", {
+      configurable: true,
+      value: originalLocation,
     });
   });
 
-  it("redirects once when session becomes unauthenticated", async function testRedirectsOnce() {
+  it("redirects immediately on signed-out auth events", async function testSignedOutRedirect() {
+    fetchMock.mockResolvedValue(createFetchResponse(createAuthenticatedSessionResponse()));
+
     const { ApplicationAuthSync } = await import("./application-auth-sync");
     render(<ApplicationAuthSync />);
 
-    sessionSnapshot = {
-      status: "unauthenticated",
-      session: null,
-    };
-    emitSessionStoreChange(storeSubscribers);
+    await waitFor(function expectInitialRecheck() {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    authEventListener?.("signed-out");
 
     await waitFor(function expectRedirect() {
       expect(getPathnameMock).toHaveBeenCalledWith({
@@ -134,31 +136,99 @@ describe("application auth sync", function describeApplicationAuthSync() {
       });
       expect(assignMock).toHaveBeenCalledWith("/cs/sign-in");
     });
+  });
 
-    emitSessionStoreChange(storeSubscribers);
+  it("rechecks on auth-changed and patches account profile fields from session", async function testAuthChangedPatch() {
+    fetchMock
+      .mockResolvedValueOnce(createFetchResponse(createAuthenticatedSessionResponse()))
+      .mockResolvedValueOnce(
+        createFetchResponse(
+          createAuthenticatedSessionResponse({
+            email: "updated@example.com",
+            name: "Updated User",
+            avatarUrl: "https://cdn.test/avatar.png",
+          })
+        )
+      );
 
-    await waitFor(function expectSingleRedirect() {
-      expect(assignMock).toHaveBeenCalledTimes(1);
+    const { ApplicationAuthSync } = await import("./application-auth-sync");
+    render(<ApplicationAuthSync />);
+
+    await waitFor(function expectInitialRecheck() {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    authEventListener?.("auth-changed");
+
+    await waitFor(function expectProfilePatch() {
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(patchProfileMock).toHaveBeenCalledWith({
+        name: "Updated User",
+        email: "updated@example.com",
+        avatarUrl: "https://cdn.test/avatar.png",
+      });
+    });
+  });
+
+  it("rate-limits focus and online rechecks to five seconds", async function testRecheckRateLimit() {
+    fetchMock.mockResolvedValue(createFetchResponse(createAuthenticatedSessionResponse()));
+
+    const { ApplicationAuthSync } = await import("./application-auth-sync");
+    render(<ApplicationAuthSync />);
+
+    await waitFor(function expectInitialRecheck() {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    window.dispatchEvent(new Event("focus"));
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    await waitFor(function expectNoImmediateRecheck() {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    now += 5_000;
+    window.dispatchEvent(new Event("online"));
+
+    await waitFor(function expectDelayedRecheck() {
+      expect(fetchMock).toHaveBeenCalledTimes(2);
     });
   });
 });
 
-function createAuthenticatedSnapshot(): AuthSessionSnapshot {
+function createProfileSnapshot() {
   return {
-    status: "authenticated",
-    session: {
-      user: {
-        id: "user_123",
-        email: "fanda@example.com",
-        name: "Fanda",
-        avatarUrl: null,
+    id: "user_123",
+    email: "fanda@example.com",
+    name: "Fanda",
+    avatarUrl: null,
+  };
+}
+
+function createAuthenticatedSessionResponse(input?: {
+  email?: string;
+  name?: string | null;
+  avatarUrl?: string | null;
+}) {
+  return {
+    ok: true as const,
+    data: {
+      session: {
+        user: {
+          id: "user_123",
+          email: input?.email ?? "fanda@example.com",
+          name: input?.name ?? "Fanda",
+          avatarUrl: input?.avatarUrl ?? null,
+        },
       },
     },
   };
 }
 
-function emitSessionStoreChange(subscribers: Set<() => void>) {
-  for (const listener of subscribers) {
-    listener();
-  }
+function createFetchResponse(payload: unknown) {
+  return {
+    async json() {
+      return payload;
+    },
+  };
 }

@@ -1,9 +1,7 @@
 "use client";
 
-import { startTransition, useSyncExternalStore } from "react";
 import type {
   ConfirmEmailChangeResponse,
-  AuthSessionSnapshot,
   RequestEmailVerificationResponse,
   RequestPasswordResetResponse,
   ResetPasswordResponse,
@@ -25,18 +23,7 @@ import {
   signOutAction,
   signUpAction,
 } from "@/features/auth/auth-actions";
-import {
-  broadcastSessionChanged,
-  broadcastSignedOut,
-  ensureSessionSyncInitialized,
-} from "@/features/auth/auth-client-sync";
-import {
-  getSessionSnapshot,
-  isSessionIdle,
-  refreshSession,
-  setSessionState,
-  subscribeToSessionStore,
-} from "@/features/auth/auth-client-store";
+import { emitAuthChanged, emitSignedOut } from "@/features/auth/auth-client-events";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import { runAsyncTransition } from "@/lib/app-utils";
 
@@ -44,44 +31,21 @@ export async function signIn(input: SignInInput): Promise<SignInResponse> {
   const response = await runAsyncTransition(() => signInAction(input));
 
   if (response.ok) {
-    startTransition(() => {
-      setSessionState({
-        status: response.data.session ? "authenticated" : "unauthenticated",
-        session: response.data.session,
-      });
-    });
-    broadcastSessionChanged();
+    emitAuthChanged();
   }
 
   return response;
 }
 
 export async function signUp(input: SignUpActionInput): Promise<SignUpResponse> {
-  const response = await runAsyncTransition(() => signUpAction(input));
-
-  if (response.ok) {
-    startTransition(() => {
-      setSessionState({
-        status: "unauthenticated",
-        session: null,
-      });
-    });
-  }
-
-  return response;
+  return await runAsyncTransition(() => signUpAction(input));
 }
 
 export async function signOut(): Promise<SignOutResponse> {
   const response = await runAsyncTransition(() => signOutAction());
 
   if (response.ok) {
-    startTransition(() => {
-      setSessionState({
-        status: "unauthenticated",
-        session: null,
-      });
-    });
-    broadcastSignedOut();
+    emitSignedOut();
   }
 
   return response;
@@ -95,13 +59,7 @@ export async function resetPasswordWithToken(input: {
   const response = await runAsyncTransition(() => resetPasswordAction(input));
 
   if (response.ok) {
-    startTransition(() => {
-      setSessionState({
-        status: "unauthenticated",
-        session: null,
-      });
-    });
-    broadcastSessionChanged();
+    emitSignedOut();
   }
 
   return response;
@@ -126,32 +84,8 @@ export async function confirmEmailChange(input: {
   const response = await runAsyncTransition(() => confirmEmailChangeAction(input));
 
   if (response.ok) {
-    startTransition(() => {
-      setSessionState({
-        status: "unauthenticated",
-        session: null,
-      });
-    });
-    broadcastSignedOut();
+    emitSignedOut();
   }
 
   return response;
-}
-
-export function useSession(): AuthSessionSnapshot {
-  return useSyncExternalStore(subscribeToAuthSessionStore, getSessionSnapshot, getSessionSnapshot);
-}
-
-export { refreshSession };
-
-function subscribeToAuthSessionStore(listener: () => void) {
-  const unsubscribe = subscribeToSessionStore(listener);
-
-  ensureSessionSyncInitialized();
-
-  if (isSessionIdle()) {
-    void refreshSession();
-  }
-
-  return unsubscribe;
 }

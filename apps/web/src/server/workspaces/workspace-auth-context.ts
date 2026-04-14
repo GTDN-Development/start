@@ -1,8 +1,8 @@
 import type PocketBase from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
 import {
-  requireCurrentActionUser,
-  requireCurrentUser as requireAuthenticatedUser,
+  requireCurrentWritableUser,
+  requireCurrentUser,
 } from "@/server/auth/current-user";
 import type { ServerWorkspaceResponse } from "@/server/workspaces/workspace-types";
 
@@ -22,7 +22,7 @@ type WorkspaceAuthContextResult =
     };
 
 export async function requireWorkspaceAuthContext(): Promise<WorkspaceAuthContextResult> {
-  const currentUser = await requireAuthenticatedUser();
+  const currentUser = await requireCurrentUser();
 
   if (!currentUser.ok) {
     return {
@@ -44,7 +44,7 @@ export async function requireWorkspaceAuthContext(): Promise<WorkspaceAuthContex
 }
 
 export async function requireWorkspaceActionContext(): Promise<WorkspaceAuthContextResult> {
-  const currentUser = await requireCurrentActionUser();
+  const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
     return {

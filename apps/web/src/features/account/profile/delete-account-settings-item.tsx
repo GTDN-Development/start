@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useRouter } from "@/i18n/navigation";
 import { deleteAccountAction } from "@/features/account/security/account-security-actions";
 import { createAccountDeleteFormSchema } from "@/features/account/account-schemas";
+import { emitSignedOut } from "@/features/auth/auth-client-events";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -73,6 +74,7 @@ export function AccountDeleteAccountSettingsItem() {
       );
 
       if (response.ok) {
+        emitSignedOut();
         toast.success(t("deleteAccount.status.success"), {
           id: deleteAccountToastId,
         });
