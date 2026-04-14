@@ -8,11 +8,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useSignOut } from "@/features/auth/use-sign-out";
-import { useSidebarContext } from "./application-root";
+import { useApplicationRootContext } from "./application-root";
 
 export function ApplicationSidebarSignOut() {
   const { isMobile, setOpenMobile } = useSidebar();
-  const { userMenuLabels } = useSidebarContext();
+  const { userMenuLabels } = useApplicationRootContext();
   const { handleSignOut, isPending } = useSignOut();
 
   async function handleClick() {

@@ -10,7 +10,7 @@ import {
   updateCurrentUserPassword,
 } from "@/server/account/account-security-service";
 import { finalizeAuthAction } from "@/server/auth/auth-response";
-import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import { clearSessionScopedApplicationState } from "@/features/application/application-composition";
 
 type DeleteAccountPayload = {
   deleted: true;
@@ -48,7 +48,7 @@ export async function deleteAccountAction(input: {
   const response = await deleteCurrentUserAccountWithPassword(parsedInput.data.password);
 
   if (response.ok) {
-    await clearActiveWorkspaceSlugCookie();
+    await clearSessionScopedApplicationState();
   }
 
   return finalizeAuthAction(response);

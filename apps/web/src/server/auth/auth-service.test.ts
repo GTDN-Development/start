@@ -48,10 +48,16 @@ import {
 } from "@/server/device-sessions/device-sessions-cookie";
 import {
   checkDeviceSessionReadOnly,
+  hashSessionToken,
   registerOrRefreshDeviceSession,
+  revokeCurrentDeviceSession,
   validateDeviceSessionOrInvalidate,
 } from "@/server/device-sessions/device-sessions-service";
-import { getResponseAuthSession, getServerAuthSession } from "./auth-session-service";
+import {
+  getResponseAuthSession,
+  getServerAuthSession,
+  signOutServerSession,
+} from "./auth-session-service";
 import {
   confirmEmailVerificationToken,
   confirmEmailChangeToken,
@@ -270,6 +276,31 @@ describe("auth-service", function describeAuthService() {
     expect(registerOrRefreshDeviceSession).not.toHaveBeenCalled();
   });
 
+  it("fails closed when device session registration fails during sign-in", async function testSignInDeviceSessionRegistrationFailure() {
+    const context = createAuthServiceContext();
+
+    context.usersCollection.authWithPassword.mockResolvedValue({
+      record: createUserRecord("user-1", "user@example.com"),
+    });
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+    vi.mocked(registerOrRefreshDeviceSession).mockRejectedValueOnce(
+      new Error("device session write failed")
+    );
+
+    const response = await signInWithPassword({
+      email: "user@example.com",
+      password: "secret-password",
+      rememberMe: true,
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+    });
+    expect(consoleErrorSpy).toHaveBeenCalled();
+  });
+
   it("keeps sign-up verification bootstrap on PocketBase auth only without creating a device session", async function testSignUpWithoutDeviceSession() {
     const context = createAuthServiceContext();
 
@@ -341,6 +372,64 @@ describe("auth-service", function describeAuthService() {
       setCookie: ["pb_auth=token", "pb_persist=1", "device_session=device-token-new"],
     });
     expect(registerOrRefreshDeviceSession).toHaveBeenCalledTimes(1);
+  });
+
+  it("fails closed when device session registration fails after email verification", async function testConfirmEmailVerificationDeviceSessionRegistrationFailure() {
+    const context = createAuthServiceContext({
+      authStoreRecord: createUserRecord("user-1", "user@example.com", {
+        verified: false,
+      }),
+      authStoreValid: true,
+      shouldPersistSession: true,
+    });
+
+    context.usersCollection.confirmVerification.mockResolvedValue(undefined);
+    context.usersCollection.authRefresh.mockResolvedValue({
+      record: createUserRecord("user-1", "user@example.com", {
+        verified: true,
+      }),
+    });
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+    vi.mocked(readDeviceSessionCookie).mockResolvedValue(null);
+    vi.mocked(registerOrRefreshDeviceSession).mockRejectedValueOnce(
+      new Error("device session write failed")
+    );
+
+    const response = await confirmEmailVerificationToken("verification-token");
+
+    expect(response).toEqual({
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+    });
+    expect(consoleErrorSpy).toHaveBeenCalled();
+  });
+
+  it("revokes the current auth device session through the auth integration seam on sign-out", async function testSignOutRevokesCurrentDeviceSession() {
+    const context = createAuthServiceContext({
+      authStoreRecord: createUserRecord("user-1", "user@example.com"),
+      authStoreValid: true,
+    });
+
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+    vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
+    vi.mocked(hashSessionToken).mockReturnValue("session-hash-1");
+    vi.mocked(revokeCurrentDeviceSession).mockResolvedValue(undefined);
+
+    const response = await signOutServerSession();
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        signedOut: true,
+      },
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+    });
+    expect(revokeCurrentDeviceSession).toHaveBeenCalledWith({
+      pb: context.pb,
+      userId: "user-1",
+      currentSessionIdHash: "session-hash-1",
+    });
   });
 
   it("returns null session and clears cookies when the auth cookie is invalid", async function testGetServerAuthSessionInvalidAuthCookie() {

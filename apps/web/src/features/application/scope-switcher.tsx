@@ -23,7 +23,7 @@ import { useOptionalAccountProfile } from "@/features/account/account-profile-co
 import { resolveApplicationScope } from "@/features/application/application-scope";
 import { resolveSelectedWorkspaceSlug } from "@/features/application/workspace-selection";
 import { switchWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
-import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
+import { useOptionalWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
@@ -48,7 +48,9 @@ type ScopeSwitcherProps = {
 export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   const t = useTranslations("layout.application.scopeSwitcher");
   const accountProfile = useOptionalAccountProfile();
-  const { activeWorkspaceSlug, workspaces } = useWorkspaceNavigation();
+  const workspaceNavigation = useOptionalWorkspaceNavigation();
+  const activeWorkspaceSlug = workspaceNavigation?.activeWorkspaceSlug ?? null;
+  const workspaces = workspaceNavigation?.workspaces ?? [];
 
   const pathname = usePathname();
   const router = useRouter();

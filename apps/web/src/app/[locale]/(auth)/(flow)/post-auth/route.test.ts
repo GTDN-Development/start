@@ -1,6 +1,9 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { workspaceConfig } from "@/config/workspace";
+import { resolveApplicationPostAuthState } from "@/features/application/application-composition";
+import { getResponseAuthSession } from "@/server/auth/auth-session-service";
+import { GET } from "./route";
 
 vi.mock("@/i18n/navigation", function mockNavigation() {
   return {
@@ -26,30 +29,11 @@ vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() 
   };
 });
 
-vi.mock(
-  "@/server/workspaces/workspace-resolution-service",
-  function mockWorkspaceResolutionService() {
-    return {
-      resolvePostAuthDestination: vi.fn(),
-    };
-  }
-);
-
-vi.mock("@/server/workspaces/workspace-cookie", async function mockWorkspaceCookie() {
-  const actual = await vi.importActual<typeof import("@/server/workspaces/workspace-cookie")>(
-    "@/server/workspaces/workspace-cookie"
-  );
-
+vi.mock("@/features/application/application-composition", function mockApplicationComposition() {
   return {
-    ...actual,
-    getPendingInviteTokenCookie: vi.fn(),
+    resolveApplicationPostAuthState: vi.fn(),
   };
 });
-
-import { getResponseAuthSession } from "@/server/auth/auth-session-service";
-import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
-import { getPendingInviteTokenCookie } from "@/server/workspaces/workspace-cookie";
-import { GET } from "./route";
 
 describe("post-auth route", function describePostAuthRoute() {
   beforeEach(function resetMocks() {
@@ -74,7 +58,7 @@ describe("post-auth route", function describePostAuthRoute() {
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe("https://example.com/sign-in");
     expect(response.headers.get("set-cookie")).toContain("pb_auth=");
-    expect(resolvePostAuthDestination).not.toHaveBeenCalled();
+    expect(resolveApplicationPostAuthState).not.toHaveBeenCalled();
   });
 
   it("redirects to app when no workspace-specific destination is available", async function testAppRedirect() {
@@ -90,13 +74,12 @@ describe("post-auth route", function describePostAuthRoute() {
       },
       setCookie: ["pb_auth=token; Path=/; HttpOnly"],
     } as Awaited<ReturnType<typeof getResponseAuthSession>>);
-    vi.mocked(getPendingInviteTokenCookie).mockResolvedValue(null);
-    vi.mocked(resolvePostAuthDestination).mockResolvedValue({
+    vi.mocked(resolveApplicationPostAuthState).mockResolvedValue({
       ok: true,
       data: {
-        state: "app",
+        href: "/app",
       },
-    } as Awaited<ReturnType<typeof resolvePostAuthDestination>>);
+    } as Awaited<ReturnType<typeof resolveApplicationPostAuthState>>);
 
     const response = await GET(new NextRequest("https://example.com/cs/post-auth"), {
       params: Promise.resolve({
@@ -107,6 +90,10 @@ describe("post-auth route", function describePostAuthRoute() {
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe("https://example.com/app");
     expect(response.headers.get("set-cookie")).toContain("pb_auth=token");
+    expect(resolveApplicationPostAuthState).toHaveBeenCalledWith({
+      userId: "user-1",
+      userEmail: "user@example.com",
+    });
   });
 
   it("clears the pending invite cookie when redirecting to an invite", async function testInviteRedirect() {
@@ -122,14 +109,18 @@ describe("post-auth route", function describePostAuthRoute() {
       },
       setCookie: ["pb_auth=token; Path=/; HttpOnly"],
     } as Awaited<ReturnType<typeof getResponseAuthSession>>);
-    vi.mocked(getPendingInviteTokenCookie).mockResolvedValue("invite-1");
-    vi.mocked(resolvePostAuthDestination).mockResolvedValue({
+    vi.mocked(resolveApplicationPostAuthState).mockResolvedValue({
       ok: true,
       data: {
-        state: "invite_redirect",
-        inviteToken: "invite-1",
+        href: {
+          pathname: "/invite/[token]",
+          params: {
+            token: "invite-1",
+          },
+        },
+        clearPendingInviteToken: true,
       },
-    } as Awaited<ReturnType<typeof resolvePostAuthDestination>>);
+    } as Awaited<ReturnType<typeof resolveApplicationPostAuthState>>);
 
     const response = await GET(new NextRequest("https://example.com/cs/post-auth"), {
       params: Promise.resolve({
@@ -157,14 +148,18 @@ describe("post-auth route", function describePostAuthRoute() {
         },
       },
     } as Awaited<ReturnType<typeof getResponseAuthSession>>);
-    vi.mocked(getPendingInviteTokenCookie).mockResolvedValue(null);
-    vi.mocked(resolvePostAuthDestination).mockResolvedValue({
+    vi.mocked(resolveApplicationPostAuthState).mockResolvedValue({
       ok: true,
       data: {
-        state: "workspace_redirect",
-        workspaceSlug: "team-space",
+        href: {
+          pathname: "/w/[workspaceSlug]/overview",
+          params: {
+            workspaceSlug: "team-space",
+          },
+        },
+        activeWorkspaceSlug: "team-space",
       },
-    } as Awaited<ReturnType<typeof resolvePostAuthDestination>>);
+    } as Awaited<ReturnType<typeof resolveApplicationPostAuthState>>);
 
     const response = await GET(new NextRequest("https://example.com/cs/post-auth"), {
       params: Promise.resolve({

@@ -1,62 +1,7 @@
 import PocketBase from "pocketbase";
-import { headers } from "next/headers";
 import type { AuthSession } from "@/features/auth/auth-types";
 import type { UsersRecord } from "@/types/pocketbase";
-import {
-  createDeviceSessionCookie,
-  generateDeviceSessionCookie,
-} from "@/server/device-sessions/device-sessions-cookie";
-import { registerOrRefreshDeviceSession } from "@/server/device-sessions/device-sessions-service";
-import {
-  formatServiceError,
-  getAvatarUrl,
-  getNullableTrimmedString,
-} from "@/server/pocketbase/pocketbase-utils";
-import { exportPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
-
-export async function createAuthAndDeviceCookies(input: {
-  pb: PocketBase;
-  userId: string;
-  rememberMe: boolean;
-  existingDeviceSessionToken?: string | null;
-  logContext: string;
-}): Promise<string[]> {
-  const normalizedExistingDeviceSessionToken = input.existingDeviceSessionToken?.trim() ?? "";
-  const nextDeviceSession =
-    normalizedExistingDeviceSessionToken.length > 0
-      ? {
-          token: normalizedExistingDeviceSessionToken,
-          setCookie: createDeviceSessionCookie(
-            normalizedExistingDeviceSessionToken,
-            input.rememberMe
-          ),
-        }
-      : generateDeviceSessionCookie(input.rememberMe);
-
-  try {
-    const requestHeaders = await headers();
-
-    await registerOrRefreshDeviceSession({
-      pb: input.pb,
-      userId: input.userId,
-      sessionToken: nextDeviceSession.token,
-      rememberMe: input.rememberMe,
-      requestHeaders,
-    });
-  } catch (error) {
-    console.warn(
-      `[auth-service] ${input.logContext}: device session registration failed, continuing`,
-      formatServiceError(error)
-    );
-  }
-
-  return [
-    ...exportPocketBaseAuthCookies(input.pb, {
-      sessionOnly: !input.rememberMe,
-    }),
-    nextDeviceSession.setCookie,
-  ];
-}
+import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 
 export function createAuthSession(pb: PocketBase, record: UsersRecord | null): AuthSession | null {
   if (!record) {

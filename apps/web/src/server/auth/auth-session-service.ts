@@ -1,4 +1,3 @@
-import { ClientResponseError } from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
 import type { AuthSessionPayload, AuthSignOutPayload } from "@/features/auth/auth-types";
 import type { SignInInput } from "@/features/auth/auth-schemas";
@@ -6,22 +5,14 @@ import {
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
+import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
+import { logAuthServiceError, mapSignInErrorCode } from "@/server/auth/auth-errors";
 import {
-  createClearedAuthAndDeviceCookies,
-  readDeviceSessionCookie,
-} from "@/server/device-sessions/device-sessions-cookie";
-import {
-  hashSessionToken,
-  revokeCurrentDeviceSession,
-  validateDeviceSessionOrInvalidate,
-} from "@/server/device-sessions/device-sessions-service";
-import { formatServiceError, isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
-import {
-  logAuthServiceError,
-  mapSignInErrorCode,
-  isTransientError,
-} from "@/server/auth/auth-errors";
-import { createAuthAndDeviceCookies, createAuthSession } from "@/server/auth/auth-session-utils";
+  createAuthAndDeviceCookies,
+  revokeCurrentAuthDeviceSession,
+} from "@/server/auth/auth-device-session-integration";
+import { resolveAuthenticatedUser } from "@/server/auth/auth-user-resolution";
+import { createAuthSession } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import { requireCurrentUser } from "@/server/auth/current-user";
 
@@ -45,12 +36,16 @@ export async function signInWithPassword(
       };
     }
 
-    const setCookie = await createAuthAndDeviceCookies({
+    const authCookies = await createAuthAndDeviceCookies({
       pb,
       userId: authResponse.record.id,
       rememberMe: input.rememberMe,
       logContext: "signInWithPassword",
     });
+
+    if (!authCookies.ok) {
+      return authCookies;
+    }
 
     const session = createAuthSession(pb, authResponse.record);
 
@@ -66,7 +61,7 @@ export async function signInWithPassword(
       data: {
         session,
       },
-      setCookie,
+      setCookie: authCookies.setCookie,
     };
   } catch (error) {
     const errorCode = mapSignInErrorCode(error);
@@ -86,22 +81,10 @@ export async function signInWithPassword(
 export async function signOutServerSession(): Promise<ServerAuthResponse<AuthSignOutPayload>> {
   const { pb } = await createPocketBaseServerClient();
 
-  const deviceSessionToken = await readDeviceSessionCookie();
-
-  if (deviceSessionToken && pb.authStore.isValid && isUsersRecord(pb.authStore.record)) {
-    try {
-      await revokeCurrentDeviceSession({
-        pb,
-        userId: pb.authStore.record.id,
-        currentSessionIdHash: hashSessionToken(deviceSessionToken),
-      });
-    } catch (error) {
-      console.warn(
-        "[auth-service] signOutServerSession: device session revoke failed, continuing",
-        formatServiceError(error)
-      );
-    }
-  }
+  await revokeCurrentAuthDeviceSession({
+    pb,
+    logContext: "signOutServerSession",
+  });
 
   return {
     ok: true,
@@ -142,123 +125,16 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
 }
 
 export async function getResponseAuthSession(): Promise<ServerAuthResponse<AuthSessionPayload>> {
-  const { pb, hasAuthCookie, hadInvalidAuthCookie, shouldPersistSession } =
-    await createPocketBaseServerClient();
+  const currentUser = await resolveAuthenticatedUser({
+    mode: "response",
+  });
 
-  if (hadInvalidAuthCookie) {
-    return {
-      ok: true,
-      data: {
-        session: null,
-      },
-      setCookie: createClearedAuthAndDeviceCookies(),
-    };
-  }
-
-  if (!pb.authStore.isValid || !pb.authStore.record) {
-    return {
-      ok: true,
-      data: {
-        session: null,
-      },
-      ...(hasAuthCookie ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
-    };
-  }
-
-  if (!isUsersRecord(pb.authStore.record)) {
-    return {
-      ok: true,
-      data: {
-        session: null,
-      },
-      setCookie: createClearedAuthAndDeviceCookies(),
-    };
-  }
-
-  try {
-    const deviceSessionToken = await readDeviceSessionCookie();
-    const deviceSessionCheck = await validateDeviceSessionOrInvalidate({
-      pb,
-      userId: pb.authStore.record.id,
-      deviceSessionToken,
-      shouldUpdateHeartbeat: true,
-    });
-
-    if (deviceSessionCheck.status === "invalid") {
+  if (!currentUser.ok) {
+    if (currentUser.staleUser && currentUser.pb) {
       return {
         ok: true,
         data: {
-          session: null,
-        },
-        setCookie: deviceSessionCheck.clearCookies,
-      };
-    }
-
-    const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
-
-    if (refreshedAuth.record.verified !== true) {
-      console.warn("[auth-service] getResponseAuthSession: unverified user session detected");
-
-      return {
-        ok: true,
-        data: {
-          session: null,
-        },
-        setCookie: exportPocketBaseAuthCookies(pb, {
-          sessionOnly: !shouldPersistSession,
-        }),
-      };
-    }
-
-    const session = createAuthSession(pb, refreshedAuth.record);
-
-    if (!session) {
-      return {
-        ok: true,
-        data: {
-          session: null,
-        },
-        setCookie: createClearedAuthAndDeviceCookies(),
-      };
-    }
-
-    return {
-      ok: true,
-      data: {
-        session,
-      },
-      setCookie: exportPocketBaseAuthCookies(pb, {
-        sessionOnly: !shouldPersistSession,
-      }),
-    };
-  } catch (error) {
-    if (error instanceof ClientResponseError && error.status === 404) {
-      console.warn(
-        "[auth-service] getResponseAuthSession: user record not found, clearing session"
-      );
-      return {
-        ok: true,
-        data: {
-          session: null,
-        },
-        setCookie: createClearedAuthAndDeviceCookies(),
-      };
-    }
-
-    logAuthServiceError("getResponseAuthSession", error);
-
-    if (
-      isTransientError(error) &&
-      isUsersRecord(pb.authStore.record) &&
-      pb.authStore.record.verified === true
-    ) {
-      console.warn("[auth-service] getResponseAuthSession: PB unavailable, stale session");
-      const staleSession = createAuthSession(pb, pb.authStore.record);
-
-      return {
-        ok: true,
-        data: {
-          session: staleSession,
+          session: createAuthSession(currentUser.pb, currentUser.staleUser),
         },
       };
     }
@@ -268,7 +144,15 @@ export async function getResponseAuthSession(): Promise<ServerAuthResponse<AuthS
       data: {
         session: null,
       },
-      setCookie: createClearedAuthAndDeviceCookies(),
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
     };
   }
+
+  return {
+    ok: true,
+    data: {
+      session: createAuthSession(currentUser.pb, currentUser.user),
+    },
+    ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+  };
 }

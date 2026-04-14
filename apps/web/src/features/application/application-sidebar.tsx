@@ -13,14 +13,14 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { ApplicationMenuTree } from "./application-menu-tree";
-import { useSidebarContext } from "./application-root";
+import { useApplicationRootContext } from "./application-root";
 import { ApplicationSidebarFooterNavigation } from "./application-sidebar-footer-navigation";
 import { ApplicationSidebarSignOut } from "./application-sidebar-sign-out";
 import { ScopeSwitcher } from "./scope-switcher";
 
 export function ApplicationSidebar() {
   const t = useTranslations("layout");
-  const { applicationEntryHref, mobileMenuLabels } = useSidebarContext();
+  const { applicationEntryHref, mobileMenuLabels } = useApplicationRootContext();
 
   return (
     <Sidebar collapsible="offcanvas">

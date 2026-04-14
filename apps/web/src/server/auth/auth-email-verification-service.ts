@@ -1,5 +1,4 @@
 import PocketBase, { ClientResponseError } from "pocketbase";
-import type { UsersRecord } from "@/types/pocketbase";
 import type {
   ConfirmEmailChangePayload,
   RequestEmailVerificationPayload,
@@ -13,18 +12,19 @@ import {
   createClearedAuthAndDeviceCookies,
   readDeviceSessionCookie,
 } from "@/server/device-sessions/device-sessions-cookie";
-import { isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
+import { createAuthAndDeviceCookies } from "@/server/auth/auth-device-session-integration";
 import {
   logAuthServiceError,
   mapConfirmEmailChangeErrorCode,
   mapVerifyEmailErrorCode,
 } from "@/server/auth/auth-errors";
 import {
-  createAuthAndDeviceCookies,
   createAuthSession,
   isProbablyConsumedVerificationToken,
 } from "@/server/auth/auth-session-utils";
+import { refreshCurrentAuthRecord } from "@/server/auth/auth-user-resolution";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
+import { isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
 
 export async function confirmEmailVerificationToken(
   token: string
@@ -154,18 +154,18 @@ async function getVerifiedSessionResponse(
   pb: PocketBase,
   shouldPersistSession: boolean
 ): Promise<ServerAuthResponse<VerifyEmailPayload> | null> {
-  if (!pb.authStore.isValid || !isUsersRecord(pb.authStore.record)) {
+  if (!pb.authStore.isValid) {
     return null;
   }
 
   try {
-    const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
+    const refreshedAuth = await refreshCurrentAuthRecord(pb);
 
-    if (refreshedAuth.record.verified !== true) {
+    if (refreshedAuth.status !== "verified") {
       return null;
     }
 
-    const session = createAuthSession(pb, refreshedAuth.record);
+    const session = createAuthSession(pb, refreshedAuth.user);
 
     if (!session) {
       return {
@@ -177,18 +177,24 @@ async function getVerifiedSessionResponse(
       };
     }
 
+    const authCookies = await createAuthAndDeviceCookies({
+      pb,
+      userId: session.user.id,
+      rememberMe: shouldPersistSession,
+      existingDeviceSessionToken: await readDeviceSessionCookie(),
+      logContext: "confirmEmailVerificationToken",
+    });
+
+    if (!authCookies.ok) {
+      return authCookies;
+    }
+
     return {
       ok: true,
       data: {
         session,
       },
-      setCookie: await createAuthAndDeviceCookies({
-        pb,
-        userId: session.user.id,
-        rememberMe: shouldPersistSession,
-        existingDeviceSessionToken: await readDeviceSessionCookie(),
-        logContext: "confirmEmailVerificationToken",
-      }),
+      setCookie: authCookies.setCookie,
     };
   } catch (error) {
     if (

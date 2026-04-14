@@ -9,7 +9,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserAccountMenu } from "@/features/account/user-account-menu";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { useSidebarContext } from "./application-root";
+import { useApplicationRootContext } from "./application-root";
 import { ScopeSwitcher } from "./scope-switcher";
 
 export type ApplicationPageHeaderProps = {
@@ -21,7 +21,8 @@ export function ApplicationPageHeader({
   breadcrumbs,
   variant = "default",
 }: ApplicationPageHeaderProps) {
-  const { user, userMenuLabels, mobileMenuLabels, applicationEntryHref } = useSidebarContext();
+  const { user, userMenuLabels, mobileMenuLabels, applicationEntryHref } =
+    useApplicationRootContext();
   const t = useTranslations("layout.header");
 
   return (

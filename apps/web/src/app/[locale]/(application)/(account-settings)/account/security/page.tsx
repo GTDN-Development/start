@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountChangePasswordItem } from "@/features/account/security/password-settings-item";
+import { AccountSecurityDevicesSection } from "@/features/account/security/account-security-devices-section";
 import { SettingsPage } from "@/features/application/settings-page";
-import { YourDevicesSettingsItem } from "@/features/account/security/your-devices-settings-item";
-import { requireCurrentUser } from "@/server/auth/current-user";
-import { listDeviceSessions } from "@/server/device-sessions/device-sessions-service";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/account/security">
@@ -33,16 +31,6 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
     namespace: "pages.account",
   });
 
-  const currentUser = await requireCurrentUser();
-
-  const initialSessions = currentUser.ok
-    ? await listDeviceSessions({
-        pb: currentUser.pb,
-        userId: currentUser.user.id,
-        currentSessionIdHash: currentUser.currentSessionIdHash,
-      })
-    : [];
-
   return (
     <SettingsPage
       title={tAccount("securityPage.title")}
@@ -50,7 +38,7 @@ export default async function Page({ params }: PageProps<"/[locale]/account/secu
     >
       <div className="grid gap-8">
         <AccountChangePasswordItem />
-        <YourDevicesSettingsItem initialSessions={initialSessions} />
+        <AccountSecurityDevicesSection />
       </div>
     </SettingsPage>
   );

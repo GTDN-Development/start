@@ -20,10 +20,10 @@ import {
   getWorkspaceSettingsHref,
   getWorkspaceSettingsPath,
 } from "@/config/routes";
+import { useOptionalWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import { AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { useSidebarContext } from "./application-root";
 import { getWorkspaceSlugFromPathname, resolveApplicationScope } from "./application-scope";
 import { resolveSelectedWorkspaceSlug } from "./workspace-selection";
 
@@ -78,7 +78,9 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
 
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
-  const { activeWorkspaceSlug, workspaces } = useSidebarContext();
+  const workspaceNavigation = useOptionalWorkspaceNavigation();
+  const activeWorkspaceSlug = workspaceNavigation?.activeWorkspaceSlug ?? null;
+  const workspaces = workspaceNavigation?.workspaces ?? [];
   const applicationScope = resolveApplicationScope(pathname);
 
   const selectedWorkspaceSlug = resolveSelectedWorkspaceSlug(

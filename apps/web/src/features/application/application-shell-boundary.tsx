@@ -1,13 +1,12 @@
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { AUTH_REDIRECTS } from "@/config/auth";
-import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
-import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { listUserWorkspacesWithClient } from "@/server/workspaces/workspace-resolution-service";
+import { buildApplicationShellModel } from "./application-composition";
 import { ApplicationRoot } from "./application-root";
+import { ApplicationWorkspaceRoot } from "./application-workspace-root";
 
 type ApplicationShellBoundaryProps = {
   children: React.ReactNode;
@@ -39,15 +38,15 @@ export async function ApplicationShellBoundary({
     name: getNullableTrimmedString(currentUser.user.name),
     avatarUrl: getAvatarUrl(currentUser.pb, currentUser.user),
   };
-  const userWorkspacesResponse = await listUserWorkspacesWithClient(
-    currentUser.pb,
-    currentUser.user.id
-  );
+  const shellModelResponse = await buildApplicationShellModel({
+    pb: currentUser.pb,
+    user: currentUser.user,
+  });
 
-  if (!userWorkspacesResponse.ok) {
+  if (!shellModelResponse.ok) {
     if (
-      userWorkspacesResponse.errorCode === "UNAUTHORIZED" ||
-      userWorkspacesResponse.errorCode === "FORBIDDEN"
+      shellModelResponse.errorCode === "UNAUTHORIZED" ||
+      shellModelResponse.errorCode === "FORBIDDEN"
     ) {
       redirect({
         href: AUTH_REDIRECTS.unauthenticatedTo,
@@ -58,28 +57,9 @@ export async function ApplicationShellBoundary({
     }
 
     console.error(
-      `[application-root] Failed to load workspaces: ${userWorkspacesResponse.errorCode}`
+      `[application-root] Failed to build shell model: ${shellModelResponse.errorCode}`
     );
   }
-
-  const workspaces = userWorkspacesResponse.ok
-    ? userWorkspacesResponse.data.workspaces.map((workspace) => ({
-        id: workspace.id,
-        slug: workspace.slug,
-        name: workspace.name,
-        role: workspace.role,
-        avatarUrl: workspace.avatarUrl,
-      }))
-    : [];
-  const requestedActiveWorkspaceSlug = await getActiveWorkspaceSlugCookie();
-  const activeWorkspaceSlug =
-    requestedActiveWorkspaceSlug &&
-    workspaces.some((workspace) => workspace.slug === requestedActiveWorkspaceSlug)
-      ? requestedActiveWorkspaceSlug
-      : null;
-  const applicationEntryHref = activeWorkspaceSlug
-    ? getWorkspaceOverviewHref(activeWorkspaceSlug)
-    : APP_HOME_PATH;
   const [tApplication, tHeader, tHeaderMenu, tNavigation] = await Promise.all([
     getTranslations({
       locale: appLocale,
@@ -99,12 +79,14 @@ export async function ApplicationShellBoundary({
     }),
   ]);
 
-  return (
+  const root = (
     <ApplicationRoot
       user={user}
-      workspaces={workspaces}
-      activeWorkspaceSlug={activeWorkspaceSlug}
-      applicationEntryHref={applicationEntryHref}
+      applicationEntryHref={
+        shellModelResponse.ok
+          ? shellModelResponse.data.applicationEntryHref
+          : AUTH_REDIRECTS.authenticatedTo
+      }
       labels={{
         userMenu: {
           account: tNavigation("myAccount"),
@@ -122,5 +104,18 @@ export async function ApplicationShellBoundary({
     >
       {children}
     </ApplicationRoot>
+  );
+
+  if (!shellModelResponse.ok || !shellModelResponse.data.workspaceNavigation) {
+    return root;
+  }
+
+  return (
+    <ApplicationWorkspaceRoot
+      workspaces={shellModelResponse.data.workspaceNavigation.workspaces}
+      activeWorkspaceSlug={shellModelResponse.data.workspaceNavigation.activeWorkspaceSlug}
+    >
+      {root}
+    </ApplicationWorkspaceRoot>
   );
 }

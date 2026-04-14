@@ -78,3 +78,7 @@ export function useWorkspaceNavigation() {
 
   return context;
 }
+
+export function useOptionalWorkspaceNavigation(): WorkspaceNavigationContextValue | null {
+  return useContext(WorkspaceNavigationContext);
+}

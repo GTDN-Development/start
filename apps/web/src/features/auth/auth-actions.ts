@@ -43,7 +43,7 @@ import {
   confirmPasswordResetToken,
   requestPasswordResetForEmail,
 } from "@/server/auth/auth-password-reset-service";
-import { clearActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import { clearSessionScopedApplicationState } from "@/features/application/application-composition";
 
 const turnstileEnabled = isTurnstileEnabled();
 
@@ -112,7 +112,7 @@ export async function signOutAction(): Promise<AuthResponse<AuthSignOutPayload>>
   const response = await signOutServerSession();
 
   if (response.ok) {
-    await clearActiveWorkspaceSlugCookie();
+    await clearSessionScopedApplicationState();
   }
 
   return finalizeAuthAction(response);

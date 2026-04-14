@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  APP_HOME_PATH,
-  SIGN_IN_PATH,
-  getInviteHref,
-  getWorkspaceOverviewHref,
-} from "@/config/routes";
+import { APP_HOME_PATH, SIGN_IN_PATH } from "@/config/routes";
+import { resolveApplicationPostAuthState } from "@/features/application/application-composition";
 import { getPathname, type AppHref } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
-import { resolvePostAuthDestination } from "@/server/workspaces/workspace-resolution-service";
 import {
   clearPendingInviteTokenResponseCookie,
-  getPendingInviteTokenCookie,
   setActiveWorkspaceSlugResponseCookie,
 } from "@/server/workspaces/workspace-cookie";
 
@@ -32,11 +26,9 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
     return redirectWithAuthCookies(request, sessionResponse.setCookie, SIGN_IN_PATH, appLocale);
   }
 
-  const pendingInviteToken = await getPendingInviteTokenCookie();
-  const destinationResponse = await resolvePostAuthDestination({
+  const destinationResponse = await resolveApplicationPostAuthState({
     userId: session.user.id,
     userEmail: session.user.email,
-    pendingInviteToken,
   });
   const authCookies = [
     ...(sessionResponse.setCookie ?? []),
@@ -47,33 +39,22 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
     return redirectWithAuthCookies(request, authCookies, APP_HOME_PATH, appLocale);
   }
 
-  if (destinationResponse.data.state === "invite_redirect") {
-    const response = redirectWithAuthCookies(
-      request,
-      authCookies,
-      getInviteHref(destinationResponse.data.inviteToken),
-      appLocale
-    );
+  const response = redirectWithAuthCookies(
+    request,
+    authCookies,
+    destinationResponse.data.href,
+    appLocale
+  );
 
+  if (destinationResponse.data.clearPendingInviteToken) {
     clearPendingInviteTokenResponseCookie(response);
-
-    return response;
   }
 
-  if (destinationResponse.data.state === "workspace_redirect") {
-    const response = redirectWithAuthCookies(
-      request,
-      authCookies,
-      getWorkspaceOverviewHref(destinationResponse.data.workspaceSlug),
-      appLocale
-    );
-
-    setActiveWorkspaceSlugResponseCookie(response, destinationResponse.data.workspaceSlug);
-
-    return response;
+  if (destinationResponse.data.activeWorkspaceSlug) {
+    setActiveWorkspaceSlugResponseCookie(response, destinationResponse.data.activeWorkspaceSlug);
   }
 
-  return redirectWithAuthCookies(request, authCookies, APP_HOME_PATH, appLocale);
+  return response;
 }
 
 function redirectWithAuthCookies(

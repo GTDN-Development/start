@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
-import { useSidebarContext } from "@/features/application/application-root";
+import { useApplicationRootContext } from "@/features/application/application-root";
 import { ErrorStateContent } from "@/features/error-handling/error-state-content";
 import { useMountEffect } from "@/hooks/use-mount-effect";
 
@@ -20,7 +20,7 @@ type Props = {
 
 export default function Error({ error, reset }: Props) {
   const t = useTranslations("common.error");
-  const { applicationEntryHref } = useSidebarContext();
+  const { applicationEntryHref } = useApplicationRootContext();
 
   useMountEffect(() => {
     console.error("[application-shell-error-boundary]", error);

@@ -3,7 +3,7 @@
 import { BackNavigation } from "@/components/ui/back-navigation";
 import { getPathname, Link } from "@/i18n/navigation";
 import { ACCOUNT_PATH } from "@/config/routes";
-import { useSidebarContext } from "@/features/application/application-root";
+import { useApplicationRootContext } from "@/features/application/application-root";
 import { cn } from "@/lib/utils";
 import { useLocale } from "next-intl";
 
@@ -18,7 +18,7 @@ export function AccountHeroBackLink({ className, children }: AccountHeroBackLink
     "cursor-pointer appearance-none bg-transparent p-0 text-left",
     className
   );
-  const { applicationEntryHref } = useSidebarContext();
+  const { applicationEntryHref } = useApplicationRootContext();
   const localizedAccountPath = getPathname({
     href: ACCOUNT_PATH,
     locale,

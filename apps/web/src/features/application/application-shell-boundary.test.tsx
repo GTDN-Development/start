@@ -1,21 +1,23 @@
 import type PocketBase from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
+import { ApplicationShellBoundary } from "./application-shell-boundary";
 
 const {
   getTranslationsMock,
   redirectMock,
   requireCurrentUserMock,
-  getActiveWorkspaceSlugCookieMock,
-  listUserWorkspacesWithClientMock,
+  buildApplicationShellModelMock,
   applicationRootMock,
+  applicationWorkspaceRootMock,
 } = vi.hoisted(function hoistApplicationShellBoundaryMocks() {
   return {
     getTranslationsMock: vi.fn(),
     redirectMock: vi.fn(),
     requireCurrentUserMock: vi.fn(),
-    getActiveWorkspaceSlugCookieMock: vi.fn(),
-    listUserWorkspacesWithClientMock: vi.fn(),
+    buildApplicationShellModelMock: vi.fn(),
     applicationRootMock: vi.fn(),
+    applicationWorkspaceRootMock: vi.fn(),
   };
 });
 
@@ -37,15 +39,9 @@ vi.mock("@/server/auth/current-user", function mockCurrentUser() {
   };
 });
 
-vi.mock("@/server/workspaces/workspace-cookie", function mockWorkspaceCookie() {
+vi.mock("./application-composition", function mockApplicationComposition() {
   return {
-    getActiveWorkspaceSlugCookie: getActiveWorkspaceSlugCookieMock,
-  };
-});
-
-vi.mock("@/server/workspaces/workspace-resolution-service", function mockWorkspaceResolutionService() {
-  return {
-    listUserWorkspacesWithClient: listUserWorkspacesWithClientMock,
+    buildApplicationShellModel: buildApplicationShellModelMock,
   };
 });
 
@@ -55,17 +51,19 @@ vi.mock("./application-root", function mockApplicationRoot() {
   };
 });
 
-import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
-import { ApplicationShellBoundary } from "./application-shell-boundary";
+vi.mock("./application-workspace-root", function mockApplicationWorkspaceRoot() {
+  return {
+    ApplicationWorkspaceRoot: applicationWorkspaceRootMock,
+  };
+});
 
 describe("application-shell-boundary", function describeApplicationShellBoundary() {
   beforeEach(function resetMocks() {
     vi.clearAllMocks();
     getTranslationsMock.mockResolvedValue(() => "label");
-    applicationRootMock.mockReturnValue(null);
   });
 
-  it("uses the cookie slug when it exists in the loaded workspace list", async function testActiveWorkspaceFromList() {
+  it("wraps the host root with workspace navigation when the shell model includes workspaces", async function testWorkspaceShell() {
     const pb = createPocketBaseMock();
 
     requireCurrentUserMock.mockResolvedValue({
@@ -78,22 +76,24 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
         name: "User",
       },
     });
-    listUserWorkspacesWithClientMock.mockResolvedValue({
+    buildApplicationShellModelMock.mockResolvedValue({
       ok: true,
       data: {
-        workspaces: [
-          {
-            id: "workspace-1",
-            slug: "team-space",
-            name: "Team Space",
-            avatarUrl: null,
-            membershipId: "membership-1",
-            role: "owner",
-          },
-        ],
+        applicationEntryHref: getWorkspaceOverviewHref("team-space"),
+        workspaceNavigation: {
+          activeWorkspaceSlug: "team-space",
+          workspaces: [
+            {
+              id: "workspace-1",
+              slug: "team-space",
+              name: "Team Space",
+              avatarUrl: null,
+              role: "owner",
+            },
+          ],
+        },
       },
     });
-    getActiveWorkspaceSlugCookieMock.mockResolvedValue("team-space");
 
     const result = await ApplicationShellBoundary({
       children: null,
@@ -101,13 +101,20 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
         locale: "cs",
       }),
     });
-    const props = getRenderedApplicationRootProps(result);
+    const workspaceRoot = getRenderedElement(result);
+    const root = getRenderedElement(workspaceRoot.props.children);
 
-    expect(listUserWorkspacesWithClientMock).toHaveBeenCalledWith(pb, "user-1");
-    expect(getActiveWorkspaceSlugCookieMock).toHaveBeenCalled();
-    expect(props.activeWorkspaceSlug).toBe("team-space");
-    expect(props.applicationEntryHref).toEqual(getWorkspaceOverviewHref("team-space"));
-    expect(props.workspaces).toEqual([
+    expect(buildApplicationShellModelMock).toHaveBeenCalledWith({
+      pb,
+      user: {
+        id: "user-1",
+        email: "user@example.com",
+        name: "User",
+      },
+    });
+    expect(workspaceRoot.type).toBe(applicationWorkspaceRootMock);
+    expect(workspaceRoot.props.activeWorkspaceSlug).toBe("team-space");
+    expect(workspaceRoot.props.workspaces).toEqual([
       {
         id: "workspace-1",
         slug: "team-space",
@@ -116,9 +123,11 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
         role: "owner",
       },
     ]);
+    expect(root.type).toBe(applicationRootMock);
+    expect(root.props.applicationEntryHref).toEqual(getWorkspaceOverviewHref("team-space"));
   });
 
-  it("falls back to app home when the active cookie slug is stale", async function testStaleActiveWorkspaceCookie() {
+  it("renders the host root without workspace navigation when the shell model omits it", async function testHostOnlyShell() {
     const pb = createPocketBaseMock();
 
     requireCurrentUserMock.mockResolvedValue({
@@ -131,22 +140,13 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
         name: "User",
       },
     });
-    listUserWorkspacesWithClientMock.mockResolvedValue({
+    buildApplicationShellModelMock.mockResolvedValue({
       ok: true,
       data: {
-        workspaces: [
-          {
-            id: "workspace-1",
-            slug: "team-space",
-            name: "Team Space",
-            avatarUrl: null,
-            membershipId: "membership-1",
-            role: "owner",
-          },
-        ],
+        applicationEntryHref: APP_HOME_PATH,
+        workspaceNavigation: null,
       },
     });
-    getActiveWorkspaceSlugCookieMock.mockResolvedValue("stale-space");
 
     const result = await ApplicationShellBoundary({
       children: null,
@@ -154,10 +154,10 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
         locale: "cs",
       }),
     });
-    const props = getRenderedApplicationRootProps(result);
+    const root = getRenderedElement(result);
 
-    expect(props.activeWorkspaceSlug).toBeNull();
-    expect(props.applicationEntryHref).toBe(APP_HOME_PATH);
+    expect(root.type).toBe(applicationRootMock);
+    expect(root.props.applicationEntryHref).toBe(APP_HOME_PATH);
     expect(redirectMock).not.toHaveBeenCalled();
   });
 });
@@ -170,6 +170,9 @@ function createPocketBaseMock(): PocketBase {
   } as unknown as PocketBase;
 }
 
-function getRenderedApplicationRootProps(result: unknown) {
-  return (result as { props: Record<string, unknown> }).props;
+function getRenderedElement(result: unknown) {
+  return result as {
+    type: unknown;
+    props: Record<string, unknown>;
+  };
 }
