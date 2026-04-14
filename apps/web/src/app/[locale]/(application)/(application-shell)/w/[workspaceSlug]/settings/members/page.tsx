@@ -8,8 +8,8 @@ import { SettingsPage } from "@/features/application/settings-page";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
-import { listWorkspaceInvites } from "@/server/workspaces/workspace-invite-service";
-import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
+import { listWorkspaceInvitesWithClient } from "@/server/workspaces/workspace-invite-service";
+import { listWorkspaceMembersWithClient } from "@/server/workspaces/workspace-members-service";
 import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
 
 export async function generateMetadata(
@@ -62,7 +62,7 @@ export default async function Page({
     namespace: "pages.workspace.members.page",
   });
 
-  const membersResponse = await listWorkspaceMembers(workspace.slug);
+  const membersResponse = await listWorkspaceMembersWithClient(currentUser.pb, workspace.id);
 
   if (!membersResponse.ok) {
     redirect({
@@ -81,7 +81,7 @@ export default async function Page({
             invites: [],
           },
         }
-      : await listWorkspaceInvites(workspace.slug);
+      : await listWorkspaceInvitesWithClient(currentUser.pb, workspace.id);
 
   if (!invitesResponse.ok) {
     redirect({

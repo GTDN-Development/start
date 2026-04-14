@@ -70,7 +70,7 @@ Important route rules:
 - shell route selection helpers: [workspace-selection.ts](/Users/fanda/Dev/start/apps/web/src/features/application/workspace-selection.ts)
 - shell scope switcher: [scope-switcher.tsx](/Users/fanda/Dev/start/apps/web/src/features/application/scope-switcher.tsx)
 - personal home route: [page.tsx](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/(application-shell)/app/page.tsx>)
-- access checks: [workspace-access.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-access.ts)
+- access checks: [workspace-membership-context.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-membership-context.ts)
 - write and lifecycle service: [workspace-general-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-general-service.ts)
 - read and resolution service: [workspace-resolution-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-resolution-service.ts)
 - members service: [workspace-members-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-members-service.ts)
@@ -98,7 +98,7 @@ The split remains direct and domain-based.
 - `listUserWorkspaces()`
 - `resolveWorkspaceForUserBySlug()`
 - `resolvePostAuthDestination()`
-- `switchWorkspaceForCurrentUser()`
+- `resolveAccessibleWorkspaceForCurrentUser()`
 
 Important rule:
 

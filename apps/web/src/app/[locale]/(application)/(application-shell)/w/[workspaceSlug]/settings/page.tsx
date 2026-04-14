@@ -11,7 +11,7 @@ import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
 import { requireCurrentUser } from "@/server/auth/current-user";
 import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
-import { listWorkspaceMembers } from "@/server/workspaces/workspace-members-service";
+import { listWorkspaceMembersWithClient } from "@/server/workspaces/workspace-members-service";
 import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
 
 export async function generateMetadata(
@@ -59,7 +59,9 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   const workspace = requireWorkspaceRouteResult(workspaceResponse);
 
   const membersResponse =
-    workspace.role === "owner" ? await listWorkspaceMembers(workspace.slug) : null;
+    workspace.role === "owner"
+      ? await listWorkspaceMembersWithClient(currentUser.pb, workspace.id)
+      : null;
 
   const isCurrentUserLastOwner =
     workspace.role === "owner" &&

@@ -5,10 +5,12 @@ import { requireWorkspaceActionMembershipContext } from "@/server/workspaces/wor
 import {
   countWorkspaceOwners,
   findWorkspaceMemberById,
+  listWorkspaceMemberRecordsByWorkspace,
 } from "@/server/workspaces/workspace-repository";
 import {
   changeWorkspaceMemberRoleForCurrentUser,
   leaveWorkspaceForCurrentUser,
+  listWorkspaceMembersWithClient,
   removeWorkspaceMemberForCurrentUser,
 } from "./workspace-members-service";
 
@@ -53,6 +55,68 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
       },
     });
     expect(deleteSpy).toHaveBeenCalledWith(membership.id);
+  });
+
+  it("maps and sorts members through the with-client list helper", async function testListWithClient() {
+    const { pb } = createPocketBaseMock();
+
+    vi.mocked(listWorkspaceMemberRecordsByWorkspace).mockResolvedValue([
+      createWorkspaceMemberRecordWithUser(
+        "membership-member",
+        {
+          ...createUserRecord("user-member", "member@example.com"),
+          name: "Member Person",
+        },
+        "member"
+      ),
+      createWorkspaceMemberRecordWithUser(
+        "membership-owner",
+        {
+          ...createUserRecord("user-owner", "owner@example.com"),
+          name: "Owner Person",
+        },
+        "owner"
+      ),
+    ]);
+
+    const response = await listWorkspaceMembersWithClient(pb, "workspace-1");
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        members: [
+          {
+            id: "membership-owner",
+            userId: "user-owner",
+            email: "owner@example.com",
+            name: "Owner Person",
+            avatarUrl: null,
+            role: "owner",
+          },
+          {
+            id: "membership-member",
+            userId: "user-member",
+            email: "member@example.com",
+            name: "Member Person",
+            avatarUrl: null,
+            role: "member",
+          },
+        ],
+      },
+    });
+  });
+
+  it("maps list failures in the with-client helper to not found", async function testListWithClientNotFound() {
+    const { pb } = createPocketBaseMock();
+
+    vi.mocked(listWorkspaceMemberRecordsByWorkspace).mockRejectedValue(createNotFoundError());
+
+    const response = await listWorkspaceMembersWithClient(pb, "workspace-1");
+
+    expect(response).toEqual({
+      ok: false,
+      errorCode: "NOT_FOUND",
+    });
   });
 
   it("blocks the final owner from leaving", async function testLastOwnerLeaveGuard() {
@@ -288,6 +352,19 @@ function createWorkspaceMembershipContextSuccess(
       user,
       workspace: createWorkspaceRecord(),
       membership,
+    },
+  };
+}
+
+function createWorkspaceMemberRecordWithUser(
+  id: string,
+  user: UsersRecord,
+  role: WorkspaceMembersRecord["role"]
+) {
+  return {
+    ...createWorkspaceMemberRecord(id, user.id, role),
+    expand: {
+      user,
     },
   };
 }

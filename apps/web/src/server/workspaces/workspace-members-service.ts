@@ -1,3 +1,4 @@
+import type PocketBase from "pocketbase";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
@@ -30,9 +31,17 @@ export async function listWorkspaceMembers(
     return workspaceAccess.response;
   }
 
+  const { pb, workspace } = workspaceAccess.context;
+
+  return listWorkspaceMembersWithClient(pb, workspace.id);
+}
+
+export async function listWorkspaceMembersWithClient(
+  pb: PocketBase,
+  workspaceId: string
+): Promise<ServerWorkspaceResponse<{ members: WorkspaceMemberSummary[] }>> {
   try {
-    const { pb, workspace } = workspaceAccess.context;
-    const memberRecords = await listWorkspaceMemberRecordsByWorkspace(pb, workspace.id);
+    const memberRecords = await listWorkspaceMemberRecordsByWorkspace(pb, workspaceId);
     const members = memberRecords
       .map((memberRecord) => mapWorkspaceMemberSummary(pb, memberRecord))
       .filter((value): value is WorkspaceMemberSummary => value !== null)
@@ -58,7 +67,7 @@ export async function listWorkspaceMembers(
     });
 
     if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("listWorkspaceMembers", error);
+      logWorkspaceServiceError("listWorkspaceMembersWithClient", error);
     }
 
     return {

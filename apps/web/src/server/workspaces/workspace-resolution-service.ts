@@ -169,7 +169,7 @@ export async function resolvePostAuthDestination(input: {
   };
 }
 
-export async function switchWorkspaceForCurrentUser(
+export async function resolveAccessibleWorkspaceForCurrentUser(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace }>> {
   const workspaceAccess = await requireWorkspaceActionMembershipContext(workspaceSlug);
@@ -205,7 +205,7 @@ export async function switchWorkspaceForCurrentUser(
     });
 
     if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("switchWorkspaceForCurrentUser", error);
+      logWorkspaceServiceError("resolveAccessibleWorkspaceForCurrentUser", error);
     }
 
     return {
@@ -294,11 +294,7 @@ async function listUserWorkspaceMemberships(
         return null;
       }
 
-      return mapUserWorkspaceSummary(
-        pb,
-        expandedWorkspace,
-        membershipRecord
-      );
+      return mapUserWorkspaceSummary(pb, expandedWorkspace, membershipRecord);
     })
   );
 

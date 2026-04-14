@@ -49,9 +49,17 @@ export async function listWorkspaceInvites(
     return workspaceAccess.response;
   }
 
+  const { pb, workspace } = workspaceAccess.context;
+
+  return listWorkspaceInvitesWithClient(pb, workspace.id);
+}
+
+export async function listWorkspaceInvitesWithClient(
+  pb: PocketBase,
+  workspaceId: string
+): Promise<ServerWorkspaceResponse<{ invites: WorkspaceInviteSummary[] }>> {
   try {
-    const { pb, workspace } = workspaceAccess.context;
-    const inviteRecords = await listWorkspaceInviteRecordsByWorkspace(pb, workspace.id);
+    const inviteRecords = await listWorkspaceInviteRecordsByWorkspace(pb, workspaceId);
     const now = Date.now();
     const invites = inviteRecords
       .filter((inviteRecord) => !isDateStringExpired(inviteRecord.expires_at, now))
@@ -77,7 +85,7 @@ export async function listWorkspaceInvites(
     });
 
     if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("listWorkspaceInvites", error);
+      logWorkspaceServiceError("listWorkspaceInvitesWithClient", error);
     }
 
     return {

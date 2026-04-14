@@ -8,8 +8,8 @@ const {
   deleteWorkspaceForCurrentUser,
   getActiveWorkspaceSlugCookie,
   leaveWorkspaceForCurrentUser,
+  resolveAccessibleWorkspaceForCurrentUser,
   setActiveWorkspaceSlugCookie,
-  switchWorkspaceForCurrentUser,
   updateWorkspaceGeneralForCurrentUser,
 } = vi.hoisted(function hoistWorkspaceGeneralActionMocks() {
   return {
@@ -19,8 +19,8 @@ const {
     deleteWorkspaceForCurrentUser: vi.fn(),
     getActiveWorkspaceSlugCookie: vi.fn(),
     leaveWorkspaceForCurrentUser: vi.fn(),
+    resolveAccessibleWorkspaceForCurrentUser: vi.fn(),
     setActiveWorkspaceSlugCookie: vi.fn(),
-    switchWorkspaceForCurrentUser: vi.fn(),
     updateWorkspaceGeneralForCurrentUser: vi.fn(),
   };
 });
@@ -63,7 +63,7 @@ vi.mock(
   "@/server/workspaces/workspace-resolution-service",
   function mockWorkspaceResolutionService() {
     return {
-      switchWorkspaceForCurrentUser,
+      resolveAccessibleWorkspaceForCurrentUser,
     };
   }
 );

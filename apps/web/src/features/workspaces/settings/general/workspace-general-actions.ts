@@ -21,7 +21,7 @@ import {
   updateWorkspaceGeneralForCurrentUser,
 } from "@/server/workspaces/workspace-general-service";
 import { leaveWorkspaceForCurrentUser } from "@/server/workspaces/workspace-members-service";
-import { switchWorkspaceForCurrentUser } from "@/server/workspaces/workspace-resolution-service";
+import { resolveAccessibleWorkspaceForCurrentUser } from "@/server/workspaces/workspace-resolution-service";
 import type {
   ServerWorkspaceResponse,
   UserWorkspace,
@@ -59,7 +59,7 @@ export async function switchWorkspaceAction(
     return createBadRequestResponse();
   }
 
-  const response = await switchWorkspaceForCurrentUser(parsedWorkspaceSlug.data);
+  const response = await resolveAccessibleWorkspaceForCurrentUser(parsedWorkspaceSlug.data);
 
   if (response.ok) {
     await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
