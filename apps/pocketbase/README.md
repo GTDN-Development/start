@@ -19,7 +19,7 @@ It keeps backend state in versioned migrations, runs locally in Docker, and depl
 Start the repository Docker stack from the repo root:
 
 ```sh
-pnpm dev
+pnpm local:up
 ```
 
 Useful commands:
@@ -48,13 +48,14 @@ Local runtime data lives in the Docker volume for the `pocketbase` service and i
 
 Recommended workflow:
 
-1. Run `pnpm dev`.
-2. Update collections or auth settings in the PocketBase admin UI.
-3. Let PocketBase generate new migration files in `pb_migrations/`.
-4. Add JS hooks in `pb_hooks/` when you need custom event logic.
-5. Commit and push changes to `dev`.
-6. Verify in the Railway development environment.
-7. Promote the same changes to `main` for production.
+1. Run `pnpm local:up`.
+2. Run `pnpm dev` separately if you also need the web app.
+3. Update collections or auth settings in the PocketBase admin UI.
+4. Let PocketBase generate new migration files in `pb_migrations/`.
+5. Add JS hooks in `pb_hooks/` when you need custom event logic.
+6. Commit and push changes to `dev`.
+7. Verify in the Railway development environment.
+8. Promote the same changes to `main` for production.
 
 ## What Goes Into Migrations
 
@@ -93,7 +94,8 @@ Environment examples:
 
 ## Dev/Test Mailpit Setup
 
-Use `pnpm pocketbase:mailpit:apply` from the repository root to apply the local mail baseline to PocketBase.
+`pnpm local:up` already applies the local mail baseline to PocketBase.
+Use `pnpm pocketbase:mailpit:apply` from the repository root when you need to reapply it manually without restarting the stack.
 
 The script sets:
 

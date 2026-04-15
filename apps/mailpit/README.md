@@ -14,7 +14,7 @@ The repository root `compose.yaml` builds this image and exposes:
 Default commands:
 
 ```sh
-pnpm dev
+pnpm local:up
 pnpm test:e2e
 pnpm local:down
 ```
@@ -23,4 +23,4 @@ Operational notes:
 
 - the local stack keeps Mailpit unauthenticated because it runs only in trusted dev/test environments
 - PocketBase talks to Mailpit over the Docker network hostname `mailpit`
-- the web app talks to Mailpit over the injected local `MAILPIT_BASE_URL`
+- the web app talks to Mailpit over `MAILPIT_BASE_URL` from `.env.local`

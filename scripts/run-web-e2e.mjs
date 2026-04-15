@@ -1,95 +1,55 @@
 import { spawn } from "node:child_process";
 import { rm } from "node:fs/promises";
-import { createRequire } from "node:module";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  createDevStackConfig,
   createE2EStackConfig,
   LOCAL_POCKETBASE_SUPERUSER_EMAIL,
   LOCAL_POCKETBASE_SUPERUSER_PASSWORD,
+  loadWebEnv,
   prepareLocalStack,
   stopLocalStack,
 } from "./local-stack.mjs";
 
 const WEB_APP_DIR = fileURLToPath(new URL("../apps/web/", import.meta.url));
-const envRequire = createRequire(new URL("../apps/web/package.json", import.meta.url));
-const { loadEnvConfig } = envRequire("@next/env");
-const DEFAULT_DEV_APP_PORT = 3000;
 const DEFAULT_E2E_APP_PORT = 3100;
 
 async function main() {
-  const command = process.argv[2];
+  loadWebEnv("test");
 
-  if (command === "dev") {
-    loadWebEnv("development");
+  const config = await createE2EStackConfig();
+  const appPort = await resolveE2EAppPort(DEFAULT_E2E_APP_PORT);
+  const env = createWebAppEnv(config, appPort);
+  const playwrightArgs = process.argv
+    .slice(2)
+    .filter(function filterArgs(argument) {
+      return argument !== "--ui";
+    });
 
-    const config = createDevStackConfig();
-    const env = createWebAppEnv(config, getAppPort(DEFAULT_DEV_APP_PORT));
-
+  try {
     await prepareLocalStack(config, env);
-    await clearNextDevArtifacts();
-    startPersistentDevServer(env);
-    return;
-  }
-
-  if (command === "e2e") {
-    loadWebEnv("test");
-
-    const config = await createE2EStackConfig();
-    const appPort = await resolveE2EAppPort(DEFAULT_E2E_APP_PORT);
-    const env = createWebAppEnv(config, appPort);
-    const playwrightArgs = process.argv
-      .slice(3)
-      .filter((argument) => argument !== "--ui");
-
-    try {
-      await prepareLocalStack(config, env);
-      await rm(path.join(WEB_APP_DIR, ".next"), {
-        force: true,
-        recursive: true,
-      });
-      await runWebCommand(["exec", "node", "./tests/scripts/run-next-with-test-env.cjs", "build"], env);
-      await runWebCommand(
-        [
-          "exec",
-          "playwright",
-          "test",
-          ...playwrightArgs,
-          ...(process.argv.includes("--ui") ? ["--ui"] : []),
-          "--pass-with-no-tests",
-        ],
-        env
-      );
-    } finally {
-      await stopLocalStack(config, { removeVolumes: true });
-    }
-
-    return;
-  }
-
-  console.error('Unsupported local web command. Use "dev" or "e2e".');
-  process.exitCode = 1;
-}
-
-async function clearNextDevArtifacts() {
-  await rm(path.join(WEB_APP_DIR, ".next", "dev"), {
-    force: true,
-    recursive: true,
-  });
-}
-
-function loadWebEnv(mode) {
-  const previousNodeEnv = process.env.NODE_ENV;
-
-  process.env.NODE_ENV = mode;
-  loadEnvConfig(WEB_APP_DIR, false);
-
-  if (previousNodeEnv === undefined) {
-    delete process.env.NODE_ENV;
-  } else {
-    process.env.NODE_ENV = previousNodeEnv;
+    await rm(path.join(WEB_APP_DIR, ".next"), {
+      force: true,
+      recursive: true,
+    });
+    await runWebCommand(
+      ["exec", "node", "./tests/scripts/run-next-with-test-env.cjs", "build"],
+      env,
+    );
+    await runWebCommand(
+      [
+        "exec",
+        "playwright",
+        "test",
+        ...playwrightArgs,
+        ...(process.argv.includes("--ui") ? ["--ui"] : []),
+        "--pass-with-no-tests",
+      ],
+      env,
+    );
+  } finally {
+    await stopLocalStack(config, { removeVolumes: true });
   }
 }
 
@@ -106,26 +66,6 @@ function createWebAppEnv(config, appPort, env = process.env) {
   };
 }
 
-function startPersistentDevServer(env) {
-  const child = spawn("pnpm", ["run", "dev:next"], {
-    cwd: WEB_APP_DIR,
-    env,
-    stdio: "inherit",
-  });
-
-  forwardSignal(child, "SIGINT");
-  forwardSignal(child, "SIGTERM");
-
-  child.on("exit", function handleExit(code, signal) {
-    if (signal) {
-      process.kill(process.pid, signal);
-      return;
-    }
-
-    process.exit(code ?? 1);
-  });
-}
-
 function runWebCommand(args, env) {
   return new Promise(function resolveCommand(resolve, reject) {
     const child = spawn("pnpm", args, {
@@ -137,7 +77,9 @@ function runWebCommand(args, env) {
     child.on("error", reject);
     child.on("exit", function handleExit(code, signal) {
       if (signal) {
-        reject(new Error(`pnpm ${args.join(" ")} exited with signal ${signal}.`));
+        reject(
+          new Error(`pnpm ${args.join(" ")} exited with signal ${signal}.`),
+        );
         return;
       }
 
@@ -149,6 +91,16 @@ function runWebCommand(args, env) {
       reject(new Error(`pnpm ${args.join(" ")} exited with status ${code}.`));
     });
   });
+}
+
+async function resolveE2EAppPort(fallback) {
+  const configuredPort = process.env.PORT?.trim();
+
+  if (configuredPort) {
+    return getAppPort(fallback);
+  }
+
+  return findAvailablePort(fallback);
 }
 
 function getAppPort(fallback) {
@@ -167,16 +119,6 @@ function getAppPort(fallback) {
   return parsedValue;
 }
 
-async function resolveE2EAppPort(fallback) {
-  const configuredPort = process.env.PORT?.trim();
-
-  if (configuredPort) {
-    return getAppPort(fallback);
-  }
-
-  return findAvailablePort(fallback);
-}
-
 async function findAvailablePort(initialPort, maxAttempts = 20) {
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const port = initialPort + attempt;
@@ -187,7 +129,7 @@ async function findAvailablePort(initialPort, maxAttempts = 20) {
   }
 
   throw new Error(
-    `Unable to find an available TCP port starting from ${initialPort}. Set PORT explicitly to continue.`
+    `Unable to find an available TCP port starting from ${initialPort}. Set PORT explicitly to continue.`,
   );
 }
 
@@ -236,16 +178,6 @@ function isTcpPortReachable(host, port) {
     });
 
     socket.connect(port, host);
-  });
-}
-
-function forwardSignal(child, signal) {
-  process.on(signal, function handleSignal() {
-    if (child.killed) {
-      return;
-    }
-
-    child.kill(signal);
   });
 }
 

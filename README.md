@@ -23,21 +23,23 @@ Run these from the repository root:
 
 ```bash
 pnpm install
+pnpm local:up
 pnpm dev
 pnpm lint
 pnpm lint:fix
 pnpm typecheck
 pnpm test
 pnpm test:e2e
-pnpm local:down
 pnpm build
 pnpm format
 pnpm format:check
 pnpm check
 pnpm pocketbase:typegen
+pnpm local:down
 ```
 
-These commands target the web application by default. PocketBase-specific work is handled from `apps/pocketbase`.
+These commands target the web application by default. `pnpm local:up` and `pnpm local:down`
+manage the persistent local PocketBase + Mailpit stack from the repository root.
 
 ## Deployment
 
@@ -50,7 +52,8 @@ These commands target the web application by default. PocketBase-specific work i
 
 ## Dev/Test Mail Flow
 
-- `pnpm dev` starts the local PocketBase + Mailpit Docker stack before the Next.js app
+- `pnpm local:up` starts the persistent local PocketBase + Mailpit Docker stack and reapplies the local mail baseline
+- `pnpm dev` starts only the Next.js app in webpack dev mode
 - `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app, and runs Playwright against it
 - `pnpm local:down` stops the persistent local dev stack
 - PocketBase auth emails still use SMTP and are delivered to the local Mailpit container
@@ -63,6 +66,7 @@ These commands target the web application by default. PocketBase-specific work i
 - public values shared by client and server use one `NEXT_PUBLIC_*` variable
 - `NEXT_PUBLIC_APP_URL` is the canonical public app URL
 - `NEXT_PUBLIC_PB_URL` is the canonical PocketBase base URL
+- `MAILPIT_BASE_URL` is required for local Mailpit API delivery
 - base URLs are written without a trailing slash
 - sender identity uses `MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS`
 - local dev and E2E both use `MAIL_TRANSPORT="mailpit-api"`

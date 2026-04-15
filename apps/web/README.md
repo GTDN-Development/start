@@ -17,6 +17,7 @@
 ```bash
 pnpm install
 pnpm dev
+pnpm local:up
 pnpm lint
 pnpm lint:fix
 pnpm check
@@ -26,9 +27,12 @@ pnpm build
 pnpm format
 pnpm format:check
 pnpm pocketbase:typegen
+pnpm local:down
 ```
 
-You can run these commands from `apps/web` or from the repository root.
+Web commands can run from `apps/web` or from the repository root. `pnpm local:up` and
+`pnpm local:down` are repository-root commands for the persistent local PocketBase + Mailpit
+stack.
 
 ## Env
 
@@ -44,6 +48,7 @@ Canonical public/runtime envs:
 
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_PB_URL`
+- `MAILPIT_BASE_URL`
 - `MAIL_FROM_NAME`
 - `MAIL_FROM_ADDRESS`
 - base URLs should be written without a trailing slash
@@ -73,16 +78,17 @@ Local testing uses `.env.test`.
 
 Local email defaults:
 
-- `pnpm dev` and `pnpm test:e2e` both use `MAIL_TRANSPORT="mailpit-api"`
+- local dev and `pnpm test:e2e` both use `MAIL_TRANSPORT="mailpit-api"`
 - PocketBase auth emails still use SMTP delivery, but they deliver to the local Mailpit container
 - local web app emails go through the local Mailpit HTTP Send API
 - production email delivery is out of scope here
 
 Local stack contract:
 
-- `pnpm dev` starts the persistent local PocketBase + Mailpit stack before `next dev`
+- `pnpm local:up` starts the persistent local PocketBase + Mailpit stack from the repository root and reapplies the local mail baseline
+- `pnpm dev` starts only the Next.js app in webpack dev mode
 - `pnpm test:e2e` starts a fresh isolated stack and removes its Docker volume after the run
-- `pnpm local:down` stops the persistent local dev stack
+- `pnpm local:down` stops the persistent local dev stack from the repository root
 
 ## Tooling
 
