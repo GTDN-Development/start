@@ -75,7 +75,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
               size="lg"
               nativeButton={false}
               className="w-full"
-              render={<Link href={getInviteHref(token)} className="w-full" />}
+              render={<Link href={getInviteHref(token)} />}
             >
               {t("states.error.cta")}
             </Button>
@@ -94,7 +94,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
               size="lg"
               nativeButton={false}
               className="w-full"
-              render={<Link href={SIGN_IN_PATH} className="w-full" />}
+              render={<Link href={SIGN_IN_PATH} />}
             >
               {tCommonError("goToSignIn")}
             </Button>
@@ -130,7 +130,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
             size="lg"
             nativeButton={false}
             className="w-full"
-            render={<Link href={getInviteHref(token)} className="w-full" />}
+            render={<Link href={getInviteHref(token)} />}
           >
             {t("states.error.cta")}
           </Button>
@@ -219,7 +219,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
           size="lg"
           nativeButton={false}
           className="w-full"
-          render={<Link href={applicationEntryHref} className="w-full" />}
+          render={<Link href={applicationEntryHref} />}
         >
           {tCommonError("goToApp")}
         </Button>
