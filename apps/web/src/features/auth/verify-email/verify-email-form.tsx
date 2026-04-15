@@ -122,7 +122,7 @@ export function VerifyEmailForm({
         )}
 
         {result !== "verified" && email && (
-          <div className="space-y-3">
+          <div className="grid gap-3">
             <p className="text-muted-foreground text-sm">{t("pending.resendHint")}</p>
 
             <Button
@@ -138,12 +138,11 @@ export function VerifyEmailForm({
           </div>
         )}
 
-        <div
-          className={cn("grid gap-3", result === "verified" ? "sm:grid-cols-1" : "sm:grid-cols-2")}
-        >
+        <div className="grid gap-3">
           <Button
             size="lg"
             nativeButton={false}
+            variant="secondary"
             className="w-full"
             render={<Link href={SIGN_IN_PATH} className="w-full" />}
           >
@@ -153,7 +152,7 @@ export function VerifyEmailForm({
           {result !== "verified" && (
             <Button
               size="lg"
-              variant="outline"
+              variant="secondary"
               nativeButton={false}
               className="w-full"
               render={<Link href={SIGN_UP_PATH} className="w-full" />}

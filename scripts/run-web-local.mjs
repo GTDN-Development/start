@@ -28,6 +28,7 @@ async function main() {
     const env = createWebAppEnv(config, getAppPort(DEFAULT_DEV_APP_PORT));
 
     await prepareLocalStack(config, env);
+    await clearNextDevArtifacts();
     startPersistentDevServer(env);
     return;
   }
@@ -68,6 +69,13 @@ async function main() {
 
   console.error('Unsupported local web command. Use "dev" or "e2e".');
   process.exitCode = 1;
+}
+
+async function clearNextDevArtifacts() {
+  await rm(path.join(WEB_APP_DIR, ".next", "dev"), {
+    force: true,
+    recursive: true,
+  });
 }
 
 function loadWebEnv(mode) {
