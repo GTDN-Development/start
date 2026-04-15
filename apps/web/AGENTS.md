@@ -93,6 +93,10 @@ These instructions apply only to files under `apps/web/**`.
 - `useMountEffect()` is only for mount/unmount sync with external systems — do not move business logic into it just to satisfy lint
 - `useLayoutEffect()` is only for DOM measurement or pre-paint sync that would visibly break in `useEffect`
 
+## Testing
+
+- For narrow bug fixes, keep test changes smaller than the fix when practical. Prefer one targeted test at the owning layer over large new scaffolding; if the test diff grows larger or more complex than the bug fix, tighten the scope unless broader coverage is clearly needed.
+
 ## Configuration & Menus (`src/config/menu.ts`)
 
 - **Never** reintroduce `getMenu`, `getMenuLinks`, `flattenMenuItems`, group resolvers, or multi-step mapping layers — use direct exported arrays
