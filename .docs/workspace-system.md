@@ -119,7 +119,7 @@ Workspace-specific code is intentionally localized. The main app core touches it
 - app shell scope switcher mount in [application-layout.tsx](/Users/fanda/Dev/start/apps/web/src/features/application/application-layout.tsx)
 - contextual personal/workspace navigation in [application-menu-tree.tsx](/Users/fanda/Dev/start/apps/web/src/features/application/application-menu-tree.tsx)
 - personal home route under [page.tsx](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/(application-shell)/app/page.tsx>)
-- post-auth invite handoff in sign-in navigation and [post-auth route](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
+- post-auth invite handoff in sign-in navigation and [post-auth route](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts>)
 - invite routes under [apps/web/src/app/[locale]/(auth)/(flow)/invite](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/invite>)
 
 That keeps the removal path bounded without adding a runtime feature system.

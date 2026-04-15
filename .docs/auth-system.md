@@ -66,9 +66,9 @@ Short version:
 - auth server actions: [auth-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-actions.ts)
 - auth client API and session store: [auth-client.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-client.ts)
 - route proxy guard: [auth-proxy.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-proxy.ts)
-- post-auth Route Handler: [route.ts](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
+- post-auth Route Handler: [route.ts](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts>)
 - session endpoint: [route.ts](/Users/fanda/Dev/start/apps/web/src/app/api/auth/session/route.ts)
-- verify-email completion Route Handler: [route.ts](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts)
+- verify-email completion Route Handler: [route.ts](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts>)
 - PocketBase email-link bridge: [route.ts](/Users/fanda/Dev/start/apps/web/src/app/api/pocketbase/email-link/route.ts)
 
 ## Supported Flows
@@ -131,8 +131,8 @@ Turnstile is currently used for:
 Current URL-token rule:
 
 - `/api/pocketbase/email-link` stays the stable backend-facing bridge
-- `verify-email` links are redirected to [verify-email/complete route](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts)
-- [verify-email page](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/page.tsx) is UI-only and does not mutate cookies
+- `verify-email` links are redirected to [verify-email/complete route](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts>)
+- [verify-email page](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/page.tsx>) is UI-only and does not mutate cookies
 
 ## Cookie Boundary
 
@@ -200,7 +200,7 @@ Auth does not directly hardcode a workspace landing page anymore.
 
 After successful auth, the sign-in UI performs a direct handoff to `/post-auth`.
 
-Authenticated render-time guest routes also use [post-auth route handler](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts) instead of mutating cookies during layout render.
+Authenticated render-time guest routes also use [post-auth route handler](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts>) instead of mutating cookies during layout render.
 
 These boundaries:
 
@@ -235,7 +235,7 @@ The main auth-facing routes are:
 - `/confirm-email-change`
 - `/invite/[token]`
 
-Authenticated visitors hitting guest auth pages are redirected to `/post-auth` through [layout.tsx](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(guest)/layout.tsx).
+Authenticated visitors hitting guest auth pages are redirected to `/post-auth` through [layout.tsx](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(guest)/layout.tsx>).
 
 ## Current Constraints
 
@@ -262,5 +262,5 @@ Changing session behavior:
 
 Changing post-auth routing:
 
-- check [post-auth route](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
+- check [post-auth route](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts>)
 - check [workspace-resolution-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-resolution-service.ts)

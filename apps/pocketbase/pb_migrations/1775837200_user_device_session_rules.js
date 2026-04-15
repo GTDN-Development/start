@@ -3,9 +3,7 @@
 migrate(
   (app) => {
     const userDeviceSessions = app.findCollectionByNameOrId("user_device_sessions");
-    const ownDeviceSessionRule = ['@request.auth.id != ""', "user = @request.auth.id"].join(
-      " && "
-    );
+    const ownDeviceSessionRule = ['@request.auth.id != ""', "user = @request.auth.id"].join(" && ");
     const updateOwnDeviceSessionRule = [
       '@request.auth.id != ""',
       "user = @request.auth.id",

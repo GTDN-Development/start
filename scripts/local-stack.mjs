@@ -19,28 +19,22 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, "..");
 const COMPOSE_FILE_PATH = path.join(REPO_ROOT, "compose.yaml");
 const WEB_APP_DIR = fileURLToPath(new URL("../apps/web/", import.meta.url));
-const envRequire = createRequire(
-  new URL("../apps/web/package.json", import.meta.url),
-);
+const envRequire = createRequire(new URL("../apps/web/package.json", import.meta.url));
 const { loadEnvConfig } = envRequire("@next/env");
 
 export function createDevStackConfig(env = process.env) {
   return createStackConfig({
     projectName: "start-dev",
-    pbPort: readPort(
-      env.POCKETBASE_PORT,
-      DEFAULT_PORTS.pocketbase,
-      "POCKETBASE_PORT",
-    ),
+    pbPort: readPort(env.POCKETBASE_PORT, DEFAULT_PORTS.pocketbase, "POCKETBASE_PORT"),
     mailpitHttpPort: readPort(
       env.MAILPIT_HTTP_PORT,
       DEFAULT_PORTS.mailpitHttp,
-      "MAILPIT_HTTP_PORT",
+      "MAILPIT_HTTP_PORT"
     ),
     mailpitSmtpPort: readPort(
       env.MAILPIT_SMTP_PORT,
       DEFAULT_PORTS.mailpitSmtp,
-      "MAILPIT_SMTP_PORT",
+      "MAILPIT_SMTP_PORT"
     ),
   });
 }
@@ -66,38 +60,26 @@ export async function prepareLocalStack(config, env = process.env) {
   const composeEnv = createComposeEnv(config, env);
 
   try {
-    await run(
-      "docker",
-      ["compose", "--file", COMPOSE_FILE_PATH, "up", "-d", "--build"],
-      {
-        cwd: REPO_ROOT,
-        env: composeEnv,
-      },
-    );
+    await run("docker", ["compose", "--file", COMPOSE_FILE_PATH, "up", "-d", "--build"], {
+      cwd: REPO_ROOT,
+      env: composeEnv,
+    });
 
     await Promise.all([
       waitUntilOk(`${config.pbUrl}/api/health`, "PocketBase"),
       waitUntilOk(`${config.mailpitUrl}/readyz`, "Mailpit"),
     ]);
 
-    await run(
-      "pnpm",
-      ["--filter", "@start/pocketbase", "run", "mailpit:apply"],
-      {
-        cwd: REPO_ROOT,
-        env,
-      },
-    );
+    await run("pnpm", ["--filter", "@start/pocketbase", "run", "mailpit:apply"], {
+      cwd: REPO_ROOT,
+      env,
+    });
   } catch (error) {
-    await run(
-      "docker",
-      ["compose", "--file", COMPOSE_FILE_PATH, "logs", "--tail", "100"],
-      {
-        cwd: REPO_ROOT,
-        env: composeEnv,
-        allowFailure: true,
-      },
-    );
+    await run("docker", ["compose", "--file", COMPOSE_FILE_PATH, "logs", "--tail", "100"], {
+      cwd: REPO_ROOT,
+      env: composeEnv,
+      allowFailure: true,
+    });
     throw error;
   }
 }
@@ -117,7 +99,7 @@ export async function stopLocalStack(config, options = {}) {
       cwd: REPO_ROOT,
       env: createComposeEnv(config),
       allowFailure: true,
-    },
+    }
   );
 }
 
@@ -164,9 +146,7 @@ function assertDockerCompose() {
     return;
   }
 
-  throw new Error(
-    "Docker with Compose is required for the local PocketBase + Mailpit stack.",
-  );
+  throw new Error("Docker with Compose is required for the local PocketBase + Mailpit stack.");
 }
 
 function readPort(value, fallback, envName) {
@@ -244,11 +224,7 @@ function run(command, args, options = {}) {
     child.on("error", reject);
     child.on("exit", function handleExit(code, signal) {
       if (signal) {
-        reject(
-          new Error(
-            `${command} ${args.join(" ")} exited with signal ${signal}.`,
-          ),
-        );
+        reject(new Error(`${command} ${args.join(" ")} exited with signal ${signal}.`));
         return;
       }
 
@@ -257,9 +233,7 @@ function run(command, args, options = {}) {
         return;
       }
 
-      reject(
-        new Error(`${command} ${args.join(" ")} exited with status ${code}.`),
-      );
+      reject(new Error(`${command} ${args.join(" ")} exited with status ${code}.`));
     });
   });
 }
@@ -278,9 +252,7 @@ async function main() {
   const command = process.argv[2];
 
   if (command !== "up" && command !== "down" && command !== "apply-mailpit") {
-    console.error(
-      'Unsupported local stack command. Use "up", "down", or "apply-mailpit".',
-    );
+    console.error('Unsupported local stack command. Use "up", "down", or "apply-mailpit".');
     process.exitCode = 1;
     return;
   }
@@ -295,14 +267,10 @@ async function main() {
   }
 
   if (command === "apply-mailpit") {
-    await run(
-      "pnpm",
-      ["--filter", "@start/pocketbase", "run", "mailpit:apply"],
-      {
-        cwd: REPO_ROOT,
-        env: createLocalStackCommandEnv(config),
-      },
-    );
+    await run("pnpm", ["--filter", "@start/pocketbase", "run", "mailpit:apply"], {
+      cwd: REPO_ROOT,
+      env: createLocalStackCommandEnv(config),
+    });
     return;
   }
 

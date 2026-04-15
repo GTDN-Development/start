@@ -29,12 +29,9 @@ migrate(
     ].join(" && ");
 
     workspaces.viewRule = `(${sameWorkspaceMemberRule}) || (${pendingInviteWorkspaceViewRule})`;
-    workspaceInvites.listRule =
-      `(${inviteWorkspaceAdminOrOwnerRule}) || (${inviteRecipientReadRule})`;
-    workspaceInvites.viewRule =
-      `(${inviteWorkspaceAdminOrOwnerRule}) || (${inviteRecipientReadRule})`;
-    workspaceInvites.deleteRule =
-      `(${inviteWorkspaceAdminOrOwnerRule}) || (${inviteRecipientReadRule})`;
+    workspaceInvites.listRule = `(${inviteWorkspaceAdminOrOwnerRule}) || (${inviteRecipientReadRule})`;
+    workspaceInvites.viewRule = `(${inviteWorkspaceAdminOrOwnerRule}) || (${inviteRecipientReadRule})`;
+    workspaceInvites.deleteRule = `(${inviteWorkspaceAdminOrOwnerRule}) || (${inviteRecipientReadRule})`;
 
     app.save(workspaces);
     app.save(workspaceInvites);

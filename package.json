@@ -17,8 +17,8 @@
     "test:watch": "pnpm --filter @start/web run test:watch",
     "test:e2e": "pnpm --filter @start/web run test:e2e",
     "test:e2e:ui": "pnpm --filter @start/web run test:e2e:ui",
-    "format": "pnpm --filter @start/web run format",
-    "format:check": "pnpm --filter @start/web run format:check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "check-types": "turbo run check-types",
     "check": "pnpm format:check && pnpm lint && pnpm check-types",
     "pocketbase:typegen": "pnpm --filter @start/web run pocketbase:typegen",
@@ -26,6 +26,8 @@
     "turbo": "turbo"
   },
   "devDependencies": {
+    "prettier": "~3.7.0",
+    "prettier-plugin-tailwindcss": "^0.7.1",
     "turbo": "^2.9.4"
   }
 }

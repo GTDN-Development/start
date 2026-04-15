@@ -42,6 +42,6 @@ Use `useBackNavigation()` or `BackNavigation` when a custom render is needed.
 
 ## Current Consumers
 
-- [support page](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/contact/support/page.tsx)
-- [sales page](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/contact/sales/page.tsx)
-- [blog detail page](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/blog/[slug]/page.tsx)
+- [support page](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/contact/support/page.tsx>)
+- [sales page](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/contact/sales/page.tsx>)
+- [blog detail page](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/blog/[slug]/page.tsx>)

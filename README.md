@@ -33,6 +33,13 @@ pnpm check-types
 pnpm check
 ```
 
+Repo-wide formatting utilities:
+
+```bash
+pnpm format
+pnpm format:check
+```
+
 Web and local stack shortcuts:
 
 ```bash
@@ -44,8 +51,6 @@ pnpm lint:fix
 pnpm test:watch
 pnpm test:e2e
 pnpm test:e2e:ui
-pnpm format
-pnpm format:check
 pnpm pocketbase:typegen
 pnpm local:up
 pnpm local:down
@@ -53,6 +58,8 @@ pnpm pocketbase:mailpit:apply
 ```
 
 `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm test`, and `pnpm check-types` run through Turborepo.
+`pnpm format` and `pnpm format:check` run the repository-root Prettier baseline across repo code,
+docs, and tooling files. `pnpm check` now starts with that repo-wide format check.
 `pnpm dev:web` keeps the focused web-only dev flow. `pnpm dev:full` remains the local stack
 shortcut for `pnpm local:up && pnpm dev`.
 

@@ -44,14 +44,19 @@ pnpm lint
 pnpm test
 pnpm check-types
 pnpm check
+pnpm format
+pnpm format:check
 pnpm local:up
 pnpm local:down
 ```
 
 `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm test`, and `pnpm check-types` are workspace-wide
-Turbo commands from the repository root. `pnpm dev:web` keeps the focused web-only flow.
-`pnpm local:up` and `pnpm local:down` manage the persistent local PocketBase + Mailpit stack.
-`pnpm dev:full` is the repository-root shortcut for `pnpm local:up && pnpm dev`.
+Turbo commands from the repository root. Repository-root `pnpm format` and `pnpm format:check`
+run the repo-wide Prettier baseline. Local `pnpm format` and `pnpm format:check` in `apps/web`
+are convenience wrappers that run that same baseline only against `apps/web`.
+`pnpm dev:web` keeps the focused web-only flow. `pnpm local:up` and `pnpm local:down` manage the
+persistent local PocketBase + Mailpit stack. `pnpm dev:full` is the repository-root shortcut for
+`pnpm local:up && pnpm dev`.
 
 ## Env
 
@@ -113,7 +118,7 @@ Local stack contract:
 
 ## Tooling
 
-- `pnpm format` / `pnpm format:check` run Prettier with `prettier-plugin-tailwindcss`
+- `pnpm format` / `pnpm format:check` run the repository-root Prettier baseline with `prettier-plugin-tailwindcss`; from `apps/web` they stay scoped to `apps/web`
 - `pnpm lint` / `pnpm lint:fix` run ESLint with Next.js baseline rules plus project architectural guardrails
 - `pnpm check-types` runs `next typegen` and TypeScript without emitting
 - `pnpm check` runs format, lint, and type checks together

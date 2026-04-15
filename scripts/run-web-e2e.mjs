@@ -21,11 +21,9 @@ async function main() {
   const config = await createE2EStackConfig();
   const appPort = await resolveE2EAppPort(DEFAULT_E2E_APP_PORT);
   const env = createWebAppEnv(config, appPort);
-  const playwrightArgs = process.argv
-    .slice(2)
-    .filter(function filterArgs(argument) {
-      return argument !== "--ui";
-    });
+  const playwrightArgs = process.argv.slice(2).filter(function filterArgs(argument) {
+    return argument !== "--ui";
+  });
 
   try {
     await prepareLocalStack(config, env);
@@ -35,7 +33,7 @@ async function main() {
     });
     await runWebCommand(
       ["exec", "node", "./tests/scripts/run-next-with-test-env.cjs", "build"],
-      env,
+      env
     );
     await runWebCommand(
       [
@@ -46,7 +44,7 @@ async function main() {
         ...(process.argv.includes("--ui") ? ["--ui"] : []),
         "--pass-with-no-tests",
       ],
-      env,
+      env
     );
   } finally {
     await stopLocalStack(config, { removeVolumes: true });
@@ -77,9 +75,7 @@ function runWebCommand(args, env) {
     child.on("error", reject);
     child.on("exit", function handleExit(code, signal) {
       if (signal) {
-        reject(
-          new Error(`pnpm ${args.join(" ")} exited with signal ${signal}.`),
-        );
+        reject(new Error(`pnpm ${args.join(" ")} exited with signal ${signal}.`));
         return;
       }
 
@@ -129,7 +125,7 @@ async function findAvailablePort(initialPort, maxAttempts = 20) {
   }
 
   throw new Error(
-    `Unable to find an available TCP port starting from ${initialPort}. Set PORT explicitly to continue.`,
+    `Unable to find an available TCP port starting from ${initialPort}. Set PORT explicitly to continue.`
   );
 }
 

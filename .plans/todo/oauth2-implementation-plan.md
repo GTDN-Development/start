@@ -107,32 +107,32 @@ Requires PocketBase v0.22+ (the project uses `pocketbase@^0.26.8`, so this is sa
 
 ### 5.1 Google
 
-| Field | Value |
-|---|---|
-| Enabled | ON |
-| Client ID | `*.apps.googleusercontent.com` |
-| Client Secret | value from Google Cloud Console |
+| Field                    | Value                                                      |
+| ------------------------ | ---------------------------------------------------------- |
+| Enabled                  | ON                                                         |
+| Client ID                | `*.apps.googleusercontent.com`                             |
+| Client Secret            | value from Google Cloud Console                            |
 | Redirect URL (read-only) | `{PB_URL}/api/oauth2-redirect` - must match Google Console |
 
 ### 5.2 Apple
 
-| Field | Value |
-|---|---|
-| Enabled | ON |
-| Client ID | `com.yourdomain.web` (Services ID) |
-| Client Secret | leave empty - PocketBase generates it dynamically |
-| Team ID | 10-character code from the Apple Developer account |
-| Key ID | 10-character code from Apple Developer Portal |
-| Private Key | contents of the `.p8` file including the `-----BEGIN PRIVATE KEY-----` header |
-| Redirect URL (read-only) | `{PB_URL}/api/oauth2-redirect` |
+| Field                    | Value                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Enabled                  | ON                                                                            |
+| Client ID                | `com.yourdomain.web` (Services ID)                                            |
+| Client Secret            | leave empty - PocketBase generates it dynamically                             |
+| Team ID                  | 10-character code from the Apple Developer account                            |
+| Key ID                   | 10-character code from Apple Developer Portal                                 |
+| Private Key              | contents of the `.p8` file including the `-----BEGIN PRIVATE KEY-----` header |
+| Redirect URL (read-only) | `{PB_URL}/api/oauth2-redirect`                                                |
 
 ### 5.3 Facebook
 
-| Field | Value |
-|---|---|
-| Enabled | ON |
-| Client ID | App ID from Meta Dashboard |
-| Client Secret | App Secret from Meta Dashboard |
+| Field                    | Value                          |
+| ------------------------ | ------------------------------ |
+| Enabled                  | ON                             |
+| Client ID                | App ID from Meta Dashboard     |
+| Client Secret            | App Secret from Meta Dashboard |
 | Redirect URL (read-only) | `{PB_URL}/api/oauth2-redirect` |
 
 ### 5.4 Collection rules
@@ -218,6 +218,7 @@ Sequence:
 4. Verify the record is valid: `if (!isUsersRecord(refreshedAuth.record))` -> `UNAUTHORIZED`.
 5. Build `AuthSession`: `const session = createAuthSession(pb, refreshedAuth.record)`. Use the existing private helper in `auth-service.ts:663`. If it returns `null`, return `UNKNOWN_ERROR`.
 6. Register the device session, using the same pattern as `signInWithPassword` (`auth-service.ts:75-92`):
+
    ```
    const rememberMe = input.rememberMe ?? true;
    const { token: deviceSessionToken, setCookie: deviceSessionCookie } =
@@ -239,11 +240,14 @@ Sequence:
      );
    }
    ```
+
    Note: device session registration is non-blocking (`try/catch`). Failure should not fail the login, consistent with the email/password flow.
+
 7. Build cookies: `[...exportPocketBaseAuthCookies(pb, { sessionOnly: !rememberMe }), deviceSessionCookie]`.
    - `exportPocketBaseAuthCookies` (`pocketbase-server.ts:51-64`) returns a `string[]` containing the auth cookie and persist cookie.
    - The device session cookie is added as the third item.
 8. Return `ServerAuthResponse<AuthSessionPayload>`:
+
    ```
    return {
      ok: true,
@@ -251,6 +255,7 @@ Sequence:
      setCookie: [...exportPocketBaseAuthCookies(pb, { sessionOnly: !rememberMe }), deviceSessionCookie],
    };
    ```
+
    - The return type is `ServerAuthResponse<AuthSessionPayload>`, not `ServerAuthResponse<AuthSession>`, consistent with `signInWithPassword`.
    - `AuthSessionPayload = { session: AuthSession | null }`.
 
@@ -304,7 +309,7 @@ New exported function:
 export async function signInWithOAuth2(
   provider: OAuthProvider,
   options?: { rememberMe?: boolean }
-): Promise<SignInResponse>
+): Promise<SignInResponse>;
 ```
 
 Note: the return type is `SignInResponse` (`AuthResponse<AuthSessionPayload>`), consistent with the existing `signIn()` function.
@@ -469,16 +474,16 @@ According to the PocketBase JS SDK:
 
 ## 12. Critical files
 
-| File | Change |
-|---|---|
-| `src/features/auth/auth-contract.ts` | +2 `AuthErrorCode` values (`OAUTH2_PROVIDER_ERROR`, `OAUTH2_EMAIL_MISSING`) |
-| `src/server/auth/auth-service.ts` | +`syncOAuth2Session()` including device session registration |
-| `src/features/auth/actions/auth-actions.ts` | +`syncOAuth2SessionAction` + Zod schema |
-| `src/features/auth/auth-client.ts` | +`signInWithOAuth2()`, +`OAuthProvider` type |
-| `src/features/auth/components/oauth2-buttons.tsx` | new file |
-| `src/features/auth/sign-in/sign-in-form.tsx` | +divider + OAuth buttons |
-| `src/features/auth/sign-up/sign-up-form.tsx` | +divider + OAuth buttons |
-| `messages/*.json` | +i18n keys for OAuth |
+| File                                              | Change                                                                      |
+| ------------------------------------------------- | --------------------------------------------------------------------------- |
+| `src/features/auth/auth-contract.ts`              | +2 `AuthErrorCode` values (`OAUTH2_PROVIDER_ERROR`, `OAUTH2_EMAIL_MISSING`) |
+| `src/server/auth/auth-service.ts`                 | +`syncOAuth2Session()` including device session registration                |
+| `src/features/auth/actions/auth-actions.ts`       | +`syncOAuth2SessionAction` + Zod schema                                     |
+| `src/features/auth/auth-client.ts`                | +`signInWithOAuth2()`, +`OAuthProvider` type                                |
+| `src/features/auth/components/oauth2-buttons.tsx` | new file                                                                    |
+| `src/features/auth/sign-in/sign-in-form.tsx`      | +divider + OAuth buttons                                                    |
+| `src/features/auth/sign-up/sign-up-form.tsx`      | +divider + OAuth buttons                                                    |
+| `messages/*.json`                                 | +i18n keys for OAuth                                                        |
 
 Files used unchanged:
 

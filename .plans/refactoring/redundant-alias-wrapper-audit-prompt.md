@@ -3,6 +3,7 @@
 Go through the codebase and find unnecessary aliases, wrappers, and renames that only work around a name collision or copy an existing helper without adding value.
 
 Focus mainly on these patterns:
+
 - import aliases such as `import { foo as bar } ...`, where the alias does not resolve real ambiguity and can be removed
 - a local wrapper function that only calls an imported function with the same meaning and no extra logic
 - a local helper that only forwards arguments into another function and adds no validation, transformation, or domain meaning
@@ -12,6 +13,7 @@ Focus mainly on these patterns:
 - an alias/import/wrapper introduced only because there is an unnecessary local function with the same name
 
 For each finding:
+
 1. say why it is redundant
 2. propose the simplest refactor
 3. label it as:
@@ -20,6 +22,7 @@ For each finding:
    - possible semantic wrapper, keep as-is
 
 Prioritize KISS:
+
 - prefer direct import and direct call
 - prefer one source of truth
 - do not treat as a problem a wrapper that really adds domain meaning, validation, fallback, normalization, or boundary semantics
