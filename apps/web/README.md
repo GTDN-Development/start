@@ -17,6 +17,7 @@
 ```bash
 pnpm install
 pnpm dev
+pnpm dev:full
 pnpm local:up
 pnpm lint
 pnpm lint:fix
@@ -32,7 +33,7 @@ pnpm local:down
 
 Web commands can run from `apps/web` or from the repository root. `pnpm local:up` and
 `pnpm local:down` are repository-root commands for the persistent local PocketBase + Mailpit
-stack.
+stack. `pnpm dev:full` is a repository-root shortcut for `pnpm local:up && pnpm dev`.
 
 ## Env
 
@@ -87,6 +88,7 @@ Local stack contract:
 
 - `pnpm local:up` starts the persistent local PocketBase + Mailpit stack from the repository root and reapplies the local mail baseline
 - `pnpm dev` starts only the Next.js app in webpack dev mode
+- `pnpm dev:full` is a repository-root shortcut for `pnpm local:up && pnpm dev`
 - `pnpm test:e2e` starts a fresh isolated stack and removes its Docker volume after the run
 - `pnpm local:down` stops the persistent local dev stack from the repository root
 

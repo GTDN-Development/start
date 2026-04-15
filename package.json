@@ -4,6 +4,7 @@
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "pnpm --filter @start/web run dev",
+    "dev:full": "pnpm local:up && pnpm dev",
     "local:up": "node ./scripts/local-stack.mjs up",
     "local:down": "node ./scripts/local-stack.mjs down",
     "build": "pnpm --filter @start/web run build",

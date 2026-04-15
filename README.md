@@ -25,6 +25,7 @@ Run these from the repository root:
 pnpm install
 pnpm local:up
 pnpm dev
+pnpm dev:full
 pnpm lint
 pnpm lint:fix
 pnpm typecheck
@@ -39,7 +40,8 @@ pnpm local:down
 ```
 
 These commands target the web application by default. `pnpm local:up` and `pnpm local:down`
-manage the persistent local PocketBase + Mailpit stack from the repository root.
+manage the persistent local PocketBase + Mailpit stack from the repository root. `pnpm dev:full`
+is an optional shortcut for `pnpm local:up && pnpm dev`.
 
 ## Deployment
 
@@ -54,6 +56,7 @@ manage the persistent local PocketBase + Mailpit stack from the repository root.
 
 - `pnpm local:up` starts the persistent local PocketBase + Mailpit Docker stack and reapplies the local mail baseline
 - `pnpm dev` starts only the Next.js app in webpack dev mode
+- `pnpm dev:full` is a convenience shortcut that runs `pnpm local:up` and then `pnpm dev`
 - `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app, and runs Playwright against it
 - `pnpm local:down` stops the persistent local dev stack
 - PocketBase auth emails still use SMTP and are delivered to the local Mailpit container
