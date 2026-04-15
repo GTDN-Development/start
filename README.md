@@ -103,6 +103,7 @@ shortcut for `pnpm local:up && pnpm dev`.
 - Mailpit service guide: [apps/mailpit/README.md](/Users/fanda/Dev/start/apps/mailpit/README.md)
 - project goal: [.rules/start-goal.md](/Users/fanda/Dev/start/.rules/start-goal.md)
 - architecture principles: [.rules/kiss-project-architecture-principles.md](/Users/fanda/Dev/start/.rules/kiss-project-architecture-principles.md)
+- refactoring playbook: [.docs/refactoring-playbook.md](/Users/fanda/Dev/start/.docs/refactoring-playbook.md)
 
 Environment examples live inside the owning app directories:
 
