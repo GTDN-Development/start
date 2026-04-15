@@ -13,7 +13,10 @@ import {
   normalizeWorkspaceName,
   resolveUniqueWorkspaceSlug,
 } from "@/server/workspaces/workspace-normalization";
-import { ensureWorkspaceMembership, findWorkspaceBySlug } from "@/server/workspaces/workspace-repository";
+import {
+  ensureWorkspaceMembership,
+  findWorkspaceBySlug,
+} from "@/server/workspaces/workspace-repository";
 import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
 
 export type CreateWorkspaceInput = {

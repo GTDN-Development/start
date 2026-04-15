@@ -14,10 +14,7 @@ import type {
 import type { WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 
-export function mapWorkspaceSummary(
-  pb: PocketBase,
-  workspace: WorkspacesRecord
-): WorkspaceSummary {
+export function mapWorkspaceSummary(pb: PocketBase, workspace: WorkspacesRecord): WorkspaceSummary {
   return {
     id: workspace.id,
     name: workspace.name,

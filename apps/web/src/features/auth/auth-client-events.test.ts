@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  emitAuthChanged,
-  emitSignedOut,
-  subscribeToAuthClientEvents,
-} from "./auth-client-events";
+import { emitAuthChanged, emitSignedOut, subscribeToAuthClientEvents } from "./auth-client-events";
 
 describe("auth-client-events", function describeAuthClientEvents() {
   beforeEach(function resetAuthClientEventsTestState() {

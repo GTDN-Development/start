@@ -53,10 +53,7 @@ test("change password revokes current session and requires fresh sign-in", async
   }
 });
 
-test("change password signs out other devices on their next request", async ({
-  page,
-  browser,
-}) => {
+test("change password signs out other devices on their next request", async ({ page, browser }) => {
   test.setTimeout(120_000);
 
   const run = createE2ETestRun();

@@ -102,7 +102,7 @@ export function VerifyEmailForm({
             <div className="grid gap-3">
               {delivery === "needs_resend" && result === "pending" ? (
                 <div className="grid gap-1">
-                  <p className="text-sm font-medium text-destructive">
+                  <p className="text-destructive text-sm font-medium">
                     {t("status.needsResend.title")}
                   </p>
                   <p className="text-muted-foreground text-sm">{t("status.needsResend.message")}</p>

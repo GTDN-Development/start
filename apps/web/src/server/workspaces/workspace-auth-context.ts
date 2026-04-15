@@ -1,9 +1,6 @@
 import type PocketBase from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
-import {
-  requireCurrentWritableUser,
-  requireCurrentUser,
-} from "@/server/auth/current-user";
+import { requireCurrentWritableUser, requireCurrentUser } from "@/server/auth/current-user";
 import type { ServerWorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 export type WorkspaceAuthContext = {

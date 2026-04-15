@@ -17,31 +17,44 @@ Start is a workspace repository with the web application and the PocketBase back
 - Next.js 16 / React 19
 - PocketBase
 
-## Common Commands
+## Commands
 
-Run these from the repository root:
+Run these from the repository root.
+
+Workspace-wide Turbo commands:
 
 ```bash
 pnpm install
-pnpm local:up
 pnpm dev
-pnpm dev:full
-pnpm lint
-pnpm lint:fix
-pnpm typecheck
-pnpm test
-pnpm test:e2e
 pnpm build
-pnpm format
-pnpm format:check
+pnpm lint
+pnpm test
+pnpm check-types
 pnpm check
-pnpm pocketbase:typegen
-pnpm local:down
 ```
 
-These commands target the web application by default. `pnpm local:up` and `pnpm local:down`
-manage the persistent local PocketBase + Mailpit stack from the repository root. `pnpm dev:full`
-is an optional shortcut for `pnpm local:up && pnpm dev`.
+Web and local stack shortcuts:
+
+```bash
+pnpm dev:web
+pnpm dev:full
+pnpm start
+pnpm email:dev
+pnpm lint:fix
+pnpm test:watch
+pnpm test:e2e
+pnpm test:e2e:ui
+pnpm format
+pnpm format:check
+pnpm pocketbase:typegen
+pnpm local:up
+pnpm local:down
+pnpm pocketbase:mailpit:apply
+```
+
+`pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm test`, and `pnpm check-types` run through Turborepo.
+`pnpm dev:web` keeps the focused web-only dev flow. `pnpm dev:full` remains the local stack
+shortcut for `pnpm local:up && pnpm dev`.
 
 ## Deployment
 
@@ -55,8 +68,10 @@ is an optional shortcut for `pnpm local:up && pnpm dev`.
 ## Dev/Test Mail Flow
 
 - `pnpm local:up` starts the persistent local PocketBase + Mailpit Docker stack and reapplies the local mail baseline
-- `pnpm dev` starts only the Next.js app
+- `pnpm dev` runs the workspace-wide Turbo dev task
+- `pnpm dev:web` starts only the Next.js app
 - `pnpm dev:full` is a convenience shortcut that runs `pnpm local:up` and then `pnpm dev`
+- `pnpm test` runs the workspace-wide Turbo test task and includes PocketBase script tests
 - `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app, and runs Playwright against it
 - `pnpm local:down` stops the persistent local dev stack
 - PocketBase auth emails still use SMTP and are delivered to the local Mailpit container

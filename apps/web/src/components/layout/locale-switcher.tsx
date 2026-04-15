@@ -46,7 +46,9 @@ function LocaleSwitcherContent({ className = "" }: { className?: string }) {
         locale: nextLocale as Locale,
       });
 
-      window.location.replace(`${localizedPathname}${window.location.search}${window.location.hash}`);
+      window.location.replace(
+        `${localizedPathname}${window.location.search}${window.location.hash}`
+      );
     });
   }
 

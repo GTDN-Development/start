@@ -277,8 +277,10 @@ function createLocalStackCommandEnv(config, env = process.env) {
 async function main() {
   const command = process.argv[2];
 
-  if (command !== "up" && command !== "down") {
-    console.error('Unsupported local stack command. Use "up" or "down".');
+  if (command !== "up" && command !== "down" && command !== "apply-mailpit") {
+    console.error(
+      'Unsupported local stack command. Use "up", "down", or "apply-mailpit".',
+    );
     process.exitCode = 1;
     return;
   }
@@ -289,6 +291,18 @@ async function main() {
 
   if (command === "up") {
     await prepareLocalStack(config, createLocalStackCommandEnv(config));
+    return;
+  }
+
+  if (command === "apply-mailpit") {
+    await run(
+      "pnpm",
+      ["--filter", "@start/pocketbase", "run", "mailpit:apply"],
+      {
+        cwd: REPO_ROOT,
+        env: createLocalStackCommandEnv(config),
+      },
+    );
     return;
   }
 

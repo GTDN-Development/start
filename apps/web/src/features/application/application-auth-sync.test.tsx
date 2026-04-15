@@ -3,19 +3,15 @@
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
-const {
-  getPathnameMock,
-  subscribeToAuthClientEventsMock,
-  useAccountProfileMock,
-  useLocaleMock,
-} = vi.hoisted(function hoistApplicationAuthSyncMocks() {
-  return {
-    getPathnameMock: vi.fn(),
-    subscribeToAuthClientEventsMock: vi.fn(),
-    useAccountProfileMock: vi.fn(),
-    useLocaleMock: vi.fn(),
-  };
-});
+const { getPathnameMock, subscribeToAuthClientEventsMock, useAccountProfileMock, useLocaleMock } =
+  vi.hoisted(function hoistApplicationAuthSyncMocks() {
+    return {
+      getPathnameMock: vi.fn(),
+      subscribeToAuthClientEventsMock: vi.fn(),
+      useAccountProfileMock: vi.fn(),
+      useLocaleMock: vi.fn(),
+    };
+  });
 
 vi.mock("next-intl", function mockNextIntl() {
   return {
@@ -194,7 +190,6 @@ describe("application auth sync", function describeApplicationAuthSync() {
       expect(fetchMock).toHaveBeenCalledTimes(2);
     });
   });
-
 });
 
 function createProfileSnapshot() {

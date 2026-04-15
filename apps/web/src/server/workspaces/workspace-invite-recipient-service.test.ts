@@ -25,7 +25,10 @@ vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceReposi
 
 vi.mock("@/server/workspaces/workspace-mappers", function mockWorkspaceMappers() {
   return {
-    mapWorkspaceSummary: vi.fn(function mapWorkspaceSummary(_pb: PocketBase, workspace: WorkspacesRecord) {
+    mapWorkspaceSummary: vi.fn(function mapWorkspaceSummary(
+      _pb: PocketBase,
+      workspace: WorkspacesRecord
+    ) {
       return {
         id: workspace.id,
         name: workspace.name,

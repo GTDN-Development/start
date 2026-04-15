@@ -15,8 +15,8 @@
     "test:e2e:ui": "node ../../scripts/run-web-e2e.mjs --ui",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "next typegen && tsc --noEmit",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck",
+    "check-types": "next typegen && tsc --noEmit",
+    "check": "pnpm format:check && pnpm lint && pnpm check-types",
     "pocketbase:typegen": "node ./scripts/pocketbase-typegen.mjs"
   },
   "dependencies": {

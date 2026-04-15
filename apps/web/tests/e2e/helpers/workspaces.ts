@@ -20,10 +20,7 @@ export async function copySessionCookiesToAppOrigin(page: Page): Promise<void> {
   );
 }
 
-export async function acceptWorkspaceInvite(options: {
-  page: Page;
-  email: string;
-}): Promise<void> {
+export async function acceptWorkspaceInvite(options: { page: Page; email: string }): Promise<void> {
   const acceptButton = options.page.getByRole("button", {
     name: new RegExp(`^Pokračovat jako ${escapeRegExp(options.email)}$`),
   });

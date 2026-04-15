@@ -14,26 +14,44 @@
 
 ## Commands
 
+From `apps/web`, use the local app scripts:
+
 ```bash
 pnpm install
 pnpm dev
-pnpm dev:full
-pnpm local:up
+pnpm build
 pnpm lint
 pnpm lint:fix
+pnpm check-types
 pnpm check
 pnpm test
+pnpm test:watch
 pnpm test:e2e
-pnpm build
+pnpm test:e2e:ui
 pnpm format
 pnpm format:check
 pnpm pocketbase:typegen
+```
+
+Useful repository-root shortcuts:
+
+```bash
+pnpm dev
+pnpm dev:web
+pnpm dev:full
+pnpm build
+pnpm lint
+pnpm test
+pnpm check-types
+pnpm check
+pnpm local:up
 pnpm local:down
 ```
 
-Web commands can run from `apps/web` or from the repository root. `pnpm local:up` and
-`pnpm local:down` are repository-root commands for the persistent local PocketBase + Mailpit
-stack. `pnpm dev:full` is a repository-root shortcut for `pnpm local:up && pnpm dev`.
+`pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm test`, and `pnpm check-types` are workspace-wide
+Turbo commands from the repository root. `pnpm dev:web` keeps the focused web-only flow.
+`pnpm local:up` and `pnpm local:down` manage the persistent local PocketBase + Mailpit stack.
+`pnpm dev:full` is the repository-root shortcut for `pnpm local:up && pnpm dev`.
 
 ## Env
 
@@ -71,7 +89,7 @@ PocketBase typegen requires:
 
 Local testing uses `.env.test`.
 
-- `pnpm test` runs the Vitest suite once
+- `pnpm test` runs the Vitest suite once from `apps/web`; from the repository root it runs the workspace-wide Turbo test task
 - `pnpm test:watch` runs Vitest in watch mode
 - `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app with test env, runs Playwright, and tears the stack down again
 - `pnpm test:e2e:ui` is the same local stack with Playwright UI enabled
@@ -87,7 +105,8 @@ Local email defaults:
 Local stack contract:
 
 - `pnpm local:up` starts the persistent local PocketBase + Mailpit stack from the repository root and reapplies the local mail baseline
-- `pnpm dev` starts only the Next.js app
+- `pnpm dev` starts only the Next.js app from `apps/web`; from the repository root it runs the workspace-wide Turbo dev task
+- `pnpm dev:web` starts only the Next.js app from the repository root
 - `pnpm dev:full` is a repository-root shortcut for `pnpm local:up && pnpm dev`
 - `pnpm test:e2e` starts a fresh isolated stack and removes its Docker volume after the run
 - `pnpm local:down` stops the persistent local dev stack from the repository root
@@ -96,7 +115,8 @@ Local stack contract:
 
 - `pnpm format` / `pnpm format:check` run Prettier with `prettier-plugin-tailwindcss`
 - `pnpm lint` / `pnpm lint:fix` run ESLint with Next.js baseline rules plus project architectural guardrails
-- `pnpm check` runs format and lint checks together
+- `pnpm check-types` runs `next typegen` and TypeScript without emitting
+- `pnpm check` runs format, lint, and type checks together
 
 Conventions:
 

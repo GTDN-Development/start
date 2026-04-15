@@ -261,18 +261,17 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
   });
 
   it("uses the short TTL for session-only registration and heartbeat", async function testSessionOnlyTtl() {
-    const { pb, createSpy, getFirstListItemSpy, getFullListSpy, updateSpy } = createPocketBaseMock();
+    const { pb, createSpy, getFirstListItemSpy, getFullListSpy, updateSpy } =
+      createPocketBaseMock();
     const sessionToken = "session-only-token";
 
-    getFirstListItemSpy
-      .mockRejectedValueOnce(createClientResponseError(404))
-      .mockResolvedValueOnce(
-        createDeviceSessionRecord("session-current", {
-          sessionIdHash: hashSessionToken(sessionToken),
-          expiresAt: createFutureIso(DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS),
-          lastSeenAt: createPastIso(HEARTBEAT_MIN_SECONDS + 60),
-        })
-      );
+    getFirstListItemSpy.mockRejectedValueOnce(createClientResponseError(404)).mockResolvedValueOnce(
+      createDeviceSessionRecord("session-current", {
+        sessionIdHash: hashSessionToken(sessionToken),
+        expiresAt: createFutureIso(DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS),
+        lastSeenAt: createPastIso(HEARTBEAT_MIN_SECONDS + 60),
+      })
+    );
     getFullListSpy.mockResolvedValue([]);
 
     await registerOrRefreshDeviceSession({
