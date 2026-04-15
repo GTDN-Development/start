@@ -48,4 +48,14 @@ describe("verify email form", function describeVerifyEmailForm() {
     expect(screen.getByText("forms.verifyEmail.status.needsResend.message")).toBeDefined();
     expect(screen.getByRole("button", { name: "forms.verifyEmail.actions.resend" })).toBeDefined();
   });
+
+  it("does not repeat the verified status inside the form body", async function testVerifiedState() {
+    const { VerifyEmailForm } = await import("./verify-email-form");
+
+    render(<VerifyEmailForm email="user@example.com" result="verified" delivery="sent" />);
+
+    expect(screen.queryByText("forms.verifyEmail.status.verified.title")).toBeNull();
+    expect(screen.queryByText("forms.verifyEmail.status.verified.message")).toBeNull();
+    expect(screen.getByRole("button", { name: "forms.verifyEmail.actions.signIn" })).toBeDefined();
+  });
 });

@@ -66,30 +66,6 @@ export function VerifyEmailForm({
   return (
     <div {...props} className={cn("@container w-full", className)}>
       <div className="space-y-6">
-        {result === "verified" && (
-          <Alert>
-            <CheckCircle2Icon aria-hidden="true" className="size-4 text-emerald-600" />
-            <AlertTitle>{t("status.verified.title")}</AlertTitle>
-            <AlertDescription>{t("status.verified.message")}</AlertDescription>
-          </Alert>
-        )}
-
-        {result === "invalid" && (
-          <Alert variant="destructive">
-            <AlertCircleIcon aria-hidden="true" className="size-4" />
-            <AlertTitle>{t("status.invalid.title")}</AlertTitle>
-            <AlertDescription>{t("status.invalid.message")}</AlertDescription>
-          </Alert>
-        )}
-
-        {delivery === "needs_resend" && result === "pending" && (
-          <Alert>
-            <AlertCircleIcon aria-hidden="true" className="size-4" />
-            <AlertTitle>{t("status.needsResend.title")}</AlertTitle>
-            <AlertDescription>{t("status.needsResend.message")}</AlertDescription>
-          </Alert>
-        )}
-
         {email && result !== "verified" && (
           <div className="rounded-lg border border-dashed px-4 py-3 text-center">
             <p className="text-muted-foreground text-sm">{t("pending.emailLabel")}</p>
@@ -121,30 +97,43 @@ export function VerifyEmailForm({
           </Alert>
         )}
 
-        {result !== "verified" && email && (
-          <div className="grid gap-3">
-            <p className="text-muted-foreground text-sm">{t("pending.resendHint")}</p>
-
-            <Button
-              type="button"
-              size="lg"
-              className="w-full"
-              disabled={isSubmitting}
-              onClick={handleResendClick}
-            >
-              {isSubmitting ? <Spinner /> : <RefreshCwIcon aria-hidden="true" className="size-4" />}
-              {isSubmitting ? t("actions.resendPending") : t("actions.resend")}
-            </Button>
-          </div>
-        )}
-
         <div className="grid gap-3">
+          {result !== "verified" && email && (
+            <div className="grid gap-3">
+              {delivery === "needs_resend" && result === "pending" ? (
+                <div className="grid gap-1">
+                  <p className="text-sm font-medium text-destructive">
+                    {t("status.needsResend.title")}
+                  </p>
+                  <p className="text-muted-foreground text-sm">{t("status.needsResend.message")}</p>
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-sm">{t("pending.resendHint")}</p>
+              )}
+
+              <Button
+                type="button"
+                size="lg"
+                className="w-full"
+                disabled={isSubmitting}
+                onClick={handleResendClick}
+              >
+                {isSubmitting ? (
+                  <Spinner />
+                ) : (
+                  <RefreshCwIcon aria-hidden="true" className="size-4" />
+                )}
+                {isSubmitting ? t("actions.resendPending") : t("actions.resend")}
+              </Button>
+            </div>
+          )}
+
           <Button
             size="lg"
             nativeButton={false}
             variant="secondary"
             className="w-full"
-            render={<Link href={SIGN_IN_PATH} className="w-full" />}
+            render={<Link href={SIGN_IN_PATH} />}
           >
             {t("actions.signIn")}
           </Button>
@@ -155,7 +144,7 @@ export function VerifyEmailForm({
               variant="secondary"
               nativeButton={false}
               className="w-full"
-              render={<Link href={SIGN_UP_PATH} className="w-full" />}
+              render={<Link href={SIGN_UP_PATH} />}
             >
               {t("actions.signUp")}
             </Button>
