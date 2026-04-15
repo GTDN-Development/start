@@ -328,6 +328,7 @@ describe("auth-service", function describeAuthService() {
       ok: true,
       data: {
         created: true,
+        verificationEmailStatus: "sent",
       },
       setCookie: ["pb_auth=token", "pb_persist=0"],
     });
@@ -335,6 +336,46 @@ describe("auth-service", function describeAuthService() {
       sessionOnly: true,
     });
     expect(registerOrRefreshDeviceSession).not.toHaveBeenCalled();
+  });
+
+  it("returns needs_resend when verification email delivery fails during sign-up", async function testSignUpNeedsResend() {
+    const context = createAuthServiceContext();
+
+    context.usersCollection.create.mockResolvedValue(
+      createUserRecord("user-1", "user@example.com", {
+        verified: false,
+      })
+    );
+    context.usersCollection.requestVerification.mockRejectedValue(
+      new Error("mail transport unavailable")
+    );
+    context.usersCollection.authWithPassword.mockResolvedValue({
+      record: createUserRecord("user-1", "user@example.com", {
+        verified: false,
+      }),
+    });
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+
+    const response = await signUpWithPassword({
+      firstName: "Test",
+      lastName: "User",
+      email: "user@example.com",
+      password: "secret-password",
+    });
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        created: true,
+        verificationEmailStatus: "needs_resend",
+      },
+      setCookie: ["pb_auth=token", "pb_persist=0"],
+    });
+    expect(exportPocketBaseAuthCookies).toHaveBeenCalledWith(context.pb, {
+      sessionOnly: true,
+    });
+    expect(registerOrRefreshDeviceSession).not.toHaveBeenCalled();
+    expect(consoleWarnSpy).toHaveBeenCalled();
   });
 
   it("creates a custom device session after successful email verification", async function testConfirmEmailVerificationCreatesDeviceSession() {

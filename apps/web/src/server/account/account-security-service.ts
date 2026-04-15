@@ -82,15 +82,6 @@ export async function deleteCurrentUserAccountWithPassword(
       }
     }
 
-    for (const workspaceMembership of workspaceMemberships) {
-      await currentUser.pb.collection("workspace_members").delete(workspaceMembership.id);
-    }
-
-    await revokeAllDeviceSessions({
-      pb: currentUser.pb,
-      userId: currentUser.user.id,
-    });
-
     await currentUser.pb.collection("users").delete(currentUser.user.id);
 
     return {

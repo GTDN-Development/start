@@ -7,7 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { SIGN_IN_PATH, SIGN_UP_PATH } from "@/config/routes";
 import { requestEmailVerification } from "@/features/auth/auth-client";
-import type { VerifyEmailResultState } from "@/features/auth/verify-email/verify-email-state";
+import type {
+  VerifyEmailDeliveryState,
+  VerifyEmailResultState,
+} from "@/features/auth/verify-email/verify-email-state";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircle2Icon, RefreshCwIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,11 +18,18 @@ import { cn } from "@/lib/utils";
 type VerifyEmailFormProps = React.ComponentProps<"div"> & {
   email: string | null;
   result: VerifyEmailResultState;
+  delivery: VerifyEmailDeliveryState;
 };
 
 type ResendState = "resent" | "rate_limited" | "error" | null;
 
-export function VerifyEmailForm({ email, result, className, ...props }: VerifyEmailFormProps) {
+export function VerifyEmailForm({
+  email,
+  result,
+  delivery,
+  className,
+  ...props
+}: VerifyEmailFormProps) {
   const t = useTranslations("forms.verifyEmail");
 
   const [resendState, setResendState] = useState<ResendState>(null);
@@ -69,6 +79,14 @@ export function VerifyEmailForm({ email, result, className, ...props }: VerifyEm
             <AlertCircleIcon aria-hidden="true" className="size-4" />
             <AlertTitle>{t("status.invalid.title")}</AlertTitle>
             <AlertDescription>{t("status.invalid.message")}</AlertDescription>
+          </Alert>
+        )}
+
+        {delivery === "needs_resend" && result === "pending" && (
+          <Alert>
+            <AlertCircleIcon aria-hidden="true" className="size-4" />
+            <AlertTitle>{t("status.needsResend.title")}</AlertTitle>
+            <AlertDescription>{t("status.needsResend.message")}</AlertDescription>
           </Alert>
         )}
 

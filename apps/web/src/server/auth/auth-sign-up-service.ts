@@ -15,6 +15,7 @@ export async function signUpWithPassword(
 ): Promise<ServerAuthResponse<SignUpPayload>> {
   const { pb } = await createPocketBaseServerClient();
   let setCookie: string[] | undefined;
+  let verificationEmailStatus: SignUpPayload["verificationEmailStatus"] = "sent";
 
   try {
     await pb.collection("users").create<UsersRecord>({
@@ -27,6 +28,7 @@ export async function signUpWithPassword(
     try {
       await pb.collection("users").requestVerification(input.email);
     } catch (verificationError) {
+      verificationEmailStatus = "needs_resend";
       console.warn(
         "[auth-service] signUpWithPassword: requestVerification failed, user was created but verification email may not have been sent",
         formatServiceError(verificationError)
@@ -50,6 +52,7 @@ export async function signUpWithPassword(
       ok: true,
       data: {
         created: true,
+        verificationEmailStatus,
       },
       ...(setCookie ? { setCookie } : {}),
     };

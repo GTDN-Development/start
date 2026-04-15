@@ -1410,6 +1410,10 @@
           "title": "Ověřovací odkaz vypršel",
           "message": "Tento ověřovací odkaz je neplatný nebo vypršel."
         },
+        "needsResend": {
+          "title": "Ověřovací e-mail je potřeba poslat znovu",
+          "message": "První ověřovací e-mail se nepodařilo odeslat. Použijte opětovné odeslání a zkusíme to znovu."
+        },
         "resent": {
           "title": "Zkontrolujte e-mail",
           "message": "Pokud tato e-mailová adresa existuje a stále čeká na ověření, poslali jsme nový ověřovací e-mail."

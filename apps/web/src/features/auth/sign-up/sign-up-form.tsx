@@ -72,6 +72,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
         router.replace(
           createPendingVerifyEmailHref({
             email: value.email,
+            delivery: response.data.verificationEmailStatus,
           })
         );
         return;

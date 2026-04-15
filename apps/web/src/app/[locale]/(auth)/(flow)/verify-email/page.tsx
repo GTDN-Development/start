@@ -24,6 +24,7 @@ type VerifyEmailPageProps = {
     token?: string | string[];
     email?: string | string[];
     result?: string | string[];
+    delivery?: string | string[];
   }>;
 };
 
@@ -83,7 +84,7 @@ async function VerifyEmailPageContent({ params, searchParams }: VerifyEmailPageP
       </AuthHero>
 
       <div className="mt-6 pt-6">
-        <VerifyEmailForm email={state.email} result={state.result} />
+        <VerifyEmailForm email={state.email} result={state.result} delivery={state.delivery} />
       </div>
     </div>
   );

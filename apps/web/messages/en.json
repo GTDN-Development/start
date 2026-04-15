@@ -1410,6 +1410,10 @@
           "title": "Verification link expired",
           "message": "This verification link is invalid or expired."
         },
+        "needsResend": {
+          "title": "Verification email still needs to be sent",
+          "message": "We couldn't send the first verification email. Use resend and we'll try again."
+        },
         "resent": {
           "title": "Check your inbox",
           "message": "If this email address exists and still needs verification, we've sent a new verification email."

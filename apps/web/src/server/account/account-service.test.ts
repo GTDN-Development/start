@@ -87,7 +87,7 @@ describe("account-service", function describeAccountService() {
     expect(currentUser.usersCollection.delete).not.toHaveBeenCalled();
   });
 
-  it("deletes memberships and clears cookies when account deletion succeeds", async function testDeleteHappyPath() {
+  it("deletes the user record and clears cookies when account deletion succeeds", async function testDeleteHappyPath() {
     const currentUser = createCurrentUserContext();
     const memberships = [
       createWorkspaceMemberRecord("membership-owner", currentUser.user.id, "owner"),
@@ -110,19 +110,8 @@ describe("account-service", function describeAccountService() {
       },
       setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
-    expect(currentUser.workspaceMembersCollection.delete).toHaveBeenCalledTimes(2);
-    expect(currentUser.workspaceMembersCollection.delete).toHaveBeenNthCalledWith(
-      1,
-      "membership-owner"
-    );
-    expect(currentUser.workspaceMembersCollection.delete).toHaveBeenNthCalledWith(
-      2,
-      "membership-member"
-    );
-    expect(revokeAllDeviceSessions).toHaveBeenCalledWith({
-      pb: currentUser.pb,
-      userId: currentUser.user.id,
-    });
+    expect(currentUser.workspaceMembersCollection.delete).not.toHaveBeenCalled();
+    expect(revokeAllDeviceSessions).not.toHaveBeenCalled();
     expect(currentUser.usersCollection.delete).toHaveBeenCalledWith(currentUser.user.id);
   });
 

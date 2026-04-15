@@ -27,8 +27,11 @@ export type AuthSessionPayload = {
   session: AuthSession | null;
 };
 
+export type SignUpVerificationEmailStatus = "sent" | "needs_resend";
+
 export type SignUpPayload = {
   created: true;
+  verificationEmailStatus: SignUpVerificationEmailStatus;
 };
 
 export type AuthSignOutPayload = {

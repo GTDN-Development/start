@@ -3,23 +3,33 @@ import { VERIFY_EMAIL_COMPLETE_PATH, VERIFY_EMAIL_PATH } from "@/config/routes";
 import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
 
 export type VerifyEmailResultState = "pending" | "verified" | "invalid";
+export type VerifyEmailDeliveryState = "sent" | "needs_resend";
 
 export type VerifyEmailPageState = {
   token: string | null;
   email: string | null;
   result: VerifyEmailResultState;
+  delivery: VerifyEmailDeliveryState;
 };
 
 type VerifyEmailSearchParams = {
   token?: string | string[];
   email?: string | string[];
   result?: string | string[];
+  delivery?: string | string[];
 };
 
-export function createPendingVerifyEmailHref(input: { email: string }): AppHref {
+export function createPendingVerifyEmailHref(input: {
+  email: string;
+  delivery?: VerifyEmailDeliveryState;
+}): AppHref {
   const searchParams = new URLSearchParams({
     email: input.email.trim().toLowerCase(),
   });
+
+  if (input.delivery === "needs_resend") {
+    searchParams.set("delivery", input.delivery);
+  }
 
   return `${VERIFY_EMAIL_PATH}?${searchParams.toString()}` as AppHref;
 }
@@ -60,11 +70,13 @@ export function parseVerifyEmailPageState(
   const token = parseAuthFlowToken(searchParams.token);
   const email = getSingleQueryValue(searchParams.email);
   const result = parseVerifyEmailResult(searchParams.result) ?? (email ? "pending" : "invalid");
+  const delivery = parseVerifyEmailDelivery(searchParams.delivery) ?? "sent";
 
   return {
     token,
     email,
     result,
+    delivery,
   };
 }
 
@@ -94,6 +106,18 @@ function parseVerifyEmailResult(
     normalizedValue === "verified" ||
     normalizedValue === "invalid"
   ) {
+    return normalizedValue;
+  }
+
+  return null;
+}
+
+function parseVerifyEmailDelivery(
+  value: string | string[] | undefined
+): VerifyEmailDeliveryState | null {
+  const normalizedValue = getSingleQueryValue(value);
+
+  if (normalizedValue === "sent" || normalizedValue === "needs_resend") {
     return normalizedValue;
   }
 
