@@ -87,7 +87,7 @@ Local email defaults:
 Local stack contract:
 
 - `pnpm local:up` starts the persistent local PocketBase + Mailpit stack from the repository root and reapplies the local mail baseline
-- `pnpm dev` starts only the Next.js app in webpack dev mode
+- `pnpm dev` starts only the Next.js app
 - `pnpm dev:full` is a repository-root shortcut for `pnpm local:up && pnpm dev`
 - `pnpm test:e2e` starts a fresh isolated stack and removes its Docker volume after the run
 - `pnpm local:down` stops the persistent local dev stack from the repository root

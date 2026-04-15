@@ -39,7 +39,7 @@ function main() {
 
 function getNextArgs(mode) {
   if (mode === "build") {
-    return ["build", "--turbopack"];
+    return ["build"];
   }
 
   return ["start"];

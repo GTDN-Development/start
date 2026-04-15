@@ -55,7 +55,7 @@ is an optional shortcut for `pnpm local:up && pnpm dev`.
 ## Dev/Test Mail Flow
 
 - `pnpm local:up` starts the persistent local PocketBase + Mailpit Docker stack and reapplies the local mail baseline
-- `pnpm dev` starts only the Next.js app in webpack dev mode
+- `pnpm dev` starts only the Next.js app
 - `pnpm dev:full` is a convenience shortcut that runs `pnpm local:up` and then `pnpm dev`
 - `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app, and runs Playwright against it
 - `pnpm local:down` stops the persistent local dev stack
