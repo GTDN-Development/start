@@ -7,13 +7,13 @@ import { Container } from "@/components/ui/container";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { SocialMediaIcons } from "@/components/brand/social-media-icons";
 import { LocalizedNavLink } from "@/components/layout/localized-nav-link";
-import { NavLink } from "@/components/layout/nav-link";
+import { NavLink, resolveNavLinkState } from "@/components/layout/nav-link";
 import {
-  isNested,
   legalItems,
   marketingMenu,
   type MenuItem,
   type MenuLabelKey,
+  type MenuLink,
 } from "@/config/menu";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 import {
@@ -30,6 +30,7 @@ import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { formatPhoneNumber } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
+import { useBrowserPathnameState } from "@/hooks/use-browser-pathname-state";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;
 
@@ -37,21 +38,41 @@ const COPYRIGHT_YEAR = new Date().getFullYear();
 
 function FooterNavigation({
   items,
+  locale,
   translate,
 }: {
   items: MenuItem[];
+  locale: Locale;
   translate: TranslateNavigationLabel;
 }) {
+  const { pathname } = useBrowserPathnameState();
+
+  function isCurrentGroup(item: Extract<MenuItem, { items: MenuLink[] }>) {
+    return item.items.some(function matchesGroupChild(subItem) {
+      return resolveNavLinkState({
+        href: subItem.href,
+        locale,
+        pathname,
+        matchNested: subItem.matchNested,
+      }).isCurrent;
+    });
+  }
+
   return (
     <ul className="flex flex-col gap-2">
       {items.map((item) => {
-        if (isNested(item)) {
+        if ("items" in item) {
           return (
             <DropdownMenu key={item.labelKey}>
               <li>
                 <DropdownMenuTrigger
                   render={
-                    <button className="text-muted-foreground hover:text-foreground flex items-center justify-start gap-3 text-sm transition-colors" />
+                    <button
+                      className={cn(
+                        "text-muted-foreground hover:text-foreground flex items-center justify-start gap-3 text-sm transition-colors",
+                        isCurrentGroup(item) && "text-foreground"
+                      )}
+                    />
                   }
                 >
                   {translate(item.labelKey)}
@@ -81,7 +102,7 @@ function FooterNavigation({
           <li key={item.href}>
             <NavLink
               href={item.href}
-              matchNested={item.href === "/blog" || item.href === "/contact"}
+              matchNested={item.matchNested}
               className="text-muted-foreground hover:text-foreground data-current:text-foreground text-sm transition-colors"
             >
               {translate(item.labelKey)}
@@ -124,7 +145,7 @@ export function MarketingFooter({
       <Container className="grid gap-x-10 gap-y-16 py-16 min-[24rem]:grid-cols-2 md:grid-cols-4 lg:grid-cols-4">
         <div className="flex flex-col items-start justify-start gap-7">
           <p className="font-heading text-sm font-semibold">{t("sections.navigation")}</p>
-          <FooterNavigation items={marketingMenu} translate={tNav} />
+          <FooterNavigation items={marketingMenu} locale={locale} translate={tNav} />
         </div>
 
         {accountSection}

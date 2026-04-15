@@ -37,13 +37,15 @@ export type MenuLinkLabelKey =
   | "termsOfService"
   | "cookiePolicy";
 
-export type MenuNestedLabelKey = "aboutApp";
+export type MenuNestedLabelKey = "aboutApp" | "legal";
 
 export type MenuLabelKey = MenuLinkLabelKey | MenuNestedLabelKey;
 
 export type MenuLink = {
   labelKey: MenuLinkLabelKey;
   href: MenuHref;
+  icon?: AppIcon;
+  matchNested?: boolean;
 };
 
 export type MenuNested = {
@@ -73,8 +75,8 @@ export const marketingMenu: MenuItem[] = [
     ],
   },
   { labelKey: "pricing", href: "/pricing" },
-  { labelKey: "blog", href: "/blog" },
-  { labelKey: "contact", href: "/contact" },
+  { labelKey: "blog", href: "/blog", matchNested: true },
+  { labelKey: "contact", href: "/contact", matchNested: true },
 ];
 
 export const personalApplicationMenu = [
@@ -115,12 +117,6 @@ export type PersonalApplicationMenuLink = (typeof personalApplicationMenu)[numbe
 export type WorkspaceApplicationMenuLink = (typeof workspaceApplicationMenu)[number];
 export type ApplicationMenuLink = PersonalApplicationMenuLink | WorkspaceApplicationMenuLink;
 
-export const applicationFooterMenu: MenuLink[] = [
-  { labelKey: "home", href: "/" },
-  { labelKey: "blog", href: "/blog" },
-  { labelKey: "contact", href: "/contact" },
-];
-
 export const authMenu: MenuLink[] = [
   { labelKey: "signIn", href: SIGN_IN_PATH },
   { labelKey: "signUp", href: "/sign-up" },
@@ -132,6 +128,9 @@ export const legalItems: MenuLink[] = [
   legalLinks.cookies,
 ];
 
-export function isNested(item: MenuItem): item is MenuNested {
-  return "items" in item;
-}
+export const applicationFooterMenu: MenuItem[] = [
+  { labelKey: "home", href: "/" },
+  { labelKey: "blog", href: "/blog", matchNested: true },
+  { labelKey: "contact", href: "/contact", matchNested: true },
+  { labelKey: "legal", items: legalItems },
+];
