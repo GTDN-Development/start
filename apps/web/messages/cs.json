@@ -236,6 +236,7 @@
       "description": "Zkontrolujte a potvrďte pozvánku do workspace.",
       "actions": {
         "accept": "Přijmout pozvánku",
+        "continueAs": "Pokračovat jako {email}",
         "signOutError": "Teď se nepodařilo odhlásit. Zkuste to prosím znovu."
       },
       "shared": {
@@ -244,7 +245,6 @@
       "dev": {
         "selectAriaLabel": "Náhled stavu pozvánky",
         "options": {
-          "loading": "loading",
           "auth_required": "auth_required",
           "accepting": "accepting",
           "success": "success",
@@ -288,7 +288,7 @@
         "email_mismatch": {
           "title": "E-mail nesouhlasí",
           "description": "Tato pozvánka byla odeslána na jinou e-mailovou adresu.",
-          "secondary": "Odhlaste se a pokračujte správným účtem.",
+          "secondary": "Odhlaste se a pokračujte správným účtem (<strong>{email}</strong>).",
           "cta": "Odhlásit se a pokračovat jiným účtem",
           "alert": {
             "title": "Použijte pozvaný účet",

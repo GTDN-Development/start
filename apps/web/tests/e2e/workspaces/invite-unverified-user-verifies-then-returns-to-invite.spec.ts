@@ -16,7 +16,7 @@ import {
   deleteSignedUpUsersByEmail,
   deleteWorkspaceGraph,
 } from "../helpers/pocketbase-test-admin";
-import { copySessionCookiesToAppOrigin } from "../helpers/workspaces";
+import { acceptWorkspaceInvite, copySessionCookiesToAppOrigin } from "../helpers/workspaces";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
 test("unverified invited user verifies email and returns to invite handling before acceptance", async ({
@@ -91,7 +91,7 @@ test("unverified invited user verifies email and returns to invite handling befo
     await expect(page.getByText(workspaceName)).toBeVisible();
 
     await copySessionCookiesToAppOrigin(page);
-    await page.getByRole("button", { name: "Přijmout pozvánku" }).click();
+    await acceptWorkspaceInvite({ page, email: invitedEmail });
 
     await expect(page).toHaveURL(new RegExp(`/cs/w/${workspaceSlug}/prehled$`));
   } finally {

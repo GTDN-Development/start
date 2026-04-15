@@ -58,6 +58,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
     locale: locale as Locale,
     namespace: "common.error",
   });
+
   const sessionResponse = await getServerAuthSession();
 
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
@@ -68,6 +69,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
     if (!validationResponse.ok) {
       return (
         <InviteStatePanel
+          state="error"
           title={t("states.error.title")}
           description={t("states.error.description")}
           action={
@@ -87,6 +89,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
     if (!validationResponse.data.isValid) {
       return (
         <InviteStatePanel
+          state="blocked"
           title={t("states.blocked.title")}
           description={t("states.blocked.description")}
           action={
@@ -123,6 +126,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
   if (!inspectResponse.ok) {
     return (
       <InviteStatePanel
+        state="error"
         title={t("states.error.title")}
         description={t("states.error.description")}
         action={
@@ -149,6 +153,8 @@ export default async function Page({ params }: InviteTokenPageProps) {
   if (inspectResponse.data.result.state === "pending") {
     return (
       <InviteStatePanel
+        state="pending"
+        workspace={inspectResponse.data.result.workspace}
         title={t("states.pending.title")}
         description={
           <>
@@ -160,20 +166,14 @@ export default async function Page({ params }: InviteTokenPageProps) {
                 ),
               })}
             </p>
-            <p>
-              {t.rich("shared.continueAs", {
-                email: session.user.email,
-                strong: (chunks) => (
-                  <strong className="text-foreground font-medium">{chunks}</strong>
-                ),
-              })}
-            </p>
           </>
         }
         action={
           <form action={acceptAction} method="post">
             <Button type="submit" size="lg" className="w-full">
-              {t("actions.accept")}
+              {t("actions.continueAs", {
+                email: session.user.email,
+              })}
             </Button>
           </form>
         }
@@ -184,17 +184,15 @@ export default async function Page({ params }: InviteTokenPageProps) {
   if (inspectResponse.data.result.state === "email_mismatch") {
     return (
       <InviteStatePanel
+        state="email_mismatch"
         title={t("states.email_mismatch.title")}
         description={
           <>
             <p>{t("states.email_mismatch.description")}</p>
-            <p>{t("states.email_mismatch.secondary")}</p>
             <p>
-              {t.rich("shared.continueAs", {
+              {t.rich("states.email_mismatch.secondary", {
                 email: session.user.email,
-                strong: (chunks) => (
-                  <strong className="text-foreground font-medium">{chunks}</strong>
-                ),
+                strong: renderStrong,
               })}
             </p>
           </>
@@ -212,6 +210,7 @@ export default async function Page({ params }: InviteTokenPageProps) {
 
   return (
     <InviteStatePanel
+      state="blocked"
       title={t("states.blocked.title")}
       description={t("states.blocked.description")}
       action={
@@ -226,4 +225,8 @@ export default async function Page({ params }: InviteTokenPageProps) {
       }
     />
   );
+}
+
+function renderStrong(chunks: React.ReactNode) {
+  return <strong className="text-foreground font-medium">{chunks}</strong>;
 }

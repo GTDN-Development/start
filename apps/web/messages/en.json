@@ -236,6 +236,7 @@
       "description": "Review and accept a workspace invitation.",
       "actions": {
         "accept": "Accept invitation",
+        "continueAs": "Continue as {email}",
         "signOutError": "We couldn't sign out right now. Please try again."
       },
       "shared": {
@@ -244,7 +245,6 @@
       "dev": {
         "selectAriaLabel": "Invite state preview",
         "options": {
-          "loading": "loading",
           "auth_required": "auth_required",
           "accepting": "accepting",
           "success": "success",
@@ -288,7 +288,7 @@
         "email_mismatch": {
           "title": "Email mismatch",
           "description": "This invitation was sent to a different email address.",
-          "secondary": "Sign out and continue with the correct account.",
+          "secondary": "Sign out and continue with the correct account (<strong>{email}</strong>).",
           "cta": "Sign out and continue with another account",
           "alert": {
             "title": "Use the invited account",

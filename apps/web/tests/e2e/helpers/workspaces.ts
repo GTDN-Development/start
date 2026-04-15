@@ -20,6 +20,18 @@ export async function copySessionCookiesToAppOrigin(page: Page): Promise<void> {
   );
 }
 
+export async function acceptWorkspaceInvite(options: {
+  page: Page;
+  email: string;
+}): Promise<void> {
+  const acceptButton = options.page.getByRole("button", {
+    name: new RegExp(`^Pokračovat jako ${escapeRegExp(options.email)}$`),
+  });
+
+  await expect(acceptButton).toBeVisible();
+  await acceptButton.click();
+}
+
 export async function changeWorkspaceMemberRole(options: {
   page: Page;
   memberIdentifier: string;
@@ -128,6 +140,10 @@ export async function deleteWorkspaceFromSettings(options: {
 
 function getWorkspaceMemberRow(page: Page, memberIdentifier: string) {
   return page.locator("tbody tr").filter({ hasText: memberIdentifier }).first();
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function openAlertDialog(

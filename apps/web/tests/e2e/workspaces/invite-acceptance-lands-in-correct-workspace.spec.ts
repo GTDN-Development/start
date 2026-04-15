@@ -11,6 +11,7 @@ import {
 } from "../helpers/pocketbase-test-admin";
 import { getRequiredTestEnv } from "../helpers/test-env";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
+import { acceptWorkspaceInvite } from "../helpers/workspaces";
 
 test("invited user accepts invite and lands in the correct workspace", async ({ page }) => {
   test.setTimeout(120_000);
@@ -53,7 +54,7 @@ test("invited user accepts invite and lands in the correct workspace", async ({ 
     await expect(page.getByText(workspaceName)).toBeVisible();
 
     await copySessionCookiesToLocalhost(page);
-    await page.getByRole("button", { name: "Přijmout pozvánku" }).click();
+    await acceptWorkspaceInvite({ page, email: invitedEmail });
 
     await expect(page).toHaveURL(new RegExp(`/cs/w/${workspaceSlug}/prehled$`));
   } finally {

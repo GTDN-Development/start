@@ -16,7 +16,7 @@ import {
 } from "../helpers/pocketbase-test-admin";
 import { getRequiredTestEnv } from "../helpers/test-env";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
-import { copySessionCookiesToAppOrigin } from "../helpers/workspaces";
+import { acceptWorkspaceInvite, copySessionCookiesToAppOrigin } from "../helpers/workspaces";
 
 test("pending invite overrides an otherwise valid active workspace after sign-in", async ({
   page,
@@ -96,7 +96,7 @@ test("pending invite overrides an otherwise valid active workspace after sign-in
     await expect(page.getByText(workspaceBName)).toBeVisible();
 
     await copySessionCookiesToAppOrigin(page);
-    await page.getByRole("button", { name: "Přijmout pozvánku" }).click();
+    await acceptWorkspaceInvite({ page, email: userEmail });
 
     await expect(page).toHaveURL(new RegExp(`/cs/w/${workspaceBSlug}/prehled$`));
   } finally {
