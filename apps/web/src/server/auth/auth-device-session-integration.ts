@@ -16,7 +16,18 @@ import {
 import { formatServiceError, isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
 import { exportPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
 
-type AuthDeviceSessionMode = "read" | "write";
+type ReadAuthDeviceSessionInput = {
+  pb: PocketBase;
+  userId: string;
+  mode: "read";
+};
+
+type WriteAuthDeviceSessionInput = {
+  pb: PocketBase;
+  userId: string;
+  mode: "write";
+  shouldPersistSession: boolean;
+};
 
 type ResolveCurrentAuthDeviceSessionResult =
   | {
@@ -39,11 +50,9 @@ type CreateAuthAndDeviceCookiesResult =
       setCookie: string[];
     };
 
-export async function resolveCurrentAuthDeviceSession(input: {
-  pb: PocketBase;
-  userId: string;
-  mode: AuthDeviceSessionMode;
-}): Promise<ResolveCurrentAuthDeviceSessionResult> {
+export async function resolveCurrentAuthDeviceSession(
+  input: ReadAuthDeviceSessionInput | WriteAuthDeviceSessionInput
+): Promise<ResolveCurrentAuthDeviceSessionResult> {
   const deviceSessionToken = await readDeviceSessionCookie();
 
   if (input.mode === "read") {
@@ -70,6 +79,7 @@ export async function resolveCurrentAuthDeviceSession(input: {
     userId: input.userId,
     deviceSessionToken,
     shouldUpdateHeartbeat: true,
+    shouldPersistSession: input.shouldPersistSession === true,
   });
 
   if (deviceSessionCheck.status === "invalid") {
@@ -111,7 +121,7 @@ export async function createAuthAndDeviceCookies(input: {
       pb: input.pb,
       userId: input.userId,
       sessionToken: nextDeviceSession.token,
-      rememberMe: input.rememberMe,
+      shouldPersistSession: input.rememberMe,
       requestHeaders,
     });
   } catch (error) {

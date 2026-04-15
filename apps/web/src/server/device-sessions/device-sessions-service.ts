@@ -6,6 +6,7 @@ import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/devi
 import { parseDeviceInfo } from "@/server/device-sessions/device-sessions-ua-parser";
 import {
   DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS,
+  DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS,
   HEARTBEAT_MIN_SECONDS,
   MAX_ACTIVE_SESSIONS,
   type DeviceSessionAuthCheckResult,
@@ -25,7 +26,7 @@ export async function registerOrRefreshDeviceSession(input: {
   pb: PocketBase;
   userId: string;
   sessionToken: string;
-  rememberMe: boolean;
+  shouldPersistSession: boolean;
   requestHeaders: Headers;
 }): Promise<void> {
   const sessionIdHash = hashSessionToken(input.sessionToken);
@@ -44,7 +45,7 @@ export async function registerOrRefreshDeviceSession(input: {
     os: parsedDeviceInfo.os,
     user_agent: userAgent,
     last_seen_at: nowIso,
-    expires_at: createExpiresAt(now),
+    expires_at: createExpiresAt(now, input.shouldPersistSession),
   };
 
   const existingSession = await findDeviceSessionByHash(input.pb, sessionIdHash);
@@ -76,6 +77,7 @@ export async function validateDeviceSessionOrInvalidate(input: {
   userId: string;
   deviceSessionToken: string | null;
   shouldUpdateHeartbeat: boolean;
+  shouldPersistSession: boolean;
 }): Promise<DeviceSessionAuthCheckResult> {
   const sessionState = await readDeviceSessionAuthState(input);
 
@@ -99,6 +101,7 @@ export async function validateDeviceSessionOrInvalidate(input: {
       pb: input.pb,
       session: sessionState.session,
       now: sessionState.now,
+      shouldPersistSession: input.shouldPersistSession,
     });
   }
 
@@ -370,6 +373,7 @@ async function updateDeviceHeartbeatIfNeeded(input: {
   pb: PocketBase;
   session: UserDeviceSessionsRecord;
   now: Date;
+  shouldPersistSession: boolean;
 }): Promise<boolean> {
   const lastSeenAtMs = parseDateToTimestamp(input.session.last_seen_at);
   const heartbeatThresholdMs = HEARTBEAT_MIN_SECONDS * 1000;
@@ -381,6 +385,7 @@ async function updateDeviceHeartbeatIfNeeded(input: {
   try {
     await input.pb.collection(DEVICE_SESSIONS_COLLECTION).update(input.session.id, {
       last_seen_at: input.now.toISOString(),
+      expires_at: createExpiresAt(input.now, input.shouldPersistSession),
     });
     return true;
   } catch (error) {
@@ -449,8 +454,12 @@ function parseDateToTimestamp(value: string | null | undefined): number | null {
   return parsedDate.getTime();
 }
 
-function createExpiresAt(now: Date): string {
-  return new Date(now.getTime() + DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS * 1000).toISOString();
+function createExpiresAt(now: Date, shouldPersistSession: boolean): string {
+  const maxAgeSeconds = shouldPersistSession
+    ? DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS
+    : DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS;
+
+  return new Date(now.getTime() + maxAgeSeconds * 1000).toISOString();
 }
 
 function getUserAgent(requestHeaders: Headers): string {

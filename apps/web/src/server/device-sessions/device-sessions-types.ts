@@ -4,6 +4,8 @@ import { securityConfig } from "@/config/security";
 export const DEVICE_SESSION_COOKIE_NAME = securityConfig.deviceSessions.cookieName;
 export const DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS =
   securityConfig.deviceSessions.persistentMaxAgeSeconds;
+export const DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS =
+  securityConfig.deviceSessions.sessionOnlyMaxAgeSeconds;
 export const HEARTBEAT_MIN_SECONDS = securityConfig.deviceSessions.heartbeatMinSeconds;
 export const MAX_ACTIVE_SESSIONS: number | null = securityConfig.deviceSessions.maxActiveSessions;
 

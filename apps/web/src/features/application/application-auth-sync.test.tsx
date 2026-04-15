@@ -194,6 +194,7 @@ describe("application auth sync", function describeApplicationAuthSync() {
       expect(fetchMock).toHaveBeenCalledTimes(2);
     });
   });
+
 });
 
 function createProfileSnapshot() {

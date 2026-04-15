@@ -107,6 +107,7 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
       pb: context.pb,
       userId: context.user.id,
       mode: "write",
+      shouldPersistSession: true,
     });
     expect(context.usersCollection.authRefresh).toHaveBeenCalledTimes(1);
     expect(context.usersCollection.getOne).not.toHaveBeenCalled();

@@ -122,6 +122,7 @@ export async function resolveWritableAuthenticatedUser(): Promise<ResolvedWritab
       pb,
       userId: authenticatedUser.id,
       mode: "write",
+      shouldPersistSession,
     });
 
     if (deviceSessionCheck.status === "invalid") {

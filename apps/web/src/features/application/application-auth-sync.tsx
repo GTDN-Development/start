@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useLocale } from "next-intl";
-import { AUTH_REDIRECTS } from "@/config/auth";
+import { AUTH_REDIRECTS, authConfig } from "@/config/auth";
 import { useAccountProfile } from "@/features/account/account-profile-context";
 import { subscribeToAuthClientEvents } from "@/features/auth/auth-client-events";
 import type { AuthSession, SessionResponse } from "@/features/auth/auth-types";
@@ -17,6 +17,7 @@ export function ApplicationAuthSync() {
   const { profile, patchProfile } = useAccountProfile();
   const hasRedirectedRef = useRef(false);
   const inFlightRef = useRef<Promise<void> | null>(null);
+  const intervalIdRef = useRef<number | null>(null);
   const lastCheckAtRef = useRef(0);
   const profileRef = useRef(profile);
   const patchProfileRef = useRef(patchProfile);
@@ -25,11 +26,35 @@ export function ApplicationAuthSync() {
   patchProfileRef.current = patchProfile;
 
   useMountEffect(function mountApplicationAuthSync() {
+    function stopInterval() {
+      if (intervalIdRef.current === null) {
+        return;
+      }
+
+      window.clearInterval(intervalIdRef.current);
+      intervalIdRef.current = null;
+    }
+
+    function startIntervalIfEligible() {
+      if (intervalIdRef.current !== null) {
+        return;
+      }
+
+      if (document.visibilityState !== "visible" || navigator.onLine === false) {
+        return;
+      }
+
+      intervalIdRef.current = window.setInterval(function recheckActiveTabSession() {
+        void recheckSession();
+      }, authConfig.session.activeTabRecheckIntervalMs);
+    }
+
     function redirectToSignIn() {
       if (hasRedirectedRef.current) {
         return;
       }
 
+      stopInterval();
       hasRedirectedRef.current = true;
 
       window.location.assign(
@@ -104,6 +129,7 @@ export function ApplicationAuthSync() {
         return;
       }
 
+      startIntervalIfEligible();
       void recheckSession({
         force: true,
       });
@@ -111,18 +137,26 @@ export function ApplicationAuthSync() {
 
     function handleVisibilityChange() {
       if (document.visibilityState !== "visible") {
+        stopInterval();
         return;
       }
 
+      startIntervalIfEligible();
       void recheckSession();
     }
 
     function handleWindowFocus() {
+      startIntervalIfEligible();
       void recheckSession();
     }
 
     function handleWindowOnline() {
+      startIntervalIfEligible();
       void recheckSession();
+    }
+
+    function handleWindowOffline() {
+      stopInterval();
     }
 
     const unsubscribeAuthEvents = subscribeToAuthClientEvents(handleAuthClientEvent);
@@ -130,16 +164,20 @@ export function ApplicationAuthSync() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("focus", handleWindowFocus);
     window.addEventListener("online", handleWindowOnline);
+    window.addEventListener("offline", handleWindowOffline);
 
+    startIntervalIfEligible();
     void recheckSession({
       force: true,
     });
 
     return function unmountApplicationAuthSync() {
+      stopInterval();
       unsubscribeAuthEvents();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("focus", handleWindowFocus);
       window.removeEventListener("online", handleWindowOnline);
+      window.removeEventListener("offline", handleWindowOffline);
     };
   });
 

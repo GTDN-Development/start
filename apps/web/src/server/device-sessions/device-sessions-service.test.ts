@@ -1,7 +1,12 @@
 import PocketBase, { ClientResponseError } from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UserDeviceSessionsRecord } from "@/types/pocketbase";
-import { MAX_ACTIVE_SESSIONS } from "@/server/device-sessions/device-sessions-types";
+import {
+  DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS,
+  DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS,
+  HEARTBEAT_MIN_SECONDS,
+  MAX_ACTIVE_SESSIONS,
+} from "@/server/device-sessions/device-sessions-types";
 
 vi.mock("@/server/device-sessions/device-sessions-ua-parser", function mockUaParser() {
   return {
@@ -17,6 +22,7 @@ import {
   revokeCurrentDeviceSession,
   revokeDeviceSessionById,
   revokeOtherDeviceSessions,
+  validateDeviceSessionOrInvalidate,
 } from "./device-sessions-service";
 
 describe("device-sessions-service", function describeDeviceSessionsService() {
@@ -221,7 +227,7 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       pb,
       userId: "user-1",
       sessionToken: "current-session-token",
-      rememberMe: true,
+      shouldPersistSession: true,
       requestHeaders: new Headers({
         "user-agent": "Mozilla/5.0",
       }),
@@ -248,6 +254,56 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       filter: 'user = "user-1"',
     });
     expect(deleteSpy.mock.calls).toEqual([["session-oldest"], ["session-expired"]]);
+    expectExpiresAtWithinTtl(
+      getExpiresAtFromCall(updateSpy, 1),
+      DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS
+    );
+  });
+
+  it("uses the short TTL for session-only registration and heartbeat", async function testSessionOnlyTtl() {
+    const { pb, createSpy, getFirstListItemSpy, getFullListSpy, updateSpy } = createPocketBaseMock();
+    const sessionToken = "session-only-token";
+
+    getFirstListItemSpy
+      .mockRejectedValueOnce(createClientResponseError(404))
+      .mockResolvedValueOnce(
+        createDeviceSessionRecord("session-current", {
+          sessionIdHash: hashSessionToken(sessionToken),
+          expiresAt: createFutureIso(DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS),
+          lastSeenAt: createPastIso(HEARTBEAT_MIN_SECONDS + 60),
+        })
+      );
+    getFullListSpy.mockResolvedValue([]);
+
+    await registerOrRefreshDeviceSession({
+      pb,
+      userId: "user-1",
+      sessionToken,
+      shouldPersistSession: false,
+      requestHeaders: new Headers({
+        "user-agent": "Mozilla/5.0",
+      }),
+    });
+
+    expect(createSpy).toHaveBeenCalledTimes(1);
+    expectExpiresAtWithinTtl(
+      getExpiresAtFromCall(createSpy, 0),
+      DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS
+    );
+
+    await validateDeviceSessionOrInvalidate({
+      pb,
+      userId: "user-1",
+      deviceSessionToken: sessionToken,
+      shouldUpdateHeartbeat: true,
+      shouldPersistSession: false,
+    });
+
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    expectExpiresAtWithinTtl(
+      getNthExpiresAtFromCall(updateSpy, 0, 1),
+      DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS
+    );
   });
 });
 
@@ -321,6 +377,37 @@ function createFutureIso(secondsFromNow: number): string {
 
 function createPastIso(secondsAgo: number): string {
   return new Date(Date.now() - secondsAgo * 1000).toISOString();
+}
+
+function expectExpiresAtWithinTtl(expiresAt: unknown, ttlSeconds: number) {
+  expect(typeof expiresAt).toBe("string");
+
+  const expiresAtMs = new Date(expiresAt as string).getTime();
+  const ttlMs = ttlSeconds * 1000;
+  const diffMs = expiresAtMs - Date.now();
+
+  expect(diffMs).toBeGreaterThanOrEqual(ttlMs - 2_000);
+  expect(diffMs).toBeLessThanOrEqual(ttlMs + 2_000);
+}
+
+function getExpiresAtFromCall(spy: ReturnType<typeof vi.fn>, payloadIndex: number) {
+  return getNthExpiresAtFromCall(spy, 0, payloadIndex);
+}
+
+function getNthExpiresAtFromCall(
+  spy: ReturnType<typeof vi.fn>,
+  callIndex: number,
+  payloadIndex: number
+) {
+  const payload = spy.mock.calls[callIndex]?.[payloadIndex];
+
+  expect(payload).toBeTruthy();
+
+  if (!payload || typeof payload !== "object" || !("expires_at" in payload)) {
+    throw new Error("Expected a write payload with expires_at");
+  }
+
+  return payload.expires_at;
 }
 
 function getMaxActiveSessionsForTest(): number {
