@@ -15,18 +15,12 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
-type SiteNavigationMenuProps = Omit<React.ComponentProps<typeof NavigationMenu>, "children"> & {
+type SiteNavigationMenuProps = {
   items: MenuItem[];
-  listClassName?: string;
-  contentListClassName?: string;
+  className?: string;
 };
 
-export function SiteNavigationMenu({
-  items,
-  listClassName,
-  contentListClassName,
-  ...props
-}: SiteNavigationMenuProps) {
+export function SiteNavigationMenu({ items, className }: SiteNavigationMenuProps) {
   const locale = useLocale();
   const tNav = useTranslations("layout.navigation.items");
   const { pathname } = useBrowserPathnameState();
@@ -43,22 +37,21 @@ export function SiteNavigationMenu({
   }
 
   return (
-    <NavigationMenu {...props}>
-      <NavigationMenuList className={listClassName}>
+    <NavigationMenu className="max-w-none flex-none">
+      <NavigationMenuList className={className}>
         {items.map((item) => {
           if ("items" in item) {
             return (
               <NavigationMenuItem key={item.labelKey}>
                 <NavigationMenuTrigger
                   className={cn(
-                    isCurrentGroup(item) &&
-                      "bg-muted/50 text-foreground hover:bg-muted focus:bg-muted"
+                    isCurrentGroup(item) && "bg-muted/50 text-foreground hover:bg-muted"
                   )}
                 >
                   {tNav(item.labelKey)}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <ul className={cn("flex flex-col gap-1", contentListClassName)}>
+                  <ul className="flex w-max flex-col gap-1">
                     {item.items.map((subItem) => (
                       <li key={subItem.href}>
                         <NavigationMenuLink

@@ -15,9 +15,7 @@ export function ApplicationFooter({ className, ...props }: React.ComponentProps<
         <nav aria-label={tFooter("sections.navigation")}>
           <SiteNavigationMenu
             items={applicationFooterMenu}
-            className="max-w-none flex-none"
-            listClassName="flex-wrap justify-center gap-1 sm:justify-start"
-            contentListClassName="min-w-56"
+            className="flex-wrap justify-center gap-1 sm:justify-start"
           />
         </nav>
 

@@ -51,12 +51,7 @@ export function MarketingHeader({
         {/* Center */}
         <div className="flex flex-1 items-center justify-center gap-4">
           <nav aria-label={t("menu.title")} className="hidden lg:block">
-            <SiteNavigationMenu
-              items={marketingMenu}
-              className="max-w-none flex-none"
-              listClassName="gap-1"
-              contentListClassName="min-w-56"
-            />
+            <SiteNavigationMenu items={marketingMenu} className="gap-1" />
           </nav>
         </div>
 
