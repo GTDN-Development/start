@@ -1,4 +1,4 @@
-import type PocketBase from "pocketbase";
+import PocketBase, { ClientResponseError } from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
 
@@ -30,7 +30,19 @@ vi.mock("@/server/workspaces/workspace-mappers", function mockWorkspaceMappers()
   };
 });
 
+vi.mock("@/server/workspaces/workspace-errors", async function mockWorkspaceErrors() {
+  const actual = await vi.importActual<typeof import("./workspace-errors")>(
+    "@/server/workspaces/workspace-errors"
+  );
+
+  return {
+    ...actual,
+    logWorkspaceServiceError: vi.fn(),
+  };
+});
+
 import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
+import { logWorkspaceServiceError } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
 import { resolveUniqueWorkspaceSlug } from "@/server/workspaces/workspace-normalization";
 import { ensureWorkspaceMembership } from "@/server/workspaces/workspace-repository";
@@ -42,8 +54,7 @@ describe("workspace-general-service", function describeWorkspaceGeneralService()
   });
 
   it("writes created_by when creating a workspace", async function testCreateWorkspaceWritesCreator() {
-    const createSpy = vi.fn().mockResolvedValue(createWorkspaceRecord());
-    const pb = createPocketBaseMock(createSpy);
+    const { pb, createSpy } = createPocketBaseMock();
     const user = createUserRecord("user-1", "user@example.com");
     const membership = createWorkspaceMembershipRecord("membership-1", user.id, "owner");
 
@@ -89,16 +100,131 @@ describe("workspace-general-service", function describeWorkspaceGeneralService()
       },
     });
   });
+
+  it("rolls back the created workspace when owner membership creation fails", async function testCreateWorkspaceMembershipRollback() {
+    const { pb, deleteSpy } = createPocketBaseMock();
+    const user = createUserRecord("user-1", "user@example.com");
+
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue({
+      ok: true,
+      context: {
+        pb,
+        user,
+      },
+    });
+    vi.mocked(resolveUniqueWorkspaceSlug).mockResolvedValue("team-space");
+    vi.mocked(ensureWorkspaceMembership).mockRejectedValue(createClientResponseError(403));
+
+    const response = await createWorkspaceForCurrentUser({
+      name: "Team Space",
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      errorCode: "FORBIDDEN",
+    });
+    expect(deleteSpy).toHaveBeenCalledWith("workspace-1");
+    expect(logWorkspaceServiceError).not.toHaveBeenCalled();
+  });
+
+  it("keeps the original membership error when rollback delete also fails", async function testCreateWorkspaceRollbackFailureLogging() {
+    const rollbackError = new Error("rollback failed");
+    const { pb, deleteSpy } = createPocketBaseMock({
+      deleteSpy: vi.fn().mockRejectedValue(rollbackError),
+    });
+    const user = createUserRecord("user-1", "user@example.com");
+
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue({
+      ok: true,
+      context: {
+        pb,
+        user,
+      },
+    });
+    vi.mocked(resolveUniqueWorkspaceSlug).mockResolvedValue("team-space");
+    vi.mocked(ensureWorkspaceMembership).mockRejectedValue(createClientResponseError(400));
+
+    const response = await createWorkspaceForCurrentUser({
+      name: "Team Space",
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      errorCode: "BAD_REQUEST",
+    });
+    expect(deleteSpy).toHaveBeenCalledWith("workspace-1");
+    expect(logWorkspaceServiceError).toHaveBeenCalledWith(
+      "rollbackWorkspaceAfterFailedMembership",
+      rollbackError
+    );
+  });
+
+  it("does not roll back the workspace when mapping fails after membership creation", async function testCreateWorkspaceMappingFailureDoesNotRollback() {
+    const { pb, deleteSpy } = createPocketBaseMock();
+    const user = createUserRecord("user-1", "user@example.com");
+    const membership = createWorkspaceMembershipRecord("membership-1", user.id, "owner");
+    const mappingError = new Error("mapping failed");
+
+    vi.mocked(requireWorkspaceActionContext).mockResolvedValue({
+      ok: true,
+      context: {
+        pb,
+        user,
+      },
+    });
+    vi.mocked(resolveUniqueWorkspaceSlug).mockResolvedValue("team-space");
+    vi.mocked(ensureWorkspaceMembership).mockResolvedValue(membership);
+    vi.mocked(mapUserWorkspaceSummary).mockImplementation(function throwMappingError() {
+      throw mappingError;
+    });
+
+    const response = await createWorkspaceForCurrentUser({
+      name: "Team Space",
+    });
+
+    expect(response).toEqual({
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+    });
+    expect(deleteSpy).not.toHaveBeenCalled();
+    expect(logWorkspaceServiceError).toHaveBeenCalledWith(
+      "createWorkspaceForCurrentUser",
+      mappingError
+    );
+  });
 });
 
-function createPocketBaseMock(createSpy: ReturnType<typeof vi.fn>): PocketBase {
-  return {
+function createPocketBaseMock(input?: {
+  createSpy?: ReturnType<typeof vi.fn>;
+  deleteSpy?: ReturnType<typeof vi.fn>;
+}) {
+  const createSpy = input?.createSpy ?? vi.fn().mockResolvedValue(createWorkspaceRecord());
+  const deleteSpy = input?.deleteSpy ?? vi.fn().mockResolvedValue(undefined);
+
+  const pb = {
     collection: vi.fn(function getCollection() {
       return {
         create: createSpy,
+        delete: deleteSpy,
       };
     }),
   } as unknown as PocketBase;
+
+  return {
+    pb,
+    createSpy,
+    deleteSpy,
+  };
+}
+
+function createClientResponseError(status: number) {
+  const error = new ClientResponseError({
+    url: "https://example.com/api/collections/workspaces/records/workspace-1",
+    status,
+    response: {},
+  });
+  error.status = status;
+  return error;
 }
 
 function createUserRecord(id: string, email: string): UsersRecord {

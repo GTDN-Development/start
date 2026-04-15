@@ -1,3 +1,4 @@
+import type PocketBase from "pocketbase";
 import { toWorkspaceSlug } from "@/features/workspaces/workspace-slug";
 import type { WorkspacesRecord } from "@/types/pocketbase";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
@@ -56,12 +57,19 @@ export async function createWorkspaceForCurrentUser(
         kind: "organization",
         created_by: currentUser.context.user.id,
       });
-    const membership = await ensureWorkspaceMembership(
-      currentUser.context.pb,
-      workspace.id,
-      currentUser.context.user.id,
-      "owner"
-    );
+    let membership: Awaited<ReturnType<typeof ensureWorkspaceMembership>>;
+
+    try {
+      membership = await ensureWorkspaceMembership(
+        currentUser.context.pb,
+        workspace.id,
+        currentUser.context.user.id,
+        "owner"
+      );
+    } catch (error) {
+      await rollbackWorkspaceAfterFailedMembership(currentUser.context.pb, workspace.id);
+      throw error;
+    }
 
     return {
       ok: true,
@@ -240,5 +248,16 @@ export async function deleteWorkspaceForCurrentUser(
       ok: false,
       errorCode,
     };
+  }
+}
+
+async function rollbackWorkspaceAfterFailedMembership(
+  pb: PocketBase,
+  workspaceId: string
+): Promise<void> {
+  try {
+    await pb.collection("workspaces").delete(workspaceId);
+  } catch (error) {
+    logWorkspaceServiceError("rollbackWorkspaceAfterFailedMembership", error);
   }
 }

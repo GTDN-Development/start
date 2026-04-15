@@ -68,7 +68,11 @@ vi.mock(
   }
 );
 
-import { updateWorkspaceGeneralAction } from "./workspace-general-actions";
+import {
+  deleteWorkspaceAction,
+  leaveWorkspaceAction,
+  updateWorkspaceGeneralAction,
+} from "./workspace-general-actions";
 
 describe("workspace-general-actions", function describeWorkspaceGeneralActions() {
   beforeEach(function resetMocks() {
@@ -192,6 +196,146 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
     expect(setActiveWorkspaceSlugCookie).toHaveBeenCalledWith("renamed-space");
     expect(revalidatePath).toHaveBeenCalledTimes(4);
   });
+
+  it.each([
+    {
+      name: "leave",
+      action: leaveWorkspaceAction,
+      resolveSuccess: function resolveSuccess() {
+        vi.mocked(leaveWorkspaceForCurrentUser).mockResolvedValue(createLeaveWorkspaceResponse());
+      },
+      resolveFailure: function resolveFailure() {
+        vi.mocked(leaveWorkspaceForCurrentUser).mockResolvedValue({
+          ok: false,
+          errorCode: "FORBIDDEN",
+        });
+      },
+      successResponse: {
+        ok: true as const,
+        data: {
+          left: true as const,
+        },
+      },
+    },
+    {
+      name: "delete",
+      action: deleteWorkspaceAction,
+      resolveSuccess: function resolveSuccess() {
+        vi.mocked(deleteWorkspaceForCurrentUser).mockResolvedValue(createDeleteWorkspaceResponse());
+      },
+      resolveFailure: function resolveFailure() {
+        vi.mocked(deleteWorkspaceForCurrentUser).mockResolvedValue({
+          ok: false,
+          errorCode: "FORBIDDEN",
+        });
+      },
+      successResponse: {
+        ok: true as const,
+        data: {
+          deleted: true as const,
+        },
+      },
+    },
+  ])(
+    "clears the active workspace cookie after successful $name when the slug matches",
+    async function testActiveWorkspaceCleanupOnMatch(input) {
+      input.resolveSuccess();
+      vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue("team-space");
+
+      const response = await input.action("team-space");
+
+      expect(response).toEqual(input.successResponse);
+      expect(getActiveWorkspaceSlugCookie).toHaveBeenCalledTimes(1);
+      expect(clearActiveWorkspaceSlugCookie).toHaveBeenCalledTimes(1);
+      expect(revalidatePath).toHaveBeenCalledWith("/app");
+    }
+  );
+
+  it.each([
+    {
+      name: "leave",
+      action: leaveWorkspaceAction,
+      resolveSuccess: function resolveSuccess() {
+        vi.mocked(leaveWorkspaceForCurrentUser).mockResolvedValue(createLeaveWorkspaceResponse());
+      },
+      successResponse: {
+        ok: true as const,
+        data: {
+          left: true as const,
+        },
+      },
+    },
+    {
+      name: "delete",
+      action: deleteWorkspaceAction,
+      resolveSuccess: function resolveSuccess() {
+        vi.mocked(deleteWorkspaceForCurrentUser).mockResolvedValue(createDeleteWorkspaceResponse());
+      },
+      successResponse: {
+        ok: true as const,
+        data: {
+          deleted: true as const,
+        },
+      },
+    },
+  ])(
+    "does not clear the active workspace cookie after successful $name when the slug does not match or is missing",
+    async function testActiveWorkspaceCleanupSkip(input) {
+      input.resolveSuccess();
+
+      for (const activeWorkspaceSlug of ["active-space", null] as const) {
+        vi.clearAllMocks();
+        vi.mocked(applyServerActionAuthCookies).mockResolvedValue(undefined);
+        input.resolveSuccess();
+        vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue(activeWorkspaceSlug);
+
+        const response = await input.action("team-space");
+
+        expect(response).toEqual(input.successResponse);
+        expect(getActiveWorkspaceSlugCookie).toHaveBeenCalledTimes(1);
+        expect(clearActiveWorkspaceSlugCookie).not.toHaveBeenCalled();
+        expect(revalidatePath).toHaveBeenCalledWith("/app");
+      }
+    }
+  );
+
+  it.each([
+    {
+      name: "leave",
+      action: leaveWorkspaceAction,
+      resolveFailure: function resolveFailure() {
+        vi.mocked(leaveWorkspaceForCurrentUser).mockResolvedValue({
+          ok: false,
+          errorCode: "FORBIDDEN",
+        });
+      },
+    },
+    {
+      name: "delete",
+      action: deleteWorkspaceAction,
+      resolveFailure: function resolveFailure() {
+        vi.mocked(deleteWorkspaceForCurrentUser).mockResolvedValue({
+          ok: false,
+          errorCode: "FORBIDDEN",
+        });
+      },
+    },
+  ])(
+    "does not read or clear the active workspace cookie when $name fails",
+    async function testActiveWorkspaceCleanupFailure(input) {
+      input.resolveFailure();
+
+      const response = await input.action("team-space");
+
+      expect(response).toEqual({
+        ok: false,
+        errorCode: "FORBIDDEN",
+      });
+      expect(getActiveWorkspaceSlugCookie).not.toHaveBeenCalled();
+      expect(clearActiveWorkspaceSlugCookie).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
+    }
+  );
 });
 
 function createUpdateWorkspaceResponse(input: {
@@ -212,6 +356,24 @@ function createUpdateWorkspaceResponse(input: {
         membershipId: "membership-1",
         role: "owner" as const,
       },
+    },
+  };
+}
+
+function createLeaveWorkspaceResponse() {
+  return {
+    ok: true as const,
+    data: {
+      left: true as const,
+    },
+  };
+}
+
+function createDeleteWorkspaceResponse() {
+  return {
+    ok: true as const,
+    data: {
+      deleted: true as const,
     },
   };
 }

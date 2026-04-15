@@ -131,6 +131,7 @@ export async function leaveWorkspaceAction(
   }
 
   const response = await deleteActiveWorkspaceCookieAfterSuccess(
+    parsedWorkspaceSlug.data,
     await leaveWorkspaceForCurrentUser(parsedWorkspaceSlug.data)
   );
 
@@ -147,6 +148,7 @@ export async function deleteWorkspaceAction(
   }
 
   const response = await deleteActiveWorkspaceCookieAfterSuccess(
+    parsedWorkspaceSlug.data,
     await deleteWorkspaceForCurrentUser(parsedWorkspaceSlug.data)
   );
 
@@ -154,12 +156,20 @@ export async function deleteWorkspaceAction(
 }
 
 async function deleteActiveWorkspaceCookieAfterSuccess<TData>(
+  workspaceSlug: string,
   response: ServerWorkspaceResponse<TData>
 ) {
-  if (response.ok) {
-    await clearActiveWorkspaceSlugCookie();
-    revalidatePath(APP_HOME_PATH);
+  if (!response.ok) {
+    return response;
   }
+
+  const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
+
+  if (activeWorkspaceSlug === workspaceSlug) {
+    await clearActiveWorkspaceSlugCookie();
+  }
+
+  revalidatePath(APP_HOME_PATH);
 
   return response;
 }
