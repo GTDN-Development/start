@@ -289,7 +289,8 @@
         "email_mismatch": {
           "title": "E-mail nesouhlasí",
           "description": "Tato pozvánka byla odeslána na jinou e-mailovou adresu.",
-          "secondary": "Odhlaste se a pokračujte správným účtem (<strong>{email}</strong>).",
+          "secondary": "Odhlaste se a pokračujte správným účtem.",
+          "currentEmail": "Aktuálně jste přihlášení jako <strong>{email}</strong>.",
           "cta": "Odhlásit se a pokračovat jiným účtem",
           "alert": {
             "title": "Použijte pozvaný účet",

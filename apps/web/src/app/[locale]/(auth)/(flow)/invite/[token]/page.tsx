@@ -189,8 +189,9 @@ export default async function Page({ params }: InviteTokenPageProps) {
         description={
           <>
             <p>{t("states.email_mismatch.description")}</p>
+            <p>{t("states.email_mismatch.secondary")}</p>
             <p>
-              {t.rich("states.email_mismatch.secondary", {
+              {t.rich("states.email_mismatch.currentEmail", {
                 email: session.user.email,
                 strong: renderStrong,
               })}

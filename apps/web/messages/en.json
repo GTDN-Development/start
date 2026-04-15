@@ -289,7 +289,8 @@
         "email_mismatch": {
           "title": "Email mismatch",
           "description": "This invitation was sent to a different email address.",
-          "secondary": "Sign out and continue with the correct account (<strong>{email}</strong>).",
+          "secondary": "Sign out and continue with the correct account.",
+          "currentEmail": "You're currently signed in as <strong>{email}</strong>.",
           "cta": "Sign out and continue with another account",
           "alert": {
             "title": "Use the invited account",
