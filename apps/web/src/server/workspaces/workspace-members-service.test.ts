@@ -1,12 +1,12 @@
 import PocketBase, { ClientResponseError } from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
-import { requireWorkspaceActionMembershipContext } from "@/server/workspaces/workspace-membership-context";
 import {
   countWorkspaceOwners,
   findWorkspaceMemberById,
   listWorkspaceMemberRecordsByWorkspace,
 } from "@/server/workspaces/workspace-repository";
+import { requireWorkspaceActionMembershipContext } from "@/server/workspaces/workspace-resolution-service";
 import {
   changeWorkspaceMemberRoleForCurrentUser,
   leaveWorkspaceForCurrentUser,
@@ -15,8 +15,8 @@ import {
 } from "./workspace-members-service";
 
 vi.mock(
-  "@/server/workspaces/workspace-membership-context",
-  function mockWorkspaceMembershipContext() {
+  "@/server/workspaces/workspace-resolution-service",
+  function mockWorkspaceResolutionService() {
     return {
       requireWorkspaceActionMembershipContext: vi.fn(),
       requireWorkspaceMembershipContext: vi.fn(),

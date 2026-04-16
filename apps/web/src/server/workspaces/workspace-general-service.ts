@@ -2,13 +2,11 @@ import type PocketBase from "pocketbase";
 import { toWorkspaceSlug } from "@/features/workspaces/workspace-slug";
 import type { WorkspacesRecord } from "@/types/pocketbase";
 import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase/pocketbase-utils";
-import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
 } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
-import { requireWorkspaceActionMembershipContext } from "@/server/workspaces/workspace-membership-context";
 import {
   normalizeWorkspaceName,
   resolveUniqueWorkspaceSlug,
@@ -17,6 +15,10 @@ import {
   ensureWorkspaceMembership,
   findWorkspaceBySlug,
 } from "@/server/workspaces/workspace-repository";
+import {
+  requireWorkspaceActionContext,
+  requireWorkspaceActionMembershipContext,
+} from "@/server/workspaces/workspace-resolution-service";
 import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
 
 export type CreateWorkspaceInput = {

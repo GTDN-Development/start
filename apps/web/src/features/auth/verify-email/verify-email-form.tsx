@@ -6,13 +6,14 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { SIGN_IN_PATH, SIGN_UP_PATH } from "@/config/routes";
-import { requestEmailVerification } from "@/features/auth/auth-client";
+import { requestEmailVerificationAction } from "@/features/auth/auth-actions";
 import type {
   VerifyEmailDeliveryState,
   VerifyEmailResultState,
 } from "@/features/auth/verify-email/verify-email-state";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertCircleIcon, CheckCircle2Icon, RefreshCwIcon } from "lucide-react";
+import { runAsyncTransition } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 
 type VerifyEmailFormProps = React.ComponentProps<"div"> & {
@@ -43,9 +44,11 @@ export function VerifyEmailForm({
     setIsSubmitting(true);
     setResendState(null);
 
-    const response = await requestEmailVerification({
-      email,
-    });
+    const response = await runAsyncTransition(() =>
+      requestEmailVerificationAction({
+        email,
+      })
+    );
 
     if (response.ok) {
       setResendState("resent");

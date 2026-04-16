@@ -2,12 +2,15 @@ import PocketBase, { ClientResponseError } from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
 
-vi.mock("@/server/workspaces/workspace-auth-context", function mockWorkspaceAuthContext() {
-  return {
-    requireWorkspaceActionContext: vi.fn(),
-    requireWorkspaceAuthContext: vi.fn(),
-  };
-});
+vi.mock(
+  "@/server/workspaces/workspace-resolution-service",
+  function mockWorkspaceResolutionService() {
+    return {
+      requireWorkspaceActionContext: vi.fn(),
+      requireWorkspaceActionMembershipContext: vi.fn(),
+    };
+  }
+);
 
 vi.mock("@/server/workspaces/workspace-normalization", function mockWorkspaceNormalization() {
   return {
@@ -41,11 +44,11 @@ vi.mock("@/server/workspaces/workspace-errors", async function mockWorkspaceErro
   };
 });
 
-import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-auth-context";
 import { logWorkspaceServiceError } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
 import { resolveUniqueWorkspaceSlug } from "@/server/workspaces/workspace-normalization";
 import { ensureWorkspaceMembership } from "@/server/workspaces/workspace-repository";
+import { requireWorkspaceActionContext } from "@/server/workspaces/workspace-resolution-service";
 import { createWorkspaceForCurrentUser } from "./workspace-general-service";
 
 describe("workspace-general-service", function describeWorkspaceGeneralService() {

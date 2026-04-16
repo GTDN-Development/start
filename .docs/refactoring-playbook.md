@@ -116,7 +116,7 @@ That pattern is visible in several places, especially:
 - workspace members settings: [page.tsx](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/(application-shell)/w/[workspaceSlug]/settings/members/page.tsx>), [workspace-members-settings-section.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-settings-section.tsx), [workspace-members-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-actions.ts), [workspace-members-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-members-service.ts)
 - workspace general settings: [workspace-general-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts), [workspace-general-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-general-service.ts)
 - auth and account actions: [auth-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-actions.ts), [account-profile-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/account/profile/account-profile-actions.ts), [account-security-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/account/security/account-security-actions.ts)
-- screen-level client orchestrators: [workspace-members-management-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-management-settings-item.tsx), [your-devices-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/account/security/your-devices-settings-item.tsx)
+- screen-level client orchestrators: [workspace-members-settings-section.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-settings-section.tsx), [your-devices-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/account/security/your-devices-settings-item.tsx)
 
 ## External Principles We Adopt
 
@@ -322,6 +322,35 @@ Examples:
 - [auth-system.md](/Users/fanda/Dev/start/.docs/auth-system.md)
 - [workspace-system.md](/Users/fanda/Dev/start/.docs/workspace-system.md)
 
+Auth-specific boundary rule:
+
+- treat device sessions as auth infrastructure, not as a separate platform domain
+- keep current-user resolution and low-level device-session operations in the same auth-owned server boundary
+- feature files may finalize auth responses and choose UI behavior, but they should not combine auth guards with direct device-session service calls
+
+Workspace access boundary rule:
+
+- workspace route loaders should resolve auth, membership, and active-workspace access through one workspace-owned access boundary
+- route handlers own redirect and cookie-write decisions
+- render-time pages and layouts may read cookies through that boundary, but they must not mutate them
+
+Workspace settings ownership rule:
+
+- workspace settings screens become client-owned after their initial route load
+- the shared application workspace snapshot is a navigation boundary, not owner screen state
+- do not combine local screen patching with broad route invalidation for the same settings surface
+
+Account profile boundary rule:
+
+- the shared account profile snapshot belongs to the application boundary, not to individual account forms
+- shared account profile updates must use explicit full-snapshot replacement, not partial merge helpers
+- session rechecks may refresh that snapshot, but they should not own page-level account orchestration
+
+Session cleanup rule:
+
+- session-scoped application cleanup belongs in a server-only helper
+- shell composition may compute navigation and initial state, but it must not own sign-out or account-deletion cleanup side effects
+
 ### Preserve tests that cover real business risk
 
 Keep tests that protect:
@@ -379,6 +408,7 @@ A screen must choose one primary owner for mutable state:
 
 - either server-driven with revalidation and no client mirror state
 - or client-owned after load, with local patching and no broad revalidation for the same surface
+- the application workspace snapshot may support navigation updates, but it must not become the owner of a settings screen's local state
 
 Do not keep both models for the same interaction path.
 
@@ -470,6 +500,11 @@ If config imports feature constants, move those constants:
 
 Current smell example: [legal.ts](/Users/fanda/Dev/start/apps/web/src/config/legal.ts)
 
+Practical rule:
+
+- cookie, locale, env, and similar low-level runtime contracts should live under `src/config/**` or another lower-level shared module
+- feature files may consume those contracts, but config files should not reach upward into feature-owned modules
+
 ### 9. Prefer one response adapter per response family
 
 Auth already has a shared adapter in [auth-response.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-response.ts).
@@ -481,6 +516,22 @@ Workspace flows should converge on the same level of reuse instead of repeating:
 - apply auth cookies
 - map to client response
 - optionally revalidate
+
+Response helpers may:
+
+- commit auth cookies
+- convert server responses into client action responses
+- run explicit caller-owned success hooks when the action file passes them in
+
+Response helpers must not:
+
+- decide mutation ownership for a screen
+- hide route invalidation policy inside a generic abstraction
+
+Practical rule:
+
+- action files own `revalidatePath()` decisions
+- if a screen already owns local patching after load, do not add broad route invalidation for that same surface
 
 ### 10. Test business behavior first
 
@@ -663,7 +714,7 @@ Scope:
 Primary targets:
 
 - [workspace-members-settings-section.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-settings-section.tsx)
-- [workspace-members-management-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-management-settings-item.tsx)
+- [workspace-navigation-context.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/workspace-navigation-context.tsx)
 - [workspace-members-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-actions.ts)
 - [workspace-general-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts)
 - [workspace-general-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-general-service.ts)

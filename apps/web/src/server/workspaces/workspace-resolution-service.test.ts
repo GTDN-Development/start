@@ -1,6 +1,13 @@
 import type PocketBase from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
+import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
+
+vi.mock("@/server/auth/current-user", function mockCurrentUser() {
+  return {
+    requireCurrentUser: vi.fn(),
+    requireCurrentWritableUser: vi.fn(),
+  };
+});
 
 vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer() {
   return {
@@ -11,37 +18,34 @@ vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer()
 vi.mock("@/server/workspaces/workspace-cookie", function mockWorkspaceCookie() {
   return {
     getActiveWorkspaceSlugCookie: vi.fn(),
+    getPendingInviteTokenCookie: vi.fn(),
   };
 });
 
 vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceRepository() {
   return {
+    findWorkspaceBySlug: vi.fn(),
+    findWorkspaceMembershipByWorkspaceAndUser: vi.fn(),
     listUserWorkspaceMembershipRecords: vi.fn(),
   };
 });
 
-vi.mock("@/server/workspaces/workspace-mappers", function mockWorkspaceMappers() {
-  return {
-    sortUserWorkspaces: vi.fn(),
-  };
-});
-
-vi.mock(
-  "@/server/workspaces/workspace-membership-context",
-  function mockWorkspaceMembershipContext() {
-    return {
-      requireWorkspaceActionMembershipContext: vi.fn(),
-      resolveWorkspaceMembershipContextBySlug: vi.fn(),
-    };
-  }
-);
-
+import { requireCurrentUser, requireCurrentWritableUser } from "@/server/auth/current-user";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
-import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { resolveWorkspaceMembershipContextBySlug } from "@/server/workspaces/workspace-membership-context";
 import {
+  getActiveWorkspaceSlugCookie,
+  getPendingInviteTokenCookie,
+} from "@/server/workspaces/workspace-cookie";
+import {
+  findWorkspaceBySlug,
+  findWorkspaceMembershipByWorkspaceAndUser,
+} from "@/server/workspaces/workspace-repository";
+import {
+  requireWorkspaceActionMembershipContext,
+  requireWorkspaceMembershipContext,
   resolveActiveWorkspaceSlugForUserWithClient,
-  resolvePostAuthDestination,
+  resolveCurrentUserWorkspaceRouteAccess,
+  resolvePostAuthDestinationForUser,
 } from "./workspace-resolution-service";
 
 describe("workspace-resolution-service", function describeWorkspaceResolutionService() {
@@ -50,10 +54,11 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
   });
 
   it("prioritizes a pending invite over active workspace resolution", async function testInvitePriority() {
-    const response = await resolvePostAuthDestination({
+    vi.mocked(getPendingInviteTokenCookie).mockResolvedValue("invite-token");
+
+    const response = await resolvePostAuthDestinationForUser({
       userId: "user-1",
       userEmail: "user@example.com",
-      pendingInviteToken: "invite-token",
     });
 
     expect(response).toEqual({
@@ -66,28 +71,22 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
     expect(createPocketBaseServerClient).not.toHaveBeenCalled();
   });
 
-  it("returns workspace redirect when the active workspace is still accessible", async function testWorkspaceRedirect() {
+  it("returns a workspace redirect when the active workspace is still accessible", async function testWorkspaceRedirect() {
     const pb = createPocketBaseMock();
     const workspace = createWorkspaceRecord("team-space");
     const membership = createWorkspaceMemberRecord("membership-1", "user-1", "member");
 
-    vi.mocked(createPocketBaseServerClient).mockResolvedValue({
-      pb,
-      hasAuthCookie: true,
-      hadInvalidAuthCookie: false,
-      shouldPersistSession: true,
-    });
+    vi.mocked(getPendingInviteTokenCookie).mockResolvedValue(null);
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(
+      createPocketBaseServerClientResult(pb)
+    );
     vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue("team-space");
-    vi.mocked(resolveWorkspaceMembershipContextBySlug).mockResolvedValue({
-      state: "ready",
-      workspace,
-      membership,
-    });
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(workspace);
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(membership);
 
-    const response = await resolvePostAuthDestination({
+    const response = await resolvePostAuthDestinationForUser({
       userId: "user-1",
       userEmail: "user@example.com",
-      pendingInviteToken: null,
     });
 
     expect(response).toEqual({
@@ -102,18 +101,15 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
   it("falls back to app when no active workspace is available", async function testAppFallback() {
     const pb = createPocketBaseMock();
 
-    vi.mocked(createPocketBaseServerClient).mockResolvedValue({
-      pb,
-      hasAuthCookie: true,
-      hadInvalidAuthCookie: false,
-      shouldPersistSession: true,
-    });
+    vi.mocked(getPendingInviteTokenCookie).mockResolvedValue(null);
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(
+      createPocketBaseServerClientResult(pb)
+    );
     vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue(null);
 
-    const response = await resolvePostAuthDestination({
+    const response = await resolvePostAuthDestinationForUser({
       userId: "user-1",
       userEmail: "user@example.com",
-      pendingInviteToken: null,
     });
 
     expect(response).toEqual({
@@ -124,57 +120,124 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
     });
   });
 
-  it("returns null when no active workspace cookie exists", async function testNoCookie() {
-    const pb = createPocketBaseMock();
-
-    vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue(null);
-
-    const response = await resolveActiveWorkspaceSlugForUserWithClient(pb, "user-1");
-
-    expect(response).toEqual({
-      ok: true,
-      data: {
-        workspaceSlug: null,
-      },
-    });
-  });
-
-  it("falls back without clearing stale active workspace cookies during render", async function testStaleCookie() {
-    const pb = createPocketBaseMock();
-
-    vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue("team-space");
-    vi.mocked(resolveWorkspaceMembershipContextBySlug).mockResolvedValue({
-      state: "membership_not_found",
-    });
-
-    const response = await resolveActiveWorkspaceSlugForUserWithClient(pb, "user-1");
-
-    expect(response).toEqual({
-      ok: true,
-      data: {
-        workspaceSlug: null,
-      },
-    });
-  });
-
-  it("returns the active workspace slug when the cookie still points to an accessible workspace", async function testActiveWorkspaceSlug() {
+  it("falls back without clearing stale active workspace cookies during render", async function testStaleActiveWorkspaceCookie() {
     const pb = createPocketBaseMock();
     const workspace = createWorkspaceRecord("team-space");
-    const membership = createWorkspaceMemberRecord("membership-1", "user-1", "member");
 
     vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue("team-space");
-    vi.mocked(resolveWorkspaceMembershipContextBySlug).mockResolvedValue({
-      state: "ready",
-      workspace,
-      membership,
-    });
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(workspace);
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(null);
 
     const response = await resolveActiveWorkspaceSlugForUserWithClient(pb, "user-1");
 
     expect(response).toEqual({
       ok: true,
       data: {
-        workspaceSlug: "team-space",
+        workspaceSlug: null,
+      },
+    });
+  });
+
+  it("passes through auth failures without extra lookup work", async function testAuthFailure() {
+    vi.mocked(requireCurrentUser).mockResolvedValue({
+      ok: false,
+      errorCode: "UNAUTHORIZED",
+    });
+
+    const response = await requireWorkspaceMembershipContext("team-space");
+
+    expect(response).toEqual({
+      ok: false,
+      response: {
+        ok: false,
+        errorCode: "UNAUTHORIZED",
+      },
+    });
+    expect(findWorkspaceBySlug).not.toHaveBeenCalled();
+  });
+
+  it("preserves action set-cookie metadata on auth failure", async function testActionAuthFailure() {
+    vi.mocked(requireCurrentWritableUser).mockResolvedValue({
+      ok: false,
+      errorCode: "UNAUTHORIZED",
+      setCookie: ["pb_auth=; Max-Age=0"],
+    });
+
+    const response = await requireWorkspaceActionMembershipContext("team-space");
+
+    expect(response).toEqual({
+      ok: false,
+      response: {
+        ok: false,
+        errorCode: "UNAUTHORIZED",
+        setCookie: ["pb_auth=; Max-Age=0"],
+      },
+    });
+  });
+
+  it("maps a missing workspace to not found", async function testWorkspaceNotFound() {
+    const pb = createPocketBaseMock();
+    const user = createUserRecord("user-1", "user@example.com");
+
+    vi.mocked(requireCurrentUser).mockResolvedValue(createCurrentUserSuccess(pb, user));
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(null);
+
+    const response = await requireWorkspaceMembershipContext("team-space");
+
+    expect(response).toEqual({
+      ok: false,
+      response: {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      },
+    });
+  });
+
+  it("maps a missing membership to forbidden", async function testMembershipNotFound() {
+    const pb = createPocketBaseMock();
+    const user = createUserRecord("user-1", "user@example.com");
+    const workspace = createWorkspaceRecord("team-space");
+
+    vi.mocked(requireCurrentUser).mockResolvedValue(createCurrentUserSuccess(pb, user));
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(workspace);
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(null);
+
+    const response = await requireWorkspaceMembershipContext("team-space");
+
+    expect(response).toEqual({
+      ok: false,
+      response: {
+        ok: false,
+        errorCode: "FORBIDDEN",
+      },
+    });
+  });
+
+  it("returns the route access payload with the mapped workspace summary", async function testRouteAccessPayload() {
+    const pb = createPocketBaseMock();
+    const user = createUserRecord("user-1", "user@example.com");
+    const workspace = createWorkspaceRecord("team-space");
+    const membership = createWorkspaceMemberRecord("membership-1", user.id, "owner");
+
+    vi.mocked(requireCurrentUser).mockResolvedValue(createCurrentUserSuccess(pb, user));
+    vi.mocked(findWorkspaceBySlug).mockResolvedValue(workspace);
+    vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(membership);
+
+    const response = await resolveCurrentUserWorkspaceRouteAccess("team-space");
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        pb,
+        user,
+        workspace: {
+          id: "workspace-1",
+          name: "Team Space",
+          slug: "team-space",
+          avatarUrl: null,
+          membershipId: membership.id,
+          role: "owner",
+        },
       },
     });
   });
@@ -183,7 +246,41 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
 function createPocketBaseMock(): PocketBase {
   return {
     collection: vi.fn(),
+    files: {
+      getURL: vi.fn(),
+    },
   } as unknown as PocketBase;
+}
+
+function createPocketBaseServerClientResult(pb: PocketBase) {
+  return {
+    pb,
+    hasAuthCookie: true,
+    hadInvalidAuthCookie: false,
+    shouldPersistSession: true,
+  };
+}
+
+function createCurrentUserSuccess(pb: PocketBase, user: UsersRecord) {
+  return {
+    ok: true as const,
+    pb,
+    user,
+    currentSessionIdHash: "session-hash",
+  };
+}
+
+function createUserRecord(id: string, email: string): UsersRecord {
+  return {
+    id,
+    collectionId: "users",
+    collectionName: "users",
+    created: "2026-01-01T00:00:00.000Z",
+    updated: "2026-01-01T00:00:00.000Z",
+    email,
+    verified: true,
+    name: "User",
+  };
 }
 
 function createWorkspaceRecord(slug: string): WorkspacesRecord {

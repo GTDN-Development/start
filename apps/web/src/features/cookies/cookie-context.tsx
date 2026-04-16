@@ -2,7 +2,6 @@
 
 import { useLocale } from "next-intl";
 import { useSyncExternalStore, type ReactNode } from "react";
-import { useBrowserPathnameState } from "@/hooks/use-browser-pathname-state";
 import {
   COOKIE_CONSENT_MAX_AGE_SECONDS,
   COOKIE_NAME,
@@ -14,7 +13,8 @@ import {
   parseConsentCookieValue,
   rejectAllConsent,
   serializeConsentCookieValue,
-} from "./cookie-consent";
+} from "@/config/cookie-consent";
+import { useBrowserPathnameState } from "@/hooks/use-browser-pathname-state";
 import { persistCookieConsentAction } from "./cookie-consent-actions";
 
 const DEBUG_MODE = false;

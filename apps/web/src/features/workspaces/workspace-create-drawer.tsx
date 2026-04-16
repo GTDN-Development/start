@@ -23,6 +23,7 @@ import {
   createWorkspaceNameFormSchema,
   workspaceNameMaxLength,
 } from "@/features/workspaces/workspace-schemas";
+import { useOptionalWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import { useRouter } from "@/i18n/navigation";
 import { resolveErrorMessage, runAsyncTransition } from "@/lib/app-utils";
 
@@ -37,6 +38,7 @@ type WorkspaceCreateDrawerProps = {
 
 export function WorkspaceCreateDrawer({ open, onOpenChangeAction }: WorkspaceCreateDrawerProps) {
   const t = useTranslations("layout.application.scopeSwitcher.createDrawer");
+  const workspaceNavigation = useOptionalWorkspaceNavigation();
   const router = useRouter();
   const createToastId = useId();
 
@@ -76,6 +78,8 @@ export function WorkspaceCreateDrawer({ open, onOpenChangeAction }: WorkspaceCre
       });
 
       startTransition(() => {
+        workspaceNavigation?.upsertWorkspace(response.data.workspace);
+        workspaceNavigation?.setActiveWorkspaceSlug(response.data.workspaceSlug);
         form.reset();
         onOpenChangeAction(false);
         router.replace(getWorkspaceOverviewHref(response.data.workspaceSlug));

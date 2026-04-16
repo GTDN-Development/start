@@ -6,12 +6,9 @@ import { mapWorkspaceInnerSidebarItems } from "@/features/application/inner-side
 import { InnerSidebarBreadcrumbs } from "@/features/application/inner-sidebar/inner-sidebar-breadcrumbs";
 import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-sidebar-layout";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
-import { AUTH_REDIRECTS } from "@/config/auth";
 import { getWorkspaceSettingsHref } from "@/config/routes";
-import { redirect } from "@/i18n/navigation";
-import { requireCurrentUser } from "@/server/auth/current-user";
-import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
-import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
+import { requireWorkspaceRouteAccess } from "@/features/workspaces/workspace-route";
+import { resolveCurrentUserWorkspaceRouteAccess } from "@/server/workspaces/workspace-resolution-service";
 
 export default async function Layout({
   children,
@@ -19,23 +16,10 @@ export default async function Layout({
 }: LayoutProps<"/[locale]/w/[workspaceSlug]/settings">) {
   const { locale, workspaceSlug } = await params;
   const currentLocale = locale as Locale;
-  const currentUser = await requireCurrentUser();
-
-  if (!currentUser.ok) {
-    redirect({
-      href: AUTH_REDIRECTS.unauthenticatedTo,
-      locale: currentLocale,
-    });
-
-    return null;
-  }
-
-  const workspaceResponse = await resolveWorkspaceForUserBySlugWithClient(
-    currentUser.pb,
-    currentUser.user.id,
-    workspaceSlug
+  const { workspace } = requireWorkspaceRouteAccess(
+    await resolveCurrentUserWorkspaceRouteAccess(workspaceSlug),
+    currentLocale
   );
-  const workspace = requireWorkspaceRouteResult(workspaceResponse);
   const tNav = await getTranslations({
     locale: currentLocale,
     namespace: "layout.navigation.items",

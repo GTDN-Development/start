@@ -40,7 +40,7 @@ import { PencilIcon, Trash2Icon } from "lucide-react";
 
 export function AccountAvatarSettingsItem() {
   const t = useTranslations("pages.account");
-  const { profile, patchProfile, isAvatarUpdating, setIsAvatarUpdating } = useAccountProfile();
+  const { profile, setProfile, isAvatarUpdating, setIsAvatarUpdating } = useAccountProfile();
   const avatarToastId = useId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
@@ -89,7 +89,7 @@ export function AccountAvatarSettingsItem() {
 
       if (response.ok) {
         startTransition(() => {
-          patchProfile(response.data.profile);
+          setProfile(response.data);
           setFailedAvatarUrl(null);
         });
         emitAuthChanged();
@@ -123,7 +123,7 @@ export function AccountAvatarSettingsItem() {
 
     if (response.ok) {
       startTransition(() => {
-        patchProfile(response.data.profile);
+        setProfile(response.data);
         setFailedAvatarUrl(null);
       });
       emitAuthChanged();

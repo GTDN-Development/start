@@ -30,13 +30,12 @@ import {
   type WorkspaceInvitableRole,
 } from "@/features/workspaces/workspace-role-rules";
 import { workspaceInviteEmailSchema } from "@/features/workspaces/workspace-schemas";
-import { createInviteAction } from "@/features/workspaces/settings/members/workspace-members-actions";
-import type {
-  WorkspaceSettingsInvite,
-  WorkspaceSettingsWorkspace,
-} from "@/features/workspaces/settings/workspace-settings-types";
+import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import type { AppLocale } from "@/i18n/routing";
-import { runAsyncTransition } from "@/lib/app-utils";
+import type {
+  WorkspaceInviteSummary,
+  WorkspaceResponse,
+} from "@/server/workspaces/workspace-types";
 
 type InviteRole = WorkspaceInvitableRole;
 
@@ -48,10 +47,14 @@ function getInviteRoleOption(value: string | null) {
 
 export function WorkspaceInviteMembersSettingsItem({
   workspace,
-  onInviteCreatedAction,
+  onCreateInviteAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
-  onInviteCreatedAction: (invite: WorkspaceSettingsInvite) => void;
+  onCreateInviteAction: (input: {
+    locale: AppLocale;
+    email: string;
+    role: WorkspaceInvitableRole;
+  }) => Promise<WorkspaceResponse<{ invite: WorkspaceInviteSummary }>>;
 }) {
   const tInvite = useTranslations("pages.workspace.members.invite");
   const tRoles = useTranslations("pages.workspace.members.roles");
@@ -89,13 +92,11 @@ export function WorkspaceInviteMembersSettingsItem({
     setIsInviting(true);
     setSubmitErrorMessage(null);
 
-    const response = await runAsyncTransition(() =>
-      createInviteAction(workspace.slug, {
-        locale,
-        email: normalizedEmail,
-        role,
-      })
-    );
+    const response = await onCreateInviteAction({
+      locale,
+      email: normalizedEmail,
+      role,
+    });
 
     setIsInviting(false);
 
@@ -107,7 +108,6 @@ export function WorkspaceInviteMembersSettingsItem({
     startTransition(() => {
       setEmail("");
       setRole("member");
-      onInviteCreatedAction(response.data.invite);
     });
     toast.success(tInvite("status.sent"));
   }

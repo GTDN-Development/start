@@ -42,7 +42,7 @@ describe("application auth sync", function describeApplicationAuthSync() {
   let assignMock: ReturnType<typeof vi.fn>;
   let fetchMock: ReturnType<typeof vi.fn>;
   let originalLocation: Location;
-  let patchProfileMock: ReturnType<typeof vi.fn>;
+  let setProfileMock: ReturnType<typeof vi.fn>;
   let dateNowSpy: ReturnType<typeof vi.spyOn>;
   let now: number;
   let profile: {
@@ -60,7 +60,7 @@ describe("application auth sync", function describeApplicationAuthSync() {
     authEventListener = null;
     assignMock = vi.fn();
     fetchMock = vi.fn();
-    patchProfileMock = vi.fn();
+    setProfileMock = vi.fn();
     now = new Date("2026-04-14T10:00:00.000Z").getTime();
     profile = createProfileSnapshot();
     dateNowSpy = vi.spyOn(Date, "now").mockImplementation(function mockDateNow() {
@@ -71,7 +71,7 @@ describe("application auth sync", function describeApplicationAuthSync() {
     useAccountProfileMock.mockImplementation(function useAccountProfile() {
       return {
         profile,
-        patchProfile: patchProfileMock,
+        setProfile: setProfileMock,
       };
     });
     subscribeToAuthClientEventsMock.mockImplementation(function subscribeToAuthClientEvents(
@@ -158,7 +158,8 @@ describe("application auth sync", function describeApplicationAuthSync() {
 
     await waitFor(function expectProfilePatch() {
       expect(fetchMock).toHaveBeenCalledTimes(2);
-      expect(patchProfileMock).toHaveBeenCalledWith({
+      expect(setProfileMock).toHaveBeenCalledWith({
+        id: "user_123",
         name: "Updated User",
         email: "updated@example.com",
         avatarUrl: "https://cdn.test/avatar.png",

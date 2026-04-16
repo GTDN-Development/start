@@ -51,6 +51,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   const workspaceNavigation = useOptionalWorkspaceNavigation();
   const activeWorkspaceSlug = workspaceNavigation?.activeWorkspaceSlug ?? null;
   const workspaces = workspaceNavigation?.workspaces ?? [];
+  const setActiveWorkspaceSlug = workspaceNavigation?.setActiveWorkspaceSlug;
 
   const pathname = usePathname();
   const router = useRouter();
@@ -135,6 +136,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
         return;
       }
 
+      setActiveWorkspaceSlug?.(response.data.workspaceSlug);
       router.replace(getWorkspaceOverviewHref(response.data.workspaceSlug));
     });
   }

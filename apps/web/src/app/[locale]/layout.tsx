@@ -5,6 +5,8 @@ import { Locale, hasLocale } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
+import { app } from "@/config/app";
+import { isCookieConsentEnabled } from "@/config/cookie-consent";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
 import { TailwindScreen } from "@/components/layout/tailwind-screen";
@@ -13,8 +15,6 @@ import { AnalyticsScripts } from "@/features/cookies/analytics-scripts";
 import { CookieConsentBanner } from "@/features/cookies/cookie-consent-banner";
 import { CookieSettingsDialog } from "@/features/cookies/cookie-settings-dialog";
 import { CookieErrorBoundary } from "@/features/cookies/cookie-error-boundary";
-import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
-import { app } from "@/config/app";
 
 const fontSans = Inter({
   variable: "--font-sans",

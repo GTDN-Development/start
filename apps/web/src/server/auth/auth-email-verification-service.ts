@@ -12,7 +12,7 @@ import {
   createClearedAuthAndDeviceCookies,
   readDeviceSessionCookie,
 } from "@/server/device-sessions/device-sessions-cookie";
-import { createAuthAndDeviceCookies } from "@/server/auth/auth-device-session-integration";
+import { createAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-service";
 import {
   logAuthServiceError,
   mapConfirmEmailChangeErrorCode,

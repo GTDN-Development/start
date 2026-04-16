@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { AccountAvatarSettingsItem } from "@/features/account/profile/avatar-settings-item";
-import { AccountDeleteAccountSettingsItem } from "@/features/account/profile/delete-account-settings-item";
 import { AccountDisplayNameSettingsItem } from "@/features/account/profile/display-name-settings-item";
 import { AccountEmailSettingsItem } from "@/features/account/profile/email-change-settings-item";
+import { AccountDeleteAccountSettingsItem } from "@/features/account/security/delete-account-settings-item";
 import { SettingsPage } from "@/features/application/settings-page";
 
 export async function generateMetadata(props: PageProps<"/[locale]/account">): Promise<Metadata> {

@@ -1,7 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { APP_HOME_PATH, getWorkspaceOverviewPath, getWorkspaceSettingsPath } from "@/config/routes";
 import {
   createWorkspaceInputSchema,
   updateWorkspaceGeneralInputSchema,
@@ -9,7 +7,6 @@ import {
   workspaceSlugSchema,
 } from "@/features/workspaces/workspace-schemas";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
-import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
 import {
   clearActiveWorkspaceSlugCookie,
   getActiveWorkspaceSlugCookie,
@@ -21,33 +18,34 @@ import {
   updateWorkspaceGeneralForCurrentUser,
 } from "@/server/workspaces/workspace-general-service";
 import { leaveWorkspaceForCurrentUser } from "@/server/workspaces/workspace-members-service";
+import {
+  createBadRequestWorkspaceResponse,
+  finalizeWorkspaceAction,
+} from "@/server/workspaces/workspace-response";
 import { resolveAccessibleWorkspaceForCurrentUser } from "@/server/workspaces/workspace-resolution-service";
-import type {
-  ServerWorkspaceResponse,
-  UserWorkspace,
-  WorkspaceResponse,
-} from "@/server/workspaces/workspace-types";
+import type { UserWorkspace, WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 export async function createWorkspaceAction(input: {
   name: string;
   slug?: string;
-}): Promise<WorkspaceResponse<{ workspaceSlug: string }>> {
+}): Promise<WorkspaceResponse<{ workspaceSlug: string; workspace: WorkspaceNavigationItem }>> {
   const parsedInput = createWorkspaceInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   const response = await createWorkspaceForCurrentUser(parsedInput.data);
 
-  if (response.ok) {
-    await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    revalidatePath(APP_HOME_PATH);
-  }
-
-  return finalizeWorkspaceAction(response, (data) => ({
-    workspaceSlug: data.workspace.slug,
-  }));
+  return finalizeWorkspaceAction(response, {
+    onSuccess: async (data) => {
+      await setActiveWorkspaceSlugCookie(data.workspace.slug);
+    },
+    mapData: (data) => ({
+      workspaceSlug: data.workspace.slug,
+      workspace: mapWorkspaceNavigationItem(data.workspace),
+    }),
+  });
 }
 
 export async function switchWorkspaceAction(
@@ -56,20 +54,20 @@ export async function switchWorkspaceAction(
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
 
   if (!parsedWorkspaceSlug.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   const response = await resolveAccessibleWorkspaceForCurrentUser(parsedWorkspaceSlug.data);
 
-  if (response.ok) {
-    await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    revalidatePath(APP_HOME_PATH);
-  }
-
-  return finalizeWorkspaceAction(response, (data) => ({
-    switched: true as const,
-    workspaceSlug: data.workspace.slug,
-  }));
+  return finalizeWorkspaceAction(response, {
+    onSuccess: async (data) => {
+      await setActiveWorkspaceSlugCookie(data.workspace.slug);
+    },
+    mapData: (data) => ({
+      switched: true as const,
+      workspaceSlug: data.workspace.slug,
+    }),
+  });
 }
 
 export async function updateWorkspaceGeneralAction(
@@ -85,11 +83,11 @@ export async function updateWorkspaceGeneralAction(
   const parsedInput = updateWorkspaceGeneralInputSchema.safeParse(input);
 
   if (!parsedWorkspaceSlug.success || !parsedInput.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   if (parsedInput.data.avatarFile && !isWorkspaceAvatarFileValid(parsedInput.data.avatarFile)) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   const response = await updateWorkspaceGeneralForCurrentUser(
@@ -97,28 +95,25 @@ export async function updateWorkspaceGeneralAction(
     parsedInput.data
   );
 
-  if (response.ok) {
-    const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
-    const workspaceSlugChanged = response.data.previousSlug !== response.data.workspace.slug;
-    const isCurrentWorkspaceRoute = parsedWorkspaceSlug.data === response.data.previousSlug;
-    const shouldUpdateActiveWorkspaceCookie =
-      workspaceSlugChanged &&
-      (activeWorkspaceSlug === response.data.previousSlug ||
-        (!activeWorkspaceSlug && isCurrentWorkspaceRoute));
+  return finalizeWorkspaceAction(response, {
+    onSuccess: async (data) => {
+      const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
+      const workspaceSlugChanged = data.previousSlug !== data.workspace.slug;
+      const isCurrentWorkspaceRoute = parsedWorkspaceSlug.data === data.previousSlug;
+      const shouldUpdateActiveWorkspaceCookie =
+        workspaceSlugChanged &&
+        (activeWorkspaceSlug === data.previousSlug ||
+          (!activeWorkspaceSlug && isCurrentWorkspaceRoute));
 
-    if (shouldUpdateActiveWorkspaceCookie) {
-      await setActiveWorkspaceSlugCookie(response.data.workspace.slug);
-    }
-
-    if (workspaceSlugChanged) {
-      revalidateWorkspaceGeneralPaths(response.data.previousSlug, response.data.workspace.slug);
-    }
-  }
-
-  return finalizeWorkspaceAction(response, (data) => ({
-    workspaceSlug: data.workspace.slug,
-    workspace: mapWorkspaceNavigationItem(data.workspace),
-  }));
+      if (shouldUpdateActiveWorkspaceCookie) {
+        await setActiveWorkspaceSlugCookie(data.workspace.slug);
+      }
+    },
+    mapData: (data) => ({
+      workspaceSlug: data.workspace.slug,
+      workspace: mapWorkspaceNavigationItem(data.workspace),
+    }),
+  });
 }
 
 export async function leaveWorkspaceAction(
@@ -127,15 +122,14 @@ export async function leaveWorkspaceAction(
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
 
   if (!parsedWorkspaceSlug.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
-  const response = await deleteActiveWorkspaceCookieAfterSuccess(
-    parsedWorkspaceSlug.data,
-    await leaveWorkspaceForCurrentUser(parsedWorkspaceSlug.data)
-  );
-
-  return finalizeWorkspaceAction(response);
+  return finalizeWorkspaceAction(await leaveWorkspaceForCurrentUser(parsedWorkspaceSlug.data), {
+    onSuccess: async () => {
+      await clearActiveWorkspaceCookieIfNeeded(parsedWorkspaceSlug.data);
+    },
+  });
 }
 
 export async function deleteWorkspaceAction(
@@ -144,60 +138,14 @@ export async function deleteWorkspaceAction(
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
 
   if (!parsedWorkspaceSlug.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
-  const response = await deleteActiveWorkspaceCookieAfterSuccess(
-    parsedWorkspaceSlug.data,
-    await deleteWorkspaceForCurrentUser(parsedWorkspaceSlug.data)
-  );
-
-  return finalizeWorkspaceAction(response);
-}
-
-async function deleteActiveWorkspaceCookieAfterSuccess<TData>(
-  workspaceSlug: string,
-  response: ServerWorkspaceResponse<TData>
-) {
-  if (!response.ok) {
-    return response;
-  }
-
-  const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
-
-  if (activeWorkspaceSlug === workspaceSlug) {
-    await clearActiveWorkspaceSlugCookie();
-  }
-
-  revalidatePath(APP_HOME_PATH);
-
-  return response;
-}
-
-async function finalizeWorkspaceAction<TData, TResult = TData>(
-  response: ServerWorkspaceResponse<TData>,
-  mapData?: (data: TData) => TResult
-): Promise<WorkspaceResponse<TResult>> {
-  await applyServerActionAuthCookies(response.setCookie);
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      errorCode: response.errorCode,
-    };
-  }
-
-  return {
-    ok: true,
-    data: mapData ? mapData(response.data) : (response.data as unknown as TResult),
-  };
-}
-
-function createBadRequestResponse<TData>(): WorkspaceResponse<TData> {
-  return {
-    ok: false,
-    errorCode: "BAD_REQUEST",
-  };
+  return finalizeWorkspaceAction(await deleteWorkspaceForCurrentUser(parsedWorkspaceSlug.data), {
+    onSuccess: async () => {
+      await clearActiveWorkspaceCookieIfNeeded(parsedWorkspaceSlug.data);
+    },
+  });
 }
 
 function isWorkspaceAvatarFileValid(avatarFile: File): boolean {
@@ -212,13 +160,11 @@ function isWorkspaceAvatarFileValid(avatarFile: File): boolean {
   return true;
 }
 
-function revalidateWorkspaceGeneralPaths(currentSlug: string, nextSlug: string): void {
-  revalidatePath(getWorkspaceSettingsPath(currentSlug));
-  revalidatePath(getWorkspaceOverviewPath(currentSlug));
+async function clearActiveWorkspaceCookieIfNeeded(workspaceSlug: string): Promise<void> {
+  const activeWorkspaceSlug = await getActiveWorkspaceSlugCookie();
 
-  if (currentSlug !== nextSlug) {
-    revalidatePath(getWorkspaceSettingsPath(nextSlug));
-    revalidatePath(getWorkspaceOverviewPath(nextSlug));
+  if (activeWorkspaceSlug === workspaceSlug) {
+    await clearActiveWorkspaceSlugCookie();
   }
 }
 

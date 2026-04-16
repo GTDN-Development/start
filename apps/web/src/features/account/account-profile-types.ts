@@ -4,7 +4,3 @@ export type AccountProfileSnapshot = {
   name: string | null;
   avatarUrl: string | null;
 };
-
-export type AccountProfilePayload = {
-  profile: AccountProfileSnapshot;
-};

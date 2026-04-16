@@ -16,9 +16,10 @@ import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/menu";
 import { isTurnstileEnabled } from "@/config/security";
-import { signUp } from "@/features/auth/auth-client";
+import { signUpAction } from "@/features/auth/auth-actions";
 import { createPendingVerifyEmailHref } from "@/features/auth/verify-email/verify-email-state";
 import { createSignUpFormSchema, type SignUpInput } from "@/features/auth/auth-schemas";
+import { runAsyncTransition } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 
 type SignUpFormValues = SignUpInput & {
@@ -64,8 +65,8 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     onSubmit: async ({ value }: { value: SignUpFormValues }) => {
       setSubmitErrorMessage(null);
 
-      const response = await signUp(
-        turnstileEnabled ? value : { ...value, turnstileToken: undefined }
+      const response = await runAsyncTransition(() =>
+        signUpAction(turnstileEnabled ? value : { ...value, turnstileToken: undefined })
       );
 
       if (response.ok) {

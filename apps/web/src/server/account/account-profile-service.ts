@@ -1,4 +1,4 @@
-import type { AccountProfilePayload } from "@/features/account/account-profile-types";
+import type { AccountProfileSnapshot } from "@/features/account/account-profile-types";
 import type { UsersRecord } from "@/types/pocketbase";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import {
@@ -21,7 +21,7 @@ type RequestAccountEmailChangePayload = {
 
 export async function updateCurrentUserProfileName(
   name: string
-): Promise<ServerAuthResponse<AccountProfilePayload>> {
+): Promise<ServerAuthResponse<AccountProfileSnapshot>> {
   const normalizedName = normalizeProfileName(name);
 
   if (normalizedName && normalizedName.length > MAX_ACCOUNT_PROFILE_NAME_LENGTH) {
@@ -50,9 +50,7 @@ export async function updateCurrentUserProfileName(
 
     return {
       ok: true,
-      data: {
-        profile: createAccountProfileSnapshot(currentUser.pb, updatedRecord),
-      },
+      data: createAccountProfileSnapshot(currentUser.pb, updatedRecord),
     };
   } catch (error) {
     const errorCode = mapUpdateProfileErrorCode(error);
@@ -71,7 +69,7 @@ export async function updateCurrentUserProfileName(
 
 export async function updateCurrentUserAvatar(
   avatarFile: File
-): Promise<ServerAuthResponse<AccountProfilePayload>> {
+): Promise<ServerAuthResponse<AccountProfileSnapshot>> {
   if (!avatarFile.type.startsWith("image/")) {
     return {
       ok: false,
@@ -105,9 +103,7 @@ export async function updateCurrentUserAvatar(
 
     return {
       ok: true,
-      data: {
-        profile: createAccountProfileSnapshot(currentUser.pb, updatedRecord),
-      },
+      data: createAccountProfileSnapshot(currentUser.pb, updatedRecord),
     };
   } catch (error) {
     const errorCode = mapUpdateProfileErrorCode(error);
@@ -125,7 +121,7 @@ export async function updateCurrentUserAvatar(
 }
 
 export async function removeCurrentUserAvatar(): Promise<
-  ServerAuthResponse<AccountProfilePayload>
+  ServerAuthResponse<AccountProfileSnapshot>
 > {
   const currentUser = await requireCurrentWritableUser();
 
@@ -146,9 +142,7 @@ export async function removeCurrentUserAvatar(): Promise<
 
     return {
       ok: true,
-      data: {
-        profile: createAccountProfileSnapshot(currentUser.pb, updatedRecord),
-      },
+      data: createAccountProfileSnapshot(currentUser.pb, updatedRecord),
     };
   } catch (error) {
     const errorCode = mapUpdateProfileErrorCode(error);

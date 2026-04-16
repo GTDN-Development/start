@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { startTransition, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Trash2Icon } from "lucide-react";
@@ -29,12 +29,9 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
-import { APP_HOME_PATH } from "@/config/routes";
 import { createWorkspaceDeleteFormSchema } from "@/features/workspaces/workspace-schemas";
-import { deleteWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
+import type { WorkspaceGeneralDeleteHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
-import { useRouter } from "@/i18n/navigation";
-import { runAsyncTransition } from "@/lib/app-utils";
 
 type DeleteWorkspaceFormValues = {
   confirmationUrl: string;
@@ -43,12 +40,13 @@ type DeleteWorkspaceFormValues = {
 
 export function WorkspaceDeleteSettingsItem({
   workspace,
+  onDeleteWorkspaceAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
+  onDeleteWorkspaceAction: WorkspaceGeneralDeleteHandler;
 }) {
   const t = useTranslations("pages.workspace.general.delete");
   const tCommon = useTranslations("pages.workspace.common");
-  const router = useRouter();
   const deleteWorkspaceToastId = useId();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -75,7 +73,7 @@ export function WorkspaceDeleteSettingsItem({
         return;
       }
 
-      const response = await runAsyncTransition(() => deleteWorkspaceAction(workspace.slug));
+      const response = await onDeleteWorkspaceAction();
 
       if (!response.ok) {
         toast.error(t("status.failed"), {
@@ -88,11 +86,8 @@ export function WorkspaceDeleteSettingsItem({
         id: deleteWorkspaceToastId,
       });
 
-      startTransition(() => {
-        setIsDeleteDialogOpen(false);
-        form.reset();
-        router.replace(APP_HOME_PATH);
-      });
+      setIsDeleteDialogOpen(false);
+      form.reset();
     },
   });
 

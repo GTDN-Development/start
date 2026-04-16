@@ -5,12 +5,10 @@ import { redirect } from "@/i18n/navigation";
 import { getWorkspaceSettingsHref } from "@/config/routes";
 import { WorkspaceMembersSettingsSection } from "@/features/workspaces/settings/members/workspace-members-settings-section";
 import { SettingsPage } from "@/features/application/settings-page";
-import { AUTH_REDIRECTS } from "@/config/auth";
-import { requireCurrentUser } from "@/server/auth/current-user";
-import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
+import { requireWorkspaceRouteAccess } from "@/features/workspaces/workspace-route";
 import { listWorkspaceInvitesWithClient } from "@/server/workspaces/workspace-invite-service";
 import { listWorkspaceMembersWithClient } from "@/server/workspaces/workspace-members-service";
-import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
+import { resolveCurrentUserWorkspaceRouteAccess } from "@/server/workspaces/workspace-resolution-service";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings/members">
@@ -37,37 +35,25 @@ export default async function Page({
   params,
 }: PageProps<"/[locale]/w/[workspaceSlug]/settings/members">) {
   const { locale, workspaceSlug } = await params;
+  const currentLocale = locale as Locale;
 
-  setRequestLocale(locale as Locale);
+  setRequestLocale(currentLocale);
 
-  const currentUser = await requireCurrentUser();
-
-  if (!currentUser.ok) {
-    redirect({
-      href: AUTH_REDIRECTS.unauthenticatedTo,
-      locale: locale as Locale,
-    });
-
-    return null;
-  }
-
-  const workspaceResponse = await resolveWorkspaceForUserBySlugWithClient(
-    currentUser.pb,
-    currentUser.user.id,
-    workspaceSlug
+  const { pb, user, workspace } = requireWorkspaceRouteAccess(
+    await resolveCurrentUserWorkspaceRouteAccess(workspaceSlug),
+    currentLocale
   );
-  const workspace = requireWorkspaceRouteResult(workspaceResponse);
   const tWorkspaceMembersPage = await getTranslations({
-    locale: locale as Locale,
+    locale: currentLocale,
     namespace: "pages.workspace.members.page",
   });
 
-  const membersResponse = await listWorkspaceMembersWithClient(currentUser.pb, workspace.id);
+  const membersResponse = await listWorkspaceMembersWithClient(pb, workspace.id);
 
   if (!membersResponse.ok) {
     redirect({
       href: getWorkspaceSettingsHref(workspace.slug),
-      locale: locale as Locale,
+      locale: currentLocale,
     });
 
     return null;
@@ -81,12 +67,12 @@ export default async function Page({
             invites: [],
           },
         }
-      : await listWorkspaceInvitesWithClient(currentUser.pb, workspace.id);
+      : await listWorkspaceInvitesWithClient(pb, workspace.id);
 
   if (!invitesResponse.ok) {
     redirect({
       href: getWorkspaceSettingsHref(workspace.slug),
-      locale: locale as Locale,
+      locale: currentLocale,
     });
 
     return null;
@@ -96,14 +82,14 @@ export default async function Page({
   const invites = invitesResponse.data.invites;
 
   const ownerCount = members.filter((member) => member.role === "owner").length;
-  const currentUserMember = members.find((member) => member.userId === currentUser.user.id) ?? null;
+  const currentUserMember = members.find((member) => member.userId === user.id) ?? null;
   const isCurrentUserLastOwner = currentUserMember?.role === "owner" && ownerCount === 1;
 
   const workspaceSettings = {
     id: workspace.id,
     slug: workspace.slug,
     name: workspace.name,
-    currentUserId: currentUser.user.id,
+    currentUserId: user.id,
     role: workspace.role,
     isCurrentUserLastOwner,
     avatarUrl: workspace.avatarUrl,

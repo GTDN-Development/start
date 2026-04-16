@@ -36,14 +36,18 @@ import {
   confirmEmailChangeToken,
   requestEmailVerificationForEmail,
 } from "@/server/auth/auth-email-verification-service";
-import { finalizeAuthAction } from "@/server/auth/auth-response";
+import { clearSessionScopedApplicationState } from "@/server/application/application-session-state";
+import {
+  createAuthErrorResponse,
+  createBadRequestAuthResponse,
+  finalizeAuthAction,
+} from "@/server/auth/auth-response";
 import { signInWithPassword, signOutServerSession } from "@/server/auth/auth-session-service";
 import { signUpWithPassword } from "@/server/auth/auth-sign-up-service";
 import {
   confirmPasswordResetToken,
   requestPasswordResetForEmail,
 } from "@/server/auth/auth-password-reset-service";
-import { clearSessionScopedApplicationState } from "@/features/application/application-composition";
 
 const turnstileEnabled = isTurnstileEnabled();
 
@@ -81,7 +85,7 @@ export async function signInAction(input: SignInInput): Promise<AuthResponse<Aut
   const parsedInput = signInInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse<AuthSessionPayload>();
+    return createBadRequestAuthResponse<AuthSessionPayload>();
   }
 
   const response = await signInWithPassword(parsedInput.data);
@@ -93,13 +97,13 @@ export async function signUpAction(input: SignUpActionInput): Promise<AuthRespon
   const parsedInput = signUpActionInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse<SignUpPayload>();
+    return createBadRequestAuthResponse<SignUpPayload>();
   }
 
   const turnstileVerification = await verifyAuthTurnstileToken(parsedInput.data.turnstileToken);
 
   if (!turnstileVerification.success) {
-    return createTurnstileVerificationFailedResponse<SignUpPayload>();
+    return createAuthErrorResponse<SignUpPayload>("TURNSTILE_VERIFICATION_FAILED");
   }
 
   const { turnstileToken: _turnstileToken, ...signUpInput } = parsedInput.data;
@@ -124,13 +128,13 @@ export async function requestPasswordResetAction(
   const parsedInput = requestPasswordResetInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse<RequestPasswordResetPayload>();
+    return createBadRequestAuthResponse<RequestPasswordResetPayload>();
   }
 
   const turnstileVerification = await verifyAuthTurnstileToken(parsedInput.data.turnstileToken);
 
   if (!turnstileVerification.success) {
-    return createTurnstileVerificationFailedResponse<RequestPasswordResetPayload>();
+    return createAuthErrorResponse<RequestPasswordResetPayload>("TURNSTILE_VERIFICATION_FAILED");
   }
 
   const response = await requestPasswordResetForEmail(parsedInput.data.email);
@@ -146,7 +150,7 @@ export async function resetPasswordAction(input: {
   const parsedInput = resetPasswordInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse<ResetPasswordPayload>();
+    return createBadRequestAuthResponse<ResetPasswordPayload>();
   }
 
   const response = await confirmPasswordResetToken({
@@ -164,7 +168,7 @@ export async function requestEmailVerificationAction(
   const parsedInput = requestEmailVerificationInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse<RequestEmailVerificationPayload>();
+    return createBadRequestAuthResponse<RequestEmailVerificationPayload>();
   }
 
   const response = await requestEmailVerificationForEmail(parsedInput.data.email);
@@ -179,7 +183,7 @@ export async function confirmEmailChangeAction(input: {
   const parsedInput = confirmEmailChangeInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse<ConfirmEmailChangePayload>();
+    return createBadRequestAuthResponse<ConfirmEmailChangePayload>();
   }
 
   const response = await confirmEmailChangeToken(parsedInput.data);
@@ -192,18 +196,4 @@ async function verifyAuthTurnstileToken(turnstileToken: string) {
   const clientIP = getClientIPFromHeaders(requestHeaders);
 
   return verifyTurnstileToken(turnstileToken, clientIP);
-}
-
-function createBadRequestResponse<TData>(): AuthResponse<TData> {
-  return {
-    ok: false,
-    errorCode: "BAD_REQUEST",
-  };
-}
-
-function createTurnstileVerificationFailedResponse<TData>(): AuthResponse<TData> {
-  return {
-    ok: false,
-    errorCode: "TURNSTILE_VERIFICATION_FAILED",
-  };
 }

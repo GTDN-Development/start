@@ -13,6 +13,17 @@ export type ServerAuthResponse<TData> =
       setCookie?: string[];
     };
 
+export function createAuthErrorResponse<TData>(errorCode: AuthErrorCode): AuthResponse<TData> {
+  return {
+    ok: false,
+    errorCode,
+  };
+}
+
+export function createBadRequestAuthResponse<TData>(): AuthResponse<TData> {
+  return createAuthErrorResponse("BAD_REQUEST");
+}
+
 export function toAuthApiResponse<TData>(response: ServerAuthResponse<TData>): AuthResponse<TData> {
   if (response.ok) {
     return {
@@ -21,10 +32,7 @@ export function toAuthApiResponse<TData>(response: ServerAuthResponse<TData>): A
     };
   }
 
-  return {
-    ok: false,
-    errorCode: response.errorCode,
-  };
+  return createAuthErrorResponse(response.errorCode);
 }
 
 export async function finalizeAuthAction<TData>(

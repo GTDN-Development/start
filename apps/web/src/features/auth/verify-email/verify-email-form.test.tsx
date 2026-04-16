@@ -4,9 +4,9 @@ import type { ComponentProps } from "react";
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { requestEmailVerification } = vi.hoisted(function hoistAuthClientMocks() {
+const { requestEmailVerificationAction } = vi.hoisted(function hoistAuthActionMocks() {
   return {
-    requestEmailVerification: vi.fn(),
+    requestEmailVerificationAction: vi.fn(),
   };
 });
 
@@ -28,9 +28,9 @@ vi.mock("@/components/ui/link", function mockLink() {
   };
 });
 
-vi.mock("@/features/auth/auth-client", function mockAuthClient() {
+vi.mock("@/features/auth/auth-actions", function mockAuthActions() {
   return {
-    requestEmailVerification,
+    requestEmailVerificationAction,
   };
 });
 

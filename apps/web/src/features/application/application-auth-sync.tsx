@@ -14,16 +14,16 @@ const RECHECK_RATE_LIMIT_MS = 5_000;
 
 export function ApplicationAuthSync() {
   const locale = useLocale();
-  const { profile, patchProfile } = useAccountProfile();
+  const { profile, setProfile } = useAccountProfile();
   const hasRedirectedRef = useRef(false);
   const inFlightRef = useRef<Promise<void> | null>(null);
   const intervalIdRef = useRef<number | null>(null);
   const lastCheckAtRef = useRef(0);
   const profileRef = useRef(profile);
-  const patchProfileRef = useRef(patchProfile);
+  const setProfileRef = useRef(setProfile);
 
   profileRef.current = profile;
-  patchProfileRef.current = patchProfile;
+  setProfileRef.current = setProfile;
 
   useMountEffect(function mountApplicationAuthSync() {
     function stopInterval() {
@@ -65,10 +65,11 @@ export function ApplicationAuthSync() {
       );
     }
 
-    function patchProfileFromSession(user: AuthSession["user"]) {
+    function syncProfileFromSession(user: AuthSession["user"]) {
       const currentProfile = profileRef.current;
 
       if (
+        currentProfile.id === user.id &&
         currentProfile.name === user.name &&
         currentProfile.email === user.email &&
         currentProfile.avatarUrl === user.avatarUrl
@@ -76,11 +77,7 @@ export function ApplicationAuthSync() {
         return;
       }
 
-      patchProfileRef.current({
-        name: user.name,
-        email: user.email,
-        avatarUrl: user.avatarUrl,
-      });
+      setProfileRef.current(user);
     }
 
     async function executeSessionRecheck() {
@@ -100,7 +97,7 @@ export function ApplicationAuthSync() {
       }
 
       hasRedirectedRef.current = false;
-      patchProfileFromSession(session.user);
+      syncProfileFromSession(session.user);
     }
 
     async function recheckSession(input?: { force?: boolean }) {

@@ -1,8 +1,8 @@
 import PocketBase, { ClientResponseError } from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
 import { isTransientError } from "@/server/auth/auth-errors";
-import { resolveCurrentAuthDeviceSession } from "@/server/auth/auth-device-session-integration";
 import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
+import { resolveCurrentAuthDeviceSession } from "@/server/device-sessions/device-sessions-service";
 import {
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,

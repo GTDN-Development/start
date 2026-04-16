@@ -10,11 +10,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
-import { AUTH_REDIRECTS } from "@/config/auth";
-import { redirect } from "@/i18n/navigation";
-import { getServerAuthSession } from "@/server/auth/auth-session-service";
-import { resolveWorkspaceForUserBySlug } from "@/server/workspaces/workspace-resolution-service";
-import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
+import { requireWorkspaceRouteAccess } from "@/features/workspaces/workspace-route";
+import { resolveCurrentUserWorkspaceRouteAccess } from "@/server/workspaces/workspace-resolution-service";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/overview">
@@ -34,27 +31,17 @@ export async function generateMetadata(
 
 export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]/overview">) {
   const { locale, workspaceSlug } = await params;
+  const currentLocale = locale as Locale;
 
-  setRequestLocale(locale as Locale);
+  setRequestLocale(currentLocale);
 
-  const sessionResponse = await getServerAuthSession();
-
-  const session = sessionResponse.ok ? sessionResponse.data.session : null;
-
-  if (!sessionResponse.ok || !session) {
-    redirect({
-      href: AUTH_REDIRECTS.unauthenticatedTo,
-      locale: locale as Locale,
-    });
-
-    return null;
-  }
-
-  const workspaceResponse = await resolveWorkspaceForUserBySlug(session.user.id, workspaceSlug);
-  requireWorkspaceRouteResult(workspaceResponse);
+  requireWorkspaceRouteAccess(
+    await resolveCurrentUserWorkspaceRouteAccess(workspaceSlug),
+    currentLocale
+  );
 
   const tNav = await getTranslations({
-    locale: locale as Locale,
+    locale: currentLocale,
     namespace: "layout.navigation.items",
   });
 

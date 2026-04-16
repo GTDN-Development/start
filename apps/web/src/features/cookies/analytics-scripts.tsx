@@ -1,7 +1,7 @@
 "use client";
 
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
-import { isCookieConsentEnabled } from "./cookie-consent";
+import { isCookieConsentEnabled } from "@/config/cookie-consent";
 import { useCookieContext } from "./cookie-context";
 
 export function AnalyticsScripts() {

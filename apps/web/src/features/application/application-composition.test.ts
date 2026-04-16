@@ -1,36 +1,20 @@
 import type PocketBase from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { APP_HOME_PATH, getInviteHref, getWorkspaceOverviewHref } from "@/config/routes";
-import {
-  buildApplicationShellModel,
-  clearSessionScopedApplicationState,
-  resolveApplicationPostAuthState,
-} from "./application-composition";
+import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
+import { buildApplicationShellModel } from "./application-composition";
 
-const {
-  clearActiveWorkspaceSlugCookieMock,
-  clearPendingInviteTokenCookieMock,
-  getActiveWorkspaceSlugCookieMock,
-  getPendingInviteTokenCookieMock,
-  listUserWorkspacesWithClientMock,
-  resolvePostAuthDestinationMock,
-} = vi.hoisted(function hoistApplicationCompositionMocks() {
-  return {
-    clearActiveWorkspaceSlugCookieMock: vi.fn(),
-    clearPendingInviteTokenCookieMock: vi.fn(),
-    getActiveWorkspaceSlugCookieMock: vi.fn(),
-    getPendingInviteTokenCookieMock: vi.fn(),
-    listUserWorkspacesWithClientMock: vi.fn(),
-    resolvePostAuthDestinationMock: vi.fn(),
-  };
-});
+const { getActiveWorkspaceSlugCookieMock, listUserWorkspacesWithClientMock } = vi.hoisted(
+  function hoistApplicationCompositionMocks() {
+    return {
+      getActiveWorkspaceSlugCookieMock: vi.fn(),
+      listUserWorkspacesWithClientMock: vi.fn(),
+    };
+  }
+);
 
 vi.mock("@/server/workspaces/workspace-cookie", function mockWorkspaceCookie() {
   return {
-    clearActiveWorkspaceSlugCookie: clearActiveWorkspaceSlugCookieMock,
-    clearPendingInviteTokenCookie: clearPendingInviteTokenCookieMock,
     getActiveWorkspaceSlugCookie: getActiveWorkspaceSlugCookieMock,
-    getPendingInviteTokenCookie: getPendingInviteTokenCookieMock,
   };
 });
 
@@ -39,7 +23,6 @@ vi.mock(
   function mockWorkspaceResolutionService() {
     return {
       listUserWorkspacesWithClient: listUserWorkspacesWithClientMock,
-      resolvePostAuthDestination: resolvePostAuthDestinationMock,
     };
   }
 );
@@ -167,65 +150,5 @@ describe("application-composition", function describeApplicationComposition() {
         workspaceNavigation: null,
       },
     });
-  });
-
-  it("resolves invite redirects through the application composition seam", async function testResolveInvitePostAuthState() {
-    getPendingInviteTokenCookieMock.mockResolvedValue("invite-1");
-    resolvePostAuthDestinationMock.mockResolvedValue({
-      ok: true,
-      data: {
-        state: "invite_redirect",
-        inviteToken: "invite-1",
-      },
-    });
-
-    const response = await resolveApplicationPostAuthState({
-      userId: "user-1",
-      userEmail: "user@example.com",
-    });
-
-    expect(resolvePostAuthDestinationMock).toHaveBeenCalledWith({
-      userId: "user-1",
-      userEmail: "user@example.com",
-      pendingInviteToken: "invite-1",
-    });
-    expect(response).toEqual({
-      ok: true,
-      data: {
-        href: getInviteHref("invite-1"),
-        clearPendingInviteToken: true,
-      },
-    });
-  });
-
-  it("maps workspace redirects into application state", async function testResolveWorkspacePostAuthState() {
-    getPendingInviteTokenCookieMock.mockResolvedValue(null);
-    resolvePostAuthDestinationMock.mockResolvedValue({
-      ok: true,
-      data: {
-        state: "workspace_redirect",
-        workspaceSlug: "team-space",
-      },
-    });
-
-    const response = await resolveApplicationPostAuthState({
-      userId: "user-1",
-      userEmail: "user@example.com",
-    });
-
-    expect(response).toEqual({
-      ok: true,
-      data: {
-        href: getWorkspaceOverviewHref("team-space"),
-        activeWorkspaceSlug: "team-space",
-      },
-    });
-  });
-
-  it("clears session-scoped application state through the host cleanup seam", async function testClearSessionScopedApplicationState() {
-    await clearSessionScopedApplicationState();
-
-    expect(clearActiveWorkspaceSlugCookieMock).toHaveBeenCalledTimes(1);
-    expect(clearPendingInviteTokenCookieMock).toHaveBeenCalledTimes(1);
   });
 });

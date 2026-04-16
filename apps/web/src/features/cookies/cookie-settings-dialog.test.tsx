@@ -3,7 +3,7 @@
 import type { ComponentProps } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { COOKIE_NAME } from "./cookie-consent";
+import { COOKIE_NAME } from "@/config/cookie-consent";
 
 vi.hoisted(function hoistCookieEnvironment() {
   process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED = "true";

@@ -27,9 +27,9 @@ import { CopyButton } from "@/components/ui/copy-button";
 import { legal } from "@/config/legal";
 import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
+import { isCookieConsentEnabled } from "@/config/cookie-consent";
 import { formatPhoneNumber } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
-import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { useBrowserPathnameState } from "@/hooks/use-browser-pathname-state";
 
 type TranslateNavigationLabel = (key: MenuLabelKey) => string;

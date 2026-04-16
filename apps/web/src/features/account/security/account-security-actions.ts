@@ -9,8 +9,8 @@ import {
   deleteCurrentUserAccountWithPassword,
   updateCurrentUserPassword,
 } from "@/server/account/account-security-service";
-import { finalizeAuthAction } from "@/server/auth/auth-response";
-import { clearSessionScopedApplicationState } from "@/features/application/application-composition";
+import { clearSessionScopedApplicationState } from "@/server/application/application-session-state";
+import { createBadRequestAuthResponse, finalizeAuthAction } from "@/server/auth/auth-response";
 
 type DeleteAccountPayload = {
   deleted: true;
@@ -28,7 +28,7 @@ export async function updateAccountPasswordAction(input: {
   const parsedInput = accountPasswordUpdateInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse<UpdateAccountPasswordPayload>();
+    return createBadRequestAuthResponse<UpdateAccountPasswordPayload>();
   }
 
   const response = await updateCurrentUserPassword(parsedInput.data);
@@ -42,7 +42,7 @@ export async function deleteAccountAction(input: {
   const parsedInput = accountDeleteInputSchema.safeParse(input);
 
   if (!parsedInput.success) {
-    return createBadRequestResponse<DeleteAccountPayload>();
+    return createBadRequestAuthResponse<DeleteAccountPayload>();
   }
 
   const response = await deleteCurrentUserAccountWithPassword(parsedInput.data.password);
@@ -52,11 +52,4 @@ export async function deleteAccountAction(input: {
   }
 
   return finalizeAuthAction(response);
-}
-
-function createBadRequestResponse<TData>(): AuthResponse<TData> {
-  return {
-    ok: false,
-    errorCode: "BAD_REQUEST",
-  };
 }

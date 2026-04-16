@@ -10,7 +10,7 @@ import { logAuthServiceError, mapSignInErrorCode } from "@/server/auth/auth-erro
 import {
   createAuthAndDeviceCookies,
   revokeCurrentAuthDeviceSession,
-} from "@/server/auth/auth-device-session-integration";
+} from "@/server/device-sessions/device-sessions-service";
 import { resolveWritableAuthenticatedUser } from "@/server/auth/auth-user-resolution";
 import { createAuthSession } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";

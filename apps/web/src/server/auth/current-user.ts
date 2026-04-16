@@ -1,11 +1,22 @@
 import type PocketBase from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
+import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import {
   resolveRenderAuthenticatedUser,
   resolveWritableAuthenticatedUser,
 } from "@/server/auth/auth-user-resolution";
+import type { DeviceSessionListItem } from "@/server/device-sessions/device-sessions-types";
+import {
+  listDeviceSessions,
+  revokeDeviceSessionById,
+  revokeOtherDeviceSessions,
+} from "@/server/device-sessions/device-sessions-service";
+import { logServiceError } from "@/server/pocketbase/pocketbase-utils";
 
 type RequireCurrentUserErrorCode = "UNAUTHORIZED" | "UNKNOWN_ERROR";
+type DeviceSessionMutationPayload = {
+  revoked: true;
+};
 
 export type RequireCurrentUserResult =
   | {
@@ -47,6 +58,114 @@ export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
     pb: currentUser.pb,
     user: currentUser.user,
     currentSessionIdHash: currentUser.currentSessionIdHash,
+  };
+}
+
+export async function listCurrentUserDeviceSessions(): Promise<DeviceSessionListItem[]> {
+  const currentUser = await requireCurrentUser();
+
+  if (!currentUser.ok) {
+    return [];
+  }
+
+  try {
+    return await listDeviceSessions({
+      pb: currentUser.pb,
+      userId: currentUser.user.id,
+      currentSessionIdHash: currentUser.currentSessionIdHash,
+    });
+  } catch (error) {
+    logServiceError("current-user", "listCurrentUserDeviceSessions", error);
+
+    return [];
+  }
+}
+
+export async function revokeCurrentUserOtherDeviceSessions(): Promise<
+  ServerAuthResponse<DeviceSessionMutationPayload>
+> {
+  const currentUser = await requireCurrentWritableUser();
+
+  if (!currentUser.ok) {
+    return createWritableUserFailureResponse(currentUser);
+  }
+
+  try {
+    await revokeOtherDeviceSessions({
+      pb: currentUser.pb,
+      userId: currentUser.user.id,
+      currentSessionIdHash: currentUser.currentSessionIdHash,
+    });
+
+    return createRevokedDeviceSessionResponse();
+  } catch (error) {
+    logServiceError("current-user", "revokeCurrentUserOtherDeviceSessions", error);
+
+    return {
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+    };
+  }
+}
+
+export async function revokeCurrentUserDeviceSessionById(input: {
+  deviceSessionId: string;
+}): Promise<ServerAuthResponse<DeviceSessionMutationPayload>> {
+  const currentUser = await requireCurrentWritableUser();
+
+  if (!currentUser.ok) {
+    return createWritableUserFailureResponse(currentUser);
+  }
+
+  try {
+    const revokeResult = await revokeDeviceSessionById({
+      pb: currentUser.pb,
+      userId: currentUser.user.id,
+      deviceSessionId: input.deviceSessionId,
+      currentSessionIdHash: currentUser.currentSessionIdHash,
+    });
+
+    if (revokeResult === "not_found") {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    if (revokeResult === "current_device") {
+      return {
+        ok: false,
+        errorCode: "BAD_REQUEST",
+      };
+    }
+
+    return createRevokedDeviceSessionResponse();
+  } catch (error) {
+    logServiceError("current-user", "revokeCurrentUserDeviceSessionById", error);
+
+    return {
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+    };
+  }
+}
+
+function createRevokedDeviceSessionResponse(): ServerAuthResponse<DeviceSessionMutationPayload> {
+  return {
+    ok: true,
+    data: {
+      revoked: true,
+    },
+  };
+}
+
+function createWritableUserFailureResponse<TData>(
+  currentUser: Exclude<RequireCurrentWritableUserResult, { ok: true }>
+): ServerAuthResponse<TData> {
+  return {
+    ok: false,
+    errorCode: currentUser.errorCode,
+    ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
   };
 }
 

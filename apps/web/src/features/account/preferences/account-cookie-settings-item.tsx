@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { CookieIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { isCookieConsentEnabled } from "@/config/cookie-consent";
 import {
   SettingsItem,
   SettingsItemContent,
@@ -12,7 +13,6 @@ import {
   SettingsItemFooter,
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
-import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 import { cn } from "@/lib/utils";
 

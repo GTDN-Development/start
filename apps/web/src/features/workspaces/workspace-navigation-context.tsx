@@ -9,7 +9,9 @@ type WorkspaceNavigationState = {
 };
 
 type WorkspaceNavigationContextValue = WorkspaceNavigationState & {
-  patchWorkspace: (workspaceId: string, patch: Partial<WorkspaceNavigationItem>) => void;
+  upsertWorkspace: (workspace: WorkspaceNavigationItem) => void;
+  removeWorkspace: (workspaceId: string) => void;
+  setActiveWorkspaceSlug: (workspaceSlug: string | null) => void;
 };
 
 type WorkspaceNavigationProviderProps = {
@@ -30,30 +32,57 @@ export function WorkspaceNavigationProvider({
     workspaces: initialWorkspaces,
   });
 
-  function patchWorkspace(workspaceId: string, patch: Partial<WorkspaceNavigationItem>) {
+  function upsertWorkspace(workspace: WorkspaceNavigationItem) {
     setNavigationState((current) => {
       const previousWorkspace =
-        current.workspaces.find((workspace) => workspace.id === workspaceId) ?? null;
+        current.workspaces.find((candidateWorkspace) => candidateWorkspace.id === workspace.id) ??
+        null;
+
+      const nextWorkspaces = sortWorkspaceNavigationItems(
+        previousWorkspace
+          ? current.workspaces.map((candidateWorkspace) =>
+              candidateWorkspace.id === workspace.id ? workspace : candidateWorkspace
+            )
+          : [...current.workspaces, workspace]
+      );
+
+      return {
+        activeWorkspaceSlug:
+          previousWorkspace && current.activeWorkspaceSlug === previousWorkspace.slug
+            ? workspace.slug
+            : current.activeWorkspaceSlug,
+        workspaces: nextWorkspaces,
+      };
+    });
+  }
+
+  function removeWorkspace(workspaceId: string) {
+    setNavigationState((current) => {
+      const previousWorkspace =
+        current.workspaces.find((candidateWorkspace) => candidateWorkspace.id === workspaceId) ??
+        null;
 
       if (!previousWorkspace) {
         return current;
       }
 
-      const nextWorkspace = {
-        ...previousWorkspace,
-        ...patch,
-      };
-
       return {
         activeWorkspaceSlug:
           current.activeWorkspaceSlug === previousWorkspace.slug
-            ? nextWorkspace.slug
+            ? null
             : current.activeWorkspaceSlug,
-        workspaces: current.workspaces.map((workspace) =>
-          workspace.id === workspaceId ? nextWorkspace : workspace
+        workspaces: current.workspaces.filter(
+          (candidateWorkspace) => candidateWorkspace.id !== workspaceId
         ),
       };
     });
+  }
+
+  function setActiveWorkspaceSlug(workspaceSlug: string | null) {
+    setNavigationState((current) => ({
+      ...current,
+      activeWorkspaceSlug: workspaceSlug,
+    }));
   }
 
   return (
@@ -61,7 +90,9 @@ export function WorkspaceNavigationProvider({
       value={{
         activeWorkspaceSlug: navigationState.activeWorkspaceSlug,
         workspaces: navigationState.workspaces,
-        patchWorkspace,
+        upsertWorkspace,
+        removeWorkspace,
+        setActiveWorkspaceSlug,
       }}
     >
       {children}
@@ -81,4 +112,10 @@ export function useWorkspaceNavigation() {
 
 export function useOptionalWorkspaceNavigation(): WorkspaceNavigationContextValue | null {
   return useContext(WorkspaceNavigationContext);
+}
+
+function sortWorkspaceNavigationItems(workspaces: WorkspaceNavigationItem[]) {
+  return [...workspaces].sort((firstWorkspace, secondWorkspace) =>
+    firstWorkspace.name.localeCompare(secondWorkspace.name)
+  );
 }

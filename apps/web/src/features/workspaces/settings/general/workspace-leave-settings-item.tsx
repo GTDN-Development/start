@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { startTransition, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { LogOutIcon } from "lucide-react";
@@ -29,12 +29,9 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
-import { APP_HOME_PATH } from "@/config/routes";
 import { createWorkspaceLeaveFormSchema } from "@/features/workspaces/workspace-schemas";
-import { leaveWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
+import type { WorkspaceGeneralLeaveHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
-import { useRouter } from "@/i18n/navigation";
-import { runAsyncTransition } from "@/lib/app-utils";
 
 type LeaveWorkspaceFormValues = {
   confirmationUrl: string;
@@ -43,12 +40,13 @@ type LeaveWorkspaceFormValues = {
 
 export function WorkspaceLeaveSettingsItem({
   workspace,
+  onLeaveWorkspaceAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
+  onLeaveWorkspaceAction: WorkspaceGeneralLeaveHandler;
 }) {
   const t = useTranslations("pages.workspace.general.leave");
   const tCommon = useTranslations("pages.workspace.common");
-  const router = useRouter();
   const leaveWorkspaceToastId = useId();
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
 
@@ -76,7 +74,7 @@ export function WorkspaceLeaveSettingsItem({
         return;
       }
 
-      const response = await runAsyncTransition(() => leaveWorkspaceAction(workspace.slug));
+      const response = await onLeaveWorkspaceAction();
 
       if (!response.ok) {
         toast.error(
@@ -94,11 +92,8 @@ export function WorkspaceLeaveSettingsItem({
         id: leaveWorkspaceToastId,
       });
 
-      startTransition(() => {
-        setIsLeaveDialogOpen(false);
-        form.reset();
-        router.replace(APP_HOME_PATH);
-      });
+      setIsLeaveDialogOpen(false);
+      form.reset();
     },
   });
 

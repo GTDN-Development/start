@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { startTransition, useId, useState } from "react";
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -16,36 +16,30 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
-import { getWorkspaceSettingsHref } from "@/config/routes";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { app } from "@/config/app";
 import {
   createWorkspaceUrlFormSchema,
   workspaceSlugMaxLength,
 } from "@/features/workspaces/workspace-schemas";
-import { updateWorkspaceGeneralAction } from "@/features/workspaces/settings/general/workspace-general-actions";
-import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
+import type { WorkspaceGeneralUpdateHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
-import { useRouter } from "@/i18n/navigation";
-import { runAsyncTransition } from "@/lib/app-utils";
 
 type WorkspaceUrlFormValues = {
   url: string;
 };
 
-export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSettingsWorkspace }) {
+export function WorkspaceUrlSettingsItem({
+  workspace,
+  onUpdateWorkspaceAction,
+}: {
+  workspace: WorkspaceSettingsWorkspace;
+  onUpdateWorkspaceAction: WorkspaceGeneralUpdateHandler;
+}) {
   const t = useTranslations("pages.workspace.general.url");
   const tCommon = useTranslations("pages.workspace.common");
-  const router = useRouter();
-  const { patchWorkspace, workspaces } = useWorkspaceNavigation();
   const urlToastId = useId();
-  const [workspaceUrl, setWorkspaceUrl] = useState(workspace.slug);
-
-  const currentWorkspace = workspaces.find(
-    (candidateWorkspace) => candidateWorkspace.id === workspace.id
-  );
-  const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
-  const isReadOnly = workspaceSnapshot.role === "member";
+  const isReadOnly = workspace.role === "member";
 
   const workspaceUrlSchema = createWorkspaceUrlFormSchema({
     required: t("validation.required"),
@@ -56,7 +50,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
 
   const form = useForm({
     defaultValues: {
-      url: workspaceUrl,
+      url: workspace.slug,
     },
     validators: {
       onSubmit: workspaceUrlSchema,
@@ -68,11 +62,9 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
 
       const nextUrl = value.url.trim();
 
-      const response = await runAsyncTransition(() =>
-        updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
-          slug: nextUrl,
-        })
-      );
+      const response = await onUpdateWorkspaceAction({
+        slug: nextUrl,
+      });
 
       if (!response.ok) {
         if (response.errorCode === "SLUG_NOT_AVAILABLE") {
@@ -88,22 +80,12 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
         return;
       }
 
-      startTransition(() => {
-        setWorkspaceUrl(response.data.workspaceSlug);
-        patchWorkspace(workspaceSnapshot.id, response.data.workspace);
-        form.reset();
-        form.setFieldValue("url", response.data.workspaceSlug);
-      });
+      form.reset();
+      form.setFieldValue("url", response.data.workspaceSlug);
 
       toast.success(t("status.updated"), {
         id: urlToastId,
       });
-
-      if (response.data.workspaceSlug !== workspaceSnapshot.slug) {
-        startTransition(() => {
-          router.replace(getWorkspaceSettingsHref(response.data.workspaceSlug));
-        });
-      }
     },
   });
 
@@ -158,7 +140,7 @@ export function WorkspaceUrlSettingsItem({ workspace }: { workspace: WorkspaceSe
                             </InputGroup>
                             <FieldDescription>
                               {t("field.description", {
-                                workspaceUrl,
+                                workspaceUrl: workspace.slug,
                               })}
                             </FieldDescription>
                             {isInvalid && <FieldError errors={field.state.meta.errors} />}

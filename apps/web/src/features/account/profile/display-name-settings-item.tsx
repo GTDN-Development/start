@@ -35,7 +35,7 @@ type ProfileNameFormValues = {
 
 export function AccountDisplayNameSettingsItem() {
   const t = useTranslations("pages.account");
-  const { profile, patchProfile } = useAccountProfile();
+  const { profile, setProfile } = useAccountProfile();
   const nameToastId = useId();
   const [nameStatus, setNameStatus] = useState<InlineStatus>(null);
   const profileNameSchema = createAccountProfileNameFormSchema({
@@ -61,9 +61,9 @@ export function AccountDisplayNameSettingsItem() {
       );
 
       if (response.ok) {
-        const nextName = response.data.profile.name ?? "";
+        const nextName = response.data.name ?? "";
         startTransition(() => {
-          patchProfile(response.data.profile);
+          setProfile(response.data);
           form.reset();
           form.setFieldValue("name", nextName);
         });

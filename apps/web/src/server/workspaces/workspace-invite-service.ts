@@ -19,7 +19,7 @@ import { mapWorkspaceInviteSummary } from "@/server/workspaces/workspace-mappers
 import {
   requireWorkspaceActionMembershipContext,
   requireWorkspaceMembershipContext,
-} from "@/server/workspaces/workspace-membership-context";
+} from "@/server/workspaces/workspace-resolution-service";
 import { normalizeEmail } from "@/server/workspaces/workspace-normalization";
 import {
   findInviteById,

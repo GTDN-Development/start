@@ -2,17 +2,10 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SettingsPage } from "@/features/application/settings-page";
-import { WorkspaceAvatarSettingsItem } from "@/features/workspaces/settings/general/workspace-avatar-settings-item";
-import { WorkspaceDeleteSettingsItem } from "@/features/workspaces/settings/general/workspace-delete-settings-item";
-import { WorkspaceLeaveSettingsItem } from "@/features/workspaces/settings/general/workspace-leave-settings-item";
-import { WorkspaceNameSettingsItem } from "@/features/workspaces/settings/general/workspace-name-settings-item";
-import { WorkspaceUrlSettingsItem } from "@/features/workspaces/settings/general/workspace-url-settings-item";
-import { AUTH_REDIRECTS } from "@/config/auth";
-import { redirect } from "@/i18n/navigation";
-import { requireCurrentUser } from "@/server/auth/current-user";
-import { resolveWorkspaceForUserBySlugWithClient } from "@/server/workspaces/workspace-resolution-service";
+import { WorkspaceGeneralSettingsSection } from "@/features/workspaces/settings/general/workspace-general-settings-section";
+import { requireWorkspaceRouteAccess } from "@/features/workspaces/workspace-route";
 import { listWorkspaceMembersWithClient } from "@/server/workspaces/workspace-members-service";
-import { requireWorkspaceRouteResult } from "@/features/workspaces/workspace-route";
+import { resolveCurrentUserWorkspaceRouteAccess } from "@/server/workspaces/workspace-resolution-service";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings">
@@ -37,31 +30,17 @@ export async function generateMetadata(
 
 export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]/settings">) {
   const { locale, workspaceSlug } = await params;
+  const currentLocale = locale as Locale;
 
-  setRequestLocale(locale as Locale);
+  setRequestLocale(currentLocale);
 
-  const currentUser = await requireCurrentUser();
-
-  if (!currentUser.ok) {
-    redirect({
-      href: AUTH_REDIRECTS.unauthenticatedTo,
-      locale: locale as Locale,
-    });
-
-    return null;
-  }
-
-  const workspaceResponse = await resolveWorkspaceForUserBySlugWithClient(
-    currentUser.pb,
-    currentUser.user.id,
-    workspaceSlug
+  const { pb, user, workspace } = requireWorkspaceRouteAccess(
+    await resolveCurrentUserWorkspaceRouteAccess(workspaceSlug),
+    currentLocale
   );
-  const workspace = requireWorkspaceRouteResult(workspaceResponse);
 
   const membersResponse =
-    workspace.role === "owner"
-      ? await listWorkspaceMembersWithClient(currentUser.pb, workspace.id)
-      : null;
+    workspace.role === "owner" ? await listWorkspaceMembersWithClient(pb, workspace.id) : null;
 
   const isCurrentUserLastOwner =
     workspace.role === "owner" &&
@@ -73,31 +52,25 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
     id: workspace.id,
     slug: workspace.slug,
     name: workspace.name,
-    currentUserId: currentUser.user.id,
+    currentUserId: user.id,
     role: workspace.role,
     isCurrentUserLastOwner,
     avatarUrl: workspace.avatarUrl,
   } as const;
 
   const tNav = await getTranslations({
-    locale: locale as Locale,
+    locale: currentLocale,
     namespace: "layout.navigation.items",
   });
 
   const tWorkspace = await getTranslations({
-    locale: locale as Locale,
+    locale: currentLocale,
     namespace: "pages.workspace",
   });
 
   return (
     <SettingsPage title={tNav("settings")} description={tWorkspace("description")}>
-      <div className="grid gap-8">
-        <WorkspaceNameSettingsItem workspace={workspaceSettings} />
-        <WorkspaceUrlSettingsItem workspace={workspaceSettings} />
-        <WorkspaceAvatarSettingsItem workspace={workspaceSettings} />
-        <WorkspaceLeaveSettingsItem workspace={workspaceSettings} />
-        <WorkspaceDeleteSettingsItem workspace={workspaceSettings} />
-      </div>
+      <WorkspaceGeneralSettingsSection initialWorkspace={workspaceSettings} />
     </SettingsPage>
   );
 }

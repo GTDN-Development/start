@@ -1,8 +1,19 @@
 import { createHash } from "node:crypto";
+import { headers } from "next/headers";
 import PocketBase, { ClientResponseError } from "pocketbase";
 import type { UserDeviceSessionsRecord } from "@/types/pocketbase";
-import { formatServiceError, logServiceError } from "@/server/pocketbase/pocketbase-utils";
-import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
+import { exportPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
+import {
+  formatServiceError,
+  isUsersRecord,
+  logServiceError,
+} from "@/server/pocketbase/pocketbase-utils";
+import {
+  createClearedAuthAndDeviceCookies,
+  createDeviceSessionCookie,
+  generateDeviceSessionCookie,
+  readDeviceSessionCookie,
+} from "@/server/device-sessions/device-sessions-cookie";
 import { parseDeviceInfo } from "@/server/device-sessions/device-sessions-ua-parser";
 import {
   DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS,
@@ -18,8 +29,140 @@ import {
 
 const DEVICE_SESSIONS_COLLECTION = "user_device_sessions";
 
+type ReadAuthDeviceSessionInput = {
+  pb: PocketBase;
+  userId: string;
+  mode: "read";
+};
+
+type WriteAuthDeviceSessionInput = {
+  pb: PocketBase;
+  userId: string;
+  mode: "write";
+  shouldPersistSession: boolean;
+};
+
+type ResolveCurrentAuthDeviceSessionResult =
+  | {
+      status: "valid";
+      sessionIdHash: string;
+    }
+  | {
+      status: "invalid";
+      setCookie?: string[];
+    };
+
+type CreateAuthAndDeviceCookiesResult =
+  | {
+      ok: true;
+      setCookie: string[];
+    }
+  | {
+      ok: false;
+      errorCode: "UNKNOWN_ERROR";
+      setCookie: string[];
+    };
+
 export function hashSessionToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
+}
+
+export async function resolveCurrentAuthDeviceSession(
+  input: ReadAuthDeviceSessionInput | WriteAuthDeviceSessionInput
+): Promise<ResolveCurrentAuthDeviceSessionResult> {
+  const deviceSessionToken = await readDeviceSessionCookie();
+
+  if (input.mode === "read") {
+    const deviceSessionCheck = await checkDeviceSessionReadOnly({
+      pb: input.pb,
+      userId: input.userId,
+      deviceSessionToken,
+    });
+
+    if (deviceSessionCheck.status === "invalid") {
+      return {
+        status: "invalid",
+      };
+    }
+
+    return {
+      status: "valid",
+      sessionIdHash: deviceSessionCheck.sessionIdHash,
+    };
+  }
+
+  const deviceSessionCheck = await validateDeviceSessionOrInvalidate({
+    pb: input.pb,
+    userId: input.userId,
+    deviceSessionToken,
+    shouldUpdateHeartbeat: true,
+    shouldPersistSession: input.shouldPersistSession === true,
+  });
+
+  if (deviceSessionCheck.status === "invalid") {
+    return {
+      status: "invalid",
+      setCookie: deviceSessionCheck.clearCookies,
+    };
+  }
+
+  return {
+    status: "valid",
+    sessionIdHash: deviceSessionCheck.sessionIdHash,
+  };
+}
+
+export async function createAuthAndDeviceCookies(input: {
+  pb: PocketBase;
+  userId: string;
+  rememberMe: boolean;
+  existingDeviceSessionToken?: string | null;
+  logContext: string;
+}): Promise<CreateAuthAndDeviceCookiesResult> {
+  const normalizedExistingDeviceSessionToken = input.existingDeviceSessionToken?.trim() ?? "";
+  const nextDeviceSession =
+    normalizedExistingDeviceSessionToken.length > 0
+      ? {
+          token: normalizedExistingDeviceSessionToken,
+          setCookie: createDeviceSessionCookie(
+            normalizedExistingDeviceSessionToken,
+            input.rememberMe
+          ),
+        }
+      : generateDeviceSessionCookie(input.rememberMe);
+
+  try {
+    const requestHeaders = await headers();
+
+    await registerOrRefreshDeviceSession({
+      pb: input.pb,
+      userId: input.userId,
+      sessionToken: nextDeviceSession.token,
+      shouldPersistSession: input.rememberMe,
+      requestHeaders,
+    });
+  } catch (error) {
+    console.error(
+      `[auth-service] ${input.logContext}: device session registration failed`,
+      formatServiceError(error)
+    );
+
+    return {
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+      setCookie: createClearedAuthAndDeviceCookies(),
+    };
+  }
+
+  return {
+    ok: true,
+    setCookie: [
+      ...exportPocketBaseAuthCookies(input.pb, {
+        sessionOnly: !input.rememberMe,
+      }),
+      nextDeviceSession.setCookie,
+    ],
+  };
 }
 
 export async function registerOrRefreshDeviceSession(input: {
@@ -156,6 +299,34 @@ export async function revokeCurrentDeviceSession(input: {
   }
 
   await deleteDeviceSessionSafely(input.pb, session.id);
+}
+
+export async function revokeCurrentAuthDeviceSession(input: {
+  pb: PocketBase;
+  logContext: string;
+}): Promise<void> {
+  const deviceSessionToken = await readDeviceSessionCookie();
+
+  if (
+    !deviceSessionToken ||
+    !input.pb.authStore.isValid ||
+    !isUsersRecord(input.pb.authStore.record)
+  ) {
+    return;
+  }
+
+  try {
+    await revokeCurrentDeviceSession({
+      pb: input.pb,
+      userId: input.pb.authStore.record.id,
+      currentSessionIdHash: hashSessionToken(deviceSessionToken),
+    });
+  } catch (error) {
+    console.warn(
+      `[auth-service] ${input.logContext}: device session revoke failed, continuing`,
+      formatServiceError(error)
+    );
+  }
 }
 
 export async function revokeOtherDeviceSessions(input: {

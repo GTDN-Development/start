@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { startTransition, useId, useState } from "react";
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,10 +21,8 @@ import {
   createWorkspaceNameFormSchema,
   workspaceNameMaxLength,
 } from "@/features/workspaces/workspace-schemas";
-import { updateWorkspaceGeneralAction } from "@/features/workspaces/settings/general/workspace-general-actions";
-import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
+import type { WorkspaceGeneralUpdateHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
-import { runAsyncTransition } from "@/lib/app-utils";
 
 type WorkspaceNameFormValues = {
   name: string;
@@ -32,20 +30,15 @@ type WorkspaceNameFormValues = {
 
 export function WorkspaceNameSettingsItem({
   workspace,
+  onUpdateWorkspaceAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
+  onUpdateWorkspaceAction: WorkspaceGeneralUpdateHandler;
 }) {
   const t = useTranslations("pages.workspace.general.name");
   const tCommon = useTranslations("pages.workspace.common");
-  const { patchWorkspace, workspaces } = useWorkspaceNavigation();
   const nameToastId = useId();
-  const [workspaceName, setWorkspaceName] = useState(workspace.name);
-
-  const currentWorkspace = workspaces.find(
-    (candidateWorkspace) => candidateWorkspace.id === workspace.id
-  );
-  const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
-  const isReadOnly = workspaceSnapshot.role === "member";
+  const isReadOnly = workspace.role === "member";
 
   const workspaceNameSchema = createWorkspaceNameFormSchema({
     required: t("validation.required"),
@@ -56,7 +49,7 @@ export function WorkspaceNameSettingsItem({
 
   const form = useForm({
     defaultValues: {
-      name: workspaceName,
+      name: workspace.name,
     },
     validators: {
       onSubmit: workspaceNameSchema,
@@ -68,11 +61,9 @@ export function WorkspaceNameSettingsItem({
 
       const nextName = value.name.trim();
 
-      const response = await runAsyncTransition(() =>
-        updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
-          name: nextName,
-        })
-      );
+      const response = await onUpdateWorkspaceAction({
+        name: nextName,
+      });
 
       if (!response.ok) {
         toast.error(t("status.updateFailed"), {
@@ -81,12 +72,8 @@ export function WorkspaceNameSettingsItem({
         return;
       }
 
-      startTransition(() => {
-        setWorkspaceName(nextName);
-        patchWorkspace(workspaceSnapshot.id, response.data.workspace);
-        form.reset();
-        form.setFieldValue("name", nextName);
-      });
+      form.reset();
+      form.setFieldValue("name", response.data.workspace.name);
 
       toast.success(t("status.updated"), {
         id: nameToastId,

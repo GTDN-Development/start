@@ -1,7 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { getWorkspaceSettingsMembersPath } from "@/config/routes";
 import { z } from "zod";
 import { routing, type AppLocale } from "@/i18n/routing";
 import {
@@ -13,7 +11,6 @@ import {
   WORKSPACE_MEMBER_ROLE_VALUES,
   type WorkspaceMemberRole,
 } from "@/features/workspaces/workspace-role-rules";
-import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
 import {
   changeWorkspaceMemberRoleForCurrentUser,
   removeWorkspaceMemberForCurrentUser,
@@ -24,8 +21,11 @@ import {
   resendWorkspaceInviteForCurrentUser,
   revokeWorkspaceInviteForCurrentUser,
 } from "@/server/workspaces/workspace-invite-service";
+import {
+  createBadRequestWorkspaceResponse,
+  finalizeWorkspaceAction,
+} from "@/server/workspaces/workspace-response";
 import type {
-  ServerWorkspaceResponse,
   WorkspaceInviteSummary,
   WorkspaceResponse,
 } from "@/server/workspaces/workspace-types";
@@ -43,7 +43,7 @@ export async function changeMemberRoleAction(
   const parsedRole = workspaceMemberRoleSchema.safeParse(role);
 
   if (!parsedWorkspaceSlug.success || !parsedMemberId.success || !parsedRole.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   const response = await changeWorkspaceMemberRoleForCurrentUser(
@@ -52,14 +52,12 @@ export async function changeMemberRoleAction(
     parsedRole.data
   );
 
-  if (response.ok) {
-    revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
-  }
-
-  return finalizeWorkspaceAction(response, () => ({
-    memberId: parsedMemberId.data,
-    role: parsedRole.data,
-  }));
+  return finalizeWorkspaceAction(response, {
+    mapData: () => ({
+      memberId: parsedMemberId.data,
+      role: parsedRole.data,
+    }),
+  });
 }
 
 export async function removeMemberAction(
@@ -70,7 +68,7 @@ export async function removeMemberAction(
   const parsedMemberId = workspaceIdSchema.safeParse(memberId);
 
   if (!parsedWorkspaceSlug.success || !parsedMemberId.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   const response = await removeWorkspaceMemberForCurrentUser(
@@ -78,13 +76,11 @@ export async function removeMemberAction(
     parsedMemberId.data
   );
 
-  if (response.ok) {
-    revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
-  }
-
-  return finalizeWorkspaceAction(response, () => ({
-    memberId: parsedMemberId.data,
-  }));
+  return finalizeWorkspaceAction(response, {
+    mapData: () => ({
+      memberId: parsedMemberId.data,
+    }),
+  });
 }
 
 export async function createInviteAction(
@@ -99,17 +95,13 @@ export async function createInviteAction(
   const parsedInput = createInviteInputSchema.safeParse(input);
 
   if (!parsedWorkspaceSlug.success || !parsedInput.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   const response = await createWorkspaceInviteForCurrentUser(
     parsedWorkspaceSlug.data,
     parsedInput.data
   );
-
-  if (response.ok) {
-    revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
-  }
 
   return finalizeWorkspaceAction(response);
 }
@@ -126,7 +118,7 @@ export async function resendInviteAction(
   const parsedLocale = z.enum(routing.locales).safeParse(locale);
 
   if (!parsedWorkspaceSlug.success || !parsedInviteId.success || !parsedLocale.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   const response = await resendWorkspaceInviteForCurrentUser(
@@ -134,10 +126,6 @@ export async function resendInviteAction(
     parsedInviteId.data,
     parsedLocale.data
   );
-
-  if (response.ok) {
-    revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
-  }
 
   return finalizeWorkspaceAction(response);
 }
@@ -154,7 +142,7 @@ export async function refreshInviteLinkAction(
   const parsedLocale = z.enum(routing.locales).safeParse(locale);
 
   if (!parsedWorkspaceSlug.success || !parsedInviteId.success || !parsedLocale.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   const response = await refreshWorkspaceInviteLinkForCurrentUser(
@@ -162,10 +150,6 @@ export async function refreshInviteLinkAction(
     parsedInviteId.data,
     parsedLocale.data
   );
-
-  if (response.ok) {
-    revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
-  }
 
   return finalizeWorkspaceAction(response);
 }
@@ -178,7 +162,7 @@ export async function revokeInviteAction(
   const parsedInviteId = workspaceIdSchema.safeParse(inviteId);
 
   if (!parsedWorkspaceSlug.success || !parsedInviteId.success) {
-    return createBadRequestResponse();
+    return createBadRequestWorkspaceResponse();
   }
 
   const response = await revokeWorkspaceInviteForCurrentUser(
@@ -186,41 +170,9 @@ export async function revokeInviteAction(
     parsedInviteId.data
   );
 
-  if (response.ok) {
-    revalidateWorkspaceMembersPath(parsedWorkspaceSlug.data);
-  }
-
-  return finalizeWorkspaceAction(response, () => ({
-    inviteId: parsedInviteId.data,
-  }));
-}
-
-async function finalizeWorkspaceAction<TData, TResult = TData>(
-  response: ServerWorkspaceResponse<TData>,
-  mapData?: (data: TData) => TResult
-): Promise<WorkspaceResponse<TResult>> {
-  await applyServerActionAuthCookies(response.setCookie);
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      errorCode: response.errorCode,
-    };
-  }
-
-  return {
-    ok: true,
-    data: mapData ? mapData(response.data) : (response.data as unknown as TResult),
-  };
-}
-
-function createBadRequestResponse<TData>(): WorkspaceResponse<TData> {
-  return {
-    ok: false,
-    errorCode: "BAD_REQUEST",
-  };
-}
-
-function revalidateWorkspaceMembersPath(workspaceSlug: string): void {
-  revalidatePath(getWorkspaceSettingsMembersPath(workspaceSlug));
+  return finalizeWorkspaceAction(response, {
+    mapData: () => ({
+      inviteId: parsedInviteId.data,
+    }),
+  });
 }

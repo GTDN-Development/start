@@ -1,38 +1,35 @@
 "use client";
 
-import * as React from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile-types";
 
 type AccountProfileContextValue = {
   profile: AccountProfileSnapshot;
-  patchProfile: (patch: Partial<AccountProfileSnapshot>) => void;
+  setProfile: (profile: AccountProfileSnapshot) => void;
   isAvatarUpdating: boolean;
   setIsAvatarUpdating: (isUpdating: boolean) => void;
 };
 
-const AccountProfileContext = React.createContext<AccountProfileContextValue | null>(null);
+const AccountProfileContext = createContext<AccountProfileContextValue | null>(null);
 
 type AccountProfileProviderProps = {
+  children: ReactNode;
   initialProfile: AccountProfileSnapshot;
-  children: React.ReactNode;
 };
 
 export function AccountProfileProvider({ initialProfile, children }: AccountProfileProviderProps) {
-  const [profile, setProfile] = React.useState(initialProfile);
-  const [isAvatarUpdating, setIsAvatarUpdating] = React.useState(false);
+  const [profile, setProfileState] = useState(initialProfile);
+  const [isAvatarUpdating, setIsAvatarUpdating] = useState(false);
 
-  function patchProfile(patch: Partial<AccountProfileSnapshot>) {
-    setProfile((current) => ({
-      ...current,
-      ...patch,
-    }));
+  function setProfile(profileSnapshot: AccountProfileSnapshot) {
+    setProfileState(profileSnapshot);
   }
 
   return (
     <AccountProfileContext.Provider
       value={{
         profile,
-        patchProfile,
+        setProfile,
         isAvatarUpdating,
         setIsAvatarUpdating,
       }}
@@ -43,7 +40,7 @@ export function AccountProfileProvider({ initialProfile, children }: AccountProf
 }
 
 export function useAccountProfile() {
-  const context = React.useContext(AccountProfileContext);
+  const context = useContext(AccountProfileContext);
 
   if (!context) {
     throw new Error("useAccountProfile must be used within AccountProfileProvider");
@@ -53,5 +50,5 @@ export function useAccountProfile() {
 }
 
 export function useOptionalAccountProfile() {
-  return React.useContext(AccountProfileContext);
+  return useContext(AccountProfileContext);
 }

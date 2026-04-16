@@ -6,7 +6,7 @@ import {
 import {
   requireWorkspaceActionMembershipContext,
   requireWorkspaceMembershipContext,
-} from "@/server/workspaces/workspace-membership-context";
+} from "@/server/workspaces/workspace-resolution-service";
 import {
   mapWorkspaceMemberSummary,
   sortWorkspaceMembers,

@@ -34,14 +34,11 @@ vi.mock("@/server/auth/auth-errors", function mockAuthErrors() {
   };
 });
 
-vi.mock(
-  "@/server/auth/auth-device-session-integration",
-  function mockAuthDeviceSessionIntegration() {
-    return {
-      resolveCurrentAuthDeviceSession: resolveCurrentAuthDeviceSessionMock,
-    };
-  }
-);
+vi.mock("@/server/device-sessions/device-sessions-service", function mockDeviceSessionsService() {
+  return {
+    resolveCurrentAuthDeviceSession: resolveCurrentAuthDeviceSessionMock,
+  };
+});
 
 vi.mock("@/server/device-sessions/device-sessions-cookie", function mockDeviceSessionsCookie() {
   return {

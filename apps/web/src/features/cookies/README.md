@@ -10,8 +10,10 @@ Cookie consent module for Next.js App Router with:
 ## File structure
 
 ```txt
+src/config/
+└── cookie-consent.ts                       # Consent contract: cookie names, defaults, parse/serialize, versioning
+
 src/features/cookies/
-├── cookie-consent.ts                       # Consent types, defaults, parse/serialize, versioning
 ├── cookie-consent-actions.ts               # Server action for consent audit events
 ├── cookie-server-utils.ts                  # Server reads of consent + interaction state
 ├── cookie-context.tsx                      # Client state and actions

@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, startTransition, useId, useRef, useState } from "react";
+import { type ChangeEvent, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { PencilIcon, Trash2Icon } from "lucide-react";
@@ -21,51 +21,39 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Skeleton } from "@/components/ui/skeleton";
+import { workspaceConfig } from "@/config/workspace";
+import type { WorkspaceGeneralUpdateHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
-import { updateWorkspaceGeneralAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import {
   WorkspaceAvatar,
   WorkspaceAvatarFallback,
   WorkspaceAvatarImage,
 } from "@/features/workspaces/workspace-avatar";
-import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
-import { workspaceConfig } from "@/config/workspace";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
-import {
-  getAvatarColorClass,
-  getUserInitials,
-  resolveErrorMessage,
-  runAsyncTransition,
-} from "@/lib/app-utils";
+import { getAvatarColorClass, getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 
 export function WorkspaceAvatarSettingsItem({
   workspace,
+  onUpdateWorkspaceAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
+  onUpdateWorkspaceAction: WorkspaceGeneralUpdateHandler;
 }) {
   const t = useTranslations("pages.workspace.general.avatar");
   const tCommon = useTranslations("pages.workspace.common");
-  const { patchWorkspace, workspaces } = useWorkspaceNavigation();
 
   const avatarToastId = useId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const [isAvatarUpdating, setIsAvatarUpdating] = useState(false);
+  const isReadOnly = workspace.role === "member";
 
-  const currentWorkspace = workspaces.find(
-    (candidateWorkspace) => candidateWorkspace.id === workspace.id
-  );
-  const workspaceSnapshot = currentWorkspace ? { ...workspace, ...currentWorkspace } : workspace;
-  const isReadOnly = workspaceSnapshot.role === "member";
-
-  const initials = getUserInitials(workspaceSnapshot.name);
-  const avatarColorClass = getAvatarColorClass(workspaceSnapshot.id);
+  const initials = getUserInitials(workspace.name);
+  const avatarColorClass = getAvatarColorClass(workspace.id);
   const workspaceAvatarUrl =
-    workspaceSnapshot.avatarUrl && workspaceSnapshot.avatarUrl !== failedAvatarUrl
-      ? workspaceSnapshot.avatarUrl
-      : null;
+    workspace.avatarUrl && workspace.avatarUrl !== failedAvatarUrl ? workspace.avatarUrl : null;
 
   async function handleAvatarInputChange(event: ChangeEvent<HTMLInputElement>) {
     if (isReadOnly) {
@@ -102,11 +90,9 @@ export function WorkspaceAvatarSettingsItem({
         return;
       }
 
-      const response = await runAsyncTransition(() =>
-        updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
-          avatarFile: preparedAvatarFileResult.file,
-        })
-      );
+      const response = await onUpdateWorkspaceAction({
+        avatarFile: preparedAvatarFileResult.file,
+      });
 
       if (!response.ok) {
         toast.error(
@@ -121,10 +107,7 @@ export function WorkspaceAvatarSettingsItem({
         return;
       }
 
-      startTransition(() => {
-        patchWorkspace(workspaceSnapshot.id, response.data.workspace);
-        setFailedAvatarUrl(null);
-      });
+      setFailedAvatarUrl(null);
       toast.success(t("status.updated"), {
         id: avatarToastId,
       });
@@ -134,18 +117,16 @@ export function WorkspaceAvatarSettingsItem({
   }
 
   async function handleAvatarRemoveClick() {
-    if (isReadOnly || isAvatarUpdating || !workspaceSnapshot.avatarUrl) {
+    if (isReadOnly || isAvatarUpdating || !workspace.avatarUrl) {
       return;
     }
 
     setIsAvatarUpdating(true);
 
     try {
-      const response = await runAsyncTransition(() =>
-        updateWorkspaceGeneralAction(workspaceSnapshot.slug, {
-          removeAvatar: true,
-        })
-      );
+      const response = await onUpdateWorkspaceAction({
+        removeAvatar: true,
+      });
 
       if (!response.ok) {
         toast.error(t("status.removeFailed"), {
@@ -154,10 +135,7 @@ export function WorkspaceAvatarSettingsItem({
         return;
       }
 
-      startTransition(() => {
-        patchWorkspace(workspaceSnapshot.id, response.data.workspace);
-        setFailedAvatarUrl(null);
-      });
+      setFailedAvatarUrl(null);
       toast.success(t("status.removed"), {
         id: avatarToastId,
       });
@@ -237,7 +215,7 @@ export function WorkspaceAvatarSettingsItem({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleAvatarRemoveClick}
-                  disabled={isAvatarUpdating || isReadOnly || !workspaceSnapshot.avatarUrl}
+                  disabled={isAvatarUpdating || isReadOnly || !workspace.avatarUrl}
                   variant="destructive"
                   className="whitespace-nowrap"
                 >

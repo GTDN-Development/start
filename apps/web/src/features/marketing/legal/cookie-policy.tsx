@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
+import { isCookieConsentEnabled } from "@/config/cookie-consent";
 import type { CookiePolicyConfig } from "@/config/legal";
-import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
 import type { Cookie, CookieCategory } from "@/types/cookies";
 

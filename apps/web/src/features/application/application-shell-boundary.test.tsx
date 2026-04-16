@@ -127,7 +127,7 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
     expect(root.props.applicationEntryHref).toEqual(getWorkspaceOverviewHref("team-space"));
   });
 
-  it("renders the host root without workspace navigation when the shell model omits it", async function testHostOnlyShell() {
+  it("wraps the host root with an empty workspace snapshot when the shell model omits navigation", async function testHostOnlyShell() {
     const pb = createPocketBaseMock();
 
     requireCurrentUserMock.mockResolvedValue({
@@ -154,8 +154,12 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
         locale: "cs",
       }),
     });
-    const root = getRenderedElement(result);
+    const workspaceRoot = getRenderedElement(result);
+    const root = getRenderedElement(workspaceRoot.props.children);
 
+    expect(workspaceRoot.type).toBe(applicationWorkspaceRootMock);
+    expect(workspaceRoot.props.activeWorkspaceSlug).toBeNull();
+    expect(workspaceRoot.props.workspaces).toEqual([]);
     expect(root.type).toBe(applicationRootMock);
     expect(root.props.applicationEntryHref).toBe(APP_HOME_PATH);
     expect(redirectMock).not.toHaveBeenCalled();

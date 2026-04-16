@@ -1,7 +1,8 @@
+import { headers } from "next/headers";
 import type PocketBase from "pocketbase";
 import { ClientResponseError } from "pocketbase";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { UsersRecord } from "@/types/pocketbase";
+import type { UserDeviceSessionsRecord, UsersRecord } from "@/types/pocketbase";
 
 vi.mock("next/headers", function mockNextHeaders() {
   return {
@@ -26,16 +27,6 @@ vi.mock("@/server/device-sessions/device-sessions-cookie", function mockDeviceSe
   };
 });
 
-vi.mock("@/server/device-sessions/device-sessions-service", function mockDeviceSessionsService() {
-  return {
-    checkDeviceSessionReadOnly: vi.fn(),
-    hashSessionToken: vi.fn(),
-    registerOrRefreshDeviceSession: vi.fn(),
-    revokeCurrentDeviceSession: vi.fn(),
-    validateDeviceSessionOrInvalidate: vi.fn(),
-  };
-});
-
 import {
   createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,
@@ -46,13 +37,7 @@ import {
   generateDeviceSessionCookie,
   readDeviceSessionCookie,
 } from "@/server/device-sessions/device-sessions-cookie";
-import {
-  checkDeviceSessionReadOnly,
-  hashSessionToken,
-  registerOrRefreshDeviceSession,
-  revokeCurrentDeviceSession,
-  validateDeviceSessionOrInvalidate,
-} from "@/server/device-sessions/device-sessions-service";
+import { hashSessionToken } from "@/server/device-sessions/device-sessions-service";
 import {
   getResponseAuthSession,
   getServerAuthSession,
@@ -86,6 +71,11 @@ describe("auth-service", function describeAuthService() {
       "pb_auth=; Max-Age=0",
       "device_session=; Max-Age=0",
     ]);
+    vi.mocked(headers).mockResolvedValue(
+      new Headers({
+        "user-agent": "Mozilla/5.0",
+      }) as never
+    );
     vi.mocked(generateDeviceSessionCookie).mockReturnValue({
       token: "device-token-new",
       setCookie: "device_session=device-token-new",
@@ -273,7 +263,8 @@ describe("auth-service", function describeAuthService() {
     expect(exportPocketBaseAuthCookies).toHaveBeenCalledWith(context.pb, {
       sessionOnly: false,
     });
-    expect(registerOrRefreshDeviceSession).not.toHaveBeenCalled();
+    expect(context.deviceSessionsCollection.create).not.toHaveBeenCalled();
+    expect(context.deviceSessionsCollection.update).not.toHaveBeenCalled();
   });
 
   it("fails closed when device session registration fails during sign-in", async function testSignInDeviceSessionRegistrationFailure() {
@@ -283,7 +274,7 @@ describe("auth-service", function describeAuthService() {
       record: createUserRecord("user-1", "user@example.com"),
     });
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
-    vi.mocked(registerOrRefreshDeviceSession).mockRejectedValueOnce(
+    context.deviceSessionsCollection.getFirstListItem.mockRejectedValueOnce(
       new Error("device session write failed")
     );
 
@@ -335,7 +326,8 @@ describe("auth-service", function describeAuthService() {
     expect(exportPocketBaseAuthCookies).toHaveBeenCalledWith(context.pb, {
       sessionOnly: true,
     });
-    expect(registerOrRefreshDeviceSession).not.toHaveBeenCalled();
+    expect(context.deviceSessionsCollection.create).not.toHaveBeenCalled();
+    expect(context.deviceSessionsCollection.update).not.toHaveBeenCalled();
   });
 
   it("returns needs_resend when verification email delivery fails during sign-up", async function testSignUpNeedsResend() {
@@ -374,7 +366,8 @@ describe("auth-service", function describeAuthService() {
     expect(exportPocketBaseAuthCookies).toHaveBeenCalledWith(context.pb, {
       sessionOnly: true,
     });
-    expect(registerOrRefreshDeviceSession).not.toHaveBeenCalled();
+    expect(context.deviceSessionsCollection.create).not.toHaveBeenCalled();
+    expect(context.deviceSessionsCollection.update).not.toHaveBeenCalled();
     expect(consoleWarnSpy).toHaveBeenCalled();
   });
 
@@ -412,7 +405,7 @@ describe("auth-service", function describeAuthService() {
       },
       setCookie: ["pb_auth=token", "pb_persist=1", "device_session=device-token-new"],
     });
-    expect(registerOrRefreshDeviceSession).toHaveBeenCalledTimes(1);
+    expect(context.deviceSessionsCollection.create).toHaveBeenCalledTimes(1);
   });
 
   it("fails closed when device session registration fails after email verification", async function testConfirmEmailVerificationDeviceSessionRegistrationFailure() {
@@ -432,7 +425,7 @@ describe("auth-service", function describeAuthService() {
     });
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
     vi.mocked(readDeviceSessionCookie).mockResolvedValue(null);
-    vi.mocked(registerOrRefreshDeviceSession).mockRejectedValueOnce(
+    context.deviceSessionsCollection.getFirstListItem.mockRejectedValueOnce(
       new Error("device session write failed")
     );
 
@@ -454,8 +447,12 @@ describe("auth-service", function describeAuthService() {
 
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
     vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
-    vi.mocked(hashSessionToken).mockReturnValue("session-hash-1");
-    vi.mocked(revokeCurrentDeviceSession).mockResolvedValue(undefined);
+    context.deviceSessionsCollection.getFirstListItem.mockResolvedValue(
+      createDeviceSessionRecord("session-1", {
+        sessionIdHash: hashSessionToken("device-token"),
+        userId: "user-1",
+      }) as never
+    );
 
     const response = await signOutServerSession();
 
@@ -466,11 +463,7 @@ describe("auth-service", function describeAuthService() {
       },
       setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
-    expect(revokeCurrentDeviceSession).toHaveBeenCalledWith({
-      pb: context.pb,
-      userId: "user-1",
-      currentSessionIdHash: "session-hash-1",
-    });
+    expect(context.deviceSessionsCollection.delete).toHaveBeenCalledWith("session-1");
   });
 
   it("returns null session and clears cookies when the auth cookie is invalid", async function testGetServerAuthSessionInvalidAuthCookie() {
@@ -499,9 +492,9 @@ describe("auth-service", function describeAuthService() {
 
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
     vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
-    vi.mocked(checkDeviceSessionReadOnly).mockResolvedValue({
-      status: "invalid",
-    });
+    context.deviceSessionsCollection.getFirstListItem.mockRejectedValue(
+      createClientResponseError(404)
+    );
 
     const response = await getServerAuthSession();
 
@@ -511,12 +504,6 @@ describe("auth-service", function describeAuthService() {
         session: null,
       },
     });
-    expect(checkDeviceSessionReadOnly).toHaveBeenCalledWith({
-      pb: context.pb,
-      userId: "user-1",
-      deviceSessionToken: "device-token",
-    });
-    expect(validateDeviceSessionOrInvalidate).not.toHaveBeenCalled();
     expect(context.usersCollection.authRefresh).not.toHaveBeenCalled();
   });
 
@@ -528,10 +515,12 @@ describe("auth-service", function describeAuthService() {
 
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
     vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
-    vi.mocked(checkDeviceSessionReadOnly).mockResolvedValue({
-      status: "valid",
-      sessionIdHash: "session-hash-1",
-    });
+    context.deviceSessionsCollection.getFirstListItem.mockResolvedValue(
+      createDeviceSessionRecord("session-1", {
+        sessionIdHash: hashSessionToken("device-token"),
+        userId: "user-1",
+      }) as never
+    );
     context.usersCollection.getOne.mockResolvedValue(
       createUserRecord("user-1", "user@example.com", {
         verified: false,
@@ -547,7 +536,6 @@ describe("auth-service", function describeAuthService() {
       },
     });
     expect(context.usersCollection.authRefresh).not.toHaveBeenCalled();
-    expect(validateDeviceSessionOrInvalidate).not.toHaveBeenCalled();
   });
 
   it("returns the stale verified session on transient render-time backend errors", async function testGetServerAuthSessionTransientError() {
@@ -559,10 +547,12 @@ describe("auth-service", function describeAuthService() {
 
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
     vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
-    vi.mocked(checkDeviceSessionReadOnly).mockResolvedValue({
-      status: "valid",
-      sessionIdHash: "session-hash-1",
-    });
+    context.deviceSessionsCollection.getFirstListItem.mockResolvedValue(
+      createDeviceSessionRecord("session-1", {
+        sessionIdHash: hashSessionToken("device-token"),
+        userId: user.id,
+      }) as never
+    );
     context.usersCollection.getOne.mockRejectedValue(createClientResponseError(503));
 
     const response = await getServerAuthSession();
@@ -591,10 +581,9 @@ describe("auth-service", function describeAuthService() {
 
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
     vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
-    vi.mocked(validateDeviceSessionOrInvalidate).mockResolvedValue({
-      status: "invalid",
-      clearCookies: ["device_session=; Max-Age=0"],
-    });
+    context.deviceSessionsCollection.getFirstListItem.mockRejectedValue(
+      createClientResponseError(404)
+    );
 
     const response = await getResponseAuthSession();
 
@@ -603,7 +592,7 @@ describe("auth-service", function describeAuthService() {
       data: {
         session: null,
       },
-      setCookie: ["device_session=; Max-Age=0"],
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
     });
     expect(context.usersCollection.authRefresh).not.toHaveBeenCalled();
   });
@@ -617,10 +606,12 @@ describe("auth-service", function describeAuthService() {
 
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
     vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
-    vi.mocked(validateDeviceSessionOrInvalidate).mockResolvedValue({
-      status: "valid",
-      sessionIdHash: "session-hash-1",
-    });
+    context.deviceSessionsCollection.getFirstListItem.mockResolvedValue(
+      createDeviceSessionRecord("session-1", {
+        sessionIdHash: hashSessionToken("device-token"),
+        userId: "user-1",
+      }) as never
+    );
     context.usersCollection.authRefresh.mockResolvedValue({
       record: createUserRecord("user-1", "user@example.com", {
         verified: false,
@@ -650,10 +641,12 @@ describe("auth-service", function describeAuthService() {
 
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
     vi.mocked(readDeviceSessionCookie).mockResolvedValue("device-token");
-    vi.mocked(validateDeviceSessionOrInvalidate).mockResolvedValue({
-      status: "valid",
-      sessionIdHash: "session-hash-1",
-    });
+    context.deviceSessionsCollection.getFirstListItem.mockResolvedValue(
+      createDeviceSessionRecord("session-1", {
+        sessionIdHash: hashSessionToken("device-token"),
+        userId: user.id,
+      }) as never
+    );
     context.usersCollection.authRefresh.mockRejectedValue(createClientResponseError(503));
 
     const response = await getResponseAuthSession();
@@ -681,6 +674,26 @@ function createAuthServiceContext(input?: {
   hasAuthCookie?: boolean;
   shouldPersistSession?: boolean;
 }) {
+  const deviceSessionsCollection = {
+    create: vi.fn(async function createDeviceSession() {
+      return undefined;
+    }),
+    delete: vi.fn(async function deleteDeviceSession() {
+      return undefined;
+    }),
+    getFirstListItem: vi.fn(async function getFirstDeviceSession() {
+      throw createClientResponseError(404);
+    }),
+    getFullList: vi.fn(async function getDeviceSessions() {
+      return [];
+    }),
+    getOne: vi.fn(async function getDeviceSession() {
+      throw createClientResponseError(404);
+    }),
+    update: vi.fn(async function updateDeviceSession() {
+      return undefined;
+    }),
+  };
   const usersCollection = {
     authRefresh: vi.fn(),
     authWithPassword: vi.fn(),
@@ -698,11 +711,15 @@ function createAuthServiceContext(input?: {
       record: input?.authStoreRecord ?? null,
     },
     collection: vi.fn(function getCollection(name: string) {
-      if (name !== "users") {
-        throw new Error(`Unexpected collection: ${name}`);
+      if (name === "users") {
+        return usersCollection;
       }
 
-      return usersCollection;
+      if (name === "user_device_sessions") {
+        return deviceSessionsCollection;
+      }
+
+      throw new Error(`Unexpected collection: ${name}`);
     }),
     files: {
       getURL: vi.fn(function getUrl() {
@@ -718,6 +735,7 @@ function createAuthServiceContext(input?: {
       hasAuthCookie: input?.hasAuthCookie ?? false,
       shouldPersistSession: input?.shouldPersistSession ?? true,
     },
+    deviceSessionsCollection,
     pb,
     usersCollection,
   };
@@ -740,6 +758,33 @@ function createUserRecord(
     name: "User",
     updated: "2026-01-01T00:00:00.000Z",
     verified: input?.verified ?? true,
+  };
+}
+
+function createDeviceSessionRecord(
+  id: string,
+  input: {
+    sessionIdHash: string;
+    userId: string;
+  }
+): UserDeviceSessionsRecord {
+  const lastSeenAt = new Date().toISOString();
+
+  return {
+    id,
+    collectionId: "user_device_sessions",
+    collectionName: "user_device_sessions",
+    created: "2026-01-01T00:00:00.000Z",
+    updated: "2026-01-01T00:00:00.000Z",
+    user: input.userId,
+    session_id_hash: input.sessionIdHash,
+    device_label: "MacBook Pro",
+    device_type: "desktop",
+    browser: "Chrome",
+    os: "macOS",
+    user_agent: "Mozilla/5.0",
+    last_seen_at: lastSeenAt,
+    expires_at: "2099-01-01T00:00:00.000Z",
   };
 }
 

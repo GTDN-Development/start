@@ -1,16 +1,17 @@
 "use client";
 
-import { isCookieConsentEnabled } from "./cookie-consent";
+import type { ComponentProps, MouseEvent } from "react";
+import { isCookieConsentEnabled } from "@/config/cookie-consent";
 import { useCookieContext } from "./cookie-context";
 
-export function CookieSettingsTrigger({ onClick, ...props }: React.ComponentProps<"button">) {
+export function CookieSettingsTrigger({ onClick, ...props }: ComponentProps<"button">) {
   const { openSettingsDialog } = useCookieContext();
 
   if (!isCookieConsentEnabled()) {
     return null;
   }
 
-  function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
+  function handleClick(event: MouseEvent<HTMLButtonElement>) {
     openSettingsDialog();
     onClick?.(event);
   }

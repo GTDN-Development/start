@@ -3,14 +3,17 @@
 import type { ComponentProps } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  acceptAllConsent,
+  COOKIE_NAME,
+  serializeConsentCookieValue,
+} from "@/config/cookie-consent";
 
 vi.hoisted(function hoistCookieEnvironment() {
   process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED = "true";
   process.env.NEXT_PUBLIC_GA_ID = "ga-test-id";
   process.env.NEXT_PUBLIC_GTM_ID = "gtm-test-id";
 });
-
-import { acceptAllConsent, COOKIE_NAME, serializeConsentCookieValue } from "./cookie-consent";
 
 const { persistCookieConsentAction } = vi.hoisted(function hoistCookieActionMocks() {
   return {

@@ -1,5 +1,11 @@
 "use client";
 
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { ChevronDownIcon } from "lucide-react";
+import { isCookieConsentEnabled, type ConsentState } from "@/config/cookie-consent";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -8,19 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
-import { useCookieContext } from "./cookie-context";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Link } from "@/components/ui/link";
-import { Badge } from "@/components/ui/badge";
-import { legalLinks } from "@/config/menu";
-import { useTranslations } from "next-intl";
-import { isCookieConsentEnabled, type ConsentState } from "./cookie-consent";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDownIcon } from "lucide-react";
-import { useState } from "react";
+import { Link } from "@/components/ui/link";
+import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
+import { Switch } from "@/components/ui/switch";
+import { legalLinks } from "@/config/menu";
 import { cn } from "@/lib/utils";
+import { useCookieContext } from "./cookie-context";
 
 type CookieCategoryConfig = {
   key: keyof ConsentState;

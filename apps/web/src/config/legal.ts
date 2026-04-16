@@ -1,8 +1,8 @@
 import { authConfig } from "@/config/auth";
+import { COOKIE_CONSENT_SUBJECT_COOKIE_NAME, COOKIE_NAME } from "@/config/cookie-consent";
 import { preferencesConfig } from "@/config/preferences";
 import { securityConfig } from "@/config/security";
 import { workspaceConfig } from "@/config/workspace";
-import { COOKIE_CONSENT_SUBJECT_COOKIE_NAME, COOKIE_NAME } from "@/features/cookies/cookie-consent";
 import { LOCALE_COOKIE_NAME } from "@/i18n/routing";
 import type { Cookie } from "@/types/cookies";
 

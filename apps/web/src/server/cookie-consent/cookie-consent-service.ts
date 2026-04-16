@@ -8,7 +8,7 @@ import {
   normalizeConsent,
   type ConsentState,
   type CookieConsentEventType,
-} from "@/features/cookies/cookie-consent";
+} from "@/config/cookie-consent";
 import { routing } from "@/i18n/routing";
 import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
 import { logServiceError } from "@/server/pocketbase/pocketbase-utils";

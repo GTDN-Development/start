@@ -6,7 +6,7 @@ import {
   normalizeConsent,
   type ConsentState,
   type CookieConsentEventType,
-} from "@/features/cookies/cookie-consent";
+} from "@/config/cookie-consent";
 import { recordCookieConsentEvent } from "@/server/cookie-consent/cookie-consent-service";
 
 const consentStateSchema = z.object({

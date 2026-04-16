@@ -12,7 +12,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { AlertCircleIcon, CheckCircleIcon, MailIcon } from "lucide-react";
 import { isTurnstileEnabled } from "@/config/security";
-import { requestPasswordReset } from "@/features/auth/auth-client";
+import { requestPasswordResetAction } from "@/features/auth/auth-actions";
+import { runAsyncTransition } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 
 type ForgotPasswordFormValues = {
@@ -53,15 +54,17 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
     onSubmit: async ({ value }: { value: ForgotPasswordFormValues }) => {
       setSubmitStatus({ type: null, message: "" });
 
-      const response = await requestPasswordReset(
-        turnstileEnabled
-          ? {
-              email: value.email,
-              turnstileToken: value.turnstileToken,
-            }
-          : {
-              email: value.email,
-            }
+      const response = await runAsyncTransition(() =>
+        requestPasswordResetAction(
+          turnstileEnabled
+            ? {
+                email: value.email,
+                turnstileToken: value.turnstileToken,
+              }
+            : {
+                email: value.email,
+              }
+        )
       );
 
       if (response.ok) {

@@ -106,14 +106,16 @@ export async function ApplicationShellBoundary({
     </ApplicationRoot>
   );
 
-  if (!shellModelResponse.ok || !shellModelResponse.data.workspaceNavigation) {
-    return root;
-  }
-
   return (
     <ApplicationWorkspaceRoot
-      workspaces={shellModelResponse.data.workspaceNavigation.workspaces}
-      activeWorkspaceSlug={shellModelResponse.data.workspaceNavigation.activeWorkspaceSlug}
+      workspaces={
+        shellModelResponse.ok ? (shellModelResponse.data.workspaceNavigation?.workspaces ?? []) : []
+      }
+      activeWorkspaceSlug={
+        shellModelResponse.ok
+          ? (shellModelResponse.data.workspaceNavigation?.activeWorkspaceSlug ?? null)
+          : null
+      }
     >
       {root}
     </ApplicationWorkspaceRoot>

@@ -9,9 +9,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { isCookieConsentEnabled } from "@/config/cookie-consent";
 import { applicationSidebarFooterMenu } from "@/config/menu";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
-import { isCookieConsentEnabled } from "@/features/cookies/cookie-consent";
 import { usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";

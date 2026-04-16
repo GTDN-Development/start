@@ -1,21 +1,75 @@
 import type PocketBase from "pocketbase";
+import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
+import { requireCurrentUser, requireCurrentWritableUser } from "@/server/auth/current-user";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
-import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
+import {
+  getActiveWorkspaceSlugCookie,
+  getPendingInviteTokenCookie,
+} from "@/server/workspaces/workspace-cookie";
 import {
   mapWorkspaceErrorCode,
   logWorkspaceServiceError,
 } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary, sortUserWorkspaces } from "@/server/workspaces/workspace-mappers";
 import {
-  requireWorkspaceActionMembershipContext,
-  resolveWorkspaceMembershipContextBySlug,
-} from "@/server/workspaces/workspace-membership-context";
-import { listUserWorkspaceMembershipRecords } from "@/server/workspaces/workspace-repository";
+  findWorkspaceBySlug,
+  findWorkspaceMembershipByWorkspaceAndUser,
+  listUserWorkspaceMembershipRecords,
+} from "@/server/workspaces/workspace-repository";
 import type {
   PostAuthDestination,
   ServerWorkspaceResponse,
   UserWorkspace,
 } from "@/server/workspaces/workspace-types";
+
+export type WorkspaceAuthContext = {
+  pb: PocketBase;
+  user: UsersRecord;
+};
+
+export type WorkspaceMembershipContext = WorkspaceAuthContext & {
+  membership: WorkspaceMembersRecord;
+  workspace: WorkspacesRecord;
+};
+
+export type WorkspaceRouteAccessContext = WorkspaceAuthContext & {
+  workspace: UserWorkspace;
+};
+
+type WorkspaceAuthContextResult =
+  | {
+      ok: true;
+      context: WorkspaceAuthContext;
+    }
+  | {
+      ok: false;
+      response: ServerWorkspaceResponse<never>;
+    };
+
+type WorkspaceMembershipContextResult =
+  | {
+      ok: true;
+      context: WorkspaceMembershipContext;
+    }
+  | {
+      ok: false;
+      response: ServerWorkspaceResponse<never>;
+    };
+
+type WorkspaceMembershipContextLookup =
+  | {
+      state: "workspace_not_found";
+    }
+  | {
+      state: "membership_not_found";
+    }
+  | {
+      state: "ready";
+      membership: WorkspaceMembersRecord;
+      workspace: WorkspacesRecord;
+    };
+
+type WorkspaceErrorMapper = Parameters<typeof mapWorkspaceErrorCode>[1];
 
 export async function listUserWorkspaces(
   userId: string
@@ -39,113 +93,50 @@ export async function listUserWorkspacesWithClient(
       },
     };
   } catch (error) {
-    const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
-      if (pocketBaseError.status === 400) {
-        return "BAD_REQUEST";
+    return createWorkspaceServiceErrorResponse(
+      "listUserWorkspaces",
+      error,
+      function mapListError(pocketBaseError) {
+        if (pocketBaseError.status === 400) {
+          return "BAD_REQUEST";
+        }
+
+        if (pocketBaseError.status === 401) {
+          return "UNAUTHORIZED";
+        }
+
+        if (pocketBaseError.status === 403) {
+          return "FORBIDDEN";
+        }
+
+        return null;
       }
-
-      if (pocketBaseError.status === 401) {
-        return "UNAUTHORIZED";
-      }
-
-      if (pocketBaseError.status === 403) {
-        return "FORBIDDEN";
-      }
-
-      return null;
-    });
-
-    if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("listUserWorkspaces", error);
-    }
-
-    return {
-      ok: false,
-      errorCode,
-    };
+    );
   }
 }
 
-export async function resolveWorkspaceForUserBySlug(
-  userId: string,
-  slug: string
-): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>> {
-  const { pb } = await createPocketBaseServerClient();
-
-  return resolveWorkspaceForUserBySlugWithClient(pb, userId, slug);
-}
-
-export async function resolveWorkspaceForUserBySlugWithClient(
-  pb: PocketBase,
-  userId: string,
-  slug: string
-): Promise<ServerWorkspaceResponse<{ workspace: UserWorkspace | null }>> {
-  try {
-    const workspaceMembership = await resolveWorkspaceMembershipContextBySlug(pb, userId, slug);
-
-    if (workspaceMembership.state !== "ready") {
-      return {
-        ok: true,
-        data: {
-          workspace: null,
-        },
-      };
-    }
-
-    return {
-      ok: true,
-      data: {
-        workspace: mapUserWorkspaceSummary(
-          pb,
-          workspaceMembership.workspace,
-          workspaceMembership.membership
-        ),
-      },
-    };
-  } catch (error) {
-    const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
-      if (pocketBaseError.status === 400) {
-        return "BAD_REQUEST";
-      }
-
-      if (pocketBaseError.status === 401) {
-        return "UNAUTHORIZED";
-      }
-
-      if (pocketBaseError.status === 403) {
-        return "FORBIDDEN";
-      }
-
-      return null;
-    });
-
-    if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("resolveWorkspaceForUserBySlug", error);
-    }
-
-    return {
-      ok: false,
-      errorCode,
-    };
-  }
-}
-
-export async function resolvePostAuthDestination(input: {
+export async function resolvePostAuthDestinationForUser({
+  userId,
+  userEmail: _userEmail,
+}: {
   userId: string;
   userEmail: string;
-  pendingInviteToken?: string | null;
 }): Promise<ServerWorkspaceResponse<PostAuthDestination>> {
-  if (input.pendingInviteToken) {
+  const pendingInviteToken = await getPendingInviteTokenCookie();
+
+  if (pendingInviteToken) {
     return {
       ok: true,
       data: {
         state: "invite_redirect",
-        inviteToken: input.pendingInviteToken,
+        inviteToken: pendingInviteToken,
       },
     };
   }
 
-  const activeWorkspaceResponse = await resolveActiveWorkspaceSlugForUser(input.userId);
+  void _userEmail;
+
+  const activeWorkspaceResponse = await resolveActiveWorkspaceSlugForUser(userId);
 
   if (!activeWorkspaceResponse.ok) {
     return activeWorkspaceResponse;
@@ -188,30 +179,76 @@ export async function resolveAccessibleWorkspaceForCurrentUser(
       },
     };
   } catch (error) {
-    const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
-      if (pocketBaseError.status === 400) {
-        return "BAD_REQUEST";
+    return createWorkspaceServiceErrorResponse(
+      "resolveAccessibleWorkspaceForCurrentUser",
+      error,
+      function mapAccessibleWorkspaceError(pocketBaseError) {
+        if (pocketBaseError.status === 400) {
+          return "BAD_REQUEST";
+        }
+
+        if (pocketBaseError.status === 401) {
+          return "UNAUTHORIZED";
+        }
+
+        if (pocketBaseError.status === 403) {
+          return "FORBIDDEN";
+        }
+
+        if (pocketBaseError.status === 404) {
+          return "NOT_FOUND";
+        }
+
+        return null;
       }
+    );
+  }
+}
 
-      if (pocketBaseError.status === 403) {
-        return "FORBIDDEN";
-      }
+export async function resolveCurrentUserWorkspaceRouteAccess(
+  workspaceSlug: string
+): Promise<ServerWorkspaceResponse<WorkspaceRouteAccessContext>> {
+  const workspaceAccess = await requireWorkspaceMembershipContext(workspaceSlug);
 
-      if (pocketBaseError.status === 404) {
-        return "NOT_FOUND";
-      }
+  if (!workspaceAccess.ok) {
+    return workspaceAccess.response;
+  }
 
-      return null;
-    });
-
-    if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("resolveAccessibleWorkspaceForCurrentUser", error);
-    }
+  try {
+    const { pb, user, membership, workspace } = workspaceAccess.context;
 
     return {
-      ok: false,
-      errorCode,
+      ok: true,
+      data: {
+        pb,
+        user,
+        workspace: mapUserWorkspaceSummary(pb, workspace, membership),
+      },
     };
+  } catch (error) {
+    return createWorkspaceServiceErrorResponse(
+      "resolveCurrentUserWorkspaceRouteAccess",
+      error,
+      function mapRouteAccessError(pocketBaseError) {
+        if (pocketBaseError.status === 400) {
+          return "BAD_REQUEST";
+        }
+
+        if (pocketBaseError.status === 401) {
+          return "UNAUTHORIZED";
+        }
+
+        if (pocketBaseError.status === 403) {
+          return "FORBIDDEN";
+        }
+
+        if (pocketBaseError.status === 404) {
+          return "NOT_FOUND";
+        }
+
+        return null;
+      }
+    );
   }
 }
 
@@ -253,31 +290,214 @@ export async function resolveActiveWorkspaceSlugForUserWithClient(
       },
     };
   } catch (error) {
-    const errorCode = mapWorkspaceErrorCode(error, (pocketBaseError) => {
-      if (pocketBaseError.status === 400) {
-        return "BAD_REQUEST";
+    return createWorkspaceServiceErrorResponse(
+      "resolveActiveWorkspaceSlugForUser",
+      error,
+      function mapActiveWorkspaceError(pocketBaseError) {
+        if (pocketBaseError.status === 400) {
+          return "BAD_REQUEST";
+        }
+
+        if (pocketBaseError.status === 401) {
+          return "UNAUTHORIZED";
+        }
+
+        if (pocketBaseError.status === 403) {
+          return "FORBIDDEN";
+        }
+
+        return null;
       }
+    );
+  }
+}
 
-      if (pocketBaseError.status === 401) {
-        return "UNAUTHORIZED";
-      }
+export async function requireWorkspaceAuthContext(): Promise<WorkspaceAuthContextResult> {
+  const currentUser = await requireCurrentUser();
 
-      if (pocketBaseError.status === 403) {
-        return "FORBIDDEN";
-      }
+  if (!currentUser.ok) {
+    return {
+      ok: false,
+      response: createWorkspaceAuthFailureResponse(currentUser),
+    };
+  }
 
-      return null;
-    });
+  return {
+    ok: true,
+    context: {
+      pb: currentUser.pb,
+      user: currentUser.user,
+    },
+  };
+}
 
-    if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("resolveActiveWorkspaceSlugForUser", error);
+export async function requireWorkspaceActionContext(): Promise<WorkspaceAuthContextResult> {
+  const currentUser = await requireCurrentWritableUser();
+
+  if (!currentUser.ok) {
+    return {
+      ok: false,
+      response: createWorkspaceAuthFailureResponse(currentUser),
+    };
+  }
+
+  return {
+    ok: true,
+    context: {
+      pb: currentUser.pb,
+      user: currentUser.user,
+    },
+  };
+}
+
+export async function requireWorkspaceMembershipContext(
+  workspaceSlug: string
+): Promise<WorkspaceMembershipContextResult> {
+  return resolveWorkspaceMembershipContext(
+    await requireWorkspaceAuthContext(),
+    workspaceSlug,
+    "requireWorkspaceMembershipContext"
+  );
+}
+
+export async function requireWorkspaceActionMembershipContext(
+  workspaceSlug: string
+): Promise<WorkspaceMembershipContextResult> {
+  return resolveWorkspaceMembershipContext(
+    await requireWorkspaceActionContext(),
+    workspaceSlug,
+    "requireWorkspaceActionMembershipContext"
+  );
+}
+
+export async function resolveWorkspaceMembershipContextBySlug(
+  pb: PocketBase,
+  userId: string,
+  workspaceSlug: string
+): Promise<WorkspaceMembershipContextLookup> {
+  const workspace = await findWorkspaceBySlug(pb, workspaceSlug);
+
+  if (!workspace) {
+    return {
+      state: "workspace_not_found",
+    };
+  }
+
+  const membership = await findWorkspaceMembershipByWorkspaceAndUser(pb, workspace.id, userId);
+
+  if (!membership) {
+    return {
+      state: "membership_not_found",
+    };
+  }
+
+  return {
+    state: "ready",
+    workspace,
+    membership,
+  };
+}
+
+async function resolveWorkspaceMembershipContext(
+  currentUser: WorkspaceAuthContextResult,
+  workspaceSlug: string,
+  logContext: string
+): Promise<WorkspaceMembershipContextResult> {
+  if (!currentUser.ok) {
+    return currentUser;
+  }
+
+  try {
+    const workspaceMembership = await resolveWorkspaceMembershipContextBySlug(
+      currentUser.context.pb,
+      currentUser.context.user.id,
+      workspaceSlug
+    );
+
+    if (workspaceMembership.state === "workspace_not_found") {
+      return {
+        ok: false,
+        response: {
+          ok: false,
+          errorCode: "NOT_FOUND",
+        },
+      };
+    }
+
+    if (workspaceMembership.state === "membership_not_found") {
+      return {
+        ok: false,
+        response: {
+          ok: false,
+          errorCode: "FORBIDDEN",
+        },
+      };
     }
 
     return {
+      ok: true,
+      context: {
+        ...currentUser.context,
+        workspace: workspaceMembership.workspace,
+        membership: workspaceMembership.membership,
+      },
+    };
+  } catch (error) {
+    return {
       ok: false,
-      errorCode,
+      response: createWorkspaceServiceErrorResponse(
+        logContext,
+        error,
+        function mapMembershipContextError(pocketBaseError) {
+          if (pocketBaseError.status === 400) {
+            return "BAD_REQUEST";
+          }
+
+          if (pocketBaseError.status === 401) {
+            return "UNAUTHORIZED";
+          }
+
+          if (pocketBaseError.status === 403) {
+            return "FORBIDDEN";
+          }
+
+          if (pocketBaseError.status === 404) {
+            return "NOT_FOUND";
+          }
+
+          return null;
+        }
+      ),
     };
   }
+}
+
+function createWorkspaceAuthFailureResponse<TData>(currentUser: {
+  errorCode: "UNAUTHORIZED" | "UNKNOWN_ERROR";
+  setCookie?: string[];
+}): ServerWorkspaceResponse<TData> {
+  return {
+    ok: false,
+    errorCode: currentUser.errorCode,
+    ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+  };
+}
+
+function createWorkspaceServiceErrorResponse<TData>(
+  context: string,
+  error: unknown,
+  operationMapper: WorkspaceErrorMapper
+): ServerWorkspaceResponse<TData> {
+  const errorCode = mapWorkspaceErrorCode(error, operationMapper);
+
+  if (errorCode === "UNKNOWN_ERROR") {
+    logWorkspaceServiceError(context, error);
+  }
+
+  return {
+    ok: false,
+    errorCode,
+  };
 }
 
 async function listUserWorkspaceMemberships(
@@ -287,7 +507,7 @@ async function listUserWorkspaceMemberships(
   const membershipRecords = await listUserWorkspaceMembershipRecords(pb, userId);
 
   const workspaces = await Promise.all(
-    membershipRecords.map(async (membershipRecord) => {
+    membershipRecords.map(async function mapMembershipRecord(membershipRecord) {
       const expandedWorkspace = membershipRecord.expand?.workspace;
 
       if (!expandedWorkspace) {

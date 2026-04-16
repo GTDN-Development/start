@@ -1,10 +1,10 @@
-import { cookies } from "next/headers";
 import {
   COOKIE_NAME,
   defaultConsent,
   parseConsentCookieValue,
   type ConsentState,
-} from "./cookie-consent";
+} from "@/config/cookie-consent";
+import { cookies } from "next/headers";
 
 /**
  * Get cookie consent from server-side cookies
