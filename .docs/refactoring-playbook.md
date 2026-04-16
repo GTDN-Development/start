@@ -17,6 +17,22 @@ The goal is not abstract elegance. The goal is:
 - smaller and clearer tests
 - lower cost of future feature work
 
+## Target Simplicity
+
+The target style for this program is operation-centric simplicity in the spirit of PocketBase.
+
+That does not mean copying PocketBase's product scope or removing important SaaS behavior.
+It means each feature should move closer to:
+
+- one obvious entrypoint per operation
+- one primary owner of mutable state
+- one place for validation
+- one place for side effects
+- one place for error, redirect, or cookie semantics
+- one screen contract that can be explained briefly and directly
+
+If a contributor still has to trace many wrappers, aliases, mappers, and route invalidation decisions before understanding a basic feature operation, the feature still has coordination tax.
+
 ## Repository Baseline Summary
 
 This playbook assumes the repository baseline described in [start-goal.md](/Users/fanda/Dev/start/.rules/start-goal.md), but keeps the core points inline so the document is self-contained.
@@ -532,6 +548,7 @@ After changing code, the agent should verify:
 3. Did the number of modules for the feature go down or become more purposeful?
 4. Did tests become smaller or more behavior-focused?
 5. Did any duplicated helper or mapper become removable?
+6. Does the feature read more like one operation path and less like an orchestration graph?
 
 ## Copy-Paste AI Prompt
 
@@ -551,9 +568,11 @@ Constraints:
 
 Deliverables:
 1. Short diagnosis of the current coordination tax in this feature.
-2. Concrete list of files to delete, merge, or simplify.
-3. The refactor itself.
-4. A short note on what changed in the future change path for this feature.
+2. Current change path and target change path for the feature.
+3. Concrete list of files to delete, merge, or simplify.
+4. The refactor itself.
+5. Deleted files, deleted paths, and the final state owner for the feature.
+6. Net LOC delta for the slice and whether the diff is net negative. If it is not, explain why the new steady state is still simpler.
 ```
 
 ## Feature Refactoring Process
@@ -752,6 +771,23 @@ That means a genuine `25%` reduction is plausible only if the team also deletes:
 
 It is not realistic if the team only moves code around.
 
+## Default Diff Expectation
+
+The default expectation for this program is negative net LOC:
+
+- per meaningful refactor slice where real deletion is possible
+- and for the full program when all phases are complete
+
+More lines should usually be removed than added.
+
+A temporary positive diff is acceptable only when it creates a clearly simpler steady-state model and the same task note explains:
+
+- what extra code was added
+- why it was required
+- what old path became deletable because of it
+
+Do not accept a positive diff by default just because the code "looks cleaner".
+
 ## Definition of Done Per Feature
 
 A feature refactor is done when:
@@ -762,6 +798,20 @@ A feature refactor is done when:
 - tests still cover business behavior and critical flows
 - docs and naming reflect the new model
 - the next likely product change in that feature would touch fewer files than before
+
+## Final Task Checklist
+
+Before closing a refactor task or phase, confirm all of the following:
+
+- user-visible behavior for the slice is unchanged
+- the owning screens or flows have one explicit mutation or state owner, or the target ownership model is documented if the phase is preparatory
+- the old change path and new change path are written down in the task or PR notes
+- at least one obsolete layer hop, wrapper, mapper, or duplicate state path was deleted
+- deleted files and deleted paths are listed explicitly
+- the net diff removes more LOC than it adds, or the task notes explain why a temporary positive diff was required to reach a simpler steady state
+- tests still cover real business behavior and no critical flow lost protection
+- docs were updated if the feature model, architectural rules, or operating guidance changed
+- `pnpm check`, `pnpm test`, and `pnpm test:e2e` were run from the repository root and all passed
 
 ## Smells That Should Trigger Another Pass
 

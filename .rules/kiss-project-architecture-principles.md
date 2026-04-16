@@ -12,6 +12,23 @@ Default goal:
 - keep file placement predictable
 - grow by adding focused files, not by building systems for hypothetical reuse
 
+## Simplicity Bar
+
+Use PocketBase as a style reference for operational simplicity, not as a feature-scope target.
+
+We want features to feel closer to:
+
+- one obvious operation per user intent
+- one primary contract per operation
+- one clear owner of mutable state
+- one clear place for side effects and error handling
+- minimal translation between route, action, service, and UI
+
+We are not trying to remove necessary product behavior.
+We are trying to remove unnecessary orchestration around that behavior.
+
+If a simple create, update, or membership change requires tracing many wrappers, aliases, mappers, or competing state owners, the design is too indirect for this repo.
+
 ## KISS In This Repo
 
 - prefer direct imports over indirection
