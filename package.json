@@ -6,6 +6,7 @@
     "dev": "turbo run dev",
     "dev:web": "pnpm --filter @start/web run dev",
     "dev:full": "pnpm local:up && pnpm dev",
+    "coordination-tax:baseline": "node ./scripts/measure-coordination-tax.mjs",
     "local:up": "node ./scripts/local-stack.mjs up",
     "local:down": "node ./scripts/local-stack.mjs down",
     "build": "turbo run build",

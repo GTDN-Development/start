@@ -642,6 +642,11 @@ Tasks:
 - mark screens that currently mix local patching with `revalidatePath()`
 - align on "one owner per screen" as a hard rule
 
+Baseline contract:
+
+- [.docs/coordination-tax-baseline.md](/Users/fanda/Dev/start/.docs/coordination-tax-baseline.md)
+- canonical scenario names: `workspace-general-update`, `workspace-membership-change`, `account-profile-update`, `device-session-sign-out`, `workspace-scope-switch`
+
 Expected impact:
 
 - low code reduction

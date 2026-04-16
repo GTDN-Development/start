@@ -33,8 +33,10 @@ This phase should not try to fix all of that. It should define the operating rul
 ## Use With
 
 - [.docs/refactoring-playbook.md](/Users/fanda/Dev/start/.docs/refactoring-playbook.md)
+- [.docs/coordination-tax-baseline.md](/Users/fanda/Dev/start/.docs/coordination-tax-baseline.md)
 
 This task must still be understandable on its own, but the playbook is the primary source of general program rules.
+The checked-in Phase 0 contract and metric snapshot now live in the baseline doc.
 
 ## Global Constraints
 

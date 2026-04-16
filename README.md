@@ -38,6 +38,7 @@ Repo-wide formatting utilities:
 ```bash
 pnpm format
 pnpm format:check
+pnpm coordination-tax:baseline
 ```
 
 Web and local stack shortcuts:
