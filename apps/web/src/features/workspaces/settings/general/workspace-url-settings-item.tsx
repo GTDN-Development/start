@@ -22,8 +22,9 @@ import {
   createWorkspaceUrlFormSchema,
   workspaceSlugMaxLength,
 } from "@/features/workspaces/workspace-schemas";
-import type { WorkspaceGeneralUpdateHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
+import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 type WorkspaceUrlFormValues = {
   url: string;
@@ -34,7 +35,12 @@ export function WorkspaceUrlSettingsItem({
   onUpdateWorkspaceAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
-  onUpdateWorkspaceAction: WorkspaceGeneralUpdateHandler;
+  onUpdateWorkspaceAction: (input: {
+    name?: string;
+    slug?: string;
+    removeAvatar?: boolean;
+    avatarFile?: File;
+  }) => Promise<WorkspaceResponse<{ workspaceSlug: string; workspace: WorkspaceNavigationItem }>>;
 }) {
   const t = useTranslations("pages.workspace.general.url");
   const tCommon = useTranslations("pages.workspace.common");

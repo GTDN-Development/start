@@ -33,7 +33,6 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
 
   const destinationResponse = await resolvePostAuthDestinationForUser({
     userId: session.user.id,
-    userEmail: session.user.email,
   });
   const authCookies = [
     ...(sessionResponse.setCookie ?? []),

@@ -30,8 +30,8 @@ import {
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
 import { createWorkspaceLeaveFormSchema } from "@/features/workspaces/workspace-schemas";
-import type { WorkspaceGeneralLeaveHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 type LeaveWorkspaceFormValues = {
   confirmationUrl: string;
@@ -43,7 +43,7 @@ export function WorkspaceLeaveSettingsItem({
   onLeaveWorkspaceAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
-  onLeaveWorkspaceAction: WorkspaceGeneralLeaveHandler;
+  onLeaveWorkspaceAction: () => Promise<WorkspaceResponse<{ left: true }>>;
 }) {
   const t = useTranslations("pages.workspace.general.leave");
   const tCommon = useTranslations("pages.workspace.common");

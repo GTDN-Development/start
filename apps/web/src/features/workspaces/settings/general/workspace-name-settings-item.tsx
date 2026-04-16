@@ -21,8 +21,9 @@ import {
   createWorkspaceNameFormSchema,
   workspaceNameMaxLength,
 } from "@/features/workspaces/workspace-schemas";
-import type { WorkspaceGeneralUpdateHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
+import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 type WorkspaceNameFormValues = {
   name: string;
@@ -33,7 +34,12 @@ export function WorkspaceNameSettingsItem({
   onUpdateWorkspaceAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
-  onUpdateWorkspaceAction: WorkspaceGeneralUpdateHandler;
+  onUpdateWorkspaceAction: (input: {
+    name?: string;
+    slug?: string;
+    removeAvatar?: boolean;
+    avatarFile?: File;
+  }) => Promise<WorkspaceResponse<{ workspaceSlug: string; workspace: WorkspaceNavigationItem }>>;
 }) {
   const t = useTranslations("pages.workspace.general.name");
   const tCommon = useTranslations("pages.workspace.common");

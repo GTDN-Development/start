@@ -561,6 +561,16 @@ over:
 
 If a refactor does not reduce the number of files or concepts needed for the next likely change, it is not finished.
 
+### 13. Delete transitional seams after ownership stabilizes
+
+When a refactor temporarily introduces a screen-state helper, local contract file, or seam test to land a new owner safely, remove it once the owning screen or boundary is stable.
+
+Practical rule:
+
+- inline single-owner helper files that are only used by one screen
+- delete dedicated seam tests when their only job was to protect that temporary structure
+- keep only shared contracts and tests that still protect behavior another contributor could accidentally break
+
 ## AI Operating Rules
 
 Use these rules whenever an AI agent is asked to refactor a feature.

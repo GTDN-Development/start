@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/settings-item";
 import { Skeleton } from "@/components/ui/skeleton";
 import { workspaceConfig } from "@/config/workspace";
-import type { WorkspaceGeneralUpdateHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
 import {
   WorkspaceAvatar,
   WorkspaceAvatarFallback,
@@ -32,13 +32,19 @@ import {
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import { getAvatarColorClass, getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
+import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 export function WorkspaceAvatarSettingsItem({
   workspace,
   onUpdateWorkspaceAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
-  onUpdateWorkspaceAction: WorkspaceGeneralUpdateHandler;
+  onUpdateWorkspaceAction: (input: {
+    name?: string;
+    slug?: string;
+    removeAvatar?: boolean;
+    avatarFile?: File;
+  }) => Promise<WorkspaceResponse<{ workspaceSlug: string; workspace: WorkspaceNavigationItem }>>;
 }) {
   const t = useTranslations("pages.workspace.general.avatar");
   const tCommon = useTranslations("pages.workspace.common");

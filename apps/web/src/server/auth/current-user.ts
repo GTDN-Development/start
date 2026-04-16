@@ -87,7 +87,11 @@ export async function revokeCurrentUserOtherDeviceSessions(): Promise<
   const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return createWritableUserFailureResponse(currentUser);
+    return {
+      ok: false,
+      errorCode: currentUser.errorCode,
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+    };
   }
 
   try {
@@ -97,7 +101,12 @@ export async function revokeCurrentUserOtherDeviceSessions(): Promise<
       currentSessionIdHash: currentUser.currentSessionIdHash,
     });
 
-    return createRevokedDeviceSessionResponse();
+    return {
+      ok: true,
+      data: {
+        revoked: true,
+      },
+    };
   } catch (error) {
     logServiceError("current-user", "revokeCurrentUserOtherDeviceSessions", error);
 
@@ -114,7 +123,11 @@ export async function revokeCurrentUserDeviceSessionById(input: {
   const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return createWritableUserFailureResponse(currentUser);
+    return {
+      ok: false,
+      errorCode: currentUser.errorCode,
+      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+    };
   }
 
   try {
@@ -139,7 +152,12 @@ export async function revokeCurrentUserDeviceSessionById(input: {
       };
     }
 
-    return createRevokedDeviceSessionResponse();
+    return {
+      ok: true,
+      data: {
+        revoked: true,
+      },
+    };
   } catch (error) {
     logServiceError("current-user", "revokeCurrentUserDeviceSessionById", error);
 
@@ -148,25 +166,6 @@ export async function revokeCurrentUserDeviceSessionById(input: {
       errorCode: "UNKNOWN_ERROR",
     };
   }
-}
-
-function createRevokedDeviceSessionResponse(): ServerAuthResponse<DeviceSessionMutationPayload> {
-  return {
-    ok: true,
-    data: {
-      revoked: true,
-    },
-  };
-}
-
-function createWritableUserFailureResponse<TData>(
-  currentUser: Exclude<RequireCurrentWritableUserResult, { ok: true }>
-): ServerAuthResponse<TData> {
-  return {
-    ok: false,
-    errorCode: currentUser.errorCode,
-    ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
-  };
 }
 
 export async function requireCurrentWritableUser(): Promise<RequireCurrentWritableUserResult> {

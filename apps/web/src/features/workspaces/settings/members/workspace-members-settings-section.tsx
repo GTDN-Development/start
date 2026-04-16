@@ -15,13 +15,6 @@ import {
 import { APP_HOME_PATH } from "@/config/routes";
 import { leaveWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import {
-  applyWorkspaceInviteCreated,
-  applyWorkspaceInvitePatched,
-  applyWorkspaceInviteRemoved,
-  applyWorkspaceMemberRemoval,
-  applyWorkspaceMemberRoleChange,
-} from "@/features/workspaces/settings/members/workspace-members-screen-state";
-import {
   changeMemberRoleAction,
   createInviteAction,
   refreshInviteLinkAction,
@@ -570,4 +563,110 @@ function toWorkspaceNavigationItem(workspace: WorkspaceSettingsWorkspace): Works
     role: workspace.role,
     avatarUrl: workspace.avatarUrl,
   };
+}
+
+function applyWorkspaceMemberRoleChange(input: {
+  workspace: WorkspaceSettingsWorkspace;
+  members: WorkspaceSettingsMember[];
+  memberId: string;
+  role: WorkspaceSettingsMember["role"];
+}): {
+  workspace: WorkspaceSettingsWorkspace;
+  members: WorkspaceSettingsMember[];
+} {
+  const nextMembers = sortWorkspaceSettingsMembers(
+    input.members.map((member) =>
+      member.id === input.memberId ? { ...member, role: input.role } : member
+    )
+  );
+
+  return {
+    workspace: deriveWorkspaceStateFromMembers(input.workspace, nextMembers),
+    members: nextMembers,
+  };
+}
+
+function applyWorkspaceMemberRemoval(input: {
+  workspace: WorkspaceSettingsWorkspace;
+  members: WorkspaceSettingsMember[];
+  memberId: string;
+}): {
+  workspace: WorkspaceSettingsWorkspace;
+  members: WorkspaceSettingsMember[];
+} {
+  const nextMembers = input.members.filter((member) => member.id !== input.memberId);
+
+  return {
+    workspace: deriveWorkspaceStateFromMembers(input.workspace, nextMembers),
+    members: nextMembers,
+  };
+}
+
+function applyWorkspaceInviteCreated(
+  invites: WorkspaceSettingsInvite[],
+  invite: WorkspaceSettingsInvite
+) {
+  return [invite, ...invites];
+}
+
+function applyWorkspaceInvitePatched(
+  invites: WorkspaceSettingsInvite[],
+  inviteId: string,
+  patch: Partial<WorkspaceSettingsInvite>
+) {
+  return invites.map((invite) => (invite.id === inviteId ? { ...invite, ...patch } : invite));
+}
+
+function applyWorkspaceInviteRemoved(invites: WorkspaceSettingsInvite[], inviteId: string) {
+  return invites.filter((invite) => invite.id !== inviteId);
+}
+
+function deriveWorkspaceStateFromMembers(
+  workspace: WorkspaceSettingsWorkspace,
+  members: WorkspaceSettingsMember[]
+): WorkspaceSettingsWorkspace {
+  const currentUserMember =
+    members.find((member) => member.userId === workspace.currentUserId) ?? null;
+  const ownerCount = members.filter((member) => member.role === "owner").length;
+
+  if (!currentUserMember) {
+    return workspace;
+  }
+
+  return {
+    ...workspace,
+    role: currentUserMember.role,
+    isCurrentUserLastOwner: currentUserMember.role === "owner" && ownerCount === 1,
+  };
+}
+
+function sortWorkspaceSettingsMembers(members: WorkspaceSettingsMember[]) {
+  return [...members].sort((firstMember, secondMember) => {
+    const roleOrderDifference =
+      getWorkspaceRoleOrder(firstMember.role) - getWorkspaceRoleOrder(secondMember.role);
+
+    if (roleOrderDifference !== 0) {
+      return roleOrderDifference;
+    }
+
+    return getWorkspaceMemberSortKey(firstMember).localeCompare(
+      getWorkspaceMemberSortKey(secondMember)
+    );
+  });
+}
+
+function getWorkspaceMemberSortKey(member: WorkspaceSettingsMember) {
+  return member.email || member.name || member.userId;
+}
+
+function getWorkspaceRoleOrder(role: WorkspaceSettingsMember["role"]) {
+  if (role === "owner") {
+    return 0;
+  }
+
+  if (role === "admin") {
+    return 1;
+  }
+
+  return 2;
 }

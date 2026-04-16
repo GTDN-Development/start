@@ -117,10 +117,8 @@ export async function listUserWorkspacesWithClient(
 
 export async function resolvePostAuthDestinationForUser({
   userId,
-  userEmail: _userEmail,
 }: {
   userId: string;
-  userEmail: string;
 }): Promise<ServerWorkspaceResponse<PostAuthDestination>> {
   const pendingInviteToken = await getPendingInviteTokenCookie();
 
@@ -133,8 +131,6 @@ export async function resolvePostAuthDestinationForUser({
       },
     };
   }
-
-  void _userEmail;
 
   const activeWorkspaceResponse = await resolveActiveWorkspaceSlugForUser(userId);
 
@@ -318,7 +314,10 @@ export async function requireWorkspaceAuthContext(): Promise<WorkspaceAuthContex
   if (!currentUser.ok) {
     return {
       ok: false,
-      response: createWorkspaceAuthFailureResponse(currentUser),
+      response: {
+        ok: false,
+        errorCode: currentUser.errorCode,
+      },
     };
   }
 
@@ -337,7 +336,11 @@ export async function requireWorkspaceActionContext(): Promise<WorkspaceAuthCont
   if (!currentUser.ok) {
     return {
       ok: false,
-      response: createWorkspaceAuthFailureResponse(currentUser),
+      response: {
+        ok: false,
+        errorCode: currentUser.errorCode,
+        ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+      },
     };
   }
 
@@ -470,17 +473,6 @@ async function resolveWorkspaceMembershipContext(
       ),
     };
   }
-}
-
-function createWorkspaceAuthFailureResponse<TData>(currentUser: {
-  errorCode: "UNAUTHORIZED" | "UNKNOWN_ERROR";
-  setCookie?: string[];
-}): ServerWorkspaceResponse<TData> {
-  return {
-    ok: false,
-    errorCode: currentUser.errorCode,
-    ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
-  };
 }
 
 function createWorkspaceServiceErrorResponse<TData>(

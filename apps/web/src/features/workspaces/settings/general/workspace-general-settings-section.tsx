@@ -3,12 +3,6 @@
 import { startTransition, useState } from "react";
 import { APP_HOME_PATH, getWorkspaceSettingsHref } from "@/config/routes";
 import { WorkspaceAvatarSettingsItem } from "@/features/workspaces/settings/general/workspace-avatar-settings-item";
-import type {
-  UpdateWorkspaceGeneralInput,
-  WorkspaceGeneralDeleteHandler,
-  WorkspaceGeneralLeaveHandler,
-  WorkspaceGeneralUpdateHandler,
-} from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import {
   deleteWorkspaceAction,
   leaveWorkspaceAction,
@@ -23,6 +17,19 @@ import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigati
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
 import { useRouter } from "@/i18n/navigation";
 import { runAsyncTransition } from "@/lib/app-utils";
+import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
+
+type UpdateWorkspaceGeneralActionInput = {
+  name?: string;
+  slug?: string;
+  removeAvatar?: boolean;
+  avatarFile?: File;
+};
+
+type UpdateWorkspaceGeneralActionResult = WorkspaceResponse<{
+  workspaceSlug: string;
+  workspace: WorkspaceNavigationItem;
+}>;
 
 export function WorkspaceGeneralSettingsSection({
   initialWorkspace,
@@ -34,9 +41,9 @@ export function WorkspaceGeneralSettingsSection({
     useWorkspaceNavigation();
   const [workspace, setWorkspace] = useState(initialWorkspace);
 
-  const handleUpdateWorkspaceAction: WorkspaceGeneralUpdateHandler = async function updateWorkspace(
-    input: UpdateWorkspaceGeneralInput
-  ) {
+  async function handleUpdateWorkspaceAction(
+    input: UpdateWorkspaceGeneralActionInput
+  ): Promise<UpdateWorkspaceGeneralActionResult> {
     const currentWorkspace = workspace;
     const response = await runAsyncTransition(() =>
       updateWorkspaceGeneralAction(currentWorkspace.slug, input)
@@ -47,10 +54,10 @@ export function WorkspaceGeneralSettingsSection({
     }
 
     startTransition(() => {
-      const nextWorkspace = mergeWorkspaceSettingsWorkspace(
-        currentWorkspace,
-        response.data.workspace
-      );
+      const nextWorkspace = {
+        ...currentWorkspace,
+        ...response.data.workspace,
+      };
       const shouldUpdateActiveWorkspaceSlug =
         response.data.workspaceSlug !== currentWorkspace.slug &&
         (!activeWorkspaceSlug || activeWorkspaceSlug === currentWorkspace.slug);
@@ -68,9 +75,9 @@ export function WorkspaceGeneralSettingsSection({
     });
 
     return response;
-  };
+  }
 
-  const handleLeaveWorkspaceAction: WorkspaceGeneralLeaveHandler = async function leaveWorkspace() {
+  async function handleLeaveWorkspaceAction(): Promise<WorkspaceResponse<{ left: true }>> {
     const currentWorkspace = workspace;
     const response = await runAsyncTransition(() => leaveWorkspaceAction(currentWorkspace.slug));
 
@@ -84,24 +91,23 @@ export function WorkspaceGeneralSettingsSection({
     });
 
     return response;
-  };
+  }
 
-  const handleDeleteWorkspaceAction: WorkspaceGeneralDeleteHandler =
-    async function deleteWorkspace() {
-      const currentWorkspace = workspace;
-      const response = await runAsyncTransition(() => deleteWorkspaceAction(currentWorkspace.slug));
+  async function handleDeleteWorkspaceAction(): Promise<WorkspaceResponse<{ deleted: true }>> {
+    const currentWorkspace = workspace;
+    const response = await runAsyncTransition(() => deleteWorkspaceAction(currentWorkspace.slug));
 
-      if (!response.ok) {
-        return response;
-      }
-
-      startTransition(() => {
-        removeWorkspace(currentWorkspace.id);
-        router.replace(APP_HOME_PATH);
-      });
-
+    if (!response.ok) {
       return response;
-    };
+    }
+
+    startTransition(() => {
+      removeWorkspace(currentWorkspace.id);
+      router.replace(APP_HOME_PATH);
+    });
+
+    return response;
+  }
 
   return (
     <div className="grid gap-8">
@@ -129,14 +135,4 @@ export function WorkspaceGeneralSettingsSection({
       />
     </div>
   );
-}
-
-function mergeWorkspaceSettingsWorkspace(
-  workspace: WorkspaceSettingsWorkspace,
-  patch: WorkspaceNavigationItem
-): WorkspaceSettingsWorkspace {
-  return {
-    ...workspace,
-    ...patch,
-  };
 }

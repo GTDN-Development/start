@@ -6,11 +6,9 @@ import {
 import {
   listDeviceSessions,
   revokeDeviceSessionById,
-  revokeOtherDeviceSessions,
 } from "@/server/device-sessions/device-sessions-service";
 import {
   listCurrentUserDeviceSessions,
-  requireCurrentUser,
   requireCurrentWritableUser,
   revokeCurrentUserDeviceSessionById,
 } from "./current-user";
@@ -26,52 +24,12 @@ vi.mock("@/server/device-sessions/device-sessions-service", function mockDeviceS
   return {
     listDeviceSessions: vi.fn(),
     revokeDeviceSessionById: vi.fn(),
-    revokeOtherDeviceSessions: vi.fn(),
   };
 });
 
 describe("current-user", function describeCurrentUser() {
   beforeEach(function resetMocks() {
     vi.clearAllMocks();
-  });
-
-  it("delegates render-time auth resolution to the render resolver", async function testRequireCurrentUser() {
-    vi.mocked(resolveRenderAuthenticatedUser).mockResolvedValue({
-      ok: true,
-      pb: "pb-client" as never,
-      user: {
-        id: "user-1",
-        email: "user@example.com",
-      } as never,
-      currentSessionIdHash: "session-hash-1",
-    });
-
-    const response = await requireCurrentUser();
-
-    expect(response).toEqual({
-      ok: true,
-      pb: "pb-client",
-      user: {
-        id: "user-1",
-        email: "user@example.com",
-      },
-      currentSessionIdHash: "session-hash-1",
-    });
-    expect(resolveRenderAuthenticatedUser).toHaveBeenCalledTimes(1);
-  });
-
-  it("returns only the auth error code for render-time failures", async function testRequireCurrentUserFailure() {
-    vi.mocked(resolveRenderAuthenticatedUser).mockResolvedValue({
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-    });
-
-    const response = await requireCurrentUser();
-
-    expect(response).toEqual({
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-    });
   });
 
   it("keeps writable cookie cleanup metadata on auth failures", async function testRequireCurrentWritableUserFailure() {
@@ -145,7 +103,6 @@ describe("current-user", function describeCurrentUser() {
       setCookie: ["pb_auth=; Max-Age=0"],
     });
     expect(revokeDeviceSessionById).not.toHaveBeenCalled();
-    expect(revokeOtherDeviceSessions).not.toHaveBeenCalled();
   });
 
   it("maps missing device sessions to NOT_FOUND", async function testRevokeCurrentUserDeviceSessionNotFound() {

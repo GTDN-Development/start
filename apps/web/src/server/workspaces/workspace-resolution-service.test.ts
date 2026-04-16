@@ -58,7 +58,6 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
 
     const response = await resolvePostAuthDestinationForUser({
       userId: "user-1",
-      userEmail: "user@example.com",
     });
 
     expect(response).toEqual({
@@ -86,7 +85,6 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
 
     const response = await resolvePostAuthDestinationForUser({
       userId: "user-1",
-      userEmail: "user@example.com",
     });
 
     expect(response).toEqual({
@@ -109,7 +107,6 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
 
     const response = await resolvePostAuthDestinationForUser({
       userId: "user-1",
-      userEmail: "user@example.com",
     });
 
     expect(response).toEqual({

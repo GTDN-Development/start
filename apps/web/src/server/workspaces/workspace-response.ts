@@ -16,22 +16,6 @@ export function createBadRequestWorkspaceResponse<TData>(): WorkspaceResponse<TD
   };
 }
 
-export function toWorkspaceResponse<TData>(
-  response: ServerWorkspaceResponse<TData>
-): WorkspaceResponse<TData> {
-  if (response.ok) {
-    return {
-      ok: true,
-      data: response.data,
-    };
-  }
-
-  return {
-    ok: false,
-    errorCode: response.errorCode,
-  };
-}
-
 export async function finalizeWorkspaceAction<TData, TResult = TData>(
   response: ServerWorkspaceResponse<TData>,
   options: FinalizeWorkspaceActionOptions<TData, TResult> = {}

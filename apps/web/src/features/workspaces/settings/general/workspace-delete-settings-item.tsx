@@ -30,8 +30,8 @@ import {
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
 import { createWorkspaceDeleteFormSchema } from "@/features/workspaces/workspace-schemas";
-import type { WorkspaceGeneralDeleteHandler } from "@/features/workspaces/settings/general/workspace-general-settings-contract";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 type DeleteWorkspaceFormValues = {
   confirmationUrl: string;
@@ -43,7 +43,7 @@ export function WorkspaceDeleteSettingsItem({
   onDeleteWorkspaceAction,
 }: {
   workspace: WorkspaceSettingsWorkspace;
-  onDeleteWorkspaceAction: WorkspaceGeneralDeleteHandler;
+  onDeleteWorkspaceAction: () => Promise<WorkspaceResponse<{ deleted: true }>>;
 }) {
   const t = useTranslations("pages.workspace.general.delete");
   const tCommon = useTranslations("pages.workspace.common");

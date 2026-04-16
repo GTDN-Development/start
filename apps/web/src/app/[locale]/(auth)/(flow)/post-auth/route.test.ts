@@ -95,7 +95,6 @@ describe("post-auth route", function describePostAuthRoute() {
     expect(response.headers.get("set-cookie")).toContain("pb_auth=token");
     expect(resolvePostAuthDestinationForUser).toHaveBeenCalledWith({
       userId: "user-1",
-      userEmail: "user@example.com",
     });
   });
 
