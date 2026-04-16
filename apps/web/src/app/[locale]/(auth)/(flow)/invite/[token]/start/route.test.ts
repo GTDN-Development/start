@@ -35,51 +35,45 @@ describe("invite start route", function describeInviteStartRoute() {
     vi.clearAllMocks();
   });
 
-  it("sets the pending invite cookie and redirects to sign-in for valid invites", async function testValidInviteRedirect() {
+  it.each([
+    {
+      name: "sets the pending invite cookie and redirects to sign-in for valid invites",
+      isValid: true,
+      expectedLocation: "https://example.com/sign-in",
+      expectedSetCookie: `${workspaceConfig.cookies.pendingInvite.name}=invite-token`,
+    },
+    {
+      name: "redirects back to the invite page without setting cookies when the invite is invalid",
+      isValid: false,
+      expectedLocation: "https://example.com/invite/invite-token",
+      expectedSetCookie: null,
+    },
+  ])("$name", async function testInviteStartRedirect(input) {
     vi.mocked(validateInviteToken).mockResolvedValue({
       ok: true,
       data: {
-        isValid: true,
+        isValid: input.isValid,
       },
     } as Awaited<ReturnType<typeof validateInviteToken>>);
 
-    const response = await GET(
-      new NextRequest("https://example.com/cs/invite/invite-token/start"),
-      {
-        params: Promise.resolve({
-          locale: "cs",
-          token: "invite-token",
-        }),
-      }
-    );
+    const response = await getInviteStartResponse();
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("https://example.com/sign-in");
-    expect(response.headers.get("set-cookie")).toContain(
-      `${workspaceConfig.cookies.pendingInvite.name}=invite-token`
-    );
-  });
+    expect(response.headers.get("location")).toBe(input.expectedLocation);
+    if (input.expectedSetCookie) {
+      expect(response.headers.get("set-cookie")).toContain(input.expectedSetCookie);
+      return;
+    }
 
-  it("redirects back to the invite page without setting cookies when the invite is invalid", async function testInvalidInviteRedirect() {
-    vi.mocked(validateInviteToken).mockResolvedValue({
-      ok: true,
-      data: {
-        isValid: false,
-      },
-    } as Awaited<ReturnType<typeof validateInviteToken>>);
-
-    const response = await GET(
-      new NextRequest("https://example.com/cs/invite/invite-token/start"),
-      {
-        params: Promise.resolve({
-          locale: "cs",
-          token: "invite-token",
-        }),
-      }
-    );
-
-    expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toBe("https://example.com/invite/invite-token");
     expect(response.headers.get("set-cookie")).toBeNull();
   });
 });
+
+async function getInviteStartResponse() {
+  return GET(new NextRequest("https://example.com/cs/invite/invite-token/start"), {
+    params: Promise.resolve({
+      locale: "cs",
+      token: "invite-token",
+    }),
+  });
+}

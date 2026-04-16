@@ -87,11 +87,7 @@ export async function revokeCurrentUserOtherDeviceSessions(): Promise<
   const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return {
-      ok: false,
-      errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
-    };
+    return currentUser;
   }
 
   try {
@@ -123,11 +119,7 @@ export async function revokeCurrentUserDeviceSessionById(input: {
   const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    return {
-      ok: false,
-      errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
-    };
+    return currentUser;
   }
 
   try {
@@ -138,17 +130,10 @@ export async function revokeCurrentUserDeviceSessionById(input: {
       currentSessionIdHash: currentUser.currentSessionIdHash,
     });
 
-    if (revokeResult === "not_found") {
+    if (revokeResult !== "revoked") {
       return {
         ok: false,
-        errorCode: "NOT_FOUND",
-      };
-    }
-
-    if (revokeResult === "current_device") {
-      return {
-        ok: false,
-        errorCode: "BAD_REQUEST",
+        errorCode: revokeResult === "not_found" ? "NOT_FOUND" : "BAD_REQUEST",
       };
     }
 

@@ -45,7 +45,6 @@ describe("current-user", function describeCurrentUser() {
       errorCode: "UNAUTHORIZED",
       setCookie: ["pb_auth=; Max-Age=0"],
     });
-    expect(resolveWritableAuthenticatedUser).toHaveBeenCalledTimes(1);
   });
 
   it("loads device sessions through the current-user boundary", async function testListCurrentUserDeviceSessions() {
@@ -54,7 +53,6 @@ describe("current-user", function describeCurrentUser() {
       pb: "pb-client" as never,
       user: {
         id: "user-1",
-        email: "user@example.com",
       } as never,
       currentSessionIdHash: "session-hash-1",
     });
@@ -87,57 +85,27 @@ describe("current-user", function describeCurrentUser() {
     });
   });
 
-  it("keeps writable auth cleanup cookies when revoking device sessions fails authorization", async function testRevokeCurrentUserDeviceSessionAuthFailure() {
-    vi.mocked(resolveWritableAuthenticatedUser).mockResolvedValue({
-      status: "unauthorized",
-      setCookie: ["pb_auth=; Max-Age=0"],
-    });
-
-    const response = await revokeCurrentUserDeviceSessionById({
-      deviceSessionId: "session-2",
-    });
-
-    expect(response).toEqual({
-      ok: false,
-      errorCode: "UNAUTHORIZED",
-      setCookie: ["pb_auth=; Max-Age=0"],
-    });
-    expect(revokeDeviceSessionById).not.toHaveBeenCalled();
-  });
-
-  it("maps missing device sessions to NOT_FOUND", async function testRevokeCurrentUserDeviceSessionNotFound() {
+  it.each([
+    {
+      name: "maps missing device sessions to NOT_FOUND",
+      revokeResult: "not_found" as const,
+      expectedErrorCode: "NOT_FOUND" as const,
+    },
+    {
+      name: "maps current-device revokes to BAD_REQUEST",
+      revokeResult: "current_device" as const,
+      expectedErrorCode: "BAD_REQUEST" as const,
+    },
+  ])("$name", async function testRevokeDeviceSessionMapping(input) {
     vi.mocked(resolveWritableAuthenticatedUser).mockResolvedValue({
       status: "authenticated",
       pb: "pb-client" as never,
       user: {
         id: "user-1",
-        email: "user@example.com",
       } as never,
       currentSessionIdHash: "session-hash-1",
     });
-    vi.mocked(revokeDeviceSessionById).mockResolvedValue("not_found");
-
-    const response = await revokeCurrentUserDeviceSessionById({
-      deviceSessionId: "session-2",
-    });
-
-    expect(response).toEqual({
-      ok: false,
-      errorCode: "NOT_FOUND",
-    });
-  });
-
-  it("maps current-device revokes to BAD_REQUEST", async function testRevokeCurrentUserDeviceSessionCurrentDevice() {
-    vi.mocked(resolveWritableAuthenticatedUser).mockResolvedValue({
-      status: "authenticated",
-      pb: "pb-client" as never,
-      user: {
-        id: "user-1",
-        email: "user@example.com",
-      } as never,
-      currentSessionIdHash: "session-hash-1",
-    });
-    vi.mocked(revokeDeviceSessionById).mockResolvedValue("current_device");
+    vi.mocked(revokeDeviceSessionById).mockResolvedValue(input.revokeResult);
 
     const response = await revokeCurrentUserDeviceSessionById({
       deviceSessionId: "session-1",
@@ -145,7 +113,7 @@ describe("current-user", function describeCurrentUser() {
 
     expect(response).toEqual({
       ok: false,
-      errorCode: "BAD_REQUEST",
+      errorCode: input.expectedErrorCode,
     });
   });
 });

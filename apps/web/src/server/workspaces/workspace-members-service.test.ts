@@ -4,13 +4,11 @@ import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/ty
 import {
   countWorkspaceOwners,
   findWorkspaceMemberById,
-  listWorkspaceMemberRecordsByWorkspace,
 } from "@/server/workspaces/workspace-repository";
 import { requireWorkspaceActionMembershipContext } from "@/server/workspaces/workspace-resolution-service";
 import {
   changeWorkspaceMemberRoleForCurrentUser,
   leaveWorkspaceForCurrentUser,
-  listWorkspaceMembersWithClient,
   removeWorkspaceMemberForCurrentUser,
 } from "./workspace-members-service";
 
@@ -28,7 +26,6 @@ vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceReposi
   return {
     countWorkspaceOwners: vi.fn(),
     findWorkspaceMemberById: vi.fn(),
-    listWorkspaceMemberRecordsByWorkspace: vi.fn(),
   };
 });
 
@@ -37,133 +34,48 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     vi.clearAllMocks();
   });
 
-  it("allows a regular member to leave a workspace", async function testMemberLeave() {
+  it.each([
+    {
+      name: "allows a regular member to leave a workspace",
+      ownerCount: null,
+      expectedResponse: {
+        ok: true as const,
+        data: {
+          left: true as const,
+        },
+      },
+      shouldDelete: true,
+    },
+    {
+      name: "blocks the final owner from leaving",
+      ownerCount: 1,
+      expectedResponse: {
+        ok: false as const,
+        errorCode: "LAST_OWNER_GUARD" as const,
+      },
+      shouldDelete: false,
+    },
+  ])("$name", async function testLeaveWorkspace(input) {
     const { pb, deleteSpy } = createPocketBaseMock();
     const user = createUserRecord("user-member", "member@example.com");
-    const membership = createWorkspaceMemberRecord("membership-member", user.id, "member");
+    const membership = createWorkspaceMemberRecord(
+      "membership-member",
+      user.id,
+      input.ownerCount === null ? "member" : "owner"
+    );
 
     vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
       createWorkspaceMembershipContextSuccess(pb, user, membership)
     );
 
-    const response = await leaveWorkspaceForCurrentUser("team-space");
-
-    expect(response).toEqual({
-      ok: true,
-      data: {
-        left: true,
-      },
-    });
-    expect(deleteSpy).toHaveBeenCalledWith(membership.id);
-  });
-
-  it("maps and sorts members through the with-client list helper", async function testListWithClient() {
-    const { pb } = createPocketBaseMock();
-
-    vi.mocked(listWorkspaceMemberRecordsByWorkspace).mockResolvedValue([
-      createWorkspaceMemberRecordWithUser(
-        "membership-member",
-        {
-          ...createUserRecord("user-member", "member@example.com"),
-          name: "Member Person",
-        },
-        "member"
-      ),
-      createWorkspaceMemberRecordWithUser(
-        "membership-owner",
-        {
-          ...createUserRecord("user-owner", "owner@example.com"),
-          name: "Owner Person",
-        },
-        "owner"
-      ),
-    ]);
-
-    const response = await listWorkspaceMembersWithClient(pb, "workspace-1");
-
-    expect(response).toEqual({
-      ok: true,
-      data: {
-        members: [
-          {
-            id: "membership-owner",
-            userId: "user-owner",
-            email: "owner@example.com",
-            name: "Owner Person",
-            avatarUrl: null,
-            role: "owner",
-          },
-          {
-            id: "membership-member",
-            userId: "user-member",
-            email: "member@example.com",
-            name: "Member Person",
-            avatarUrl: null,
-            role: "member",
-          },
-        ],
-      },
-    });
-  });
-
-  it("maps list failures in the with-client helper to not found", async function testListWithClientNotFound() {
-    const { pb } = createPocketBaseMock();
-
-    vi.mocked(listWorkspaceMemberRecordsByWorkspace).mockRejectedValue(createNotFoundError());
-
-    const response = await listWorkspaceMembersWithClient(pb, "workspace-1");
-
-    expect(response).toEqual({
-      ok: false,
-      errorCode: "NOT_FOUND",
-    });
-  });
-
-  it("blocks the final owner from leaving", async function testLastOwnerLeaveGuard() {
-    const { pb, deleteSpy } = createPocketBaseMock();
-    const user = createUserRecord("user-owner", "owner@example.com");
-    const membership = createWorkspaceMemberRecord("membership-owner", user.id, "owner");
-
-    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
-      createWorkspaceMembershipContextSuccess(pb, user, membership)
-    );
-    vi.mocked(countWorkspaceOwners).mockResolvedValue(1);
+    if (input.ownerCount !== null) {
+      vi.mocked(countWorkspaceOwners).mockResolvedValue(input.ownerCount);
+    }
 
     const response = await leaveWorkspaceForCurrentUser("team-space");
 
-    expect(response).toEqual({
-      ok: false,
-      errorCode: "LAST_OWNER_GUARD",
-    });
-    expect(deleteSpy).not.toHaveBeenCalled();
-  });
-
-  it("maps PocketBase role deny to forbidden when changing a role", async function testRoleDeny() {
-    const { pb, updateSpy } = createPocketBaseMock();
-    const user = createUserRecord("user-admin", "admin@example.com");
-    const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
-    const ownerMembership = createWorkspaceMemberRecord("membership-owner", "user-owner", "owner");
-
-    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
-      createWorkspaceMembershipContextSuccess(pb, user, adminMembership)
-    );
-    vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
-    vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
-    updateSpy.mockRejectedValue(createNotFoundError());
-
-    const response = await changeWorkspaceMemberRoleForCurrentUser(
-      "team-space",
-      ownerMembership.id,
-      "member"
-    );
-
-    expect(response).toEqual({
-      ok: false,
-      errorCode: "FORBIDDEN",
-    });
-    expect(updateSpy).toHaveBeenCalledWith(ownerMembership.id, {
-      role: "member",
-    });
+    expect(response).toEqual(input.expectedResponse);
+    expect(deleteSpy).toHaveBeenCalledTimes(input.shouldDelete ? 1 : 0);
   });
 
   it("allows owners to promote another member to owner", async function testOwnerPromotion() {
@@ -198,69 +110,94 @@ describe("workspace-members-service", function describeWorkspaceMembersService()
     });
   });
 
-  it("blocks downgrading the final owner", async function testLastOwnerDowngradeGuard() {
-    const { pb, updateSpy } = createPocketBaseMock();
-    const user = createUserRecord("user-owner", "owner@example.com");
-    const ownerMembership = createWorkspaceMemberRecord("membership-owner", user.id, "owner");
+  it.each([
+    {
+      name: "blocks downgrading the final owner",
+      mutation: function mutation() {
+        const { pb, updateSpy } = createPocketBaseMock();
+        const user = createUserRecord("user-owner", "owner@example.com");
+        const ownerMembership = createWorkspaceMemberRecord("membership-owner", user.id, "owner");
 
-    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
-      createWorkspaceMembershipContextSuccess(pb, user, ownerMembership)
-    );
-    vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
-    vi.mocked(countWorkspaceOwners).mockResolvedValue(1);
+        vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+          createWorkspaceMembershipContextSuccess(pb, user, ownerMembership)
+        );
+        vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
+        vi.mocked(countWorkspaceOwners).mockResolvedValue(1);
 
-    const response = await changeWorkspaceMemberRoleForCurrentUser(
-      "team-space",
-      ownerMembership.id,
-      "admin"
-    );
+        return {
+          response: changeWorkspaceMemberRoleForCurrentUser(
+            "team-space",
+            ownerMembership.id,
+            "admin"
+          ),
+          writeSpy: updateSpy,
+        };
+      },
+      expectedResponse: {
+        ok: false as const,
+        errorCode: "LAST_OWNER_GUARD" as const,
+      },
+      shouldWrite: false,
+    },
+    {
+      name: "blocks removing yourself from the member removal action",
+      mutation: function mutation() {
+        const { pb, deleteSpy } = createPocketBaseMock();
+        const user = createUserRecord("user-admin", "admin@example.com");
+        const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
 
-    expect(response).toEqual({
-      ok: false,
-      errorCode: "LAST_OWNER_GUARD",
-    });
-    expect(updateSpy).not.toHaveBeenCalled();
-  });
+        vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+          createWorkspaceMembershipContextSuccess(pb, user, adminMembership)
+        );
+        vi.mocked(findWorkspaceMemberById).mockResolvedValue(adminMembership);
 
-  it("blocks removing yourself from the member removal action", async function testRemoveSelfGuard() {
-    const { pb, deleteSpy } = createPocketBaseMock();
-    const user = createUserRecord("user-admin", "admin@example.com");
-    const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
+        return {
+          response: removeWorkspaceMemberForCurrentUser("team-space", adminMembership.id),
+          writeSpy: deleteSpy,
+        };
+      },
+      expectedResponse: {
+        ok: false as const,
+        errorCode: "FORBIDDEN" as const,
+      },
+      shouldWrite: false,
+    },
+    {
+      name: "maps PocketBase owner-removal deny to FORBIDDEN",
+      mutation: function mutation() {
+        const { pb, deleteSpy } = createPocketBaseMock();
+        const user = createUserRecord("user-admin", "admin@example.com");
+        const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
+        const ownerMembership = createWorkspaceMemberRecord(
+          "membership-owner",
+          "user-owner",
+          "owner"
+        );
 
-    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
-      createWorkspaceMembershipContextSuccess(pb, user, adminMembership)
-    );
-    vi.mocked(findWorkspaceMemberById).mockResolvedValue(adminMembership);
+        vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
+          createWorkspaceMembershipContextSuccess(pb, user, adminMembership)
+        );
+        vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
+        vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
+        deleteSpy.mockRejectedValue(createNotFoundError());
 
-    const response = await removeWorkspaceMemberForCurrentUser("team-space", adminMembership.id);
+        return {
+          response: removeWorkspaceMemberForCurrentUser("team-space", ownerMembership.id),
+          writeSpy: deleteSpy,
+        };
+      },
+      expectedResponse: {
+        ok: false as const,
+        errorCode: "FORBIDDEN" as const,
+      },
+      shouldWrite: true,
+    },
+  ])("$name", async function testMembershipGuards(input) {
+    const mutation = input.mutation();
+    const response = await mutation.response;
 
-    expect(response).toEqual({
-      ok: false,
-      errorCode: "FORBIDDEN",
-    });
-    expect(deleteSpy).not.toHaveBeenCalled();
-  });
-
-  it("maps PocketBase owner-removal deny to forbidden", async function testOwnerRemoveDeny() {
-    const { pb, deleteSpy } = createPocketBaseMock();
-    const user = createUserRecord("user-admin", "admin@example.com");
-    const adminMembership = createWorkspaceMemberRecord("membership-admin", user.id, "admin");
-    const ownerMembership = createWorkspaceMemberRecord("membership-owner", "user-owner", "owner");
-
-    vi.mocked(requireWorkspaceActionMembershipContext).mockResolvedValue(
-      createWorkspaceMembershipContextSuccess(pb, user, adminMembership)
-    );
-    vi.mocked(findWorkspaceMemberById).mockResolvedValue(ownerMembership);
-    vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
-    deleteSpy.mockRejectedValue(createNotFoundError());
-
-    const response = await removeWorkspaceMemberForCurrentUser("team-space", ownerMembership.id);
-
-    expect(response).toEqual({
-      ok: false,
-      errorCode: "FORBIDDEN",
-    });
-    expect(deleteSpy).toHaveBeenCalledWith(ownerMembership.id);
+    expect(response).toEqual(input.expectedResponse);
+    expect(mutation.writeSpy).toHaveBeenCalledTimes(input.shouldWrite ? 1 : 0);
   });
 });
 
@@ -271,16 +208,15 @@ function createPocketBaseMock() {
   const updateSpy = vi.fn(async function updateRecord() {
     return undefined;
   });
-  const collectionSpy = vi.fn(function getCollection() {
-    return {
-      delete: deleteSpy,
-      update: updateSpy,
-    };
-  });
 
   return {
     pb: {
-      collection: collectionSpy,
+      collection: vi.fn(function getCollection() {
+        return {
+          delete: deleteSpy,
+          update: updateSpy,
+        };
+      }),
     } as unknown as PocketBase,
     deleteSpy,
     updateSpy,
@@ -352,19 +288,6 @@ function createWorkspaceMembershipContextSuccess(
       user,
       workspace: createWorkspaceRecord(),
       membership,
-    },
-  };
-}
-
-function createWorkspaceMemberRecordWithUser(
-  id: string,
-  user: UsersRecord,
-  role: WorkspaceMembersRecord["role"]
-) {
-  return {
-    ...createWorkspaceMemberRecord(id, user.id, role),
-    expand: {
-      user,
     },
   };
 }

@@ -168,7 +168,6 @@ This phase should explicitly look for and remove:
    Reduce the size of `workspace-members-settings-section.tsx` without creating a new state-machine layer.
 
    Preferred direction:
-
    - delete repeated action-confirm boilerplate
    - collapse duplicated invite/member patch helpers where the direct update is clear enough inline
    - remove props or dialog state plumbing that only exists to support internal structure
@@ -179,7 +178,6 @@ This phase should explicitly look for and remove:
    `workspace-resolution-service.ts` replaced older seams, but it still owns too many concerns at once.
 
    Preferred direction:
-
    - delete duplicated error-mapping patterns
    - delete or inline thin context wrappers that no longer earn their place
    - keep only the route, action, and membership entrypoints that materially shorten callers
@@ -190,7 +188,6 @@ This phase should explicitly look for and remove:
    The auth/device-session slice still carries concentrated infrastructure-style code.
 
    Preferred direction:
-
    - simplify the `current-user.ts` boundary so it remains auth-owned but less wrapper-heavy
    - trim `device-sessions-service.ts` by collapsing duplicated branching or helper layers
    - keep `application-session-state.ts` only if it continues to remove duplication across auth and account security
@@ -199,7 +196,6 @@ This phase should explicitly look for and remove:
 4. **Delete structure-heavy vitest coverage**
 
    Preferred direction:
-
    - shrink or rewrite `workspace-general-actions.test.ts` so it protects behavior, not every helper call
    - reduce structure-heavy cases in `device-sessions-service.test.ts`
    - reduce tests that mainly prove new wrappers or adapters still call through correctly

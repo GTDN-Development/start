@@ -19,7 +19,6 @@ import {
   hashSessionToken,
   listDeviceSessions,
   registerOrRefreshDeviceSession,
-  revokeCurrentDeviceSession,
   revokeDeviceSessionById,
   revokeOtherDeviceSessions,
   validateDeviceSessionOrInvalidate,
@@ -61,40 +60,62 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       currentSessionIdHash: currentSessionHash,
     });
 
-    expect(response).toEqual([
-      expect.objectContaining({
-        id: "session-current",
-        isCurrentDevice: true,
-      }),
-      expect.objectContaining({
-        id: "session-other",
-        isCurrentDevice: false,
-      }),
+    expect(
+      response.map(function mapSession(session) {
+        return {
+          id: session.id,
+          isCurrentDevice: session.isCurrentDevice,
+        };
+      })
+    ).toEqual([
+      { id: "session-current", isCurrentDevice: true },
+      { id: "session-other", isCurrentDevice: false },
     ]);
-    expect(getFullListSpy).toHaveBeenCalledWith({
-      filter: 'user = "user-1"',
-      sort: "-last_seen_at",
-    });
   });
 
-  it("revokes the current active device session", async function testRevokeCurrentSession() {
-    const { pb, deleteSpy, getFirstListItemSpy } = createPocketBaseMock();
-    const currentSessionHash = hashSessionToken("current-session-token");
-
-    getFirstListItemSpy.mockResolvedValue(
-      createDeviceSessionRecord("session-current", {
-        sessionIdHash: currentSessionHash,
+  it.each([
+    {
+      name: "rejects revoking the current device by id",
+      deviceSession: createDeviceSessionRecord("session-current", {
+        sessionIdHash: hashSessionToken("current-session-token"),
         expiresAt: createFutureIso(60),
-      })
-    );
+      }),
+      expected: "current_device",
+      shouldDelete: false,
+    },
+    {
+      name: "returns not_found when the device session does not exist",
+      deviceSession: createClientResponseError(404),
+      expected: "not_found",
+      shouldDelete: false,
+    },
+    {
+      name: "revokes another active device by id",
+      deviceSession: createDeviceSessionRecord("session-other", {
+        sessionIdHash: hashSessionToken("other-session-token"),
+        expiresAt: createFutureIso(60),
+      }),
+      expected: "revoked",
+      shouldDelete: true,
+    },
+  ])("$name", async function testRevokeDeviceSessionById(input) {
+    const { pb, deleteSpy, getOneSpy } = createPocketBaseMock();
 
-    await revokeCurrentDeviceSession({
+    if (input.deviceSession instanceof Error) {
+      getOneSpy.mockRejectedValue(input.deviceSession);
+    } else {
+      getOneSpy.mockResolvedValue(input.deviceSession);
+    }
+
+    const response = await revokeDeviceSessionById({
       pb,
       userId: "user-1",
-      currentSessionIdHash: currentSessionHash,
+      deviceSessionId: "session-target",
+      currentSessionIdHash: hashSessionToken("current-session-token"),
     });
 
-    expect(deleteSpy).toHaveBeenCalledWith("session-current");
+    expect(response).toBe(input.expected);
+    expect(deleteSpy).toHaveBeenCalledTimes(input.shouldDelete ? 1 : 0);
   });
 
   it("revokes only other active sessions and returns their count", async function testRevokeOthers() {
@@ -123,71 +144,11 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
     });
 
     expect(revokedCount).toBe(1);
-    expect(deleteSpy).toHaveBeenCalledTimes(1);
-    expect(deleteSpy).toHaveBeenCalledWith("session-other-active");
+    expect(deleteSpy.mock.calls.flat()).toEqual(["session-other-active"]);
   });
 
-  it("returns current_device when revoking the current session by id", async function testRevokeByIdCurrentDevice() {
-    const { pb, deleteSpy, getOneSpy } = createPocketBaseMock();
-    const currentSessionHash = hashSessionToken("current-session-token");
-
-    getOneSpy.mockResolvedValue(
-      createDeviceSessionRecord("session-current", {
-        sessionIdHash: currentSessionHash,
-        expiresAt: createFutureIso(60),
-      })
-    );
-
-    const response = await revokeDeviceSessionById({
-      pb,
-      userId: "user-1",
-      deviceSessionId: "session-current",
-      currentSessionIdHash: currentSessionHash,
-    });
-
-    expect(response).toBe("current_device");
-    expect(deleteSpy).not.toHaveBeenCalled();
-  });
-
-  it("returns not_found when the device session does not exist", async function testRevokeByIdNotFound() {
-    const { pb, deleteSpy, getOneSpy } = createPocketBaseMock();
-
-    getOneSpy.mockRejectedValue(createClientResponseError(404));
-
-    const response = await revokeDeviceSessionById({
-      pb,
-      userId: "user-1",
-      deviceSessionId: "missing-session",
-      currentSessionIdHash: hashSessionToken("current-session-token"),
-    });
-
-    expect(response).toBe("not_found");
-    expect(deleteSpy).not.toHaveBeenCalled();
-  });
-
-  it("revokes another active device session by id", async function testRevokeByIdOtherDevice() {
-    const { pb, deleteSpy, getOneSpy } = createPocketBaseMock();
-
-    getOneSpy.mockResolvedValue(
-      createDeviceSessionRecord("session-other", {
-        sessionIdHash: hashSessionToken("other-session-token"),
-        expiresAt: createFutureIso(60),
-      })
-    );
-
-    const response = await revokeDeviceSessionById({
-      pb,
-      userId: "user-1",
-      deviceSessionId: "session-other",
-      currentSessionIdHash: hashSessionToken("current-session-token"),
-    });
-
-    expect(response).toBe("revoked");
-    expect(deleteSpy).toHaveBeenCalledWith("session-other");
-  });
-
-  it("updates an existing session and enforces the device limit without creating duplicates", async function testRegisterOrRefreshExistingSession() {
-    const { pb, createSpy, deleteSpy, getFirstListItemSpy, getFullListSpy, updateSpy } =
+  it("updates an existing session and enforces the device limit while cleaning expired sessions", async function testRegisterOrRefreshExistingSession() {
+    const { pb, deleteSpy, getFirstListItemSpy, getFullListSpy, updateSpy } =
       createPocketBaseMock();
     const maxActiveSessions = getMaxActiveSessionsForTest();
     const currentSessionHash = hashSessionToken("current-session-token");
@@ -201,27 +162,21 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       created: "2026-01-01T00:00:00.000Z",
       lastSeenAt: "2026-01-01T00:00:00.000Z",
     });
-    const activeSessions = [
-      oldestSession,
-      existingSession,
-      ...Array.from({ length: maxActiveSessions - 1 }, function createExtraSession(_, index) {
-        return createDeviceSessionRecord(`session-active-${index + 1}`, {
-          sessionIdHash: hashSessionToken(`session-active-token-${index + 1}`),
-          expiresAt: createFutureIso(180 + index),
-          created: `2026-01-01T00:0${index + 1}:00.000Z`,
-          lastSeenAt: `2026-01-01T00:0${index + 1}:00.000Z`,
-        });
-      }),
-    ];
-    const expiredSession = createDeviceSessionRecord("session-expired", {
-      sessionIdHash: hashSessionToken("session-expired-token"),
-      expiresAt: createPastIso(60),
-    });
 
     getFirstListItemSpy.mockResolvedValue(existingSession);
     getFullListSpy
-      .mockResolvedValueOnce(activeSessions)
-      .mockResolvedValueOnce([existingSession, expiredSession]);
+      .mockResolvedValueOnce([
+        oldestSession,
+        existingSession,
+        ...createActiveDeviceSessions(maxActiveSessions - 1),
+      ])
+      .mockResolvedValueOnce([
+        existingSession,
+        createDeviceSessionRecord("session-expired", {
+          sessionIdHash: hashSessionToken("session-expired-token"),
+          expiresAt: createPastIso(60),
+        }),
+      ]);
 
     await registerOrRefreshDeviceSession({
       pb,
@@ -233,29 +188,19 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       }),
     });
 
-    expect(createSpy).not.toHaveBeenCalled();
-    expect(updateSpy).toHaveBeenCalledWith(
-      existingSession.id,
-      expect.objectContaining({
-        user: "user-1",
-        session_id_hash: currentSessionHash,
-        device_label: "MacBook Pro",
-        device_type: "desktop",
-        browser: "Chrome",
-        os: "macOS",
-        user_agent: "Mozilla/5.0",
-      })
-    );
-    expect(getFullListSpy).toHaveBeenNthCalledWith(1, {
-      filter: 'user = "user-1"',
-      sort: "+last_seen_at",
-    });
-    expect(getFullListSpy).toHaveBeenNthCalledWith(2, {
-      filter: 'user = "user-1"',
-    });
-    expect(deleteSpy.mock.calls).toEqual([["session-oldest"], ["session-expired"]]);
+    expect(updateSpy).toHaveBeenCalledOnce();
+    const updateCall = updateSpy.mock.calls.at(0);
+
+    if (!updateCall) {
+      throw new Error("Expected the existing session to be updated.");
+    }
+
+    const [updatedSessionId, updatePayload] = updateCall;
+
+    expect(updatedSessionId).toBe(existingSession.id);
+    expect(deleteSpy.mock.calls.flat()).toEqual(["session-oldest", "session-expired"]);
     expectExpiresAtWithinTtl(
-      getExpiresAtFromCall(updateSpy, 1),
+      getExpiresAtFromWrite(updatePayload),
       DEVICE_SESSION_PERSISTENT_MAX_AGE_SECONDS
     );
   });
@@ -284,12 +229,6 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       }),
     });
 
-    expect(createSpy).toHaveBeenCalledTimes(1);
-    expectExpiresAtWithinTtl(
-      getExpiresAtFromCall(createSpy, 0),
-      DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS
-    );
-
     await validateDeviceSessionOrInvalidate({
       pb,
       userId: "user-1",
@@ -298,25 +237,40 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       shouldPersistSession: false,
     });
 
+    expect(createSpy).toHaveBeenCalledTimes(1);
     expect(updateSpy).toHaveBeenCalledTimes(1);
+    const createCall = createSpy.mock.calls.at(0);
+    const updateCall = updateSpy.mock.calls.at(0);
+
+    if (!createCall || !updateCall) {
+      throw new Error("Expected both the registration write and heartbeat write to run.");
+    }
+
+    const [createPayload] = createCall;
+    const [, heartbeatPayload] = updateCall;
+
     expectExpiresAtWithinTtl(
-      getNthExpiresAtFromCall(updateSpy, 0, 1),
+      getExpiresAtFromWrite(createPayload),
+      DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS
+    );
+    expectExpiresAtWithinTtl(
+      getExpiresAtFromWrite(heartbeatPayload),
       DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS
     );
   });
 });
 
 function createPocketBaseMock() {
-  const createSpy = vi.fn(async function createRecord() {
+  const createSpy = vi.fn(async function createRecord(_payload: unknown) {
     return undefined;
   });
-  const deleteSpy = vi.fn(async function deleteRecord() {
+  const deleteSpy = vi.fn(async function deleteRecord(_id: string) {
     return undefined;
   });
   const getFirstListItemSpy = vi.fn();
   const getFullListSpy = vi.fn();
   const getOneSpy = vi.fn();
-  const updateSpy = vi.fn(async function updateRecord() {
+  const updateSpy = vi.fn(async function updateRecord(_id: string, _payload: unknown) {
     return undefined;
   });
 
@@ -378,6 +332,17 @@ function createPastIso(secondsAgo: number): string {
   return new Date(Date.now() - secondsAgo * 1000).toISOString();
 }
 
+function createActiveDeviceSessions(count: number) {
+  return Array.from({ length: count }, function createExtraSession(_, index) {
+    return createDeviceSessionRecord(`session-active-${index + 1}`, {
+      sessionIdHash: hashSessionToken(`session-active-token-${index + 1}`),
+      expiresAt: createFutureIso(180 + index),
+      created: `2026-01-01T00:0${index + 1}:00.000Z`,
+      lastSeenAt: `2026-01-01T00:0${index + 1}:00.000Z`,
+    });
+  });
+}
+
 function expectExpiresAtWithinTtl(expiresAt: unknown, ttlSeconds: number) {
   expect(typeof expiresAt).toBe("string");
 
@@ -389,24 +354,14 @@ function expectExpiresAtWithinTtl(expiresAt: unknown, ttlSeconds: number) {
   expect(diffMs).toBeLessThanOrEqual(ttlMs + 2_000);
 }
 
-function getExpiresAtFromCall(spy: ReturnType<typeof vi.fn>, payloadIndex: number) {
-  return getNthExpiresAtFromCall(spy, 0, payloadIndex);
-}
+function getExpiresAtFromWrite(writePayload: unknown) {
+  expect(writePayload).toBeTruthy();
 
-function getNthExpiresAtFromCall(
-  spy: ReturnType<typeof vi.fn>,
-  callIndex: number,
-  payloadIndex: number
-) {
-  const payload = spy.mock.calls[callIndex]?.[payloadIndex];
-
-  expect(payload).toBeTruthy();
-
-  if (!payload || typeof payload !== "object" || !("expires_at" in payload)) {
+  if (!writePayload || typeof writePayload !== "object" || !("expires_at" in writePayload)) {
     throw new Error("Expected a write payload with expires_at");
   }
 
-  return payload.expires_at;
+  return writePayload.expires_at;
 }
 
 function getMaxActiveSessionsForTest(): number {

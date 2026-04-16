@@ -71,6 +71,34 @@ type WorkspaceMembershipContextLookup =
 
 type WorkspaceErrorMapper = Parameters<typeof mapWorkspaceErrorCode>[1];
 
+const WORKSPACE_LIST_ERROR_MAPPER: WorkspaceErrorMapper = function mapWorkspaceListError(
+  pocketBaseError
+) {
+  if (pocketBaseError.status === 400) {
+    return "BAD_REQUEST";
+  }
+
+  if (pocketBaseError.status === 401) {
+    return "UNAUTHORIZED";
+  }
+
+  if (pocketBaseError.status === 403) {
+    return "FORBIDDEN";
+  }
+
+  return null;
+};
+
+const WORKSPACE_ACCESS_ERROR_MAPPER: WorkspaceErrorMapper = function mapWorkspaceAccessError(
+  pocketBaseError
+) {
+  if (pocketBaseError.status === 404) {
+    return "NOT_FOUND";
+  }
+
+  return WORKSPACE_LIST_ERROR_MAPPER(pocketBaseError);
+};
+
 export async function listUserWorkspaces(
   userId: string
 ): Promise<ServerWorkspaceResponse<{ workspaces: UserWorkspace[] }>> {
@@ -96,21 +124,7 @@ export async function listUserWorkspacesWithClient(
     return createWorkspaceServiceErrorResponse(
       "listUserWorkspaces",
       error,
-      function mapListError(pocketBaseError) {
-        if (pocketBaseError.status === 400) {
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 401) {
-          return "UNAUTHORIZED";
-        }
-
-        if (pocketBaseError.status === 403) {
-          return "FORBIDDEN";
-        }
-
-        return null;
-      }
+      WORKSPACE_LIST_ERROR_MAPPER
     );
   }
 }
@@ -178,25 +192,7 @@ export async function resolveAccessibleWorkspaceForCurrentUser(
     return createWorkspaceServiceErrorResponse(
       "resolveAccessibleWorkspaceForCurrentUser",
       error,
-      function mapAccessibleWorkspaceError(pocketBaseError) {
-        if (pocketBaseError.status === 400) {
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 401) {
-          return "UNAUTHORIZED";
-        }
-
-        if (pocketBaseError.status === 403) {
-          return "FORBIDDEN";
-        }
-
-        if (pocketBaseError.status === 404) {
-          return "NOT_FOUND";
-        }
-
-        return null;
-      }
+      WORKSPACE_ACCESS_ERROR_MAPPER
     );
   }
 }
@@ -225,25 +221,7 @@ export async function resolveCurrentUserWorkspaceRouteAccess(
     return createWorkspaceServiceErrorResponse(
       "resolveCurrentUserWorkspaceRouteAccess",
       error,
-      function mapRouteAccessError(pocketBaseError) {
-        if (pocketBaseError.status === 400) {
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 401) {
-          return "UNAUTHORIZED";
-        }
-
-        if (pocketBaseError.status === 403) {
-          return "FORBIDDEN";
-        }
-
-        if (pocketBaseError.status === 404) {
-          return "NOT_FOUND";
-        }
-
-        return null;
-      }
+      WORKSPACE_ACCESS_ERROR_MAPPER
     );
   }
 }
@@ -256,7 +234,7 @@ export async function resolveActiveWorkspaceSlugForUser(
   return resolveActiveWorkspaceSlugForUserWithClient(pb, userId);
 }
 
-export async function resolveActiveWorkspaceSlugForUserWithClient(
+async function resolveActiveWorkspaceSlugForUserWithClient(
   pb: PocketBase,
   userId: string
 ): Promise<ServerWorkspaceResponse<{ workspaceSlug: string | null }>> {
@@ -289,68 +267,17 @@ export async function resolveActiveWorkspaceSlugForUserWithClient(
     return createWorkspaceServiceErrorResponse(
       "resolveActiveWorkspaceSlugForUser",
       error,
-      function mapActiveWorkspaceError(pocketBaseError) {
-        if (pocketBaseError.status === 400) {
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 401) {
-          return "UNAUTHORIZED";
-        }
-
-        if (pocketBaseError.status === 403) {
-          return "FORBIDDEN";
-        }
-
-        return null;
-      }
+      WORKSPACE_LIST_ERROR_MAPPER
     );
   }
 }
 
-export async function requireWorkspaceAuthContext(): Promise<WorkspaceAuthContextResult> {
-  const currentUser = await requireCurrentUser();
-
-  if (!currentUser.ok) {
-    return {
-      ok: false,
-      response: {
-        ok: false,
-        errorCode: currentUser.errorCode,
-      },
-    };
-  }
-
-  return {
-    ok: true,
-    context: {
-      pb: currentUser.pb,
-      user: currentUser.user,
-    },
-  };
+async function requireWorkspaceAuthContext(): Promise<WorkspaceAuthContextResult> {
+  return requireWorkspaceContext("read");
 }
 
 export async function requireWorkspaceActionContext(): Promise<WorkspaceAuthContextResult> {
-  const currentUser = await requireCurrentWritableUser();
-
-  if (!currentUser.ok) {
-    return {
-      ok: false,
-      response: {
-        ok: false,
-        errorCode: currentUser.errorCode,
-        ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
-      },
-    };
-  }
-
-  return {
-    ok: true,
-    context: {
-      pb: currentUser.pb,
-      user: currentUser.user,
-    },
-  };
+  return requireWorkspaceContext("action");
 }
 
 export async function requireWorkspaceMembershipContext(
@@ -451,28 +378,43 @@ async function resolveWorkspaceMembershipContext(
       response: createWorkspaceServiceErrorResponse(
         logContext,
         error,
-        function mapMembershipContextError(pocketBaseError) {
-          if (pocketBaseError.status === 400) {
-            return "BAD_REQUEST";
-          }
-
-          if (pocketBaseError.status === 401) {
-            return "UNAUTHORIZED";
-          }
-
-          if (pocketBaseError.status === 403) {
-            return "FORBIDDEN";
-          }
-
-          if (pocketBaseError.status === 404) {
-            return "NOT_FOUND";
-          }
-
-          return null;
-        }
+        WORKSPACE_ACCESS_ERROR_MAPPER
       ),
     };
   }
+}
+
+async function requireWorkspaceContext(
+  mode: "read" | "action"
+): Promise<WorkspaceAuthContextResult> {
+  const currentUser =
+    mode === "action" ? await requireCurrentWritableUser() : await requireCurrentUser();
+
+  if (!currentUser.ok) {
+    return {
+      ok: false,
+      response: createWorkspaceAuthFailureResponse(currentUser),
+    };
+  }
+
+  return {
+    ok: true,
+    context: {
+      pb: currentUser.pb,
+      user: currentUser.user,
+    },
+  };
+}
+
+function createWorkspaceAuthFailureResponse(input: {
+  errorCode: "UNAUTHORIZED" | "UNKNOWN_ERROR";
+  setCookie?: string[];
+}): ServerWorkspaceResponse<never> {
+  return {
+    ok: false,
+    errorCode: input.errorCode,
+    ...(input.setCookie ? { setCookie: input.setCookie } : {}),
+  };
 }
 
 function createWorkspaceServiceErrorResponse<TData>(

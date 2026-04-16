@@ -57,15 +57,7 @@ describe("invite accept route", function describeInviteAcceptRoute() {
       setCookie: ["pb_auth=; Max-Age=0; Path=/; HttpOnly"],
     } as Awaited<ReturnType<typeof getResponseAuthSession>>);
 
-    const response = await GET(
-      new NextRequest("https://example.com/cs/invite/invite-token/accept"),
-      {
-        params: Promise.resolve({
-          locale: "cs",
-          token: "invite-token",
-        }),
-      }
-    );
+    const response = await getInviteAcceptResponse("GET");
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe("https://example.com/invite/invite-token/start");
@@ -73,95 +65,91 @@ describe("invite accept route", function describeInviteAcceptRoute() {
     expect(getInviteTokenForUser).not.toHaveBeenCalled();
   });
 
-  it("redirects already-member GET requests to the workspace and sets active workspace", async function testAlreadyMemberRedirect() {
-    vi.mocked(getResponseAuthSession).mockResolvedValue({
-      ok: true,
-      data: {
-        session: {
-          user: {
-            id: "user-1",
-            email: "user@example.com",
+  it.each([
+    {
+      name: "redirects already-member GET requests to the workspace and sets active workspace",
+      method: "GET" as const,
+      authSession: createAuthenticatedSessionResponse(),
+      inviteResponse: {
+        ok: true,
+        data: {
+          result: {
+            state: "already_member",
+            workspace: createWorkspaceSummary(),
           },
         },
-      },
-    } as Awaited<ReturnType<typeof getResponseAuthSession>>);
-    vi.mocked(getInviteTokenForUser).mockResolvedValue({
-      ok: true,
-      data: {
-        result: {
-          state: "already_member",
-          workspace: {
-            id: "workspace-1",
-            name: "Team Space",
-            slug: "team-space",
-            avatarUrl: null,
+      } as Awaited<ReturnType<typeof getInviteTokenForUser>>,
+      expectedCookie: `${workspaceConfig.cookies.activeWorkspace.name}=team-space`,
+    },
+    {
+      name: "redirects accepted POST requests to the workspace and sets active workspace",
+      method: "POST" as const,
+      authSession: createAuthenticatedSessionResponse(["pb_auth=token; Path=/; HttpOnly"]),
+      inviteResponse: {
+        ok: true,
+        data: {
+          result: {
+            state: "accepted",
+            workspace: createWorkspaceSummary(),
           },
         },
-      },
-    } as Awaited<ReturnType<typeof getInviteTokenForUser>>);
+      } as Awaited<ReturnType<typeof acceptInviteTokenForUser>>,
+      expectedCookie: "pb_auth=token",
+    },
+  ])("$name", async function testAcceptedInviteRedirects(input) {
+    vi.mocked(getResponseAuthSession).mockResolvedValue(input.authSession);
 
-    const response = await GET(
-      new NextRequest("https://example.com/cs/invite/invite-token/accept"),
-      {
-        params: Promise.resolve({
-          locale: "cs",
-          token: "invite-token",
-        }),
-      }
-    );
+    if (input.method === "GET") {
+      vi.mocked(getInviteTokenForUser).mockResolvedValue(input.inviteResponse);
+    } else {
+      vi.mocked(acceptInviteTokenForUser).mockResolvedValue(input.inviteResponse);
+    }
+
+    const response = await getInviteAcceptResponse(input.method);
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe("https://example.com/w/team-space/overview");
-    expect(response.headers.get("set-cookie")).toContain(
-      `${workspaceConfig.cookies.activeWorkspace.name}=team-space`
-    );
-  });
-
-  it("redirects accepted POST requests to the workspace and sets active workspace", async function testAcceptedRedirect() {
-    vi.mocked(getResponseAuthSession).mockResolvedValue({
-      ok: true,
-      data: {
-        session: {
-          user: {
-            id: "user-1",
-            email: "user@example.com",
-          },
-        },
-      },
-      setCookie: ["pb_auth=token; Path=/; HttpOnly"],
-    } as Awaited<ReturnType<typeof getResponseAuthSession>>);
-    vi.mocked(acceptInviteTokenForUser).mockResolvedValue({
-      ok: true,
-      data: {
-        result: {
-          state: "accepted",
-          workspace: {
-            id: "workspace-1",
-            name: "Team Space",
-            slug: "team-space",
-            avatarUrl: null,
-          },
-        },
-      },
-    } as Awaited<ReturnType<typeof acceptInviteTokenForUser>>);
-
-    const response = await POST(
-      new NextRequest("https://example.com/cs/invite/invite-token/accept", {
-        method: "POST",
-      }),
-      {
-        params: Promise.resolve({
-          locale: "cs",
-          token: "invite-token",
-        }),
-      }
-    );
-
-    expect(response.status).toBe(303);
-    expect(response.headers.get("location")).toBe("https://example.com/w/team-space/overview");
-    expect(response.headers.get("set-cookie")).toContain("pb_auth=token");
+    expect(response.headers.get("set-cookie")).toContain(input.expectedCookie);
     expect(response.headers.get("set-cookie")).toContain(
       `${workspaceConfig.cookies.activeWorkspace.name}=team-space`
     );
   });
 });
+
+function createAuthenticatedSessionResponse(setCookie?: string[]) {
+  return {
+    ok: true,
+    data: {
+      session: {
+        user: {
+          id: "user-1",
+          email: "user@example.com",
+        },
+      },
+    },
+    setCookie,
+  } as Awaited<ReturnType<typeof getResponseAuthSession>>;
+}
+
+function createWorkspaceSummary() {
+  return {
+    id: "workspace-1",
+    name: "Team Space",
+    slug: "team-space",
+    avatarUrl: null,
+  };
+}
+
+async function getInviteAcceptResponse(method: "GET" | "POST") {
+  const request = new NextRequest("https://example.com/cs/invite/invite-token/accept", {
+    method,
+  });
+  const context = {
+    params: Promise.resolve({
+      locale: "cs",
+      token: "invite-token",
+    }),
+  };
+
+  return method === "GET" ? GET(request, context) : POST(request, context);
+}

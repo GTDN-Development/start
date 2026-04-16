@@ -52,11 +52,7 @@ describe("post-auth route", function describePostAuthRoute() {
       setCookie: ["pb_auth=; Max-Age=0; Path=/; HttpOnly"],
     } as Awaited<ReturnType<typeof getResponseAuthSession>>);
 
-    const response = await GET(new NextRequest("https://example.com/cs/post-auth"), {
-      params: Promise.resolve({
-        locale: "cs",
-      }),
-    });
+    const response = await getPostAuthResponse();
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe("https://example.com/sign-in");
@@ -64,105 +60,81 @@ describe("post-auth route", function describePostAuthRoute() {
     expect(resolvePostAuthDestinationForUser).not.toHaveBeenCalled();
   });
 
-  it("redirects to app when no workspace-specific destination is available", async function testAppRedirect() {
-    vi.mocked(getResponseAuthSession).mockResolvedValue({
-      ok: true,
-      data: {
-        session: {
-          user: {
-            id: "user-1",
-            email: "user@example.com",
-          },
+  it.each([
+    {
+      name: "redirects to app when no workspace-specific destination is available",
+      authResponse: createAuthenticatedSessionResponse(["pb_auth=token; Path=/; HttpOnly"]),
+      destination: {
+        ok: true,
+        data: {
+          state: "app",
         },
-      },
-      setCookie: ["pb_auth=token; Path=/; HttpOnly"],
-    } as Awaited<ReturnType<typeof getResponseAuthSession>>);
-    vi.mocked(resolvePostAuthDestinationForUser).mockResolvedValue({
-      ok: true,
-      data: {
-        state: "app",
-      },
-    } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>);
+      } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>,
+      expectedLocation: "https://example.com/app",
+      expectedCookies: ["pb_auth=token"],
+    },
+    {
+      name: "clears the pending invite cookie when redirecting to an invite",
+      authResponse: createAuthenticatedSessionResponse(["pb_auth=token; Path=/; HttpOnly"]),
+      destination: {
+        ok: true,
+        data: {
+          state: "invite_redirect",
+          inviteToken: "invite-1",
+        },
+      } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>,
+      expectedLocation: "https://example.com/invite/invite-1",
+      expectedCookies: ["pb_auth=token", `${workspaceConfig.cookies.pendingInvite.name}=`],
+    },
+    {
+      name: "sets the active workspace cookie when redirecting to a workspace",
+      authResponse: createAuthenticatedSessionResponse(),
+      destination: {
+        ok: true,
+        data: {
+          state: "workspace_redirect",
+          workspaceSlug: "team-space",
+        },
+      } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>,
+      expectedLocation: "https://example.com/w/team-space/overview",
+      expectedCookies: [`${workspaceConfig.cookies.activeWorkspace.name}=team-space`],
+    },
+  ])("$name", async function testPostAuthRedirects(input) {
+    vi.mocked(getResponseAuthSession).mockResolvedValue(input.authResponse);
+    vi.mocked(resolvePostAuthDestinationForUser).mockResolvedValue(input.destination);
 
-    const response = await GET(new NextRequest("https://example.com/cs/post-auth"), {
-      params: Promise.resolve({
-        locale: "cs",
-      }),
-    });
+    const response = await getPostAuthResponse();
 
     expect(response.status).toBe(303);
-    expect(response.headers.get("location")).toBe("https://example.com/app");
-    expect(response.headers.get("set-cookie")).toContain("pb_auth=token");
+    expect(response.headers.get("location")).toBe(input.expectedLocation);
+    for (const expectedCookie of input.expectedCookies) {
+      expect(response.headers.get("set-cookie")).toContain(expectedCookie);
+    }
     expect(resolvePostAuthDestinationForUser).toHaveBeenCalledWith({
       userId: "user-1",
     });
   });
-
-  it("clears the pending invite cookie when redirecting to an invite", async function testInviteRedirect() {
-    vi.mocked(getResponseAuthSession).mockResolvedValue({
-      ok: true,
-      data: {
-        session: {
-          user: {
-            id: "user-1",
-            email: "user@example.com",
-          },
-        },
-      },
-      setCookie: ["pb_auth=token; Path=/; HttpOnly"],
-    } as Awaited<ReturnType<typeof getResponseAuthSession>>);
-    vi.mocked(resolvePostAuthDestinationForUser).mockResolvedValue({
-      ok: true,
-      data: {
-        state: "invite_redirect",
-        inviteToken: "invite-1",
-      },
-    } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>);
-
-    const response = await GET(new NextRequest("https://example.com/cs/post-auth"), {
-      params: Promise.resolve({
-        locale: "cs",
-      }),
-    });
-
-    expect(response.status).toBe(303);
-    expect(response.headers.get("location")).toBe("https://example.com/invite/invite-1");
-    expect(response.headers.get("set-cookie")).toContain("pb_auth=token");
-    expect(response.headers.get("set-cookie")).toContain(
-      `${workspaceConfig.cookies.pendingInvite.name}=`
-    );
-  });
-
-  it("sets the active workspace cookie when redirecting to a workspace", async function testWorkspaceRedirect() {
-    vi.mocked(getResponseAuthSession).mockResolvedValue({
-      ok: true,
-      data: {
-        session: {
-          user: {
-            id: "user-1",
-            email: "user@example.com",
-          },
-        },
-      },
-    } as Awaited<ReturnType<typeof getResponseAuthSession>>);
-    vi.mocked(resolvePostAuthDestinationForUser).mockResolvedValue({
-      ok: true,
-      data: {
-        state: "workspace_redirect",
-        workspaceSlug: "team-space",
-      },
-    } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>);
-
-    const response = await GET(new NextRequest("https://example.com/cs/post-auth"), {
-      params: Promise.resolve({
-        locale: "cs",
-      }),
-    });
-
-    expect(response.status).toBe(303);
-    expect(response.headers.get("location")).toBe("https://example.com/w/team-space/overview");
-    expect(response.headers.get("set-cookie")).toContain(
-      `${workspaceConfig.cookies.activeWorkspace.name}=team-space`
-    );
-  });
 });
+
+function createAuthenticatedSessionResponse(setCookie?: string[]) {
+  return {
+    ok: true,
+    data: {
+      session: {
+        user: {
+          id: "user-1",
+          email: "user@example.com",
+        },
+      },
+    },
+    setCookie,
+  } as Awaited<ReturnType<typeof getResponseAuthSession>>;
+}
+
+async function getPostAuthResponse() {
+  return GET(new NextRequest("https://example.com/cs/post-auth"), {
+    params: Promise.resolve({
+      locale: "cs",
+    }),
+  });
+}

@@ -56,6 +56,20 @@ export function AccountDeleteAccountSettingsItem() {
     acknowledged: t("deleteAccount.dialog.fields.acknowledgement.errors.required"),
   });
 
+  function resetDeleteDialogAndRedirect() {
+    startTransition(() => {
+      setIsDeleteDialogOpen(false);
+      form.reset();
+      router.replace(SIGN_IN_PATH);
+    });
+  }
+
+  function showDeleteAccountError(message: string) {
+    toast.error(message, {
+      id: deleteAccountToastId,
+    });
+  }
+
   const form = useForm({
     defaultValues: {
       password: "",
@@ -78,12 +92,7 @@ export function AccountDeleteAccountSettingsItem() {
         toast.success(t("deleteAccount.status.success"), {
           id: deleteAccountToastId,
         });
-
-        startTransition(() => {
-          setIsDeleteDialogOpen(false);
-          form.reset();
-          router.replace(SIGN_IN_PATH);
-        });
+        resetDeleteDialogAndRedirect();
         return;
       }
 
@@ -93,34 +102,17 @@ export function AccountDeleteAccountSettingsItem() {
       }
 
       if (response.errorCode === "UNAUTHORIZED") {
-        toast.error(t("deleteAccount.status.unauthorized"), {
-          id: deleteAccountToastId,
-        });
-        startTransition(() => {
-          setIsDeleteDialogOpen(false);
-          form.reset();
-          router.replace(SIGN_IN_PATH);
-        });
+        showDeleteAccountError(t("deleteAccount.status.unauthorized"));
+        resetDeleteDialogAndRedirect();
         return;
       }
 
       if (response.errorCode === "ACCOUNT_DELETE_BLOCKED_LAST_OWNER") {
-        toast.error(t("deleteAccount.status.blockedLastOwner"), {
-          id: deleteAccountToastId,
-        });
+        showDeleteAccountError(t("deleteAccount.status.blockedLastOwner"));
         return;
       }
 
-      if (response.errorCode === "BAD_REQUEST") {
-        toast.error(t("deleteAccount.status.error"), {
-          id: deleteAccountToastId,
-        });
-        return;
-      }
-
-      toast.error(t("deleteAccount.status.error"), {
-        id: deleteAccountToastId,
-      });
+      showDeleteAccountError(t("deleteAccount.status.error"));
     },
   });
 

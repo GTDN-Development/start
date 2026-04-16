@@ -279,8 +279,7 @@ export async function listDeviceSessions(input: {
   currentSessionIdHash: string;
 }): Promise<DeviceSessionListItem[]> {
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
-  const now = new Date();
-  const activeSessions = sessions.filter((session) => isActiveDeviceSession(session, now));
+  const activeSessions = filterActiveDeviceSessions(sessions, new Date());
 
   return activeSessions.map((session) =>
     mapDeviceSessionListItem(session, input.currentSessionIdHash)
@@ -292,9 +291,10 @@ export async function revokeCurrentDeviceSession(input: {
   userId: string;
   currentSessionIdHash: string;
 }): Promise<void> {
+  const now = new Date();
   const session = await findDeviceSessionByHash(input.pb, input.currentSessionIdHash);
 
-  if (!session || session.user !== input.userId || !isActiveDeviceSession(session, new Date())) {
+  if (!isActiveOwnedDeviceSession(session, input.userId, now)) {
     return;
   }
 
@@ -335,20 +335,15 @@ export async function revokeOtherDeviceSessions(input: {
   currentSessionIdHash: string;
 }): Promise<number> {
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
-  const now = new Date();
-
-  const sessionsToRevoke = sessions.filter(
-    (session) =>
-      session.session_id_hash !== input.currentSessionIdHash && isActiveDeviceSession(session, now)
+  const sessionsToRevoke = filterActiveDeviceSessions(sessions, new Date()).filter(
+    (session) => session.session_id_hash !== input.currentSessionIdHash
   );
 
   if (sessionsToRevoke.length === 0) {
     return 0;
   }
 
-  for (const session of sessionsToRevoke) {
-    await deleteDeviceSessionSafely(input.pb, session.id);
-  }
+  await deleteDeviceSessions(input.pb, sessionsToRevoke);
 
   return sessionsToRevoke.length;
 }
@@ -358,16 +353,13 @@ export async function revokeAllDeviceSessions(input: {
   userId: string;
 }): Promise<number> {
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
-  const now = new Date();
-  const sessionsToRevoke = sessions.filter((session) => isActiveDeviceSession(session, now));
+  const sessionsToRevoke = filterActiveDeviceSessions(sessions, new Date());
 
   if (sessionsToRevoke.length === 0) {
     return 0;
   }
 
-  for (const session of sessionsToRevoke) {
-    await deleteDeviceSessionSafely(input.pb, session.id);
-  }
+  await deleteDeviceSessions(input.pb, sessionsToRevoke);
 
   return sessionsToRevoke.length;
 }
@@ -378,13 +370,10 @@ export async function revokeDeviceSessionById(input: {
   deviceSessionId: string;
   currentSessionIdHash: string;
 }): Promise<RevokeDeviceSessionByIdResult> {
+  const now = new Date();
   const deviceSession = await findDeviceSessionById(input.pb, input.deviceSessionId);
 
-  if (
-    !deviceSession ||
-    deviceSession.user !== input.userId ||
-    !isActiveDeviceSession(deviceSession, new Date())
-  ) {
+  if (!isActiveOwnedDeviceSession(deviceSession, input.userId, now)) {
     return "not_found";
   }
 
@@ -402,16 +391,13 @@ async function cleanUpExpiredDeviceSessions(input: {
   userId: string;
 }): Promise<number> {
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId);
-  const now = new Date();
-  const expiredSessions = sessions.filter((session) => !isActiveDeviceSession(session, now));
+  const expiredSessions = filterExpiredDeviceSessions(sessions, new Date());
 
   if (expiredSessions.length === 0) {
     return 0;
   }
 
-  for (const expiredSession of expiredSessions) {
-    await deleteDeviceSessionSafely(input.pb, expiredSession.id);
-  }
+  await deleteDeviceSessions(input.pb, expiredSessions);
 
   return expiredSessions.length;
 }
@@ -426,8 +412,7 @@ async function enforceDeviceLimit(input: {
   }
 
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "+last_seen_at");
-  const now = new Date();
-  const activeSessions = sessions.filter((session) => isActiveDeviceSession(session, now));
+  const activeSessions = filterActiveDeviceSessions(sessions, new Date());
 
   if (activeSessions.length <= MAX_ACTIVE_SESSIONS) {
     return;
@@ -584,6 +569,15 @@ async function deleteDeviceSessionSafely(pb: PocketBase, deviceSessionId: string
   }
 }
 
+async function deleteDeviceSessions(
+  pb: PocketBase,
+  sessions: Pick<UserDeviceSessionsRecord, "id">[]
+): Promise<void> {
+  for (const session of sessions) {
+    await deleteDeviceSessionSafely(pb, session.id);
+  }
+}
+
 function mapDeviceSessionListItem(
   session: UserDeviceSessionsRecord,
   currentSessionIdHash: string
@@ -599,6 +593,28 @@ function mapDeviceSessionListItem(
     createdAt: session.created,
     isCurrentDevice: session.session_id_hash === currentSessionIdHash,
   };
+}
+
+function filterActiveDeviceSessions(
+  sessions: UserDeviceSessionsRecord[],
+  now: Date
+): UserDeviceSessionsRecord[] {
+  return sessions.filter((session) => isActiveDeviceSession(session, now));
+}
+
+function filterExpiredDeviceSessions(
+  sessions: UserDeviceSessionsRecord[],
+  now: Date
+): UserDeviceSessionsRecord[] {
+  return sessions.filter((session) => !isActiveDeviceSession(session, now));
+}
+
+function isActiveOwnedDeviceSession(
+  session: UserDeviceSessionsRecord | null,
+  userId: string,
+  now: Date
+): session is UserDeviceSessionsRecord {
+  return Boolean(session && session.user === userId && isActiveDeviceSession(session, now));
 }
 
 function isActiveDeviceSession(session: UserDeviceSessionsRecord, now: Date): boolean {
