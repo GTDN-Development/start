@@ -63,6 +63,11 @@ type CreateAuthAndDeviceCookiesResult =
       setCookie: string[];
     };
 
+type UserDeviceSessionInventory = {
+  active: UserDeviceSessionsRecord[];
+  expired: UserDeviceSessionsRecord[];
+};
+
 export function hashSessionToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
@@ -71,17 +76,19 @@ export async function resolveCurrentAuthDeviceSession(
   input: ReadAuthDeviceSessionInput | WriteAuthDeviceSessionInput
 ): Promise<ResolveCurrentAuthDeviceSessionResult> {
   const deviceSessionToken = await readDeviceSessionCookie();
-
-  if (input.mode === "read") {
-    const deviceSessionCheck = await checkDeviceSessionReadOnly({
+  if (input.mode === "write") {
+    const deviceSessionCheck = await validateDeviceSessionOrInvalidate({
       pb: input.pb,
       userId: input.userId,
       deviceSessionToken,
+      shouldUpdateHeartbeat: true,
+      shouldPersistSession: input.shouldPersistSession === true,
     });
 
     if (deviceSessionCheck.status === "invalid") {
       return {
         status: "invalid",
+        setCookie: deviceSessionCheck.clearCookies,
       };
     }
 
@@ -91,18 +98,15 @@ export async function resolveCurrentAuthDeviceSession(
     };
   }
 
-  const deviceSessionCheck = await validateDeviceSessionOrInvalidate({
+  const deviceSessionCheck = await checkDeviceSessionReadOnly({
     pb: input.pb,
     userId: input.userId,
     deviceSessionToken,
-    shouldUpdateHeartbeat: true,
-    shouldPersistSession: input.shouldPersistSession === true,
   });
 
   if (deviceSessionCheck.status === "invalid") {
     return {
       status: "invalid",
-      setCookie: deviceSessionCheck.clearCookies,
     };
   }
 
@@ -278,18 +282,12 @@ export async function listDeviceSessions(input: {
   userId: string;
   currentSessionIdHash: string;
 }): Promise<DeviceSessionListItem[]> {
-  const activeSessions = await listActiveDeviceSessionsForUser(
-    input.pb,
-    input.userId,
-    "-last_seen_at"
-  );
+  const { active } = await getUserDeviceSessionInventory(input.pb, input.userId, "-last_seen_at");
 
-  return activeSessions.map((session) =>
-    mapDeviceSessionListItem(session, input.currentSessionIdHash)
-  );
+  return active.map((session) => mapDeviceSessionListItem(session, input.currentSessionIdHash));
 }
 
-export async function revokeCurrentDeviceSession(input: {
+async function revokeCurrentDeviceSession(input: {
   pb: PocketBase;
   userId: string;
   currentSessionIdHash: string;
@@ -337,24 +335,21 @@ export async function revokeOtherDeviceSessions(input: {
   userId: string;
   currentSessionIdHash: string;
 }): Promise<number> {
-  const sessionsToRevoke = (
-    await listActiveDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at")
-  ).filter((session) => session.session_id_hash !== input.currentSessionIdHash);
+  const { active } = await getUserDeviceSessionInventory(input.pb, input.userId, "-last_seen_at");
 
-  return deleteDeviceSessionsAndCount(input.pb, sessionsToRevoke);
+  return deleteDeviceSessionsAndCount(
+    input.pb,
+    active.filter((session) => session.session_id_hash !== input.currentSessionIdHash)
+  );
 }
 
 export async function revokeAllDeviceSessions(input: {
   pb: PocketBase;
   userId: string;
 }): Promise<number> {
-  const sessionsToRevoke = await listActiveDeviceSessionsForUser(
-    input.pb,
-    input.userId,
-    "-last_seen_at"
-  );
+  const { active } = await getUserDeviceSessionInventory(input.pb, input.userId, "-last_seen_at");
 
-  return deleteDeviceSessionsAndCount(input.pb, sessionsToRevoke);
+  return deleteDeviceSessionsAndCount(input.pb, active);
 }
 
 export async function revokeDeviceSessionById(input: {
@@ -383,10 +378,9 @@ async function cleanUpExpiredDeviceSessions(input: {
   pb: PocketBase;
   userId: string;
 }): Promise<number> {
-  const sessions = await listDeviceSessionsForUser(input.pb, input.userId);
-  const expiredSessions = filterExpiredDeviceSessions(sessions, new Date());
+  const { expired } = await getUserDeviceSessionInventory(input.pb, input.userId);
 
-  return deleteDeviceSessionsAndCount(input.pb, expiredSessions);
+  return deleteDeviceSessionsAndCount(input.pb, expired);
 }
 
 async function enforceDeviceLimit(input: {
@@ -398,18 +392,14 @@ async function enforceDeviceLimit(input: {
     return;
   }
 
-  const activeSessions = await listActiveDeviceSessionsForUser(
-    input.pb,
-    input.userId,
-    "+last_seen_at"
-  );
+  const { active } = await getUserDeviceSessionInventory(input.pb, input.userId, "+last_seen_at");
 
-  if (activeSessions.length <= MAX_ACTIVE_SESSIONS) {
+  if (active.length <= MAX_ACTIVE_SESSIONS) {
     return;
   }
 
-  const sessionsToRevokeCount = activeSessions.length - MAX_ACTIVE_SESSIONS;
-  const revokeCandidates = activeSessions.filter(
+  const sessionsToRevokeCount = active.length - MAX_ACTIVE_SESSIONS;
+  const revokeCandidates = active.filter(
     (session) => session.session_id_hash !== input.currentSessionIdHash
   );
 
@@ -464,36 +454,22 @@ async function findDeviceSessionByHash(
   pb: PocketBase,
   sessionIdHash: string
 ): Promise<UserDeviceSessionsRecord | null> {
-  try {
-    return await pb
+  return readDeviceSessionOrNull(() =>
+    pb
       .collection(DEVICE_SESSIONS_COLLECTION)
       .getFirstListItem<UserDeviceSessionsRecord>(
         `session_id_hash = "${escapeFilterValue(sessionIdHash)}"`
-      );
-  } catch (error) {
-    if (isNotFoundError(error)) {
-      return null;
-    }
-
-    throw error;
-  }
+      )
+  );
 }
 
 async function findDeviceSessionById(
   pb: PocketBase,
   deviceSessionId: string
 ): Promise<UserDeviceSessionsRecord | null> {
-  try {
-    return await pb
-      .collection(DEVICE_SESSIONS_COLLECTION)
-      .getOne<UserDeviceSessionsRecord>(deviceSessionId);
-  } catch (error) {
-    if (isNotFoundError(error)) {
-      return null;
-    }
-
-    throw error;
-  }
+  return readDeviceSessionOrNull(() =>
+    pb.collection(DEVICE_SESSIONS_COLLECTION).getOne<UserDeviceSessionsRecord>(deviceSessionId)
+  );
 }
 
 async function listDeviceSessionsForUser(
@@ -501,26 +477,32 @@ async function listDeviceSessionsForUser(
   userId: string,
   sort?: string
 ): Promise<UserDeviceSessionsRecord[]> {
-  const options: {
-    filter: string;
-    sort?: string;
-  } = {
+  return pb.collection(DEVICE_SESSIONS_COLLECTION).getFullList<UserDeviceSessionsRecord>({
     filter: `user = "${escapeFilterValue(userId)}"`,
-  };
-
-  if (sort) {
-    options.sort = sort;
-  }
-
-  return pb.collection(DEVICE_SESSIONS_COLLECTION).getFullList<UserDeviceSessionsRecord>(options);
+    ...(sort ? { sort } : {}),
+  });
 }
 
-async function listActiveDeviceSessionsForUser(
+async function getUserDeviceSessionInventory(
   pb: PocketBase,
   userId: string,
   sort?: string
-): Promise<UserDeviceSessionsRecord[]> {
-  return filterActiveDeviceSessions(await listDeviceSessionsForUser(pb, userId, sort), new Date());
+): Promise<UserDeviceSessionInventory> {
+  return partitionDeviceSessionsByActivity(await listDeviceSessionsForUser(pb, userId, sort));
+}
+
+async function readDeviceSessionOrNull(
+  loadDeviceSession: () => Promise<UserDeviceSessionsRecord>
+): Promise<UserDeviceSessionsRecord | null> {
+  try {
+    return await loadDeviceSession();
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
 }
 
 async function updateDeviceHeartbeatIfNeeded(input: {
@@ -606,18 +588,25 @@ function mapDeviceSessionListItem(
   };
 }
 
-function filterActiveDeviceSessions(
-  sessions: UserDeviceSessionsRecord[],
-  now: Date
-): UserDeviceSessionsRecord[] {
-  return sessions.filter((session) => isActiveDeviceSession(session, now));
-}
+function partitionDeviceSessionsByActivity(
+  sessions: UserDeviceSessionsRecord[]
+): UserDeviceSessionInventory {
+  const now = new Date();
+  const inventory: UserDeviceSessionInventory = {
+    active: [],
+    expired: [],
+  };
 
-function filterExpiredDeviceSessions(
-  sessions: UserDeviceSessionsRecord[],
-  now: Date
-): UserDeviceSessionsRecord[] {
-  return sessions.filter((session) => !isActiveDeviceSession(session, now));
+  for (const session of sessions) {
+    if (isActiveDeviceSession(session, now)) {
+      inventory.active.push(session);
+      continue;
+    }
+
+    inventory.expired.push(session);
+  }
+
+  return inventory;
 }
 
 function isActiveOwnedDeviceSession(

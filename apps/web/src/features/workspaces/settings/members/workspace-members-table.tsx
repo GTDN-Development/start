@@ -82,19 +82,6 @@ export function WorkspaceMembersTable({
   );
 }
 
-export function WorkspaceMemberSummaryRow({ member }: { member: WorkspaceSettingsMember }) {
-  const tRoles = useTranslations("pages.workspace.members.roles");
-
-  return (
-    <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
-      <WorkspaceMemberIdentityCell member={member} />
-      <span className="text-muted-foreground text-sm">
-        {getWorkspaceMemberRoleLabel(member.role, tRoles)}
-      </span>
-    </div>
-  );
-}
-
 function WorkspaceMembersDataTable({
   rows,
   currentUserId,

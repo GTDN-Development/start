@@ -128,7 +128,6 @@ This phase should explicitly work down the following remaining problems:
    Focus on `workspace-members-settings-section.tsx`.
 
    Preferred direction:
-
    - reduce local branching around action-state-derived dialog rendering
    - remove duplicated patching and success/failure flow where the operation can be made more direct
    - keep one owner, but make that owner smaller and easier to scan
@@ -139,7 +138,6 @@ This phase should explicitly work down the following remaining problems:
    Focus on the table and invitations UI helpers.
 
    Preferred direction:
-
    - remove duplicated action menu or summary-row support where the same concept is rendered through near-identical wrappers
    - keep UI extraction only when it clearly shrinks the owner and improves readability
 
@@ -148,7 +146,6 @@ This phase should explicitly work down the following remaining problems:
    Focus on `current-user.ts`, `device-sessions-service.ts`, and the thin action layer above them.
 
    Preferred direction:
-
    - reduce repeated mutation result mapping
    - reduce duplicated active-session filtering and delete/count flows
    - keep response-writing and cookie semantics explicit
@@ -159,7 +156,6 @@ This phase should explicitly work down the following remaining problems:
    Verify whether it still earns its own file.
 
    Acceptable outcomes:
-
    - keep it because it remains the smallest clear shared seam
    - merge it away if it is now only a tiny pass-through helper
 
@@ -168,7 +164,6 @@ This phase should explicitly work down the following remaining problems:
 5. **Protect only the highest-risk behavior**
 
    If tests are touched:
-
    - keep auth semantics, cookie semantics, anti-enumeration, invite refresh, and last-owner protections covered
    - do not reintroduce broad mock-heavy structural tests
 
@@ -228,3 +223,37 @@ pnpm check
 pnpm test
 pnpm test:e2e
 ```
+
+## Completion Note
+
+- Validation passed from the repository root:
+  - `pnpm coordination-tax:baseline`
+  - `pnpm check`
+  - `pnpm test`
+  - `pnpm test:e2e`
+- Runtime LOC delta versus the Phase 08 starting snapshot:
+  - `workspaces`: `6458 -> 6448` (`-10`)
+  - `auth`: `4657 -> 4651` (`-6`)
+- Hotspot runtime files materially reduced:
+  - `workspace-members-table.tsx`: `285 -> 272`
+  - `workspace-invitations-table.tsx`: `203 -> 186`
+  - `current-user.ts`: `183 -> 177`
+  - `device-sessions-service.ts`: `699 -> 688`
+- `application-session-state.ts` stayed in place. It is still the one small shared session-cleanup boundary for sign-out and delete-account success paths, and inlining it would duplicate the same cleanup detail into both callers.
+- Before/after explanation paths:
+  - workspace member role change:
+    - before: `workspace-members-settings-section.tsx -> ManagementDialogModel -> submitManagementAction() -> changeMemberRoleAction() -> workspace-members-service.ts`
+    - after: `workspace-members-settings-section.tsx -> change-role dialog flow -> changeMemberRoleAction() -> workspace-members-service.ts`
+  - workspace invite resend/revoke:
+    - before: `workspace-members-settings-section.tsx -> ManagementDialogModel -> submitManagementAction() -> resendInviteAction()/revokeInviteAction() -> workspace-members-service.ts`
+    - after: `workspace-members-settings-section.tsx -> confirm dialog flow -> resendInviteAction()/revokeInviteAction() -> workspace-members-service.ts`
+  - device-session sign-out:
+    - before: `your-devices-settings-item.tsx -> account-security-actions.ts -> current-user.ts -> revoke-result helper mapping -> device-sessions-service.ts`
+    - after: `your-devices-settings-item.tsx -> account-security-actions.ts -> current-user.ts -> device-sessions-service.ts`
+- Critical behavior tests retained:
+  - `src/server/auth/auth-service.test.ts`
+  - `src/server/device-sessions/device-sessions-service.test.ts`
+  - `src/server/auth/current-user.test.ts`
+  - `src/server/workspaces/workspace-members-service.test.ts`
+  - `src/features/auth/auth-actions.test.ts`
+- No new seam tests or helper files were introduced in this phase.

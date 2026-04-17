@@ -100,10 +100,12 @@ export async function signUpAction(input: SignUpActionInput): Promise<AuthRespon
     return createBadRequestAuthResponse<SignUpPayload>();
   }
 
-  const turnstileVerification = await verifyAuthTurnstileToken(parsedInput.data.turnstileToken);
+  const turnstileFailureResponse = await verifyTurnstileGate<SignUpPayload>(
+    parsedInput.data.turnstileToken
+  );
 
-  if (!turnstileVerification.success) {
-    return createAuthErrorResponse<SignUpPayload>("TURNSTILE_VERIFICATION_FAILED");
+  if (turnstileFailureResponse) {
+    return turnstileFailureResponse;
   }
 
   const { turnstileToken: _turnstileToken, ...signUpInput } = parsedInput.data;
@@ -131,10 +133,12 @@ export async function requestPasswordResetAction(
     return createBadRequestAuthResponse<RequestPasswordResetPayload>();
   }
 
-  const turnstileVerification = await verifyAuthTurnstileToken(parsedInput.data.turnstileToken);
+  const turnstileFailureResponse = await verifyTurnstileGate<RequestPasswordResetPayload>(
+    parsedInput.data.turnstileToken
+  );
 
-  if (!turnstileVerification.success) {
-    return createAuthErrorResponse<RequestPasswordResetPayload>("TURNSTILE_VERIFICATION_FAILED");
+  if (turnstileFailureResponse) {
+    return turnstileFailureResponse;
   }
 
   const response = await requestPasswordResetForEmail(parsedInput.data.email);
@@ -191,9 +195,16 @@ export async function confirmEmailChangeAction(input: {
   return finalizeAuthAction(response);
 }
 
-async function verifyAuthTurnstileToken(turnstileToken: string) {
+async function verifyTurnstileGate<TData>(
+  turnstileToken: string
+): Promise<AuthResponse<TData> | null> {
   const requestHeaders = await headers();
   const clientIP = getClientIPFromHeaders(requestHeaders);
+  const turnstileVerification = await verifyTurnstileToken(turnstileToken, clientIP);
 
-  return verifyTurnstileToken(turnstileToken, clientIP);
+  if (turnstileVerification.success) {
+    return null;
+  }
+
+  return createAuthErrorResponse<TData>("TURNSTILE_VERIFICATION_FAILED");
 }

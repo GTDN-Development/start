@@ -4,6 +4,7 @@ import { startTransition, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { LogOutIcon } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -46,19 +47,18 @@ import {
 import {
   WorkspaceInvitationsTable,
   WorkspacePendingInvitationsEmptyState,
-  WorkspaceInvitationSummaryRow,
 } from "@/features/workspaces/settings/members/workspace-invitations-table";
 import { WorkspaceInviteMembersSettingsItem } from "@/features/workspaces/settings/members/workspace-invite-members-settings-item";
-import {
-  WorkspaceMemberSummaryRow,
-  WorkspaceMembersTable,
-} from "@/features/workspaces/settings/members/workspace-members-table";
+import { WorkspaceMembersTable } from "@/features/workspaces/settings/members/workspace-members-table";
 import type {
   WorkspaceSettingsInvite,
   WorkspaceSettingsMember,
   WorkspaceSettingsWorkspace,
 } from "@/features/workspaces/settings/workspace-settings-types";
-import { getAssignableWorkspaceMemberRoleOptions } from "@/features/workspaces/workspace-role-options";
+import {
+  getAssignableWorkspaceMemberRoleOptions,
+  getWorkspaceMemberRoleLabel,
+} from "@/features/workspaces/workspace-role-options";
 import {
   canAssignWorkspaceMemberRole,
   canChangeWorkspaceMemberRole,
@@ -70,14 +70,15 @@ import {
 import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
 import { useRouter } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { runAsyncTransition } from "@/lib/app-utils";
+import { getAvatarColorClass, getUserInitials, runAsyncTransition } from "@/lib/app-utils";
 
-type ManagementActionState =
-  | {
-      type: "change-role";
-      member: WorkspaceSettingsMember;
-      selectedRole: WorkspaceMemberRole;
-    }
+type ChangeRoleActionState = {
+  type: "change-role";
+  member: WorkspaceSettingsMember;
+  selectedRole: WorkspaceMemberRole;
+};
+
+type ConfirmActionState =
   | {
       type: "remove-member";
       member: WorkspaceSettingsMember;
@@ -93,8 +94,9 @@ type ManagementActionState =
   | {
       type: "remove-invitation";
       invitation: WorkspaceSettingsInvite;
-    }
-  | null;
+    };
+
+type ManagementActionState = ChangeRoleActionState | ConfirmActionState | null;
 
 type WorkspaceInviteActionPatch = {
   inviteId: string;
@@ -102,28 +104,6 @@ type WorkspaceInviteActionPatch = {
   updatedAt: string;
   inviteUrl: string;
 };
-
-type ManagementDialogModel = {
-  title: string;
-  description: string;
-  body: ReactNode;
-  guard?: ReactNode;
-  submitLabel: string;
-  pendingLabel: string;
-  disabled?: boolean;
-  variant?: "default" | "destructive";
-  icon?: ReactNode;
-};
-
-type ManagementActionResponse<TData> =
-  | {
-      ok: true;
-      data: TData;
-    }
-  | {
-      ok: false;
-      errorCode: string;
-    };
 
 export function WorkspaceMembersSettingsSection({
   workspace,
@@ -159,9 +139,14 @@ export function WorkspaceMembersSettingsSection({
   const roleOptions = getAssignableWorkspaceMemberRoleOptions(workspaceState.role);
 
   const changeRoleState = actionState?.type === "change-role" ? actionState : null;
+  const confirmActionState = actionState && actionState.type !== "change-role" ? actionState : null;
   const isChangeRoleTargetLastOwner = changeRoleState
     ? isLastWorkspaceOwner(changeRoleState.member.role, ownerCount)
     : false;
+  const isRemoveMemberTargetLastOwner =
+    confirmActionState?.type === "remove-member"
+      ? isLastWorkspaceOwner(confirmActionState.member.role, ownerCount)
+      : false;
 
   async function handleCreateInviteAction(input: {
     locale: AppLocale;
@@ -270,6 +255,23 @@ export function WorkspaceMembersSettingsSection({
     }
   }
 
+  function applyMembersState(nextMembers: WorkspaceSettingsMember[]) {
+    const nextWorkspace = deriveWorkspaceStateFromMembers(workspaceState, nextMembers);
+
+    setMembers(nextMembers);
+    setWorkspaceState(nextWorkspace);
+
+    if (nextWorkspace.role !== workspaceState.role) {
+      upsertWorkspace({
+        id: nextWorkspace.id,
+        slug: nextWorkspace.slug,
+        name: nextWorkspace.name,
+        role: nextWorkspace.role,
+        avatarUrl: nextWorkspace.avatarUrl,
+      });
+    }
+  }
+
   function handleActionDialogOpenChange(open: boolean) {
     if (isActionSubmitting) {
       return;
@@ -309,11 +311,6 @@ export function WorkspaceMembersSettingsSection({
     });
   }
 
-  function handleActionError(message: string) {
-    setIsActionSubmitting(false);
-    toast.error(message);
-  }
-
   function finalizeAction(update: () => void) {
     startTransition(() => {
       setIsActionSubmitting(false);
@@ -322,128 +319,109 @@ export function WorkspaceMembersSettingsSection({
     });
   }
 
-  async function submitManagementAction<TData>(input: {
-    request: () => Promise<ManagementActionResponse<TData>>;
-    onSuccess: (data: TData) => void;
-    getErrorMessage: (errorCode: string) => string;
-    successMessage: string;
-  }) {
+  async function handleChangeRoleConfirm() {
+    if (!changeRoleState) {
+      return;
+    }
+
+    if (isChangeRoleTargetLastOwner && changeRoleState.selectedRole !== "owner") {
+      toast.error(t("status.lastOwnerGuard"));
+      return;
+    }
+
+    if (
+      !canChangeWorkspaceMemberRole(
+        workspaceState.role,
+        changeRoleState.member.role,
+        changeRoleState.selectedRole
+      )
+    ) {
+      toast.error(t("errors.forbidden"));
+      return;
+    }
+
     setIsActionSubmitting(true);
 
-    const response = await runAsyncTransition(input.request);
+    const response = await runAsyncTransition(() =>
+      changeMemberRoleAction(
+        workspaceState.slug,
+        changeRoleState.member.id,
+        changeRoleState.selectedRole
+      )
+    );
 
     if (!response.ok) {
-      handleActionError(input.getErrorMessage(response.errorCode));
+      setIsActionSubmitting(false);
+      toast.error(getActionErrorMessage(response.errorCode, t("status.roleChange.error"), t));
       return;
     }
 
     finalizeAction(() => {
-      input.onSuccess(response.data);
+      applyMembersState(
+        sortWorkspaceSettingsMembers(
+          members.map((member) =>
+            member.id === response.data.memberId ? { ...member, role: response.data.role } : member
+          )
+        )
+      );
     });
-    toast.success(input.successMessage);
+    toast.success(t("status.roleChange.success"));
   }
 
-  async function handleActionConfirm() {
-    if (!actionState) {
+  async function handleConfirmAction() {
+    if (!confirmActionState) {
       return;
     }
 
-    switch (actionState.type) {
-      case "change-role": {
-        if (
-          isLastWorkspaceOwner(actionState.member.role, ownerCount) &&
-          actionState.selectedRole !== "owner"
-        ) {
-          toast.error(t("status.lastOwnerGuard"));
-          return;
-        }
-
-        if (
-          !canChangeWorkspaceMemberRole(
-            workspaceState.role,
-            actionState.member.role,
-            actionState.selectedRole
-          )
-        ) {
-          handleActionError(t("errors.forbidden"));
-          return;
-        }
-
-        await submitManagementAction({
-          request: () =>
-            changeMemberRoleAction(
-              workspaceState.slug,
-              actionState.member.id,
-              actionState.selectedRole
-            ),
-          onSuccess: (data) => {
-            const nextMembers = sortWorkspaceSettingsMembers(
-              members.map((member) =>
-                member.id === data.memberId ? { ...member, role: data.role } : member
-              )
-            );
-            const nextWorkspace = deriveWorkspaceStateFromMembers(workspaceState, nextMembers);
-
-            setMembers(nextMembers);
-            setWorkspaceState(nextWorkspace);
-
-            if (nextWorkspace.role !== workspaceState.role) {
-              upsertWorkspace({
-                id: nextWorkspace.id,
-                slug: nextWorkspace.slug,
-                name: nextWorkspace.name,
-                role: nextWorkspace.role,
-                avatarUrl: nextWorkspace.avatarUrl,
-              });
-            }
-          },
-          getErrorMessage: (errorCode) =>
-            getActionErrorMessage(errorCode, t("status.roleChange.error"), t),
-          successMessage: t("status.roleChange.success"),
-        });
-        return;
-      }
-
+    switch (confirmActionState.type) {
       case "leave-workspace": {
         if (isCurrentUserLastOwner) {
           toast.error(tLeave("status.lastOwnerGuard"));
           return;
         }
 
-        await submitManagementAction({
-          request: () => leaveWorkspaceAction(workspaceState.slug),
-          onSuccess: () => {
-            removeWorkspace(workspaceState.id);
-            router.replace(APP_HOME_PATH);
-          },
-          getErrorMessage: (errorCode) =>
-            errorCode === "LAST_OWNER_GUARD"
+        setIsActionSubmitting(true);
+        const response = await runAsyncTransition(() => leaveWorkspaceAction(workspaceState.slug));
+
+        if (!response.ok) {
+          setIsActionSubmitting(false);
+          toast.error(
+            response.errorCode === "LAST_OWNER_GUARD"
               ? tLeave("status.lastOwnerGuard")
-              : tLeave("status.failed"),
-          successMessage: tLeave("status.success"),
+              : tLeave("status.failed")
+          );
+          return;
+        }
+
+        finalizeAction(() => {
+          removeWorkspace(workspaceState.id);
+          router.replace(APP_HOME_PATH);
         });
+        toast.success(tLeave("status.success"));
         return;
       }
 
       case "remove-member": {
-        if (isLastWorkspaceOwner(actionState.member.role, ownerCount)) {
+        if (isRemoveMemberTargetLastOwner) {
           toast.error(t("status.lastOwnerGuard"));
           return;
         }
 
-        await submitManagementAction({
-          request: () => removeMemberAction(workspaceState.slug, actionState.member.id),
-          onSuccess: (data) => {
-            const nextMembers = members.filter((member) => member.id !== data.memberId);
-            const nextWorkspace = deriveWorkspaceStateFromMembers(workspaceState, nextMembers);
+        setIsActionSubmitting(true);
+        const response = await runAsyncTransition(() =>
+          removeMemberAction(workspaceState.slug, confirmActionState.member.id)
+        );
 
-            setMembers(nextMembers);
-            setWorkspaceState(nextWorkspace);
-          },
-          getErrorMessage: (errorCode) =>
-            getActionErrorMessage(errorCode, t("status.memberRemove.error"), t),
-          successMessage: t("status.memberRemove.success"),
+        if (!response.ok) {
+          setIsActionSubmitting(false);
+          toast.error(getActionErrorMessage(response.errorCode, t("status.memberRemove.error"), t));
+          return;
+        }
+
+        finalizeAction(() => {
+          applyMembersState(members.filter((member) => member.id !== response.data.memberId));
         });
+        toast.success(t("status.memberRemove.success"));
         return;
       }
 
@@ -452,17 +430,23 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        await submitManagementAction({
-          request: () => resendInviteAction(workspaceState.slug, actionState.invitation.id, locale),
-          onSuccess: (data) => {
-            setInvites((currentInvites) =>
-              currentInvites.map((invite) => patchWorkspaceInvite(invite, data))
-            );
-          },
-          getErrorMessage: (errorCode) =>
-            getActionErrorMessage(errorCode, t("status.inviteResend.error"), t),
-          successMessage: t("status.inviteResend.success"),
+        setIsActionSubmitting(true);
+        const response = await runAsyncTransition(() =>
+          resendInviteAction(workspaceState.slug, confirmActionState.invitation.id, locale)
+        );
+
+        if (!response.ok) {
+          setIsActionSubmitting(false);
+          toast.error(getActionErrorMessage(response.errorCode, t("status.inviteResend.error"), t));
+          return;
+        }
+
+        finalizeAction(() => {
+          setInvites((currentInvites) =>
+            currentInvites.map((invite) => patchWorkspaceInvite(invite, response.data))
+          );
         });
+        toast.success(t("status.inviteResend.success"));
         return;
       }
 
@@ -471,38 +455,111 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        await submitManagementAction({
-          request: () => revokeInviteAction(workspaceState.slug, actionState.invitation.id),
-          onSuccess: (data) => {
-            setInvites((currentInvites) =>
-              currentInvites.filter((invite) => invite.id !== data.inviteId)
-            );
-          },
-          getErrorMessage: (errorCode) =>
-            getActionErrorMessage(errorCode, t("status.inviteRemove.error"), t),
-          successMessage: t("status.inviteRemove.success"),
+        setIsActionSubmitting(true);
+        const response = await runAsyncTransition(() =>
+          revokeInviteAction(workspaceState.slug, confirmActionState.invitation.id)
+        );
+
+        if (!response.ok) {
+          setIsActionSubmitting(false);
+          toast.error(getActionErrorMessage(response.errorCode, t("status.inviteRemove.error"), t));
+          return;
+        }
+
+        finalizeAction(() => {
+          setInvites((currentInvites) =>
+            currentInvites.filter((invite) => invite.id !== response.data.inviteId)
+          );
         });
+        toast.success(t("status.inviteRemove.success"));
         return;
       }
     }
   }
 
-  const dialogModel = getManagementDialogModel({
-    actionState,
-    isActionSubmitting,
-    isCurrentUserLastOwner,
-    isInviteManagementReadOnly,
-    isLastOwnerGuardActive: isChangeRoleTargetLastOwner,
-    isRemoveMemberLastOwner:
-      actionState?.type === "remove-member" &&
-      isLastWorkspaceOwner(actionState.member.role, ownerCount),
-    roleOptions,
-    t,
-    tLeave,
-    tRoles,
-    workspaceName: workspaceState.name,
-    onRoleChange: handleChangeRoleSelection,
-  });
+  let confirmDialogTitle = "";
+  let confirmDialogDescription = "";
+  let confirmDialogSubmitLabel = "";
+  let confirmDialogPendingLabel = "";
+  let confirmDialogBody: ReactNode = null;
+  let confirmDialogGuard: ReactNode = null;
+  let confirmDialogVariant: "default" | "destructive" = "default";
+  let confirmDialogIcon: ReactNode = null;
+  let isConfirmDialogDisabled = !confirmActionState;
+
+  if (confirmActionState) {
+    switch (confirmActionState.type) {
+      case "leave-workspace":
+        confirmDialogTitle = tLeave("dialog.title");
+        confirmDialogDescription = tLeave("dialog.description");
+        confirmDialogSubmitLabel = tLeave("dialog.submit.default");
+        confirmDialogPendingLabel = tLeave("dialog.submit.pending");
+        confirmDialogBody = renderWorkspaceMemberSummary(
+          confirmActionState.member,
+          getWorkspaceMemberRoleLabel(confirmActionState.member.role, tRoles)
+        );
+        confirmDialogGuard = isCurrentUserLastOwner && (
+          <Alert>
+            <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
+            <AlertDescription>{tLeave("ownerGuardHint")}</AlertDescription>
+          </Alert>
+        );
+        confirmDialogVariant = "destructive";
+        confirmDialogIcon = <LogOutIcon aria-hidden="true" className="size-4" />;
+        isConfirmDialogDisabled = isCurrentUserLastOwner;
+        break;
+
+      case "remove-member":
+        confirmDialogTitle = t("dialogs.removeMember.title");
+        confirmDialogDescription = t("dialogs.removeMember.description", {
+          workspaceName: workspaceState.name,
+        });
+        confirmDialogSubmitLabel = t("dialogs.removeMember.submit.default");
+        confirmDialogPendingLabel = t("dialogs.removeMember.submit.pending");
+        confirmDialogBody = renderWorkspaceMemberSummary(
+          confirmActionState.member,
+          getWorkspaceMemberRoleLabel(confirmActionState.member.role, tRoles)
+        );
+        confirmDialogGuard = isRemoveMemberTargetLastOwner && (
+          <Alert>
+            <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
+            <AlertDescription>{t("dialogs.lastOwnerGuard.description")}</AlertDescription>
+          </Alert>
+        );
+        confirmDialogVariant = "destructive";
+        isConfirmDialogDisabled = isRemoveMemberTargetLastOwner;
+        break;
+
+      case "resend-invitation":
+        confirmDialogTitle = t("dialogs.resendInvite.title");
+        confirmDialogDescription = t("dialogs.resendInvite.description", {
+          workspaceName: workspaceState.name,
+        });
+        confirmDialogSubmitLabel = t("dialogs.resendInvite.submit.default");
+        confirmDialogPendingLabel = t("dialogs.resendInvite.submit.pending");
+        confirmDialogBody = renderWorkspaceInviteSummary(
+          confirmActionState.invitation,
+          getWorkspaceMemberRoleLabel(confirmActionState.invitation.role, tRoles)
+        );
+        isConfirmDialogDisabled = isInviteManagementReadOnly;
+        break;
+
+      case "remove-invitation":
+        confirmDialogTitle = t("dialogs.removeInvite.title");
+        confirmDialogDescription = t("dialogs.removeInvite.description", {
+          workspaceName: workspaceState.name,
+        });
+        confirmDialogSubmitLabel = t("dialogs.removeInvite.submit.default");
+        confirmDialogPendingLabel = t("dialogs.removeInvite.submit.pending");
+        confirmDialogBody = renderWorkspaceInviteSummary(
+          confirmActionState.invitation,
+          getWorkspaceMemberRoleLabel(confirmActionState.invitation.role, tRoles)
+        );
+        confirmDialogVariant = "destructive";
+        isConfirmDialogDisabled = isInviteManagementReadOnly;
+        break;
+    }
+  }
 
   return (
     <div className="grid gap-8">
@@ -559,15 +616,53 @@ export function WorkspaceMembersSettingsSection({
         </SettingsItem>
       </div>
 
-      <AlertDialog open={Boolean(dialogModel)} onOpenChange={handleActionDialogOpenChange}>
+      <AlertDialog open={Boolean(changeRoleState)} onOpenChange={handleActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>{dialogModel?.title}</AlertDialogTitle>
-            <AlertDialogDescription>{dialogModel?.description}</AlertDialogDescription>
+            <AlertDialogTitle>{t("dialogs.changeRole.title")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("dialogs.changeRole.description", {
+                memberName: changeRoleState?.member.name ?? t("dialogs.common.thisMember"),
+                workspaceName: workspaceState.name,
+              })}
+            </AlertDialogDescription>
           </AlertDialogHeader>
 
-          {dialogModel?.body}
-          {dialogModel?.guard}
+          {changeRoleState && (
+            <RadioGroup
+              value={changeRoleState.selectedRole}
+              onValueChange={handleChangeRoleSelection}
+            >
+              {roleOptions.map((option) => (
+                <FieldLabel
+                  key={option.value}
+                  htmlFor={`workspace-member-role-${changeRoleState.member.id}-${option.value}`}
+                >
+                  <Field orientation="horizontal">
+                    <FieldContent>
+                      <FieldTitle>{tRoles(option.labelKey)}</FieldTitle>
+                      <FieldDescription>{tRoles(option.descriptionKey)}</FieldDescription>
+                    </FieldContent>
+                    <RadioGroupItem
+                      id={`workspace-member-role-${changeRoleState.member.id}-${option.value}`}
+                      value={option.value}
+                      disabled={
+                        isActionSubmitting ||
+                        (isChangeRoleTargetLastOwner && option.value !== "owner")
+                      }
+                    />
+                  </Field>
+                </FieldLabel>
+              ))}
+            </RadioGroup>
+          )}
+
+          {isChangeRoleTargetLastOwner && (
+            <Alert>
+              <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
+              <AlertDescription>{t("dialogs.lastOwnerGuard.description")}</AlertDescription>
+            </Alert>
+          )}
 
           <AlertDialogFooter>
             <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
@@ -576,12 +671,45 @@ export function WorkspaceMembersSettingsSection({
             <AlertDialogAction
               type="button"
               size="lg"
-              variant={dialogModel?.variant}
-              disabled={isActionSubmitting || !dialogModel || dialogModel.disabled}
-              onClick={handleActionConfirm}
+              disabled={
+                isActionSubmitting ||
+                !changeRoleState ||
+                (isChangeRoleTargetLastOwner && changeRoleState.selectedRole !== "owner")
+              }
+              onClick={handleChangeRoleConfirm}
             >
-              {isActionSubmitting ? <Spinner /> : dialogModel?.icon}
-              {isActionSubmitting ? dialogModel?.pendingLabel : dialogModel?.submitLabel}
+              {isActionSubmitting ? <Spinner /> : null}
+              {isActionSubmitting
+                ? t("dialogs.changeRole.submit.pending")
+                : t("dialogs.changeRole.submit.default")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={Boolean(confirmActionState)} onOpenChange={handleActionDialogOpenChange}>
+        <AlertDialogContent className="sm:max-w-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmDialogTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmDialogDescription}</AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {confirmDialogBody}
+          {confirmDialogGuard}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
+              {tCommon("cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              type="button"
+              size="lg"
+              variant={confirmDialogVariant}
+              disabled={isActionSubmitting || isConfirmDialogDisabled}
+              onClick={handleConfirmAction}
+            >
+              {isActionSubmitting ? <Spinner /> : confirmDialogIcon}
+              {isActionSubmitting ? confirmDialogPendingLabel : confirmDialogSubmitLabel}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -590,136 +718,41 @@ export function WorkspaceMembersSettingsSection({
   );
 }
 
-function getManagementDialogModel({
-  actionState,
-  isActionSubmitting,
-  isCurrentUserLastOwner,
-  isInviteManagementReadOnly,
-  isLastOwnerGuardActive,
-  isRemoveMemberLastOwner,
-  roleOptions,
-  t,
-  tLeave,
-  tRoles,
-  workspaceName,
-  onRoleChange,
-}: {
-  actionState: ManagementActionState;
-  isActionSubmitting: boolean;
-  isCurrentUserLastOwner: boolean;
-  isInviteManagementReadOnly: boolean;
-  isLastOwnerGuardActive: boolean;
-  isRemoveMemberLastOwner: boolean;
-  roleOptions: ReturnType<typeof getAssignableWorkspaceMemberRoleOptions>;
-  t: ReturnType<typeof useTranslations>;
-  tLeave: ReturnType<typeof useTranslations>;
-  tRoles: ReturnType<typeof useTranslations>;
-  workspaceName: string;
-  onRoleChange: (value: string) => void;
-}): ManagementDialogModel | null {
-  if (!actionState) {
-    return null;
-  }
+function renderWorkspaceMemberSummary(
+  member: WorkspaceSettingsMember,
+  roleLabel: string
+): ReactNode {
+  const displayName = member.name ?? member.email;
+  const initials = getUserInitials(displayName);
+  const avatarColorClass = getAvatarColorClass(member.userId);
 
-  switch (actionState.type) {
-    case "change-role":
-      return {
-        title: t("dialogs.changeRole.title"),
-        description: t("dialogs.changeRole.description", {
-          memberName: actionState.member.name ?? t("dialogs.common.thisMember"),
-          workspaceName,
-        }),
-        body: (
-          <RadioGroup value={actionState.selectedRole} onValueChange={onRoleChange}>
-            {roleOptions.map((option) => (
-              <FieldLabel
-                key={option.value}
-                htmlFor={`workspace-member-role-${actionState.member.id}-${option.value}`}
-              >
-                <Field orientation="horizontal">
-                  <FieldContent>
-                    <FieldTitle>{tRoles(option.labelKey)}</FieldTitle>
-                    <FieldDescription>{tRoles(option.descriptionKey)}</FieldDescription>
-                  </FieldContent>
-                  <RadioGroupItem
-                    id={`workspace-member-role-${actionState.member.id}-${option.value}`}
-                    value={option.value}
-                    disabled={
-                      isActionSubmitting || (isLastOwnerGuardActive && option.value !== "owner")
-                    }
-                  />
-                </Field>
-              </FieldLabel>
-            ))}
-          </RadioGroup>
-        ),
-        guard: isLastOwnerGuardActive ? (
-          <Alert>
-            <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
-            <AlertDescription>{t("dialogs.lastOwnerGuard.description")}</AlertDescription>
-          </Alert>
-        ) : null,
-        submitLabel: t("dialogs.changeRole.submit.default"),
-        pendingLabel: t("dialogs.changeRole.submit.pending"),
-        disabled: isLastOwnerGuardActive && actionState.selectedRole !== "owner",
-      };
+  return (
+    <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
+      <div className="flex min-w-0 items-center gap-3">
+        <Avatar>
+          {member.avatarUrl && <AvatarImage src={member.avatarUrl} alt="" />}
+          <AvatarFallback className={avatarColorClass}>{initials}</AvatarFallback>
+        </Avatar>
+        <div className="flex min-w-0 flex-col">
+          <p className="text-sm font-medium">{displayName}</p>
+          <p className="text-muted-foreground truncate text-xs">{member.email}</p>
+        </div>
+      </div>
+      <span className="text-muted-foreground text-sm">{roleLabel}</span>
+    </div>
+  );
+}
 
-    case "leave-workspace":
-      return {
-        title: tLeave("dialog.title"),
-        description: tLeave("dialog.description"),
-        body: <WorkspaceMemberSummaryRow member={actionState.member} />,
-        guard: isCurrentUserLastOwner ? (
-          <Alert>
-            <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
-            <AlertDescription>{tLeave("ownerGuardHint")}</AlertDescription>
-          </Alert>
-        ) : null,
-        submitLabel: tLeave("dialog.submit.default"),
-        pendingLabel: tLeave("dialog.submit.pending"),
-        disabled: isCurrentUserLastOwner,
-        variant: "destructive",
-        icon: <LogOutIcon aria-hidden="true" className="size-4" />,
-      };
-
-    case "remove-member":
-      return {
-        title: t("dialogs.removeMember.title"),
-        description: t("dialogs.removeMember.description", { workspaceName }),
-        body: <WorkspaceMemberSummaryRow member={actionState.member} />,
-        guard: isRemoveMemberLastOwner ? (
-          <Alert>
-            <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
-            <AlertDescription>{t("dialogs.lastOwnerGuard.description")}</AlertDescription>
-          </Alert>
-        ) : null,
-        submitLabel: t("dialogs.removeMember.submit.default"),
-        pendingLabel: t("dialogs.removeMember.submit.pending"),
-        disabled: isRemoveMemberLastOwner,
-        variant: "destructive",
-      };
-
-    case "resend-invitation":
-      return {
-        title: t("dialogs.resendInvite.title"),
-        description: t("dialogs.resendInvite.description", { workspaceName }),
-        body: <WorkspaceInvitationSummaryRow invitation={actionState.invitation} />,
-        submitLabel: t("dialogs.resendInvite.submit.default"),
-        pendingLabel: t("dialogs.resendInvite.submit.pending"),
-        disabled: isInviteManagementReadOnly,
-      };
-
-    case "remove-invitation":
-      return {
-        title: t("dialogs.removeInvite.title"),
-        description: t("dialogs.removeInvite.description", { workspaceName }),
-        body: <WorkspaceInvitationSummaryRow invitation={actionState.invitation} />,
-        submitLabel: t("dialogs.removeInvite.submit.default"),
-        pendingLabel: t("dialogs.removeInvite.submit.pending"),
-        disabled: isInviteManagementReadOnly,
-        variant: "destructive",
-      };
-  }
+function renderWorkspaceInviteSummary(
+  invitation: WorkspaceSettingsInvite,
+  roleLabel: string
+): ReactNode {
+  return (
+    <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
+      <span className="text-sm font-medium">{invitation.emailNormalized}</span>
+      <span className="text-muted-foreground text-sm">{roleLabel}</span>
+    </div>
+  );
 }
 
 function getActionErrorMessage(
@@ -727,23 +760,18 @@ function getActionErrorMessage(
   fallbackMessage: string,
   t: (key: string) => string
 ): string {
-  if (errorCode === "LAST_OWNER_GUARD") {
-    return t("errors.lastOwnerGuard");
+  switch (errorCode) {
+    case "LAST_OWNER_GUARD":
+      return t("errors.lastOwnerGuard");
+    case "RATE_LIMITED":
+      return t("errors.rateLimited");
+    case "FORBIDDEN":
+      return t("errors.forbidden");
+    case "NOT_FOUND":
+      return t("errors.notFound");
+    default:
+      return fallbackMessage;
   }
-
-  if (errorCode === "RATE_LIMITED") {
-    return t("errors.rateLimited");
-  }
-
-  if (errorCode === "FORBIDDEN") {
-    return t("errors.forbidden");
-  }
-
-  if (errorCode === "NOT_FOUND") {
-    return t("errors.notFound");
-  }
-
-  return fallbackMessage;
 }
 
 function patchWorkspaceInvite(
@@ -801,13 +829,5 @@ function getWorkspaceMemberSortKey(member: WorkspaceSettingsMember) {
 }
 
 function getWorkspaceRoleOrder(role: WorkspaceSettingsMember["role"]) {
-  if (role === "owner") {
-    return 0;
-  }
-
-  if (role === "admin") {
-    return 1;
-  }
-
-  return 2;
+  return role === "owner" ? 0 : role === "admin" ? 1 : 2;
 }

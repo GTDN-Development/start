@@ -14,9 +14,6 @@ import {
 import { logServiceError } from "@/server/pocketbase/pocketbase-utils";
 
 type RequireCurrentUserErrorCode = "UNAUTHORIZED" | "UNKNOWN_ERROR";
-type DeviceSessionMutationPayload = {
-  revoked: true;
-};
 
 export type RequireCurrentUserResult =
   | {
@@ -82,7 +79,7 @@ export async function listCurrentUserDeviceSessions(): Promise<DeviceSessionList
 }
 
 export async function revokeCurrentUserOtherDeviceSessions(): Promise<
-  ServerAuthResponse<DeviceSessionMutationPayload>
+  ServerAuthResponse<{ revoked: true }>
 > {
   const currentUser = await requireCurrentWritableUser();
 
@@ -97,18 +94,25 @@ export async function revokeCurrentUserOtherDeviceSessions(): Promise<
       currentSessionIdHash: currentUser.currentSessionIdHash,
     });
 
-    return createRevokedDeviceSessionResponse();
+    return {
+      ok: true,
+      data: {
+        revoked: true,
+      },
+    };
   } catch (error) {
-    return createUnknownDeviceSessionMutationResponse(
-      "revokeCurrentUserOtherDeviceSessions",
-      error
-    );
+    logServiceError("current-user", "revokeCurrentUserOtherDeviceSessions", error);
+
+    return {
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+    };
   }
 }
 
 export async function revokeCurrentUserDeviceSessionById(input: {
   deviceSessionId: string;
-}): Promise<ServerAuthResponse<DeviceSessionMutationPayload>> {
+}): Promise<ServerAuthResponse<{ revoked: true }>> {
   const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
@@ -123,9 +127,33 @@ export async function revokeCurrentUserDeviceSessionById(input: {
       currentSessionIdHash: currentUser.currentSessionIdHash,
     });
 
-    return mapRevokeDeviceSessionResult(revokeResult);
+    if (revokeResult === "not_found") {
+      return {
+        ok: false,
+        errorCode: "NOT_FOUND",
+      };
+    }
+
+    if (revokeResult === "current_device") {
+      return {
+        ok: false,
+        errorCode: "BAD_REQUEST",
+      };
+    }
+
+    return {
+      ok: true,
+      data: {
+        revoked: true,
+      },
+    };
   } catch (error) {
-    return createUnknownDeviceSessionMutationResponse("revokeCurrentUserDeviceSessionById", error);
+    logServiceError("current-user", "revokeCurrentUserDeviceSessionById", error);
+
+    return {
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+    };
   }
 }
 
@@ -145,39 +173,5 @@ export async function requireCurrentWritableUser(): Promise<RequireCurrentWritab
     pb: currentUser.pb,
     user: currentUser.user,
     currentSessionIdHash: currentUser.currentSessionIdHash,
-  };
-}
-
-function createRevokedDeviceSessionResponse(): ServerAuthResponse<DeviceSessionMutationPayload> {
-  return {
-    ok: true,
-    data: {
-      revoked: true,
-    },
-  };
-}
-
-function createUnknownDeviceSessionMutationResponse(
-  action: string,
-  error: unknown
-): ServerAuthResponse<DeviceSessionMutationPayload> {
-  logServiceError("current-user", action, error);
-
-  return {
-    ok: false,
-    errorCode: "UNKNOWN_ERROR",
-  };
-}
-
-function mapRevokeDeviceSessionResult(
-  result: Awaited<ReturnType<typeof revokeDeviceSessionById>>
-): ServerAuthResponse<DeviceSessionMutationPayload> {
-  if (result === "revoked") {
-    return createRevokedDeviceSessionResponse();
-  }
-
-  return {
-    ok: false,
-    errorCode: result === "not_found" ? "NOT_FOUND" : "BAD_REQUEST",
   };
 }

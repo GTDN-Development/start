@@ -184,20 +184,3 @@ export function WorkspacePendingInvitationsEmptyState() {
     </Empty>
   );
 }
-
-export function WorkspaceInvitationSummaryRow({
-  invitation,
-}: {
-  invitation: WorkspaceSettingsInvite;
-}) {
-  const tRoles = useTranslations("pages.workspace.members.roles");
-
-  return (
-    <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
-      <span className="text-sm font-medium">{invitation.emailNormalized}</span>
-      <span className="text-muted-foreground text-sm">
-        {getWorkspaceMemberRoleLabel(invitation.role, tRoles)}
-      </span>
-    </div>
-  );
-}

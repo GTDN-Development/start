@@ -47,16 +47,18 @@ import {
 import { requestEmailVerificationForEmail } from "./auth-email-verification-service";
 import { requestPasswordResetForEmail } from "./auth-password-reset-service";
 
+type AuthServiceContext = ReturnType<typeof createAuthServiceContext>;
+
+const CLEARED_AUTH_AND_DEVICE_COOKIES = ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"];
+const CLEARED_PB_AUTH_COOKIES = ["pb_auth=; Max-Age=0"];
+
 describe("auth-service", function describeAuthService() {
   beforeEach(function resetMocks() {
     vi.clearAllMocks();
     vi.spyOn(console, "error").mockImplementation(function suppressErrorLog() {
       return undefined;
     });
-    vi.mocked(createClearedAuthAndDeviceCookies).mockReturnValue([
-      "pb_auth=; Max-Age=0",
-      "device_session=; Max-Age=0",
-    ]);
+    vi.mocked(createClearedAuthAndDeviceCookies).mockReturnValue(CLEARED_AUTH_AND_DEVICE_COOKIES);
     vi.mocked(headers).mockResolvedValue(
       new Headers({
         "user-agent": "Mozilla/5.0",
@@ -66,7 +68,7 @@ describe("auth-service", function describeAuthService() {
       token: "device-token-new",
       setCookie: "device_session=device-token-new",
     });
-    vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue(["pb_auth=; Max-Age=0"]);
+    vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue(CLEARED_PB_AUTH_COOKIES);
     vi.mocked(exportPocketBaseAuthCookies).mockImplementation(
       function exportAuthCookies(_pb, options) {
         return ["pb_auth=token", options?.sessionOnly ? "pb_persist=0" : "pb_persist=1"];
@@ -74,57 +76,73 @@ describe("auth-service", function describeAuthService() {
     );
   });
 
-  it("keeps password reset requests anti-enumerating for unknown emails", async function testResetRequestUnknownEmail() {
-    const context = createAuthServiceContext();
-
-    context.usersCollection.requestPasswordReset.mockRejectedValue(createClientResponseError(404));
-    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
-
-    const response = await requestPasswordResetForEmail("missing@example.com");
-
-    expect(response).toEqual({
-      ok: true,
-      data: {
-        sent: true,
-      },
-    });
-  });
-
   it.each([
     {
-      name: "keeps email verification requests anti-enumerating for unknown emails",
-      status: 404,
+      name: "keeps password reset requests anti-enumerating for unknown emails",
+      setup(context: AuthServiceContext) {
+        context.usersCollection.requestPasswordReset.mockRejectedValue(
+          createClientResponseError(404)
+        );
+      },
+      request() {
+        return requestPasswordResetForEmail("missing@example.com");
+      },
       expectedResponse: {
         ok: true as const,
         data: {
           sent: true as const,
         },
-        setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+      },
+    },
+    {
+      name: "keeps email verification requests anti-enumerating for unknown emails",
+      contextInput: {
+        hadInvalidAuthCookie: true,
+      },
+      setup(context: AuthServiceContext) {
+        context.usersCollection.requestVerification.mockRejectedValue(
+          createClientResponseError(404)
+        );
+      },
+      request() {
+        return requestEmailVerificationForEmail("user@example.com");
+      },
+      expectedResponse: {
+        ok: true as const,
+        data: {
+          sent: true as const,
+        },
+        setCookie: CLEARED_AUTH_AND_DEVICE_COOKIES,
       },
     },
     {
       name: "returns rate-limited for email verification throttling",
-      status: 429,
+      contextInput: {
+        hadInvalidAuthCookie: true,
+      },
+      setup(context: AuthServiceContext) {
+        context.usersCollection.requestVerification.mockRejectedValue(
+          createClientResponseError(429)
+        );
+      },
+      request() {
+        return requestEmailVerificationForEmail("user@example.com");
+      },
       expectedResponse: {
         ok: false as const,
         errorCode: "RATE_LIMITED" as const,
-        setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+        setCookie: CLEARED_AUTH_AND_DEVICE_COOKIES,
       },
     },
-  ])("$name", async function testEmailVerificationRequest(input) {
-    const context = createAuthServiceContext({
-      hadInvalidAuthCookie: true,
-    });
-
-    context.usersCollection.requestVerification.mockRejectedValue(
-      createClientResponseError(input.status)
-    );
-    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
-
-    const response = await requestEmailVerificationForEmail("user@example.com");
-
-    expect(response).toEqual(input.expectedResponse);
-  });
+  ])(
+    "$name",
+    async function testRequestHandling({ contextInput, expectedResponse, request, setup }) {
+      const context = createAuthServiceContext(contextInput);
+      setup(context);
+      vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+      expect(await request()).toEqual(expectedResponse);
+    }
+  );
 
   it("fails closed when device session registration fails during sign-in", async function testSignInDeviceSessionRegistrationFailure() {
     const context = createAuthServiceContext();
@@ -146,7 +164,7 @@ describe("auth-service", function describeAuthService() {
     expect(response).toEqual({
       ok: false,
       errorCode: "UNKNOWN_ERROR",
-      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+      setCookie: CLEARED_AUTH_AND_DEVICE_COOKIES,
     });
   });
 
@@ -172,7 +190,7 @@ describe("auth-service", function describeAuthService() {
       data: {
         signedOut: true,
       },
-      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+      setCookie: CLEARED_AUTH_AND_DEVICE_COOKIES,
     });
     expect(context.deviceSessionsCollection.delete).toHaveBeenCalledWith("session-1");
   });
@@ -214,7 +232,7 @@ describe("auth-service", function describeAuthService() {
         data: {
           session: null,
         },
-        setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+        setCookie: CLEARED_AUTH_AND_DEVICE_COOKIES,
       },
     },
     {
