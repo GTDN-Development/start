@@ -97,19 +97,12 @@ export async function revokeCurrentUserOtherDeviceSessions(): Promise<
       currentSessionIdHash: currentUser.currentSessionIdHash,
     });
 
-    return {
-      ok: true,
-      data: {
-        revoked: true,
-      },
-    };
+    return createRevokedDeviceSessionResponse();
   } catch (error) {
-    logServiceError("current-user", "revokeCurrentUserOtherDeviceSessions", error);
-
-    return {
-      ok: false,
-      errorCode: "UNKNOWN_ERROR",
-    };
+    return createUnknownDeviceSessionMutationResponse(
+      "revokeCurrentUserOtherDeviceSessions",
+      error
+    );
   }
 }
 
@@ -130,26 +123,9 @@ export async function revokeCurrentUserDeviceSessionById(input: {
       currentSessionIdHash: currentUser.currentSessionIdHash,
     });
 
-    if (revokeResult !== "revoked") {
-      return {
-        ok: false,
-        errorCode: revokeResult === "not_found" ? "NOT_FOUND" : "BAD_REQUEST",
-      };
-    }
-
-    return {
-      ok: true,
-      data: {
-        revoked: true,
-      },
-    };
+    return mapRevokeDeviceSessionResult(revokeResult);
   } catch (error) {
-    logServiceError("current-user", "revokeCurrentUserDeviceSessionById", error);
-
-    return {
-      ok: false,
-      errorCode: "UNKNOWN_ERROR",
-    };
+    return createUnknownDeviceSessionMutationResponse("revokeCurrentUserDeviceSessionById", error);
   }
 }
 
@@ -169,5 +145,39 @@ export async function requireCurrentWritableUser(): Promise<RequireCurrentWritab
     pb: currentUser.pb,
     user: currentUser.user,
     currentSessionIdHash: currentUser.currentSessionIdHash,
+  };
+}
+
+function createRevokedDeviceSessionResponse(): ServerAuthResponse<DeviceSessionMutationPayload> {
+  return {
+    ok: true,
+    data: {
+      revoked: true,
+    },
+  };
+}
+
+function createUnknownDeviceSessionMutationResponse(
+  action: string,
+  error: unknown
+): ServerAuthResponse<DeviceSessionMutationPayload> {
+  logServiceError("current-user", action, error);
+
+  return {
+    ok: false,
+    errorCode: "UNKNOWN_ERROR",
+  };
+}
+
+function mapRevokeDeviceSessionResult(
+  result: Awaited<ReturnType<typeof revokeDeviceSessionById>>
+): ServerAuthResponse<DeviceSessionMutationPayload> {
+  if (result === "revoked") {
+    return createRevokedDeviceSessionResponse();
+  }
+
+  return {
+    ok: false,
+    errorCode: result === "not_found" ? "NOT_FOUND" : "BAD_REQUEST",
   };
 }

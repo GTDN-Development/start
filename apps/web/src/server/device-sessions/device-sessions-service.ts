@@ -278,8 +278,11 @@ export async function listDeviceSessions(input: {
   userId: string;
   currentSessionIdHash: string;
 }): Promise<DeviceSessionListItem[]> {
-  const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
-  const activeSessions = filterActiveDeviceSessions(sessions, new Date());
+  const activeSessions = await listActiveDeviceSessionsForUser(
+    input.pb,
+    input.userId,
+    "-last_seen_at"
+  );
 
   return activeSessions.map((session) =>
     mapDeviceSessionListItem(session, input.currentSessionIdHash)
@@ -334,34 +337,24 @@ export async function revokeOtherDeviceSessions(input: {
   userId: string;
   currentSessionIdHash: string;
 }): Promise<number> {
-  const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
-  const sessionsToRevoke = filterActiveDeviceSessions(sessions, new Date()).filter(
-    (session) => session.session_id_hash !== input.currentSessionIdHash
-  );
+  const sessionsToRevoke = (
+    await listActiveDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at")
+  ).filter((session) => session.session_id_hash !== input.currentSessionIdHash);
 
-  if (sessionsToRevoke.length === 0) {
-    return 0;
-  }
-
-  await deleteDeviceSessions(input.pb, sessionsToRevoke);
-
-  return sessionsToRevoke.length;
+  return deleteDeviceSessionsAndCount(input.pb, sessionsToRevoke);
 }
 
 export async function revokeAllDeviceSessions(input: {
   pb: PocketBase;
   userId: string;
 }): Promise<number> {
-  const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "-last_seen_at");
-  const sessionsToRevoke = filterActiveDeviceSessions(sessions, new Date());
+  const sessionsToRevoke = await listActiveDeviceSessionsForUser(
+    input.pb,
+    input.userId,
+    "-last_seen_at"
+  );
 
-  if (sessionsToRevoke.length === 0) {
-    return 0;
-  }
-
-  await deleteDeviceSessions(input.pb, sessionsToRevoke);
-
-  return sessionsToRevoke.length;
+  return deleteDeviceSessionsAndCount(input.pb, sessionsToRevoke);
 }
 
 export async function revokeDeviceSessionById(input: {
@@ -393,13 +386,7 @@ async function cleanUpExpiredDeviceSessions(input: {
   const sessions = await listDeviceSessionsForUser(input.pb, input.userId);
   const expiredSessions = filterExpiredDeviceSessions(sessions, new Date());
 
-  if (expiredSessions.length === 0) {
-    return 0;
-  }
-
-  await deleteDeviceSessions(input.pb, expiredSessions);
-
-  return expiredSessions.length;
+  return deleteDeviceSessionsAndCount(input.pb, expiredSessions);
 }
 
 async function enforceDeviceLimit(input: {
@@ -411,8 +398,11 @@ async function enforceDeviceLimit(input: {
     return;
   }
 
-  const sessions = await listDeviceSessionsForUser(input.pb, input.userId, "+last_seen_at");
-  const activeSessions = filterActiveDeviceSessions(sessions, new Date());
+  const activeSessions = await listActiveDeviceSessionsForUser(
+    input.pb,
+    input.userId,
+    "+last_seen_at"
+  );
 
   if (activeSessions.length <= MAX_ACTIVE_SESSIONS) {
     return;
@@ -525,6 +515,14 @@ async function listDeviceSessionsForUser(
   return pb.collection(DEVICE_SESSIONS_COLLECTION).getFullList<UserDeviceSessionsRecord>(options);
 }
 
+async function listActiveDeviceSessionsForUser(
+  pb: PocketBase,
+  userId: string,
+  sort?: string
+): Promise<UserDeviceSessionsRecord[]> {
+  return filterActiveDeviceSessions(await listDeviceSessionsForUser(pb, userId, sort), new Date());
+}
+
 async function updateDeviceHeartbeatIfNeeded(input: {
   pb: PocketBase;
   session: UserDeviceSessionsRecord;
@@ -576,6 +574,19 @@ async function deleteDeviceSessions(
   for (const session of sessions) {
     await deleteDeviceSessionSafely(pb, session.id);
   }
+}
+
+async function deleteDeviceSessionsAndCount(
+  pb: PocketBase,
+  sessions: Pick<UserDeviceSessionsRecord, "id">[]
+): Promise<number> {
+  if (sessions.length === 0) {
+    return 0;
+  }
+
+  await deleteDeviceSessions(pb, sessions);
+
+  return sessions.length;
 }
 
 function mapDeviceSessionListItem(

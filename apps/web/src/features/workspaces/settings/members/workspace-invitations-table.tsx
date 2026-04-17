@@ -67,43 +67,13 @@ export function WorkspaceInvitationsTable({
                 </TableCell>
                 <TableCell>{getWorkspaceMemberRoleLabel(invitation.role, tRoles)}</TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      nativeButton={true}
-                      render={
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          aria-label={t("menus.invites.ariaLabel")}
-                          disabled={isReadOnly}
-                        >
-                          <MoreHorizontalIcon aria-hidden="true" className="size-4" />
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end" className="w-auto min-w-44">
-                      <DropdownMenuItem
-                        onClick={() => onCopyInvitationLinkAction(invitation)}
-                        disabled={isReadOnly}
-                      >
-                        <CopyIcon aria-hidden="true" /> {t("menus.invites.copyLink")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onResendInvitationRequestAction(invitation)}
-                        disabled={isReadOnly}
-                      >
-                        <SendIcon aria-hidden="true" /> {t("menus.invites.resend")}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onRemoveInvitationRequestAction(invitation)}
-                        variant="destructive"
-                        disabled={isReadOnly}
-                      >
-                        <TrashIcon aria-hidden="true" /> {t("menus.invites.remove")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <WorkspaceInvitationActionsMenu
+                    invitation={invitation}
+                    isReadOnly={isReadOnly}
+                    onCopyInvitationLinkAction={onCopyInvitationLinkAction}
+                    onResendInvitationRequestAction={onResendInvitationRequestAction}
+                    onRemoveInvitationRequestAction={onRemoveInvitationRequestAction}
+                  />
                 </TableCell>
               </TableRow>
             ))}
@@ -127,49 +97,75 @@ export function WorkspaceInvitationsTable({
 
               <DescriptionTerm>{t("table.invites.actions")}</DescriptionTerm>
               <DescriptionDetails>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    nativeButton={true}
-                    render={
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label={t("menus.invites.ariaLabel")}
-                        disabled={isReadOnly}
-                      >
-                        <MoreHorizontalIcon aria-hidden="true" className="size-4" />
-                      </Button>
-                    }
-                  />
-                  <DropdownMenuContent align="end" className="w-auto min-w-44">
-                    <DropdownMenuItem
-                      onClick={() => onCopyInvitationLinkAction(invitation)}
-                      disabled={isReadOnly}
-                    >
-                      <CopyIcon aria-hidden="true" /> {t("menus.invites.copyLink")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => onResendInvitationRequestAction(invitation)}
-                      disabled={isReadOnly}
-                    >
-                      <SendIcon aria-hidden="true" /> {t("menus.invites.resend")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => onRemoveInvitationRequestAction(invitation)}
-                      variant="destructive"
-                      disabled={isReadOnly}
-                    >
-                      <TrashIcon aria-hidden="true" /> {t("menus.invites.remove")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <WorkspaceInvitationActionsMenu
+                  invitation={invitation}
+                  isReadOnly={isReadOnly}
+                  onCopyInvitationLinkAction={onCopyInvitationLinkAction}
+                  onResendInvitationRequestAction={onResendInvitationRequestAction}
+                  onRemoveInvitationRequestAction={onRemoveInvitationRequestAction}
+                />
               </DescriptionDetails>
             </DescriptionList>
           </div>
         ))}
       </div>
     </>
+  );
+}
+
+function WorkspaceInvitationActionsMenu({
+  invitation,
+  isReadOnly,
+  onCopyInvitationLinkAction,
+  onResendInvitationRequestAction,
+  onRemoveInvitationRequestAction,
+}: {
+  invitation: WorkspaceSettingsInvite;
+  isReadOnly: boolean;
+  onCopyInvitationLinkAction: (invitation: WorkspaceSettingsInvite) => void;
+  onResendInvitationRequestAction: (invitation: WorkspaceSettingsInvite) => void;
+  onRemoveInvitationRequestAction: (invitation: WorkspaceSettingsInvite) => void;
+}) {
+  const t = useTranslations("pages.workspace.members.management");
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        nativeButton={true}
+        render={
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={t("menus.invites.ariaLabel")}
+            disabled={isReadOnly}
+          >
+            <MoreHorizontalIcon aria-hidden="true" className="size-4" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end" className="w-auto min-w-44">
+        <DropdownMenuItem
+          onClick={() => onCopyInvitationLinkAction(invitation)}
+          disabled={isReadOnly}
+        >
+          <CopyIcon aria-hidden="true" /> {t("menus.invites.copyLink")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => onResendInvitationRequestAction(invitation)}
+          disabled={isReadOnly}
+        >
+          <SendIcon aria-hidden="true" /> {t("menus.invites.resend")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => onRemoveInvitationRequestAction(invitation)}
+          variant="destructive"
+          disabled={isReadOnly}
+        >
+          <TrashIcon aria-hidden="true" /> {t("menus.invites.remove")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

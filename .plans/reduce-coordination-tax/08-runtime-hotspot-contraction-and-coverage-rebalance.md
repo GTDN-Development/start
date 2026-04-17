@@ -166,7 +166,6 @@ Do not use this task to:
    Focus on `workspace-members-settings-section.tsx`.
 
    Preferred direction:
-
    - remove repeated confirm/mutate/error/success/update patterns
    - collapse remaining duplicated invite and member update logic
    - reduce the amount of inline dialog and patching code carried by the section
@@ -177,7 +176,6 @@ Do not use this task to:
    Focus on `workspace-resolution-service.ts`.
 
    Preferred direction:
-
    - reduce repeated auth failure and service failure mapping
    - keep only the route, action, and membership entrypoints that materially help callers
    - inline or merge helpers that are still too local to justify separate semantics
@@ -188,7 +186,6 @@ Do not use this task to:
    Focus on `current-user.ts`, `device-sessions-service.ts`, and the small action layer above them.
 
    Preferred direction:
-
    - remove duplicated failure-return shapes
    - contract device-session active/expired filtering and revoke paths where the policy is repeated
    - keep response-writing semantics explicit, but remove adapter noise
@@ -199,7 +196,6 @@ Do not use this task to:
    Add back only the tests that protect important semantics that appear under-covered after Phase 07.
 
    High-priority examples:
-
    - auth flows with sign-up, password reset, and email-change semantics if they no longer have direct coverage
    - workspace creation/invite listing or equivalent workspace service behavior if the prior deletions left those paths uncovered
    - any auth/workspace edge case where cookie semantics, anti-enumeration, or last-owner constraints would be risky to change without tests
@@ -207,7 +203,6 @@ Do not use this task to:
 5. **Keep tests sharp**
 
    For every test added back:
-
    - prove one meaningful product behavior
    - avoid asserting local helper call ordering unless the ordering is the behavior
    - avoid rebuilding deleted structural seams in test form

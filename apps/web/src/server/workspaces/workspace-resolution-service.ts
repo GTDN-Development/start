@@ -99,14 +99,6 @@ const WORKSPACE_ACCESS_ERROR_MAPPER: WorkspaceErrorMapper = function mapWorkspac
   return WORKSPACE_LIST_ERROR_MAPPER(pocketBaseError);
 };
 
-export async function listUserWorkspaces(
-  userId: string
-): Promise<ServerWorkspaceResponse<{ workspaces: UserWorkspace[] }>> {
-  const { pb } = await createPocketBaseServerClient();
-
-  return listUserWorkspacesWithClient(pb, userId);
-}
-
 export async function listUserWorkspacesWithClient(
   pb: PocketBase,
   userId: string
@@ -272,10 +264,6 @@ async function resolveActiveWorkspaceSlugForUserWithClient(
   }
 }
 
-async function requireWorkspaceAuthContext(): Promise<WorkspaceAuthContextResult> {
-  return requireWorkspaceContext("read");
-}
-
 export async function requireWorkspaceActionContext(): Promise<WorkspaceAuthContextResult> {
   return requireWorkspaceContext("action");
 }
@@ -284,7 +272,7 @@ export async function requireWorkspaceMembershipContext(
   workspaceSlug: string
 ): Promise<WorkspaceMembershipContextResult> {
   return resolveWorkspaceMembershipContext(
-    await requireWorkspaceAuthContext(),
+    await requireWorkspaceContext("read"),
     workspaceSlug,
     "requireWorkspaceMembershipContext"
   );
@@ -300,7 +288,7 @@ export async function requireWorkspaceActionMembershipContext(
   );
 }
 
-export async function resolveWorkspaceMembershipContextBySlug(
+async function resolveWorkspaceMembershipContextBySlug(
   pb: PocketBase,
   userId: string,
   workspaceSlug: string
