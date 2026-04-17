@@ -75,9 +75,8 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
 
     vi.mocked(getPendingInviteTokenCookie).mockResolvedValue(null);
     vi.mocked(createPocketBaseServerClient).mockResolvedValue({
+      authCookieState: "present",
       pb,
-      hasAuthCookie: true,
-      hadInvalidAuthCookie: false,
       shouldPersistSession: true,
     });
     vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue("team-space");

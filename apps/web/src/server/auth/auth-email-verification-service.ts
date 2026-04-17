@@ -29,7 +29,8 @@ import { isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
 export async function confirmEmailVerificationToken(
   token: string
 ): Promise<ServerAuthResponse<VerifyEmailPayload>> {
-  const { pb, hadInvalidAuthCookie, shouldPersistSession } = await createPocketBaseServerClient();
+  const { authCookieState, pb, shouldPersistSession } = await createPocketBaseServerClient();
+  const hadInvalidAuthCookie = authCookieState === "invalid";
   const hadUnverifiedAuthenticatedSession =
     pb.authStore.isValid &&
     isUsersRecord(pb.authStore.record) &&
@@ -90,7 +91,8 @@ export async function confirmEmailVerificationToken(
 export async function requestEmailVerificationForEmail(
   email: string
 ): Promise<ServerAuthResponse<RequestEmailVerificationPayload>> {
-  const { pb, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+  const { authCookieState, pb } = await createPocketBaseServerClient();
+  const hadInvalidAuthCookie = authCookieState === "invalid";
 
   try {
     await pb.collection("users").requestVerification(email);
@@ -121,7 +123,8 @@ export async function confirmEmailChangeToken(input: {
   token: string;
   password: string;
 }): Promise<ServerAuthResponse<ConfirmEmailChangePayload>> {
-  const { pb, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+  const { authCookieState, pb } = await createPocketBaseServerClient();
+  const hadInvalidAuthCookie = authCookieState === "invalid";
 
   try {
     await pb.collection("users").confirmEmailChange(input.token, input.password);

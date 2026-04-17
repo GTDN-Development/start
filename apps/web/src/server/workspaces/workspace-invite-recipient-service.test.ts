@@ -66,9 +66,8 @@ describe("workspace-invite-recipient-service", function describeWorkspaceInviteR
       send: guestSendSpy,
     } as unknown as PocketBase);
     vi.mocked(createPocketBaseServerClient).mockResolvedValue({
+      authCookieState: "present",
       pb: {} as PocketBase,
-      hasAuthCookie: true,
-      hadInvalidAuthCookie: false,
       shouldPersistSession: true,
     });
   });

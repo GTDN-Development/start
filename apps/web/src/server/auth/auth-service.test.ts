@@ -97,7 +97,7 @@ describe("auth-service", function describeAuthService() {
     {
       name: "keeps email verification requests anti-enumerating for unknown emails",
       contextInput: {
-        hadInvalidAuthCookie: true,
+        authCookieState: "invalid" as const,
       },
       setup(context: AuthServiceContext) {
         context.usersCollection.requestVerification.mockRejectedValue(
@@ -118,7 +118,7 @@ describe("auth-service", function describeAuthService() {
     {
       name: "returns rate-limited for email verification throttling",
       contextInput: {
-        hadInvalidAuthCookie: true,
+        authCookieState: "invalid" as const,
       },
       setup(context: AuthServiceContext) {
         context.usersCollection.requestVerification.mockRejectedValue(
@@ -279,10 +279,11 @@ describe("auth-service", function describeAuthService() {
 function createAuthServiceContext(input?: {
   authStoreRecord?: UsersRecord | null;
   authStoreValid?: boolean;
-  hadInvalidAuthCookie?: boolean;
-  hasAuthCookie?: boolean;
+  authCookieState?: "missing" | "present" | "invalid";
   shouldPersistSession?: boolean;
 }) {
+  const authCookieState =
+    input?.authCookieState ?? ((input?.authStoreValid ?? false) ? "present" : "missing");
   const deviceSessionsCollection = {
     create: vi.fn(async function createDeviceSession() {
       return undefined;
@@ -309,7 +310,7 @@ function createAuthServiceContext(input?: {
   };
   const pb = {
     authStore: {
-      isValid: input?.authStoreValid ?? false,
+      isValid: input?.authStoreValid ?? authCookieState === "present",
       record: input?.authStoreRecord ?? null,
     },
     collection: vi.fn(function getCollection(name: string) {
@@ -332,9 +333,8 @@ function createAuthServiceContext(input?: {
 
   return {
     client: {
+      authCookieState,
       pb,
-      hadInvalidAuthCookie: input?.hadInvalidAuthCookie ?? false,
-      hasAuthCookie: input?.hasAuthCookie ?? false,
       shouldPersistSession: input?.shouldPersistSession ?? true,
     },
     deviceSessionsCollection,

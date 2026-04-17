@@ -13,7 +13,8 @@ export async function confirmPasswordResetToken(input: {
   password: string;
   confirmPassword: string;
 }): Promise<ServerAuthResponse<ResetPasswordPayload>> {
-  const { pb, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+  const { authCookieState, pb } = await createPocketBaseServerClient();
+  const hadInvalidAuthCookie = authCookieState === "invalid";
 
   try {
     await pb

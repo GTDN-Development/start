@@ -9,7 +9,6 @@ export const DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS =
 export const HEARTBEAT_MIN_SECONDS = securityConfig.deviceSessions.heartbeatMinSeconds;
 export const MAX_ACTIVE_SESSIONS: number | null = securityConfig.deviceSessions.maxActiveSessions;
 
-export type DeviceSessionRecord = UserDeviceSessionsRecord;
 export type DeviceSessionDeviceType = UserDeviceSessionsRecord["device_type"];
 
 export type ParsedDeviceInfo = {
@@ -30,24 +29,5 @@ export type DeviceSessionListItem = {
   createdAt: string;
   isCurrentDevice: boolean;
 };
-
-export type DeviceSessionAuthCheckResult =
-  | {
-      status: "valid";
-      sessionIdHash: string;
-    }
-  | {
-      status: "invalid";
-      clearCookies: string[];
-    };
-
-export type DeviceSessionReadOnlyCheckResult =
-  | {
-      status: "valid";
-      sessionIdHash: string;
-    }
-  | {
-      status: "invalid";
-    };
 
 export type RevokeDeviceSessionByIdResult = "revoked" | "not_found" | "current_device";

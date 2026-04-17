@@ -274,3 +274,34 @@ pnpm check
 pnpm test
 pnpm test:e2e
 ```
+
+## Completion Note
+
+- Validation passed from the repository root:
+  - `pnpm coordination-tax:baseline`
+  - `pnpm check`
+  - `pnpm test`
+  - `pnpm test:e2e`
+- Runtime LOC delta for the `auth` slice:
+  - `4651 -> 4584` (`-67`)
+- Remaining auth resolution entrypoints after this phase:
+  - `resolveCurrentServerAuth({ mode: "read" | "write" })`
+  - `refreshCurrentAuthRecord(pb)`
+  - `requireCurrentUser()`
+  - `requireCurrentWritableUser()`
+- `device-sessions-service.ts` stayed as one file. The remaining complexity was reduced in place so auth/session workflows still trace through one owner without adding new hops or a fake policy/manager split.
+- Before/after explanation paths:
+  - writable auth resolution:
+    - before: `getResponseAuthSession -> resolveWritableAuthenticatedUser -> createPocketBaseServerClient + resolveCurrentAuthDeviceSession + refreshCurrentAuthRecord`
+    - after: `getResponseAuthSession -> resolveCurrentServerAuth({ mode: "write" }) -> resolveCurrentAuthDeviceSession + refreshCurrentAuthRecord`
+  - device-session sign-out:
+    - before: `your-devices-settings-item -> account-security-actions -> current-user -> requireCurrentWritableUser -> resolveWritableAuthenticatedUser -> revokeDeviceSessionById`
+    - after: `your-devices-settings-item -> account-security-actions -> current-user -> requireCurrentWritableUser -> resolveCurrentServerAuth({ mode: "write" }) -> revokeDeviceSessionById`
+  - session-cap eviction of the oldest non-current device:
+    - before: `sign-in/verify-email -> createAuthAndDeviceCookies -> registerOrRefreshDeviceSession -> enforceDeviceLimit -> active-session filter + inline delete loop`
+    - after: `sign-in/verify-email -> createAuthAndDeviceCookies -> registerOrRefreshDeviceSession -> getUserDeviceSessionInventory -> enforceDeviceLimit -> direct oldest non-current revoke path`
+- Auth/session tests:
+  - added: `src/server/auth/auth-user-resolution.test.ts`
+  - retained and updated: `src/server/auth/current-user.test.ts`, `src/server/device-sessions/device-sessions-service.test.ts`, `src/server/auth/auth-service.test.ts`
+  - retained unchanged in purpose: `src/server/account/account-service.test.ts`, `src/server/auth/render-cookie-boundary.test.ts`
+  - deleted: none

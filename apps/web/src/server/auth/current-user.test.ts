@@ -1,8 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  resolveRenderAuthenticatedUser,
-  resolveWritableAuthenticatedUser,
-} from "@/server/auth/auth-user-resolution";
+import { resolveCurrentServerAuth } from "@/server/auth/auth-user-resolution";
 import {
   listDeviceSessions,
   revokeDeviceSessionById,
@@ -15,8 +12,7 @@ import {
 
 vi.mock("@/server/auth/auth-user-resolution", function mockAuthUserResolution() {
   return {
-    resolveRenderAuthenticatedUser: vi.fn(),
-    resolveWritableAuthenticatedUser: vi.fn(),
+    resolveCurrentServerAuth: vi.fn(),
   };
 });
 
@@ -33,7 +29,7 @@ describe("current-user", function describeCurrentUser() {
   });
 
   it("keeps writable cookie cleanup metadata on auth failures", async function testRequireCurrentWritableUserFailure() {
-    vi.mocked(resolveWritableAuthenticatedUser).mockResolvedValue({
+    vi.mocked(resolveCurrentServerAuth).mockResolvedValue({
       status: "unauthorized",
       setCookie: ["pb_auth=; Max-Age=0"],
     });
@@ -47,9 +43,28 @@ describe("current-user", function describeCurrentUser() {
     });
   });
 
+  it("maps stale authenticated write resolution to UNKNOWN_ERROR", async function testRequireCurrentWritableUserStale() {
+    vi.mocked(resolveCurrentServerAuth).mockResolvedValue({
+      status: "authenticated",
+      pb: "pb-client" as never,
+      user: {
+        id: "user-1",
+      } as never,
+      currentSessionIdHash: "session-hash-1",
+      isStale: true,
+    });
+
+    const response = await requireCurrentWritableUser();
+
+    expect(response).toEqual({
+      ok: false,
+      errorCode: "UNKNOWN_ERROR",
+    });
+  });
+
   it("loads device sessions through the current-user boundary", async function testListCurrentUserDeviceSessions() {
-    vi.mocked(resolveRenderAuthenticatedUser).mockResolvedValue({
-      ok: true,
+    vi.mocked(resolveCurrentServerAuth).mockResolvedValue({
+      status: "authenticated",
       pb: "pb-client" as never,
       user: {
         id: "user-1",
@@ -97,7 +112,7 @@ describe("current-user", function describeCurrentUser() {
       expectedErrorCode: "BAD_REQUEST" as const,
     },
   ])("$name", async function testRevokeDeviceSessionMapping(input) {
-    vi.mocked(resolveWritableAuthenticatedUser).mockResolvedValue({
+    vi.mocked(resolveCurrentServerAuth).mockResolvedValue({
       status: "authenticated",
       pb: "pb-client" as never,
       user: {

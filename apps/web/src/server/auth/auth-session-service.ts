@@ -11,15 +11,14 @@ import {
   createAuthAndDeviceCookies,
   revokeCurrentAuthDeviceSession,
 } from "@/server/device-sessions/device-sessions-service";
-import { resolveWritableAuthenticatedUser } from "@/server/auth/auth-user-resolution";
+import { resolveCurrentServerAuth } from "@/server/auth/auth-user-resolution";
 import { createAuthSession } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
-import { requireCurrentUser } from "@/server/auth/current-user";
 
 export async function signInWithPassword(
   input: SignInInput
 ): Promise<ServerAuthResponse<AuthSessionPayload>> {
-  const { pb, hadInvalidAuthCookie } = await createPocketBaseServerClient();
+  const { authCookieState, pb } = await createPocketBaseServerClient();
 
   try {
     const authResponse = await pb
@@ -73,7 +72,7 @@ export async function signInWithPassword(
     return {
       ok: false,
       errorCode,
-      ...(hadInvalidAuthCookie ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
+      ...(authCookieState === "invalid" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
     };
   }
 }
@@ -96,10 +95,12 @@ export async function signOutServerSession(): Promise<ServerAuthResponse<AuthSig
 }
 
 export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSessionPayload>> {
-  const currentUser = await requireCurrentUser();
+  const currentUser = await resolveCurrentServerAuth({
+    mode: "read",
+  });
 
-  if (!currentUser.ok) {
-    if (currentUser.errorCode === "UNKNOWN_ERROR") {
+  if (currentUser.status !== "authenticated") {
+    if (currentUser.status === "unknown_error") {
       return {
         ok: false,
         errorCode: "UNKNOWN_ERROR",
@@ -125,19 +126,11 @@ export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSes
 }
 
 export async function getResponseAuthSession(): Promise<ServerAuthResponse<AuthSessionPayload>> {
-  const currentUser = await resolveWritableAuthenticatedUser();
+  const currentUser = await resolveCurrentServerAuth({
+    mode: "write",
+  });
 
   if (currentUser.status !== "authenticated") {
-    if (currentUser.status === "unknown_error" && currentUser.staleUser && currentUser.pb) {
-      return {
-        ok: true,
-        data: {
-          session: createAuthSession(currentUser.pb, currentUser.staleUser),
-        },
-        ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
-      };
-    }
-
     return {
       ok: true,
       data: {

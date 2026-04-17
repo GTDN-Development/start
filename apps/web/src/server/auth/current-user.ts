@@ -1,10 +1,7 @@
 import type PocketBase from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
-import {
-  resolveRenderAuthenticatedUser,
-  resolveWritableAuthenticatedUser,
-} from "@/server/auth/auth-user-resolution";
+import { resolveCurrentServerAuth } from "@/server/auth/auth-user-resolution";
 import type { DeviceSessionListItem } from "@/server/device-sessions/device-sessions-types";
 import {
   listDeviceSessions,
@@ -41,12 +38,14 @@ export type RequireCurrentWritableUserResult =
     };
 
 export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
-  const currentUser = await resolveRenderAuthenticatedUser();
+  const currentUser = await resolveCurrentServerAuth({
+    mode: "read",
+  });
 
-  if (!currentUser.ok) {
+  if (currentUser.status !== "authenticated") {
     return {
       ok: false,
-      errorCode: currentUser.errorCode,
+      errorCode: currentUser.status === "unknown_error" ? "UNKNOWN_ERROR" : "UNAUTHORIZED",
     };
   }
 
@@ -158,12 +157,19 @@ export async function revokeCurrentUserDeviceSessionById(input: {
 }
 
 export async function requireCurrentWritableUser(): Promise<RequireCurrentWritableUserResult> {
-  const currentUser = await resolveWritableAuthenticatedUser();
+  const currentUser = await resolveCurrentServerAuth({
+    mode: "write",
+  });
+  const isStaleAuthenticatedUser =
+    currentUser.status === "authenticated" && currentUser.isStale === true;
 
-  if (currentUser.status !== "authenticated") {
+  if (currentUser.status !== "authenticated" || isStaleAuthenticatedUser) {
     return {
       ok: false,
-      errorCode: currentUser.status === "unknown_error" ? "UNKNOWN_ERROR" : "UNAUTHORIZED",
+      errorCode:
+        currentUser.status === "unknown_error" || isStaleAuthenticatedUser
+          ? "UNKNOWN_ERROR"
+          : "UNAUTHORIZED",
       ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
     };
   }

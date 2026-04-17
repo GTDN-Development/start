@@ -8,20 +8,36 @@ import {
   MAX_ACTIVE_SESSIONS,
 } from "@/server/device-sessions/device-sessions-types";
 
+vi.mock("@/server/device-sessions/device-sessions-cookie", function mockDeviceSessionCookie() {
+  return {
+    createClearedAuthAndDeviceCookies: vi.fn(() => [
+      "pb_auth=; Max-Age=0",
+      "device_session=; Max-Age=0",
+    ]),
+    createDeviceSessionCookie: vi.fn((token: string) => `device_session=${token}`),
+    generateDeviceSessionCookie: vi.fn(() => ({
+      token: "generated-device-token",
+      setCookie: "device_session=generated-device-token",
+    })),
+    readDeviceSessionCookie: vi.fn(),
+  };
+});
+
 vi.mock("@/server/device-sessions/device-sessions-ua-parser", function mockUaParser() {
   return {
     parseDeviceInfo: vi.fn(),
   };
 });
 
+import { readDeviceSessionCookie } from "@/server/device-sessions/device-sessions-cookie";
 import { parseDeviceInfo } from "@/server/device-sessions/device-sessions-ua-parser";
 import {
   hashSessionToken,
   listDeviceSessions,
   registerOrRefreshDeviceSession,
+  resolveCurrentAuthDeviceSession,
   revokeDeviceSessionById,
   revokeOtherDeviceSessions,
-  validateDeviceSessionOrInvalidate,
 } from "./device-sessions-service";
 
 describe("device-sessions-service", function describeDeviceSessionsService() {
@@ -147,6 +163,54 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
     expect(deleteSpy.mock.calls.flat()).toEqual(["session-other-active"]);
   });
 
+  it("keeps read-only invalid-session checks side-effect free", async function testReadInvalidSession() {
+    const { pb, deleteSpy, getFirstListItemSpy } = createPocketBaseMock();
+
+    vi.mocked(readDeviceSessionCookie).mockResolvedValue("expired-session-token");
+    getFirstListItemSpy.mockResolvedValue(
+      createDeviceSessionRecord("session-expired", {
+        sessionIdHash: hashSessionToken("expired-session-token"),
+        expiresAt: createPastIso(60),
+      })
+    );
+
+    const response = await resolveCurrentAuthDeviceSession({
+      pb,
+      userId: "user-1",
+      mode: "read",
+    });
+
+    expect(response).toEqual({
+      status: "invalid",
+    });
+    expect(deleteSpy).not.toHaveBeenCalled();
+  });
+
+  it("clears cookies and deletes stale owned sessions in write mode", async function testWriteInvalidSession() {
+    const { pb, deleteSpy, getFirstListItemSpy } = createPocketBaseMock();
+
+    vi.mocked(readDeviceSessionCookie).mockResolvedValue("expired-session-token");
+    getFirstListItemSpy.mockResolvedValue(
+      createDeviceSessionRecord("session-expired", {
+        sessionIdHash: hashSessionToken("expired-session-token"),
+        expiresAt: createPastIso(60),
+      })
+    );
+
+    const response = await resolveCurrentAuthDeviceSession({
+      pb,
+      userId: "user-1",
+      mode: "write",
+      shouldPersistSession: true,
+    });
+
+    expect(response).toEqual({
+      status: "invalid",
+      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+    });
+    expect(deleteSpy).toHaveBeenCalledWith("session-expired");
+  });
+
   it("updates an existing session and enforces the device limit while cleaning expired sessions", async function testRegisterOrRefreshExistingSession() {
     const { pb, deleteSpy, getFirstListItemSpy, getFullListSpy, updateSpy } =
       createPocketBaseMock();
@@ -210,6 +274,7 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       createPocketBaseMock();
     const sessionToken = "session-only-token";
 
+    vi.mocked(readDeviceSessionCookie).mockResolvedValue(sessionToken);
     getFirstListItemSpy.mockRejectedValueOnce(createClientResponseError(404)).mockResolvedValueOnce(
       createDeviceSessionRecord("session-current", {
         sessionIdHash: hashSessionToken(sessionToken),
@@ -229,11 +294,10 @@ describe("device-sessions-service", function describeDeviceSessionsService() {
       }),
     });
 
-    await validateDeviceSessionOrInvalidate({
+    await resolveCurrentAuthDeviceSession({
       pb,
       userId: "user-1",
-      deviceSessionToken: sessionToken,
-      shouldUpdateHeartbeat: true,
+      mode: "write",
       shouldPersistSession: false,
     });
 

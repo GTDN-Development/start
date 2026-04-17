@@ -5,9 +5,8 @@ import { getPocketBaseUrl } from "@/config/public-env";
 import { getBaseServerCookieOptions } from "@/server/cookies";
 
 export type CreatePocketBaseServerClientResult = {
+  authCookieState: "missing" | "present" | "invalid";
   pb: PocketBase;
-  hasAuthCookie: boolean;
-  hadInvalidAuthCookie: boolean;
   shouldPersistSession: boolean;
 };
 
@@ -32,16 +31,15 @@ export async function createPocketBaseServerClient(): Promise<CreatePocketBaseSe
     );
   }
 
-  const hadInvalidAuthCookie = hasAuthCookie && !pb.authStore.isValid;
+  const authCookieState = !hasAuthCookie ? "missing" : pb.authStore.isValid ? "present" : "invalid";
 
-  if (hadInvalidAuthCookie) {
+  if (authCookieState === "invalid") {
     pb.authStore.clear();
   }
 
   return {
+    authCookieState,
     pb,
-    hasAuthCookie,
-    hadInvalidAuthCookie,
     shouldPersistSession: persistSessionCookieValue === "1",
   };
 }

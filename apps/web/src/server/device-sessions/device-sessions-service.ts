@@ -20,9 +20,6 @@ import {
   DEVICE_SESSION_SESSION_ONLY_MAX_AGE_SECONDS,
   HEARTBEAT_MIN_SECONDS,
   MAX_ACTIVE_SESSIONS,
-  type DeviceSessionAuthCheckResult,
-  type DeviceSessionReadOnlyCheckResult,
-  type DeviceSessionRecord,
   type DeviceSessionListItem,
   type RevokeDeviceSessionByIdResult,
 } from "@/server/device-sessions/device-sessions-types";
@@ -68,6 +65,19 @@ type UserDeviceSessionInventory = {
   expired: UserDeviceSessionsRecord[];
 };
 
+type OwnedDeviceSessionState =
+  | {
+      status: "active";
+      session: UserDeviceSessionsRecord;
+      sessionIdHash: string;
+      now: Date;
+    }
+  | {
+      status: "invalid";
+      reason: "missing_token" | "not_found" | "wrong_user" | "expired";
+      session: UserDeviceSessionsRecord | null;
+    };
+
 export function hashSessionToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
@@ -75,44 +85,39 @@ export function hashSessionToken(token: string): string {
 export async function resolveCurrentAuthDeviceSession(
   input: ReadAuthDeviceSessionInput | WriteAuthDeviceSessionInput
 ): Promise<ResolveCurrentAuthDeviceSessionResult> {
-  const deviceSessionToken = await readDeviceSessionCookie();
-  if (input.mode === "write") {
-    const deviceSessionCheck = await validateDeviceSessionOrInvalidate({
-      pb: input.pb,
-      userId: input.userId,
-      deviceSessionToken,
-      shouldUpdateHeartbeat: true,
-      shouldPersistSession: input.shouldPersistSession === true,
-    });
+  const sessionState = await readOwnedDeviceSessionState(
+    input.pb,
+    input.userId,
+    await readDeviceSessionCookie()
+  );
 
-    if (deviceSessionCheck.status === "invalid") {
+  if (sessionState.status !== "active") {
+    if (input.mode === "write") {
+      await clearInvalidOwnedDeviceSessionIfNeeded(input.pb, input.userId, sessionState);
+
       return {
         status: "invalid",
-        setCookie: deviceSessionCheck.clearCookies,
+        setCookie: createClearedAuthAndDeviceCookies(),
       };
     }
 
-    return {
-      status: "valid",
-      sessionIdHash: deviceSessionCheck.sessionIdHash,
-    };
-  }
-
-  const deviceSessionCheck = await checkDeviceSessionReadOnly({
-    pb: input.pb,
-    userId: input.userId,
-    deviceSessionToken,
-  });
-
-  if (deviceSessionCheck.status === "invalid") {
     return {
       status: "invalid",
     };
   }
 
+  if (input.mode === "write") {
+    await updateDeviceHeartbeatIfNeeded({
+      pb: input.pb,
+      session: sessionState.session,
+      now: sessionState.now,
+      shouldPersistSession: input.shouldPersistSession,
+    });
+  }
+
   return {
     status: "valid",
-    sessionIdHash: deviceSessionCheck.sessionIdHash,
+    sessionIdHash: sessionState.sessionIdHash,
   };
 }
 
@@ -217,64 +222,6 @@ export async function registerOrRefreshDeviceSession(input: {
   } catch (error) {
     logDeviceSessionsError("registerOrRefreshDeviceSession.cleanup", error);
   }
-}
-
-export async function validateDeviceSessionOrInvalidate(input: {
-  pb: PocketBase;
-  userId: string;
-  deviceSessionToken: string | null;
-  shouldUpdateHeartbeat: boolean;
-  shouldPersistSession: boolean;
-}): Promise<DeviceSessionAuthCheckResult> {
-  const sessionState = await readDeviceSessionAuthState(input);
-
-  if (sessionState.status === "invalid") {
-    if (sessionState.session && sessionState.session.user === input.userId) {
-      try {
-        await deleteDeviceSessionSafely(input.pb, sessionState.session.id);
-      } catch (error) {
-        logDeviceSessionsError("validateDeviceSessionOrInvalidate.deleteInvalid", error);
-      }
-    }
-
-    return {
-      status: "invalid",
-      clearCookies: createClearedAuthAndDeviceCookies(),
-    };
-  }
-
-  if (input.shouldUpdateHeartbeat) {
-    await updateDeviceHeartbeatIfNeeded({
-      pb: input.pb,
-      session: sessionState.session,
-      now: sessionState.now,
-      shouldPersistSession: input.shouldPersistSession,
-    });
-  }
-
-  return {
-    status: "valid",
-    sessionIdHash: sessionState.sessionIdHash,
-  };
-}
-
-export async function checkDeviceSessionReadOnly(input: {
-  pb: PocketBase;
-  userId: string;
-  deviceSessionToken: string | null;
-}): Promise<DeviceSessionReadOnlyCheckResult> {
-  const sessionState = await readDeviceSessionAuthState(input);
-
-  if (sessionState.status === "invalid") {
-    return {
-      status: "invalid",
-    };
-  }
-
-  return {
-    status: "valid",
-    sessionIdHash: sessionState.sessionIdHash,
-  };
 }
 
 export async function listDeviceSessions(input: {
@@ -408,42 +355,50 @@ async function enforceDeviceLimit(input: {
   }
 }
 
-async function readDeviceSessionAuthState(input: {
-  pb: PocketBase;
-  userId: string;
-  deviceSessionToken: string | null;
-}): Promise<
-  | {
-      status: "valid";
-      session: DeviceSessionRecord;
-      sessionIdHash: string;
-      now: Date;
-    }
-  | {
-      status: "invalid";
-      session: DeviceSessionRecord | null;
-    }
-> {
-  if (!input.deviceSessionToken) {
+async function readOwnedDeviceSessionState(
+  pb: PocketBase,
+  userId: string,
+  deviceSessionToken: string | null
+): Promise<OwnedDeviceSessionState> {
+  if (!deviceSessionToken) {
     return {
       status: "invalid",
+      reason: "missing_token",
       session: null,
     };
   }
 
-  const sessionIdHash = hashSessionToken(input.deviceSessionToken);
-  const now = new Date();
-  const session = await findDeviceSessionByHash(input.pb, sessionIdHash);
+  const sessionIdHash = hashSessionToken(deviceSessionToken);
+  const session = await findDeviceSessionByHash(pb, sessionIdHash);
 
-  if (!session || session.user !== input.userId || !isActiveDeviceSession(session, now)) {
+  if (!session) {
     return {
       status: "invalid",
+      reason: "not_found",
+      session: null,
+    };
+  }
+
+  if (session.user !== userId) {
+    return {
+      status: "invalid",
+      reason: "wrong_user",
+      session,
+    };
+  }
+
+  const now = new Date();
+
+  if (!isActiveDeviceSession(session, now)) {
+    return {
+      status: "invalid",
+      reason: "expired",
       session,
     };
   }
 
   return {
-    status: "valid",
+    status: "active",
     session,
     sessionIdHash,
     now,
@@ -505,6 +460,22 @@ async function readDeviceSessionOrNull(
   }
 }
 
+async function clearInvalidOwnedDeviceSessionIfNeeded(
+  pb: PocketBase,
+  userId: string,
+  sessionState: Exclude<OwnedDeviceSessionState, { status: "active" }>
+): Promise<void> {
+  if (!sessionState.session || sessionState.session.user !== userId) {
+    return;
+  }
+
+  try {
+    await deleteDeviceSessionSafely(pb, sessionState.session.id);
+  } catch (error) {
+    logDeviceSessionsError("resolveCurrentAuthDeviceSession.deleteInvalid", error);
+  }
+}
+
 async function updateDeviceHeartbeatIfNeeded(input: {
   pb: PocketBase;
   session: UserDeviceSessionsRecord;
@@ -549,15 +520,6 @@ async function deleteDeviceSessionSafely(pb: PocketBase, deviceSessionId: string
   }
 }
 
-async function deleteDeviceSessions(
-  pb: PocketBase,
-  sessions: Pick<UserDeviceSessionsRecord, "id">[]
-): Promise<void> {
-  for (const session of sessions) {
-    await deleteDeviceSessionSafely(pb, session.id);
-  }
-}
-
 async function deleteDeviceSessionsAndCount(
   pb: PocketBase,
   sessions: Pick<UserDeviceSessionsRecord, "id">[]
@@ -566,7 +528,9 @@ async function deleteDeviceSessionsAndCount(
     return 0;
   }
 
-  await deleteDeviceSessions(pb, sessions);
+  for (const session of sessions) {
+    await deleteDeviceSessionSafely(pb, session.id);
+  }
 
   return sessions.length;
 }
