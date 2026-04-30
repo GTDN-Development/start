@@ -66,11 +66,6 @@ Použití: otevřít produkční doménu `<DOMÉNA>` a projít níže uvedené f
 - [ ] Po změně hesla mě aplikace odhlásí nebo vrátí na sign-in flow.
 - [ ] Přihlášení starým heslem už nefunguje.
 - [ ] Přihlášení novým heslem funguje.
-- [ ] Přihlásím se na druhém zařízení nebo v druhém browseru.
-- [ ] Na hlavním zařízení vidím oba device sessions.
-- [ ] Odhlásím konkrétní jiné zařízení a ten session zmizí.
-- [ ] Znovu vytvořím druhý session a otestuji `Sign out all other devices`.
-- [ ] Opravdu zůstane přihlášené jen aktuální zařízení.
 
 ## 5. Osobní scope a založení workspace
 

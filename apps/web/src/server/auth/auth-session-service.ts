@@ -2,15 +2,11 @@ import type { UsersRecord } from "@/types/pocketbase";
 import type { AuthSessionPayload, AuthSignOutPayload } from "@/features/auth/auth-types";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import {
+  createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
-import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 import { logAuthServiceError, mapSignInErrorCode } from "@/server/auth/auth-errors";
-import {
-  createAuthAndDeviceCookies,
-  revokeCurrentAuthDeviceSession,
-} from "@/server/device-sessions/device-sessions-service";
 import { resolveCurrentServerAuth } from "@/server/auth/auth-user-resolution";
 import { createAuthSession } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
@@ -35,17 +31,6 @@ export async function signInWithPassword(
       };
     }
 
-    const authCookies = await createAuthAndDeviceCookies({
-      pb,
-      userId: authResponse.record.id,
-      rememberMe: input.rememberMe,
-      logContext: "signInWithPassword",
-    });
-
-    if (!authCookies.ok) {
-      return authCookies;
-    }
-
     const session = createAuthSession(pb, authResponse.record);
 
     if (!session) {
@@ -60,7 +45,9 @@ export async function signInWithPassword(
       data: {
         session,
       },
-      setCookie: authCookies.setCookie,
+      setCookie: exportPocketBaseAuthCookies(pb, {
+        sessionOnly: !input.rememberMe,
+      }),
     };
   } catch (error) {
     const errorCode = mapSignInErrorCode(error);
@@ -72,25 +59,18 @@ export async function signInWithPassword(
     return {
       ok: false,
       errorCode,
-      ...(authCookieState === "invalid" ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
+      ...(authCookieState === "invalid" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
     };
   }
 }
 
 export async function signOutServerSession(): Promise<ServerAuthResponse<AuthSignOutPayload>> {
-  const { pb } = await createPocketBaseServerClient();
-
-  await revokeCurrentAuthDeviceSession({
-    pb,
-    logContext: "signOutServerSession",
-  });
-
   return {
     ok: true,
     data: {
       signedOut: true,
     },
-    setCookie: createClearedAuthAndDeviceCookies(),
+    setCookie: createClearedPocketBaseAuthCookies(),
   };
 }
 

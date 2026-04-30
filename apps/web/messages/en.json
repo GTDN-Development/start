@@ -505,7 +505,7 @@
         },
         "security": {
           "title": "Security",
-          "description": "Review your password and active device sessions.",
+          "description": "Review your password and account security.",
           "cta": "Open security"
         },
         "support": {
@@ -735,37 +735,6 @@
                 "mismatch": "Passwords do not match."
               }
             }
-          }
-        },
-        "devices": {
-          "title": "Your devices",
-          "description": "Devices where your account is currently signed in.",
-          "loading": "Loading devices...",
-          "empty": "No active devices found.",
-          "currentBadge": "This device",
-          "unknownDevice": "Unknown device",
-          "unknownLastSeen": "Unknown time",
-          "sessionMeta": "Last seen {lastSeen}",
-          "footerHint": "Sign out of all other devices except this one.",
-          "actions": {
-            "signOut": "Sign out",
-            "signOutAll": "Sign out from all devices",
-            "signOutAllPending": "Signing out...",
-            "signOutAllConfirm": "Sign out all"
-          },
-          "dialog": {
-            "title": "Sign out of all other devices?",
-            "description": "This will end active sessions on all other browsers and devices. You will remain signed in on this current device."
-          },
-          "status": {
-            "loadError": "We couldn't load your device sessions right now. Please try again.",
-            "signOutSuccess": "Device signed out.",
-            "signOutError": "We couldn't sign out this device right now. Please try again.",
-            "signOutAllSuccess": "All other devices were signed out.",
-            "signOutAllError": "We couldn't sign out other devices right now. Please try again.",
-            "invalidRequest": "This request is invalid.",
-            "unauthorized": "Your session expired. Please sign in again.",
-            "notFound": "This device session no longer exists."
           }
         }
       }
@@ -1618,8 +1587,7 @@
         "persistent": "Persistent",
         "conditional": {
           "sessionOrTokenExpiry": "Session or token expiry",
-          "sessionOrOneYear": "Session or 1 year",
-          "sessionOrNinetyDays": "Session or 90 days"
+          "sessionOrOneYear": "Session or 1 year"
         },
         "relative": {
           "minute": "{count, plural, one {# minute} other {# minutes}}",
@@ -1634,7 +1602,6 @@
         "consentSubject": "Stores a pseudonymous browser identifier for the consent audit trail.",
         "authSession": "Stores the authenticated PocketBase session for signed-in users.",
         "authPersist": "Stores whether this browser should keep the signed-in session after closing the browser.",
-        "deviceSession": "Stores the current device session token used for session validation and device management.",
         "pendingInvite": "Temporarily stores an invite token during sign-in and invite acceptance flows.",
         "locale": "Stores the selected site language for this browser.",
         "theme": "Stores theme preference (system/light/dark mode).",

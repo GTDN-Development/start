@@ -42,7 +42,7 @@ We want the smallest setup that still works well for:
 - auth verification and reset flows
 - workspace invitation and membership flows
 - email-driven flows through Mailtrap
-- account security and device-session flows
+- account security flows
 - business-rule tests around auth, workspaces, account, and security
 
 ## File Map
@@ -62,7 +62,6 @@ We want the smallest setup that still works well for:
 - current Vitest coverage example: [workspace-resolution-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-resolution-service.test.ts)
 - current Vitest coverage example: [account-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/account/account-service.test.ts)
 - current Vitest coverage example: [auth-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-service.test.ts)
-- current Vitest coverage example: [device-sessions-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/device-sessions/device-sessions-service.test.ts)
 
 ## Conventions
 

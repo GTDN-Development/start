@@ -31,32 +31,21 @@ import { cn } from "@/lib/utils";
  *     </SettingsItemFooter>
  *   </SettingsItem>
  *
- * Example (Your Devices):
+ * Example:
  *
  *   <SettingsItem>
  *     <SettingsItemContent className="flex flex-col gap-6">
  *       <SettingsItemContentHeader>
- *         <SettingsItemTitle>Your Devices</SettingsItemTitle>
- *         <SettingsItemDescription>
- *           Devices where you are currently logged in.
- *         </SettingsItemDescription>
+ *         <SettingsItemTitle>Password</SettingsItemTitle>
+ *         <SettingsItemDescription>Change your account password.</SettingsItemDescription>
  *       </SettingsItemContentHeader>
  *       <SettingsItemContentBody>
- *         <SettingsItemList>
- *           <SettingsItemListItem>
- *             <SettingsItemListMedia><LaptopIcon aria-hidden="true" /></SettingsItemListMedia>
- *             <SettingsItemListContent>
- *               <SettingsItemListTitle>Mac OS - Safari</SettingsItemListTitle>
- *               <SettingsItemListDescription>Prague - 2025-02-28</SettingsItemListDescription>
- *             </SettingsItemListContent>
- *             <SettingsItemListAction><Button variant="secondary">Sign out</Button></SettingsItemListAction>
- *           </SettingsItemListItem>
- *         </SettingsItemList>
+ *         …form fields…
  *       </SettingsItemContentBody>
  *     </SettingsItemContent>
  *     <SettingsItemFooter>
- *       <SettingsItemDescription>Sign out of all other devices.</SettingsItemDescription>
- *       <Button size="lg">Sign out from all devices</Button>
+ *       <SettingsItemDescription>Use a strong password.</SettingsItemDescription>
+ *       <Button size="lg">Save password</Button>
  *     </SettingsItemFooter>
  *   </SettingsItem>
  *

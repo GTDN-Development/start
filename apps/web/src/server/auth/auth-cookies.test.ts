@@ -21,7 +21,7 @@ describe("auth-cookies", function describeAuthCookies() {
   it("applies serialized auth cookies inside server actions", async function testServerActionWriter() {
     await applyServerActionAuthCookies([
       "pb_auth=token; Path=/; HttpOnly; SameSite=Lax",
-      "device_session=; Max-Age=0; Path=/; HttpOnly",
+      "pb_auth_persist=; Max-Age=0; Path=/; HttpOnly",
     ]);
 
     expect(setCookie).toHaveBeenNthCalledWith(1, {
@@ -32,7 +32,7 @@ describe("auth-cookies", function describeAuthCookies() {
       sameSite: "lax",
     });
     expect(setCookie).toHaveBeenNthCalledWith(2, {
-      name: "device_session",
+      name: "pb_auth_persist",
       value: "",
       path: "/",
       maxAge: 0,

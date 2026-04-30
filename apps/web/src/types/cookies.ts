@@ -6,7 +6,6 @@ export type CookiePurposeKey =
   | "consentSubject"
   | "authSession"
   | "authPersist"
-  | "deviceSession"
   | "pendingInvite"
   | "locale"
   | "theme"
@@ -24,7 +23,7 @@ export type CookieDuration =
     }
   | {
       kind: "conditional";
-      labelKey: "sessionOrTokenExpiry" | "sessionOrOneYear" | "sessionOrNinetyDays";
+      labelKey: "sessionOrTokenExpiry" | "sessionOrOneYear";
     }
   | {
       kind: "relative";

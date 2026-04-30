@@ -97,15 +97,8 @@ test("account deletion removes memberships, clears the session, and returns to s
         userId,
       }),
     });
-    const deviceSessions = await pb.collection("user_device_sessions").getFullList({
-      filter: pb.filter("user = {:userId}", {
-        userId,
-      }),
-    });
-
     expect(users).toHaveLength(0);
     expect(memberships).toHaveLength(0);
-    expect(deviceSessions).toHaveLength(0);
   } finally {
     if (pb) {
       await deleteWorkspaceGraph({

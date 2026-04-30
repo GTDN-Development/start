@@ -8,13 +8,17 @@ const DEFAULT_OUTPUT_PATH = "src/types/pocketbase.ts";
 const ENV_FILES = [".env.local.example", ".env", ".env.local"];
 const BASE_RECORD_FIELDS = new Set(["id", "collectionId", "collectionName", "created", "updated"]);
 const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+const LOCAL_POCKETBASE_SUPERUSER_EMAIL = "local-admin@example.com";
+const LOCAL_POCKETBASE_SUPERUSER_PASSWORD = "local-dev-password";
 
 async function main() {
   await loadEnvironmentFiles(process.cwd(), ENV_FILES);
 
-  const pocketBaseUrl = getRequiredEnv(["NEXT_PUBLIC_PB_URL"]);
-  const superuserEmail = getRequiredEnv(["PB_SUPERUSER_EMAIL"]);
-  const superuserPassword = getRequiredEnv(["PB_SUPERUSER_PASSWORD"]);
+  const pocketBaseUrl = getRequiredEnv(["PB_TYPEGEN_URL", "NEXT_PUBLIC_PB_URL"]);
+  assertLocalPocketBaseUrl(pocketBaseUrl);
+
+  const superuserEmail = getTypegenSuperuserEmail(pocketBaseUrl);
+  const superuserPassword = getTypegenSuperuserPassword(pocketBaseUrl);
   const includeSystemCollections = getBooleanEnv("PB_TYPEGEN_INCLUDE_SYSTEM", false);
   const outputPath = path.resolve(
     process.cwd(),
@@ -174,6 +178,56 @@ function getBooleanEnv(name, defaultValue) {
   }
 
   return value === "1" || value === "true" || value === "yes" || value === "on";
+}
+
+function getTypegenSuperuserEmail(pocketBaseUrl) {
+  const explicitValue = process.env.PB_TYPEGEN_SUPERUSER_EMAIL?.trim();
+
+  if (explicitValue) {
+    return explicitValue;
+  }
+
+  if (isLocalPocketBaseUrl(pocketBaseUrl)) {
+    return LOCAL_POCKETBASE_SUPERUSER_EMAIL;
+  }
+
+  return getRequiredEnv(["PB_SUPERUSER_EMAIL"]);
+}
+
+function getTypegenSuperuserPassword(pocketBaseUrl) {
+  const explicitValue = process.env.PB_TYPEGEN_SUPERUSER_PASSWORD?.trim();
+
+  if (explicitValue) {
+    return explicitValue;
+  }
+
+  if (isLocalPocketBaseUrl(pocketBaseUrl)) {
+    return LOCAL_POCKETBASE_SUPERUSER_PASSWORD;
+  }
+
+  return getRequiredEnv(["PB_SUPERUSER_PASSWORD"]);
+}
+
+function assertLocalPocketBaseUrl(value) {
+  if (isLocalPocketBaseUrl(value) || getBooleanEnv("PB_TYPEGEN_ALLOW_REMOTE", false)) {
+    return;
+  }
+
+  throw new Error(
+    "PocketBase typegen must target a local PocketBase instance. Set PB_TYPEGEN_ALLOW_REMOTE=true only for an intentional one-off remote run."
+  );
+}
+
+function isLocalPocketBaseUrl(value) {
+  let url;
+
+  try {
+    url = new URL(value);
+  } catch {
+    return false;
+  }
+
+  return url.hostname === "127.0.0.1" || url.hostname === "localhost" || url.hostname === "::1";
 }
 
 async function authenticateSuperuser(pb, email, password) {

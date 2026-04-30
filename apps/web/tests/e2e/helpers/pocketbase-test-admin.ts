@@ -46,7 +46,6 @@ export async function deleteSignedUpUsersByEmail(pb: PocketBase, email: string):
 
   for (const user of users) {
     try {
-      await deleteUserDeviceSessionsByUserId(pb, user.id);
       await pb.collection("users").delete(user.id);
     } catch (error) {
       if (error instanceof ClientResponseError && error.status === 404) {
@@ -87,21 +86,6 @@ export async function createUser(options: {
     name: options.name ?? "E2E User",
     verified: options.verified ?? false,
   });
-}
-
-export async function deleteUserDeviceSessionsByUserId(
-  pb: PocketBase,
-  userId: string
-): Promise<void> {
-  const deviceSessions = await pb.collection("user_device_sessions").getFullList({
-    filter: pb.filter("user = {:userId}", {
-      userId,
-    }),
-  });
-
-  for (const deviceSession of deviceSessions) {
-    await pb.collection("user_device_sessions").delete(deviceSession.id);
-  }
 }
 
 export async function createWorkspace(options: {

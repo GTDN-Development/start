@@ -1,7 +1,6 @@
 import { authConfig } from "@/config/auth";
 import { COOKIE_CONSENT_SUBJECT_COOKIE_NAME, COOKIE_NAME } from "@/config/cookie-consent";
 import { preferencesConfig } from "@/config/preferences";
-import { securityConfig } from "@/config/security";
 import { workspaceConfig } from "@/config/workspace";
 import { LOCALE_COOKIE_NAME } from "@/i18n/routing";
 import type { Cookie } from "@/types/cookies";
@@ -220,16 +219,6 @@ export const cookieCatalog: Cookie[] = [
     provider: legal.domain,
     purposeKey: "authPersist",
     duration: { kind: "conditional", labelKey: "sessionOrOneYear" },
-    category: "essential",
-    storageType: "cookie",
-    thirdParty: false,
-    requiresConsent: false,
-  },
-  {
-    name: securityConfig.deviceSessions.cookieName,
-    provider: legal.domain,
-    purposeKey: "deviceSession",
-    duration: { kind: "conditional", labelKey: "sessionOrNinetyDays" },
     category: "essential",
     storageType: "cookie",
     thirdParty: false,

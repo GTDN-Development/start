@@ -23,7 +23,6 @@ Currently implemented:
 
 - email and password auth
 - PocketBase auth cookie handling on the server
-- device session validation on protected server flows
 - client session store with server refresh
 - localized auth routes and forms
 - personal-home-first post-auth navigation with invite-aware workspace handoff
@@ -34,6 +33,7 @@ Not currently implemented:
 - OAuth
 - MFA or OTP
 - auth provider abstraction layers
+- custom session inventory management
 
 ## How It Works
 
@@ -79,13 +79,12 @@ Short version:
 - server action: `signInAction()`
 - service: `signInWithPassword()`
 
-`rememberMe` decides whether the auth session is session-only or persistent.
+`rememberMe` decides whether the PocketBase auth session is session-only or persistent.
 
 Important unverified-account rule:
 
 - an unverified sign-in may bootstrap PocketBase auth cookies so the verification flow can continue
-- an unverified sign-in must not create a custom `device_session`
-- the custom device session starts only after successful email verification
+- an unverified sign-in must not enter protected application routes
 
 ### Sign Up
 
@@ -99,7 +98,6 @@ Current behavior:
 - creates the PocketBase user
 - requests a verification email
 - bootstraps PocketBase auth cookies for the pending verification flow
-- does not create a custom device session before verification
 
 ### Sign Out
 
@@ -109,8 +107,6 @@ Current behavior:
 Current behavior:
 
 - clears PocketBase auth cookies
-- clears the device session cookie
-- attempts to revoke the current device session record
 - clears `active_workspace` at the server action boundary
 
 ### Email Flows
@@ -152,7 +148,7 @@ Protection is intentionally two-layered.
 
 ### Proxy Guard
 
-[proxy.ts](/Users/fanda/Dev/start/apps/web/src/proxy.ts) uses [auth-proxy.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-proxy.ts) to do a fast cookie-presence redirect for protected prefixes:
+[proxy.ts](/Users/fanda/Dev/start/apps/web/src/proxy.ts) uses [auth-proxy.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-proxy.ts) to do a fast `pb_auth` cookie-presence redirect for protected prefixes:
 
 - `/app`
 - `/w`
@@ -176,23 +172,22 @@ The split is intentional:
 
 - render-time checks stay read-only
 - render-time checks may treat invalid or stale auth as unauthenticated, but they do not emit cleanup cookies
-- response-writing checks own `authRefresh()`, device-session heartbeat updates, and `setCookie[]` cleanup metadata
+- response-writing checks own `authRefresh()` and `setCookie[]` cleanup metadata
 - cookie cleanup is committed only later by a Server Action, a Route Handler, or [session refresh endpoint](/Users/fanda/Dev/start/apps/web/src/app/api/auth/session/route.ts)
 
 ## Session Model
 
-There are three auth-related cookie concerns:
+There are two auth-related cookie concerns:
 
 - PocketBase auth cookie: main authenticated server identity
-- device session cookie: current browser or device session tracking
 - persist flag cookie: persistent vs session-only auth
 
 Important rule:
 
 - the server creates a fresh PocketBase instance per request
 - auth state is loaded from request cookies into that instance
-- protected flows validate the device session, not only PocketBase auth cookie presence
-- custom device sessions are created only for verified accounts
+- write-capable session checks call `users.authRefresh()` and export the updated PocketBase auth cookie
+- custom browser session inventory records are not part of the auth model
 
 ## Post-Auth Navigation
 
@@ -256,11 +251,4 @@ Adding a new auth UI flow:
 Changing session behavior:
 
 - check [pocketbase-server.ts](/Users/fanda/Dev/start/apps/web/src/server/pocketbase/pocketbase-server.ts)
-- check [device-sessions-cookie.ts](/Users/fanda/Dev/start/apps/web/src/server/device-sessions/device-sessions-cookie.ts)
 - check [current-user.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/current-user.ts)
-- keep render paths read-only; move cookie writes to a Server Action or Route Handler
-
-Changing post-auth routing:
-
-- check [post-auth route](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts>)
-- check [workspace-resolution-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-resolution-service.ts)

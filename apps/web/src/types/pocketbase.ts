@@ -34,18 +34,6 @@ export interface PostsRecord extends PocketBaseSystemFields {
   translation_shared_id?: string;
 }
 
-export interface UserDeviceSessionsRecord extends PocketBaseSystemFields {
-  user: string;
-  session_id_hash: string;
-  device_label: string;
-  device_type: "desktop" | "phone" | "tablet" | "unknown";
-  browser?: string;
-  os?: string;
-  user_agent?: string;
-  last_seen_at: string;
-  expires_at: string;
-}
-
 export interface UsersRecord extends PocketBaseSystemFields {
   password?: string;
   tokenKey?: string;
@@ -82,7 +70,6 @@ export interface WorkspacesRecord extends PocketBaseSystemFields {
 export interface PocketBaseCollections {
   cookie_consent_events: CookieConsentEventsRecord;
   posts: PostsRecord;
-  user_device_sessions: UserDeviceSessionsRecord;
   users: UsersRecord;
   workspace_invites: WorkspaceInvitesRecord;
   workspace_members: WorkspaceMembersRecord;

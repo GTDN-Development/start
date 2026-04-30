@@ -13,7 +13,7 @@ const domainDefinitions = [
   },
   {
     name: "auth",
-    includePrefixes: ["features/auth/", "server/auth/", "server/device-sessions/"],
+    includePrefixes: ["features/auth/", "server/auth/"],
   },
   {
     name: "account",
@@ -60,14 +60,13 @@ const representativeScenarios = [
     ],
   },
   {
-    name: "device-session-sign-out",
-    flow: "your-devices-settings-item.tsx -> account-security-actions.ts -> current-user.ts -> device-sessions-service.ts",
-    why: "Tracks the concrete device sign-out mutation path after the security page hands off to the client-owned list.",
+    name: "account-password-change",
+    flow: "password-settings-item.tsx -> account-security-actions.ts -> account-security-service.ts",
+    why: "Tracks the concrete account security mutation path after account security was reduced to password management.",
     files: [
-      "apps/web/src/features/account/security/your-devices-settings-item.tsx",
+      "apps/web/src/features/account/security/password-settings-item.tsx",
       "apps/web/src/features/account/security/account-security-actions.ts",
-      "apps/web/src/server/auth/current-user.ts",
-      "apps/web/src/server/device-sessions/device-sessions-service.ts",
+      "apps/web/src/server/account/account-security-service.ts",
     ],
   },
   {

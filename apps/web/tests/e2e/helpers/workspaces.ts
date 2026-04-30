@@ -2,7 +2,7 @@ import { expect, type Page } from "@playwright/test";
 import { getRequiredTestEnv } from "./test-env";
 
 export async function copySessionCookiesToAppOrigin(page: Page): Promise<void> {
-  const sessionCookieNames = new Set(["pb_auth", "pb_auth_persist", "app_device_session"]);
+  const sessionCookieNames = new Set(["pb_auth", "pb_auth_persist"]);
   const sessionCookies = (await page.context().cookies()).filter((cookie) =>
     sessionCookieNames.has(cookie.name)
   );

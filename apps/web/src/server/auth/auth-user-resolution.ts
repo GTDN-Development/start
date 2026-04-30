@@ -1,9 +1,8 @@
 import PocketBase, { ClientResponseError } from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
 import { isTransientError } from "@/server/auth/auth-errors";
-import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
-import { resolveCurrentAuthDeviceSession } from "@/server/device-sessions/device-sessions-service";
 import {
+  createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
@@ -33,7 +32,6 @@ export type ResolvedCurrentServerAuthAuthenticatedResult = {
   status: "authenticated";
   pb: PocketBase;
   user: UsersRecord;
-  currentSessionIdHash: string;
   setCookie?: string[];
   isStale?: true;
 };
@@ -60,7 +58,7 @@ export async function resolveCurrentServerAuth(
 
   if (authCookieState === "invalid") {
     return input.mode === "write"
-      ? createUnauthorizedServerAuthResult(createClearedAuthAndDeviceCookies())
+      ? createUnauthorizedServerAuthResult(createClearedPocketBaseAuthCookies())
       : createUnauthorizedServerAuthResult();
   }
 
@@ -68,40 +66,16 @@ export async function resolveCurrentServerAuth(
 
   if (!authenticatedUser) {
     return input.mode === "write" && authCookieState === "present"
-      ? createUnauthorizedServerAuthResult(createClearedAuthAndDeviceCookies())
+      ? createUnauthorizedServerAuthResult(createClearedPocketBaseAuthCookies())
       : createUnauthorizedServerAuthResult();
   }
 
-  let currentSessionIdHash: string | null = null;
-
   try {
-    const deviceSessionCheck =
-      input.mode === "write"
-        ? await resolveCurrentAuthDeviceSession({
-            pb,
-            userId: authenticatedUser.id,
-            mode: "write",
-            shouldPersistSession,
-          })
-        : await resolveCurrentAuthDeviceSession({
-            pb,
-            userId: authenticatedUser.id,
-            mode: "read",
-          });
-
-    if (deviceSessionCheck.status === "invalid") {
-      return input.mode === "write"
-        ? createUnauthorizedServerAuthResult(deviceSessionCheck.setCookie)
-        : createUnauthorizedServerAuthResult();
-    }
-
-    currentSessionIdHash = deviceSessionCheck.sessionIdHash;
-
     if (input.mode === "read") {
       const user = await getVerifiedUserRecordReadOnly(pb, authenticatedUser);
 
       return user
-        ? createAuthenticatedServerAuthResult(pb, user, currentSessionIdHash)
+        ? createAuthenticatedServerAuthResult(pb, user)
         : createUnauthorizedServerAuthResult();
     }
 
@@ -111,7 +85,7 @@ export async function resolveCurrentServerAuth(
     });
 
     if (refreshedAuth.status === "verified") {
-      return createAuthenticatedServerAuthResult(pb, refreshedAuth.user, currentSessionIdHash, {
+      return createAuthenticatedServerAuthResult(pb, refreshedAuth.user, {
         setCookie,
       });
     }
@@ -123,17 +97,12 @@ export async function resolveCurrentServerAuth(
       };
     }
 
-    return createUnauthorizedServerAuthResult(createClearedAuthAndDeviceCookies());
+    return createUnauthorizedServerAuthResult(createClearedPocketBaseAuthCookies());
   } catch (error) {
-    if (
-      input.mode === "write" &&
-      currentSessionIdHash &&
-      isTransientError(error) &&
-      authenticatedUser.verified === true
-    ) {
+    if (input.mode === "write" && isTransientError(error) && authenticatedUser.verified === true) {
       console.warn("[auth-user-resolution] resolveCurrentServerAuth stale session");
 
-      return createAuthenticatedServerAuthResult(pb, authenticatedUser, currentSessionIdHash, {
+      return createAuthenticatedServerAuthResult(pb, authenticatedUser, {
         isStale: true,
       });
     }
@@ -143,7 +112,7 @@ export async function resolveCurrentServerAuth(
     return input.mode === "write"
       ? {
           status: "unknown_error",
-          setCookie: createClearedAuthAndDeviceCookies(),
+          setCookie: createClearedPocketBaseAuthCookies(),
         }
       : {
           status: "unknown_error",
@@ -219,7 +188,6 @@ export async function refreshCurrentAuthRecord(pb: PocketBase): Promise<Refreshe
 function createAuthenticatedServerAuthResult(
   pb: PocketBase,
   user: UsersRecord,
-  currentSessionIdHash: string,
   options: {
     setCookie?: string[];
     isStale?: true;
@@ -229,7 +197,6 @@ function createAuthenticatedServerAuthResult(
     status: "authenticated",
     pb,
     user,
-    currentSessionIdHash,
     ...(options.setCookie ? { setCookie: options.setCookie } : {}),
     ...(options.isStale ? { isStale: true } : {}),
   };

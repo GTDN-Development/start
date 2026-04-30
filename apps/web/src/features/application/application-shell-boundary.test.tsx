@@ -69,7 +69,6 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
     requireCurrentUserMock.mockResolvedValue({
       ok: true,
       pb,
-      currentSessionIdHash: "session-1",
       user: {
         id: "user-1",
         email: "user@example.com",
@@ -133,7 +132,6 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
     requireCurrentUserMock.mockResolvedValue({
       ok: true,
       pb,
-      currentSessionIdHash: "session-1",
       user: {
         id: "user-1",
         email: "user@example.com",

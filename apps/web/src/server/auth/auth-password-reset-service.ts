@@ -4,7 +4,6 @@ import {
   createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,
 } from "@/server/pocketbase/pocketbase-server";
-import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 import { logAuthServiceError, mapResetPasswordErrorCode } from "@/server/auth/auth-errors";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
@@ -26,7 +25,7 @@ export async function confirmPasswordResetToken(input: {
       data: {
         passwordReset: true,
       },
-      setCookie: createClearedAuthAndDeviceCookies(),
+      setCookie: createClearedPocketBaseAuthCookies(),
     };
   } catch (error) {
     const errorCode = mapResetPasswordErrorCode(error);

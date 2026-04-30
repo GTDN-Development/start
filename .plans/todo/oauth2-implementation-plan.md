@@ -16,8 +16,8 @@ Sources (official documentation only):
 - Add Google, Apple, and Facebook social login providers as an additive extension of the existing auth flow.
 - Use the native PocketBase SDK `authWithOAuth2` method, with no manual code exchange implementation.
 - Keep a unified `AuthResponse<T>` contract consistent with the existing email/password flow.
-- Keep the cookie model unchanged: auth cookie from `authConfig.cookies.authCookieName`, persist cookie from `authConfig.cookies.persistCookieName`, device session cookie from `DEVICE_SESSION_COOKIE_NAME`, and existing `httpOnly` security settings.
-- Keep device session integration: OAuth login must register a device session the same way email/password login does.
+- Keep the cookie model unchanged: auth cookie from `authConfig.cookies.authCookieName`, persist cookie from `authConfig.cookies.persistCookieName`, and existing `httpOnly` security settings.
+- Keep OAuth login aligned with email/password login: after server validation, export the PocketBase auth cookies and update the client session state.
 - Do not modify any existing flow; only extend it.
 
 ## 2. Non-goals
@@ -167,9 +167,7 @@ Requires PocketBase v0.22+ (the project uses `pocketbase@^0.26.8`, so this is sa
       |                               |-- pb.collection("users").authRefresh() (server validation)
       |                               |<-- fresh token + record
       |                               |-- createAuthSession(pb, record)
-      |                               |-- generateDeviceSessionCookie(rememberMe)
-      |                               |-- registerOrRefreshDeviceSession(...)
-      |                               |-- exportPocketBaseAuthCookies(pb, ...) + deviceSessionCookie
+      |                               |-- exportPocketBaseAuthCookies(pb, ...)
       |                               |-- return ServerAuthResponse<AuthSessionPayload>
       |<-- AuthResponse<AuthSessionPayload> ok:true
       |
@@ -184,7 +182,7 @@ Key security points:
 - The PocketBase server handles the code exchange; the client never sees the OAuth access token.
 - PKCE and `state` are handled automatically by the PocketBase JS SDK.
 - `syncOAuth2SessionAction` always performs `pb.authRefresh()` as server validation.
-- The device session is registered on the server. Without it, the next request (`getServerAuthSession` / `getApiAuthSession`) would invalidate the session.
+- The refreshed PocketBase auth cookie is exported on the server so the next request can validate through `authRefresh()`.
 - Turnstile is not used for OAuth because authentication already happened through a provider with its own anti-abuse mechanisms.
 
 ## 7. Server layer extension
@@ -217,42 +215,15 @@ Sequence:
 3. Perform server validation: `const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>()`. If this fails, return `UNAUTHORIZED`. This also refreshes the authStore with a fresh token and record.
 4. Verify the record is valid: `if (!isUsersRecord(refreshedAuth.record))` -> `UNAUTHORIZED`.
 5. Build `AuthSession`: `const session = createAuthSession(pb, refreshedAuth.record)`. Use the existing private helper in `auth-service.ts:663`. If it returns `null`, return `UNKNOWN_ERROR`.
-6. Register the device session, using the same pattern as `signInWithPassword` (`auth-service.ts:75-92`):
-
-   ```
-   const rememberMe = input.rememberMe ?? true;
-   const { token: deviceSessionToken, setCookie: deviceSessionCookie } =
-     generateDeviceSessionCookie(rememberMe);
-
-   try {
-     const requestHeaders = await headers();
-     await registerOrRefreshDeviceSession({
-       pb,
-       userId: session.user.id,
-       sessionToken: deviceSessionToken,
-       rememberMe,
-       requestHeaders,
-     });
-   } catch (error) {
-     console.warn(
-       "[auth-service] syncOAuth2Session: device session registration failed, continuing",
-       formatServiceError(error)
-     );
-   }
-   ```
-
-   Note: device session registration is non-blocking (`try/catch`). Failure should not fail the login, consistent with the email/password flow.
-
-7. Build cookies: `[...exportPocketBaseAuthCookies(pb, { sessionOnly: !rememberMe }), deviceSessionCookie]`.
+6. Build cookies: `exportPocketBaseAuthCookies(pb, { sessionOnly: !rememberMe })`.
    - `exportPocketBaseAuthCookies` (`pocketbase-server.ts:51-64`) returns a `string[]` containing the auth cookie and persist cookie.
-   - The device session cookie is added as the third item.
-8. Return `ServerAuthResponse<AuthSessionPayload>`:
+7. Return `ServerAuthResponse<AuthSessionPayload>`:
 
    ```
    return {
      ok: true,
      data: { session },
-     setCookie: [...exportPocketBaseAuthCookies(pb, { sessionOnly: !rememberMe }), deviceSessionCookie],
+     setCookie: exportPocketBaseAuthCookies(pb, { sessionOnly: !rememberMe }),
    };
    ```
 
@@ -423,7 +394,6 @@ According to the PocketBase JS SDK:
 - No OAuth credentials, including Client Secret and Apple Private Key, may exist in client code or `NEXT_PUBLIC_*` env vars.
 - Store the Apple `.p8` private key as a single-line string, with newlines encoded as `\n`, in a secrets manager or `.env.local`, never in git.
 - Cookies after OAuth2 login must use the same security settings as email/password login, handled by the existing `exportPocketBaseAuthCookies` helper.
-- The device session cookie must be generated and registered on the server. Without it, `getServerAuthSession` / `getApiAuthSession` would invalidate the session on the next request because both validate the device session through `validateDeviceSessionOrInvalidate`.
 - `rememberMe` defaults to `true` for OAuth because the user picked a trusted provider. The client can override it through `options.rememberMe`.
 - Turnstile is not used for `syncOAuth2SessionAction` because the OAuth flow is protected by the provider, unlike `signUpAction`, which requires Turnstile.
 
@@ -439,7 +409,7 @@ According to the PocketBase JS SDK:
 ### PR B1 - server layer
 
 1. Extend `AuthErrorCode` in `src/features/auth/auth-contract.ts` with the 2 new values.
-2. Implement `syncOAuth2Session()` in `src/server/auth/auth-service.ts`, including device session registration.
+2. Implement `syncOAuth2Session()` in `src/server/auth/auth-service.ts`, including PocketBase auth cookie export.
 3. Add `syncOAuth2SessionAction` to `src/features/auth/actions/auth-actions.ts` with Zod validation.
 4. Typecheck and lint must pass.
 
@@ -448,7 +418,7 @@ According to the PocketBase JS SDK:
 1. Implement `signInWithOAuth2()` and the `OAuthProvider` type in `src/features/auth/auth-client.ts`.
 2. Reuse the `setSessionState` + `broadcastSessionChanged` pattern, the same as the existing `signIn()`.
 3. Verify popup flow locally for all 3 providers.
-4. Verify cookie propagation through `syncOAuth2SessionAction` for auth, persist, and device session cookies.
+4. Verify cookie propagation through `syncOAuth2SessionAction` for auth and persist cookies.
 5. Verify that the `useSession` hook reacts to the state change after OAuth login.
 
 ### PR B3 - UI components and integration
@@ -464,20 +434,18 @@ According to the PocketBase JS SDK:
 
 1. Test account linking: existing email/password account plus OAuth with the same email.
 2. Verify redirect fallback flow in Safari.
-3. Test that the device session is properly registered after OAuth login and visible in `/account/sessions`.
-4. Test that sign-out after OAuth login properly revokes the device session.
-5. Switch Facebook App from Development to Live.
-6. Verify that the Google OAuth consent screen is in production state.
-7. Verify the Apple Services ID Return URL in production.
-8. Run a security audit to verify that no OAuth token leaves the PocketBase server, using the Network tab.
-9. Update Privacy Policy and Terms of Service, required by all providers.
+3. Switch Facebook App from Development to Live.
+4. Verify that the Google OAuth consent screen is in production state.
+5. Verify the Apple Services ID Return URL in production.
+6. Run a security audit to verify that no OAuth token leaves the PocketBase server, using the Network tab.
+7. Update Privacy Policy and Terms of Service, required by all providers.
 
 ## 12. Critical files
 
 | File                                              | Change                                                                      |
 | ------------------------------------------------- | --------------------------------------------------------------------------- |
 | `src/features/auth/auth-contract.ts`              | +2 `AuthErrorCode` values (`OAUTH2_PROVIDER_ERROR`, `OAUTH2_EMAIL_MISSING`) |
-| `src/server/auth/auth-service.ts`                 | +`syncOAuth2Session()` including device session registration                |
+| `src/server/auth/auth-service.ts`                 | +`syncOAuth2Session()` including PocketBase auth cookie export              |
 | `src/features/auth/actions/auth-actions.ts`       | +`syncOAuth2SessionAction` + Zod schema                                     |
 | `src/features/auth/auth-client.ts`                | +`signInWithOAuth2()`, +`OAuthProvider` type                                |
 | `src/features/auth/components/oauth2-buttons.tsx` | new file                                                                    |
@@ -490,5 +458,3 @@ Files used unchanged:
 - `src/server/pocketbase/pocketbase-server.ts` - `exportPocketBaseAuthCookies` is reused as-is
 - `src/server/auth/finalize-auth-action.ts` - `finalizeAuthAction` is reused as-is; it calls `applyServerAuthCookies` from `auth-cookies.ts` and `toAuthApiResponse` from `auth-service.ts`
 - `src/server/auth/auth-cookies.ts` - `applyServerAuthCookies` is reused as-is; it parses `Set-Cookie` headers and applies them through the Next.js `cookies()` API
-- `src/server/device-sessions/device-sessions-service.ts` - `registerOrRefreshDeviceSession` is reused as-is
-- `src/server/device-sessions/device-sessions-cookie.ts` - `generateDeviceSessionCookie` is reused as-is

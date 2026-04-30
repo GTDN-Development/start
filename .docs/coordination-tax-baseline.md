@@ -40,9 +40,8 @@ action, cookie, response, and session boundaries rather than in a single UI surf
 | `workspace general settings` | Server snapshot from [`page.tsx`](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/(application-shell)/w/[workspaceSlug]/settings/page.tsx>) plus client patching through [`workspace-navigation-context.tsx`](/Users/fanda/Dev/start/apps/web/src/features/workspaces/workspace-navigation-context.tsx)                                                      | Yes             | Client-owned after initial load                            | [`workspace-general-actions.ts`](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts) currently revalidates workspace routes while name, slug, and avatar surfaces also patch local client state. |
 | `workspace members settings` | Server snapshot from [`page.tsx`](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(application)/(application-shell)/w/[workspaceSlug]/settings/members/page.tsx>) plus client-owned member and invite lists in [`workspace-members-settings-section.tsx`](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-settings-section.tsx) | Yes             | Client-owned after initial load                            | [`workspace-members-actions.ts`](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-actions.ts) still revalidates the same route that the client already patches with `setMembers()` and `setInvites()`.    |
 | `account profile`            | Client-owned after load via [`account-profile-context.tsx`](/Users/fanda/Dev/start/apps/web/src/features/account/account-profile-context.tsx)                                                                                                                                                                                                                                | No              | Keep client-owned after load                               | Control case: profile updates patch local state and avoid route invalidation.                                                                                                                                                                       |
-| `account security devices`   | Client-owned after load in [`your-devices-settings-item.tsx`](/Users/fanda/Dev/start/apps/web/src/features/account/security/your-devices-settings-item.tsx)                                                                                                                                                                                                                  | No              | Keep client-owned after load                               | Control case: device-session removal patches the local list directly without broad revalidation.                                                                                                                                                    |
 | `scope switcher`             | Navigation boundary over shared workspace snapshot in [`scope-switcher.tsx`](/Users/fanda/Dev/start/apps/web/src/features/application/scope-switcher.tsx)                                                                                                                                                                                                                    | No              | Keep as navigation boundary over shared workspace snapshot | Follow-up work may simplify its dependencies, but the surface should not become a second workspace screen state owner.                                                                                                                              |
-| `auth core`                  | Server and response boundary across [`auth-actions.ts`](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-actions.ts), [`auth-response.ts`](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-response.ts), and device-session services                                                                                                                              | Not a screen    | Keep server/response-owned boundary                        | This is a hotspot domain for Phase 1 and Phase 2, not a screen-ownership target.                                                                                                                                                                    |
+| `auth core`                  | Server and response boundary across [`auth-actions.ts`](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-actions.ts), [`auth-response.ts`](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-response.ts), and PocketBase auth services                                                                                                                             | Not a screen    | Keep server/response-owned boundary                        | This is a hotspot domain for Phase 1 and Phase 2, not a screen-ownership target.                                                                                                                                                                    |
 
 ## Mixed-Ownership Screens
 
@@ -59,7 +58,7 @@ They are mixed because both surfaces:
 - patch the client-owned copy after success
 - also call `revalidatePath()` for the same interactive surface
 
-The baseline intentionally does **not** classify account profile, device sessions, or the scope switcher
+The baseline intentionally does **not** classify account profile or the scope switcher
 as mixed ownership. Those are control cases or navigation boundaries that should not be pulled into a
 workspace-style rewrite without fresh evidence.
 
@@ -69,7 +68,7 @@ workspace-style rewrite without fresh evidence.
 - Source scope for domain metrics: `apps/web/src/**/*.{ts,tsx}`
 - Domain buckets:
   - `workspaces = features/workspaces/** + server/workspaces/**`
-  - `auth = features/auth/** + server/auth/** + server/device-sessions/**`
+  - `auth = features/auth/** + server/auth/**`
   - `account = features/account/** + server/account/**`
   - `application = features/application/**`
 - Exclusions:
@@ -88,7 +87,7 @@ These five scenario names are canonical for the program:
 - `workspace-general-update`
 - `workspace-membership-change`
 - `account-profile-update`
-- `device-session-sign-out`
+- `account-password-change`
 - `workspace-scope-switch`
 
 Each scenario records:
@@ -129,19 +128,19 @@ Domain metrics exclude tests by rule and stay limited to the four Phase 0 bucket
 
 ## Domain Metrics
 
-| Domain        | Included paths                                                                                           | File count |  LOC |
-| ------------- | -------------------------------------------------------------------------------------------------------- | ---------: | ---: |
-| `workspaces`  | `apps/web/src/features/workspaces/**`, `apps/web/src/server/workspaces/**`                               |         40 | 6559 |
-| `auth`        | `apps/web/src/features/auth/**`, `apps/web/src/server/auth/**`, `apps/web/src/server/device-sessions/**` |         37 | 4545 |
-| `account`     | `apps/web/src/features/account/**`, `apps/web/src/server/account/**`                                     |         24 | 3102 |
-| `application` | `apps/web/src/features/application/**`                                                                   |         24 | 2047 |
+| Domain        | Included paths                                                             | File count |  LOC |
+| ------------- | -------------------------------------------------------------------------- | ---------: | ---: |
+| `workspaces`  | `apps/web/src/features/workspaces/**`, `apps/web/src/server/workspaces/**` |         38 | 6448 |
+| `auth`        | `apps/web/src/features/auth/**`, `apps/web/src/server/auth/**`             |         32 | 3530 |
+| `account`     | `apps/web/src/features/account/**`, `apps/web/src/server/account/**`       |         21 | 2586 |
+| `application` | `apps/web/src/features/application/**`                                     |         24 | 1984 |
 
 ## Representative Changes
 
-| Scenario                      | Touch count | Current path                                                                                                                                                                                              | Why tracked                                                                                                                                      |
-| ----------------------------- | ----------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `workspace-general-update`    |           7 | settings/page.tsx -> workspace-name/url/avatar-settings-item.tsx -> workspace-navigation-context.tsx -> workspace-general-actions.ts -> workspace-general-service.ts                                      | Tracks the current split between route snapshot loading, local workspace patching, and the shared workspace mutation boundary.                   |
-| `workspace-membership-change` |           7 | settings/members/page.tsx -> workspace-members-settings-section.tsx -> invite/management-settings-item.tsx -> workspace-members-actions.ts -> workspace-members-service.ts -> workspace-invite-service.ts | Captures the mixed members and invites surface where local list patching and route invalidation currently overlap.                               |
-| `account-profile-update`      |           7 | account/page.tsx -> account-profile-context.tsx -> avatar/display-name-settings-item.tsx -> account-profile-actions.ts -> account-profile-service.ts                                                      | Provides a control case where profile edits already stay client-owned after load without route revalidation.                                     |
-| `device-session-sign-out`     |           5 | account/security/page.tsx -> account-security-devices-section.tsx -> your-devices-settings-item.tsx -> device-session-actions.ts -> device-sessions-service.ts                                            | Provides a second control case for a client-owned interactive list that does not pair local patching with route invalidation.                    |
-| `workspace-scope-switch`      |           5 | scope-switcher.tsx -> workspace-selection.ts -> workspace-general-actions.ts -> workspace-resolution-service.ts -> workspace-cookie.ts                                                                    | Tracks the navigation boundary where workspace selection crosses client navigation state, action finalization, and active-workspace persistence. |
+| Scenario                      | Touch count | Current path                                                                                                                              | Why tracked                                                                                                              |
+| ----------------------------- | ----------: | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `workspace-general-update`    |           4 | workspace-general-settings-section.tsx -> workspace-url-settings-item.tsx -> workspace-general-actions.ts -> workspace-general-service.ts | Tracks the concrete workspace slug update path after route handoff into the general-settings owner.                      |
+| `workspace-membership-change` |           4 | workspace-members-settings-section.tsx -> workspace-members-table.tsx -> workspace-members-actions.ts -> workspace-members-service.ts     | Tracks the concrete member-role and member-removal path through the single members screen owner.                         |
+| `account-profile-update`      |           4 | account-profile-context.tsx -> display-name-settings-item.tsx -> account-profile-actions.ts -> account-profile-service.ts                 | Provides a control case where one shared profile snapshot boundary still fronts the concrete display-name mutation path. |
+| `account-password-change`     |           3 | password-settings-item.tsx -> account-security-actions.ts -> account-security-service.ts                                                  | Tracks the concrete account security mutation path after account security was reduced to password management.            |
+| `workspace-scope-switch`      |           4 | scope-switcher.tsx -> workspace-general-actions.ts -> workspace-resolution-service.ts -> workspace-cookie.ts                              | Tracks the concrete workspace switch mutation path across client navigation state and active-workspace persistence.      |

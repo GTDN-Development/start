@@ -128,7 +128,7 @@ Adopt the core definition of refactoring as a series of small behavior-preservin
 
 Why it fits this repo:
 
-- the app already has meaningful coverage around auth, workspace, and device-session behavior
+- the app already has meaningful coverage around auth, workspace, and account behavior
 - many flows depend on cookies, redirects, and route semantics, so risk compounds quickly when changes are large
 
 Practical rule:
@@ -310,7 +310,6 @@ Do not hide these behaviors behind new framework layers or magic runtime indirec
 The app already encodes many subtle runtime rules around:
 
 - auth cookies
-- device sessions
 - pending invite handoff
 - active workspace preference
 - route protection
@@ -324,9 +323,8 @@ Examples:
 
 Auth-specific boundary rule:
 
-- treat device sessions as auth infrastructure, not as a separate platform domain
-- keep current-user resolution and low-level device-session operations in the same auth-owned server boundary
-- feature files may finalize auth responses and choose UI behavior, but they should not combine auth guards with direct device-session service calls
+- keep current-user resolution inside the auth-owned server boundary
+- feature files may finalize auth responses and choose UI behavior, but they should not bypass the auth guard with direct PocketBase auth checks
 
 Workspace access boundary rule:
 
@@ -706,7 +704,7 @@ Tasks:
 Baseline contract:
 
 - [.docs/coordination-tax-baseline.md](/Users/fanda/Dev/start/.docs/coordination-tax-baseline.md)
-- canonical scenario names: `workspace-general-update`, `workspace-membership-change`, `account-profile-update`, `device-session-sign-out`, `workspace-scope-switch`
+- canonical scenario names: `workspace-general-update`, `workspace-membership-change`, `account-profile-update`, `account-password-change`, `workspace-scope-switch`
 
 Expected impact:
 
@@ -774,15 +772,14 @@ Scope:
 
 - auth server actions
 - account profile and security actions
-- device session UI orchestration
+- account security UI orchestration
 
 Primary targets:
 
 - [auth-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-actions.ts)
 - [account-profile-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/account/profile/account-profile-actions.ts)
 - [account-security-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/account/security/account-security-actions.ts)
-- [device-session-actions.ts](/Users/fanda/Dev/start/apps/web/src/features/account/security/device-session-actions.ts)
-- [your-devices-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/account/security/your-devices-settings-item.tsx)
+- [password-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/account/security/password-settings-item.tsx)
 - [auth-client.ts](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-client.ts)
 
 Rules:

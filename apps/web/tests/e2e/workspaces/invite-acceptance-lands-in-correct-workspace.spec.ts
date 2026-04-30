@@ -70,7 +70,7 @@ test("invited user accepts invite and lands in the correct workspace", async ({ 
 });
 
 async function copySessionCookiesToLocalhost(page: Page): Promise<void> {
-  const sessionCookieNames = new Set(["pb_auth", "pb_auth_persist", "app_device_session"]);
+  const sessionCookieNames = new Set(["pb_auth", "pb_auth_persist"]);
   const sessionCookies = (await page.context().cookies()).filter((cookie) =>
     sessionCookieNames.has(cookie.name)
   );

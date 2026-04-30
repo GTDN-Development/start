@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { AUTH_PROTECTED_ROUTE_PREFIXES, AUTH_REDIRECTS } from "@/config/auth";
 import { authConfig } from "@/config/auth";
-import { securityConfig } from "@/config/security";
 import { routing } from "@/i18n/routing";
 
 type AppLocale = (typeof routing.locales)[number];
@@ -39,10 +38,8 @@ export function evaluateAuthProxyGuard(request: NextRequest): AuthProxyGuardResu
 
 function hasProtectedRouteAuthCookies(request: NextRequest) {
   const authCookieValue = request.cookies.get(authConfig.cookies.authCookieName)?.value ?? "";
-  const deviceCookieValue =
-    request.cookies.get(securityConfig.deviceSessions.cookieName)?.value ?? "";
 
-  return authCookieValue.trim().length > 0 && deviceCookieValue.trim().length > 0;
+  return authCookieValue.trim().length > 0;
 }
 
 function resolveLocaleFromPathname(pathname: string): AppLocale {

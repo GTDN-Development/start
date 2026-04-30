@@ -7,12 +7,8 @@ import type {
 import {
   createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,
+  exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
-import {
-  createClearedAuthAndDeviceCookies,
-  readDeviceSessionCookie,
-} from "@/server/device-sessions/device-sessions-cookie";
-import { createAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-service";
 import {
   logAuthServiceError,
   mapConfirmEmailChangeErrorCode,
@@ -101,7 +97,7 @@ export async function requestEmailVerificationForEmail(
       return {
         ok: false,
         errorCode: "RATE_LIMITED",
-        ...(hadInvalidAuthCookie ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
+        ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
       };
     }
 
@@ -115,7 +111,7 @@ export async function requestEmailVerificationForEmail(
     data: {
       sent: true,
     },
-    ...(hadInvalidAuthCookie ? { setCookie: createClearedAuthAndDeviceCookies() } : {}),
+    ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
   };
 }
 
@@ -134,7 +130,7 @@ export async function confirmEmailChangeToken(input: {
       data: {
         emailChanged: true,
       },
-      setCookie: createClearedAuthAndDeviceCookies(),
+      setCookie: createClearedPocketBaseAuthCookies(),
     };
   } catch (error) {
     const errorCode = mapConfirmEmailChangeErrorCode(error);
@@ -147,7 +143,7 @@ export async function confirmEmailChangeToken(input: {
       ok: false,
       errorCode,
       ...(errorCode === "UNAUTHORIZED" || hadInvalidAuthCookie
-        ? { setCookie: createClearedAuthAndDeviceCookies() }
+        ? { setCookie: createClearedPocketBaseAuthCookies() }
         : {}),
     };
   }
@@ -180,24 +176,14 @@ async function getVerifiedSessionResponse(
       };
     }
 
-    const authCookies = await createAuthAndDeviceCookies({
-      pb,
-      userId: session.user.id,
-      rememberMe: shouldPersistSession,
-      existingDeviceSessionToken: await readDeviceSessionCookie(),
-      logContext: "confirmEmailVerificationToken",
-    });
-
-    if (!authCookies.ok) {
-      return authCookies;
-    }
-
     return {
       ok: true,
       data: {
         session,
       },
-      setCookie: authCookies.setCookie,
+      setCookie: exportPocketBaseAuthCookies(pb, {
+        sessionOnly: !shouldPersistSession,
+      }),
     };
   } catch (error) {
     if (

@@ -2,28 +2,16 @@ import type PocketBase from "pocketbase";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord } from "@/types/pocketbase";
 
-vi.mock("@/server/device-sessions/device-sessions-cookie", function mockDeviceSessionCookie() {
-  return {
-    createClearedAuthAndDeviceCookies: vi.fn(),
-  };
-});
-
-vi.mock("@/server/device-sessions/device-sessions-service", function mockDeviceSessionsService() {
-  return {
-    resolveCurrentAuthDeviceSession: vi.fn(),
-  };
-});
-
 vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer() {
   return {
+    createClearedPocketBaseAuthCookies: vi.fn(),
     createPocketBaseServerClient: vi.fn(),
     exportPocketBaseAuthCookies: vi.fn(),
   };
 });
 
-import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
-import { resolveCurrentAuthDeviceSession } from "@/server/device-sessions/device-sessions-service";
 import {
+  createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,
   exportPocketBaseAuthCookies,
 } from "@/server/pocketbase/pocketbase-server";
@@ -37,10 +25,7 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
     consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(function suppressWarnLog() {
       return undefined;
     });
-    vi.mocked(createClearedAuthAndDeviceCookies).mockReturnValue([
-      "pb_auth=; Max-Age=0",
-      "device_session=; Max-Age=0",
-    ]);
+    vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue(["pb_auth=; Max-Age=0"]);
     vi.mocked(exportPocketBaseAuthCookies).mockReturnValue(["pb_auth=token", "pb_persist=0"]);
   });
 
@@ -48,24 +33,7 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
     consoleWarnSpy.mockRestore();
   });
 
-  it("returns unauthorized without cookie metadata when read resolution hits an invalid device session", async function testReadInvalidDeviceSession() {
-    const context = createAuthResolutionContext();
-
-    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
-    vi.mocked(resolveCurrentAuthDeviceSession).mockResolvedValue({
-      status: "invalid",
-    });
-
-    const response = await resolveCurrentServerAuth({
-      mode: "read",
-    });
-
-    expect(response).toEqual({
-      status: "unauthorized",
-    });
-  });
-
-  it("returns unauthorized with cookie cleanup metadata for invalid auth cookies in write mode", async function testWriteInvalidAuthCookie() {
+  it("returns unauthorized with PocketBase cookie cleanup metadata for invalid auth cookies in write mode", async function testWriteInvalidAuthCookie() {
     const context = createAuthResolutionContext({
       authCookieState: "invalid",
     });
@@ -78,11 +46,11 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
 
     expect(response).toEqual({
       status: "unauthorized",
-      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+      setCookie: ["pb_auth=; Max-Age=0"],
     });
   });
 
-  it("returns unverified with rewritten auth cookies in write mode", async function testWriteUnverified() {
+  it("returns unverified with rewritten PocketBase auth cookies in write mode", async function testWriteUnverified() {
     const context = createAuthResolutionContext({
       shouldPersistSession: false,
     });
@@ -93,10 +61,6 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
       }),
     });
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
-    vi.mocked(resolveCurrentAuthDeviceSession).mockResolvedValue({
-      status: "valid",
-      sessionIdHash: "session-hash-1",
-    });
 
     const response = await resolveCurrentServerAuth({
       mode: "write",
@@ -108,15 +72,11 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
     });
   });
 
-  it("returns authenticated stale fallback when auth refresh fails transiently after a valid session", async function testWriteTransientFallback() {
+  it("returns authenticated stale fallback when auth refresh fails transiently", async function testWriteTransientFallback() {
     const context = createAuthResolutionContext();
 
     context.usersCollection.authRefresh.mockRejectedValue(new Error("temporary backend failure"));
     vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
-    vi.mocked(resolveCurrentAuthDeviceSession).mockResolvedValue({
-      status: "valid",
-      sessionIdHash: "session-hash-1",
-    });
 
     const response = await resolveCurrentServerAuth({
       mode: "write",
@@ -126,7 +86,6 @@ describe("auth-user-resolution", function describeAuthUserResolution() {
       status: "authenticated",
       pb: context.pb,
       user: context.user,
-      currentSessionIdHash: "session-hash-1",
       isStale: true,
     });
   });

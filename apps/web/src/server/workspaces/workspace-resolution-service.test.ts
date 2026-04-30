@@ -134,7 +134,6 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
       ok: true,
       pb,
       user,
-      currentSessionIdHash: "session-hash",
     });
     vi.mocked(findWorkspaceBySlug).mockResolvedValue(
       input.membership === undefined ? null : workspace
@@ -164,7 +163,6 @@ describe("workspace-resolution-service", function describeWorkspaceResolutionSer
       ok: true,
       pb,
       user,
-      currentSessionIdHash: "session-hash",
     });
     vi.mocked(findWorkspaceBySlug).mockResolvedValue(workspace);
     vi.mocked(findWorkspaceMembershipByWorkspaceAndUser).mockResolvedValue(membership);

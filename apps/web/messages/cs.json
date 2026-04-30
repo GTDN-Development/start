@@ -505,7 +505,7 @@
         },
         "security": {
           "title": "Zabezpečení",
-          "description": "Zkontrolujte heslo a aktivní relace na zařízeních.",
+          "description": "Zkontrolujte heslo a zabezpečení účtu.",
           "cta": "Otevřít zabezpečení"
         },
         "support": {
@@ -735,37 +735,6 @@
                 "mismatch": "Hesla se neshodují."
               }
             }
-          }
-        },
-        "devices": {
-          "title": "Vaše zařízení",
-          "description": "Zařízení, na kterých je váš účet aktuálně přihlášený.",
-          "loading": "Načítám zařízení...",
-          "empty": "Nebyla nalezena žádná aktivní zařízení.",
-          "currentBadge": "Toto zařízení",
-          "unknownDevice": "Neznámé zařízení",
-          "unknownLastSeen": "Neznámý čas",
-          "sessionMeta": "Naposledy aktivní {lastSeen}",
-          "footerHint": "Odhlaste všechna ostatní zařízení kromě tohoto.",
-          "actions": {
-            "signOut": "Odhlásit",
-            "signOutAll": "Odhlásit všechna zařízení",
-            "signOutAllPending": "Odhlašování...",
-            "signOutAllConfirm": "Odhlásit vše"
-          },
-          "dialog": {
-            "title": "Odhlásit všechna ostatní zařízení?",
-            "description": "Tímto ukončíte aktivní relace na všech ostatních prohlížečích a zařízeních. Na tomto zařízení zůstanete přihlášeni."
-          },
-          "status": {
-            "loadError": "Seznam zařízení se teď nepodařilo načíst. Zkuste to prosím znovu.",
-            "signOutSuccess": "Zařízení bylo odhlášeno.",
-            "signOutError": "Toto zařízení se teď nepodařilo odhlásit. Zkuste to prosím znovu.",
-            "signOutAllSuccess": "Všechna ostatní zařízení byla odhlášena.",
-            "signOutAllError": "Ostatní zařízení se teď nepodařilo odhlásit. Zkuste to prosím znovu.",
-            "invalidRequest": "Tento požadavek není platný.",
-            "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu.",
-            "notFound": "Relace tohoto zařízení už neexistuje."
           }
         }
       }
@@ -1618,8 +1587,7 @@
         "persistent": "Trvalé",
         "conditional": {
           "sessionOrTokenExpiry": "Relace nebo do vypršení tokenu",
-          "sessionOrOneYear": "Relace nebo 1 rok",
-          "sessionOrNinetyDays": "Relace nebo 90 dní"
+          "sessionOrOneYear": "Relace nebo 1 rok"
         },
         "relative": {
           "minute": "{count, plural, one {# minuta} few {# minuty} other {# minut}}",
@@ -1634,7 +1602,6 @@
         "consentSubject": "Ukládá pseudonymní identifikátor pro auditní historii souhlasů.",
         "authSession": "Ukládá autentizovanou PocketBase relaci přihlášeného uživatele.",
         "authPersist": "Ukládá, zda má tento prohlížeč zachovat přihlášení i po zavření okna.",
-        "deviceSession": "Ukládá token aktuální session zařízení pro ověřování relace a správu zařízení.",
         "pendingInvite": "Dočasně ukládá token pozvánky během přihlášení a přijetí pozvánky.",
         "locale": "Ukládá zvolený jazyk webu pro tento prohlížeč.",
         "theme": "Ukládá preferenci motivu (systémový/světlý/tmavý režim).",

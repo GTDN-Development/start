@@ -1,7 +1,6 @@
 import type { UsersRecord } from "@/types/pocketbase";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
-import { revokeAllDeviceSessions } from "@/server/device-sessions/device-sessions-service";
-import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
+import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
 import {
   countWorkspaceOwners,
   listUserWorkspaceMembershipRecords,
@@ -14,7 +13,6 @@ import {
   mapUpdatePasswordErrorCode,
 } from "@/server/account/account-errors";
 import { requireCurrentWritableUser } from "@/server/auth/current-user";
-import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
 
 type DeleteAccountPayload = {
   deleted: true;
@@ -89,7 +87,7 @@ export async function deleteCurrentUserAccountWithPassword(
       data: {
         deleted: true,
       },
-      setCookie: createClearedAuthAndDeviceCookies(),
+      setCookie: createClearedPocketBaseAuthCookies(),
     };
   } catch (error) {
     const errorCode = mapDeleteAccountErrorCode(error);
@@ -135,27 +133,12 @@ export async function updateCurrentUserPassword(input: {
       passwordConfirm: input.confirmPassword,
     });
 
-    try {
-      const cleanupClient = createPocketBaseClient();
-
-      await cleanupClient
-        .collection("users")
-        .authWithPassword<UsersRecord>(currentUser.user.email, input.newPassword);
-
-      await revokeAllDeviceSessions({
-        pb: cleanupClient,
-        userId: currentUser.user.id,
-      });
-    } catch (cleanupError) {
-      logAccountServiceError("updateCurrentUserPassword.revokeAllDeviceSessions", cleanupError);
-    }
-
     return {
       ok: true,
       data: {
         passwordUpdated: true,
       },
-      setCookie: createClearedAuthAndDeviceCookies(),
+      setCookie: createClearedPocketBaseAuthCookies(),
     };
   } catch (error) {
     const errorCode = mapUpdatePasswordErrorCode(error);

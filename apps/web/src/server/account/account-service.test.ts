@@ -8,21 +8,9 @@ vi.mock("@/server/auth/current-user", function mockCurrentUser() {
   };
 });
 
-vi.mock("@/server/device-sessions/device-sessions-cookie", function mockDeviceSessionCookie() {
-  return {
-    createClearedAuthAndDeviceCookies: vi.fn(),
-  };
-});
-
-vi.mock("@/server/device-sessions/device-sessions-service", function mockDeviceSessionsService() {
-  return {
-    revokeAllDeviceSessions: vi.fn(),
-  };
-});
-
 vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer() {
   return {
-    createPocketBaseClient: vi.fn(),
+    createClearedPocketBaseAuthCookies: vi.fn(),
   };
 });
 
@@ -34,9 +22,7 @@ vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceReposi
 });
 
 import { requireCurrentWritableUser } from "@/server/auth/current-user";
-import { createClearedAuthAndDeviceCookies } from "@/server/device-sessions/device-sessions-cookie";
-import { revokeAllDeviceSessions } from "@/server/device-sessions/device-sessions-service";
-import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
+import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
 import {
   countWorkspaceOwners,
   listUserWorkspaceMembershipRecords,
@@ -54,10 +40,7 @@ describe("account-service", function describeAccountService() {
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(function suppressErrorLog() {
       return undefined;
     });
-    vi.mocked(createClearedAuthAndDeviceCookies).mockReturnValue([
-      "pb_auth=; Max-Age=0",
-      "device_session=; Max-Age=0",
-    ]);
+    vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue(["pb_auth=; Max-Age=0"]);
   });
 
   afterEach(function restoreConsoleSpies() {
@@ -82,7 +65,6 @@ describe("account-service", function describeAccountService() {
       ok: false,
       errorCode: "ACCOUNT_DELETE_BLOCKED_LAST_OWNER",
     });
-    expect(revokeAllDeviceSessions).not.toHaveBeenCalled();
     expect(currentUser.workspaceMembersCollection.delete).not.toHaveBeenCalled();
     expect(currentUser.usersCollection.delete).not.toHaveBeenCalled();
   });
@@ -108,20 +90,16 @@ describe("account-service", function describeAccountService() {
       data: {
         deleted: true,
       },
-      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+      setCookie: ["pb_auth=; Max-Age=0"],
     });
     expect(currentUser.workspaceMembersCollection.delete).not.toHaveBeenCalled();
-    expect(revokeAllDeviceSessions).not.toHaveBeenCalled();
     expect(currentUser.usersCollection.delete).toHaveBeenCalledWith(currentUser.user.id);
   });
 
-  it("revokes device sessions after a successful password change", async function testUpdatePasswordSuccess() {
+  it("clears PocketBase auth cookies after a successful password change", async function testUpdatePasswordSuccess() {
     const currentUser = createCurrentUserContext();
-    const cleanupClient = createCleanupClientMock();
 
     vi.mocked(requireCurrentWritableUser).mockResolvedValue(currentUser.result);
-    vi.mocked(createPocketBaseClient).mockReturnValue(cleanupClient.pb);
-    vi.mocked(revokeAllDeviceSessions).mockResolvedValue(3);
 
     const response = await updateCurrentUserPassword({
       currentPassword: "current-password",
@@ -134,47 +112,12 @@ describe("account-service", function describeAccountService() {
       data: {
         passwordUpdated: true,
       },
-      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
+      setCookie: ["pb_auth=; Max-Age=0"],
     });
     expect(currentUser.usersCollection.update).toHaveBeenCalledWith(currentUser.user.id, {
       oldPassword: "current-password",
       password: "next-password",
       passwordConfirm: "next-password",
-    });
-    expect(cleanupClient.usersCollection.authWithPassword).toHaveBeenCalledWith(
-      currentUser.user.email,
-      "next-password"
-    );
-    expect(revokeAllDeviceSessions).toHaveBeenCalledWith({
-      pb: cleanupClient.pb,
-      userId: currentUser.user.id,
-    });
-  });
-
-  it("keeps password change successful even when device-session cleanup fails", async function testUpdatePasswordCleanupFailure() {
-    const currentUser = createCurrentUserContext();
-    const cleanupClient = createCleanupClientMock();
-
-    vi.mocked(requireCurrentWritableUser).mockResolvedValue(currentUser.result);
-    vi.mocked(createPocketBaseClient).mockReturnValue(cleanupClient.pb);
-    vi.mocked(revokeAllDeviceSessions).mockRejectedValue(new Error("cleanup failed"));
-
-    const response = await updateCurrentUserPassword({
-      currentPassword: "current-password",
-      newPassword: "next-password",
-      confirmPassword: "next-password",
-    });
-
-    expect(response).toEqual({
-      ok: true,
-      data: {
-        passwordUpdated: true,
-      },
-      setCookie: ["pb_auth=; Max-Age=0", "device_session=; Max-Age=0"],
-    });
-    expect(revokeAllDeviceSessions).toHaveBeenCalledWith({
-      pb: cleanupClient.pb,
-      userId: currentUser.user.id,
     });
   });
 });
@@ -204,31 +147,12 @@ function createCurrentUserContext() {
     pb,
     result: {
       ok: true as const,
-      currentSessionIdHash: "session-hash-1",
       pb,
       user,
     },
     user,
     usersCollection,
     workspaceMembersCollection,
-  };
-}
-
-function createCleanupClientMock() {
-  const usersCollection = {
-    authWithPassword: vi.fn(async function authenticateUser() {
-      return {
-        record: createUserRecord("user-1", "user@example.com"),
-      };
-    }),
-  };
-  const pb = createPocketBaseMock({
-    users: usersCollection,
-  });
-
-  return {
-    pb,
-    usersCollection,
   };
 }
 
