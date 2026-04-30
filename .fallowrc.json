@@ -1,0 +1,26 @@
+{
+  "entry": [
+    "apps/pocketbase/pb_hooks/**/*.js",
+    "apps/pocketbase/pb_migrations/**/*.js",
+    "apps/web/tests/scripts/run-next-with-test-env.cjs",
+    "apps/web/src/server/email/templates/*.tsx"
+  ],
+  "ignoreDependencies": ["babel-plugin-react-compiler", "shadcn"],
+  "ignoreExports": [
+    {
+      "file": "apps/web/src/components/ui/**/*.tsx",
+      "exports": ["*"]
+    },
+    {
+      "file": "apps/web/src/server/email/templates/*.tsx",
+      "exports": ["PreviewProps", "default"]
+    }
+  ],
+  "ignoreExportsUsedInFile": true,
+  "duplicates": {
+    "ignore": ["apps/pocketbase/pb_migrations/**/*.js"]
+  },
+  "health": {
+    "ignore": ["apps/pocketbase/pb_migrations/**/*.js"]
+  }
+}

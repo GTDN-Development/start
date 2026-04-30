@@ -15,7 +15,6 @@ src/config/
 
 src/features/cookies/
 ├── cookie-consent-actions.ts               # Server action for consent audit events
-├── cookie-server-utils.ts                  # Server reads of consent + interaction state
 ├── cookie-context.tsx                      # Client state and actions
 ├── analytics-scripts.tsx                   # Consent-gated GA/GTM wrappers
 ├── cookie-consent-banner.tsx               # Bottom banner UI
@@ -47,8 +46,6 @@ Serialized payload:
   "marketing": false
 }
 ```
-
-`cookie-server-utils.hasInteracted()` returns `true` only when the cookie is present, parseable, and on the current version. If the cookie version is outdated, the banner is shown again.
 
 ## Audit trail (enabled)
 

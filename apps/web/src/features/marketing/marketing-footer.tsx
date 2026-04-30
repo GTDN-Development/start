@@ -2,8 +2,9 @@
 
 import { Locale, useTranslations } from "next-intl";
 import { LogoStart } from "@/components/brand/logo-start";
-import { CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
+import { ArrowUpIcon, CheckIcon, ChevronDownIcon, CopyIcon } from "lucide-react";
 import { Container } from "@/components/ui/container";
+import { ScrollToTopButton } from "@/components/ui/scroll-to-top-button";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { SocialMediaIcons } from "@/components/brand/social-media-icons";
 import { LocalizedNavLink } from "@/components/layout/localized-nav-link";
@@ -213,9 +214,9 @@ export function MarketingFooter({
         <div className="flex flex-1 items-center justify-center gap-4">
           <AgencyCredit />
 
-          {/*<ScrollToTopButton className="text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
+          <ScrollToTopButton className="inline-flex items-center text-sm underline decoration-current/20 decoration-1 underline-offset-2 hover:decoration-current/60">
             {t("scrollToTop")} <ArrowUpIcon aria-hidden="true" className="ml-1 inline size-[1em]" />
-          </ScrollToTopButton>*/}
+          </ScrollToTopButton>
         </div>
         <div className="flex flex-1 items-center justify-center gap-4 md:justify-end">
           <ThemeSwitcher />

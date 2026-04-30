@@ -53,3 +53,6 @@ yarn-error.log*
 next-env.d.ts
 messages/en.d.json.ts
 apps/web/messages/en.d.json.ts
+
+# fallow
+.fallow

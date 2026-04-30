@@ -1,3 +1,6 @@
+// fallow-ignore-file unused-file
+// Reserved for layout-level banners that are optional per deployment.
+
 export type LayoutBannerItem = {
   isVisible: boolean;
   content: React.ReactNode;
