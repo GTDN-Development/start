@@ -202,7 +202,7 @@ redirect({ href: "/sign-in", locale: locale as Locale });
 
 - Auth uses PocketBase via SSR-safe per-request server clients.
 - Client auth flows are implemented primarily via server actions exposed from `src/features/auth/auth-client.ts`.
-- The public auth API route currently exposed from `src/app/api/auth` is `src/app/api/auth/session/route.ts`.
+- There is no client polling auth-session endpoint; cross-tab sync broadcasts sign-out events only.
 - Additional auth-related route handlers live next to their route flows:
   - `src/app/[locale]/(auth)/(flow)/post-auth/route.ts`
   - `src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts`

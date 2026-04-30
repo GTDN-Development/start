@@ -19,6 +19,8 @@ import {
 import {
   getResponseAuthSession,
   getServerAuthSession,
+  requireCurrentUser,
+  requireCurrentWritableUser,
   signInWithPassword,
   signOutServerSession,
 } from "./auth-session-service";
@@ -188,6 +190,46 @@ describe("auth-service", function describeAuthService() {
       data: {
         session: null,
       },
+    });
+  });
+
+  it("requires the current render user from a validated PocketBase record", async function testRequireCurrentUser() {
+    const user = createUserRecord("user-1", "user@example.com");
+    const context = createAuthServiceContext({
+      authStoreRecord: user,
+      authStoreValid: true,
+    });
+
+    context.usersCollection.getOne.mockResolvedValue(user);
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+
+    const response = await requireCurrentUser();
+
+    expect(response).toEqual({
+      ok: true,
+      pb: context.pb,
+      user,
+    });
+  });
+
+  it("requires writable users through PocketBase auth refresh", async function testRequireCurrentWritableUser() {
+    const user = createUserRecord("user-1", "user@example.com");
+    const context = createAuthServiceContext({
+      authStoreRecord: user,
+      authStoreValid: true,
+    });
+
+    context.usersCollection.authRefresh.mockResolvedValue({
+      record: user,
+    });
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+
+    const response = await requireCurrentWritableUser();
+
+    expect(response).toEqual({
+      ok: true,
+      pb: context.pb,
+      user,
     });
   });
 

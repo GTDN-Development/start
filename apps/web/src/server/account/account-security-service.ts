@@ -12,7 +12,7 @@ import {
   mapDeleteAccountPasswordErrorCode,
   mapUpdatePasswordErrorCode,
 } from "@/server/account/account-errors";
-import { requireCurrentWritableUser } from "@/server/auth/current-user";
+import { requireCurrentWritableUser } from "@/server/auth/auth-session-service";
 
 type DeleteAccountPayload = {
   deleted: true;

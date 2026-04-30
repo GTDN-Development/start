@@ -53,10 +53,11 @@ describe("post-auth route", function describePostAuthRoute() {
     } as Awaited<ReturnType<typeof getResponseAuthSession>>);
 
     const response = await getPostAuthResponse();
+    const setCookieHeader = getSetCookieHeader(response);
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe("https://example.com/sign-in");
-    expect(response.headers.get("set-cookie")).toContain("pb_auth=");
+    expect(setCookieHeader).toContain("pb_auth=");
     expect(resolvePostAuthDestinationForUser).not.toHaveBeenCalled();
   });
 
@@ -104,11 +105,12 @@ describe("post-auth route", function describePostAuthRoute() {
     vi.mocked(resolvePostAuthDestinationForUser).mockResolvedValue(input.destination);
 
     const response = await getPostAuthResponse();
+    const setCookieHeader = getSetCookieHeader(response);
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe(input.expectedLocation);
     for (const expectedCookie of input.expectedCookies) {
-      expect(response.headers.get("set-cookie")).toContain(expectedCookie);
+      expect(setCookieHeader).toContain(expectedCookie);
     }
     expect(resolvePostAuthDestinationForUser).toHaveBeenCalledWith({
       userId: "user-1",
@@ -137,4 +139,12 @@ async function getPostAuthResponse() {
       locale: "cs",
     }),
   });
+}
+
+function getSetCookieHeader(response: Response) {
+  const headers = response.headers as Headers & {
+    getSetCookie?: () => string[];
+  };
+
+  return headers.getSetCookie?.().join("; ") ?? headers.get("set-cookie") ?? "";
 }

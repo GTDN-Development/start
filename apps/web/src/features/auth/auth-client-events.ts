@@ -1,18 +1,20 @@
 "use client";
 
-export type AuthClientEvent = "auth-changed" | "signed-out";
-
 const AUTH_CLIENT_EVENT_CHANNEL_NAME = "auth-sync";
-
-export function emitAuthChanged() {
-  emitAuthClientEvent("auth-changed");
-}
+const SIGNED_OUT_EVENT = "signed-out";
 
 export function emitSignedOut() {
-  emitAuthClientEvent("signed-out");
+  if (typeof BroadcastChannel === "undefined") {
+    return;
+  }
+
+  const channel = new BroadcastChannel(AUTH_CLIENT_EVENT_CHANNEL_NAME);
+
+  channel.postMessage(SIGNED_OUT_EVENT);
+  channel.close();
 }
 
-export function subscribeToAuthClientEvents(listener: (event: AuthClientEvent) => void) {
+export function subscribeToAuthClientEvents(listener: () => void) {
   if (typeof BroadcastChannel === "undefined") {
     return function unsubscribeAuthClientEvents() {
       return undefined;
@@ -22,29 +24,14 @@ export function subscribeToAuthClientEvents(listener: (event: AuthClientEvent) =
   const channel = new BroadcastChannel(AUTH_CLIENT_EVENT_CHANNEL_NAME);
 
   channel.onmessage = function handleAuthClientEvent(event: MessageEvent) {
-    if (!isAuthClientEvent(event.data)) {
+    if (event.data !== SIGNED_OUT_EVENT) {
       return;
     }
 
-    listener(event.data);
+    listener();
   };
 
   return function unsubscribeAuthClientEvents() {
     channel.close();
   };
-}
-
-function emitAuthClientEvent(event: AuthClientEvent) {
-  if (typeof BroadcastChannel === "undefined") {
-    return;
-  }
-
-  const channel = new BroadcastChannel(AUTH_CLIENT_EVENT_CHANNEL_NAME);
-
-  channel.postMessage(event);
-  channel.close();
-}
-
-function isAuthClientEvent(value: unknown): value is AuthClientEvent {
-  return value === "auth-changed" || value === "signed-out";
 }

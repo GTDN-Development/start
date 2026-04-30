@@ -27,7 +27,7 @@ export async function applyServerActionAuthCookies(setCookie: string[] | undefin
       continue;
     }
 
-    cookieStore.set(getWritableCookie(parsedCookie));
+    cookieStore.set(parsedCookie);
   }
 }
 
@@ -40,29 +40,21 @@ export function appendAuthCookiesToResponse(
   }
 
   for (const setCookieValue of setCookie) {
-    const parsedCookie = parseSetCookie(setCookieValue);
-
-    if (!parsedCookie) {
-      continue;
-    }
-
-    response.cookies.set(getWritableCookie(parsedCookie));
+    response.headers.append("Set-Cookie", setCookieValue);
   }
 
   return response;
 }
 
 function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {
-  const segments = setCookieValue
+  const [baseSegment, ...attributeSegments] = setCookieValue
     .split(";")
-    .map((segment) => segment.trim())
-    .filter((segment) => segment.length > 0);
+    .map((segment) => segment.trim());
 
-  if (segments.length === 0) {
+  if (!baseSegment) {
     return null;
   }
 
-  const baseSegment = segments[0];
   const separatorIndex = baseSegment.indexOf("=");
 
   if (separatorIndex < 1) {
@@ -77,22 +69,26 @@ function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {
     value,
   };
 
-  for (const segment of segments.slice(1)) {
+  for (const segment of attributeSegments) {
+    if (!segment) {
+      continue;
+    }
+
     const [attributeName, ...attributeValueParts] = segment.split("=");
-    const normalizedAttributeName = attributeName.trim().toLowerCase();
+    const normalizedName = attributeName.trim().toLowerCase();
     const attributeValue = attributeValueParts.join("=").trim();
 
-    if (normalizedAttributeName === "path") {
+    if (normalizedName === "path") {
       parsedCookie.path = attributeValue;
       continue;
     }
 
-    if (normalizedAttributeName === "domain") {
+    if (normalizedName === "domain") {
       parsedCookie.domain = attributeValue;
       continue;
     }
 
-    if (normalizedAttributeName === "expires") {
+    if (normalizedName === "expires") {
       const parsedDate = new Date(attributeValue);
 
       if (!Number.isNaN(parsedDate.getTime())) {
@@ -101,7 +97,7 @@ function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {
       continue;
     }
 
-    if (normalizedAttributeName === "max-age") {
+    if (normalizedName === "max-age") {
       const parsedMaxAge = Number.parseInt(attributeValue, 10);
 
       if (Number.isFinite(parsedMaxAge)) {
@@ -110,52 +106,35 @@ function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {
       continue;
     }
 
-    if (normalizedAttributeName === "secure") {
+    if (normalizedName === "secure") {
       parsedCookie.secure = true;
       continue;
     }
 
-    if (normalizedAttributeName === "httponly") {
+    if (normalizedName === "httponly") {
       parsedCookie.httpOnly = true;
       continue;
     }
 
-    if (normalizedAttributeName === "samesite") {
-      const normalizedSameSite = normalizeSameSite(attributeValue);
+    if (normalizedName === "samesite") {
+      const sameSite = attributeValue.toLowerCase();
 
-      if (normalizedSameSite) {
-        parsedCookie.sameSite = normalizedSameSite;
+      if (sameSite === "lax" || sameSite === "strict" || sameSite === "none") {
+        parsedCookie.sameSite = sameSite;
       }
     }
   }
 
-  return parsedCookie;
-}
-
-function normalizeSameSite(value: string): ParsedSetCookie["sameSite"] | null {
-  const normalizedValue = value.toLowerCase();
-
-  if (normalizedValue === "lax" || normalizedValue === "strict" || normalizedValue === "none") {
-    return normalizedValue;
-  }
-
-  return null;
-}
-
-function isClearedCookie(cookie: ParsedSetCookie): boolean {
-  if (cookie.maxAge !== undefined && cookie.maxAge <= 0) {
-    return true;
-  }
-
-  if (cookie.expires && cookie.expires.getTime() <= 0) {
-    return true;
-  }
-
-  return cookie.value.length === 0;
+  return getWritableCookie(parsedCookie);
 }
 
 function getWritableCookie(cookie: ParsedSetCookie): ParsedSetCookie {
-  if (!isClearedCookie(cookie)) {
+  const isCleared =
+    cookie.value.length === 0 ||
+    (cookie.maxAge !== undefined && cookie.maxAge <= 0) ||
+    (cookie.expires !== undefined && cookie.expires.getTime() <= 0);
+
+  if (!isCleared) {
     return cookie;
   }
 

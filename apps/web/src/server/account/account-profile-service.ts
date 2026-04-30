@@ -13,7 +13,7 @@ import {
   mapRequestEmailChangeErrorCode,
   mapUpdateProfileErrorCode,
 } from "@/server/account/account-errors";
-import { requireCurrentWritableUser } from "@/server/auth/current-user";
+import { requireCurrentWritableUser } from "@/server/auth/auth-session-service";
 
 type RequestAccountEmailChangePayload = {
   sent: true;

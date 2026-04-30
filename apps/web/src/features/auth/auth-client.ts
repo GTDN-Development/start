@@ -12,18 +12,12 @@ import {
   signInAction,
   signOutAction,
 } from "@/features/auth/auth-actions";
-import { emitAuthChanged, emitSignedOut } from "@/features/auth/auth-client-events";
+import { emitSignedOut } from "@/features/auth/auth-client-events";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import { runAsyncTransition } from "@/lib/app-utils";
 
 export async function signIn(input: SignInInput): Promise<SignInResponse> {
-  const response = await runAsyncTransition(() => signInAction(input));
-
-  if (response.ok) {
-    emitAuthChanged();
-  }
-
-  return response;
+  return runAsyncTransition(() => signInAction(input));
 }
 
 export async function signOut(): Promise<SignOutResponse> {

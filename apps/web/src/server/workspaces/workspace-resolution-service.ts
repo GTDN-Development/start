@@ -1,6 +1,6 @@
 import type PocketBase from "pocketbase";
 import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
-import { requireCurrentUser, requireCurrentWritableUser } from "@/server/auth/current-user";
+import { requireCurrentUser, requireCurrentWritableUser } from "@/server/auth/auth-session-service";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import {
   getActiveWorkspaceSlugCookie,

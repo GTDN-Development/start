@@ -1,11 +1,14 @@
 "use client";
 
 import { createContext, useContext } from "react";
+import { useLocale } from "next-intl";
+import { AUTH_REDIRECTS } from "@/config/auth";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile-types";
+import { subscribeToAuthClientEvents } from "@/features/auth/auth-client-events";
 import { type UserAccountMenuLabels } from "@/features/account/user-account-menu";
-import { type AppHref } from "@/i18n/navigation";
-import { ApplicationAuthSync } from "./application-auth-sync";
+import { getPathname, type AppHref } from "@/i18n/navigation";
+import { useMountEffect } from "@/hooks/use-mount-effect";
 
 type ApplicationMobileMenuLabels = {
   openAriaLabel: string;
@@ -62,9 +65,36 @@ export function ApplicationRoot({
           applicationEntryHref,
         }}
       >
-        <ApplicationAuthSync />
+        <ApplicationSignOutSync />
         {children}
       </ApplicationRootContext.Provider>
     </AccountProfileProvider>
   );
+}
+
+function ApplicationSignOutSync() {
+  const locale = useLocale();
+
+  useMountEffect(function mountApplicationSignOutSync() {
+    let hasRedirected = false;
+
+    function redirectToSignIn() {
+      if (hasRedirected) {
+        return;
+      }
+
+      hasRedirected = true;
+
+      window.location.assign(
+        getPathname({
+          href: AUTH_REDIRECTS.unauthenticatedTo,
+          locale,
+        })
+      );
+    }
+
+    return subscribeToAuthClientEvents(redirectToSignIn);
+  });
+
+  return null;
 }

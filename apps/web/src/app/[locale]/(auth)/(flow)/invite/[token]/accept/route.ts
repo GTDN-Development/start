@@ -50,9 +50,8 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
     );
   }
 
-  const response = redirectWithAuthCookies(
+  const response = createRedirectResponse(
     request,
-    sessionResponse.setCookie,
     getPathname({
       href: getWorkspaceOverviewHref(inspectResponse.data.result.workspace.slug),
       locale: appLocale,
@@ -61,7 +60,7 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
 
   setActiveWorkspaceSlugResponseCookie(response, inspectResponse.data.result.workspace.slug);
 
-  return response;
+  return appendAuthCookiesToResponse(response, sessionResponse.setCookie);
 }
 
 export async function POST(request: NextRequest, context: InviteAcceptRouteContext) {
@@ -102,9 +101,8 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
     acceptResponse.data.result.state === "accepted" ||
     acceptResponse.data.result.state === "already_member"
   ) {
-    const response = redirectWithAuthCookies(
+    const response = createRedirectResponse(
       request,
-      sessionResponse.setCookie,
       getPathname({
         href: getWorkspaceOverviewHref(acceptResponse.data.result.workspace.slug),
         locale: appLocale,
@@ -113,7 +111,7 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
 
     setActiveWorkspaceSlugResponseCookie(response, acceptResponse.data.result.workspace.slug);
 
-    return response;
+    return appendAuthCookiesToResponse(response, sessionResponse.setCookie);
   }
 
   return redirectWithAuthCookies(
@@ -131,9 +129,13 @@ function redirectWithAuthCookies(
   setCookie: string[] | undefined,
   pathname: string
 ): NextResponse {
-  const response = NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
-    status: 303,
-  });
+  const response = createRedirectResponse(request, pathname);
 
   return appendAuthCookiesToResponse(response, setCookie);
+}
+
+function createRedirectResponse(request: NextRequest, pathname: string) {
+  return NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
+    status: 303,
+  });
 }

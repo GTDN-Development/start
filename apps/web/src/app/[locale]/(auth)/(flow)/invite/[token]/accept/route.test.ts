@@ -58,10 +58,11 @@ describe("invite accept route", function describeInviteAcceptRoute() {
     } as Awaited<ReturnType<typeof getResponseAuthSession>>);
 
     const response = await getInviteAcceptResponse("GET");
+    const setCookieHeader = getSetCookieHeader(response);
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe("https://example.com/invite/invite-token/start");
-    expect(response.headers.get("set-cookie")).toContain("pb_auth=");
+    expect(setCookieHeader).toContain("pb_auth=");
     expect(getInviteTokenForUser).not.toHaveBeenCalled();
   });
 
@@ -106,13 +107,12 @@ describe("invite accept route", function describeInviteAcceptRoute() {
     }
 
     const response = await getInviteAcceptResponse(input.method);
+    const setCookieHeader = getSetCookieHeader(response);
 
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe("https://example.com/w/team-space/overview");
-    expect(response.headers.get("set-cookie")).toContain(input.expectedCookie);
-    expect(response.headers.get("set-cookie")).toContain(
-      `${workspaceConfig.cookies.activeWorkspace.name}=team-space`
-    );
+    expect(setCookieHeader).toContain(input.expectedCookie);
+    expect(setCookieHeader).toContain(`${workspaceConfig.cookies.activeWorkspace.name}=team-space`);
   });
 });
 
@@ -152,4 +152,12 @@ async function getInviteAcceptResponse(method: "GET" | "POST") {
   };
 
   return method === "GET" ? GET(request, context) : POST(request, context);
+}
+
+function getSetCookieHeader(response: Response) {
+  const headers = response.headers as Headers & {
+    getSetCookie?: () => string[];
+  };
+
+  return headers.getSetCookie?.().join("; ") ?? headers.get("set-cookie") ?? "";
 }

@@ -44,7 +44,4 @@ export const authConfig = {
     persistCookieName: "pb_auth_persist",
     persistCookieMaxAgeSeconds: 60 * 60 * 24 * 365,
   },
-  session: {
-    activeTabRecheckIntervalMs: 10 * 60 * 1000,
-  },
 } as const;

@@ -44,29 +44,27 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
   }
 
   if (destinationResponse.data.state === "invite_redirect") {
-    const response = redirectWithAuthCookies(
+    const response = createRedirectResponse(
       request,
-      authCookies,
       getInviteHref(destinationResponse.data.inviteToken),
       appLocale
     );
 
     clearPendingInviteTokenResponseCookie(response);
 
-    return response;
+    return appendAuthCookiesToResponse(response, authCookies);
   }
 
   if (destinationResponse.data.state === "workspace_redirect") {
-    const response = redirectWithAuthCookies(
+    const response = createRedirectResponse(
       request,
-      authCookies,
       getWorkspaceOverviewHref(destinationResponse.data.workspaceSlug),
       appLocale
     );
 
     setActiveWorkspaceSlugResponseCookie(response, destinationResponse.data.workspaceSlug);
 
-    return response;
+    return appendAuthCookiesToResponse(response, authCookies);
   }
 
   return redirectWithAuthCookies(request, authCookies, APP_HOME_PATH, appLocale);
@@ -78,13 +76,18 @@ function redirectWithAuthCookies(
   href: AppHref,
   locale: AppLocale
 ): NextResponse {
+  const response = createRedirectResponse(request, href, locale);
+
+  return appendAuthCookiesToResponse(response, setCookie);
+}
+
+function createRedirectResponse(request: NextRequest, href: AppHref, locale: AppLocale) {
   const pathname = getPathname({
     href,
     locale,
   });
-  const response = NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
+
+  return NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
     status: 303,
   });
-
-  return appendAuthCookiesToResponse(response, setCookie);
 }

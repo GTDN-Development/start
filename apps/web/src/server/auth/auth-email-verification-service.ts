@@ -4,6 +4,7 @@ import type {
   RequestEmailVerificationPayload,
   VerifyEmailPayload,
 } from "@/features/auth/auth-types";
+import type { UsersRecord } from "@/types/pocketbase";
 import {
   createClearedPocketBaseAuthCookies,
   createPocketBaseServerClient,
@@ -18,7 +19,6 @@ import {
   createAuthSession,
   isProbablyConsumedVerificationToken,
 } from "@/server/auth/auth-session-utils";
-import { refreshCurrentAuthRecord } from "@/server/auth/auth-user-resolution";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import { isUsersRecord } from "@/server/pocketbase/pocketbase-utils";
 
@@ -158,13 +158,13 @@ async function getVerifiedSessionResponse(
   }
 
   try {
-    const refreshedAuth = await refreshCurrentAuthRecord(pb);
+    const refreshedAuth = await pb.collection("users").authRefresh<UsersRecord>();
 
-    if (refreshedAuth.status !== "verified") {
+    if (!isUsersRecord(refreshedAuth.record) || refreshedAuth.record.verified !== true) {
       return null;
     }
 
-    const session = createAuthSession(pb, refreshedAuth.user);
+    const session = createAuthSession(pb, refreshedAuth.record);
 
     if (!session) {
       return {

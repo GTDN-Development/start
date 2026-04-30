@@ -33,7 +33,7 @@ vi.mock("@/i18n/navigation", function mockNavigation() {
   };
 });
 
-vi.mock("@/server/auth/current-user", function mockCurrentUser() {
+vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() {
   return {
     requireCurrentUser: requireCurrentUserMock,
   };

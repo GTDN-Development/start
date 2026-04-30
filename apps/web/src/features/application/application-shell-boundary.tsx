@@ -2,7 +2,7 @@ import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
-import { requireCurrentUser } from "@/server/auth/current-user";
+import { requireCurrentUser } from "@/server/auth/auth-session-service";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 import { buildApplicationShellModel } from "./application-composition";
 import { ApplicationRoot } from "./application-root";

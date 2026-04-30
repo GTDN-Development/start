@@ -2,7 +2,7 @@ import type PocketBase from "pocketbase";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord, WorkspaceMembersRecord } from "@/types/pocketbase";
 
-vi.mock("@/server/auth/current-user", function mockCurrentUser() {
+vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() {
   return {
     requireCurrentWritableUser: vi.fn(),
   };
@@ -21,7 +21,7 @@ vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceReposi
   };
 });
 
-import { requireCurrentWritableUser } from "@/server/auth/current-user";
+import { requireCurrentWritableUser } from "@/server/auth/auth-session-service";
 import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
 import {
   countWorkspaceOwners,
