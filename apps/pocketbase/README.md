@@ -2,7 +2,7 @@
 
 `apps/pocketbase` is the PocketBase service for Start. It contains:
 
-- `pb_migrations/` for schema history
+- `pb_migrations/` for the initial schema snapshot and future schema history
 - `pb_hooks/` for optional JS hooks
 - `pb_public/` for optional static files
 - persistent data in `/pb_data`
@@ -40,7 +40,7 @@ Local runtime data lives in the Docker volume for the `pocketbase` service and i
 
 ## Project Structure
 
-- `pb_migrations/` - PocketBase JS migrations
+- `pb_migrations/` - PocketBase JS migrations, currently squashed to one initial schema snapshot
 - `pb_hooks/` - optional PocketBase JS hooks
 - `pb_public/` - optional static files
 
@@ -156,6 +156,7 @@ Do not share a Volume across environments.
 - Do not edit already deployed migrations.
 - Create a new migration file for every schema change.
 - Use `migrate collections` only for an intentional snapshot or schema history squash.
+- The current pre-deployment baseline is intentionally squashed into one initial schema snapshot.
 - For destructive schema changes, add an explicit migration. Snapshot imports use `app.importCollections(snapshot, false)`, so missing fields and collections are not deleted from existing deployments.
 - Keep schema in migrations and environment-specific settings outside the repo.
 

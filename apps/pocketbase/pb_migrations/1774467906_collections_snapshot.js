@@ -1,4 +1,5 @@
 /// <reference path="../pb_data/types.d.ts" />
+
 migrate(
   (app) => {
     const snapshot = [
@@ -1111,8 +1112,8 @@ migrate(
         viewRule: "",
       },
       {
-        createRule: "",
-        deleteRule: "",
+        createRule: '@request.auth.id != "" && @request.body.user = @request.auth.id',
+        deleteRule: '@request.auth.id != "" && user = @request.auth.id',
         fields: [
           {
             autogeneratePattern: "[a-z0-9]{15}",
@@ -1129,7 +1130,7 @@ migrate(
             type: "text",
           },
           {
-            cascadeDelete: false,
+            cascadeDelete: true,
             collectionId: "_pb_users_auth_",
             hidden: false,
             id: "relation2375276105",
@@ -1270,16 +1271,19 @@ migrate(
           "CREATE UNIQUE INDEX idx_user_device_sessions_session_hash ON user_device_sessions (`session_id_hash`)",
           "CREATE INDEX idx_user_device_sessions_expires_at ON user_device_sessions (expires_at)",
         ],
-        listRule: "",
+        listRule: '@request.auth.id != "" && user = @request.auth.id',
         name: "user_device_sessions",
         system: false,
         type: "base",
-        updateRule: "",
-        viewRule: "",
+        updateRule:
+          '@request.auth.id != "" && user = @request.auth.id && (@request.body.user:isset = false || @request.body.user = @request.auth.id)',
+        viewRule: '@request.auth.id != "" && user = @request.auth.id',
       },
       {
-        createRule: "",
-        deleteRule: "",
+        createRule:
+          '@request.auth.id != "" && @request.body.workspace != "" && @request.body.invited_by = @request.auth.id && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= @request.body.workspace && (@collection.workspace_members.role ?= "owner" || @collection.workspace_members.role ?= "admin")',
+        deleteRule:
+          '(@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= workspace && (@collection.workspace_members.role ?= "owner" || @collection.workspace_members.role ?= "admin")) || (@request.auth.id != "" && email_normalized ?= @request.auth.email:lower && expires_at > @now)',
         fields: [
           {
             autogeneratePattern: "[a-z0-9]{15}",
@@ -1396,16 +1400,21 @@ migrate(
           "CREATE INDEX `idx_9vfsSIAP95` ON `workspace_invites` (`workspace`)",
           "CREATE INDEX `idx_tKRawmMPyA` ON `workspace_invites` (`expires_at`)",
         ],
-        listRule: "",
+        listRule:
+          '(@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= workspace && (@collection.workspace_members.role ?= "owner" || @collection.workspace_members.role ?= "admin")) || (@request.auth.id != "" && email_normalized ?= @request.auth.email:lower && expires_at > @now)',
         name: "workspace_invites",
         system: false,
         type: "base",
-        updateRule: "",
-        viewRule: "",
+        updateRule:
+          '@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= workspace && (@collection.workspace_members.role ?= "owner" || @collection.workspace_members.role ?= "admin")',
+        viewRule:
+          '(@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= workspace && (@collection.workspace_members.role ?= "owner" || @collection.workspace_members.role ?= "admin")) || (@request.auth.id != "" && email_normalized ?= @request.auth.email:lower && expires_at > @now)',
       },
       {
-        createRule: "",
-        deleteRule: "",
+        createRule:
+          '@request.auth.id != "" && @request.body.workspace != "" && @request.body.user = @request.auth.id && (\n  (\n    @request.body.role = "owner" &&\n    @collection.workspaces.id ?= @request.body.workspace &&\n    @collection.workspaces.created_by ?= @request.auth.id\n  )\n  ||\n  (\n    @request.body.role != "owner" &&\n    @collection.workspace_invites.workspace ?= @request.body.workspace &&\n    @collection.workspace_invites.role ?= @request.body.role &&\n    @collection.workspace_invites.email_normalized ?= @request.auth.email:lower &&\n    @collection.workspace_invites.expires_at > @now\n  )\n)',
+        deleteRule:
+          '@request.auth.id != "" && (\n  user = @request.auth.id\n  ||\n  (\n    @collection.workspace_members:auth.user ?= @request.auth.id &&\n    @collection.workspace_members:auth.workspace ?= workspace &&\n    @collection.workspace_members:auth.role ?= "owner"\n  )\n  ||\n  (\n    @collection.workspace_members:auth.user ?= @request.auth.id &&\n    @collection.workspace_members:auth.workspace ?= workspace &&\n    @collection.workspace_members:auth.role ?= "admin" &&\n    role != "owner"\n  )\n)',
         fields: [
           {
             autogeneratePattern: "[a-z0-9]{15}",
@@ -1485,16 +1494,20 @@ migrate(
           "CREATE INDEX `idx_9shJCD6QaV` ON `workspace_members` (`user`)",
           "CREATE INDEX `idx_05TRG4DHAF` ON `workspace_members` (\n  `workspace`,\n  `role`\n)",
         ],
-        listRule: "",
+        listRule:
+          '@request.auth.id != "" && @collection.workspace_members:auth.user ?= @request.auth.id && @collection.workspace_members:auth.workspace ?= workspace',
         name: "workspace_members",
         system: false,
         type: "base",
-        updateRule: "",
-        viewRule: "",
+        updateRule:
+          '@request.auth.id != "" && (\n  (\n    @collection.workspace_members:auth.user ?= @request.auth.id &&\n    @collection.workspace_members:auth.workspace ?= workspace &&\n    @collection.workspace_members:auth.role ?= "owner"\n  )\n  ||\n  (\n    @collection.workspace_members:auth.user ?= @request.auth.id &&\n    @collection.workspace_members:auth.workspace ?= workspace &&\n    @collection.workspace_members:auth.role ?= "admin" &&\n    role != "owner" &&\n    (@request.body.role:isset = false || @request.body.role != "owner")\n  )\n)',
+        viewRule:
+          '@request.auth.id != "" && @collection.workspace_members:auth.user ?= @request.auth.id && @collection.workspace_members:auth.workspace ?= workspace',
       },
       {
-        createRule: "",
-        deleteRule: "",
+        createRule: '@request.auth.id != "" && @request.body.created_by = @request.auth.id',
+        deleteRule:
+          '@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= id && @collection.workspace_members.role ?= "owner"',
         fields: [
           {
             autogeneratePattern: "[a-z0-9]{15}",
@@ -1583,15 +1596,31 @@ migrate(
             system: false,
             type: "autodate",
           },
+          {
+            cascadeDelete: false,
+            collectionId: "_pb_users_auth_",
+            hidden: false,
+            id: "relation1775836000",
+            maxSelect: 1,
+            minSelect: 0,
+            name: "created_by",
+            presentable: false,
+            required: false,
+            system: false,
+            type: "relation",
+          },
         ],
         id: "pbc_2170078043",
         indexes: ["CREATE UNIQUE INDEX `idx_t7YN5coORc` ON `workspaces` (`slug`)"],
-        listRule: "",
+        listRule:
+          '@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= id',
         name: "workspaces",
         system: false,
         type: "base",
-        updateRule: "",
-        viewRule: "",
+        updateRule:
+          '@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= id && (@collection.workspace_members.role ?= "owner" || @collection.workspace_members.role ?= "admin")',
+        viewRule:
+          '(@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= id) || (@request.auth.id != "" && @collection.workspace_invites.workspace ?= id && @collection.workspace_invites.email_normalized ?= @request.auth.email:lower && @collection.workspace_invites.expires_at > @now)',
       },
     ];
 
