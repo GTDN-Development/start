@@ -9,6 +9,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import PocketBase from "pocketbase";
 
 const execFile = promisify(execFileCallback);
 
@@ -19,6 +20,8 @@ const HOOKS_DIR = join(APP_DIR, "pb_hooks");
 const MIGRATIONS_DIR = join(APP_DIR, "pb_migrations");
 const PUBLIC_DIR = join(APP_DIR, "pb_public");
 const LOCAL_BINARY_PATH = join(APP_DIR, "pocketbase");
+const TEST_SUPERUSER_EMAIL = "startup-smoke-admin@example.com";
+const TEST_SUPERUSER_PASSWORD = "startup-smoke-password";
 
 test(
   "PocketBase boots from committed migrations and hooks",
@@ -37,6 +40,14 @@ test(
       await runCommand(binaryPath, [
         "migrate",
         "up",
+        `--dir=${dataDir}`,
+        `--migrationsDir=${MIGRATIONS_DIR}`,
+      ]);
+      await runCommand(binaryPath, [
+        "superuser",
+        "upsert",
+        TEST_SUPERUSER_EMAIL,
+        TEST_SUPERUSER_PASSWORD,
         `--dir=${dataDir}`,
         `--migrationsDir=${MIGRATIONS_DIR}`,
       ]);
@@ -79,6 +90,8 @@ test(
         const inviteInspectBody = await inviteInspectResponse.json();
 
         assert.equal(inviteInspectBody.message, "Missing invite token.");
+
+        await assertWorkspaceCreateHook(port);
       } finally {
         await stopProcess(server);
       }
@@ -87,6 +100,50 @@ test(
     }
   }
 );
+
+async function assertWorkspaceCreateHook(port) {
+  const pb = new PocketBase(`http://127.0.0.1:${port}`);
+  pb.autoCancellation(false);
+
+  await pb
+    .collection("_superusers")
+    .authWithPassword(TEST_SUPERUSER_EMAIL, TEST_SUPERUSER_PASSWORD);
+
+  const suffix = Math.random().toString(16).slice(2, 10);
+  const email = `workspace-create-${suffix}@example.com`;
+  const password = "test-password-123456";
+  const user = await pb.collection("users").create({
+    email,
+    password,
+    passwordConfirm: password,
+    name: "Workspace Create Smoke",
+    verified: true,
+  });
+  const userClient = new PocketBase(`http://127.0.0.1:${port}`);
+  userClient.autoCancellation(false);
+
+  await userClient.collection("users").authWithPassword(email, password);
+
+  const workspaceResponse = await userClient.send("/api/start/workspaces", {
+    method: "POST",
+    body: {
+      name: `Příliš žluťoučký ${suffix}`,
+    },
+  });
+
+  assert.match(workspaceResponse.workspace.slug, /^prilis-zlutoucky-[a-f0-9]{8}$/);
+  assert.equal(workspaceResponse.workspace.role, "owner");
+
+  const memberships = await pb.collection("workspace_members").getFullList({
+    filter: pb.filter("workspace = {:workspaceId} && user = {:userId}", {
+      workspaceId: workspaceResponse.workspace.id,
+      userId: user.id,
+    }),
+  });
+
+  assert.equal(memberships.length, 1);
+  assert.equal(memberships[0].role, "owner");
+}
 
 async function resolvePocketBaseBinary() {
   if (process.env.POCKETBASE_BIN) {

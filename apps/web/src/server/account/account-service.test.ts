@@ -161,9 +161,7 @@ function createLastOwnerGuardError() {
     url: "https://example.com/api/collections/users/records/user-1",
     status: 400,
     response: {
-      data: {
-        code: "LAST_OWNER_GUARD",
-      },
+      message: "Workspace must have at least one owner.",
     },
   });
 }

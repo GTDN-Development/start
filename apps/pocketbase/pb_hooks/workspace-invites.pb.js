@@ -1,10 +1,9 @@
-var WORKSPACE_NAME_MAX_LENGTH = 32;
-var WORKSPACE_SLUG_MAX_LENGTH = 48;
-var WORKSPACE_SLUG_FALLBACK = "workspace";
-var WORKSPACE_KIND_ORGANIZATION = "organization";
-var WORKSPACE_ROLE_OWNER = "owner";
-
 routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
+  var WORKSPACE_NAME_MAX_LENGTH = 32;
+  var WORKSPACE_SLUG_MAX_LENGTH = 48;
+  var WORKSPACE_SLUG_FALLBACK = "workspace";
+  var WORKSPACE_KIND_ORGANIZATION = "organization";
+  var WORKSPACE_ROLE_OWNER = "owner";
   var requestInfo = e.requestInfo();
   var auth = requestInfo.auth;
 
@@ -97,10 +96,7 @@ routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
   }
 
   function toWorkspaceSlug(value) {
-    var normalizedValue = String(value || "")
-      .toLowerCase()
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
+    var normalizedValue = removeWorkspaceSlugDiacritics(String(value || "").toLowerCase())
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
@@ -108,6 +104,30 @@ routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
       normalizedValue || WORKSPACE_SLUG_FALLBACK,
       WORKSPACE_SLUG_MAX_LENGTH
     );
+  }
+
+  function removeWorkspaceSlugDiacritics(value) {
+    var normalizedValue = String(value || "");
+
+    if (typeof normalizedValue.normalize === "function") {
+      return normalizedValue.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    return normalizedValue
+      .replace(/[\u00e0-\u00e5\u0101\u0103\u0105]/g, "a")
+      .replace(/[\u00e7\u0107\u0109\u010b\u010d]/g, "c")
+      .replace(/[\u010f\u0111]/g, "d")
+      .replace(/[\u00e8-\u00eb\u0113\u0115\u0117\u0119\u011b]/g, "e")
+      .replace(/[\u00ec-\u00ef\u0129\u012b\u012d\u012f]/g, "i")
+      .replace(/[\u0142]/g, "l")
+      .replace(/[\u00f1\u0144\u0146\u0148]/g, "n")
+      .replace(/[\u00f2-\u00f6\u00f8\u014d\u014f\u0151]/g, "o")
+      .replace(/[\u0155\u0157\u0159]/g, "r")
+      .replace(/[\u015b\u015d\u015f\u0161]/g, "s")
+      .replace(/[\u0163\u0165\u0167]/g, "t")
+      .replace(/[\u00f9-\u00fc\u0169\u016b\u016d\u016f\u0171\u0173]/g, "u")
+      .replace(/[\u00fd\u00ff\u0177]/g, "y")
+      .replace(/[\u017a\u017c\u017e]/g, "z");
   }
 
   function trimWorkspaceSlugLength(value, maxLength) {
@@ -399,6 +419,8 @@ routerAdd("POST", "/api/start/workspace-invites/accept", function acceptWorkspac
 });
 
 onRecordUpdateRequest(function guardWorkspaceMemberUpdate(e) {
+  var WORKSPACE_ROLE_OWNER = "owner";
+
   if (e.hasSuperuserAuth && e.hasSuperuserAuth()) {
     return e.next();
   }
@@ -428,6 +450,8 @@ onRecordUpdateRequest(function guardWorkspaceMemberUpdate(e) {
 }, "workspace_members");
 
 onRecordDeleteRequest(function guardWorkspaceMemberDelete(e) {
+  var WORKSPACE_ROLE_OWNER = "owner";
+
   if (e.hasSuperuserAuth && e.hasSuperuserAuth()) {
     return e.next();
   }
@@ -452,6 +476,8 @@ onRecordDeleteRequest(function guardWorkspaceMemberDelete(e) {
 }, "workspace_members");
 
 onRecordDeleteRequest(function guardUserDelete(e) {
+  var WORKSPACE_ROLE_OWNER = "owner";
+
   if (e.hasSuperuserAuth && e.hasSuperuserAuth()) {
     return e.next();
   }
