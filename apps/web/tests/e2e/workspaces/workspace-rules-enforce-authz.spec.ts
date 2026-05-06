@@ -150,13 +150,28 @@ test("PocketBase workspace rules enforce membership and role boundaries", async 
     });
     expect(invite.workspace).toBe(workspace.id);
 
-    const acceptedMembership = await inviteeClient.collection("workspace_members").create({
-      workspace: workspace.id,
-      user: invitee.id,
-      role: "member",
+    const acceptedInvite = await inviteeClient.send<{
+      state: string;
+      workspace?: {
+        id: string;
+      };
+    }>("/api/start/workspace-invites/accept", {
+      method: "POST",
+      body: {
+        token: inviteToken,
+      },
     });
-    expect(acceptedMembership.workspace).toBe(workspace.id);
-    expect(acceptedMembership.user).toBe(invitee.id);
+    expect(acceptedInvite.state).toBe("accepted");
+    expect(acceptedInvite.workspace?.id).toBe(workspace.id);
+
+    const acceptedMemberships = await adminPb.collection("workspace_members").getFullList({
+      filter: adminPb.filter("workspace = {:workspaceId} && user = {:userId}", {
+        workspaceId: workspace.id,
+        userId: invitee.id,
+      }),
+    });
+    expect(acceptedMemberships).toHaveLength(1);
+    expect(acceptedMemberships[0]?.role).toBe("member");
 
     await expect(
       adminClient.collection("workspace_members").update(adminMembership.id, {
@@ -171,19 +186,30 @@ test("PocketBase workspace rules enforce membership and role boundaries", async 
     });
     expect(updatedWorkspace.name).toBe(`Workspace Rules Updated ${suffix}`);
 
-    const bootstrapWorkspace = await bootstrapClient.collection("workspaces").create({
-      name: `Workspace Bootstrap ${suffix}`,
-      slug: bootstrapWorkspaceSlug,
-      kind: "organization",
-      created_by: bootstrapUser.id,
+    const bootstrapWorkspace = await bootstrapClient.send<{
+      workspace: {
+        id: string;
+        slug: string;
+        role: string;
+      };
+    }>("/api/start/workspaces", {
+      method: "POST",
+      body: {
+        name: `Workspace Bootstrap ${suffix}`,
+        slug: bootstrapWorkspaceSlug,
+      },
     });
-    const bootstrapMembership = await bootstrapClient.collection("workspace_members").create({
-      workspace: bootstrapWorkspace.id,
-      user: bootstrapUser.id,
-      role: "owner",
+    expect(bootstrapWorkspace.workspace.slug).toBe(bootstrapWorkspaceSlug);
+    expect(bootstrapWorkspace.workspace.role).toBe("owner");
+
+    const bootstrapMemberships = await adminPb.collection("workspace_members").getFullList({
+      filter: adminPb.filter("workspace = {:workspaceId} && user = {:userId}", {
+        workspaceId: bootstrapWorkspace.workspace.id,
+        userId: bootstrapUser.id,
+      }),
     });
-    expect(bootstrapMembership.workspace).toBe(bootstrapWorkspace.id);
-    expect(bootstrapMembership.user).toBe(bootstrapUser.id);
+    expect(bootstrapMemberships).toHaveLength(1);
+    expect(bootstrapMemberships[0]?.role).toBe("owner");
 
     await selfLeaveClient.collection("workspace_members").delete(selfLeaveMembership.id);
     await expect(

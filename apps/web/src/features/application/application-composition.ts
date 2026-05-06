@@ -4,7 +4,7 @@ import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
 import type { AppHref } from "@/i18n/navigation";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { listUserWorkspacesWithClient } from "@/server/workspaces/workspace-resolution-service";
+import { listUserWorkspaceShells } from "@/server/workspaces/workspace-shell-queries";
 import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
 
 export type ApplicationWorkspaceNavigation = {
@@ -21,7 +21,7 @@ export async function buildApplicationShellModel(input: {
   pb: PocketBase;
   user: UsersRecord;
 }): Promise<ServerWorkspaceResponse<ApplicationShellModel>> {
-  const userWorkspacesResponse = await listUserWorkspacesWithClient(input.pb, input.user.id);
+  const userWorkspacesResponse = await listUserWorkspaceShells(input.pb, input.user.id);
 
   if (!userWorkspacesResponse.ok) {
     return userWorkspacesResponse;

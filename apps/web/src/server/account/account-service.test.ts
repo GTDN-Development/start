@@ -1,6 +1,7 @@
+import { ClientResponseError } from "pocketbase";
 import type PocketBase from "pocketbase";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { UsersRecord, WorkspaceMembersRecord } from "@/types/pocketbase";
+import type { UsersRecord } from "@/types/pocketbase";
 
 vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() {
   return {
@@ -14,19 +15,8 @@ vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer()
   };
 });
 
-vi.mock("@/server/workspaces/workspace-repository", function mockWorkspaceRepository() {
-  return {
-    countWorkspaceOwners: vi.fn(),
-    listUserWorkspaceMembershipRecords: vi.fn(),
-  };
-});
-
 import { requireCurrentWritableUser } from "@/server/auth/auth-session-service";
 import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
-import {
-  countWorkspaceOwners,
-  listUserWorkspaceMembershipRecords,
-} from "@/server/workspaces/workspace-repository";
 import {
   deleteCurrentUserAccountWithPassword,
   updateCurrentUserPassword,
@@ -53,11 +43,8 @@ describe("account-service", function describeAccountService() {
     currentUser.usersCollection.authWithPassword.mockResolvedValue({
       record: currentUser.user,
     });
+    currentUser.usersCollection.delete.mockRejectedValue(createLastOwnerGuardError());
     vi.mocked(requireCurrentWritableUser).mockResolvedValue(currentUser.result);
-    vi.mocked(listUserWorkspaceMembershipRecords).mockResolvedValue([
-      createWorkspaceMemberRecord("membership-owner", currentUser.user.id, "owner"),
-    ]);
-    vi.mocked(countWorkspaceOwners).mockResolvedValue(1);
 
     const response = await deleteCurrentUserAccountWithPassword("secret-password");
 
@@ -65,23 +52,16 @@ describe("account-service", function describeAccountService() {
       ok: false,
       errorCode: "ACCOUNT_DELETE_BLOCKED_LAST_OWNER",
     });
-    expect(currentUser.workspaceMembersCollection.delete).not.toHaveBeenCalled();
-    expect(currentUser.usersCollection.delete).not.toHaveBeenCalled();
+    expect(currentUser.usersCollection.delete).toHaveBeenCalledWith(currentUser.user.id);
   });
 
   it("deletes the user record and clears cookies when account deletion succeeds", async function testDeleteHappyPath() {
     const currentUser = createCurrentUserContext();
-    const memberships = [
-      createWorkspaceMemberRecord("membership-owner", currentUser.user.id, "owner"),
-      createWorkspaceMemberRecord("membership-member", currentUser.user.id, "member"),
-    ];
 
     currentUser.usersCollection.authWithPassword.mockResolvedValue({
       record: currentUser.user,
     });
     vi.mocked(requireCurrentWritableUser).mockResolvedValue(currentUser.result);
-    vi.mocked(listUserWorkspaceMembershipRecords).mockResolvedValue(memberships);
-    vi.mocked(countWorkspaceOwners).mockResolvedValue(2);
 
     const response = await deleteCurrentUserAccountWithPassword("secret-password");
 
@@ -92,7 +72,6 @@ describe("account-service", function describeAccountService() {
       },
       setCookie: ["pb_auth=; Max-Age=0"],
     });
-    expect(currentUser.workspaceMembersCollection.delete).not.toHaveBeenCalled();
     expect(currentUser.usersCollection.delete).toHaveBeenCalledWith(currentUser.user.id);
   });
 
@@ -132,14 +111,8 @@ function createCurrentUserContext() {
       return undefined;
     }),
   };
-  const workspaceMembersCollection = {
-    delete: vi.fn(async function deleteWorkspaceMember() {
-      return undefined;
-    }),
-  };
   const pb = createPocketBaseMock({
     users: usersCollection,
-    workspace_members: workspaceMembersCollection,
   });
   const user = createUserRecord("user-1", "user@example.com");
 
@@ -152,7 +125,6 @@ function createCurrentUserContext() {
     },
     user,
     usersCollection,
-    workspaceMembersCollection,
   };
 }
 
@@ -184,19 +156,14 @@ function createUserRecord(id: string, email: string): UsersRecord {
   };
 }
 
-function createWorkspaceMemberRecord(
-  id: string,
-  userId: string,
-  role: WorkspaceMembersRecord["role"]
-): WorkspaceMembersRecord {
-  return {
-    id,
-    collectionId: "workspace_members",
-    collectionName: "workspace_members",
-    created: "2026-01-01T00:00:00.000Z",
-    role,
-    updated: "2026-01-01T00:00:00.000Z",
-    user: userId,
-    workspace: "workspace-1",
-  };
+function createLastOwnerGuardError() {
+  return new ClientResponseError({
+    url: "https://example.com/api/collections/users/records/user-1",
+    status: 400,
+    response: {
+      data: {
+        code: "LAST_OWNER_GUARD",
+      },
+    },
+  });
 }

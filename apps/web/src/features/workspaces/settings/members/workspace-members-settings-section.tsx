@@ -39,7 +39,6 @@ import { leaveWorkspaceAction } from "@/features/workspaces/settings/general/wor
 import {
   changeMemberRoleAction,
   createInviteAction,
-  refreshInviteLinkAction,
   removeMemberAction,
   resendInviteAction,
   revokeInviteAction,
@@ -98,13 +97,6 @@ type ConfirmActionState =
 
 type ManagementActionState = ChangeRoleActionState | ConfirmActionState | null;
 
-type WorkspaceInviteActionPatch = {
-  inviteId: string;
-  expiresAt: string;
-  updatedAt: string;
-  inviteUrl: string;
-};
-
 export function WorkspaceMembersSettingsSection({
   workspace,
   initialMembers,
@@ -120,23 +112,20 @@ export function WorkspaceMembersSettingsSection({
   const tRoles = useTranslations("pages.workspace.members.roles");
   const locale = useLocale() as AppLocale;
   const router = useRouter();
-  const { removeWorkspace, upsertWorkspace } = useWorkspaceNavigation();
+  const { removeWorkspace } = useWorkspaceNavigation();
 
-  const [workspaceState, setWorkspaceState] = useState(workspace);
-  const [members, setMembers] = useState(initialMembers);
-  const [invites, setInvites] = useState(initialInvites);
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
 
-  const isInviteManagementReadOnly = workspaceState.role === "member";
-  const ownerCount = members.filter((member) => member.role === "owner").length;
+  const isInviteManagementReadOnly = workspace.role === "member";
+  const ownerCount = initialMembers.filter((member) => member.role === "owner").length;
   const currentUserMember =
-    members.find((member) => member.userId === workspaceState.currentUserId) ?? null;
+    initialMembers.find((member) => member.userId === workspace.currentUserId) ?? null;
   const isCurrentUserLastOwner = currentUserMember
     ? isLastWorkspaceOwner(currentUserMember.role, ownerCount)
     : false;
-  const hasPendingInvitations = invites.length > 0;
-  const roleOptions = getAssignableWorkspaceMemberRoleOptions(workspaceState.role);
+  const hasPendingInvitations = initialInvites.length > 0;
+  const roleOptions = getAssignableWorkspaceMemberRoleOptions(workspace.role);
 
   const changeRoleState = actionState?.type === "change-role" ? actionState : null;
   const confirmActionState = actionState && actionState.type !== "change-role" ? actionState : null;
@@ -153,21 +142,17 @@ export function WorkspaceMembersSettingsSection({
     email: string;
     role: "admin" | "member";
   }) {
-    const response = await runAsyncTransition(() => createInviteAction(workspaceState.slug, input));
+    const response = await runAsyncTransition(() => createInviteAction(workspace.slug, input));
 
-    if (!response.ok) {
-      return response;
+    if (response.ok) {
+      refreshServerState();
     }
-
-    startTransition(() => {
-      setInvites((currentInvites) => [response.data.invite, ...currentInvites]);
-    });
 
     return response;
   }
 
   function handleChangeRoleRequest(member: WorkspaceSettingsMember) {
-    if (!canManageWorkspaceMemberRole(workspaceState.role, member.role)) {
+    if (!canManageWorkspaceMemberRole(workspace.role, member.role)) {
       return;
     }
 
@@ -179,11 +164,10 @@ export function WorkspaceMembersSettingsSection({
   }
 
   function handleRemoveMemberRequest(member: WorkspaceSettingsMember) {
-    if (!canManageWorkspaceMemberRole(workspaceState.role, member.role)) {
-      return;
-    }
-
-    if (isLastWorkspaceOwner(member.role, ownerCount)) {
+    if (
+      !canManageWorkspaceMemberRole(workspace.role, member.role) ||
+      isLastWorkspaceOwner(member.role, ownerCount)
+    ) {
       return;
     }
 
@@ -226,52 +210,6 @@ export function WorkspaceMembersSettingsSection({
     });
   }
 
-  async function handleCopyInvitationLink(invitation: WorkspaceSettingsInvite) {
-    if (isInviteManagementReadOnly) {
-      return;
-    }
-
-    const response = await runAsyncTransition(() =>
-      refreshInviteLinkAction(workspaceState.slug, invitation.id, locale)
-    );
-
-    if (!response.ok) {
-      toast.error(getActionErrorMessage(response.errorCode, t("status.inviteCopy.error"), t));
-      return;
-    }
-
-    startTransition(() => {
-      setInvites((currentInvites) =>
-        currentInvites.map((invite) => patchWorkspaceInvite(invite, response.data))
-      );
-    });
-
-    try {
-      await window.navigator.clipboard.writeText(response.data.inviteUrl);
-      toast.success(t("status.inviteCopy.success"));
-    } catch (error) {
-      console.error("Failed to copy invitation link:", error);
-      toast.error(t("status.inviteCopy.copyFailed"));
-    }
-  }
-
-  function applyMembersState(nextMembers: WorkspaceSettingsMember[]) {
-    const nextWorkspace = deriveWorkspaceStateFromMembers(workspaceState, nextMembers);
-
-    setMembers(nextMembers);
-    setWorkspaceState(nextWorkspace);
-
-    if (nextWorkspace.role !== workspaceState.role) {
-      upsertWorkspace({
-        id: nextWorkspace.id,
-        slug: nextWorkspace.slug,
-        name: nextWorkspace.name,
-        role: nextWorkspace.role,
-        avatarUrl: nextWorkspace.avatarUrl,
-      });
-    }
-  }
-
   function handleActionDialogOpenChange(open: boolean) {
     if (isActionSubmitting) {
       return;
@@ -291,7 +229,7 @@ export function WorkspaceMembersSettingsSection({
       return;
     }
 
-    if (!canAssignWorkspaceMemberRole(workspaceState.role, value)) {
+    if (!canAssignWorkspaceMemberRole(workspace.role, value)) {
       return;
     }
 
@@ -311,11 +249,20 @@ export function WorkspaceMembersSettingsSection({
     });
   }
 
-  function finalizeAction(update: () => void) {
+  function completeAction(options: { refresh?: boolean } = {}) {
     startTransition(() => {
       setIsActionSubmitting(false);
       setActionState(null);
-      update();
+
+      if (options.refresh !== false) {
+        router.refresh();
+      }
+    });
+  }
+
+  function refreshServerState() {
+    startTransition(() => {
+      router.refresh();
     });
   }
 
@@ -331,7 +278,7 @@ export function WorkspaceMembersSettingsSection({
 
     if (
       !canChangeWorkspaceMemberRole(
-        workspaceState.role,
+        workspace.role,
         changeRoleState.member.role,
         changeRoleState.selectedRole
       )
@@ -344,7 +291,7 @@ export function WorkspaceMembersSettingsSection({
 
     const response = await runAsyncTransition(() =>
       changeMemberRoleAction(
-        workspaceState.slug,
+        workspace.slug,
         changeRoleState.member.id,
         changeRoleState.selectedRole
       )
@@ -356,15 +303,7 @@ export function WorkspaceMembersSettingsSection({
       return;
     }
 
-    finalizeAction(() => {
-      applyMembersState(
-        sortWorkspaceSettingsMembers(
-          members.map((member) =>
-            member.id === response.data.memberId ? { ...member, role: response.data.role } : member
-          )
-        )
-      );
-    });
+    completeAction();
     toast.success(t("status.roleChange.success"));
   }
 
@@ -381,7 +320,7 @@ export function WorkspaceMembersSettingsSection({
         }
 
         setIsActionSubmitting(true);
-        const response = await runAsyncTransition(() => leaveWorkspaceAction(workspaceState.slug));
+        const response = await runAsyncTransition(() => leaveWorkspaceAction(workspace.slug));
 
         if (!response.ok) {
           setIsActionSubmitting(false);
@@ -393,10 +332,9 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        finalizeAction(() => {
-          removeWorkspace(workspaceState.id);
-          router.replace(APP_HOME_PATH);
-        });
+        completeAction({ refresh: false });
+        removeWorkspace(workspace.id);
+        router.replace(APP_HOME_PATH);
         toast.success(tLeave("status.success"));
         return;
       }
@@ -409,7 +347,7 @@ export function WorkspaceMembersSettingsSection({
 
         setIsActionSubmitting(true);
         const response = await runAsyncTransition(() =>
-          removeMemberAction(workspaceState.slug, confirmActionState.member.id)
+          removeMemberAction(workspace.slug, confirmActionState.member.id)
         );
 
         if (!response.ok) {
@@ -418,9 +356,7 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        finalizeAction(() => {
-          applyMembersState(members.filter((member) => member.id !== response.data.memberId));
-        });
+        completeAction();
         toast.success(t("status.memberRemove.success"));
         return;
       }
@@ -432,7 +368,7 @@ export function WorkspaceMembersSettingsSection({
 
         setIsActionSubmitting(true);
         const response = await runAsyncTransition(() =>
-          resendInviteAction(workspaceState.slug, confirmActionState.invitation.id, locale)
+          resendInviteAction(workspace.slug, confirmActionState.invitation.id, locale)
         );
 
         if (!response.ok) {
@@ -441,11 +377,7 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        finalizeAction(() => {
-          setInvites((currentInvites) =>
-            currentInvites.map((invite) => patchWorkspaceInvite(invite, response.data))
-          );
-        });
+        completeAction();
         toast.success(t("status.inviteResend.success"));
         return;
       }
@@ -457,7 +389,7 @@ export function WorkspaceMembersSettingsSection({
 
         setIsActionSubmitting(true);
         const response = await runAsyncTransition(() =>
-          revokeInviteAction(workspaceState.slug, confirmActionState.invitation.id)
+          revokeInviteAction(workspace.slug, confirmActionState.invitation.id)
         );
 
         if (!response.ok) {
@@ -466,11 +398,7 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        finalizeAction(() => {
-          setInvites((currentInvites) =>
-            currentInvites.filter((invite) => invite.id !== response.data.inviteId)
-          );
-        });
+        completeAction();
         toast.success(t("status.inviteRemove.success"));
         return;
       }
@@ -512,7 +440,7 @@ export function WorkspaceMembersSettingsSection({
       case "remove-member":
         confirmDialogTitle = t("dialogs.removeMember.title");
         confirmDialogDescription = t("dialogs.removeMember.description", {
-          workspaceName: workspaceState.name,
+          workspaceName: workspace.name,
         });
         confirmDialogSubmitLabel = t("dialogs.removeMember.submit.default");
         confirmDialogPendingLabel = t("dialogs.removeMember.submit.pending");
@@ -533,7 +461,7 @@ export function WorkspaceMembersSettingsSection({
       case "resend-invitation":
         confirmDialogTitle = t("dialogs.resendInvite.title");
         confirmDialogDescription = t("dialogs.resendInvite.description", {
-          workspaceName: workspaceState.name,
+          workspaceName: workspace.name,
         });
         confirmDialogSubmitLabel = t("dialogs.resendInvite.submit.default");
         confirmDialogPendingLabel = t("dialogs.resendInvite.submit.pending");
@@ -547,7 +475,7 @@ export function WorkspaceMembersSettingsSection({
       case "remove-invitation":
         confirmDialogTitle = t("dialogs.removeInvite.title");
         confirmDialogDescription = t("dialogs.removeInvite.description", {
-          workspaceName: workspaceState.name,
+          workspaceName: workspace.name,
         });
         confirmDialogSubmitLabel = t("dialogs.removeInvite.submit.default");
         confirmDialogPendingLabel = t("dialogs.removeInvite.submit.pending");
@@ -564,7 +492,7 @@ export function WorkspaceMembersSettingsSection({
   return (
     <div className="grid gap-8">
       <WorkspaceInviteMembersSettingsItem
-        workspace={workspaceState}
+        workspace={workspace}
         onCreateInviteAction={handleCreateInviteAction}
       />
 
@@ -587,9 +515,9 @@ export function WorkspaceMembersSettingsSection({
 
                 <TabsContent value="members" className="grid gap-4">
                   <WorkspaceMembersTable
-                    rows={members}
-                    currentUserId={workspaceState.currentUserId}
-                    actorRole={workspaceState.role}
+                    rows={initialMembers}
+                    currentUserId={workspace.currentUserId}
+                    actorRole={workspace.role}
                     ownerCount={ownerCount}
                     onChangeRoleRequestAction={handleChangeRoleRequest}
                     onLeaveWorkspaceRequestAction={handleLeaveWorkspaceRequest}
@@ -600,9 +528,8 @@ export function WorkspaceMembersSettingsSection({
                 <TabsContent value="pending-invitations" className="grid gap-4">
                   {hasPendingInvitations ? (
                     <WorkspaceInvitationsTable
-                      rows={invites}
+                      rows={initialInvites}
                       isReadOnly={isInviteManagementReadOnly}
-                      onCopyInvitationLinkAction={handleCopyInvitationLink}
                       onResendInvitationRequestAction={handleResendInvitationRequest}
                       onRemoveInvitationRequestAction={handleRemoveInvitationRequest}
                     />
@@ -623,7 +550,7 @@ export function WorkspaceMembersSettingsSection({
             <AlertDialogDescription>
               {t("dialogs.changeRole.description", {
                 memberName: changeRoleState?.member.name ?? t("dialogs.common.thisMember"),
-                workspaceName: workspaceState.name,
+                workspaceName: workspace.name,
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -678,7 +605,7 @@ export function WorkspaceMembersSettingsSection({
               }
               onClick={handleChangeRoleConfirm}
             >
-              {isActionSubmitting ? <Spinner /> : null}
+              {isActionSubmitting && <Spinner />}
               {isActionSubmitting
                 ? t("dialogs.changeRole.submit.pending")
                 : t("dialogs.changeRole.submit.default")}
@@ -772,62 +699,4 @@ function getActionErrorMessage(
     default:
       return fallbackMessage;
   }
-}
-
-function patchWorkspaceInvite(
-  invite: WorkspaceSettingsInvite,
-  patch: WorkspaceInviteActionPatch
-): WorkspaceSettingsInvite {
-  if (invite.id !== patch.inviteId) {
-    return invite;
-  }
-
-  return {
-    ...invite,
-    expiresAt: patch.expiresAt,
-    updatedAt: patch.updatedAt,
-    inviteUrl: patch.inviteUrl,
-  };
-}
-
-function deriveWorkspaceStateFromMembers(
-  workspace: WorkspaceSettingsWorkspace,
-  members: WorkspaceSettingsMember[]
-): WorkspaceSettingsWorkspace {
-  const currentUserMember =
-    members.find((member) => member.userId === workspace.currentUserId) ?? null;
-  const ownerCount = members.filter((member) => member.role === "owner").length;
-
-  if (!currentUserMember) {
-    return workspace;
-  }
-
-  return {
-    ...workspace,
-    role: currentUserMember.role,
-    isCurrentUserLastOwner: currentUserMember.role === "owner" && ownerCount === 1,
-  };
-}
-
-function sortWorkspaceSettingsMembers(members: WorkspaceSettingsMember[]) {
-  return [...members].sort((firstMember, secondMember) => {
-    const roleOrderDifference =
-      getWorkspaceRoleOrder(firstMember.role) - getWorkspaceRoleOrder(secondMember.role);
-
-    if (roleOrderDifference !== 0) {
-      return roleOrderDifference;
-    }
-
-    return getWorkspaceMemberSortKey(firstMember).localeCompare(
-      getWorkspaceMemberSortKey(secondMember)
-    );
-  });
-}
-
-function getWorkspaceMemberSortKey(member: WorkspaceSettingsMember) {
-  return member.email || member.name || member.userId;
-}
-
-function getWorkspaceRoleOrder(role: WorkspaceSettingsMember["role"]) {
-  return role === "owner" ? 0 : role === "admin" ? 1 : 2;
 }

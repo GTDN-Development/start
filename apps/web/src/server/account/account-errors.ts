@@ -93,6 +93,12 @@ export function mapDeleteAccountErrorCode(error: unknown): AuthErrorCode {
   return mapPocketBaseError(
     error,
     (pocketBaseError) => {
+      if (
+        isLastOwnerGuardError(pocketBaseError.response?.data, pocketBaseError.response?.message)
+      ) {
+        return "ACCOUNT_DELETE_BLOCKED_LAST_OWNER";
+      }
+
       if (pocketBaseError.status === 401) {
         return "UNAUTHORIZED";
       }
@@ -108,6 +114,21 @@ export function mapDeleteAccountErrorCode(error: unknown): AuthErrorCode {
       return null;
     },
     "UNKNOWN_ERROR"
+  );
+}
+
+function isLastOwnerGuardError(data: unknown, message: unknown): boolean {
+  if (message === "Workspace must have at least one owner.") {
+    return true;
+  }
+
+  if (data === null || typeof data !== "object") {
+    return false;
+  }
+
+  return (
+    ("guard" in data && data.guard === "LAST_OWNER_GUARD") ||
+    ("code" in data && data.code === "LAST_OWNER_GUARD")
   );
 }
 

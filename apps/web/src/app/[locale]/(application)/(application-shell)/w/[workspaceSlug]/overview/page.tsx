@@ -11,7 +11,7 @@ import {
 import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { requireWorkspaceRouteAccess } from "@/features/workspaces/workspace-route";
-import { resolveCurrentUserWorkspaceRouteAccess } from "@/server/workspaces/workspace-resolution-service";
+import { resolveWorkspaceRouteAccess } from "@/server/workspaces/workspace-route-queries";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/overview">
@@ -35,10 +35,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
 
   setRequestLocale(currentLocale);
 
-  requireWorkspaceRouteAccess(
-    await resolveCurrentUserWorkspaceRouteAccess(workspaceSlug),
-    currentLocale
-  );
+  requireWorkspaceRouteAccess(await resolveWorkspaceRouteAccess(workspaceSlug), currentLocale);
 
   const tNav = await getTranslations({
     locale: currentLocale,

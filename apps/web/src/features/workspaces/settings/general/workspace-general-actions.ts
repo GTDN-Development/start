@@ -12,17 +12,12 @@ import {
   getActiveWorkspaceSlugCookie,
   setActiveWorkspaceSlugCookie,
 } from "@/server/workspaces/workspace-cookie";
-import {
-  createWorkspaceForCurrentUser,
-  deleteWorkspaceForCurrentUser,
-  updateWorkspaceGeneralForCurrentUser,
-} from "@/server/workspaces/workspace-general-service";
-import { leaveWorkspaceForCurrentUser } from "@/server/workspaces/workspace-members-service";
+import { workspaceMutations } from "@/server/workspaces/workspace-mutations";
 import {
   createBadRequestWorkspaceResponse,
   finalizeWorkspaceAction,
 } from "@/server/workspaces/workspace-response";
-import { resolveAccessibleWorkspaceForCurrentUser } from "@/server/workspaces/workspace-resolution-service";
+import { resolveAccessibleWorkspaceForCurrentUser } from "@/server/workspaces/workspace-route-queries";
 import type { UserWorkspace, WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 export async function createWorkspaceAction(input: {
@@ -35,7 +30,7 @@ export async function createWorkspaceAction(input: {
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await createWorkspaceForCurrentUser(parsedInput.data);
+  const response = await workspaceMutations.createWorkspace(parsedInput.data);
 
   return finalizeWorkspaceAction(response, {
     onSuccess: async (data) => {
@@ -90,7 +85,7 @@ export async function updateWorkspaceGeneralAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await updateWorkspaceGeneralForCurrentUser(
+  const response = await workspaceMutations.updateWorkspaceGeneral(
     parsedWorkspaceSlug.data,
     parsedInput.data
   );
@@ -125,11 +120,14 @@ export async function leaveWorkspaceAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  return finalizeWorkspaceAction(await leaveWorkspaceForCurrentUser(parsedWorkspaceSlug.data), {
-    onSuccess: async () => {
-      await clearActiveWorkspaceCookieIfNeeded(parsedWorkspaceSlug.data);
-    },
-  });
+  return finalizeWorkspaceAction(
+    await workspaceMutations.leaveWorkspace(parsedWorkspaceSlug.data),
+    {
+      onSuccess: async () => {
+        await clearActiveWorkspaceCookieIfNeeded(parsedWorkspaceSlug.data);
+      },
+    }
+  );
 }
 
 export async function deleteWorkspaceAction(
@@ -141,11 +139,14 @@ export async function deleteWorkspaceAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  return finalizeWorkspaceAction(await deleteWorkspaceForCurrentUser(parsedWorkspaceSlug.data), {
-    onSuccess: async () => {
-      await clearActiveWorkspaceCookieIfNeeded(parsedWorkspaceSlug.data);
-    },
-  });
+  return finalizeWorkspaceAction(
+    await workspaceMutations.deleteWorkspace(parsedWorkspaceSlug.data),
+    {
+      onSuccess: async () => {
+        await clearActiveWorkspaceCookieIfNeeded(parsedWorkspaceSlug.data);
+      },
+    }
+  );
 }
 
 function isWorkspaceAvatarFileValid(avatarFile: File): boolean {

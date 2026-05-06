@@ -28,24 +28,24 @@ const domainDefinitions = [
 const representativeScenarios = [
   {
     name: "workspace-general-update",
-    flow: "workspace-general-settings-section.tsx -> workspace-url-settings-item.tsx -> workspace-general-actions.ts -> workspace-general-service.ts",
+    flow: "workspace-general-settings-section.tsx -> workspace-url-settings-item.tsx -> workspace-general-actions.ts -> workspace-mutations.ts",
     why: "Tracks the concrete workspace slug update path after route handoff into the general-settings owner.",
     files: [
       "apps/web/src/features/workspaces/settings/general/workspace-general-settings-section.tsx",
       "apps/web/src/features/workspaces/settings/general/workspace-url-settings-item.tsx",
       "apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts",
-      "apps/web/src/server/workspaces/workspace-general-service.ts",
+      "apps/web/src/server/workspaces/workspace-mutations.ts",
     ],
   },
   {
     name: "workspace-membership-change",
-    flow: "workspace-members-settings-section.tsx -> workspace-members-table.tsx -> workspace-members-actions.ts -> workspace-members-service.ts",
+    flow: "workspace-members-settings-section.tsx -> workspace-members-table.tsx -> workspace-members-actions.ts -> workspace-mutations.ts",
     why: "Tracks the concrete member-role and member-removal path through the single members screen owner.",
     files: [
       "apps/web/src/features/workspaces/settings/members/workspace-members-settings-section.tsx",
       "apps/web/src/features/workspaces/settings/members/workspace-members-table.tsx",
       "apps/web/src/features/workspaces/settings/members/workspace-members-actions.ts",
-      "apps/web/src/server/workspaces/workspace-members-service.ts",
+      "apps/web/src/server/workspaces/workspace-mutations.ts",
     ],
   },
   {
@@ -71,12 +71,12 @@ const representativeScenarios = [
   },
   {
     name: "workspace-scope-switch",
-    flow: "scope-switcher.tsx -> workspace-general-actions.ts -> workspace-resolution-service.ts -> workspace-cookie.ts",
+    flow: "scope-switcher.tsx -> workspace-general-actions.ts -> workspace-route-queries.ts -> workspace-cookie.ts",
     why: "Tracks the concrete workspace switch mutation path across client navigation state and active-workspace persistence.",
     files: [
       "apps/web/src/features/application/scope-switcher.tsx",
       "apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts",
-      "apps/web/src/server/workspaces/workspace-resolution-service.ts",
+      "apps/web/src/server/workspaces/workspace-route-queries.ts",
       "apps/web/src/server/workspaces/workspace-cookie.ts",
     ],
   },

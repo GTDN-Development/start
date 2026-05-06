@@ -1243,8 +1243,7 @@ migrate(
           '(@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= workspace && (@collection.workspace_members.role ?= "owner" || @collection.workspace_members.role ?= "admin")) || (@request.auth.id != "" && email_normalized ?= @request.auth.email:lower && expires_at > @now)',
       },
       {
-        createRule:
-          '@request.auth.id != "" && @request.body.workspace != "" && @request.body.user = @request.auth.id && (\n  (\n    @request.body.role = "owner" &&\n    @collection.workspaces.id ?= @request.body.workspace &&\n    @collection.workspaces.created_by ?= @request.auth.id\n  )\n  ||\n  (\n    @request.body.role != "owner" &&\n    @collection.workspace_invites.workspace ?= @request.body.workspace &&\n    @collection.workspace_invites.role ?= @request.body.role &&\n    @collection.workspace_invites.email_normalized ?= @request.auth.email:lower &&\n    @collection.workspace_invites.expires_at > @now\n  )\n)',
+        createRule: null,
         deleteRule:
           '@request.auth.id != "" && (\n  user = @request.auth.id\n  ||\n  (\n    @collection.workspace_members:auth.user ?= @request.auth.id &&\n    @collection.workspace_members:auth.workspace ?= workspace &&\n    @collection.workspace_members:auth.role ?= "owner"\n  )\n  ||\n  (\n    @collection.workspace_members:auth.user ?= @request.auth.id &&\n    @collection.workspace_members:auth.workspace ?= workspace &&\n    @collection.workspace_members:auth.role ?= "admin" &&\n    role != "owner"\n  )\n)',
         fields: [
@@ -1337,7 +1336,7 @@ migrate(
           '@request.auth.id != "" && @collection.workspace_members:auth.user ?= @request.auth.id && @collection.workspace_members:auth.workspace ?= workspace',
       },
       {
-        createRule: '@request.auth.id != "" && @request.body.created_by = @request.auth.id',
+        createRule: null,
         deleteRule:
           '@request.auth.id != "" && @collection.workspace_members.user ?= @request.auth.id && @collection.workspace_members.workspace ?= id && @collection.workspace_members.role ?= "owner"',
         fields: [

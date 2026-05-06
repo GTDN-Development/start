@@ -6,9 +6,11 @@ import { getWorkspaceSettingsHref } from "@/config/routes";
 import { WorkspaceMembersSettingsSection } from "@/features/workspaces/settings/members/workspace-members-settings-section";
 import { SettingsPage } from "@/features/application/settings-page";
 import { requireWorkspaceRouteAccess } from "@/features/workspaces/workspace-route";
-import { listWorkspaceInvitesWithClient } from "@/server/workspaces/workspace-invite-service";
-import { listWorkspaceMembersWithClient } from "@/server/workspaces/workspace-members-service";
-import { resolveCurrentUserWorkspaceRouteAccess } from "@/server/workspaces/workspace-resolution-service";
+import { resolveWorkspaceRouteAccess } from "@/server/workspaces/workspace-route-queries";
+import {
+  listWorkspaceInvitesForSettings,
+  listWorkspaceMembersForSettings,
+} from "@/server/workspaces/workspace-settings-queries";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings/members">
@@ -40,7 +42,7 @@ export default async function Page({
   setRequestLocale(currentLocale);
 
   const { pb, user, workspace } = requireWorkspaceRouteAccess(
-    await resolveCurrentUserWorkspaceRouteAccess(workspaceSlug),
+    await resolveWorkspaceRouteAccess(workspaceSlug),
     currentLocale
   );
   const tWorkspaceMembersPage = await getTranslations({
@@ -48,7 +50,7 @@ export default async function Page({
     namespace: "pages.workspace.members.page",
   });
 
-  const membersResponse = await listWorkspaceMembersWithClient(pb, workspace.id);
+  const membersResponse = await listWorkspaceMembersForSettings(pb, workspace.id);
 
   if (!membersResponse.ok) {
     redirect({
@@ -67,7 +69,7 @@ export default async function Page({
             invites: [],
           },
         }
-      : await listWorkspaceInvitesWithClient(pb, workspace.id);
+      : await listWorkspaceInvitesForSettings(pb, workspace.id);
 
   if (!invitesResponse.ok) {
     redirect({

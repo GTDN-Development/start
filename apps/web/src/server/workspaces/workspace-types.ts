@@ -45,7 +45,6 @@ export type WorkspaceInviteSummary = {
   expiresAt: string;
   updatedAt: string;
   invitedByName: string | null;
-  inviteUrl: string | null;
 };
 
 export type WorkspaceInviteInspectResult =

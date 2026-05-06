@@ -3,7 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getWorkspaceOverviewHref } from "@/config/routes";
 import { redirect } from "@/i18n/navigation";
 import { requireWorkspaceRouteAccess } from "@/features/workspaces/workspace-route";
-import { resolveCurrentUserWorkspaceRouteAccess } from "@/server/workspaces/workspace-resolution-service";
+import { resolveWorkspaceRouteAccess } from "@/server/workspaces/workspace-route-queries";
 
 export default async function Page({ params }: PageProps<"/[locale]/w/[workspaceSlug]">) {
   const { locale, workspaceSlug } = await params;
@@ -12,7 +12,7 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   setRequestLocale(currentLocale);
 
   const { workspace } = requireWorkspaceRouteAccess(
-    await resolveCurrentUserWorkspaceRouteAccess(workspaceSlug),
+    await resolveWorkspaceRouteAccess(workspaceSlug),
     currentLocale
   );
 

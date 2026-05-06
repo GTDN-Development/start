@@ -4,8 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { SettingsPage } from "@/features/application/settings-page";
 import { WorkspaceGeneralSettingsSection } from "@/features/workspaces/settings/general/workspace-general-settings-section";
 import { requireWorkspaceRouteAccess } from "@/features/workspaces/workspace-route";
-import { listWorkspaceMembersWithClient } from "@/server/workspaces/workspace-members-service";
-import { resolveCurrentUserWorkspaceRouteAccess } from "@/server/workspaces/workspace-resolution-service";
+import { resolveWorkspaceRouteAccess } from "@/server/workspaces/workspace-route-queries";
+import { listWorkspaceMembersForSettings } from "@/server/workspaces/workspace-settings-queries";
 
 export async function generateMetadata(
   props: PageProps<"/[locale]/w/[workspaceSlug]/settings">
@@ -35,12 +35,12 @@ export default async function Page({ params }: PageProps<"/[locale]/w/[workspace
   setRequestLocale(currentLocale);
 
   const { pb, user, workspace } = requireWorkspaceRouteAccess(
-    await resolveCurrentUserWorkspaceRouteAccess(workspaceSlug),
+    await resolveWorkspaceRouteAccess(workspaceSlug),
     currentLocale
   );
 
   const membersResponse =
-    workspace.role === "owner" ? await listWorkspaceMembersWithClient(pb, workspace.id) : null;
+    workspace.role === "owner" ? await listWorkspaceMembersForSettings(pb, workspace.id) : null;
 
   const isCurrentUserLastOwner =
     workspace.role === "owner" &&

@@ -2,10 +2,6 @@ import type { UsersRecord } from "@/types/pocketbase";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
 import {
-  countWorkspaceOwners,
-  listUserWorkspaceMembershipRecords,
-} from "@/server/workspaces/workspace-repository";
-import {
   getUnauthorizedAccountCookies,
   logAccountServiceError,
   mapDeleteAccountErrorCode,
@@ -61,25 +57,6 @@ export async function deleteCurrentUserAccountWithPassword(
   }
 
   try {
-    const workspaceMemberships = await listUserWorkspaceMembershipRecords(
-      currentUser.pb,
-      currentUser.user.id
-    );
-    const ownerMemberships = workspaceMemberships.filter(
-      (membership) => membership.role === "owner"
-    );
-
-    for (const ownerMembership of ownerMemberships) {
-      const ownerCount = await countWorkspaceOwners(currentUser.pb, ownerMembership.workspace);
-
-      if (ownerCount <= 1) {
-        return {
-          ok: false,
-          errorCode: "ACCOUNT_DELETE_BLOCKED_LAST_OWNER",
-        };
-      }
-    }
-
     await currentUser.pb.collection("users").delete(currentUser.user.id);
 
     return {

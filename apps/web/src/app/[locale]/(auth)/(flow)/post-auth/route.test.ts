@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { workspaceConfig } from "@/config/workspace";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
-import { resolvePostAuthDestinationForUser } from "@/server/workspaces/workspace-resolution-service";
+import { resolvePostAuthDestinationForUser } from "@/server/workspaces/workspace-shell-queries";
 import { GET } from "./route";
 
 vi.mock("@/i18n/navigation", function mockNavigation() {
@@ -29,14 +29,11 @@ vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() 
   };
 });
 
-vi.mock(
-  "@/server/workspaces/workspace-resolution-service",
-  function mockWorkspaceResolutionService() {
-    return {
-      resolvePostAuthDestinationForUser: vi.fn(),
-    };
-  }
-);
+vi.mock("@/server/workspaces/workspace-shell-queries", function mockWorkspaceShellQueries() {
+  return {
+    resolvePostAuthDestinationForUser: vi.fn(),
+  };
+});
 
 describe("post-auth route", function describePostAuthRoute() {
   beforeEach(function resetMocks() {

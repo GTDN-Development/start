@@ -8,7 +8,7 @@ import { InnerSidebarLayout } from "@/features/application/inner-sidebar/inner-s
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
 import { getWorkspaceSettingsHref } from "@/config/routes";
 import { requireWorkspaceRouteAccess } from "@/features/workspaces/workspace-route";
-import { resolveCurrentUserWorkspaceRouteAccess } from "@/server/workspaces/workspace-resolution-service";
+import { resolveWorkspaceRouteAccess } from "@/server/workspaces/workspace-route-queries";
 
 export default async function Layout({
   children,
@@ -17,7 +17,7 @@ export default async function Layout({
   const { locale, workspaceSlug } = await params;
   const currentLocale = locale as Locale;
   const { workspace } = requireWorkspaceRouteAccess(
-    await resolveCurrentUserWorkspaceRouteAccess(workspaceSlug),
+    await resolveWorkspaceRouteAccess(workspaceSlug),
     currentLocale
   );
   const tNav = await getTranslations({

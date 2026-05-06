@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { CopyIcon, InboxIcon, MoreHorizontalIcon, SendIcon, TrashIcon } from "lucide-react";
+import { InboxIcon, MoreHorizontalIcon, SendIcon, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DescriptionDetails,
@@ -35,13 +35,11 @@ import type { WorkspaceSettingsInvite } from "@/features/workspaces/settings/wor
 export function WorkspaceInvitationsTable({
   rows,
   isReadOnly,
-  onCopyInvitationLinkAction,
   onResendInvitationRequestAction,
   onRemoveInvitationRequestAction,
 }: {
   rows: WorkspaceSettingsInvite[];
   isReadOnly: boolean;
-  onCopyInvitationLinkAction: (invitation: WorkspaceSettingsInvite) => void;
   onResendInvitationRequestAction: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequestAction: (invitation: WorkspaceSettingsInvite) => void;
 }) {
@@ -70,7 +68,6 @@ export function WorkspaceInvitationsTable({
                   <WorkspaceInvitationActionsMenu
                     invitation={invitation}
                     isReadOnly={isReadOnly}
-                    onCopyInvitationLinkAction={onCopyInvitationLinkAction}
                     onResendInvitationRequestAction={onResendInvitationRequestAction}
                     onRemoveInvitationRequestAction={onRemoveInvitationRequestAction}
                   />
@@ -100,7 +97,6 @@ export function WorkspaceInvitationsTable({
                 <WorkspaceInvitationActionsMenu
                   invitation={invitation}
                   isReadOnly={isReadOnly}
-                  onCopyInvitationLinkAction={onCopyInvitationLinkAction}
                   onResendInvitationRequestAction={onResendInvitationRequestAction}
                   onRemoveInvitationRequestAction={onRemoveInvitationRequestAction}
                 />
@@ -116,13 +112,11 @@ export function WorkspaceInvitationsTable({
 function WorkspaceInvitationActionsMenu({
   invitation,
   isReadOnly,
-  onCopyInvitationLinkAction,
   onResendInvitationRequestAction,
   onRemoveInvitationRequestAction,
 }: {
   invitation: WorkspaceSettingsInvite;
   isReadOnly: boolean;
-  onCopyInvitationLinkAction: (invitation: WorkspaceSettingsInvite) => void;
   onResendInvitationRequestAction: (invitation: WorkspaceSettingsInvite) => void;
   onRemoveInvitationRequestAction: (invitation: WorkspaceSettingsInvite) => void;
 }) {
@@ -145,12 +139,6 @@ function WorkspaceInvitationActionsMenu({
         }
       />
       <DropdownMenuContent align="end" className="w-auto min-w-44">
-        <DropdownMenuItem
-          onClick={() => onCopyInvitationLinkAction(invitation)}
-          disabled={isReadOnly}
-        >
-          <CopyIcon aria-hidden="true" /> {t("menus.invites.copyLink")}
-        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onResendInvitationRequestAction(invitation)}
           disabled={isReadOnly}

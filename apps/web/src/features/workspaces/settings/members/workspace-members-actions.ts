@@ -11,16 +11,7 @@ import {
   WORKSPACE_MEMBER_ROLE_VALUES,
   type WorkspaceMemberRole,
 } from "@/features/workspaces/workspace-role-rules";
-import {
-  changeWorkspaceMemberRoleForCurrentUser,
-  removeWorkspaceMemberForCurrentUser,
-} from "@/server/workspaces/workspace-members-service";
-import {
-  createWorkspaceInviteForCurrentUser,
-  refreshWorkspaceInviteLinkForCurrentUser,
-  resendWorkspaceInviteForCurrentUser,
-  revokeWorkspaceInviteForCurrentUser,
-} from "@/server/workspaces/workspace-invite-service";
+import { workspaceMutations } from "@/server/workspaces/workspace-mutations";
 import {
   createBadRequestWorkspaceResponse,
   finalizeWorkspaceAction,
@@ -46,7 +37,7 @@ export async function changeMemberRoleAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await changeWorkspaceMemberRoleForCurrentUser(
+  const response = await workspaceMutations.changeMemberRole(
     parsedWorkspaceSlug.data,
     parsedMemberId.data,
     parsedRole.data
@@ -71,7 +62,7 @@ export async function removeMemberAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await removeWorkspaceMemberForCurrentUser(
+  const response = await workspaceMutations.removeMember(
     parsedWorkspaceSlug.data,
     parsedMemberId.data
   );
@@ -98,7 +89,7 @@ export async function createInviteAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await createWorkspaceInviteForCurrentUser(
+  const response = await workspaceMutations.createInvite(
     parsedWorkspaceSlug.data,
     parsedInput.data
   );
@@ -110,9 +101,7 @@ export async function resendInviteAction(
   workspaceSlug: string,
   inviteId: string,
   locale: AppLocale
-): Promise<
-  WorkspaceResponse<{ inviteId: string; expiresAt: string; updatedAt: string; inviteUrl: string }>
-> {
+): Promise<WorkspaceResponse<{ inviteId: string; expiresAt: string; updatedAt: string }>> {
   const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
   const parsedInviteId = workspaceIdSchema.safeParse(inviteId);
   const parsedLocale = z.enum(routing.locales).safeParse(locale);
@@ -121,31 +110,7 @@ export async function resendInviteAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await resendWorkspaceInviteForCurrentUser(
-    parsedWorkspaceSlug.data,
-    parsedInviteId.data,
-    parsedLocale.data
-  );
-
-  return finalizeWorkspaceAction(response);
-}
-
-export async function refreshInviteLinkAction(
-  workspaceSlug: string,
-  inviteId: string,
-  locale: AppLocale
-): Promise<
-  WorkspaceResponse<{ inviteId: string; expiresAt: string; updatedAt: string; inviteUrl: string }>
-> {
-  const parsedWorkspaceSlug = workspaceSlugSchema.safeParse(workspaceSlug);
-  const parsedInviteId = workspaceIdSchema.safeParse(inviteId);
-  const parsedLocale = z.enum(routing.locales).safeParse(locale);
-
-  if (!parsedWorkspaceSlug.success || !parsedInviteId.success || !parsedLocale.success) {
-    return createBadRequestWorkspaceResponse();
-  }
-
-  const response = await refreshWorkspaceInviteLinkForCurrentUser(
+  const response = await workspaceMutations.resendInvite(
     parsedWorkspaceSlug.data,
     parsedInviteId.data,
     parsedLocale.data
@@ -165,7 +130,7 @@ export async function revokeInviteAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await revokeWorkspaceInviteForCurrentUser(
+  const response = await workspaceMutations.revokeInvite(
     parsedWorkspaceSlug.data,
     parsedInviteId.data
   );

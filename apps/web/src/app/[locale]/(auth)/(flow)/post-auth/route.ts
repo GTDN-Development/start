@@ -13,7 +13,7 @@ import {
   clearPendingInviteTokenResponseCookie,
   setActiveWorkspaceSlugResponseCookie,
 } from "@/server/workspaces/workspace-cookie";
-import { resolvePostAuthDestinationForUser } from "@/server/workspaces/workspace-resolution-service";
+import { resolvePostAuthDestinationForUser } from "@/server/workspaces/workspace-shell-queries";
 
 type PostAuthRouteContext = {
   params: Promise<{

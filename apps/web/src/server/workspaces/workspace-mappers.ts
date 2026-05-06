@@ -1,9 +1,5 @@
 import type PocketBase from "pocketbase";
 import type {
-  WorkspaceMemberRecordWithExpand,
-  WorkspaceInviteRecordWithExpand,
-} from "@/server/workspaces/workspace-repository";
-import type {
   UserWorkspace,
   WorkspaceInviteSummary,
   WorkspaceInviteRole,
@@ -11,8 +7,26 @@ import type {
   WorkspaceMemberRole,
   WorkspaceSummary,
 } from "@/server/workspaces/workspace-types";
-import type { WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
+import type {
+  UsersRecord,
+  WorkspaceInvitesRecord,
+  WorkspaceMembersRecord,
+  WorkspacesRecord,
+} from "@/types/pocketbase";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
+
+export type WorkspaceMemberRecordWithExpand = WorkspaceMembersRecord & {
+  expand?: {
+    workspace?: WorkspacesRecord;
+    user?: UsersRecord;
+  };
+};
+
+export type WorkspaceInviteRecordWithExpand = WorkspaceInvitesRecord & {
+  expand?: {
+    invited_by?: UsersRecord;
+  };
+};
 
 export function mapWorkspaceSummary(pb: PocketBase, workspace: WorkspacesRecord): WorkspaceSummary {
   return {
@@ -65,7 +79,6 @@ export function mapWorkspaceInviteSummary(
     expiresAt: inviteRecord.expires_at,
     updatedAt: inviteRecord.updated,
     invitedByName: getNullableTrimmedString(inviteRecord.expand?.invited_by?.name),
-    inviteUrl: null,
   };
 }
 

@@ -3,22 +3,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const {
   applyServerActionAuthCookies,
   clearActiveWorkspaceSlugCookie,
-  createWorkspaceForCurrentUser,
-  deleteWorkspaceForCurrentUser,
+  createWorkspace,
+  deleteWorkspace,
   getActiveWorkspaceSlugCookie,
-  leaveWorkspaceForCurrentUser,
+  leaveWorkspace,
   setActiveWorkspaceSlugCookie,
-  updateWorkspaceGeneralForCurrentUser,
+  updateWorkspaceGeneral,
 } = vi.hoisted(function hoistWorkspaceGeneralActionMocks() {
   return {
     applyServerActionAuthCookies: vi.fn(),
     clearActiveWorkspaceSlugCookie: vi.fn(),
-    createWorkspaceForCurrentUser: vi.fn(),
-    deleteWorkspaceForCurrentUser: vi.fn(),
+    createWorkspace: vi.fn(),
+    deleteWorkspace: vi.fn(),
     getActiveWorkspaceSlugCookie: vi.fn(),
-    leaveWorkspaceForCurrentUser: vi.fn(),
+    leaveWorkspace: vi.fn(),
     setActiveWorkspaceSlugCookie: vi.fn(),
-    updateWorkspaceGeneralForCurrentUser: vi.fn(),
+    updateWorkspaceGeneral: vi.fn(),
   };
 });
 
@@ -36,28 +36,22 @@ vi.mock("@/server/workspaces/workspace-cookie", function mockWorkspaceCookie() {
   };
 });
 
-vi.mock("@/server/workspaces/workspace-general-service", function mockWorkspaceGeneralService() {
+vi.mock("@/server/workspaces/workspace-mutations", function mockWorkspaceMutations() {
   return {
-    createWorkspaceForCurrentUser,
-    deleteWorkspaceForCurrentUser,
-    updateWorkspaceGeneralForCurrentUser,
+    workspaceMutations: {
+      createWorkspace,
+      deleteWorkspace,
+      leaveWorkspace,
+      updateWorkspaceGeneral,
+    },
   };
 });
 
-vi.mock("@/server/workspaces/workspace-members-service", function mockWorkspaceMembersService() {
+vi.mock("@/server/workspaces/workspace-route-queries", function mockWorkspaceRouteQueries() {
   return {
-    leaveWorkspaceForCurrentUser,
+    resolveAccessibleWorkspaceForCurrentUser: vi.fn(),
   };
 });
-
-vi.mock(
-  "@/server/workspaces/workspace-resolution-service",
-  function mockWorkspaceResolutionService() {
-    return {
-      resolveAccessibleWorkspaceForCurrentUser: vi.fn(),
-    };
-  }
-);
 
 import {
   createWorkspaceAction,
@@ -73,7 +67,7 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
   });
 
   it("returns the mapped workspace payload and sets the active cookie on create", async function testCreateWorkspace() {
-    vi.mocked(createWorkspaceForCurrentUser).mockResolvedValue({
+    vi.mocked(createWorkspace).mockResolvedValue({
       ok: true,
       data: {
         workspace: createUserWorkspace({
@@ -134,7 +128,7 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
     },
   ])("$name", async function testWorkspaceUpdate(input) {
     vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue(input.activeWorkspaceSlug);
-    vi.mocked(updateWorkspaceGeneralForCurrentUser).mockResolvedValue(input.serviceResponse);
+    vi.mocked(updateWorkspaceGeneral).mockResolvedValue(input.serviceResponse);
 
     const response = await updateWorkspaceGeneralAction("team-space", input.input);
 
@@ -152,7 +146,7 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
       name: "leave",
       action: leaveWorkspaceAction,
       resolveSuccess: function resolveSuccess() {
-        vi.mocked(leaveWorkspaceForCurrentUser).mockResolvedValue({
+        vi.mocked(leaveWorkspace).mockResolvedValue({
           ok: true,
           data: {
             left: true,
@@ -160,7 +154,7 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
         });
       },
       resolveFailure: function resolveFailure() {
-        vi.mocked(leaveWorkspaceForCurrentUser).mockResolvedValue({
+        vi.mocked(leaveWorkspace).mockResolvedValue({
           ok: false,
           errorCode: "FORBIDDEN",
         });
@@ -170,7 +164,7 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
       name: "delete",
       action: deleteWorkspaceAction,
       resolveSuccess: function resolveSuccess() {
-        vi.mocked(deleteWorkspaceForCurrentUser).mockResolvedValue({
+        vi.mocked(deleteWorkspace).mockResolvedValue({
           ok: true,
           data: {
             deleted: true,
@@ -178,7 +172,7 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
         });
       },
       resolveFailure: function resolveFailure() {
-        vi.mocked(deleteWorkspaceForCurrentUser).mockResolvedValue({
+        vi.mocked(deleteWorkspace).mockResolvedValue({
           ok: false,
           errorCode: "FORBIDDEN",
         });
@@ -209,7 +203,7 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
       name: "leave",
       action: leaveWorkspaceAction,
       resolveFailure: function resolveFailure() {
-        vi.mocked(leaveWorkspaceForCurrentUser).mockResolvedValue({
+        vi.mocked(leaveWorkspace).mockResolvedValue({
           ok: false,
           errorCode: "FORBIDDEN",
         });
@@ -219,7 +213,7 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
       name: "delete",
       action: deleteWorkspaceAction,
       resolveFailure: function resolveFailure() {
-        vi.mocked(deleteWorkspaceForCurrentUser).mockResolvedValue({
+        vi.mocked(deleteWorkspace).mockResolvedValue({
           ok: false,
           errorCode: "FORBIDDEN",
         });
