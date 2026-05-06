@@ -14,6 +14,12 @@ This service stays close to the default PocketBase standalone workflow.
 
 It keeps backend state in versioned migrations, runs locally in Docker, and deploys as a single Railway service.
 
+## Version Notes
+
+The Dockerfile `PB_VERSION` is the PocketBase server binary version used by local Docker and Railway.
+The npm `pocketbase` dependency in `package.json` is the JavaScript SDK used by repository scripts and
+tests. These versions are intentionally tracked separately because they are different artifacts.
+
 ## Local Development
 
 Start the repository Docker stack from the repo root:

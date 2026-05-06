@@ -1,3 +1,9 @@
+var WORKSPACE_NAME_MAX_LENGTH = 32;
+var WORKSPACE_SLUG_MAX_LENGTH = 48;
+var WORKSPACE_SLUG_FALLBACK = "workspace";
+var WORKSPACE_KIND_ORGANIZATION = "organization";
+var WORKSPACE_ROLE_OWNER = "owner";
+
 routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
   var requestInfo = e.requestInfo();
   var auth = requestInfo.auth;
@@ -26,7 +32,7 @@ routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
     var workspace = new Record(workspaceCollection, {
       name: workspaceName,
       slug: resolveUniqueWorkspaceSlug(txApp, requestedSlug || workspaceName),
-      kind: "organization",
+      kind: WORKSPACE_KIND_ORGANIZATION,
       created_by: auth.id,
     });
 
@@ -35,7 +41,7 @@ routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
     var membership = new Record(memberCollection, {
       workspace: workspace.id,
       user: auth.id,
-      role: "owner",
+      role: WORKSPACE_ROLE_OWNER,
     });
 
     txApp.save(membership);
@@ -51,7 +57,7 @@ routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
   function normalizeWorkspaceName(value) {
     var normalizedValue = getNullableTrimmedString(value);
 
-    if (!normalizedValue || normalizedValue.length > 32) {
+    if (!normalizedValue || normalizedValue.length > WORKSPACE_NAME_MAX_LENGTH) {
       return null;
     }
 
@@ -69,7 +75,10 @@ routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
 
     for (var index = 0; index < 20; index += 1) {
       var suffix = index === 0 ? "" : "-" + (index + 1);
-      var candidateBase = trimWorkspaceSlugLength(baseSlug, 48 - suffix.length);
+      var candidateBase = trimWorkspaceSlugLength(
+        baseSlug,
+        WORKSPACE_SLUG_MAX_LENGTH - suffix.length
+      );
       var candidateSlug = candidateBase + suffix;
       var existingWorkspace = findWorkspaceBySlug(app, candidateSlug);
 
@@ -79,7 +88,10 @@ routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
     }
 
     var fallbackSuffix = $security.randomStringWithAlphabet(4, "0123456789abcdef");
-    var fallbackBase = trimWorkspaceSlugLength(baseSlug, 48 - fallbackSuffix.length - 1);
+    var fallbackBase = trimWorkspaceSlugLength(
+      baseSlug,
+      WORKSPACE_SLUG_MAX_LENGTH - fallbackSuffix.length - 1
+    );
 
     return fallbackBase + "-" + fallbackSuffix;
   }
@@ -92,7 +104,10 @@ routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
-    return trimWorkspaceSlugLength(normalizedValue || "workspace", 48);
+    return trimWorkspaceSlugLength(
+      normalizedValue || WORKSPACE_SLUG_FALLBACK,
+      WORKSPACE_SLUG_MAX_LENGTH
+    );
   }
 
   function trimWorkspaceSlugLength(value, maxLength) {
@@ -100,7 +115,7 @@ routerAdd("POST", "/api/start/workspaces", function createWorkspace(e) {
       .slice(0, maxLength)
       .replace(/-+$/g, "");
 
-    return normalizedValue || "workspace";
+    return normalizedValue || WORKSPACE_SLUG_FALLBACK;
   }
 
   function findWorkspaceBySlug(app, workspaceSlug) {
@@ -391,7 +406,7 @@ onRecordUpdateRequest(function guardWorkspaceMemberUpdate(e) {
   var originalRole = e.record.original().getString("role");
   var nextRole = e.record.getString("role");
 
-  if (originalRole === "owner" && nextRole !== "owner") {
+  if (originalRole === WORKSPACE_ROLE_OWNER && nextRole !== WORKSPACE_ROLE_OWNER) {
     guardLastWorkspaceOwner(e.app, e.record.getString("workspace"));
   }
 
@@ -402,7 +417,7 @@ onRecordUpdateRequest(function guardWorkspaceMemberUpdate(e) {
       "workspace_members",
       $dbx.hashExp({
         workspace: workspaceId,
-        role: "owner",
+        role: WORKSPACE_ROLE_OWNER,
       })
     );
 
@@ -417,7 +432,7 @@ onRecordDeleteRequest(function guardWorkspaceMemberDelete(e) {
     return e.next();
   }
 
-  if (e.record.getString("role") !== "owner") {
+  if (e.record.getString("role") !== WORKSPACE_ROLE_OWNER) {
     return e.next();
   }
 
@@ -425,7 +440,7 @@ onRecordDeleteRequest(function guardWorkspaceMemberDelete(e) {
     "workspace_members",
     $dbx.hashExp({
       workspace: e.record.getString("workspace"),
-      role: "owner",
+      role: WORKSPACE_ROLE_OWNER,
     })
   );
 
@@ -443,12 +458,13 @@ onRecordDeleteRequest(function guardUserDelete(e) {
 
   var ownerMemberships = e.app.findRecordsByFilter(
     "workspace_members",
-    "user = {:userId} && role = 'owner'",
+    "user = {:userId} && role = {:ownerRole}",
     "",
     500,
     0,
     {
       userId: e.record.id,
+      ownerRole: WORKSPACE_ROLE_OWNER,
     }
   );
 
@@ -457,7 +473,7 @@ onRecordDeleteRequest(function guardUserDelete(e) {
       "workspace_members",
       $dbx.hashExp({
         workspace: ownerMemberships[index].getString("workspace"),
-        role: "owner",
+        role: WORKSPACE_ROLE_OWNER,
       })
     );
 
