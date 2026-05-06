@@ -2,6 +2,7 @@ import { ClientResponseError } from "pocketbase";
 import type PocketBase from "pocketbase";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord } from "@/types/pocketbase";
+import type { AuthCookieMutation } from "@/server/auth/auth-cookies";
 
 vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() {
   return {
@@ -11,16 +12,18 @@ vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() 
 
 vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer() {
   return {
-    createClearedPocketBaseAuthCookies: vi.fn(),
+    createClearedPocketBaseAuthCookieMutations: vi.fn(),
   };
 });
 
 import { requireCurrentWritableUser } from "@/server/auth/auth-session-service";
-import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
+import { createClearedPocketBaseAuthCookieMutations } from "@/server/pocketbase/pocketbase-server";
 import {
   deleteCurrentUserAccountWithPassword,
   updateCurrentUserPassword,
 } from "./account-security-service";
+
+const CLEARED_COOKIE_MUTATIONS = [createCookieMutation("pb_auth", "", { maxAge: 0 })];
 
 describe("account-service", function describeAccountService() {
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
@@ -30,7 +33,7 @@ describe("account-service", function describeAccountService() {
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(function suppressErrorLog() {
       return undefined;
     });
-    vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue(["pb_auth=; Max-Age=0"]);
+    vi.mocked(createClearedPocketBaseAuthCookieMutations).mockReturnValue(CLEARED_COOKIE_MUTATIONS);
   });
 
   afterEach(function restoreConsoleSpies() {
@@ -70,7 +73,7 @@ describe("account-service", function describeAccountService() {
       data: {
         deleted: true,
       },
-      setCookie: ["pb_auth=; Max-Age=0"],
+      cookieMutations: CLEARED_COOKIE_MUTATIONS,
     });
     expect(currentUser.usersCollection.delete).toHaveBeenCalledWith(currentUser.user.id);
   });
@@ -91,7 +94,7 @@ describe("account-service", function describeAccountService() {
       data: {
         passwordUpdated: true,
       },
-      setCookie: ["pb_auth=; Max-Age=0"],
+      cookieMutations: CLEARED_COOKIE_MUTATIONS,
     });
     expect(currentUser.usersCollection.update).toHaveBeenCalledWith(currentUser.user.id, {
       oldPassword: "current-password",
@@ -125,6 +128,18 @@ function createCurrentUserContext() {
     },
     user,
     usersCollection,
+  };
+}
+
+function createCookieMutation(
+  name: string,
+  value: string,
+  options: Partial<AuthCookieMutation> = {}
+): AuthCookieMutation {
+  return {
+    name,
+    value,
+    ...options,
   };
 }
 

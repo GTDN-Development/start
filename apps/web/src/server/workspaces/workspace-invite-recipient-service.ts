@@ -12,11 +12,6 @@ import type {
   WorkspaceInviteInspectResult,
 } from "@/server/workspaces/workspace-types";
 
-type InviteRecipientUser = {
-  id: string;
-  email: string;
-};
-
 type PocketBaseGuestInviteInspectResult = {
   state: "invalid_or_expired" | "valid_guest";
 };
@@ -48,8 +43,7 @@ export async function validateInviteToken(
 }
 
 export async function getInviteTokenForUser(
-  inviteToken: string,
-  _user: InviteRecipientUser
+  inviteToken: string
 ): Promise<ServerWorkspaceResponse<{ result: WorkspaceInviteInspectResult }>> {
   try {
     const { pb } = await createPocketBaseServerClient();
@@ -75,8 +69,7 @@ export async function getInviteTokenForUser(
 }
 
 export async function acceptInviteTokenForUser(
-  inviteToken: string,
-  _user: InviteRecipientUser
+  inviteToken: string
 ): Promise<ServerWorkspaceResponse<{ result: WorkspaceInviteAcceptResult }>> {
   try {
     const { pb } = await createPocketBaseServerClient();

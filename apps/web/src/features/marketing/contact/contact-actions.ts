@@ -105,7 +105,7 @@ export async function submitSupportFormAction(input: {
   const currentUser = await requireCurrentWritableUser();
 
   if (!currentUser.ok) {
-    await applyServerActionAuthCookies(currentUser.setCookie);
+    await applyServerActionAuthCookies(currentUser.cookieMutations);
 
     return createErrorResponse("BAD_REQUEST");
   }

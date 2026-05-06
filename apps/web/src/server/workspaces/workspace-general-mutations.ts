@@ -32,7 +32,7 @@ export async function createWorkspace(
     return {
       ok: false,
       errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+      ...(currentUser.cookieMutations ? { cookieMutations: currentUser.cookieMutations } : {}),
     };
   }
 

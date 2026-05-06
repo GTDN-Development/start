@@ -34,10 +34,19 @@ describe("verify-email completion route", function describeVerifyEmailCompletion
           user: {
             id: "user-1",
             email: "user@example.com",
+            name: null,
+            avatarUrl: null,
           },
         },
       },
-      setCookie: ["pb_auth=token; Path=/; HttpOnly"],
+      cookieMutations: [
+        {
+          name: "pb_auth",
+          value: "token",
+          path: "/",
+          httpOnly: true,
+        },
+      ],
     } as Awaited<ReturnType<typeof confirmEmailVerificationToken>>);
 
     const response = await GET(

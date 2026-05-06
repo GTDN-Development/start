@@ -2,19 +2,20 @@ import type PocketBase from "pocketbase";
 import { ClientResponseError } from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UsersRecord } from "@/types/pocketbase";
+import type { AuthCookieMutation } from "@/server/auth/auth-cookies";
 
 vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer() {
   return {
-    createClearedPocketBaseAuthCookies: vi.fn(),
+    createClearedPocketBaseAuthCookieMutations: vi.fn(),
     createPocketBaseServerClient: vi.fn(),
-    exportPocketBaseAuthCookies: vi.fn(),
+    createPocketBaseAuthCookieMutations: vi.fn(),
   };
 });
 
 import {
-  createClearedPocketBaseAuthCookies,
+  createClearedPocketBaseAuthCookieMutations,
   createPocketBaseServerClient,
-  exportPocketBaseAuthCookies,
+  createPocketBaseAuthCookieMutations,
 } from "@/server/pocketbase/pocketbase-server";
 import {
   getResponseAuthSession,
@@ -29,7 +30,7 @@ import { requestPasswordResetForEmail } from "./auth-password-reset-service";
 
 type AuthServiceContext = ReturnType<typeof createAuthServiceContext>;
 
-const CLEARED_PB_AUTH_COOKIES = ["pb_auth=; Max-Age=0"];
+const CLEARED_PB_AUTH_COOKIES = [createCookieMutation("pb_auth", "", { maxAge: 0 })];
 
 describe("auth-service", function describeAuthService() {
   beforeEach(function resetMocks() {
@@ -37,10 +38,13 @@ describe("auth-service", function describeAuthService() {
     vi.spyOn(console, "error").mockImplementation(function suppressErrorLog() {
       return undefined;
     });
-    vi.mocked(createClearedPocketBaseAuthCookies).mockReturnValue(CLEARED_PB_AUTH_COOKIES);
-    vi.mocked(exportPocketBaseAuthCookies).mockImplementation(
+    vi.mocked(createClearedPocketBaseAuthCookieMutations).mockReturnValue(CLEARED_PB_AUTH_COOKIES);
+    vi.mocked(createPocketBaseAuthCookieMutations).mockImplementation(
       function exportAuthCookies(_pb, options) {
-        return ["pb_auth=token", options?.sessionOnly ? "pb_persist=0" : "pb_persist=1"];
+        return [
+          createCookieMutation("pb_auth", "token"),
+          createCookieMutation("pb_persist", options?.sessionOnly ? "0" : "1"),
+        ];
       }
     );
   });
@@ -81,7 +85,7 @@ describe("auth-service", function describeAuthService() {
         data: {
           sent: true as const,
         },
-        setCookie: CLEARED_PB_AUTH_COOKIES,
+        cookieMutations: CLEARED_PB_AUTH_COOKIES,
       },
     },
     {
@@ -100,7 +104,7 @@ describe("auth-service", function describeAuthService() {
       expectedResponse: {
         ok: false as const,
         errorCode: "RATE_LIMITED" as const,
-        setCookie: CLEARED_PB_AUTH_COOKIES,
+        cookieMutations: CLEARED_PB_AUTH_COOKIES,
       },
     },
   ])(
@@ -139,7 +143,10 @@ describe("auth-service", function describeAuthService() {
           },
         },
       },
-      setCookie: ["pb_auth=token", "pb_persist=1"],
+      cookieMutations: [
+        createCookieMutation("pb_auth", "token"),
+        createCookieMutation("pb_persist", "1"),
+      ],
     });
   });
 
@@ -162,7 +169,10 @@ describe("auth-service", function describeAuthService() {
     expect(response).toEqual({
       ok: false,
       errorCode: "EMAIL_NOT_VERIFIED",
-      setCookie: ["pb_auth=token", "pb_persist=0"],
+      cookieMutations: [
+        createCookieMutation("pb_auth", "token"),
+        createCookieMutation("pb_persist", "0"),
+      ],
     });
   });
 
@@ -174,7 +184,7 @@ describe("auth-service", function describeAuthService() {
       data: {
         signedOut: true,
       },
-      setCookie: CLEARED_PB_AUTH_COOKIES,
+      cookieMutations: CLEARED_PB_AUTH_COOKIES,
     });
   });
 
@@ -259,7 +269,10 @@ describe("auth-service", function describeAuthService() {
           },
         },
       },
-      setCookie: ["pb_auth=token", "pb_persist=1"],
+      cookieMutations: [
+        createCookieMutation("pb_auth", "token"),
+        createCookieMutation("pb_persist", "1"),
+      ],
     });
   });
 });
@@ -306,6 +319,18 @@ function createAuthServiceContext(input?: {
     },
     pb,
     usersCollection,
+  };
+}
+
+function createCookieMutation(
+  name: string,
+  value: string,
+  options: Partial<AuthCookieMutation> = {}
+): AuthCookieMutation {
+  return {
+    name,
+    value,
+    ...options,
   };
 }
 

@@ -1,5 +1,5 @@
 import type { AuthErrorCode } from "@/features/auth/auth-types";
-import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
+import { createClearedPocketBaseAuthCookieMutations } from "@/server/pocketbase/pocketbase-server";
 import {
   hasValidationCode,
   logServiceError,
@@ -12,7 +12,7 @@ export function getUnauthorizedAccountCookies(errorCode: AuthErrorCode) {
   }
 
   return {
-    setCookie: createClearedPocketBaseAuthCookies(),
+    cookieMutations: createClearedPocketBaseAuthCookieMutations(),
   };
 }
 

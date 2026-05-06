@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { workspaceConfig } from "@/config/workspace";
+import type { AuthCookieMutation } from "@/server/auth/auth-cookies";
 
 vi.mock("@/i18n/navigation", function mockNavigation() {
   return {
@@ -54,7 +55,7 @@ describe("invite accept route", function describeInviteAcceptRoute() {
       data: {
         session: null,
       },
-      setCookie: ["pb_auth=; Max-Age=0; Path=/; HttpOnly"],
+      cookieMutations: [createCookieMutation("pb_auth", "", { maxAge: 0, httpOnly: true })],
     } as Awaited<ReturnType<typeof getResponseAuthSession>>);
 
     const response = await getInviteAcceptResponse("GET");
@@ -85,7 +86,9 @@ describe("invite accept route", function describeInviteAcceptRoute() {
     {
       name: "redirects accepted POST requests to the workspace and sets active workspace",
       method: "POST" as const,
-      authSession: createAuthenticatedSessionResponse(["pb_auth=token; Path=/; HttpOnly"]),
+      authSession: createAuthenticatedSessionResponse([
+        createCookieMutation("pb_auth", "token", { path: "/", httpOnly: true }),
+      ]),
       inviteResponse: {
         ok: true,
         data: {
@@ -116,7 +119,7 @@ describe("invite accept route", function describeInviteAcceptRoute() {
   });
 });
 
-function createAuthenticatedSessionResponse(setCookie?: string[]) {
+function createAuthenticatedSessionResponse(cookieMutations?: AuthCookieMutation[]) {
   return {
     ok: true,
     data: {
@@ -124,11 +127,25 @@ function createAuthenticatedSessionResponse(setCookie?: string[]) {
         user: {
           id: "user-1",
           email: "user@example.com",
+          name: null,
+          avatarUrl: null,
         },
       },
     },
-    setCookie,
+    cookieMutations,
   } as Awaited<ReturnType<typeof getResponseAuthSession>>;
+}
+
+function createCookieMutation(
+  name: string,
+  value: string,
+  options: Partial<AuthCookieMutation> = {}
+): AuthCookieMutation {
+  return {
+    name,
+    value,
+    ...options,
+  };
 }
 
 function createWorkspaceSummary() {

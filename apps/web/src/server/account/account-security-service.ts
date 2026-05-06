@@ -1,6 +1,6 @@
 import type { UsersRecord } from "@/types/pocketbase";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
-import { createClearedPocketBaseAuthCookies } from "@/server/pocketbase/pocketbase-server";
+import { createClearedPocketBaseAuthCookieMutations } from "@/server/pocketbase/pocketbase-server";
 import {
   getUnauthorizedAccountCookies,
   logAccountServiceError,
@@ -34,7 +34,7 @@ export async function deleteCurrentUserAccountWithPassword(
     return {
       ok: false,
       errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+      ...(currentUser.cookieMutations ? { cookieMutations: currentUser.cookieMutations } : {}),
     };
   }
 
@@ -64,7 +64,7 @@ export async function deleteCurrentUserAccountWithPassword(
       data: {
         deleted: true,
       },
-      setCookie: createClearedPocketBaseAuthCookies(),
+      cookieMutations: createClearedPocketBaseAuthCookieMutations(),
     };
   } catch (error) {
     const errorCode = mapDeleteAccountErrorCode(error);
@@ -99,7 +99,7 @@ export async function updateCurrentUserPassword(input: {
     return {
       ok: false,
       errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+      ...(currentUser.cookieMutations ? { cookieMutations: currentUser.cookieMutations } : {}),
     };
   }
 
@@ -115,7 +115,7 @@ export async function updateCurrentUserPassword(input: {
       data: {
         passwordUpdated: true,
       },
-      setCookie: createClearedPocketBaseAuthCookies(),
+      cookieMutations: createClearedPocketBaseAuthCookieMutations(),
     };
   } catch (error) {
     const errorCode = mapUpdatePasswordErrorCode(error);

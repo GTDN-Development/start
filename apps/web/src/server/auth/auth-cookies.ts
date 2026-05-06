@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import type { NextResponse } from "next/server";
+import { cookieSerialize } from "pocketbase";
 
-type ParsedSetCookie = {
+export type AuthCookieMutation = {
   name: string;
   value: string;
   path?: string;
@@ -13,135 +14,39 @@ type ParsedSetCookie = {
   sameSite?: "lax" | "strict" | "none";
 };
 
-export async function applyServerActionAuthCookies(setCookie: string[] | undefined): Promise<void> {
-  if (!setCookie?.length) {
+export type AuthCookieMutations = AuthCookieMutation[] | undefined;
+
+export async function applyServerActionAuthCookies(
+  cookieMutations: AuthCookieMutations
+): Promise<void> {
+  if (!cookieMutations?.length) {
     return;
   }
 
   const cookieStore = await cookies();
 
-  for (const setCookieValue of setCookie) {
-    const parsedCookie = parseSetCookie(setCookieValue);
-
-    if (!parsedCookie) {
-      continue;
-    }
-
-    cookieStore.set(parsedCookie);
+  for (const mutation of cookieMutations) {
+    cookieStore.set(mutation);
   }
 }
 
 export function appendAuthCookiesToResponse(
   response: NextResponse,
-  setCookie: string[] | undefined
+  cookieMutations: AuthCookieMutations
 ): NextResponse {
-  if (!setCookie?.length) {
+  if (!cookieMutations?.length) {
     return response;
   }
 
-  for (const setCookieValue of setCookie) {
-    response.headers.append("Set-Cookie", setCookieValue);
+  for (const mutation of cookieMutations) {
+    response.headers.append("Set-Cookie", serializeAuthCookieMutation(mutation));
   }
 
   return response;
 }
 
-function parseSetCookie(setCookieValue: string): ParsedSetCookie | null {
-  const [baseSegment, ...attributeSegments] = setCookieValue
-    .split(";")
-    .map((segment) => segment.trim());
+export function serializeAuthCookieMutation(mutation: AuthCookieMutation): string {
+  const { name, value, ...options } = mutation;
 
-  if (!baseSegment) {
-    return null;
-  }
-
-  const separatorIndex = baseSegment.indexOf("=");
-
-  if (separatorIndex < 1) {
-    return null;
-  }
-
-  const name = baseSegment.slice(0, separatorIndex);
-  const value = baseSegment.slice(separatorIndex + 1);
-
-  const parsedCookie: ParsedSetCookie = {
-    name,
-    value,
-  };
-
-  for (const segment of attributeSegments) {
-    if (!segment) {
-      continue;
-    }
-
-    const [attributeName, ...attributeValueParts] = segment.split("=");
-    const normalizedName = attributeName.trim().toLowerCase();
-    const attributeValue = attributeValueParts.join("=").trim();
-
-    if (normalizedName === "path") {
-      parsedCookie.path = attributeValue;
-      continue;
-    }
-
-    if (normalizedName === "domain") {
-      parsedCookie.domain = attributeValue;
-      continue;
-    }
-
-    if (normalizedName === "expires") {
-      const parsedDate = new Date(attributeValue);
-
-      if (!Number.isNaN(parsedDate.getTime())) {
-        parsedCookie.expires = parsedDate;
-      }
-      continue;
-    }
-
-    if (normalizedName === "max-age") {
-      const parsedMaxAge = Number.parseInt(attributeValue, 10);
-
-      if (Number.isFinite(parsedMaxAge)) {
-        parsedCookie.maxAge = parsedMaxAge;
-      }
-      continue;
-    }
-
-    if (normalizedName === "secure") {
-      parsedCookie.secure = true;
-      continue;
-    }
-
-    if (normalizedName === "httponly") {
-      parsedCookie.httpOnly = true;
-      continue;
-    }
-
-    if (normalizedName === "samesite") {
-      const sameSite = attributeValue.toLowerCase();
-
-      if (sameSite === "lax" || sameSite === "strict" || sameSite === "none") {
-        parsedCookie.sameSite = sameSite;
-      }
-    }
-  }
-
-  return getWritableCookie(parsedCookie);
-}
-
-function getWritableCookie(cookie: ParsedSetCookie): ParsedSetCookie {
-  const isCleared =
-    cookie.value.length === 0 ||
-    (cookie.maxAge !== undefined && cookie.maxAge <= 0) ||
-    (cookie.expires !== undefined && cookie.expires.getTime() <= 0);
-
-  if (!isCleared) {
-    return cookie;
-  }
-
-  return {
-    ...cookie,
-    value: "",
-    maxAge: 0,
-    expires: new Date(0),
-  };
+  return cookieSerialize(name, value, options);
 }

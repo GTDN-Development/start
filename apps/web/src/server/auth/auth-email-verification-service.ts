@@ -6,9 +6,9 @@ import type {
 } from "@/features/auth/auth-types";
 import type { UsersRecord } from "@/types/pocketbase";
 import {
-  createClearedPocketBaseAuthCookies,
+  createClearedPocketBaseAuthCookieMutations,
   createPocketBaseServerClient,
-  exportPocketBaseAuthCookies,
+  createPocketBaseAuthCookieMutations,
 } from "@/server/pocketbase/pocketbase-server";
 import {
   logAuthServiceError,
@@ -46,7 +46,9 @@ export async function confirmEmailVerificationToken(
       data: {
         session: null,
       },
-      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(hadInvalidAuthCookie
+        ? { cookieMutations: createClearedPocketBaseAuthCookieMutations() }
+        : {}),
     };
   } catch (error) {
     if (mapVerifyEmailErrorCode(error) === "BAD_REQUEST" && hadUnverifiedAuthenticatedSession) {
@@ -66,7 +68,9 @@ export async function confirmEmailVerificationToken(
         data: {
           session: null,
         },
-        ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+        ...(hadInvalidAuthCookie
+          ? { cookieMutations: createClearedPocketBaseAuthCookieMutations() }
+          : {}),
       };
     }
 
@@ -79,7 +83,9 @@ export async function confirmEmailVerificationToken(
     return {
       ok: false,
       errorCode,
-      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(hadInvalidAuthCookie
+        ? { cookieMutations: createClearedPocketBaseAuthCookieMutations() }
+        : {}),
     };
   }
 }
@@ -97,7 +103,9 @@ export async function requestEmailVerificationForEmail(
       return {
         ok: false,
         errorCode: "RATE_LIMITED",
-        ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+        ...(hadInvalidAuthCookie
+          ? { cookieMutations: createClearedPocketBaseAuthCookieMutations() }
+          : {}),
       };
     }
 
@@ -111,7 +119,9 @@ export async function requestEmailVerificationForEmail(
     data: {
       sent: true,
     },
-    ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+    ...(hadInvalidAuthCookie
+      ? { cookieMutations: createClearedPocketBaseAuthCookieMutations() }
+      : {}),
   };
 }
 
@@ -130,7 +140,7 @@ export async function confirmEmailChangeToken(input: {
       data: {
         emailChanged: true,
       },
-      setCookie: createClearedPocketBaseAuthCookies(),
+      cookieMutations: createClearedPocketBaseAuthCookieMutations(),
     };
   } catch (error) {
     const errorCode = mapConfirmEmailChangeErrorCode(error);
@@ -143,7 +153,7 @@ export async function confirmEmailChangeToken(input: {
       ok: false,
       errorCode,
       ...(errorCode === "UNAUTHORIZED" || hadInvalidAuthCookie
-        ? { setCookie: createClearedPocketBaseAuthCookies() }
+        ? { cookieMutations: createClearedPocketBaseAuthCookieMutations() }
         : {}),
     };
   }
@@ -172,7 +182,7 @@ async function getVerifiedSessionResponse(
         data: {
           session: null,
         },
-        setCookie: createClearedPocketBaseAuthCookies(),
+        cookieMutations: createClearedPocketBaseAuthCookieMutations(),
       };
     }
 
@@ -181,7 +191,7 @@ async function getVerifiedSessionResponse(
       data: {
         session,
       },
-      setCookie: exportPocketBaseAuthCookies(pb, {
+      cookieMutations: createPocketBaseAuthCookieMutations(pb, {
         sessionOnly: !shouldPersistSession,
       }),
     };

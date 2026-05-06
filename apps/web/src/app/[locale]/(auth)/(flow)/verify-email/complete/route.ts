@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { POST_AUTH_PATH } from "@/config/routes";
-import { getPathname, type AppHref } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
+import { redirectHrefWithAuthCookies } from "@/server/auth/auth-route-response";
 import { confirmEmailVerificationToken } from "@/server/auth/auth-email-verification-service";
 import {
   createVerifyEmailResultHref,
@@ -24,9 +23,8 @@ export async function GET(request: NextRequest, context: VerifyEmailCompletionRo
   });
 
   if (!state.token) {
-    return redirectWithAuthCookies(
+    return redirectHrefWithAuthCookies(
       request,
-      undefined,
       createVerifyEmailResultHref({
         result: "invalid",
         email: state.email,
@@ -38,45 +36,33 @@ export async function GET(request: NextRequest, context: VerifyEmailCompletionRo
   const response = await confirmEmailVerificationToken(state.token);
 
   if (!response.ok) {
-    return redirectWithAuthCookies(
+    return redirectHrefWithAuthCookies(
       request,
-      response.setCookie,
       createVerifyEmailResultHref({
         result: "invalid",
         email: state.email,
       }),
-      appLocale
+      appLocale,
+      response.cookieMutations
     );
   }
 
   if (response.data.session) {
-    return redirectWithAuthCookies(request, response.setCookie, POST_AUTH_PATH, appLocale);
+    return redirectHrefWithAuthCookies(
+      request,
+      POST_AUTH_PATH,
+      appLocale,
+      response.cookieMutations
+    );
   }
 
-  return redirectWithAuthCookies(
+  return redirectHrefWithAuthCookies(
     request,
-    response.setCookie,
     createVerifyEmailResultHref({
       result: "verified",
       email: state.email,
     }),
-    appLocale
+    appLocale,
+    response.cookieMutations
   );
-}
-
-function redirectWithAuthCookies(
-  request: NextRequest,
-  setCookie: string[] | undefined,
-  href: AppHref,
-  locale: AppLocale
-): NextResponse {
-  const pathname = getPathname({
-    href,
-    locale,
-  });
-  const response = NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
-    status: 303,
-  });
-
-  return appendAuthCookiesToResponse(response, setCookie);
 }

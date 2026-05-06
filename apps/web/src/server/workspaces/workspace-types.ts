@@ -2,6 +2,7 @@ import type {
   WorkspaceInvitableRole,
   WorkspaceMemberRole,
 } from "@/features/workspaces/workspace-role-rules";
+import type { AuthCookieMutations } from "@/server/auth/auth-cookies";
 
 export type { WorkspaceMemberRole };
 export type WorkspaceInviteRole = WorkspaceInvitableRole;
@@ -96,12 +97,12 @@ export type ServerWorkspaceResponse<TData> =
   | {
       ok: true;
       data: TData;
-      setCookie?: string[];
+      cookieMutations?: AuthCookieMutations;
     }
   | {
       ok: false;
       errorCode: WorkspaceErrorCode;
-      setCookie?: string[];
+      cookieMutations?: AuthCookieMutations;
     };
 
 export type WorkspaceResponse<TData> =

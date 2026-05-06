@@ -1,11 +1,12 @@
+import { cache } from "react";
 import PocketBase, { ClientResponseError } from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
 import type { AuthSessionPayload, AuthSignOutPayload } from "@/features/auth/auth-types";
 import type { SignInInput } from "@/features/auth/auth-schemas";
 import {
-  createClearedPocketBaseAuthCookies,
+  createClearedPocketBaseAuthCookieMutations,
   createPocketBaseServerClient,
-  exportPocketBaseAuthCookies,
+  createPocketBaseAuthCookieMutations,
 } from "@/server/pocketbase/pocketbase-server";
 import {
   isTransientError,
@@ -14,6 +15,7 @@ import {
 } from "@/server/auth/auth-errors";
 import { createAuthSession } from "@/server/auth/auth-session-utils";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
+import type { AuthCookieMutations } from "@/server/auth/auth-cookies";
 import { isUsersRecord, logServiceError } from "@/server/pocketbase/pocketbase-utils";
 
 type CurrentAuthResult =
@@ -21,7 +23,7 @@ type CurrentAuthResult =
       ok: true;
       pb: PocketBase;
       user: UsersRecord;
-      setCookie?: string[];
+      cookieMutations?: AuthCookieMutations;
       isStale?: true;
     }
   | CurrentAuthFailureResult;
@@ -48,7 +50,7 @@ type RequireCurrentWritableUserResult =
   | {
       ok: false;
       errorCode: RequireCurrentUserErrorCode;
-      setCookie?: string[];
+      cookieMutations?: AuthCookieMutations;
     };
 
 type CurrentAuthFailureResult = Extract<RequireCurrentWritableUserResult, { ok: false }>;
@@ -67,7 +69,7 @@ export async function signInWithPassword(
       return {
         ok: false,
         errorCode: "EMAIL_NOT_VERIFIED",
-        setCookie: exportPocketBaseAuthCookies(pb, {
+        cookieMutations: createPocketBaseAuthCookieMutations(pb, {
           sessionOnly: !input.rememberMe,
         }),
       };
@@ -78,7 +80,7 @@ export async function signInWithPassword(
       data: {
         session: createAuthSession(pb, authResponse.record),
       },
-      setCookie: exportPocketBaseAuthCookies(pb, {
+      cookieMutations: createPocketBaseAuthCookieMutations(pb, {
         sessionOnly: !input.rememberMe,
       }),
     };
@@ -92,7 +94,9 @@ export async function signInWithPassword(
     return {
       ok: false,
       errorCode,
-      ...(authCookieState === "invalid" ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(authCookieState === "invalid"
+        ? { cookieMutations: createClearedPocketBaseAuthCookieMutations() }
+        : {}),
     };
   }
 }
@@ -103,12 +107,12 @@ export async function signOutServerSession(): Promise<ServerAuthResponse<AuthSig
     data: {
       signedOut: true,
     },
-    setCookie: createClearedPocketBaseAuthCookies(),
+    cookieMutations: createClearedPocketBaseAuthCookieMutations(),
   };
 }
 
 export async function getServerAuthSession(): Promise<ServerAuthResponse<AuthSessionPayload>> {
-  const currentUser = await resolveCurrentServerAuth("read");
+  const currentUser = await resolveCurrentServerReadAuth();
 
   if (!currentUser.ok) {
     if (currentUser.errorCode === "UNKNOWN_ERROR") {
@@ -145,7 +149,7 @@ export async function getResponseAuthSession(): Promise<ServerAuthResponse<AuthS
       data: {
         session: null,
       },
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+      ...(currentUser.cookieMutations ? { cookieMutations: currentUser.cookieMutations } : {}),
     };
   }
 
@@ -154,12 +158,12 @@ export async function getResponseAuthSession(): Promise<ServerAuthResponse<AuthS
     data: {
       session: createAuthSession(currentUser.pb, currentUser.user),
     },
-    ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+    ...(currentUser.cookieMutations ? { cookieMutations: currentUser.cookieMutations } : {}),
   };
 }
 
 export async function requireCurrentUser(): Promise<RequireCurrentUserResult> {
-  const currentUser = await resolveCurrentServerAuth("read");
+  const currentUser = await resolveCurrentServerReadAuth();
 
   if (!currentUser.ok) {
     return currentUser;
@@ -198,7 +202,7 @@ async function resolveCurrentServerAuth(mode: "read" | "write"): Promise<Current
 
   if (authCookieState === "invalid") {
     return createCurrentAuthFailure({
-      setCookie: mode === "write" ? createClearedPocketBaseAuthCookies() : undefined,
+      cookieMutations: mode === "write" ? createClearedPocketBaseAuthCookieMutations() : undefined,
     });
   }
 
@@ -206,9 +210,9 @@ async function resolveCurrentServerAuth(mode: "read" | "write"): Promise<Current
 
   if (!authenticatedUser) {
     return createCurrentAuthFailure({
-      setCookie:
+      cookieMutations:
         mode === "write" && authCookieState === "present"
-          ? createClearedPocketBaseAuthCookies()
+          ? createClearedPocketBaseAuthCookieMutations()
           : undefined,
     });
   }
@@ -224,17 +228,17 @@ async function resolveCurrentServerAuth(mode: "read" | "write"): Promise<Current
 
     if (refreshedUser === "unauthorized") {
       return createCurrentAuthFailure({
-        setCookie: createClearedPocketBaseAuthCookies(),
+        cookieMutations: createClearedPocketBaseAuthCookieMutations(),
       });
     }
 
-    const setCookie = exportPocketBaseAuthCookies(pb, {
+    const cookieMutations = createPocketBaseAuthCookieMutations(pb, {
       sessionOnly: !shouldPersistSession,
     });
 
     return refreshedUser
-      ? createCurrentAuthSuccess(pb, refreshedUser, { setCookie })
-      : createCurrentAuthFailure({ setCookie });
+      ? createCurrentAuthSuccess(pb, refreshedUser, { cookieMutations })
+      : createCurrentAuthFailure({ cookieMutations });
   } catch (error) {
     if (mode === "write" && isTransientError(error) && authenticatedUser.verified === true) {
       console.warn("[auth-session-service] resolveCurrentServerAuth stale session");
@@ -248,10 +252,14 @@ async function resolveCurrentServerAuth(mode: "read" | "write"): Promise<Current
 
     return createCurrentAuthFailure({
       errorCode: "UNKNOWN_ERROR",
-      setCookie: mode === "write" ? createClearedPocketBaseAuthCookies() : undefined,
+      cookieMutations: mode === "write" ? createClearedPocketBaseAuthCookieMutations() : undefined,
     });
   }
 }
+
+const resolveCurrentServerReadAuth = cache(async function resolveCurrentServerReadAuth() {
+  return resolveCurrentServerAuth("read");
+});
 
 function getAuthenticatedUserFromStore(pb: PocketBase): UsersRecord | null {
   if (!pb.authStore.isValid || !isUsersRecord(pb.authStore.record)) {
@@ -309,7 +317,7 @@ function createCurrentAuthSuccess(
   pb: PocketBase,
   user: UsersRecord,
   options: {
-    setCookie?: string[];
+    cookieMutations?: AuthCookieMutations;
     isStale?: true;
   } = {}
 ): CurrentAuthResult {
@@ -317,7 +325,7 @@ function createCurrentAuthSuccess(
     ok: true,
     pb,
     user,
-    ...(options.setCookie ? { setCookie: options.setCookie } : {}),
+    ...(options.cookieMutations ? { cookieMutations: options.cookieMutations } : {}),
     ...(options.isStale ? { isStale: true } : {}),
   };
 }
@@ -325,13 +333,13 @@ function createCurrentAuthSuccess(
 function createCurrentAuthFailure(
   options: {
     errorCode?: RequireCurrentUserErrorCode;
-    setCookie?: string[];
+    cookieMutations?: AuthCookieMutations;
   } = {}
 ): CurrentAuthFailureResult {
   return {
     ok: false,
     errorCode: options.errorCode ?? "UNAUTHORIZED",
-    ...(options.setCookie ? { setCookie: options.setCookie } : {}),
+    ...(options.cookieMutations ? { cookieMutations: options.cookieMutations } : {}),
   };
 }
 

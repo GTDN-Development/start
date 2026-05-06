@@ -1,16 +1,16 @@
 import type { AuthErrorCode, AuthResponse } from "@/features/auth/auth-types";
-import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
+import { applyServerActionAuthCookies, type AuthCookieMutations } from "@/server/auth/auth-cookies";
 
 export type ServerAuthResponse<TData> =
   | {
       ok: true;
       data: TData;
-      setCookie?: string[];
+      cookieMutations?: AuthCookieMutations;
     }
   | {
       ok: false;
       errorCode: AuthErrorCode;
-      setCookie?: string[];
+      cookieMutations?: AuthCookieMutations;
     };
 
 export function createAuthErrorResponse<TData>(errorCode: AuthErrorCode): AuthResponse<TData> {
@@ -38,7 +38,7 @@ export function toAuthApiResponse<TData>(response: ServerAuthResponse<TData>): A
 export async function finalizeAuthAction<TData>(
   response: ServerAuthResponse<TData>
 ): Promise<AuthResponse<TData>> {
-  await applyServerActionAuthCookies(response.setCookie);
+  await applyServerActionAuthCookies(response.cookieMutations);
 
   return toAuthApiResponse(response);
 }

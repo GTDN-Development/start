@@ -3,18 +3,19 @@ import type { SignUpPayload } from "@/features/auth/auth-types";
 import type { SignUpInput } from "@/features/auth/auth-schemas";
 import {
   createPocketBaseServerClient,
-  exportPocketBaseAuthCookies,
+  createPocketBaseAuthCookieMutations,
 } from "@/server/pocketbase/pocketbase-server";
 import { formatServiceError } from "@/server/pocketbase/pocketbase-utils";
 import { logAuthServiceError, mapSignUpErrorCode } from "@/server/auth/auth-errors";
 import { createDisplayName } from "@/server/auth/auth-session-utils";
+import type { AuthCookieMutations } from "@/server/auth/auth-cookies";
 import type { ServerAuthResponse } from "@/server/auth/auth-response";
 
 export async function signUpWithPassword(
   input: SignUpInput
 ): Promise<ServerAuthResponse<SignUpPayload>> {
   const { pb } = await createPocketBaseServerClient();
-  let setCookie: string[] | undefined;
+  let cookieMutations: AuthCookieMutations;
   let verificationEmailStatus: SignUpPayload["verificationEmailStatus"] = "sent";
 
   try {
@@ -38,7 +39,7 @@ export async function signUpWithPassword(
     try {
       await pb.collection("users").authWithPassword<UsersRecord>(input.email, input.password);
 
-      setCookie = exportPocketBaseAuthCookies(pb, {
+      cookieMutations = createPocketBaseAuthCookieMutations(pb, {
         sessionOnly: true,
       });
     } catch (authError) {
@@ -54,7 +55,7 @@ export async function signUpWithPassword(
         created: true,
         verificationEmailStatus,
       },
-      ...(setCookie ? { setCookie } : {}),
+      ...(cookieMutations ? { cookieMutations } : {}),
     };
   } catch (error) {
     const errorCode = mapSignUpErrorCode(error);

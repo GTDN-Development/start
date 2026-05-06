@@ -1,7 +1,7 @@
 import { ClientResponseError } from "pocketbase";
 import type { RequestPasswordResetPayload, ResetPasswordPayload } from "@/features/auth/auth-types";
 import {
-  createClearedPocketBaseAuthCookies,
+  createClearedPocketBaseAuthCookieMutations,
   createPocketBaseServerClient,
 } from "@/server/pocketbase/pocketbase-server";
 import { logAuthServiceError, mapResetPasswordErrorCode } from "@/server/auth/auth-errors";
@@ -25,7 +25,7 @@ export async function confirmPasswordResetToken(input: {
       data: {
         passwordReset: true,
       },
-      setCookie: createClearedPocketBaseAuthCookies(),
+      cookieMutations: createClearedPocketBaseAuthCookieMutations(),
     };
   } catch (error) {
     const errorCode = mapResetPasswordErrorCode(error);
@@ -37,7 +37,9 @@ export async function confirmPasswordResetToken(input: {
     return {
       ok: false,
       errorCode,
-      ...(hadInvalidAuthCookie ? { setCookie: createClearedPocketBaseAuthCookies() } : {}),
+      ...(hadInvalidAuthCookie
+        ? { cookieMutations: createClearedPocketBaseAuthCookieMutations() }
+        : {}),
     };
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { workspaceConfig } from "@/config/workspace";
+import type { AuthCookieMutation } from "@/server/auth/auth-cookies";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
 import { resolvePostAuthDestinationForUser } from "@/server/workspaces/workspace-shell-queries";
 import { GET } from "./route";
@@ -46,7 +47,7 @@ describe("post-auth route", function describePostAuthRoute() {
       data: {
         session: null,
       },
-      setCookie: ["pb_auth=; Max-Age=0; Path=/; HttpOnly"],
+      cookieMutations: [createCookieMutation("pb_auth", "", { maxAge: 0, httpOnly: true })],
     } as Awaited<ReturnType<typeof getResponseAuthSession>>);
 
     const response = await getPostAuthResponse();
@@ -61,7 +62,9 @@ describe("post-auth route", function describePostAuthRoute() {
   it.each([
     {
       name: "redirects to app when no workspace-specific destination is available",
-      authResponse: createAuthenticatedSessionResponse(["pb_auth=token; Path=/; HttpOnly"]),
+      authResponse: createAuthenticatedSessionResponse([
+        createCookieMutation("pb_auth", "token", { path: "/", httpOnly: true }),
+      ]),
       destination: {
         ok: true,
         data: {
@@ -73,7 +76,9 @@ describe("post-auth route", function describePostAuthRoute() {
     },
     {
       name: "clears the pending invite cookie when redirecting to an invite",
-      authResponse: createAuthenticatedSessionResponse(["pb_auth=token; Path=/; HttpOnly"]),
+      authResponse: createAuthenticatedSessionResponse([
+        createCookieMutation("pb_auth", "token", { path: "/", httpOnly: true }),
+      ]),
       destination: {
         ok: true,
         data: {
@@ -115,7 +120,7 @@ describe("post-auth route", function describePostAuthRoute() {
   });
 });
 
-function createAuthenticatedSessionResponse(setCookie?: string[]) {
+function createAuthenticatedSessionResponse(cookieMutations?: AuthCookieMutation[]) {
   return {
     ok: true,
     data: {
@@ -123,11 +128,25 @@ function createAuthenticatedSessionResponse(setCookie?: string[]) {
         user: {
           id: "user-1",
           email: "user@example.com",
+          name: null,
+          avatarUrl: null,
         },
       },
     },
-    setCookie,
+    cookieMutations,
   } as Awaited<ReturnType<typeof getResponseAuthSession>>;
+}
+
+function createCookieMutation(
+  name: string,
+  value: string,
+  options: Partial<AuthCookieMutation> = {}
+): AuthCookieMutation {
+  return {
+    name,
+    value,
+    ...options,
+  };
 }
 
 async function getPostAuthResponse() {

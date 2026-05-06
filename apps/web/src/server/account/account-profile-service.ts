@@ -37,7 +37,7 @@ export async function updateCurrentUserProfileName(
     return {
       ok: false,
       errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+      ...(currentUser.cookieMutations ? { cookieMutations: currentUser.cookieMutations } : {}),
     };
   }
 
@@ -90,7 +90,7 @@ export async function updateCurrentUserAvatar(
     return {
       ok: false,
       errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+      ...(currentUser.cookieMutations ? { cookieMutations: currentUser.cookieMutations } : {}),
     };
   }
 
@@ -129,7 +129,7 @@ export async function removeCurrentUserAvatar(): Promise<
     return {
       ok: false,
       errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+      ...(currentUser.cookieMutations ? { cookieMutations: currentUser.cookieMutations } : {}),
     };
   }
 
@@ -168,7 +168,7 @@ export async function requestEmailChangeForCurrentUser(
     return {
       ok: false,
       errorCode: currentUser.errorCode,
-      ...(currentUser.setCookie ? { setCookie: currentUser.setCookie } : {}),
+      ...(currentUser.cookieMutations ? { cookieMutations: currentUser.cookieMutations } : {}),
     };
   }
 

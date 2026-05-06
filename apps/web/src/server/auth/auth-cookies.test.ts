@@ -18,10 +18,23 @@ describe("auth-cookies", function describeAuthCookies() {
     vi.mocked(cookies).mockResolvedValue(createCookieStoreMock(setCookie));
   });
 
-  it("applies serialized auth cookies inside server actions", async function testServerActionWriter() {
+  it("applies structured auth cookies inside server actions", async function testServerActionWriter() {
     await applyServerActionAuthCookies([
-      "pb_auth=token; Path=/; HttpOnly; SameSite=Lax",
-      "pb_auth_persist=; Max-Age=0; Path=/; HttpOnly",
+      {
+        name: "pb_auth",
+        value: "token",
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+      },
+      {
+        name: "pb_auth_persist",
+        value: "",
+        path: "/",
+        maxAge: 0,
+        expires: new Date(0),
+        httpOnly: true,
+      },
     ]);
 
     expect(setCookie).toHaveBeenNthCalledWith(1, {
@@ -46,7 +59,15 @@ describe("auth-cookies", function describeAuthCookies() {
       status: 303,
     });
 
-    appendAuthCookiesToResponse(response, ["pb_auth=token; Path=/; HttpOnly; SameSite=Lax"]);
+    appendAuthCookiesToResponse(response, [
+      {
+        name: "pb_auth",
+        value: "token",
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+      },
+    ]);
 
     expect(response.headers.get("set-cookie")).toContain("pb_auth=token");
   });

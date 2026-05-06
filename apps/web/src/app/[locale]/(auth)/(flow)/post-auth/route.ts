@@ -1,12 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import {
   APP_HOME_PATH,
   SIGN_IN_PATH,
   getInviteHref,
   getWorkspaceOverviewHref,
 } from "@/config/routes";
-import { getPathname, type AppHref } from "@/i18n/navigation";
+import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
+import {
+  createRedirectResponse,
+  redirectHrefWithAuthCookies,
+} from "@/server/auth/auth-route-response";
 import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
 import {
@@ -28,26 +32,33 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!session) {
-    return redirectWithAuthCookies(request, sessionResponse.setCookie, SIGN_IN_PATH, appLocale);
+    return redirectHrefWithAuthCookies(
+      request,
+      SIGN_IN_PATH,
+      appLocale,
+      sessionResponse.cookieMutations
+    );
   }
 
   const destinationResponse = await resolvePostAuthDestinationForUser({
     userId: session.user.id,
   });
   const authCookies = [
-    ...(sessionResponse.setCookie ?? []),
-    ...(destinationResponse.setCookie ?? []),
+    ...(sessionResponse.cookieMutations ?? []),
+    ...(destinationResponse.cookieMutations ?? []),
   ];
 
   if (!destinationResponse.ok) {
-    return redirectWithAuthCookies(request, authCookies, APP_HOME_PATH, appLocale);
+    return redirectHrefWithAuthCookies(request, APP_HOME_PATH, appLocale, authCookies);
   }
 
   if (destinationResponse.data.state === "invite_redirect") {
     const response = createRedirectResponse(
       request,
-      getInviteHref(destinationResponse.data.inviteToken),
-      appLocale
+      getPathname({
+        href: getInviteHref(destinationResponse.data.inviteToken),
+        locale: appLocale,
+      })
     );
 
     clearPendingInviteTokenResponseCookie(response);
@@ -58,8 +69,10 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
   if (destinationResponse.data.state === "workspace_redirect") {
     const response = createRedirectResponse(
       request,
-      getWorkspaceOverviewHref(destinationResponse.data.workspaceSlug),
-      appLocale
+      getPathname({
+        href: getWorkspaceOverviewHref(destinationResponse.data.workspaceSlug),
+        locale: appLocale,
+      })
     );
 
     setActiveWorkspaceSlugResponseCookie(response, destinationResponse.data.workspaceSlug);
@@ -67,27 +80,5 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
     return appendAuthCookiesToResponse(response, authCookies);
   }
 
-  return redirectWithAuthCookies(request, authCookies, APP_HOME_PATH, appLocale);
-}
-
-function redirectWithAuthCookies(
-  request: NextRequest,
-  setCookie: string[] | undefined,
-  href: AppHref,
-  locale: AppLocale
-): NextResponse {
-  const response = createRedirectResponse(request, href, locale);
-
-  return appendAuthCookiesToResponse(response, setCookie);
-}
-
-function createRedirectResponse(request: NextRequest, href: AppHref, locale: AppLocale) {
-  const pathname = getPathname({
-    href,
-    locale,
-  });
-
-  return NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
-    status: 303,
-  });
+  return redirectHrefWithAuthCookies(request, APP_HOME_PATH, appLocale, authCookies);
 }

@@ -24,7 +24,7 @@ export async function finalizeWorkspaceAction<TData, TResult = TData>(
     await options.onSuccess?.(response.data);
   }
 
-  await applyServerActionAuthCookies(response.setCookie);
+  await applyServerActionAuthCookies(response.cookieMutations);
 
   if (!response.ok) {
     return {

@@ -11,6 +11,8 @@ const APPLICATION_ROOT_PATH = path.join(WEB_ROOT, "src/features/application/appl
 const FORBIDDEN_RENDER_MUTATORS = [
   "applyServerActionAuthCookies",
   "appendAuthCookiesToResponse",
+  "redirectHrefWithAuthCookies",
+  "redirectPathnameWithAuthCookies",
   "setActiveWorkspaceSlugCookie",
   "clearActiveWorkspaceSlugCookie",
   "clearPendingInviteTokenCookie",

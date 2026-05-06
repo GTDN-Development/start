@@ -1,5 +1,6 @@
 import PocketBase, { ClientResponseError } from "pocketbase";
 import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
+import type { AuthCookieMutations } from "@/server/auth/auth-cookies";
 import { requireCurrentUser, requireCurrentWritableUser } from "@/server/auth/auth-session-service";
 import {
   mapWorkspaceErrorCode,
@@ -126,9 +127,9 @@ async function requireWorkspaceContext(
     mode === "action" ? await requireCurrentWritableUser() : await requireCurrentUser();
 
   if (!currentUser.ok) {
-    const setCookie: string[] | undefined =
-      "setCookie" in currentUser && Array.isArray(currentUser.setCookie)
-        ? currentUser.setCookie
+    const cookieMutations: AuthCookieMutations =
+      "cookieMutations" in currentUser && Array.isArray(currentUser.cookieMutations)
+        ? currentUser.cookieMutations
         : undefined;
 
     return {
@@ -136,7 +137,7 @@ async function requireWorkspaceContext(
       response: {
         ok: false,
         errorCode: currentUser.errorCode,
-        ...(setCookie ? { setCookie } : {}),
+        ...(cookieMutations ? { cookieMutations } : {}),
       },
     };
   }

@@ -1,8 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getInviteHref, getInviteStartHref, getWorkspaceOverviewHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
+import {
+  createRedirectResponse,
+  redirectPathnameWithAuthCookies,
+} from "@/server/auth/auth-route-response";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
 import { setActiveWorkspaceSlugResponseCookie } from "@/server/workspaces/workspace-cookie";
 import {
@@ -24,29 +28,26 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!session) {
-    return redirectWithAuthCookies(
+    return redirectPathnameWithAuthCookies(
       request,
-      sessionResponse.setCookie,
       getPathname({
         href: getInviteStartHref(token),
         locale: appLocale,
-      })
+      }),
+      sessionResponse.cookieMutations
     );
   }
 
-  const inspectResponse = await getInviteTokenForUser(token, {
-    id: session.user.id,
-    email: session.user.email,
-  });
+  const inspectResponse = await getInviteTokenForUser(token);
 
   if (!inspectResponse.ok || inspectResponse.data.result.state !== "already_member") {
-    return redirectWithAuthCookies(
+    return redirectPathnameWithAuthCookies(
       request,
-      sessionResponse.setCookie,
       getPathname({
         href: getInviteHref(token),
         locale: appLocale,
-      })
+      }),
+      sessionResponse.cookieMutations
     );
   }
 
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
 
   setActiveWorkspaceSlugResponseCookie(response, inspectResponse.data.result.workspace.slug);
 
-  return appendAuthCookiesToResponse(response, sessionResponse.setCookie);
+  return appendAuthCookiesToResponse(response, sessionResponse.cookieMutations);
 }
 
 export async function POST(request: NextRequest, context: InviteAcceptRouteContext) {
@@ -71,29 +72,26 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
   if (!session) {
-    return redirectWithAuthCookies(
+    return redirectPathnameWithAuthCookies(
       request,
-      sessionResponse.setCookie,
       getPathname({
         href: getInviteStartHref(token),
         locale: appLocale,
-      })
+      }),
+      sessionResponse.cookieMutations
     );
   }
 
-  const acceptResponse = await acceptInviteTokenForUser(token, {
-    id: session.user.id,
-    email: session.user.email,
-  });
+  const acceptResponse = await acceptInviteTokenForUser(token);
 
   if (!acceptResponse.ok) {
-    return redirectWithAuthCookies(
+    return redirectPathnameWithAuthCookies(
       request,
-      sessionResponse.setCookie,
       getPathname({
         href: getInviteHref(token),
         locale: appLocale,
-      })
+      }),
+      sessionResponse.cookieMutations
     );
   }
 
@@ -111,31 +109,15 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
 
     setActiveWorkspaceSlugResponseCookie(response, acceptResponse.data.result.workspace.slug);
 
-    return appendAuthCookiesToResponse(response, sessionResponse.setCookie);
+    return appendAuthCookiesToResponse(response, sessionResponse.cookieMutations);
   }
 
-  return redirectWithAuthCookies(
+  return redirectPathnameWithAuthCookies(
     request,
-    sessionResponse.setCookie,
     getPathname({
       href: getInviteHref(token),
       locale: appLocale,
-    })
+    }),
+    sessionResponse.cookieMutations
   );
-}
-
-function redirectWithAuthCookies(
-  request: NextRequest,
-  setCookie: string[] | undefined,
-  pathname: string
-): NextResponse {
-  const response = createRedirectResponse(request, pathname);
-
-  return appendAuthCookiesToResponse(response, setCookie);
-}
-
-function createRedirectResponse(request: NextRequest, pathname: string) {
-  return NextResponse.redirect(new URL(pathname, request.nextUrl.origin), {
-    status: 303,
-  });
 }
