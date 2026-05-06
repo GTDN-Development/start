@@ -97,6 +97,27 @@ type ConfirmActionState =
 
 type ManagementActionState = ChangeRoleActionState | ConfirmActionState | null;
 
+type ActionSubmitResponse =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      errorCode: string;
+    };
+
+type ConfirmDialogModel = {
+  title: string;
+  description: string;
+  submitLabel: string;
+  pendingLabel: string;
+  body: ReactNode;
+  guard?: ReactNode;
+  variant?: "default" | "destructive";
+  icon?: ReactNode;
+  disabled?: boolean;
+};
+
 export function WorkspaceMembersSettingsSection({
   workspace,
   initialMembers,
@@ -287,24 +308,16 @@ export function WorkspaceMembersSettingsSection({
       return;
     }
 
-    setIsActionSubmitting(true);
-
-    const response = await runAsyncTransition(() =>
-      changeMemberRoleAction(
-        workspace.slug,
-        changeRoleState.member.id,
-        changeRoleState.selectedRole
-      )
-    );
-
-    if (!response.ok) {
-      setIsActionSubmitting(false);
-      toast.error(getActionErrorMessage(response.errorCode, t("status.roleChange.error"), t));
-      return;
-    }
-
-    completeAction();
-    toast.success(t("status.roleChange.success"));
+    await submitManagementAction({
+      action: () =>
+        changeMemberRoleAction(
+          workspace.slug,
+          changeRoleState.member.id,
+          changeRoleState.selectedRole
+        ),
+      fallbackErrorMessage: t("status.roleChange.error"),
+      successMessage: t("status.roleChange.success"),
+    });
   }
 
   async function handleConfirmAction() {
@@ -319,23 +332,20 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        setIsActionSubmitting(true);
-        const response = await runAsyncTransition(() => leaveWorkspaceAction(workspace.slug));
-
-        if (!response.ok) {
-          setIsActionSubmitting(false);
-          toast.error(
-            response.errorCode === "LAST_OWNER_GUARD"
+        await submitManagementAction({
+          action: () => leaveWorkspaceAction(workspace.slug),
+          fallbackErrorMessage: tLeave("status.failed"),
+          successMessage: tLeave("status.success"),
+          refresh: false,
+          getErrorMessage: (errorCode) =>
+            errorCode === "LAST_OWNER_GUARD"
               ? tLeave("status.lastOwnerGuard")
-              : tLeave("status.failed")
-          );
-          return;
-        }
-
-        completeAction({ refresh: false });
-        removeWorkspace(workspace.id);
-        router.replace(APP_HOME_PATH);
-        toast.success(tLeave("status.success"));
+              : tLeave("status.failed"),
+          onSuccess: () => {
+            removeWorkspace(workspace.id);
+            router.replace(APP_HOME_PATH);
+          },
+        });
         return;
       }
 
@@ -345,19 +355,11 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        setIsActionSubmitting(true);
-        const response = await runAsyncTransition(() =>
-          removeMemberAction(workspace.slug, confirmActionState.member.id)
-        );
-
-        if (!response.ok) {
-          setIsActionSubmitting(false);
-          toast.error(getActionErrorMessage(response.errorCode, t("status.memberRemove.error"), t));
-          return;
-        }
-
-        completeAction();
-        toast.success(t("status.memberRemove.success"));
+        await submitManagementAction({
+          action: () => removeMemberAction(workspace.slug, confirmActionState.member.id),
+          fallbackErrorMessage: t("status.memberRemove.error"),
+          successMessage: t("status.memberRemove.success"),
+        });
         return;
       }
 
@@ -366,19 +368,12 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        setIsActionSubmitting(true);
-        const response = await runAsyncTransition(() =>
-          resendInviteAction(workspace.slug, confirmActionState.invitation.id, locale)
-        );
-
-        if (!response.ok) {
-          setIsActionSubmitting(false);
-          toast.error(getActionErrorMessage(response.errorCode, t("status.inviteResend.error"), t));
-          return;
-        }
-
-        completeAction();
-        toast.success(t("status.inviteResend.success"));
+        await submitManagementAction({
+          action: () =>
+            resendInviteAction(workspace.slug, confirmActionState.invitation.id, locale),
+          fallbackErrorMessage: t("status.inviteResend.error"),
+          successMessage: t("status.inviteResend.success"),
+        });
         return;
       }
 
@@ -387,107 +382,122 @@ export function WorkspaceMembersSettingsSection({
           return;
         }
 
-        setIsActionSubmitting(true);
-        const response = await runAsyncTransition(() =>
-          revokeInviteAction(workspace.slug, confirmActionState.invitation.id)
-        );
-
-        if (!response.ok) {
-          setIsActionSubmitting(false);
-          toast.error(getActionErrorMessage(response.errorCode, t("status.inviteRemove.error"), t));
-          return;
-        }
-
-        completeAction();
-        toast.success(t("status.inviteRemove.success"));
+        await submitManagementAction({
+          action: () => revokeInviteAction(workspace.slug, confirmActionState.invitation.id),
+          fallbackErrorMessage: t("status.inviteRemove.error"),
+          successMessage: t("status.inviteRemove.success"),
+        });
         return;
       }
     }
   }
 
-  let confirmDialogTitle = "";
-  let confirmDialogDescription = "";
-  let confirmDialogSubmitLabel = "";
-  let confirmDialogPendingLabel = "";
-  let confirmDialogBody: ReactNode = null;
-  let confirmDialogGuard: ReactNode = null;
-  let confirmDialogVariant: "default" | "destructive" = "default";
-  let confirmDialogIcon: ReactNode = null;
-  let isConfirmDialogDisabled = !confirmActionState;
+  async function submitManagementAction(options: {
+    action: () => Promise<ActionSubmitResponse>;
+    fallbackErrorMessage: string;
+    successMessage: string;
+    refresh?: boolean;
+    getErrorMessage?: (errorCode: string) => string;
+    onSuccess?: () => void;
+  }) {
+    setIsActionSubmitting(true);
 
-  if (confirmActionState) {
-    switch (confirmActionState.type) {
+    const response = await runAsyncTransition(options.action);
+
+    if (!response.ok) {
+      setIsActionSubmitting(false);
+      toast.error(
+        options.getErrorMessage
+          ? options.getErrorMessage(response.errorCode)
+          : getActionErrorMessage(response.errorCode, options.fallbackErrorMessage, t)
+      );
+      return;
+    }
+
+    completeAction({ refresh: options.refresh });
+    options.onSuccess?.();
+    toast.success(options.successMessage);
+  }
+
+  function getConfirmDialogModel(state: ConfirmActionState): ConfirmDialogModel {
+    switch (state.type) {
       case "leave-workspace":
-        confirmDialogTitle = tLeave("dialog.title");
-        confirmDialogDescription = tLeave("dialog.description");
-        confirmDialogSubmitLabel = tLeave("dialog.submit.default");
-        confirmDialogPendingLabel = tLeave("dialog.submit.pending");
-        confirmDialogBody = renderWorkspaceMemberSummary(
-          confirmActionState.member,
-          getWorkspaceMemberRoleLabel(confirmActionState.member.role, tRoles)
-        );
-        confirmDialogGuard = isCurrentUserLastOwner && (
-          <Alert>
-            <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
-            <AlertDescription>{tLeave("ownerGuardHint")}</AlertDescription>
-          </Alert>
-        );
-        confirmDialogVariant = "destructive";
-        confirmDialogIcon = <LogOutIcon aria-hidden="true" className="size-4" />;
-        isConfirmDialogDisabled = isCurrentUserLastOwner;
-        break;
+        return {
+          title: tLeave("dialog.title"),
+          description: tLeave("dialog.description"),
+          submitLabel: tLeave("dialog.submit.default"),
+          pendingLabel: tLeave("dialog.submit.pending"),
+          body: renderWorkspaceMemberSummary(
+            state.member,
+            getWorkspaceMemberRoleLabel(state.member.role, tRoles)
+          ),
+          guard: isCurrentUserLastOwner && (
+            <Alert>
+              <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
+              <AlertDescription>{tLeave("ownerGuardHint")}</AlertDescription>
+            </Alert>
+          ),
+          variant: "destructive",
+          icon: <LogOutIcon aria-hidden="true" className="size-4" />,
+          disabled: isCurrentUserLastOwner,
+        };
 
       case "remove-member":
-        confirmDialogTitle = t("dialogs.removeMember.title");
-        confirmDialogDescription = t("dialogs.removeMember.description", {
-          workspaceName: workspace.name,
-        });
-        confirmDialogSubmitLabel = t("dialogs.removeMember.submit.default");
-        confirmDialogPendingLabel = t("dialogs.removeMember.submit.pending");
-        confirmDialogBody = renderWorkspaceMemberSummary(
-          confirmActionState.member,
-          getWorkspaceMemberRoleLabel(confirmActionState.member.role, tRoles)
-        );
-        confirmDialogGuard = isRemoveMemberTargetLastOwner && (
-          <Alert>
-            <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
-            <AlertDescription>{t("dialogs.lastOwnerGuard.description")}</AlertDescription>
-          </Alert>
-        );
-        confirmDialogVariant = "destructive";
-        isConfirmDialogDisabled = isRemoveMemberTargetLastOwner;
-        break;
+        return {
+          title: t("dialogs.removeMember.title"),
+          description: t("dialogs.removeMember.description", {
+            workspaceName: workspace.name,
+          }),
+          submitLabel: t("dialogs.removeMember.submit.default"),
+          pendingLabel: t("dialogs.removeMember.submit.pending"),
+          body: renderWorkspaceMemberSummary(
+            state.member,
+            getWorkspaceMemberRoleLabel(state.member.role, tRoles)
+          ),
+          guard: isRemoveMemberTargetLastOwner && (
+            <Alert>
+              <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
+              <AlertDescription>{t("dialogs.lastOwnerGuard.description")}</AlertDescription>
+            </Alert>
+          ),
+          variant: "destructive",
+          disabled: isRemoveMemberTargetLastOwner,
+        };
 
       case "resend-invitation":
-        confirmDialogTitle = t("dialogs.resendInvite.title");
-        confirmDialogDescription = t("dialogs.resendInvite.description", {
-          workspaceName: workspace.name,
-        });
-        confirmDialogSubmitLabel = t("dialogs.resendInvite.submit.default");
-        confirmDialogPendingLabel = t("dialogs.resendInvite.submit.pending");
-        confirmDialogBody = renderWorkspaceInviteSummary(
-          confirmActionState.invitation,
-          getWorkspaceMemberRoleLabel(confirmActionState.invitation.role, tRoles)
-        );
-        isConfirmDialogDisabled = isInviteManagementReadOnly;
-        break;
+        return {
+          title: t("dialogs.resendInvite.title"),
+          description: t("dialogs.resendInvite.description", {
+            workspaceName: workspace.name,
+          }),
+          submitLabel: t("dialogs.resendInvite.submit.default"),
+          pendingLabel: t("dialogs.resendInvite.submit.pending"),
+          body: renderWorkspaceInviteSummary(
+            state.invitation,
+            getWorkspaceMemberRoleLabel(state.invitation.role, tRoles)
+          ),
+          disabled: isInviteManagementReadOnly,
+        };
 
       case "remove-invitation":
-        confirmDialogTitle = t("dialogs.removeInvite.title");
-        confirmDialogDescription = t("dialogs.removeInvite.description", {
-          workspaceName: workspace.name,
-        });
-        confirmDialogSubmitLabel = t("dialogs.removeInvite.submit.default");
-        confirmDialogPendingLabel = t("dialogs.removeInvite.submit.pending");
-        confirmDialogBody = renderWorkspaceInviteSummary(
-          confirmActionState.invitation,
-          getWorkspaceMemberRoleLabel(confirmActionState.invitation.role, tRoles)
-        );
-        confirmDialogVariant = "destructive";
-        isConfirmDialogDisabled = isInviteManagementReadOnly;
-        break;
+        return {
+          title: t("dialogs.removeInvite.title"),
+          description: t("dialogs.removeInvite.description", {
+            workspaceName: workspace.name,
+          }),
+          submitLabel: t("dialogs.removeInvite.submit.default"),
+          pendingLabel: t("dialogs.removeInvite.submit.pending"),
+          body: renderWorkspaceInviteSummary(
+            state.invitation,
+            getWorkspaceMemberRoleLabel(state.invitation.role, tRoles)
+          ),
+          variant: "destructive",
+          disabled: isInviteManagementReadOnly,
+        };
     }
   }
+
+  const confirmDialogModel = confirmActionState ? getConfirmDialogModel(confirmActionState) : null;
 
   return (
     <div className="grid gap-8">
@@ -617,12 +627,12 @@ export function WorkspaceMembersSettingsSection({
       <AlertDialog open={Boolean(confirmActionState)} onOpenChange={handleActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>{confirmDialogTitle}</AlertDialogTitle>
-            <AlertDialogDescription>{confirmDialogDescription}</AlertDialogDescription>
+            <AlertDialogTitle>{confirmDialogModel?.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmDialogModel?.description}</AlertDialogDescription>
           </AlertDialogHeader>
 
-          {confirmDialogBody}
-          {confirmDialogGuard}
+          {confirmDialogModel?.body}
+          {confirmDialogModel?.guard}
 
           <AlertDialogFooter>
             <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
@@ -631,12 +641,14 @@ export function WorkspaceMembersSettingsSection({
             <AlertDialogAction
               type="button"
               size="lg"
-              variant={confirmDialogVariant}
-              disabled={isActionSubmitting || isConfirmDialogDisabled}
+              variant={confirmDialogModel?.variant}
+              disabled={isActionSubmitting || Boolean(confirmDialogModel?.disabled)}
               onClick={handleConfirmAction}
             >
-              {isActionSubmitting ? <Spinner /> : confirmDialogIcon}
-              {isActionSubmitting ? confirmDialogPendingLabel : confirmDialogSubmitLabel}
+              {isActionSubmitting ? <Spinner /> : confirmDialogModel?.icon}
+              {isActionSubmitting
+                ? confirmDialogModel?.pendingLabel
+                : confirmDialogModel?.submitLabel}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -654,7 +666,7 @@ function renderWorkspaceMemberSummary(
   const avatarColorClass = getAvatarColorClass(member.userId);
 
   return (
-    <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
+    <WorkspaceActionSummary roleLabel={roleLabel}>
       <div className="flex min-w-0 items-center gap-3">
         <Avatar>
           {member.avatarUrl && <AvatarImage src={member.avatarUrl} alt="" />}
@@ -665,8 +677,7 @@ function renderWorkspaceMemberSummary(
           <p className="text-muted-foreground truncate text-xs">{member.email}</p>
         </div>
       </div>
-      <span className="text-muted-foreground text-sm">{roleLabel}</span>
-    </div>
+    </WorkspaceActionSummary>
   );
 }
 
@@ -675,8 +686,22 @@ function renderWorkspaceInviteSummary(
   roleLabel: string
 ): ReactNode {
   return (
-    <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
+    <WorkspaceActionSummary roleLabel={roleLabel}>
       <span className="text-sm font-medium">{invitation.emailNormalized}</span>
+    </WorkspaceActionSummary>
+  );
+}
+
+function WorkspaceActionSummary({
+  children,
+  roleLabel,
+}: {
+  children: ReactNode;
+  roleLabel: string;
+}) {
+  return (
+    <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
+      {children}
       <span className="text-muted-foreground text-sm">{roleLabel}</span>
     </div>
   );

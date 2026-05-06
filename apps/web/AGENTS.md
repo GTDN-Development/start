@@ -115,7 +115,6 @@ These instructions apply only to files under `apps/web/**`.
 - For internal navigation use `@/i18n/navigation` (`Link`, `useRouter`, `redirect`, `getPathname`) — avoid `next/navigation` for localized redirects/push/replace
 - **Never** build localized app URLs manually with `/${locale}/...` for redirects, hidden form inputs, metadata, or links — use `redirect({href, locale})` / `getPathname({href, locale})`
 - API `redirectTo` values must be internal path-only route keys (English), preferably typed/allowlisted
-- Auth and account routes are currently static UI flows (no backend integration)
 
 ## PocketBase / Typegen
 

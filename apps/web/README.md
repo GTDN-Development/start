@@ -207,8 +207,9 @@ redirect({ href: "/sign-in", locale: locale as Locale });
   - `src/app/[locale]/(auth)/(flow)/post-auth/route.ts`
   - `src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts`
   - invite accept/start handlers under `src/app/[locale]/(auth)/(flow)/invite/...`
-- Client DX API is exposed via `src/features/auth/auth-client.ts`:
-  - `signIn`, `signUp`, `useSession`, `signOut`
+- Client DX helpers exposed via `src/features/auth/auth-client.ts`:
+  - `signIn`, `signOut`, `resetPasswordWithToken`, `confirmEmailChange`
+- Sign-up and verification request forms call their server actions directly.
 - Application routes are protected by:
   - `src/proxy.ts` cookie-presence redirect guard
   - server-layout fallback session validation in `src/app/[locale]/(application)/layout.tsx`
