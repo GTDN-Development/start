@@ -92,6 +92,8 @@ test(
         assert.equal(inviteInspectBody.message, "Missing invite token.");
 
         await assertWorkspaceCreateHook(port);
+        await assertWorkspaceMemberAuthzHooks(port);
+        await assertLastOwnerGuards(port);
       } finally {
         await stopProcess(server);
       }
@@ -102,29 +104,12 @@ test(
 );
 
 async function assertWorkspaceCreateHook(port) {
-  const pb = new PocketBase(`http://127.0.0.1:${port}`);
-  pb.autoCancellation(false);
-
-  await pb
-    .collection("_superusers")
-    .authWithPassword(TEST_SUPERUSER_EMAIL, TEST_SUPERUSER_PASSWORD);
+  const pb = await createSuperuserClient(port);
 
   const suffix = Math.random().toString(16).slice(2, 10);
-  const email = `workspace-create-${suffix}@example.com`;
-  const password = "test-password-123456";
-  const user = await pb.collection("users").create({
-    email,
-    password,
-    passwordConfirm: password,
-    name: "Workspace Create Smoke",
-    verified: true,
-  });
-  const userClient = new PocketBase(`http://127.0.0.1:${port}`);
-  userClient.autoCancellation(false);
+  const creator = await createVerifiedUserClient(port, pb, `workspace-create-${suffix}`);
 
-  await userClient.collection("users").authWithPassword(email, password);
-
-  const workspaceResponse = await userClient.send("/api/start/workspaces", {
+  const workspaceResponse = await creator.client.send("/api/start/workspaces", {
     method: "POST",
     body: {
       name: `Příliš žluťoučký ${suffix}`,
@@ -137,12 +122,180 @@ async function assertWorkspaceCreateHook(port) {
   const memberships = await pb.collection("workspace_members").getFullList({
     filter: pb.filter("workspace = {:workspaceId} && user = {:userId}", {
       workspaceId: workspaceResponse.workspace.id,
-      userId: user.id,
+      userId: creator.user.id,
     }),
   });
 
   assert.equal(memberships.length, 1);
   assert.equal(memberships[0].role, "owner");
+}
+
+async function assertWorkspaceMemberAuthzHooks(port) {
+  const pb = await createSuperuserClient(port);
+  const suffix = Math.random().toString(16).slice(2, 10);
+  const owner = await createVerifiedUserClient(port, pb, `authz-owner-${suffix}`);
+  const admin = await createVerifiedUserClient(port, pb, `authz-admin-${suffix}`);
+  const firstMember = await createVerifiedUserClient(port, pb, `authz-member-a-${suffix}`);
+  const secondMember = await createVerifiedUserClient(port, pb, `authz-member-b-${suffix}`);
+
+  const workspace = await createWorkspaceWithOwner(pb, owner.user, `authz-${suffix}`);
+  const adminMembership = await createWorkspaceMembership(pb, workspace.id, admin.user.id, "admin");
+  const firstMemberMembership = await createWorkspaceMembership(
+    pb,
+    workspace.id,
+    firstMember.user.id,
+    "member"
+  );
+  const secondMemberMembership = await createWorkspaceMembership(
+    pb,
+    workspace.id,
+    secondMember.user.id,
+    "member"
+  );
+
+  const promotedMember = await admin.client
+    .collection("workspace_members")
+    .update(firstMemberMembership.id, {
+      role: "admin",
+    });
+
+  assert.equal(promotedMember.role, "admin");
+
+  await assertRejectsWithStatus(
+    admin.client.collection("workspace_members").update(secondMemberMembership.id, {
+      role: "owner",
+    }),
+    404
+  );
+  await assertRejectsWithStatus(
+    admin.client.collection("workspace_members").update(adminMembership.id, {
+      role: "owner",
+    }),
+    404
+  );
+  await assertRejectsWithStatus(
+    secondMember.client.collection("workspace_members").update(firstMemberMembership.id, {
+      role: "member",
+    }),
+    404
+  );
+
+  await admin.client.collection("workspace_members").delete(secondMemberMembership.id);
+  await assertRejectsWithStatus(
+    pb.collection("workspace_members").getOne(secondMemberMembership.id),
+    404
+  );
+}
+
+async function assertLastOwnerGuards(port) {
+  const pb = await createSuperuserClient(port);
+  const suffix = Math.random().toString(16).slice(2, 10);
+  const soloOwner = await createVerifiedUserClient(port, pb, `solo-owner-${suffix}`);
+  const firstOwner = await createVerifiedUserClient(port, pb, `multi-owner-a-${suffix}`);
+  const secondOwner = await createVerifiedUserClient(port, pb, `multi-owner-b-${suffix}`);
+
+  const soloWorkspace = await createWorkspaceWithOwner(pb, soloOwner.user, `solo-${suffix}`);
+  const soloMembership = await findWorkspaceMembership(pb, soloWorkspace.id, soloOwner.user.id);
+
+  await assertRejectsWithStatus(
+    soloOwner.client.collection("workspace_members").delete(soloMembership.id),
+    400
+  );
+  await assertRejectsWithStatus(
+    soloOwner.client.collection("users").delete(soloOwner.user.id),
+    400
+  );
+
+  const multiOwnerWorkspace = await createWorkspaceWithOwner(
+    pb,
+    firstOwner.user,
+    `multi-owner-${suffix}`
+  );
+  const firstOwnerMembership = await findWorkspaceMembership(
+    pb,
+    multiOwnerWorkspace.id,
+    firstOwner.user.id
+  );
+  await createWorkspaceMembership(pb, multiOwnerWorkspace.id, secondOwner.user.id, "owner");
+
+  await firstOwner.client.collection("workspace_members").delete(firstOwnerMembership.id);
+
+  const remainingOwners = await pb.collection("workspace_members").getFullList({
+    filter: pb.filter("workspace = {:workspaceId} && role = 'owner'", {
+      workspaceId: multiOwnerWorkspace.id,
+    }),
+  });
+
+  assert.equal(remainingOwners.length, 1);
+  assert.equal(remainingOwners[0].user, secondOwner.user.id);
+}
+
+async function createSuperuserClient(port) {
+  const pb = new PocketBase(`http://127.0.0.1:${port}`);
+  pb.autoCancellation(false);
+
+  await pb
+    .collection("_superusers")
+    .authWithPassword(TEST_SUPERUSER_EMAIL, TEST_SUPERUSER_PASSWORD);
+
+  return pb;
+}
+
+async function createVerifiedUserClient(port, pb, slug) {
+  const password = "test-password-123456";
+  const email = `${slug}@example.com`;
+  const user = await pb.collection("users").create({
+    email,
+    password,
+    passwordConfirm: password,
+    name: slug,
+    verified: true,
+  });
+  const client = new PocketBase(`http://127.0.0.1:${port}`);
+  client.autoCancellation(false);
+
+  await client.collection("users").authWithPassword(email, password);
+
+  return {
+    client,
+    user,
+  };
+}
+
+async function createWorkspaceWithOwner(pb, user, slug) {
+  const workspace = await pb.collection("workspaces").create({
+    name: `Workspace ${slug}`,
+    slug,
+    kind: "organization",
+    created_by: user.id,
+  });
+
+  await createWorkspaceMembership(pb, workspace.id, user.id, "owner");
+
+  return workspace;
+}
+
+async function createWorkspaceMembership(pb, workspaceId, userId, role) {
+  return pb.collection("workspace_members").create({
+    workspace: workspaceId,
+    user: userId,
+    role,
+  });
+}
+
+async function findWorkspaceMembership(pb, workspaceId, userId) {
+  return pb.collection("workspace_members").getFirstListItem(
+    pb.filter("workspace = {:workspaceId} && user = {:userId}", {
+      workspaceId,
+      userId,
+    })
+  );
+}
+
+async function assertRejectsWithStatus(promise, status) {
+  await assert.rejects(promise, function matchesStatus(error) {
+    return error?.status === status;
+  });
 }
 
 async function resolvePocketBaseBinary() {
