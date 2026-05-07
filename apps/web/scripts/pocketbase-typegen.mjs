@@ -2,8 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
-import { loadEnvConfig } from "@next/env";
+import nextEnv from "@next/env";
 import PocketBase from "pocketbase";
+
+const { loadEnvConfig } = nextEnv;
 
 const DEFAULT_OUTPUT_PATH = "src/types/pocketbase.ts";
 const DEFAULT_POCKETBASE_URL = "http://127.0.0.1:8090";
