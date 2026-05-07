@@ -58,8 +58,8 @@
         "integrations": "Integrations",
         "changelog": "Changelog",
         "roadmap": "Roadmap",
-        "workspace": "Workspace",
-        "settings": "Workspace settings",
+        "organization": "Organization",
+        "settings": "Organization settings",
         "account": "Account",
         "myAccount": "My account",
         "signIn": "Sign in",
@@ -107,37 +107,37 @@
           "label": "Personal"
         },
         "labels": {
-          "workspaces": "Workspaces"
+          "organizations": "Organizations"
         },
         "actions": {
-          "create": "Create workspace"
+          "create": "Create organization"
         },
         "empty": {
-          "title": "No workspaces yet",
+          "title": "No organizations yet",
           "description": "Create one when you need collaboration."
         },
         "createDrawer": {
-          "title": "Create a workspace",
-          "description": "Create a shared workspace when you need collaboration with your team.",
+          "title": "Create an organization",
+          "description": "Create a shared organization when you need collaboration with your team.",
           "fields": {
             "name": {
               "label": "Name",
-              "placeholder": "Enter workspace name",
+              "placeholder": "Enter organization name",
               "description": "Used in navigation and the scope switcher. We generate the URL automatically from the name."
             }
           },
           "validation": {
-            "nameRequired": "Workspace name is required.",
-            "nameMax": "Workspace name must be at most {max} characters long."
+            "nameRequired": "Organization name is required.",
+            "nameMax": "Organization name must be at most {max} characters long."
           },
           "submit": {
-            "default": "Create workspace",
+            "default": "Create organization",
             "pending": "Creating..."
           },
           "cancel": "Cancel",
           "status": {
-            "created": "Workspace was created.",
-            "failed": "Workspace could not be created.",
+            "created": "Organization was created.",
+            "failed": "Organization could not be created.",
             "badRequest": "Please check entered values and try again.",
             "unauthorized": "Your session expired. Please sign in again."
           }
@@ -233,8 +233,8 @@
       "signIn": "Sign in"
     },
     "inviteToken": {
-      "title": "Workspace invitation",
-      "description": "Review and accept a workspace invitation.",
+      "title": "Organization invitation",
+      "description": "Review and accept an organization invitation.",
       "actions": {
         "accept": "Accept invitation",
         "continueAs": "Continue as {email}",
@@ -257,25 +257,25 @@
       },
       "states": {
         "pending": {
-          "title": "Join workspace",
-          "description": "You've been invited to <strong>{workspace}</strong>."
+          "title": "Join organization",
+          "description": "You've been invited to <strong>{organization}</strong>."
         },
         "loading": {
           "title": "Checking invitation link",
           "description": "Validating invitation link."
         },
         "auth_required": {
-          "title": "Join workspace",
-          "description": "You've been invited to <strong>{workspace}</strong>.",
+          "title": "Join organization",
+          "description": "You've been invited to <strong>{organization}</strong>.",
           "invitedBy": "Invited by <strong>{inviter}</strong>"
         },
         "success": {
           "title": "Invitation accepted",
-          "description": "You're now a member of <strong>{workspace}</strong>. Redirecting..."
+          "description": "You're now a member of <strong>{organization}</strong>. Redirecting..."
         },
         "already_member": {
-          "title": "You're already a member of <strong>{workspace}</strong>",
-          "cta": "Go to workspace"
+          "title": "You're already a member of <strong>{organization}</strong>",
+          "cta": "Go to organization"
         },
         "blocked": {
           "title": "Invitation unavailable",
@@ -299,11 +299,11 @@
         },
         "error": {
           "title": "Unexpected error",
-          "description": "We couldn't process this invitation. Try again, or ask the workspace owner for a new link.",
+          "description": "We couldn't process this invitation. Try again, or ask the organization owner for a new link.",
           "cta": "Try again",
           "alert": {
             "title": "Try again later",
-            "description": "If the problem persists, ask the workspace owner to send a new invitation link."
+            "description": "If the problem persists, ask the organization owner to send a new invitation link."
           }
         }
       }
@@ -488,7 +488,7 @@
     },
     "app": {
       "title": "Home",
-      "description": "Your personal area is ready right away. Manage your account here and add workspaces only when you need collaboration.",
+      "description": "Your personal area is ready right away. Manage your account here and add organizations only when you need collaboration.",
       "personal": {
         "eyebrow": "Personal area"
       },
@@ -514,16 +514,16 @@
           "cta": "Contact support"
         }
       },
-      "workspace": {
+      "organization": {
         "title": "Collaboration for your team",
-        "description": "Workspaces are optional. Create one when you want to share access, settings, and work with other people.",
-        "create": "Create a workspace for your team",
+        "description": "Organizations are optional. Create one when you want to share access, settings, and work with other people.",
+        "create": "Create an organization for your team",
         "empty": {
-          "title": "You can use the product without a workspace",
-          "description": "Create a workspace once you need shared collaboration."
+          "title": "You can use the product without an organization",
+          "description": "Create an organization once you need shared collaboration."
         },
         "list": {
-          "title": "Your workspaces",
+          "title": "Your organizations",
           "description": "Jump back into a collaborative space at any time.",
           "cta": "Open overview"
         }
@@ -694,7 +694,7 @@
           "success": "Your account has been deleted.",
           "error": "We couldn't delete your account right now. Please try again.",
           "unauthorized": "Your session expired. Please sign in again.",
-          "blockedLastOwner": "You can't delete your account right now because you're the last owner of at least one workspace.",
+          "blockedLastOwner": "You can't delete your account right now because you're the last owner of at least one organization.",
           "invalidCredentials": "Current password is incorrect."
         }
       },
@@ -743,12 +743,12 @@
         }
       }
     },
-    "workspace": {
-      "title": "Workspace settings",
-      "description": "Manage your workspace settings and appearance.",
+    "organization": {
+      "title": "Organization settings",
+      "description": "Manage your organization settings and appearance.",
       "overview": {
         "title": "Overview",
-        "description": "Welcome to your workspace overview. Review collaboration activity and access workspace tools."
+        "description": "Welcome to your organization overview. Review collaboration activity and access organization tools."
       },
       "nav": {
         "general": "General",
@@ -762,12 +762,12 @@
       },
       "general": {
         "name": {
-          "title": "Workspace name",
-          "description": "Update how this workspace appears across the app.",
+          "title": "Organization name",
+          "description": "Update how this organization appears across the app.",
           "field": {
             "label": "Name",
-            "placeholder": "Enter workspace name",
-            "description": "This name is visible in navigation and workspace switcher."
+            "placeholder": "Enter organization name",
+            "description": "This name is visible in navigation and organization switcher."
           },
           "footerHint": "Maximum length is {max} characters.",
           "submit": {
@@ -775,21 +775,21 @@
             "pending": "Saving..."
           },
           "validation": {
-            "required": "Workspace name is required.",
-            "max": "Workspace name must be at most {max} characters long."
+            "required": "Organization name is required.",
+            "max": "Organization name must be at most {max} characters long."
           },
           "status": {
-            "updateFailed": "Workspace name could not be updated.",
-            "updated": "Workspace name was updated."
+            "updateFailed": "Organization name could not be updated.",
+            "updated": "Organization name was updated."
           }
         },
         "url": {
-          "title": "Workspace URL",
-          "description": "Set the URL segment used to access this workspace.",
+          "title": "Organization URL",
+          "description": "Set the URL segment used to access this organization.",
           "field": {
             "label": "URL",
-            "placeholder": "Enter workspace URL",
-            "description": "Used in routes like /w/{workspaceUrl}/overview."
+            "placeholder": "Enter organization URL",
+            "description": "Used in routes like /o/{organizationUrl}/overview."
           },
           "footerHint": "Maximum length is {max} characters.",
           "submit": {
@@ -797,19 +797,19 @@
             "pending": "Saving..."
           },
           "validation": {
-            "required": "Workspace URL is required.",
-            "max": "Workspace URL must be at most {max} characters long."
+            "required": "Organization URL is required.",
+            "max": "Organization URL must be at most {max} characters long."
           },
           "status": {
-            "slugTaken": "This workspace URL is already taken.",
-            "updateFailed": "Workspace URL could not be updated.",
-            "updated": "Workspace URL was updated."
+            "slugTaken": "This organization URL is already taken.",
+            "updateFailed": "Organization URL could not be updated.",
+            "updated": "Organization URL was updated."
           }
         },
         "avatar": {
-          "title": "Workspace avatar",
-          "description": "Upload a square avatar for this workspace.",
-          "buttonLabel": "Change workspace avatar",
+          "title": "Organization avatar",
+          "description": "Upload a square avatar for this organization.",
+          "buttonLabel": "Change organization avatar",
           "menu": {
             "change": "Change avatar",
             "remove": "Remove avatar"
@@ -820,83 +820,83 @@
             "fileTooLarge": "We couldn't reduce the image size enough. Please choose a different image.",
             "processingFailed": "We couldn't process the selected image. Please try a different file.",
             "unauthorized": "Your session expired. Please sign in again.",
-            "error": "We couldn't update your workspace avatar right now. Please try again.",
-            "updateFailed": "Workspace avatar could not be updated.",
-            "updated": "Workspace avatar was updated.",
-            "removeFailed": "Workspace avatar could not be removed.",
-            "removed": "Workspace avatar was removed."
+            "error": "We couldn't update your organization avatar right now. Please try again.",
+            "updateFailed": "Organization avatar could not be updated.",
+            "updated": "Organization avatar was updated.",
+            "removeFailed": "Organization avatar could not be removed.",
+            "removed": "Organization avatar was removed."
           }
         },
         "leave": {
-          "title": "Leave workspace",
-          "description": "Leave {workspaceName} and remove your access to this workspace.",
-          "ownerGuardHint": "At least two owners are required before you can leave this workspace.",
-          "trigger": "Leave workspace",
+          "title": "Leave organization",
+          "description": "Leave {organizationName} and remove your access to this organization.",
+          "ownerGuardHint": "At least two owners are required before you can leave this organization.",
+          "trigger": "Leave organization",
           "dialog": {
-            "title": "Leave workspace?",
-            "description": "You will lose access to all workspace projects and settings. You can only return if another member invites you again.",
+            "title": "Leave organization?",
+            "description": "You will lose access to all organization projects and settings. You can only return if another member invites you again.",
             "fields": {
               "confirmationUrl": {
-                "label": "Workspace URL",
-                "description": "Type {workspaceSlug} to confirm leaving."
+                "label": "Organization URL",
+                "description": "Type {organizationSlug} to confirm leaving."
               },
               "acknowledged": {
-                "label": "I understand I will lose access to this workspace."
+                "label": "I understand I will lose access to this organization."
               }
             },
             "submit": {
-              "default": "Leave workspace",
+              "default": "Leave organization",
               "pending": "Leaving..."
             }
           },
           "validation": {
             "confirmationUrl": {
-              "required": "Workspace URL is required.",
-              "mismatch": "Type \"{workspaceSlug}\" to confirm."
+              "required": "Organization URL is required.",
+              "mismatch": "Type \"{organizationSlug}\" to confirm."
             },
             "acknowledged": {
-              "required": "You must confirm that you will lose access to this workspace."
+              "required": "You must confirm that you will lose access to this organization."
             }
           },
           "status": {
-            "failed": "Workspace could not be left.",
-            "lastOwnerGuard": "You cannot leave this workspace until another owner is added.",
-            "success": "You no longer have access to this workspace."
+            "failed": "Organization could not be left.",
+            "lastOwnerGuard": "You cannot leave this organization until another owner is added.",
+            "success": "You no longer have access to this organization."
           }
         },
         "delete": {
-          "title": "Delete workspace",
-          "description": "Permanently remove {workspaceName} and all workspace data.",
-          "trigger": "Delete workspace",
+          "title": "Delete organization",
+          "description": "Permanently remove {organizationName} and all organization data.",
+          "trigger": "Delete organization",
           "dialog": {
-            "title": "Delete workspace?",
-            "description": "This action is irreversible. All members, invites, and data inside this workspace will be permanently removed.",
+            "title": "Delete organization?",
+            "description": "This action is irreversible. All members, invites, and data inside this organization will be permanently removed.",
             "fields": {
               "confirmationUrl": {
-                "label": "Workspace URL",
-                "description": "Type {workspaceSlug} to confirm deletion."
+                "label": "Organization URL",
+                "description": "Type {organizationSlug} to confirm deletion."
               },
               "acknowledged": {
                 "label": "I understand this action cannot be undone."
               }
             },
             "submit": {
-              "default": "Delete workspace",
+              "default": "Delete organization",
               "pending": "Deleting..."
             }
           },
           "validation": {
             "confirmationUrl": {
-              "required": "Workspace URL is required.",
-              "mismatch": "Type \"{workspaceSlug}\" to confirm."
+              "required": "Organization URL is required.",
+              "mismatch": "Type \"{organizationSlug}\" to confirm."
             },
             "acknowledged": {
               "required": "You must confirm that this action cannot be undone."
             }
           },
           "status": {
-            "failed": "Workspace could not be deleted.",
-            "success": "Workspace was deleted."
+            "failed": "Organization could not be deleted.",
+            "success": "Organization was deleted."
           }
         }
       },
@@ -908,15 +908,15 @@
         "roles": {
           "owner": {
             "label": "Owner",
-            "description": "Full access to workspace settings, members, and management."
+            "description": "Full access to organization settings, members, and management."
           },
           "admin": {
             "label": "Admin",
-            "description": "Can manage workspace settings, members, and invitations, but not ownership."
+            "description": "Can manage organization settings, members, and invitations, but not ownership."
           },
           "member": {
             "label": "Member",
-            "description": "Can collaborate in workspace, but cannot manage ownership."
+            "description": "Can collaborate in organization, but cannot manage ownership."
           }
         },
         "invite": {
@@ -951,7 +951,7 @@
           },
           "status": {
             "invalidRows": "Please enter a valid email address.",
-            "alreadyMemberOrInvited": "This user is already a workspace member or already has a pending invitation.",
+            "alreadyMemberOrInvited": "This user is already an organization member or already has a pending invitation.",
             "sendFailed": "Invitation could not be sent.",
             "sent": "Invitation sent."
           }
@@ -969,7 +969,7 @@
             },
             "changeRole": {
               "title": "Change member role?",
-              "description": "Select a new role for {memberName} in {workspaceName}.",
+              "description": "Select a new role for {memberName} in {organizationName}.",
               "submit": {
                 "default": "Save role",
                 "pending": "Saving..."
@@ -977,11 +977,11 @@
             },
             "lastOwnerGuard": {
               "title": "Last owner protection",
-              "description": "This member is the last owner of this workspace. Promote another member to owner before downgrading."
+              "description": "This member is the last owner of this organization. Promote another member to owner before downgrading."
             },
             "removeMember": {
-              "title": "Remove member from workspace?",
-              "description": "This will immediately revoke access to {workspaceName}.",
+              "title": "Remove member from organization?",
+              "description": "This will immediately revoke access to {organizationName}.",
               "submit": {
                 "default": "Remove member",
                 "pending": "Removing..."
@@ -989,7 +989,7 @@
             },
             "resendInvite": {
               "title": "Resend invitation link?",
-              "description": "This will send a new invitation link for {workspaceName}.",
+              "description": "This will send a new invitation link for {organizationName}.",
               "submit": {
                 "default": "Resend invite link",
                 "pending": "Resending..."
@@ -997,7 +997,7 @@
             },
             "removeInvite": {
               "title": "Remove invitation?",
-              "description": "This will invalidate the invite token and remove this pending invitation from {workspaceName}.",
+              "description": "This will invalidate the invite token and remove this pending invitation from {organizationName}.",
               "submit": {
                 "default": "Remove invitation",
                 "pending": "Removing..."
@@ -1045,8 +1045,8 @@
             "members": {
               "ariaLabel": "Open member actions",
               "changeRole": "Change role",
-              "leaveWorkspace": "Leave workspace",
-              "removeMember": "Remove from workspace"
+              "leaveOrganization": "Leave organization",
+              "removeMember": "Remove from organization"
             },
             "invites": {
               "ariaLabel": "Open invitation actions",
@@ -1468,7 +1468,7 @@
         },
         "functional": {
           "title": "Functional cookies",
-          "article1": "Functional cookies allow us to remember optional personalization choices in the application, such as the last active workspace or similar convenience settings.",
+          "article1": "Functional cookies allow us to remember optional personalization choices in the application, such as the last active organization or similar convenience settings.",
           "article2": "These cookies may be used only where they are active in the specific implementation."
         },
         "analytics": {
@@ -1612,7 +1612,7 @@
         "locale": "Stores the selected site language for this browser.",
         "theme": "Stores theme preference (system/light/dark mode).",
         "sidebarState": "Stores whether the app sidebar is expanded or collapsed on this device.",
-        "activeWorkspace": "Stores the last active workspace selection for faster navigation in the app.",
+        "activeOrganization": "Stores the last active organization selection for faster navigation in the app.",
         "ga": "Used by Google Analytics 4 to distinguish users (with consent).",
         "gaWildcard": "Used by Google Analytics 4 to persist session state (with consent)."
       }
@@ -1626,7 +1626,7 @@
       "controller": {
         "title": "Who processes your data",
         "article1": "The controller of personal data is {companyLegalName}, company ID {companyId}, with its registered office at {companyAddress}, registered in {companyRegister}, e-mail {contactEmail}, website {domain} (the “Controller” or “we”).",
-        "article2": "These principles explain how we process personal data of natural persons when using our website, application, workspace environment, contact forms, support, commercial communications, and related services.",
+        "article2": "These principles explain how we process personal data of natural persons when using our website, application, organization environment, contact forms, support, commercial communications, and related services.",
         "article3": "These principles apply mainly where we act as controller of personal data. In some situations, we may also act as processor; these situations are described below."
       },
       "dataCategories": {
@@ -1636,7 +1636,7 @@
           "identification": "identification data, such as first and last name,",
           "contact": "contact data, such as e-mail, phone number, or contact address,",
           "account": "account data, such as login credentials, user ID, language, role, account status, and settings,",
-          "workspace": "workspace data, such as workspace name, membership, roles, invitations, and related metadata,",
+          "organization": "organization data, such as organization name, membership, roles, invitations, and related metadata,",
           "billing": "payment and billing data, such as billing address, company ID, VAT ID, plan information, orders, and payments,",
           "technical": "technical data, such as IP address, information about device, browser, operating system, logs, and security records,",
           "usage": "service usage data, such as feature interactions, navigation within the app, settings, preferences, and activity history,",
@@ -1652,7 +1652,7 @@
         "items": {
           "directlyFromUser": "directly from you during registration, ordering, form submission, or communication,",
           "automaticCollection": "automatically through technical means when using the website and application,",
-          "otherWorkspaceUsers": "from other workspace users, for example if they invite you to a workspace or assign you a role,",
+          "otherOrganizationUsers": "from other organization users, for example if they invite you to an organization or assign you a role,",
           "partners": "from providers of payment, technical, analytics, or communication services,",
           "publicSources": "from public sources or registers where reasonable and lawful."
         }
@@ -1663,7 +1663,7 @@
         "items": {
           "account": "account creation and management,",
           "service": "provision and operation of the Service,",
-          "workspace": "management of workspaces, members, roles, and access,",
+          "organization": "management of organizations, members, roles, and access,",
           "contract": "conclusion and performance of a contract,",
           "billing": "billing, payment records, and accounting,",
           "security": "ensuring technical operation, security, and misuse prevention,",
@@ -1689,7 +1689,7 @@
         "contractItems": {
           "account": "account registration and management,",
           "service": "provision of app functionality,",
-          "workspace": "management of workspaces and membership,",
+          "organization": "management of organizations and membership,",
           "order": "processing orders and activating plans,",
           "communication": "communications related to provision of the Service."
         },
@@ -1720,8 +1720,8 @@
       "roles": {
         "title": "When we are controller and when we are processor",
         "article1": "We act as controller mainly when processing personal data of our users and customers, website visitors, persons who contact us, persons subscribed to newsletters or commercial communications, and persons listed in billing and order details.",
-        "article2": "We may act as processor when users store personal data of third parties in a workspace and we process those data on their behalf while providing the Service.",
-        "article3": "Typically, this may concern data stored in the workspace within:",
+        "article2": "We may act as processor when users store personal data of third parties in an organization and we process those data on their behalf while providing the Service.",
+        "article3": "Typically, this may concern data stored in the organization within:",
         "items": {
           "tasks": "tasks,",
           "notes": "internal notes,",
@@ -1764,7 +1764,7 @@
         "article2": "Typically, we retain data:",
         "items": {
           "account": "for the duration of the account and contractual relationship,",
-          "workspace": "for the duration of the workspace and related use of the Service,",
+          "organization": "for the duration of the organization and related use of the Service,",
           "legalObligations": "for the period necessary to comply with legal obligations,",
           "claims": "for the time needed to protect legal claims,",
           "consent": "for the duration of granted consent where processing is based on consent."
@@ -1891,7 +1891,7 @@
         "title": "Introductory provisions",
         "article1": "These Terms govern the rights and obligations between {companyLegalName}, company ID {companyId}, with its registered office at {companyAddress}, registered in {companyRegister}, contact e-mail {contactEmail} (the “Provider”), and any natural or legal person using the web application, related websites, features, content, and related services available primarily at {domain} (the “Service”).",
         "article2": "These Terms form an integral part of every agreement concluded between the Provider and the user unless expressly agreed otherwise in writing.",
-        "article3": "The Service is a digital service provided remotely, in particular as an online workspace tool for work organization, task management, internal notes, files, contacts, team members, and related data.",
+        "article3": "The Service is a digital service provided remotely, in particular as an online organization tool for work organization, task management, internal notes, files, contacts, team members, and related data.",
         "article4": "The Service is intended for both businesses and consumers unless a specific feature, plan, or offer expressly states otherwise. Some features may be intended primarily for work, team, or business use."
       },
       "definitions": {
@@ -1899,7 +1899,7 @@
         "user": "“User” means any person who uses the Service.",
         "customer": "“Customer” means a user who has entered into an agreement with the Provider for a paid version of the Service.",
         "account": "“Account” means the user access created for the purpose of using the Service.",
-        "workspace": "“Workspace” means a separate environment within the Service intended for organizing data, collaboration, member management, and use of the Service features.",
+        "organization": "“Organization” means a separate environment within the Service intended for organizing data, collaboration, member management, and use of the Service features.",
         "userContent": "“User Content” means any data, texts, notes, tasks, files, contacts, settings, imported data, personal data, and other information uploaded by the user to the Service or otherwise processed through the Service.",
         "plan": "“Plan” means the specific scope of services, features, limits, price, and conditions for using the Service.",
         "order": "“Order” means the legal act by which the user activates a paid version of the Service."
@@ -1909,7 +1909,7 @@
         "description": "The contractual relationship between the Provider and the user arises in particular through:",
         "items": {
           "accountRegistration": "account registration,",
-          "workspaceActivation": "workspace activation,",
+          "organizationActivation": "organization activation,",
           "orderConfirmation": "order confirmation,",
           "paidPlanActivation": "activation of a paid plan,",
           "useAfterReview": "commencement of use of the Service after becoming familiar with these Terms,",
@@ -1925,7 +1925,7 @@
         "article3": "The Provider may request reasonable confirmation of compliance with this article if justified doubts arise."
       },
       "account": {
-        "title": "Account, workspace, and security",
+        "title": "Account, organization, and security",
         "article1": "The user must provide truthful, complete, and up-to-date information and keep it updated.",
         "article2": "The user is responsible for securing their login credentials, passwords, devices, and other authentication means.",
         "article3": "The user may not make their account available to unauthorized persons or allow use of the Service in a way that conflicts with these Terms.",
@@ -1980,7 +1980,7 @@
         "article3": "All rights to the Service, its software, design, databases, documentation, know-how, brand, and related elements belong to the Provider or its licensors."
       },
       "userContent": {
-        "title": "User Content and personal data in the workspace",
+        "title": "User Content and personal data in the organization",
         "article1": "The user is responsible for User Content and for the way in which the Service is used.",
         "article2": "The user represents and undertakes that:",
         "items": {
@@ -1990,7 +1990,7 @@
           "lawfulUse": "they will not process data through the Service in violation of the law,",
           "noHarm": "they will not store in the Service any content that could cause legal, security, reputational, or operational harm to the Provider."
         },
-        "article3": "To the extent the user uploads personal data of third parties into the Service within their workspace, the user or the entity on whose behalf they act is generally the controller of such personal data and the Provider is the processor.",
+        "article3": "To the extent the user uploads personal data of third parties into the Service within their organization, the user or the entity on whose behalf they act is generally the controller of such personal data and the Provider is the processor.",
         "article4": "Details of the processing of personal data under the previous paragraph are governed by a separate data processing agreement (DPA), if used."
       },
       "prohibitedUse": {
@@ -2020,8 +2020,8 @@
       },
       "termination": {
         "title": "Suspension and termination",
-        "article1": "The user may stop using the Service by the means provided by the Service, in particular by cancelling the account, workspace, subscription, or by not renewing the plan.",
-        "article2": "The Provider may immediately restrict, suspend, or terminate the account, workspace, or access to the Service if:",
+        "article1": "The user may stop using the Service by the means provided by the Service, in particular by cancelling the account, organization, subscription, or by not renewing the plan.",
+        "article2": "The Provider may immediately restrict, suspend, or terminate the account, organization, or access to the Service if:",
         "items": {
           "termsBreach": "the user breaches these Terms,",
           "nonPayment": "payment is overdue,",
@@ -2034,7 +2034,7 @@
       },
       "postTerminationData": {
         "title": "Data after termination",
-        "article1": "After termination of the contractual relationship, the user’s access to the account, workspace, and User Content may be limited or terminated.",
+        "article1": "After termination of the contractual relationship, the user’s access to the account, organization, and User Content may be limited or terminated.",
         "article2": "If data export is part of a specific feature, plan, or offer, the user may be allowed to export data to the extent and in the format supported by the Provider.",
         "article3": "The Provider may, after termination of the contractual relationship, delete, anonymize, or otherwise remove User Content, the account, and related data.",
         "article4": "The Provider may retain data for a reasonable period after termination, in particular for the purpose of:",
@@ -2112,13 +2112,13 @@
       "supportLabel": "Support",
       "websiteLabel": "Website"
     },
-    "workspaceInvite": {
-      "previewText": "Invitation to join {workspaceName}",
-      "subject": "Invitation to {workspaceName}",
-      "title": "Workspace invitation",
-      "description": "You've been invited to join {workspaceName}.",
+    "organizationInvite": {
+      "previewText": "Invitation to join {organizationName}",
+      "subject": "Invitation to {organizationName}",
+      "title": "Organization invitation",
+      "description": "You've been invited to join {organizationName}.",
       "invitedBy": "Invited by {inviterName}.",
-      "invitedWithoutInviter": "You received a workspace invitation.",
+      "invitedWithoutInviter": "You received an organization invitation.",
       "ctaLabel": "Accept invitation",
       "urlFallbackLabel": "If the button doesn't work, open this URL:",
       "expiryText": "This invitation expires in {days} days."
@@ -2179,7 +2179,7 @@
           "functional": {
             "label": "Functional",
             "ariaLabel": "Functional cookies",
-            "description": "Help remember optional app personalization choices, such as the last active workspace."
+            "description": "Help remember optional app personalization choices, such as the last active organization."
           },
           "analytics": {
             "label": "Analytics",

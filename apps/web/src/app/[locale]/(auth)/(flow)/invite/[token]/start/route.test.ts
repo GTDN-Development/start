@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { workspaceConfig } from "@/config/workspace";
+import { organizationConfig } from "@/config/organization";
 
 vi.mock("@/i18n/navigation", function mockNavigation() {
   return {
@@ -19,15 +19,15 @@ vi.mock("@/i18n/navigation", function mockNavigation() {
 });
 
 vi.mock(
-  "@/server/workspaces/workspace-invite-recipient-service",
-  function mockWorkspaceInviteRecipientService() {
+  "@/server/organizations/organization-invite-recipient-service",
+  function mockOrganizationInviteRecipientService() {
     return {
       validateInviteToken: vi.fn(),
     };
   }
 );
 
-import { validateInviteToken } from "@/server/workspaces/workspace-invite-recipient-service";
+import { validateInviteToken } from "@/server/organizations/organization-invite-recipient-service";
 import { GET } from "./route";
 
 describe("invite start route", function describeInviteStartRoute() {
@@ -40,7 +40,7 @@ describe("invite start route", function describeInviteStartRoute() {
       name: "sets the pending invite cookie and redirects to sign-in for valid invites",
       isValid: true,
       expectedLocation: "https://example.com/sign-in",
-      expectedSetCookie: `${workspaceConfig.cookies.pendingInvite.name}=invite-token`,
+      expectedSetCookie: `${organizationConfig.cookies.pendingInvite.name}=invite-token`,
     },
     {
       name: "redirects back to the invite page without setting cookies when the invite is invalid",

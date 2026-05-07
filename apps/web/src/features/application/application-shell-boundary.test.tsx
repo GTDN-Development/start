@@ -1,6 +1,6 @@
 import type PocketBase from "pocketbase";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
+import { APP_HOME_PATH, getOrganizationOverviewHref } from "@/config/routes";
 import { ApplicationShellBoundary } from "./application-shell-boundary";
 
 const {
@@ -9,7 +9,7 @@ const {
   requireCurrentUserMock,
   buildApplicationShellModelMock,
   applicationRootMock,
-  applicationWorkspaceRootMock,
+  applicationOrganizationRootMock,
 } = vi.hoisted(function hoistApplicationShellBoundaryMocks() {
   return {
     getTranslationsMock: vi.fn(),
@@ -17,7 +17,7 @@ const {
     requireCurrentUserMock: vi.fn(),
     buildApplicationShellModelMock: vi.fn(),
     applicationRootMock: vi.fn(),
-    applicationWorkspaceRootMock: vi.fn(),
+    applicationOrganizationRootMock: vi.fn(),
   };
 });
 
@@ -51,9 +51,9 @@ vi.mock("./application-root", function mockApplicationRoot() {
   };
 });
 
-vi.mock("./application-workspace-root", function mockApplicationWorkspaceRoot() {
+vi.mock("./application-organization-root", function mockApplicationOrganizationRoot() {
   return {
-    ApplicationWorkspaceRoot: applicationWorkspaceRootMock,
+    ApplicationOrganizationRoot: applicationOrganizationRootMock,
   };
 });
 
@@ -63,7 +63,7 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
     getTranslationsMock.mockResolvedValue(() => "label");
   });
 
-  it("wraps the host root with workspace navigation when the shell model includes workspaces", async function testWorkspaceShell() {
+  it("wraps the host root with organization navigation when the shell model includes organizations", async function testOrganizationShell() {
     const pb = createPocketBaseMock();
 
     requireCurrentUserMock.mockResolvedValue({
@@ -78,12 +78,12 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
     buildApplicationShellModelMock.mockResolvedValue({
       ok: true,
       data: {
-        applicationEntryHref: getWorkspaceOverviewHref("team-space"),
-        workspaceNavigation: {
-          activeWorkspaceSlug: "team-space",
-          workspaces: [
+        applicationEntryHref: getOrganizationOverviewHref("team-space"),
+        organizationNavigation: {
+          activeOrganizationSlug: "team-space",
+          organizations: [
             {
-              id: "workspace-1",
+              id: "organization-1",
               slug: "team-space",
               name: "Team Space",
               avatarUrl: null,
@@ -100,8 +100,8 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
         locale: "cs",
       }),
     });
-    const workspaceRoot = getRenderedElement(result);
-    const root = getRenderedElement(workspaceRoot.props.children);
+    const organizationRoot = getRenderedElement(result);
+    const root = getRenderedElement(organizationRoot.props.children);
 
     expect(buildApplicationShellModelMock).toHaveBeenCalledWith({
       pb,
@@ -111,11 +111,11 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
         name: "User",
       },
     });
-    expect(workspaceRoot.type).toBe(applicationWorkspaceRootMock);
-    expect(workspaceRoot.props.activeWorkspaceSlug).toBe("team-space");
-    expect(workspaceRoot.props.workspaces).toEqual([
+    expect(organizationRoot.type).toBe(applicationOrganizationRootMock);
+    expect(organizationRoot.props.activeOrganizationSlug).toBe("team-space");
+    expect(organizationRoot.props.organizations).toEqual([
       {
-        id: "workspace-1",
+        id: "organization-1",
         slug: "team-space",
         name: "Team Space",
         avatarUrl: null,
@@ -123,10 +123,10 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
       },
     ]);
     expect(root.type).toBe(applicationRootMock);
-    expect(root.props.applicationEntryHref).toEqual(getWorkspaceOverviewHref("team-space"));
+    expect(root.props.applicationEntryHref).toEqual(getOrganizationOverviewHref("team-space"));
   });
 
-  it("wraps the host root with an empty workspace snapshot when the shell model omits navigation", async function testHostOnlyShell() {
+  it("wraps the host root with an empty organization snapshot when the shell model omits navigation", async function testHostOnlyShell() {
     const pb = createPocketBaseMock();
 
     requireCurrentUserMock.mockResolvedValue({
@@ -142,7 +142,7 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
       ok: true,
       data: {
         applicationEntryHref: APP_HOME_PATH,
-        workspaceNavigation: null,
+        organizationNavigation: null,
       },
     });
 
@@ -152,12 +152,12 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
         locale: "cs",
       }),
     });
-    const workspaceRoot = getRenderedElement(result);
-    const root = getRenderedElement(workspaceRoot.props.children);
+    const organizationRoot = getRenderedElement(result);
+    const root = getRenderedElement(organizationRoot.props.children);
 
-    expect(workspaceRoot.type).toBe(applicationWorkspaceRootMock);
-    expect(workspaceRoot.props.activeWorkspaceSlug).toBeNull();
-    expect(workspaceRoot.props.workspaces).toEqual([]);
+    expect(organizationRoot.type).toBe(applicationOrganizationRootMock);
+    expect(organizationRoot.props.activeOrganizationSlug).toBeNull();
+    expect(organizationRoot.props.organizations).toEqual([]);
     expect(root.type).toBe(applicationRootMock);
     expect(root.props.applicationEntryHref).toBe(APP_HOME_PATH);
     expect(redirectMock).not.toHaveBeenCalled();

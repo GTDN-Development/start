@@ -3,7 +3,7 @@ import {
   APP_HOME_PATH,
   SIGN_IN_PATH,
   getInviteHref,
-  getWorkspaceOverviewHref,
+  getOrganizationOverviewHref,
 } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
@@ -15,9 +15,9 @@ import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
 import {
   clearPendingInviteTokenResponseCookie,
-  setActiveWorkspaceSlugResponseCookie,
-} from "@/server/workspaces/workspace-cookie";
-import { resolvePostAuthDestinationForUser } from "@/server/workspaces/workspace-shell-queries";
+  setActiveOrganizationSlugResponseCookie,
+} from "@/server/organizations/organization-cookie";
+import { resolvePostAuthDestinationForUser } from "@/server/organizations/organization-shell-queries";
 
 type PostAuthRouteContext = {
   params: Promise<{
@@ -66,16 +66,16 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
     return appendAuthCookiesToResponse(response, authCookies);
   }
 
-  if (destinationResponse.data.state === "workspace_redirect") {
+  if (destinationResponse.data.state === "organization_redirect") {
     const response = createRedirectResponse(
       request,
       getPathname({
-        href: getWorkspaceOverviewHref(destinationResponse.data.workspaceSlug),
+        href: getOrganizationOverviewHref(destinationResponse.data.organizationSlug),
         locale: appLocale,
       })
     );
 
-    setActiveWorkspaceSlugResponseCookie(response, destinationResponse.data.workspaceSlug);
+    setActiveOrganizationSlugResponseCookie(response, destinationResponse.data.organizationSlug);
 
     return appendAuthCookiesToResponse(response, authCookies);
   }

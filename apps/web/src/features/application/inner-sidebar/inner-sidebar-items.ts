@@ -8,19 +8,19 @@ export type InnerSidebarItemDefinition<TLabelKey extends string> = Omit<
   labelKey: TLabelKey;
 };
 
-export type WorkspaceInnerSidebarItemDefinition<
+export type OrganizationInnerSidebarItemDefinition<
   TLabelKey extends string,
   TPathname extends string = string,
 > = Omit<InnerSidebarItemDefinition<TLabelKey>, "href"> & {
   href: TPathname;
 };
 
-type WorkspaceSidebarHref<TPathname extends string> = Extract<
+type OrganizationSidebarHref<TPathname extends string> = Extract<
   AppHref,
   {
     pathname: TPathname;
     params: {
-      workspaceSlug: string;
+      organizationSlug: string;
     };
   }
 >;
@@ -35,9 +35,12 @@ export function mapInnerSidebarItems<TLabelKey extends string>(
   }));
 }
 
-export function mapWorkspaceInnerSidebarItems<TLabelKey extends string, TPathname extends string>(
-  items: ReadonlyArray<WorkspaceInnerSidebarItemDefinition<TLabelKey, TPathname>>,
-  workspaceSlug: string,
+export function mapOrganizationInnerSidebarItems<
+  TLabelKey extends string,
+  TPathname extends string,
+>(
+  items: ReadonlyArray<OrganizationInnerSidebarItemDefinition<TLabelKey, TPathname>>,
+  organizationSlug: string,
   getLabel: (labelKey: TLabelKey) => string
 ): InnerSidebarNavItem[] {
   return items.map(({ labelKey, href, ...item }) => ({
@@ -45,9 +48,9 @@ export function mapWorkspaceInnerSidebarItems<TLabelKey extends string, TPathnam
     href: {
       pathname: href,
       params: {
-        workspaceSlug,
+        organizationSlug,
       },
-    } as WorkspaceSidebarHref<TPathname>,
+    } as OrganizationSidebarHref<TPathname>,
     activePathnames: [href, ...(item.activePathnames ?? [])],
     label: getLabel(labelKey),
   }));

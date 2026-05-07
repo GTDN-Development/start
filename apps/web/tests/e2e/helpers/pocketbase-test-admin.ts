@@ -1,13 +1,13 @@
 import { createHash, randomBytes } from "node:crypto";
 import PocketBase, { ClientResponseError, type RecordModel } from "pocketbase";
 import type {
-  WorkspaceInvitesRecord,
-  WorkspaceMembersRecord,
-  WorkspacesRecord,
+  OrganizationInvitesRecord,
+  OrganizationMembersRecord,
+  OrganizationsRecord,
 } from "../../../src/types/pocketbase";
 import { getRequiredTestEnv } from "./test-env";
 
-const DEFAULT_WORKSPACE_INVITE_TTL_DAYS = 7;
+const DEFAULT_ORGANIZATION_INVITE_TTL_DAYS = 7;
 
 export async function createPocketBaseAdminClient(): Promise<PocketBase> {
   const pb = new PocketBase(getRequiredTestEnv("NEXT_PUBLIC_PB_URL"));
@@ -88,69 +88,71 @@ export async function createUser(options: {
   });
 }
 
-export async function createWorkspace(options: {
+export async function createOrganization(options: {
   pb: PocketBase;
   userId: string;
   name: string;
   slug: string;
 }): Promise<{
-  workspace: WorkspacesRecord;
-  membership: WorkspaceMembersRecord;
+  organization: OrganizationsRecord;
+  membership: OrganizationMembersRecord;
 }> {
-  const workspace = await options.pb.collection("workspaces").create<WorkspacesRecord>({
+  const organization = await options.pb.collection("organizations").create<OrganizationsRecord>({
     name: options.name,
     slug: options.slug,
     kind: "organization",
     created_by: options.userId,
   });
   const membership = await options.pb
-    .collection("workspace_members")
-    .create<WorkspaceMembersRecord>({
-      workspace: workspace.id,
+    .collection("organization_members")
+    .create<OrganizationMembersRecord>({
+      organization: organization.id,
       user: options.userId,
       role: "owner",
     });
 
   return {
-    workspace,
+    organization,
     membership,
   };
 }
 
-export async function createWorkspaceMembership(options: {
+export async function createOrganizationMembership(options: {
   pb: PocketBase;
-  workspaceId: string;
+  organizationId: string;
   userId: string;
-  role: WorkspaceMembersRecord["role"];
-}): Promise<WorkspaceMembersRecord> {
-  return await options.pb.collection("workspace_members").create<WorkspaceMembersRecord>({
-    workspace: options.workspaceId,
+  role: OrganizationMembersRecord["role"];
+}): Promise<OrganizationMembersRecord> {
+  return await options.pb.collection("organization_members").create<OrganizationMembersRecord>({
+    organization: options.organizationId,
     user: options.userId,
     role: options.role,
   });
 }
 
-export async function createWorkspaceInvite(options: {
+export async function createOrganizationInvite(options: {
   pb: PocketBase;
-  workspaceId: string;
+  organizationId: string;
   email: string;
-  role: WorkspaceInvitesRecord["role"];
+  role: OrganizationInvitesRecord["role"];
   invitedByUserId: string;
   expiresAt?: string;
 }): Promise<{
-  invite: WorkspaceInvitesRecord;
+  invite: OrganizationInvitesRecord;
   token: string;
 }> {
   const token = randomBytes(32).toString("hex");
   const tokenHash = createHash("sha256").update(token).digest("hex");
-  const invite = await options.pb.collection("workspace_invites").create<WorkspaceInvitesRecord>({
-    workspace: options.workspaceId,
-    email_normalized: options.email.trim().toLowerCase(),
-    role: options.role,
-    token_hash: tokenHash,
-    expires_at: options.expiresAt ?? createWorkspaceInviteExpiryDate(),
-    invited_by: options.invitedByUserId,
-  });
+  const invite = await options.pb
+    .collection("organization_invites")
+    .create<OrganizationInvitesRecord>({
+      organization: options.organizationId,
+      email_normalized: options.email.trim().toLowerCase(),
+      role: options.role,
+      token_hash: tokenHash,
+      expires_at: options.expiresAt ?? createOrganizationInviteExpiryDate(),
+      invited_by: options.invitedByUserId,
+    });
 
   return {
     invite,
@@ -158,59 +160,59 @@ export async function createWorkspaceInvite(options: {
   };
 }
 
-export async function deleteWorkspaceGraph(options: {
+export async function deleteOrganizationGraph(options: {
   pb: PocketBase;
-  workspaceId?: string;
-  workspaceSlug?: string;
+  organizationId?: string;
+  organizationSlug?: string;
 }): Promise<void> {
-  const workspace = await resolveWorkspaceForCleanup(options);
+  const organization = await resolveOrganizationForCleanup(options);
 
-  if (!workspace) {
+  if (!organization) {
     return;
   }
 
   const invites = await options.pb
-    .collection("workspace_invites")
-    .getFullList<WorkspaceInvitesRecord>({
-      filter: options.pb.filter("workspace = {:workspaceId}", {
-        workspaceId: workspace.id,
+    .collection("organization_invites")
+    .getFullList<OrganizationInvitesRecord>({
+      filter: options.pb.filter("organization = {:organizationId}", {
+        organizationId: organization.id,
       }),
     });
   const memberships = await options.pb
-    .collection("workspace_members")
-    .getFullList<WorkspaceMembersRecord>({
-      filter: options.pb.filter("workspace = {:workspaceId}", {
-        workspaceId: workspace.id,
+    .collection("organization_members")
+    .getFullList<OrganizationMembersRecord>({
+      filter: options.pb.filter("organization = {:organizationId}", {
+        organizationId: organization.id,
       }),
     });
 
   for (const invite of invites) {
     await deletePocketBaseRecordIgnoringNotFound(() =>
-      options.pb.collection("workspace_invites").delete(invite.id)
+      options.pb.collection("organization_invites").delete(invite.id)
     );
   }
 
   for (const membership of memberships) {
     await deletePocketBaseRecordIgnoringNotFound(() =>
-      options.pb.collection("workspace_members").delete(membership.id)
+      options.pb.collection("organization_members").delete(membership.id)
     );
   }
 
   await deletePocketBaseRecordIgnoringNotFound(() =>
-    options.pb.collection("workspaces").delete(workspace.id)
+    options.pb.collection("organizations").delete(organization.id)
   );
 }
 
-async function resolveWorkspaceForCleanup(options: {
+async function resolveOrganizationForCleanup(options: {
   pb: PocketBase;
-  workspaceId?: string;
-  workspaceSlug?: string;
-}): Promise<WorkspacesRecord | null> {
-  if (options.workspaceId) {
+  organizationId?: string;
+  organizationSlug?: string;
+}): Promise<OrganizationsRecord | null> {
+  if (options.organizationId) {
     try {
       return await options.pb
-        .collection("workspaces")
-        .getOne<WorkspacesRecord>(options.workspaceId);
+        .collection("organizations")
+        .getOne<OrganizationsRecord>(options.organizationId);
     } catch (error) {
       if (error instanceof ClientResponseError && error.status === 404) {
         return null;
@@ -220,14 +222,14 @@ async function resolveWorkspaceForCleanup(options: {
     }
   }
 
-  if (!options.workspaceSlug) {
+  if (!options.organizationSlug) {
     return null;
   }
 
   try {
-    return await options.pb.collection("workspaces").getFirstListItem<WorkspacesRecord>(
-      options.pb.filter("slug = {:workspaceSlug}", {
-        workspaceSlug: options.workspaceSlug,
+    return await options.pb.collection("organizations").getFirstListItem<OrganizationsRecord>(
+      options.pb.filter("slug = {:organizationSlug}", {
+        organizationSlug: options.organizationSlug,
       })
     );
   } catch (error) {
@@ -253,9 +255,9 @@ async function deletePocketBaseRecordIgnoringNotFound(
   }
 }
 
-function createWorkspaceInviteExpiryDate(): string {
+function createOrganizationInviteExpiryDate(): string {
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + DEFAULT_WORKSPACE_INVITE_TTL_DAYS);
+  expiresAt.setDate(expiresAt.getDate() + DEFAULT_ORGANIZATION_INVITE_TTL_DAYS);
 
   return expiresAt.toISOString();
 }

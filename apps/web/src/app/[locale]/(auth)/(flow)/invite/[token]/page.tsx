@@ -17,7 +17,7 @@ import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import {
   getInviteTokenForUser,
   validateInviteToken,
-} from "@/server/workspaces/workspace-invite-recipient-service";
+} from "@/server/organizations/organization-invite-recipient-service";
 import { InviteSignOutButton } from "@/features/auth/invite/invite-sign-out-button";
 import { InviteStatePanel } from "@/features/auth/invite/invite-state-panel";
 
@@ -151,13 +151,13 @@ export default async function Page({ params }: InviteTokenPageProps) {
     return (
       <InviteStatePanel
         state="pending"
-        workspace={inspectResponse.data.result.workspace}
+        organization={inspectResponse.data.result.organization}
         title={t("states.pending.title")}
         description={
           <>
             <p>
               {t.rich("states.pending.description", {
-                workspace: inspectResponse.data.result.workspace.name,
+                organization: inspectResponse.data.result.organization.name,
                 strong: (chunks) => (
                   <strong className="text-foreground font-medium">{chunks}</strong>
                 ),

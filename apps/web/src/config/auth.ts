@@ -6,7 +6,7 @@ import {
   VERIFY_EMAIL_COMPLETE_PATH,
   DEFAULT_AUTH_REDIRECTS,
   RESET_PASSWORD_PATH,
-  WORKSPACE_PATH_PREFIX,
+  ORGANIZATION_PATH_PREFIX,
 } from "@/config/routes";
 
 const emailLinkActionTargets = {
@@ -19,7 +19,7 @@ export type AuthEmailLinkAction = keyof typeof emailLinkActionTargets;
 
 export const AUTH_PROTECTED_ROUTE_PREFIXES = [
   APP_HOME_PATH,
-  WORKSPACE_PATH_PREFIX,
+  ORGANIZATION_PATH_PREFIX,
   ACCOUNT_PATH,
 ] as const;
 

@@ -21,25 +21,25 @@ import {
 } from "@/components/ui/sidebar";
 import { useOptionalAccountProfile } from "@/features/account/account-profile-context";
 import { resolveApplicationScope } from "@/features/application/application-scope";
-import { resolveSelectedWorkspaceSlug } from "@/features/application/workspace-selection";
-import { switchWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
+import { resolveSelectedOrganizationSlug } from "@/features/application/organization-selection";
+import { switchOrganizationAction } from "@/features/organizations/settings/general/organization-general-actions";
 import {
-  useApplyWorkspaceNavigationPatch,
-  useOptionalWorkspaceNavigation,
-} from "@/features/workspaces/workspace-navigation-context";
-import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
+  useApplyOrganizationNavigationPatch,
+  useOptionalOrganizationNavigation,
+} from "@/features/organizations/organization-navigation-context";
+import type { OrganizationNavigationItem } from "@/features/organizations/organization-navigation-types";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 import { APP_HOME_PATH } from "@/config/routes";
 import {
-  WorkspaceAvatar,
-  WorkspaceAvatarFallback,
-  WorkspaceAvatarImage,
-} from "@/features/workspaces/workspace-avatar";
-import { WorkspaceCreateDrawer } from "@/features/workspaces/workspace-create-drawer";
+  OrganizationAvatar,
+  OrganizationAvatarFallback,
+  OrganizationAvatarImage,
+} from "@/features/organizations/organization-avatar";
+import { OrganizationCreateDrawer } from "@/features/organizations/organization-create-drawer";
 
-type WorkspaceOption = WorkspaceNavigationItem & {
+type OrganizationOption = OrganizationNavigationItem & {
   initials: string;
   chipClassName: string;
 };
@@ -51,22 +51,22 @@ type ScopeSwitcherProps = {
 export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   const t = useTranslations("layout.application.scopeSwitcher");
   const accountProfile = useOptionalAccountProfile();
-  const workspaceNavigation = useOptionalWorkspaceNavigation();
-  const activeWorkspaceSlug = workspaceNavigation?.activeWorkspaceSlug ?? null;
-  const workspaces = workspaceNavigation?.workspaces ?? [];
-  const applyWorkspaceNavigationPatch = useApplyWorkspaceNavigationPatch();
+  const organizationNavigation = useOptionalOrganizationNavigation();
+  const activeOrganizationSlug = organizationNavigation?.activeOrganizationSlug ?? null;
+  const organizations = organizationNavigation?.organizations ?? [];
+  const applyOrganizationNavigationPatch = useApplyOrganizationNavigationPatch();
 
   const pathname = usePathname();
   const router = useRouter();
   const { isMobile, setOpenMobile } = useSidebar();
 
-  const [isSwitchingWorkspace, startSwitchWorkspaceTransition] = useTransition();
+  const [isSwitchingOrganization, startSwitchOrganizationTransition] = useTransition();
   const [isScopeMenuOpen, setIsScopeMenuOpen] = useState(false);
   const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);
   const [failedPersonalAvatarUrl, setFailedPersonalAvatarUrl] = useState<string | null>(null);
-  const [isCreateWorkspaceDrawerOpen, setIsCreateWorkspaceDrawerOpen] = useState(false);
+  const [isCreateOrganizationDrawerOpen, setIsCreateOrganizationDrawerOpen] = useState(false);
 
-  const workspaceOptions = workspaces.map(createWorkspaceOption);
+  const organizationOptions = organizations.map(createOrganizationOption);
   const currentUser = accountProfile?.profile ?? null;
   const personalLabel = getPersonalScopeLabel(
     currentUser?.name ?? null,
@@ -82,20 +82,21 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
     currentUser?.avatarUrl && currentUser.avatarUrl !== failedPersonalAvatarUrl
       ? currentUser.avatarUrl
       : null;
-  const selectedWorkspaceSlug = resolveSelectedWorkspaceSlug(
+  const selectedOrganizationSlug = resolveSelectedOrganizationSlug(
     pathname,
-    activeWorkspaceSlug,
-    workspaces
+    activeOrganizationSlug,
+    organizations
   );
-  const selectedWorkspace =
-    workspaceOptions.find((workspace) => workspace.slug === selectedWorkspaceSlug) ?? null;
+  const selectedOrganization =
+    organizationOptions.find((organization) => organization.slug === selectedOrganizationSlug) ??
+    null;
   const applicationScope = resolveApplicationScope(pathname);
-  const activeWorkspaceAvatarUrl = selectedWorkspace
-    ? getWorkspaceAvatarUrl(selectedWorkspace, failedAvatarUrls)
+  const activeOrganizationAvatarUrl = selectedOrganization
+    ? getOrganizationAvatarUrl(selectedOrganization, failedAvatarUrls)
     : null;
   const isPersonalScope = applicationScope === "personal";
 
-  function handleWorkspaceAvatarError(avatarUrl: string) {
+  function handleOrganizationAvatarError(avatarUrl: string) {
     setFailedAvatarUrls((currentUrls) => {
       if (currentUrls.includes(avatarUrl)) {
         return currentUrls;
@@ -106,7 +107,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   }
 
   function handlePersonalScopeClick() {
-    if (isSwitchingWorkspace) {
+    if (isSwitchingOrganization) {
       return;
     }
 
@@ -118,10 +119,10 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
     router.replace(APP_HOME_PATH);
   }
 
-  function handleWorkspaceSwitch(workspace: WorkspaceOption) {
+  function handleOrganizationSwitch(organization: OrganizationOption) {
     if (
-      isSwitchingWorkspace ||
-      (applicationScope === "workspace" && selectedWorkspace?.slug === workspace.slug)
+      isSwitchingOrganization ||
+      (applicationScope === "organization" && selectedOrganization?.slug === organization.slug)
     ) {
       return;
     }
@@ -132,19 +133,19 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
 
     setIsScopeMenuOpen(false);
 
-    startSwitchWorkspaceTransition(async () => {
-      const response = await switchWorkspaceAction(workspace.slug);
+    startSwitchOrganizationTransition(async () => {
+      const response = await switchOrganizationAction(organization.slug);
 
       if (!response.ok) {
         return;
       }
 
-      applyWorkspaceNavigationPatch(response.data.navigationPatch);
+      applyOrganizationNavigationPatch(response.data.navigationPatch);
     });
   }
 
-  function handleCreateWorkspaceClick() {
-    if (isSwitchingWorkspace) {
+  function handleCreateOrganizationClick() {
+    if (isSwitchingOrganization) {
       return;
     }
 
@@ -154,16 +155,16 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
 
     setIsScopeMenuOpen(false);
     requestAnimationFrame(() => {
-      setIsCreateWorkspaceDrawerOpen(true);
+      setIsCreateOrganizationDrawerOpen(true);
     });
   }
 
-  function handleCreateWorkspaceDrawerOpenChange(open: boolean) {
+  function handleCreateOrganizationDrawerOpenChange(open: boolean) {
     if (open) {
       setIsScopeMenuOpen(false);
     }
 
-    setIsCreateWorkspaceDrawerOpen(open);
+    setIsCreateOrganizationDrawerOpen(open);
   }
 
   return (
@@ -181,7 +182,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
               />
             }
           >
-            {isPersonalScope || !selectedWorkspace ? (
+            {isPersonalScope || !selectedOrganization ? (
               <Avatar key={personalAvatarUrl ?? "fallback"}>
                 {personalAvatarUrl ? (
                   <AvatarImage
@@ -196,27 +197,32 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
                 )}
               </Avatar>
             ) : (
-              <WorkspaceAvatar
-                key={getWorkspaceAvatarStateKey(selectedWorkspace, activeWorkspaceAvatarUrl)}
+              <OrganizationAvatar
+                key={getOrganizationAvatarStateKey(
+                  selectedOrganization,
+                  activeOrganizationAvatarUrl
+                )}
               >
-                {activeWorkspaceAvatarUrl ? (
-                  <WorkspaceAvatarImage
-                    src={activeWorkspaceAvatarUrl}
+                {activeOrganizationAvatarUrl ? (
+                  <OrganizationAvatarImage
+                    src={activeOrganizationAvatarUrl}
                     alt=""
-                    onError={() => handleWorkspaceAvatarError(activeWorkspaceAvatarUrl)}
+                    onError={() => handleOrganizationAvatarError(activeOrganizationAvatarUrl)}
                   />
                 ) : (
-                  <WorkspaceAvatarFallback
-                    className={cn(selectedWorkspace.chipClassName, "text-xs font-semibold")}
+                  <OrganizationAvatarFallback
+                    className={cn(selectedOrganization.chipClassName, "text-xs font-semibold")}
                   >
-                    {selectedWorkspace.initials}
-                  </WorkspaceAvatarFallback>
+                    {selectedOrganization.initials}
+                  </OrganizationAvatarFallback>
                 )}
-              </WorkspaceAvatar>
+              </OrganizationAvatar>
             )}
             <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">
-                {isPersonalScope || !selectedWorkspace ? personalLabel : selectedWorkspace.name}
+                {isPersonalScope || !selectedOrganization
+                  ? personalLabel
+                  : selectedOrganization.name}
               </span>
             </div>
             <ChevronsUpDownIcon aria-hidden="true" className="ml-auto size-4" />
@@ -231,7 +237,7 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className="gap-2 p-2"
-                disabled={isSwitchingWorkspace}
+                disabled={isSwitchingOrganization}
                 onClick={handlePersonalScopeClick}
               >
                 <Avatar key={`personal:${personalAvatarUrl ?? "fallback"}`} size="sm">
@@ -257,8 +263,8 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-xs">{t("labels.workspaces")}</DropdownMenuLabel>
-              {workspaceOptions.length === 0 && (
+              <DropdownMenuLabel className="text-xs">{t("labels.organizations")}</DropdownMenuLabel>
+              {organizationOptions.length === 0 && (
                 <DropdownMenuItem className="pointer-events-none p-2 opacity-100">
                   <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{t("empty.title")}</span>
@@ -268,39 +274,42 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
                   </div>
                 </DropdownMenuItem>
               )}
-              {workspaceOptions.map((workspace) => {
-                const workspaceAvatarUrl = getWorkspaceAvatarUrl(workspace, failedAvatarUrls);
+              {organizationOptions.map((organization) => {
+                const organizationAvatarUrl = getOrganizationAvatarUrl(
+                  organization,
+                  failedAvatarUrls
+                );
 
                 return (
                   <DropdownMenuItem
-                    key={workspace.id}
+                    key={organization.id}
                     className="gap-2 p-2"
-                    onClick={() => handleWorkspaceSwitch(workspace)}
-                    disabled={isSwitchingWorkspace}
+                    onClick={() => handleOrganizationSwitch(organization)}
+                    disabled={isSwitchingOrganization}
                   >
-                    <WorkspaceAvatar
-                      key={getWorkspaceAvatarStateKey(workspace, workspaceAvatarUrl)}
+                    <OrganizationAvatar
+                      key={getOrganizationAvatarStateKey(organization, organizationAvatarUrl)}
                       size="sm"
                     >
-                      {workspaceAvatarUrl ? (
-                        <WorkspaceAvatarImage
-                          src={workspaceAvatarUrl}
+                      {organizationAvatarUrl ? (
+                        <OrganizationAvatarImage
+                          src={organizationAvatarUrl}
                           alt=""
-                          onError={() => handleWorkspaceAvatarError(workspaceAvatarUrl)}
+                          onError={() => handleOrganizationAvatarError(organizationAvatarUrl)}
                         />
                       ) : (
-                        <WorkspaceAvatarFallback
-                          className={cn(workspace.chipClassName, "text-xs font-semibold")}
+                        <OrganizationAvatarFallback
+                          className={cn(organization.chipClassName, "text-xs font-semibold")}
                         >
-                          {workspace.initials}
-                        </WorkspaceAvatarFallback>
+                          {organization.initials}
+                        </OrganizationAvatarFallback>
                       )}
-                    </WorkspaceAvatar>
+                    </OrganizationAvatar>
                     <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-medium">{workspace.name}</span>
+                      <span className="truncate font-medium">{organization.name}</span>
                     </div>
-                    {workspace.slug === selectedWorkspace?.slug &&
-                      applicationScope === "workspace" && (
+                    {organization.slug === selectedOrganization?.slug &&
+                      applicationScope === "organization" && (
                         <CheckIcon aria-hidden="true" className="size-4" />
                       )}
                   </DropdownMenuItem>
@@ -310,8 +319,8 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="gap-2 p-2"
-              disabled={isSwitchingWorkspace}
-              onClick={handleCreateWorkspaceClick}
+              disabled={isSwitchingOrganization}
+              onClick={handleCreateOrganizationClick}
             >
               <div className="bg-background border-border flex size-6 items-center justify-center rounded-md border">
                 <PlusIcon aria-hidden="true" className="size-4" />
@@ -320,36 +329,36 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <WorkspaceCreateDrawer
-          open={isCreateWorkspaceDrawerOpen}
-          onOpenChangeAction={handleCreateWorkspaceDrawerOpenChange}
+        <OrganizationCreateDrawer
+          open={isCreateOrganizationDrawerOpen}
+          onOpenChangeAction={handleCreateOrganizationDrawerOpenChange}
         />
       </SidebarMenuItem>
     </SidebarMenu>
   );
 }
 
-function createWorkspaceOption(workspace: WorkspaceNavigationItem): WorkspaceOption {
+function createOrganizationOption(organization: OrganizationNavigationItem): OrganizationOption {
   return {
-    ...workspace,
-    initials: getUserInitials(workspace.name),
+    ...organization,
+    initials: getUserInitials(organization.name),
     chipClassName: cn(
-      getAvatarColorClass(workspace.id),
+      getAvatarColorClass(organization.id),
       "group-focus/dropdown-menu-item:!text-white"
     ),
   };
 }
 
-function getWorkspaceAvatarUrl(workspace: WorkspaceOption, failedAvatarUrls: string[]) {
-  if (!workspace.avatarUrl) {
+function getOrganizationAvatarUrl(organization: OrganizationOption, failedAvatarUrls: string[]) {
+  if (!organization.avatarUrl) {
     return null;
   }
 
-  return failedAvatarUrls.includes(workspace.avatarUrl) ? null : workspace.avatarUrl;
+  return failedAvatarUrls.includes(organization.avatarUrl) ? null : organization.avatarUrl;
 }
 
-function getWorkspaceAvatarStateKey(workspace: WorkspaceOption, avatarUrl: string | null) {
-  return `${workspace.id}:${avatarUrl ?? "fallback"}`;
+function getOrganizationAvatarStateKey(organization: OrganizationOption, avatarUrl: string | null) {
+  return `${organization.id}:${avatarUrl ?? "fallback"}`;
 }
 
 function getPersonalScopeLabel(name: string | null, email: string | null) {

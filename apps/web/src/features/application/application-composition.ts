@@ -1,76 +1,78 @@
 import type PocketBase from "pocketbase";
 import type { UsersRecord } from "@/types/pocketbase";
-import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
+import { APP_HOME_PATH, getOrganizationOverviewHref } from "@/config/routes";
 import type { AppHref } from "@/i18n/navigation";
-import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
-import type { UserWorkspace } from "@/features/workspaces/workspace-types";
-import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
-import { listUserWorkspaceShells } from "@/server/workspaces/workspace-shell-queries";
-import type { ServerWorkspaceResponse } from "@/server/workspaces/workspace-types";
+import type { OrganizationNavigationItem } from "@/features/organizations/organization-navigation-types";
+import type { UserOrganization } from "@/features/organizations/organization-types";
+import { getActiveOrganizationSlugCookie } from "@/server/organizations/organization-cookie";
+import { listUserOrganizationShells } from "@/server/organizations/organization-shell-queries";
+import type { ServerOrganizationResponse } from "@/server/organizations/organization-types";
 
-export type ApplicationWorkspaceNavigation = {
-  workspaces: WorkspaceNavigationItem[];
-  activeWorkspaceSlug: string | null;
+export type ApplicationOrganizationNavigation = {
+  organizations: OrganizationNavigationItem[];
+  activeOrganizationSlug: string | null;
 };
 
 export type ApplicationShellModel = {
   applicationEntryHref: AppHref;
-  workspaceNavigation: ApplicationWorkspaceNavigation | null;
+  organizationNavigation: ApplicationOrganizationNavigation | null;
 };
 
 export async function buildApplicationShellModel(input: {
   pb: PocketBase;
   user: UsersRecord;
-}): Promise<ServerWorkspaceResponse<ApplicationShellModel>> {
-  const userWorkspacesResponse = await listUserWorkspaceShells(input.pb, input.user.id);
+}): Promise<ServerOrganizationResponse<ApplicationShellModel>> {
+  const userOrganizationsResponse = await listUserOrganizationShells(input.pb, input.user.id);
 
-  if (!userWorkspacesResponse.ok) {
-    return userWorkspacesResponse;
+  if (!userOrganizationsResponse.ok) {
+    return userOrganizationsResponse;
   }
 
-  const workspaceNavigation = await resolveApplicationWorkspaceNavigation(
-    userWorkspacesResponse.data.workspaces
+  const organizationNavigation = await resolveApplicationOrganizationNavigation(
+    userOrganizationsResponse.data.organizations
   );
 
   return {
     ok: true,
     data: {
-      applicationEntryHref: workspaceNavigation?.activeWorkspaceSlug
-        ? getWorkspaceOverviewHref(workspaceNavigation.activeWorkspaceSlug)
+      applicationEntryHref: organizationNavigation?.activeOrganizationSlug
+        ? getOrganizationOverviewHref(organizationNavigation.activeOrganizationSlug)
         : APP_HOME_PATH,
-      workspaceNavigation,
+      organizationNavigation,
     },
   };
 }
 
-async function resolveApplicationWorkspaceNavigation(
-  workspaces: UserWorkspace[]
-): Promise<ApplicationWorkspaceNavigation | null> {
-  const mappedWorkspaces = workspaces.map(mapWorkspaceNavigationItem);
+async function resolveApplicationOrganizationNavigation(
+  organizations: UserOrganization[]
+): Promise<ApplicationOrganizationNavigation | null> {
+  const mappedOrganizations = organizations.map(mapOrganizationNavigationItem);
 
-  if (mappedWorkspaces.length === 0) {
+  if (mappedOrganizations.length === 0) {
     return null;
   }
 
-  const requestedActiveWorkspaceSlug = await getActiveWorkspaceSlugCookie();
-  const activeWorkspaceSlug =
-    requestedActiveWorkspaceSlug &&
-    mappedWorkspaces.some((workspace) => workspace.slug === requestedActiveWorkspaceSlug)
-      ? requestedActiveWorkspaceSlug
+  const requestedActiveOrganizationSlug = await getActiveOrganizationSlugCookie();
+  const activeOrganizationSlug =
+    requestedActiveOrganizationSlug &&
+    mappedOrganizations.some(
+      (organization) => organization.slug === requestedActiveOrganizationSlug
+    )
+      ? requestedActiveOrganizationSlug
       : null;
 
   return {
-    workspaces: mappedWorkspaces,
-    activeWorkspaceSlug,
+    organizations: mappedOrganizations,
+    activeOrganizationSlug,
   };
 }
 
-function mapWorkspaceNavigationItem(workspace: UserWorkspace): WorkspaceNavigationItem {
+function mapOrganizationNavigationItem(organization: UserOrganization): OrganizationNavigationItem {
   return {
-    id: workspace.id,
-    slug: workspace.slug,
-    name: workspace.name,
-    role: workspace.role,
-    avatarUrl: workspace.avatarUrl,
+    id: organization.id,
+    slug: organization.slug,
+    name: organization.name,
+    role: organization.role,
+    avatarUrl: organization.avatarUrl,
   };
 }

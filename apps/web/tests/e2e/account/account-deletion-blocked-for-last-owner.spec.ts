@@ -4,13 +4,13 @@ import { DEFAULT_AUTH_TEST_PASSWORD, deleteAccountFromSettings, signInUser } fro
 import {
   createPocketBaseAdminClient,
   createVerifiedUser,
-  createWorkspace,
+  createOrganization,
   deleteSignedUpUsersByEmail,
-  deleteWorkspaceGraph,
+  deleteOrganizationGraph,
 } from "../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
-test("account deletion is blocked when the current user is the last workspace owner", async ({
+test("account deletion is blocked when the current user is the last organization owner", async ({
   page,
 }) => {
   test.setTimeout(120_000);
@@ -19,12 +19,12 @@ test("account deletion is blocked when the current user is the last workspace ow
   const suffix = run.id.slice(-8);
   const ownerEmail = createIsolatedTestEmail(run.id, "account-delete-last-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const workspaceSlug = `ws-account-last-owner-${suffix}`;
-  const workspaceName = `Workspace Account Last Owner ${suffix}`;
+  const organizationSlug = `ws-account-last-owner-${suffix}`;
+  const organizationName = `Organization Account Last Owner ${suffix}`;
 
   let pb: PocketBase | null = null;
   let ownerId = "";
-  let workspaceId = "";
+  let organizationId = "";
 
   try {
     pb = await createPocketBaseAdminClient();
@@ -34,15 +34,15 @@ test("account deletion is blocked when the current user is the last workspace ow
       password,
       name: `Owner ${suffix}`,
     });
-    const { workspace } = await createWorkspace({
+    const { organization } = await createOrganization({
       pb,
       userId: owner.id,
-      name: workspaceName,
-      slug: workspaceSlug,
+      name: organizationName,
+      slug: organizationSlug,
     });
 
     ownerId = owner.id;
-    workspaceId = workspace.id;
+    organizationId = organization.id;
 
     await signInUser({ page, email: ownerEmail, password });
     await expect(page).toHaveURL(/\/cs\/aplikace$/);
@@ -55,7 +55,7 @@ test("account deletion is blocked when the current user is the last workspace ow
     await expect(page).toHaveURL(/\/cs\/ucet$/);
     await expect(
       page.getByText(
-        "Účet teď nelze smazat, protože jste poslední vlastník alespoň jednoho workspace."
+        "Účet teď nelze smazat, protože jste poslední vlastník alespoň jedné organizace."
       )
     ).toBeVisible();
 
@@ -64,9 +64,9 @@ test("account deletion is blocked when the current user is the last workspace ow
         userId: ownerId,
       }),
     });
-    const memberships = await pb.collection("workspace_members").getFullList({
-      filter: pb.filter("workspace = {:workspaceId} && user = {:userId}", {
-        workspaceId,
+    const memberships = await pb.collection("organization_members").getFullList({
+      filter: pb.filter("organization = {:organizationId} && user = {:userId}", {
+        organizationId,
         userId: ownerId,
       }),
     });
@@ -79,9 +79,9 @@ test("account deletion is blocked when the current user is the last workspace ow
     await expect(page).toHaveURL(/\/cs\/aplikace$/);
   } finally {
     if (pb) {
-      await deleteWorkspaceGraph({
+      await deleteOrganizationGraph({
         pb,
-        workspaceSlug,
+        organizationSlug,
       });
       await deleteSignedUpUsersByEmail(pb, ownerEmail);
     }

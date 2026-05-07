@@ -10,7 +10,7 @@ export type CookiePurposeKey =
   | "locale"
   | "theme"
   | "sidebarState"
-  | "activeWorkspace"
+  | "activeOrganization"
   | "ga"
   | "gaWildcard";
 

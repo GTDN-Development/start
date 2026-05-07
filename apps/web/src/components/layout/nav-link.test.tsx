@@ -98,13 +98,13 @@ describe("NavLink", function describeNavLink() {
   it("marks object href as current using its pathname", function testObjectHrefMatch() {
     useBrowserPathnameStateMock.mockReturnValue({
       navigationId: 2,
-      pathname: "/cs/w/acme/settings",
+      pathname: "/cs/o/acme/settings",
       previousPathname: "/cs/app",
     });
 
     render(
       <NavLink
-        href={{ pathname: "/w/[workspaceSlug]/settings", params: { workspaceSlug: "acme" } }}
+        href={{ pathname: "/o/[organizationSlug]/settings", params: { organizationSlug: "acme" } }}
       >
         Settings
       </NavLink>

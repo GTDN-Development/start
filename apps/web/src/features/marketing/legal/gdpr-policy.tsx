@@ -53,7 +53,7 @@ export function GdprPolicy({ company, contact, policy, effectiveDate, ...props }
           <li>{t("dataCategories.items.identification")}</li>
           <li>{t("dataCategories.items.contact")}</li>
           <li>{t("dataCategories.items.account")}</li>
-          <li>{t("dataCategories.items.workspace")}</li>
+          <li>{t("dataCategories.items.organization")}</li>
           <li>{t("dataCategories.items.billing")}</li>
           <li>{t("dataCategories.items.technical")}</li>
           <li>{t("dataCategories.items.usage")}</li>
@@ -70,7 +70,7 @@ export function GdprPolicy({ company, contact, policy, effectiveDate, ...props }
         <ul>
           <li>{t("sources.items.directlyFromUser")}</li>
           <li>{t("sources.items.automaticCollection")}</li>
-          <li>{t("sources.items.otherWorkspaceUsers")}</li>
+          <li>{t("sources.items.otherOrganizationUsers")}</li>
           <li>{t("sources.items.partners")}</li>
           <li>{t("sources.items.publicSources")}</li>
         </ul>
@@ -82,7 +82,7 @@ export function GdprPolicy({ company, contact, policy, effectiveDate, ...props }
         <ul>
           <li>{t("purposes.items.account")}</li>
           <li>{t("purposes.items.service")}</li>
-          <li>{t("purposes.items.workspace")}</li>
+          <li>{t("purposes.items.organization")}</li>
           <li>{t("purposes.items.contract")}</li>
           <li>{t("purposes.items.billing")}</li>
           <li>{t("purposes.items.security")}</li>
@@ -109,7 +109,7 @@ export function GdprPolicy({ company, contact, policy, effectiveDate, ...props }
         <ul>
           <li>{t("legalBases.contractItems.account")}</li>
           <li>{t("legalBases.contractItems.service")}</li>
-          <li>{t("legalBases.contractItems.workspace")}</li>
+          <li>{t("legalBases.contractItems.organization")}</li>
           <li>{t("legalBases.contractItems.order")}</li>
           <li>{t("legalBases.contractItems.communication")}</li>
         </ul>
@@ -194,7 +194,7 @@ export function GdprPolicy({ company, contact, policy, effectiveDate, ...props }
         <p>{t("retention.article2")}</p>
         <ul>
           <li>{t("retention.items.account")}</li>
-          <li>{t("retention.items.workspace")}</li>
+          <li>{t("retention.items.organization")}</li>
           <li>{t("retention.items.legalObligations")}</li>
           <li>{t("retention.items.claims")}</li>
           <li>{t("retention.items.consent")}</li>

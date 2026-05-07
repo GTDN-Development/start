@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { workspaceConfig } from "@/config/workspace";
+import { organizationConfig } from "@/config/organization";
 import type { AuthCookieMutation } from "@/server/auth/auth-cookies";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
-import { resolvePostAuthDestinationForUser } from "@/server/workspaces/workspace-shell-queries";
+import { resolvePostAuthDestinationForUser } from "@/server/organizations/organization-shell-queries";
 import { GET } from "./route";
 
 vi.mock("@/i18n/navigation", function mockNavigation() {
@@ -19,7 +19,7 @@ vi.mock("@/i18n/navigation", function mockNavigation() {
 
       return href.pathname
         .replace("[token]", href.params?.token ?? "")
-        .replace("[workspaceSlug]", href.params?.workspaceSlug ?? "");
+        .replace("[organizationSlug]", href.params?.organizationSlug ?? "");
     }),
   };
 });
@@ -30,11 +30,14 @@ vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() 
   };
 });
 
-vi.mock("@/server/workspaces/workspace-shell-queries", function mockWorkspaceShellQueries() {
-  return {
-    resolvePostAuthDestinationForUser: vi.fn(),
-  };
-});
+vi.mock(
+  "@/server/organizations/organization-shell-queries",
+  function mockOrganizationShellQueries() {
+    return {
+      resolvePostAuthDestinationForUser: vi.fn(),
+    };
+  }
+);
 
 describe("post-auth route", function describePostAuthRoute() {
   beforeEach(function resetMocks() {
@@ -61,7 +64,7 @@ describe("post-auth route", function describePostAuthRoute() {
 
   it.each([
     {
-      name: "redirects to app when no workspace-specific destination is available",
+      name: "redirects to app when no organization-specific destination is available",
       authResponse: createAuthenticatedSessionResponse([
         createCookieMutation("pb_auth", "token", { path: "/", httpOnly: true }),
       ]),
@@ -87,20 +90,20 @@ describe("post-auth route", function describePostAuthRoute() {
         },
       } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>,
       expectedLocation: "https://example.com/invite/invite-1",
-      expectedCookies: ["pb_auth=token", `${workspaceConfig.cookies.pendingInvite.name}=`],
+      expectedCookies: ["pb_auth=token", `${organizationConfig.cookies.pendingInvite.name}=`],
     },
     {
-      name: "sets the active workspace cookie when redirecting to a workspace",
+      name: "sets the active organization cookie when redirecting to an organization",
       authResponse: createAuthenticatedSessionResponse(),
       destination: {
         ok: true,
         data: {
-          state: "workspace_redirect",
-          workspaceSlug: "team-space",
+          state: "organization_redirect",
+          organizationSlug: "team-space",
         },
       } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>,
-      expectedLocation: "https://example.com/w/team-space/overview",
-      expectedCookies: [`${workspaceConfig.cookies.activeWorkspace.name}=team-space`],
+      expectedLocation: "https://example.com/o/team-space/overview",
+      expectedCookies: [`${organizationConfig.cookies.activeOrganization.name}=team-space`],
     },
   ])("$name", async function testPostAuthRedirects(input) {
     vi.mocked(getResponseAuthSession).mockResolvedValue(input.authResponse);

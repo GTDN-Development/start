@@ -13,8 +13,8 @@ const FORBIDDEN_RENDER_MUTATORS = [
   "appendAuthCookiesToResponse",
   "redirectHrefWithAuthCookies",
   "redirectPathnameWithAuthCookies",
-  "setActiveWorkspaceSlugCookie",
-  "clearActiveWorkspaceSlugCookie",
+  "setActiveOrganizationSlugCookie",
+  "clearActiveOrganizationSlugCookie",
   "clearPendingInviteTokenCookie",
 ] as const;
 

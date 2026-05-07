@@ -83,7 +83,7 @@ export function TermsOfService({
           <li>{t("definitions.user")}</li>
           <li>{t("definitions.customer")}</li>
           <li>{t("definitions.account")}</li>
-          <li>{t("definitions.workspace")}</li>
+          <li>{t("definitions.organization")}</li>
           <li>{t("definitions.userContent")}</li>
           <li>{t("definitions.plan")}</li>
           <li>{t("definitions.order")}</li>
@@ -95,7 +95,7 @@ export function TermsOfService({
         <p>{t("contract.description")}</p>
         <ul>
           <li>{t("contract.items.accountRegistration")}</li>
-          <li>{t("contract.items.workspaceActivation")}</li>
+          <li>{t("contract.items.organizationActivation")}</li>
           <li>{t("contract.items.orderConfirmation")}</li>
           <li>{t("contract.items.paidPlanActivation")}</li>
           <li>{t("contract.items.useAfterReview")}</li>

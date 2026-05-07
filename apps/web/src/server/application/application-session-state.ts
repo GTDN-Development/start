@@ -1,9 +1,9 @@
 import {
-  clearActiveWorkspaceSlugCookie,
+  clearActiveOrganizationSlugCookie,
   clearPendingInviteTokenCookie,
-} from "@/server/workspaces/workspace-cookie";
+} from "@/server/organizations/organization-cookie";
 
 export async function clearSessionScopedApplicationState(): Promise<void> {
-  await clearActiveWorkspaceSlugCookie();
+  await clearActiveOrganizationSlugCookie();
   await clearPendingInviteTokenCookie();
 }

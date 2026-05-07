@@ -58,7 +58,7 @@ describe("email-transport", function describeEmailTransport() {
 
     await sendEmail({
       to: "Invitee <invitee@example.com>",
-      subject: "Workspace invite",
+      subject: "Organization invite",
       text: "Plain text body",
       html: "<p>HTML body</p>",
       replyTo: "help@example.com",
@@ -98,7 +98,7 @@ describe("email-transport", function describeEmailTransport() {
           Email: "help@example.com",
         },
       ],
-      Subject: "Workspace invite",
+      Subject: "Organization invite",
       Text: "Plain text body",
       HTML: "<p>HTML body</p>",
       Attachments: [

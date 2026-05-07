@@ -1,42 +1,46 @@
-import { APP_HOME_PATH, WORKSPACE_PATH_PREFIX } from "@/config/routes";
+import { APP_HOME_PATH, ORGANIZATION_PATH_PREFIX } from "@/config/routes";
 
-export type ApplicationScope = "personal" | "workspace" | "other";
+export type ApplicationScope = "personal" | "organization" | "other";
 
-export function normalizeWorkspaceSlug(workspaceSlug: string | null | undefined): string | null {
-  const normalizedWorkspaceSlug = workspaceSlug?.trim() ?? "";
+export function normalizeOrganizationSlug(
+  organizationSlug: string | null | undefined
+): string | null {
+  const normalizedOrganizationSlug = organizationSlug?.trim() ?? "";
 
-  if (!normalizedWorkspaceSlug) {
+  if (!normalizedOrganizationSlug) {
     return null;
   }
 
-  if (normalizedWorkspaceSlug.startsWith("[") && normalizedWorkspaceSlug.endsWith("]")) {
+  if (normalizedOrganizationSlug.startsWith("[") && normalizedOrganizationSlug.endsWith("]")) {
     return null;
   }
 
-  return normalizedWorkspaceSlug;
+  return normalizedOrganizationSlug;
 }
 
-export function getWorkspaceSlugFromPathname(pathname: string): string | null {
+export function getOrganizationSlugFromPathname(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean);
 
   if (segments.length < 2 || segments[0] !== "w") {
     return null;
   }
 
-  return normalizeWorkspaceSlug(segments[1] ?? "");
+  return normalizeOrganizationSlug(segments[1] ?? "");
 }
 
 export function isPersonalScopePath(pathname: string): boolean {
   return pathname === APP_HOME_PATH;
 }
 
-export function isWorkspaceScopePath(pathname: string): boolean {
-  return pathname === WORKSPACE_PATH_PREFIX || pathname.startsWith(`${WORKSPACE_PATH_PREFIX}/`);
+export function isOrganizationScopePath(pathname: string): boolean {
+  return (
+    pathname === ORGANIZATION_PATH_PREFIX || pathname.startsWith(`${ORGANIZATION_PATH_PREFIX}/`)
+  );
 }
 
 export function resolveApplicationScope(pathname: string): ApplicationScope {
-  if (isWorkspaceScopePath(pathname)) {
-    return "workspace";
+  if (isOrganizationScopePath(pathname)) {
+    return "organization";
   }
 
   if (isPersonalScopePath(pathname)) {

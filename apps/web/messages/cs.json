@@ -58,8 +58,8 @@
         "integrations": "Integrace",
         "changelog": "Nové funkce",
         "roadmap": "Plán vývoje",
-        "workspace": "Workspace",
-        "settings": "Nastavení workspace",
+        "organization": "Organizace",
+        "settings": "Nastavení organizace",
         "account": "Účet",
         "myAccount": "Můj účet",
         "signIn": "Přihlášení",
@@ -107,37 +107,37 @@
           "label": "Osobní"
         },
         "labels": {
-          "workspaces": "Pracovní prostory"
+          "organizations": "Organizace"
         },
         "actions": {
-          "create": "Vytvořit pracovní prostor"
+          "create": "Vytvořit organizaci"
         },
         "empty": {
-          "title": "Zatím nemáte workspace",
-          "description": "Vytvořte ho až ve chvíli, kdy potřebujete spolupráci."
+          "title": "Zatím nemáte organizaci",
+          "description": "Vytvořte ji až ve chvíli, kdy potřebujete spolupráci."
         },
         "createDrawer": {
-          "title": "Vytvořit pracovní prostor",
-          "description": "Vytvořte sdílený pracovní prostor, až budete chtít spolupracovat s týmem.",
+          "title": "Vytvořit organizaci",
+          "description": "Vytvořte sdílenou organizaci, až budete chtít spolupracovat s týmem.",
           "fields": {
             "name": {
               "label": "Název",
-              "placeholder": "Zadejte název workspace",
-              "description": "Používá se v navigaci a scope switcheru. URL vygenerujeme automaticky z názvu."
+              "placeholder": "Zadejte název organizace",
+              "description": "Používá se v navigaci a přepínači rozsahu. URL vygenerujeme automaticky z názvu."
             }
           },
           "validation": {
-            "nameRequired": "Název workspace je povinný.",
-            "nameMax": "Název workspace může mít maximálně {max} znaků."
+            "nameRequired": "Název organizace je povinný.",
+            "nameMax": "Název organizace může mít maximálně {max} znaků."
           },
           "submit": {
-            "default": "Vytvořit workspace",
+            "default": "Vytvořit organizaci",
             "pending": "Vytvářím..."
           },
           "cancel": "Zrušit",
           "status": {
-            "created": "Workspace byl vytvořen.",
-            "failed": "Workspace se nepodařilo vytvořit.",
+            "created": "Organizace byla vytvořena.",
+            "failed": "Organizaci se nepodařilo vytvořit.",
             "badRequest": "Zkontrolujte prosím zadané hodnoty a zkuste to znovu.",
             "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu."
           }
@@ -233,8 +233,8 @@
       "signIn": "Přihlásit se"
     },
     "inviteToken": {
-      "title": "Pozvánka do workspace",
-      "description": "Zkontrolujte a potvrďte pozvánku do workspace.",
+      "title": "Pozvánka do organizace",
+      "description": "Zkontrolujte a potvrďte pozvánku do organizace.",
       "actions": {
         "accept": "Přijmout pozvánku",
         "continueAs": "Pokračovat jako {email}",
@@ -257,25 +257,25 @@
       },
       "states": {
         "pending": {
-          "title": "Připojit se do workspace",
-          "description": "Byli jste pozváni do workspace <strong>{workspace}</strong>."
+          "title": "Připojit se do organizace",
+          "description": "Byli jste pozváni do organizace <strong>{organization}</strong>."
         },
         "loading": {
           "title": "Ověřujeme odkaz pozvánky",
           "description": "Ověřujeme platnost pozvánky."
         },
         "auth_required": {
-          "title": "Připojit se do workspace",
-          "description": "Byli jste pozváni do workspace <strong>{workspace}</strong>.",
+          "title": "Připojit se do organizace",
+          "description": "Byli jste pozváni do organizace <strong>{organization}</strong>.",
           "invitedBy": "Pozval vás <strong>{inviter}</strong>"
         },
         "success": {
           "title": "Pozvánka přijata",
-          "description": "Už jste členem workspace <strong>{workspace}</strong>. Přesměrováváme..."
+          "description": "Už jste členem organizace <strong>{organization}</strong>. Přesměrováváme..."
         },
         "already_member": {
-          "title": "Už jste členem workspace <strong>{workspace}</strong>",
-          "cta": "Přejít do workspace"
+          "title": "Už jste členem organizace <strong>{organization}</strong>",
+          "cta": "Přejít do organizace"
         },
         "blocked": {
           "title": "Pozvánka není dostupná",
@@ -299,11 +299,11 @@
         },
         "error": {
           "title": "Neočekávaná chyba",
-          "description": "Pozvánku se nepodařilo zpracovat. Zkuste to znovu, nebo požádejte vlastníka workspace o nový odkaz.",
+          "description": "Pozvánku se nepodařilo zpracovat. Zkuste to znovu, nebo požádejte vlastníka organizace o nový odkaz.",
           "cta": "Zkusit znovu",
           "alert": {
             "title": "Zkuste to později",
-            "description": "Pokud problém přetrvá, požádejte vlastníka workspace o zaslání nové pozvánky."
+            "description": "Pokud problém přetrvá, požádejte vlastníka organizace o zaslání nové pozvánky."
           }
         }
       }
@@ -488,7 +488,7 @@
     },
     "app": {
       "title": "Domů",
-      "description": "Vaše osobní část je připravená hned. Tady spravujete svůj účet a workspace přidáte až ve chvíli, kdy potřebujete spolupráci.",
+      "description": "Vaše osobní část je připravená hned. Tady spravujete svůj účet a organizace přidáte až ve chvíli, kdy potřebujete spolupráci.",
       "personal": {
         "eyebrow": "Osobní část"
       },
@@ -514,16 +514,16 @@
           "cta": "Kontaktovat podporu"
         }
       },
-      "workspace": {
+      "organization": {
         "title": "Spolupráce pro váš tým",
-        "description": "Workspace je volitelný. Vytvořte ho ve chvíli, kdy chcete sdílet přístup, nastavení a pracovat s dalšími lidmi.",
-        "create": "Vytvořit workspace pro tým",
+        "description": "Organizace je volitelná. Vytvořte ho ve chvíli, kdy chcete sdílet přístup, nastavení a pracovat s dalšími lidmi.",
+        "create": "Vytvořit organizaci pro tým",
         "empty": {
-          "title": "Produkt můžete používat i bez workspace",
-          "description": "Workspace si vytvořte, až budete potřebovat sdílenou spolupráci."
+          "title": "Produkt můžete používat i bez organizace",
+          "description": "Organizaci si vytvořte, až budete potřebovat sdílenou spolupráci."
         },
         "list": {
-          "title": "Vaše workspaces",
+          "title": "Vaše organizace",
           "description": "Do sdíleného prostoru se můžete kdykoli vrátit.",
           "cta": "Otevřít přehled"
         }
@@ -694,7 +694,7 @@
           "success": "Účet byl smazán.",
           "error": "Účet se teď nepodařilo smazat. Zkuste to prosím znovu.",
           "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu.",
-          "blockedLastOwner": "Účet teď nelze smazat, protože jste poslední vlastník alespoň jednoho workspace.",
+          "blockedLastOwner": "Účet teď nelze smazat, protože jste poslední vlastník alespoň jedné organizace.",
           "invalidCredentials": "Aktuální heslo není správné."
         }
       },
@@ -743,12 +743,12 @@
         }
       }
     },
-    "workspace": {
-      "title": "Nastavení workspace",
-      "description": "Spravujte základní nastavení workspace a jeho vzhled.",
+    "organization": {
+      "title": "Nastavení organizace",
+      "description": "Spravujte základní nastavení organizace a její vzhled.",
       "overview": {
         "title": "Přehled",
-        "description": "Vítejte v přehledu workspace. Zkontrolujte aktivitu spolupráce a přístup k nástrojům workspace."
+        "description": "Vítejte v přehledu organizace. Zkontrolujte aktivitu spolupráce a přístup k nástrojům organizace."
       },
       "nav": {
         "general": "Obecné",
@@ -762,12 +762,12 @@
       },
       "general": {
         "name": {
-          "title": "Název workspace",
-          "description": "Upravte, jak se tento workspace zobrazuje napříč aplikací.",
+          "title": "Název organizaci",
+          "description": "Upravte, jak se tato organizace zobrazuje napříč aplikací.",
           "field": {
             "label": "Název",
-            "placeholder": "Zadejte název workspace",
-            "description": "Tento název je viditelný v navigaci a přepínači workspace."
+            "placeholder": "Zadejte název organizace",
+            "description": "Tento název je viditelný v navigaci a přepínači organizací."
           },
           "footerHint": "Maximální délka je {max} znaků.",
           "submit": {
@@ -775,21 +775,21 @@
             "pending": "Ukládání..."
           },
           "validation": {
-            "required": "Název workspace je povinný.",
-            "max": "Název workspace může mít maximálně {max} znaků."
+            "required": "Název organizace je povinný.",
+            "max": "Název organizace může mít maximálně {max} znaků."
           },
           "status": {
-            "updateFailed": "Název workspace se nepodařilo aktualizovat.",
-            "updated": "Název workspace byl aktualizován."
+            "updateFailed": "Název organizaci se nepodařilo aktualizovat.",
+            "updated": "Název organizace byl aktualizován."
           }
         },
         "url": {
-          "title": "URL workspace",
-          "description": "Nastavte URL segment používaný pro přístup do tohoto workspace.",
+          "title": "URL organizace",
+          "description": "Nastavte URL segment používaný pro přístup do této organizace.",
           "field": {
             "label": "URL",
-            "placeholder": "Zadejte URL workspace",
-            "description": "Používá se v trasách jako /w/{workspaceUrl}/prehled."
+            "placeholder": "Zadejte URL organizace",
+            "description": "Používá se v trasách jako /o/{organizationUrl}/prehled."
           },
           "footerHint": "Maximální délka je {max} znaků.",
           "submit": {
@@ -797,19 +797,19 @@
             "pending": "Ukládání..."
           },
           "validation": {
-            "required": "URL workspace je povinná.",
-            "max": "URL workspace může mít maximálně {max} znaků."
+            "required": "URL organizace je povinná.",
+            "max": "URL organizace může mít maximálně {max} znaků."
           },
           "status": {
-            "slugTaken": "Tato URL workspace je už obsazená.",
-            "updateFailed": "URL workspace se nepodařilo aktualizovat.",
-            "updated": "URL workspace byla aktualizována."
+            "slugTaken": "Tato URL organizace je už obsazená.",
+            "updateFailed": "URL organizace se nepodařilo aktualizovat.",
+            "updated": "URL organizace byla aktualizována."
           }
         },
         "avatar": {
-          "title": "Avatar workspace",
-          "description": "Nahrajte čtvercový avatar pro tento workspace.",
-          "buttonLabel": "Změnit avatar workspace",
+          "title": "Avatar organizace",
+          "description": "Nahrajte čtvercový avatar pro tato organizace.",
+          "buttonLabel": "Změnit avatar organizace",
           "menu": {
             "change": "Změnit avatar",
             "remove": "Odebrat avatar"
@@ -820,83 +820,83 @@
             "fileTooLarge": "Obrázek se nepodařilo dostatečně zmenšit. Zkuste prosím jiný soubor.",
             "processingFailed": "Vybraný obrázek se nepodařilo zpracovat. Zkuste prosím jiný soubor.",
             "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu.",
-            "error": "Avatar workspace se teď nepodařilo upravit. Zkuste to prosím znovu.",
-            "updateFailed": "Avatar workspace se nepodařilo aktualizovat.",
-            "updated": "Avatar workspace byl aktualizován.",
-            "removeFailed": "Avatar workspace se nepodařilo odebrat.",
-            "removed": "Avatar workspace byl odebrán."
+            "error": "Avatar organizace se teď nepodařilo upravit. Zkuste to prosím znovu.",
+            "updateFailed": "Avatar organizace se nepodařilo aktualizovat.",
+            "updated": "Avatar organizace byl aktualizován.",
+            "removeFailed": "Avatar organizace se nepodařilo odebrat.",
+            "removed": "Avatar organizace byl odebrán."
           }
         },
         "leave": {
-          "title": "Opustit workspace",
-          "description": "Opusťte {workspaceName} a odeberte si přístup do tohoto workspace.",
-          "ownerGuardHint": "Pro opuštění workspace musí mít workspace alespoň dva vlastníky.",
-          "trigger": "Opustit workspace",
+          "title": "Opustit organizaci",
+          "description": "Opusťte {organizationName} a odeberte si přístup do této organizace.",
+          "ownerGuardHint": "Pro opuštění organizace musí mít organizace alespoň dva vlastníky.",
+          "trigger": "Opustit organizaci",
           "dialog": {
-            "title": "Opustit workspace?",
-            "description": "Ztratíte přístup ke všem projektům a nastavením tohoto workspace. Vrátit se můžete jen pokud vás jiný člen znovu pozve.",
+            "title": "Opustit organizaci?",
+            "description": "Ztratíte přístup ke všem projektům a nastavením této organizace. Vrátit se můžete jen pokud vás jiný člen znovu pozve.",
             "fields": {
               "confirmationUrl": {
-                "label": "URL workspace",
-                "description": "Pro potvrzení opuštění napište {workspaceSlug}."
+                "label": "URL organizace",
+                "description": "Pro potvrzení opuštění napište {organizationSlug}."
               },
               "acknowledged": {
-                "label": "Rozumím, že ztratím přístup do tohoto workspace."
+                "label": "Rozumím, že ztratím přístup do této organizace."
               }
             },
             "submit": {
-              "default": "Opustit workspace",
+              "default": "Opustit organizaci",
               "pending": "Opouštění..."
             }
           },
           "validation": {
             "confirmationUrl": {
-              "required": "URL workspace je povinná.",
-              "mismatch": "Pro potvrzení napište \"{workspaceSlug}\"."
+              "required": "URL organizace je povinná.",
+              "mismatch": "Pro potvrzení napište \"{organizationSlug}\"."
             },
             "acknowledged": {
-              "required": "Musíte potvrdit, že ztratíte přístup do tohoto workspace."
+              "required": "Musíte potvrdit, že ztratíte přístup do této organizace."
             }
           },
           "status": {
-            "failed": "Workspace se nepodařilo opustit.",
-            "lastOwnerGuard": "Workspace nelze opustit, dokud není přidán další vlastník.",
-            "success": "K tomuto workspace už nemáte přístup."
+            "failed": "Organizaci se nepodařilo opustit.",
+            "lastOwnerGuard": "Organizaci nelze opustit, dokud není přidán další vlastník.",
+            "success": "K této organizaci už nemáte přístup."
           }
         },
         "delete": {
-          "title": "Smazat workspace",
-          "description": "Trvale odstraňte {workspaceName} a všechna data tohoto workspace.",
-          "trigger": "Smazat workspace",
+          "title": "Smazat organizaci",
+          "description": "Trvale odstraňte {organizationName} a všechna data této organizace.",
+          "trigger": "Smazat organizaci",
           "dialog": {
-            "title": "Smazat workspace?",
-            "description": "Tato akce je nevratná. Všichni členové, pozvánky i data uvnitř tohoto workspace budou trvale odstraněny.",
+            "title": "Smazat organizaci?",
+            "description": "Tato akce je nevratná. Všichni členové, pozvánky i data uvnitř této organizace budou trvale odstraněny.",
             "fields": {
               "confirmationUrl": {
-                "label": "URL workspace",
-                "description": "Pro potvrzení smazání napište {workspaceSlug}."
+                "label": "URL organizace",
+                "description": "Pro potvrzení smazání napište {organizationSlug}."
               },
               "acknowledged": {
                 "label": "Rozumím, že tuto akci nelze vrátit zpět."
               }
             },
             "submit": {
-              "default": "Smazat workspace",
+              "default": "Smazat organizaci",
               "pending": "Mazání..."
             }
           },
           "validation": {
             "confirmationUrl": {
-              "required": "URL workspace je povinná.",
-              "mismatch": "Pro potvrzení napište \"{workspaceSlug}\"."
+              "required": "URL organizace je povinná.",
+              "mismatch": "Pro potvrzení napište \"{organizationSlug}\"."
             },
             "acknowledged": {
               "required": "Musíte potvrdit, že tuto akci nelze vrátit zpět."
             }
           },
           "status": {
-            "failed": "Workspace se nepodařilo smazat.",
-            "success": "Workspace byl smazán."
+            "failed": "Organizaci se nepodařilo smazat.",
+            "success": "Organizace byla smazána."
           }
         }
       },
@@ -908,15 +908,15 @@
         "roles": {
           "owner": {
             "label": "Vlastník",
-            "description": "Plný přístup k nastavení, členům a správě workspace."
+            "description": "Plný přístup k nastavení, členům a správě organizace."
           },
           "admin": {
             "label": "Administrátor",
-            "description": "Může spravovat nastavení workspace, členy i pozvánky, ale ne vlastnictví."
+            "description": "Může spravovat nastavení organizace, členy i pozvánky, ale ne vlastnictví."
           },
           "member": {
             "label": "Člen",
-            "description": "Může spolupracovat ve workspace, ale nemůže spravovat vlastnictví."
+            "description": "Může spolupracovat v organizaci, ale nemůže spravovat vlastnictví."
           }
         },
         "invite": {
@@ -951,7 +951,7 @@
           },
           "status": {
             "invalidRows": "Zadejte prosím platnou e-mailovou adresu.",
-            "alreadyMemberOrInvited": "Tento uživatel už je členem workspace nebo už má čekající pozvánku.",
+            "alreadyMemberOrInvited": "Tento uživatel už je členem organizace nebo už má čekající pozvánku.",
             "sendFailed": "Pozvánku se nepodařilo odeslat.",
             "sent": "Pozvánka byla odeslána."
           }
@@ -969,7 +969,7 @@
             },
             "changeRole": {
               "title": "Změnit roli člena?",
-              "description": "Vyberte novou roli pro uživatele {memberName} ve workspace {workspaceName}.",
+              "description": "Vyberte novou roli pro uživatele {memberName} v organizaci {organizationName}.",
               "submit": {
                 "default": "Uložit roli",
                 "pending": "Ukládání..."
@@ -977,11 +977,11 @@
             },
             "lastOwnerGuard": {
               "title": "Ochrana posledního vlastníka",
-              "description": "Tento člen je poslední vlastník workspace. Před snížením role povyšte jiného člena na vlastníka."
+              "description": "Tento člen je poslední vlastník organizace. Před snížením role povyšte jiného člena na vlastníka."
             },
             "removeMember": {
-              "title": "Odebrat člena z workspace?",
-              "description": "Tímto okamžitě odeberete přístup do workspace {workspaceName}.",
+              "title": "Odebrat člena z organizace?",
+              "description": "Tímto okamžitě odeberete přístup do organizace {organizationName}.",
               "submit": {
                 "default": "Odebrat člena",
                 "pending": "Odebírání..."
@@ -989,7 +989,7 @@
             },
             "resendInvite": {
               "title": "Znovu odeslat odkaz pozvánky?",
-              "description": "Tímto odešlete nový odkaz pozvánky do workspace {workspaceName}.",
+              "description": "Tímto odešlete nový odkaz pozvánky do organizace {organizationName}.",
               "submit": {
                 "default": "Znovu odeslat pozvánku",
                 "pending": "Odesílání..."
@@ -997,7 +997,7 @@
             },
             "removeInvite": {
               "title": "Odebrat pozvánku?",
-              "description": "Tímto zneplatníte token pozvánky a odeberete tuto čekající pozvánku z workspace {workspaceName}.",
+              "description": "Tímto zneplatníte token pozvánky a odeberete tuto čekající pozvánku z organizace {organizationName}.",
               "submit": {
                 "default": "Odebrat pozvánku",
                 "pending": "Odebírání..."
@@ -1045,8 +1045,8 @@
             "members": {
               "ariaLabel": "Otevřít akce člena",
               "changeRole": "Změnit roli",
-              "leaveWorkspace": "Opustit workspace",
-              "removeMember": "Odebrat z workspace"
+              "leaveOrganization": "Opustit organizaci",
+              "removeMember": "Odebrat z organizace"
             },
             "invites": {
               "ariaLabel": "Otevřít akce pozvánky",
@@ -1468,7 +1468,7 @@
         },
         "functional": {
           "title": "Funkční cookies",
-          "article1": "Funkční cookies umožňují zapamatovat si volitelné personalizační volby v aplikaci, například naposledy aktivní workspace nebo podobná nastavení pro větší pohodlí.",
+          "article1": "Funkční cookies umožňují zapamatovat si volitelné personalizační volby v aplikaci, například naposledy aktivní organizace nebo podobná nastavení pro větší pohodlí.",
           "article2": "Tyto cookies mohou být používány pouze tehdy, pokud jsou v konkrétní implementaci aktivní."
         },
         "analytics": {
@@ -1612,7 +1612,7 @@
         "locale": "Ukládá zvolený jazyk webu pro tento prohlížeč.",
         "theme": "Ukládá preferenci motivu (systémový/světlý/tmavý režim).",
         "sidebarState": "Ukládá, zda je postranní panel aplikace na tomto zařízení rozbalený nebo sbalený.",
-        "activeWorkspace": "Ukládá naposledy aktivní workspace pro rychlejší navigaci v aplikaci.",
+        "activeOrganization": "Ukládá naposledy aktivní organizaci pro rychlejší navigaci v aplikaci.",
         "ga": "Používá Google Analytics 4 k rozlišení uživatelů (se souhlasem).",
         "gaWildcard": "Používá Google Analytics 4 k uchování stavu relace (se souhlasem)."
       }
@@ -1626,7 +1626,7 @@
       "controller": {
         "title": "Kdo vaše údaje zpracovává",
         "article1": "Správcem osobních údajů je společnost {companyLegalName}, IČO {companyId}, se sídlem {companyAddress}, zapsaná v obchodním rejstříku {companyRegister}, e-mail {contactEmail}, web {domain} (dále jen „Správce“ nebo „my“).",
-        "article2": "Tyto zásady vysvětlují, jak zpracováváme osobní údaje fyzických osob při používání našich webových stránek, aplikace, workspace prostředí, kontaktních formulářů, podpory, obchodní komunikace a dalších souvisejících služeb.",
+        "article2": "Tyto zásady vysvětlují, jak zpracováváme osobní údaje fyzických osob při používání našich webových stránek, aplikace, prostředí organizace, kontaktních formulářů, podpory, obchodní komunikace a dalších souvisejících služeb.",
         "article3": "Tyto zásady se použijí zejména v případech, kdy jsme v postavení správce osobních údajů. V některých případech můžeme být také zpracovatelem; takové situace popisujeme níže."
       },
       "dataCategories": {
@@ -1636,7 +1636,7 @@
           "identification": "identifikační údaje, například jméno a příjmení,",
           "contact": "kontaktní údaje, například e-mail, telefon nebo kontaktní adresa,",
           "account": "údaje o účtu, například přihlašovací údaje, ID uživatele, jazyk, role, stav účtu a nastavení,",
-          "workspace": "údaje o workspace, například název workspace, členství, role, pozvánky a související metadata,",
+          "organization": "údaje o organizaci, například název organizace, členství, role, pozvánky a související metadata,",
           "billing": "platební a fakturační údaje, například fakturační adresa, IČO, DIČ, informace o tarifu, objednávkách a platbách,",
           "technical": "technické údaje, například IP adresa, informace o zařízení, prohlížeči, operačním systému, logy a bezpečnostní záznamy,",
           "usage": "údaje o používání služby, například interakce s funkcemi, navigace v aplikaci, nastavení, preference a historie aktivit,",
@@ -1652,7 +1652,7 @@
         "items": {
           "directlyFromUser": "přímo od vás při registraci, objednávce, vyplnění formuláře nebo komunikaci,",
           "automaticCollection": "při používání webu a aplikace automaticky prostřednictvím technických prostředků,",
-          "otherWorkspaceUsers": "od jiných uživatelů workspace, například pokud vás pozvou do workspace nebo vám přidělí roli,",
+          "otherOrganizationUsers": "od jiných uživatelů organizace, například pokud vás pozvou do organizace nebo vám přidělí roli,",
           "partners": "od poskytovatelů platebních, technických, analytických nebo komunikačních služeb,",
           "publicSources": "z veřejných zdrojů nebo rejstříků, pokud je to přiměřené a zákonné."
         }
@@ -1663,7 +1663,7 @@
         "items": {
           "account": "vytvoření a správa účtu,",
           "service": "poskytování a provoz Služby,",
-          "workspace": "správa workspace, členů, rolí a přístupů,",
+          "organization": "správa organizace, členů, rolí a přístupů,",
           "contract": "uzavření a plnění smlouvy,",
           "billing": "fakturace, evidence plateb a účetní agenda,",
           "security": "zajištění technického provozu, bezpečnosti a prevence zneužití,",
@@ -1689,7 +1689,7 @@
         "contractItems": {
           "account": "registraci a správě účtu,",
           "service": "poskytování funkcí aplikace,",
-          "workspace": "správě workspace a členství,",
+          "organization": "správě organizace a členství,",
           "order": "vyřízení objednávky a aktivaci tarifu,",
           "communication": "komunikaci související s poskytováním služby."
         },
@@ -1720,8 +1720,8 @@
       "roles": {
         "title": "Když jsme správcem a když zpracovatelem",
         "article1": "V postavení správce jsme zejména tehdy, když zpracováváme osobní údaje našich uživatelů a zákazníků, návštěvníků webu, osob, které nás kontaktují, osob přihlášených k newsletteru nebo obchodní komunikaci a osob uvedených na fakturačních a objednávkových údajích.",
-        "article2": "V postavení zpracovatele můžeme být tehdy, když uživatelé do workspace ukládají osobní údaje třetích osob a my tyto údaje zpracováváme jejich jménem při poskytování Služby.",
-        "article3": "Typicky může jít o údaje uložené ve workspace v rámci:",
+        "article2": "V postavení zpracovatele můžeme být tehdy, když uživatelé do organizace ukládají osobní údaje třetích osob a my tyto údaje zpracováváme jejich jménem při poskytování Služby.",
+        "article3": "Typicky může jít o údaje uložené v organizaci v rámci:",
         "items": {
           "tasks": "úkolů,",
           "notes": "interních poznámek,",
@@ -1764,7 +1764,7 @@
         "article2": "Typicky údaje uchováváme:",
         "items": {
           "account": "po dobu trvání účtu a smluvního vztahu,",
-          "workspace": "po dobu trvání workspace a souvisejícího používání služby,",
+          "organization": "po dobu trvání organizace a souvisejícího používání služby,",
           "legalObligations": "po dobu nezbytnou k plnění zákonných povinností,",
           "claims": "po dobu potřebnou k ochraně právních nároků,",
           "consent": "po dobu trvání uděleného souhlasu, pokud je zpracování na souhlasu založeno."
@@ -1891,7 +1891,7 @@
         "title": "Úvodní ustanovení",
         "article1": "Tyto obchodní podmínky upravují práva a povinnosti mezi společností {companyLegalName}, IČO {companyId}, se sídlem {companyAddress}, zapsanou v obchodním rejstříku {companyRegister}, kontaktní e-mail {contactEmail} (dále jen „Poskytovatel“), a fyzickou nebo právnickou osobou, která využívá webovou aplikaci, související webové stránky, funkce, obsah a související služby dostupné zejména na adrese {domain} (dále jen „Služba“).",
         "article2": "Tyto obchodní podmínky jsou nedílnou součástí každé smlouvy uzavřené mezi Poskytovatelem a uživatelem, není-li výslovně písemně sjednáno jinak.",
-        "article3": "Služba je digitální službou poskytovanou na dálku, zejména jako online workspace nástroj pro organizaci práce, správu úkolů, interních poznámek, souborů, kontaktů, členů týmu a dalších souvisejících dat.",
+        "article3": "Služba je digitální službou poskytovanou na dálku, zejména jako online nástroj pro organizace pro organizaci práce, správu úkolů, interních poznámek, souborů, kontaktů, členů týmu a dalších souvisejících dat.",
         "article4": "Služba je určena jak podnikatelům, tak spotřebitelům, není-li u konkrétní funkce, tarifu nebo nabídky výslovně uvedeno jinak. Některé funkce mohou být určeny primárně pro pracovní, týmové nebo podnikatelské použití."
       },
       "definitions": {
@@ -1899,7 +1899,7 @@
         "user": "„Uživatel“ je každá osoba, která Službu používá.",
         "customer": "„Zákazník“ je uživatel, který uzavřel s Poskytovatelem smlouvu o využívání placené varianty Služby.",
         "account": "„Účet“ je uživatelský přístup vytvořený za účelem používání Služby.",
-        "workspace": "„Workspace“ je samostatné prostředí v rámci Služby určené pro organizaci dat, spolupráci, správu členů a používání funkcí Služby.",
+        "organization": "„Organizace“ je samostatné prostředí v rámci Služby určené pro organizaci dat, spolupráci, správu členů a používání funkcí Služby.",
         "userContent": "„Obsah uživatele“ jsou veškerá data, texty, poznámky, úkoly, soubory, kontakty, nastavení, importovaná data, osobní údaje a jiné informace vložené uživatelem do Služby nebo prostřednictvím Služby zpracovávané.",
         "plan": "„Tarif“ je konkrétní rozsah služeb, funkcí, limitů, ceny a podmínek využívání Služby.",
         "order": "„Objednávka“ je právní jednání uživatele směřující k aktivaci placené varianty Služby."
@@ -1909,7 +1909,7 @@
         "description": "Smluvní vztah mezi Poskytovatelem a uživatelem vzniká zejména:",
         "items": {
           "accountRegistration": "registrací účtu,",
-          "workspaceActivation": "aktivací workspace,",
+          "organizationActivation": "aktivací organizace,",
           "orderConfirmation": "potvrzením objednávky,",
           "paidPlanActivation": "aktivací placeného tarifu,",
           "useAfterReview": "zahájením používání Služby po seznámení s těmito podmínkami,",
@@ -1925,7 +1925,7 @@
         "article3": "Poskytovatel je oprávněn požadovat přiměřené potvrzení splnění podmínek podle tohoto článku, pokud vzniknou důvodné pochybnosti."
       },
       "account": {
-        "title": "Účet, workspace a bezpečnost",
+        "title": "Účet, organizace a bezpečnost",
         "article1": "Uživatel je povinen uvádět pravdivé, úplné a aktuální údaje a tyto údaje průběžně aktualizovat.",
         "article2": "Uživatel odpovídá za zabezpečení svých přístupových údajů, hesel, zařízení a dalších autentizačních prostředků.",
         "article3": "Uživatel nesmí zpřístupnit svůj účet neoprávněným osobám ani umožnit používání Služby způsobem odporujícím těmto podmínkám.",
@@ -1980,7 +1980,7 @@
         "article3": "Veškerá práva ke Službě, jejímu software, designu, databázím, dokumentaci, know-how, značce a souvisejícím prvkům náleží Poskytovateli nebo jeho licenčním partnerům."
       },
       "userContent": {
-        "title": "Obsah uživatele a osobní údaje ve workspace",
+        "title": "Obsah uživatele a osobní údaje v organizaci",
         "article1": "Uživatel nese odpovědnost za Obsah uživatele a za způsob, jakým Službu používá.",
         "article2": "Uživatel prohlašuje a zavazuje se, že:",
         "items": {
@@ -1990,7 +1990,7 @@
           "lawfulUse": "nebude prostřednictvím Služby zpracovávat data v rozporu s právními předpisy,",
           "noHarm": "nebude do Služby ukládat obsah, který by mohl způsobit Poskytovateli právní, bezpečnostní, reputační nebo provozní újmu."
         },
-        "article3": "V rozsahu, v jakém uživatel do Služby vkládá osobní údaje třetích osob v rámci svého workspace, je zpravidla uživatel nebo subjekt, jehož jménem jedná, správcem těchto osobních údajů a Poskytovatel jejich zpracovatelem.",
+        "article3": "V rozsahu, v jakém uživatel do Služby vkládá osobní údaje třetích osob v rámci svého organizace, je zpravidla uživatel nebo subjekt, jehož jménem jedná, správcem těchto osobních údajů a Poskytovatel jejich zpracovatelem.",
         "article4": "Podrobnosti o zpracování osobních údajů podle předchozího odstavce se řídí samostatnou smlouvou o zpracování osobních údajů (DPA), je-li používána."
       },
       "prohibitedUse": {
@@ -2020,8 +2020,8 @@
       },
       "termination": {
         "title": "Pozastavení a ukončení",
-        "article1": "Uživatel může používání Služby ukončit způsobem, který Služba umožňuje, zejména zrušením účtu, workspace, předplatného nebo neprodloužením tarifu.",
-        "article2": "Poskytovatel může účet, workspace nebo přístup ke Službě okamžitě omezit, pozastavit nebo ukončit, pokud:",
+        "article1": "Uživatel může používání Služby ukončit způsobem, který Služba umožňuje, zejména zrušením účtu, organizace, předplatného nebo neprodloužením tarifu.",
+        "article2": "Poskytovatel může účet, organizace nebo přístup ke Službě okamžitě omezit, pozastavit nebo ukončit, pokud:",
         "items": {
           "termsBreach": "uživatel porušuje tyto podmínky,",
           "nonPayment": "je v prodlení s platbou,",
@@ -2034,7 +2034,7 @@
       },
       "postTerminationData": {
         "title": "Data po ukončení",
-        "article1": "Po ukončení smluvního vztahu může být uživateli omezen nebo ukončen přístup k účtu, workspace a Obsahu uživatele.",
+        "article1": "Po ukončení smluvního vztahu může být uživateli omezen nebo ukončen přístup k účtu, organizace a Obsahu uživatele.",
         "article2": "Pokud je export dat součástí konkrétní funkce, tarifu nebo nabídky, může být uživateli umožněn export dat v rozsahu a formátu, který Poskytovatel podporuje.",
         "article3": "Poskytovatel je oprávněn po ukončení smluvního vztahu Obsah uživatele, účet a související data smazat, anonymizovat nebo jinak odstranit.",
         "article4": "Poskytovatel je oprávněn ponechat si data po přiměřenou dobu po ukončení smluvního vztahu, zejména z důvodu:",
@@ -2112,13 +2112,13 @@
       "supportLabel": "Podpora",
       "websiteLabel": "Web"
     },
-    "workspaceInvite": {
-      "previewText": "Pozvánka do workspace {workspaceName}",
-      "subject": "Pozvánka do workspace {workspaceName}",
-      "title": "Pozvánka do workspace",
-      "description": "Byli jste pozváni do workspace {workspaceName}.",
+    "organizationInvite": {
+      "previewText": "Pozvánka do organizace {organizationName}",
+      "subject": "Pozvánka do organizace {organizationName}",
+      "title": "Pozvánka do organizace",
+      "description": "Byli jste pozváni do organizace {organizationName}.",
       "invitedBy": "Pozval vás {inviterName}.",
-      "invitedWithoutInviter": "Obdrželi jste pozvánku do workspace.",
+      "invitedWithoutInviter": "Obdrželi jste pozvánku do organizace.",
       "ctaLabel": "Přijmout pozvánku",
       "urlFallbackLabel": "Pokud tlačítko nefunguje, otevřete tuto adresu:",
       "expiryText": "Pozvánka vyprší za {days} dní."
@@ -2179,7 +2179,7 @@
           "functional": {
             "label": "Funkční",
             "ariaLabel": "Funkční cookies",
-            "description": "Pomáhají si zapamatovat volitelné personalizační volby v aplikaci, například naposledy aktivní workspace."
+            "description": "Pomáhají si zapamatovat volitelné personalizační volby v aplikaci, například naposledy aktivní organizace."
           },
           "analytics": {
             "label": "Analytické",

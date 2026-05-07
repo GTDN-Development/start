@@ -50,7 +50,7 @@ pnpm local:up
 pnpm local:down
 ```
 
-`pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm test`, and `pnpm check-types` are workspace-wide
+`pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm test`, and `pnpm check-types` are repository-wide
 Turbo commands from the repository root. Repository-root `pnpm format` and `pnpm format:check`
 run the repo-wide Prettier baseline. Local `pnpm format` and `pnpm format:check` in `apps/web`
 are convenience wrappers that run that same baseline only against `apps/web`.
@@ -94,7 +94,7 @@ PocketBase typegen requires:
 
 Local testing uses `.env.test`.
 
-- `pnpm test` runs the Vitest suite once from `apps/web`; from the repository root it runs the workspace-wide Turbo test task
+- `pnpm test` runs the Vitest suite once from `apps/web`; from the repository root it runs the repository-wide Turbo test task
 - `pnpm test:watch` runs Vitest in watch mode
 - `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app with test env, runs Playwright, and tears the stack down again
 - `pnpm test:e2e:ui` is the same local stack with Playwright UI enabled
@@ -110,7 +110,7 @@ Local email defaults:
 Local stack contract:
 
 - `pnpm local:up` starts the persistent local PocketBase + Mailpit stack from the repository root and reapplies the local mail baseline
-- `pnpm dev` starts only the Next.js app from `apps/web`; from the repository root it runs the workspace-wide Turbo dev task
+- `pnpm dev` starts only the Next.js app from `apps/web`; from the repository root it runs the repository-wide Turbo dev task
 - `pnpm dev:web` starts only the Next.js app from the repository root
 - `pnpm dev:full` is a repository-root shortcut for `pnpm local:up && pnpm dev`
 - `pnpm test:e2e` starts a fresh isolated stack and removes its Docker volume after the run
@@ -217,7 +217,7 @@ redirect({ href: "/sign-in", locale: locale as Locale });
 ### Cookie Boundary
 
 - Pages, layouts, and other render-time Server Components are cookie-read-only
-- Auth and workspace services may return serialized `setCookie[]`, but render code must never commit them
+- Auth and organization services may return serialized `setCookie[]`, but render code must never commit them
 - Server Actions commit auth cookies through `src/server/auth/auth-cookies.ts`
-- Route Handlers commit auth and workspace cookies on `NextResponse`
+- Route Handlers commit auth and organization cookies on `NextResponse`
 - `src/proxy.ts` stays optimistic only; real auth and cleanup decisions stay near the data

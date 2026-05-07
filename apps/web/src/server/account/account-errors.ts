@@ -118,7 +118,7 @@ export function mapDeleteAccountErrorCode(error: unknown): AuthErrorCode {
 }
 
 function isLastOwnerGuardError(data: unknown, message: unknown): boolean {
-  if (message === "Workspace must have at least one owner.") {
+  if (message === "Organization must have at least one owner.") {
     return true;
   }
 

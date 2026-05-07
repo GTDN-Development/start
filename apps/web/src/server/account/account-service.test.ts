@@ -40,7 +40,7 @@ describe("account-service", function describeAccountService() {
     consoleErrorSpy.mockRestore();
   });
 
-  it("blocks account deletion for the final workspace owner", async function testDeleteBlockedLastOwner() {
+  it("blocks account deletion for the final organization owner", async function testDeleteBlockedLastOwner() {
     const currentUser = createCurrentUserContext();
 
     currentUser.usersCollection.authWithPassword.mockResolvedValue({
@@ -176,7 +176,7 @@ function createLastOwnerGuardError() {
     url: "https://example.com/api/collections/users/records/user-1",
     status: 400,
     response: {
-      message: "Workspace must have at least one owner.",
+      message: "Organization must have at least one owner.",
     },
   });
 }

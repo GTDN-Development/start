@@ -9,68 +9,73 @@ import {
 } from "@/components/ui/sidebar";
 import {
   personalApplicationMenu,
-  workspaceApplicationMenu,
+  organizationApplicationMenu,
   type ApplicationMenuLink,
 } from "@/config/menu";
 import {
   APP_HOME_PATH,
-  getWorkspaceOverviewHref,
-  getWorkspaceOverviewPath,
-  getWorkspaceRootPath,
-  getWorkspaceSettingsHref,
-  getWorkspaceSettingsPath,
+  getOrganizationOverviewHref,
+  getOrganizationOverviewPath,
+  getOrganizationRootPath,
+  getOrganizationSettingsHref,
+  getOrganizationSettingsPath,
 } from "@/config/routes";
-import { useOptionalWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
+import { useOptionalOrganizationNavigation } from "@/features/organizations/organization-navigation-context";
 import { AppHref, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import { getWorkspaceSlugFromPathname, resolveApplicationScope } from "./application-scope";
-import { resolveSelectedWorkspaceSlug } from "./workspace-selection";
+import { getOrganizationSlugFromPathname, resolveApplicationScope } from "./application-scope";
+import { resolveSelectedOrganizationSlug } from "./organization-selection";
 
 function isMenuItemActive(pathname: string, item: ApplicationMenuLink) {
-  const pathnameWorkspaceSlug = getWorkspaceSlugFromPathname(pathname);
+  const pathnameOrganizationSlug = getOrganizationSlugFromPathname(pathname);
 
   switch (item.labelKey) {
     case "home":
       return pathname === APP_HOME_PATH;
     case "overview": {
-      if (!pathnameWorkspaceSlug) {
+      if (!pathnameOrganizationSlug) {
         return false;
       }
 
-      const workspaceBasePath = getWorkspaceRootPath(pathnameWorkspaceSlug);
+      const organizationBasePath = getOrganizationRootPath(pathnameOrganizationSlug);
 
       return (
-        pathname === workspaceBasePath ||
-        pathname === getWorkspaceOverviewPath(pathnameWorkspaceSlug)
+        pathname === organizationBasePath ||
+        pathname === getOrganizationOverviewPath(pathnameOrganizationSlug)
       );
     }
     case "settings": {
-      if (!pathnameWorkspaceSlug) {
+      if (!pathnameOrganizationSlug) {
         return false;
       }
 
-      const workspaceSettingsPath = getWorkspaceSettingsPath(pathnameWorkspaceSlug);
+      const organizationSettingsPath = getOrganizationSettingsPath(pathnameOrganizationSlug);
 
-      return pathname === workspaceSettingsPath || pathname.startsWith(`${workspaceSettingsPath}/`);
+      return (
+        pathname === organizationSettingsPath || pathname.startsWith(`${organizationSettingsPath}/`)
+      );
     }
   }
 }
 
-function resolveMenuHref(item: ApplicationMenuLink, selectedWorkspaceSlug: string | null): AppHref {
+function resolveMenuHref(
+  item: ApplicationMenuLink,
+  selectedOrganizationSlug: string | null
+): AppHref {
   if (item.labelKey !== "overview" && item.labelKey !== "settings") {
     return item.href;
   }
 
-  if (!selectedWorkspaceSlug) {
+  if (!selectedOrganizationSlug) {
     return APP_HOME_PATH;
   }
 
   if (item.labelKey === "overview") {
-    return getWorkspaceOverviewHref(selectedWorkspaceSlug);
+    return getOrganizationOverviewHref(selectedOrganizationSlug);
   }
 
-  return getWorkspaceSettingsHref(selectedWorkspaceSlug);
+  return getOrganizationSettingsHref(selectedOrganizationSlug);
 }
 
 export function ApplicationMenuTree({ className, ...props }: React.ComponentProps<"nav">) {
@@ -78,19 +83,19 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
 
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
-  const workspaceNavigation = useOptionalWorkspaceNavigation();
-  const activeWorkspaceSlug = workspaceNavigation?.activeWorkspaceSlug ?? null;
-  const workspaces = workspaceNavigation?.workspaces ?? [];
+  const organizationNavigation = useOptionalOrganizationNavigation();
+  const activeOrganizationSlug = organizationNavigation?.activeOrganizationSlug ?? null;
+  const organizations = organizationNavigation?.organizations ?? [];
   const applicationScope = resolveApplicationScope(pathname);
 
-  const selectedWorkspaceSlug = resolveSelectedWorkspaceSlug(
+  const selectedOrganizationSlug = resolveSelectedOrganizationSlug(
     pathname,
-    activeWorkspaceSlug,
-    workspaces
+    activeOrganizationSlug,
+    organizations
   );
   const visibleApplicationMenu =
-    applicationScope === "workspace" && selectedWorkspaceSlug
-      ? workspaceApplicationMenu
+    applicationScope === "organization" && selectedOrganizationSlug
+      ? organizationApplicationMenu
       : personalApplicationMenu;
 
   function handleItemClick() {
@@ -104,7 +109,7 @@ export function ApplicationMenuTree({ className, ...props }: React.ComponentProp
       <SidebarMenu className="gap-1">
         {visibleApplicationMenu.map((item) => {
           const isActive = isMenuItemActive(pathname, item);
-          const itemHref = resolveMenuHref(item, selectedWorkspaceSlug);
+          const itemHref = resolveMenuHref(item, selectedOrganizationSlug);
           const itemLabel = tNav(item.labelKey);
           const ItemIcon = item.icon;
 

@@ -6,7 +6,7 @@ import { requireCurrentUser } from "@/server/auth/auth-session-service";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 import { buildApplicationShellModel } from "./application-composition";
 import { ApplicationRoot } from "./application-root";
-import { ApplicationWorkspaceRoot } from "./application-workspace-root";
+import { ApplicationOrganizationRoot } from "./application-organization-root";
 
 type ApplicationShellBoundaryProps = {
   children: React.ReactNode;
@@ -107,17 +107,19 @@ export async function ApplicationShellBoundary({
   );
 
   return (
-    <ApplicationWorkspaceRoot
-      workspaces={
-        shellModelResponse.ok ? (shellModelResponse.data.workspaceNavigation?.workspaces ?? []) : []
-      }
-      activeWorkspaceSlug={
+    <ApplicationOrganizationRoot
+      organizations={
         shellModelResponse.ok
-          ? (shellModelResponse.data.workspaceNavigation?.activeWorkspaceSlug ?? null)
+          ? (shellModelResponse.data.organizationNavigation?.organizations ?? [])
+          : []
+      }
+      activeOrganizationSlug={
+        shellModelResponse.ok
+          ? (shellModelResponse.data.organizationNavigation?.activeOrganizationSlug ?? null)
           : null
       }
     >
       {root}
-    </ApplicationWorkspaceRoot>
+    </ApplicationOrganizationRoot>
   );
 }

@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { workspaceConfig } from "@/config/workspace";
+import { organizationConfig } from "@/config/organization";
 import type { AuthCookieMutation } from "@/server/auth/auth-cookies";
 
 vi.mock("@/i18n/navigation", function mockNavigation() {
@@ -16,7 +16,7 @@ vi.mock("@/i18n/navigation", function mockNavigation() {
 
       return href.pathname
         .replace("[token]", href.params?.token ?? "")
-        .replace("[workspaceSlug]", href.params?.workspaceSlug ?? "");
+        .replace("[organizationSlug]", href.params?.organizationSlug ?? "");
     }),
   };
 });
@@ -28,8 +28,8 @@ vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() 
 });
 
 vi.mock(
-  "@/server/workspaces/workspace-invite-recipient-service",
-  function mockWorkspaceInviteRecipientService() {
+  "@/server/organizations/organization-invite-recipient-service",
+  function mockOrganizationInviteRecipientService() {
     return {
       acceptInviteTokenForUser: vi.fn(),
       getInviteTokenForUser: vi.fn(),
@@ -41,7 +41,7 @@ import { getResponseAuthSession } from "@/server/auth/auth-session-service";
 import {
   acceptInviteTokenForUser,
   getInviteTokenForUser,
-} from "@/server/workspaces/workspace-invite-recipient-service";
+} from "@/server/organizations/organization-invite-recipient-service";
 import { GET, POST } from "./route";
 
 describe("invite accept route", function describeInviteAcceptRoute() {
@@ -69,7 +69,7 @@ describe("invite accept route", function describeInviteAcceptRoute() {
 
   it.each([
     {
-      name: "redirects already-member GET requests to the workspace and sets active workspace",
+      name: "redirects already-member GET requests to the organization and sets active organization",
       method: "GET" as const,
       authSession: createAuthenticatedSessionResponse(),
       inviteResponse: {
@@ -77,14 +77,14 @@ describe("invite accept route", function describeInviteAcceptRoute() {
         data: {
           result: {
             state: "already_member",
-            workspace: createWorkspaceSummary(),
+            organization: createOrganizationSummary(),
           },
         },
       } as Awaited<ReturnType<typeof getInviteTokenForUser>>,
-      expectedCookie: `${workspaceConfig.cookies.activeWorkspace.name}=team-space`,
+      expectedCookie: `${organizationConfig.cookies.activeOrganization.name}=team-space`,
     },
     {
-      name: "redirects accepted POST requests to the workspace and sets active workspace",
+      name: "redirects accepted POST requests to the organization and sets active organization",
       method: "POST" as const,
       authSession: createAuthenticatedSessionResponse([
         createCookieMutation("pb_auth", "token", { path: "/", httpOnly: true }),
@@ -94,7 +94,7 @@ describe("invite accept route", function describeInviteAcceptRoute() {
         data: {
           result: {
             state: "accepted",
-            workspace: createWorkspaceSummary(),
+            organization: createOrganizationSummary(),
           },
         },
       } as Awaited<ReturnType<typeof acceptInviteTokenForUser>>,
@@ -113,9 +113,11 @@ describe("invite accept route", function describeInviteAcceptRoute() {
     const setCookieHeader = getSetCookieHeader(response);
 
     expect(response.status).toBe(303);
-    expect(response.headers.get("location")).toBe("https://example.com/w/team-space/overview");
+    expect(response.headers.get("location")).toBe("https://example.com/o/team-space/overview");
     expect(setCookieHeader).toContain(input.expectedCookie);
-    expect(setCookieHeader).toContain(`${workspaceConfig.cookies.activeWorkspace.name}=team-space`);
+    expect(setCookieHeader).toContain(
+      `${organizationConfig.cookies.activeOrganization.name}=team-space`
+    );
   });
 });
 
@@ -148,9 +150,9 @@ function createCookieMutation(
   };
 }
 
-function createWorkspaceSummary() {
+function createOrganizationSummary() {
   return {
-    id: "workspace-1",
+    id: "organization-1",
     name: "Team Space",
     slug: "team-space",
     avatarUrl: null,

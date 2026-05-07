@@ -13,55 +13,55 @@ export const ACCOUNT_PATH = "/account" as const;
 export const INVITE_PATH = "/invite/[token]" as const;
 export const INVITE_ACCEPT_PATH = "/invite/[token]/accept" as const;
 export const INVITE_START_PATH = "/invite/[token]/start" as const;
-export const WORKSPACE_PATH_PREFIX = "/w" as const;
-export const WORKSPACE_OVERVIEW_PATH = "/w/[workspaceSlug]/overview" as const;
-export const WORKSPACE_SETTINGS_PATH = "/w/[workspaceSlug]/settings" as const;
-export const WORKSPACE_SETTINGS_MEMBERS_PATH = "/w/[workspaceSlug]/settings/members" as const;
+export const ORGANIZATION_PATH_PREFIX = "/o" as const;
+export const ORGANIZATION_OVERVIEW_PATH = "/o/[organizationSlug]/overview" as const;
+export const ORGANIZATION_SETTINGS_PATH = "/o/[organizationSlug]/settings" as const;
+export const ORGANIZATION_SETTINGS_MEMBERS_PATH = "/o/[organizationSlug]/settings/members" as const;
 
 export const DEFAULT_AUTH_REDIRECTS = {
   unauthenticatedTo: SIGN_IN_PATH,
   authenticatedTo: APP_HOME_PATH,
 } as const;
 
-export function getWorkspaceRootPath(workspaceSlug: string): string {
-  return `${WORKSPACE_PATH_PREFIX}/${workspaceSlug}`;
+export function getOrganizationRootPath(organizationSlug: string): string {
+  return `${ORGANIZATION_PATH_PREFIX}/${organizationSlug}`;
 }
 
-export function getWorkspaceOverviewPath(workspaceSlug: string): string {
-  return `${getWorkspaceRootPath(workspaceSlug)}/overview`;
+export function getOrganizationOverviewPath(organizationSlug: string): string {
+  return `${getOrganizationRootPath(organizationSlug)}/overview`;
 }
 
-export function getWorkspaceSettingsPath(workspaceSlug: string): string {
-  return `${getWorkspaceRootPath(workspaceSlug)}/settings`;
+export function getOrganizationSettingsPath(organizationSlug: string): string {
+  return `${getOrganizationRootPath(organizationSlug)}/settings`;
 }
 
-export function getWorkspaceSettingsMembersPath(workspaceSlug: string): string {
-  return `${getWorkspaceSettingsPath(workspaceSlug)}/members`;
+export function getOrganizationSettingsMembersPath(organizationSlug: string): string {
+  return `${getOrganizationSettingsPath(organizationSlug)}/members`;
 }
 
-export function getWorkspaceOverviewHref(workspaceSlug: string): AppHref {
+export function getOrganizationOverviewHref(organizationSlug: string): AppHref {
   return {
-    pathname: WORKSPACE_OVERVIEW_PATH,
+    pathname: ORGANIZATION_OVERVIEW_PATH,
     params: {
-      workspaceSlug,
+      organizationSlug,
     },
   };
 }
 
-export function getWorkspaceSettingsHref(workspaceSlug: string): AppHref {
+export function getOrganizationSettingsHref(organizationSlug: string): AppHref {
   return {
-    pathname: WORKSPACE_SETTINGS_PATH,
+    pathname: ORGANIZATION_SETTINGS_PATH,
     params: {
-      workspaceSlug,
+      organizationSlug,
     },
   };
 }
 
-export function getWorkspaceSettingsMembersHref(workspaceSlug: string): AppHref {
+export function getOrganizationSettingsMembersHref(organizationSlug: string): AppHref {
   return {
-    pathname: WORKSPACE_SETTINGS_MEMBERS_PATH,
+    pathname: ORGANIZATION_SETTINGS_MEMBERS_PATH,
     params: {
-      workspaceSlug,
+      organizationSlug,
     },
   };
 }

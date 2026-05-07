@@ -91,7 +91,7 @@ describe("mailpit helper", function describeMailpitHelper() {
         new Response(
           JSON.stringify({
             ID: "message-1",
-            Subject: "Workspace invite",
+            Subject: "Organization invite",
           }),
           {
             status: 200,
@@ -107,7 +107,7 @@ describe("mailpit helper", function describeMailpitHelper() {
 
     await expect(getMailpitMessage("message-1")).resolves.toMatchObject({
       ID: "message-1",
-      Subject: "Workspace invite",
+      Subject: "Organization invite",
     });
     await expect(getMailpitMessageHtml("message-1")).resolves.toBe('<a href="/accept">Accept</a>');
 

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getInviteHref, getInviteStartHref, getWorkspaceOverviewHref } from "@/config/routes";
+import { getInviteHref, getInviteStartHref, getOrganizationOverviewHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { appendAuthCookiesToResponse } from "@/server/auth/auth-cookies";
@@ -8,11 +8,11 @@ import {
   redirectPathnameWithAuthCookies,
 } from "@/server/auth/auth-route-response";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
-import { setActiveWorkspaceSlugResponseCookie } from "@/server/workspaces/workspace-cookie";
+import { setActiveOrganizationSlugResponseCookie } from "@/server/organizations/organization-cookie";
 import {
   acceptInviteTokenForUser,
   getInviteTokenForUser,
-} from "@/server/workspaces/workspace-invite-recipient-service";
+} from "@/server/organizations/organization-invite-recipient-service";
 
 type InviteAcceptRouteContext = {
   params: Promise<{
@@ -54,12 +54,12 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
   const response = createRedirectResponse(
     request,
     getPathname({
-      href: getWorkspaceOverviewHref(inspectResponse.data.result.workspace.slug),
+      href: getOrganizationOverviewHref(inspectResponse.data.result.organization.slug),
       locale: appLocale,
     })
   );
 
-  setActiveWorkspaceSlugResponseCookie(response, inspectResponse.data.result.workspace.slug);
+  setActiveOrganizationSlugResponseCookie(response, inspectResponse.data.result.organization.slug);
 
   return appendAuthCookiesToResponse(response, sessionResponse.cookieMutations);
 }
@@ -102,12 +102,12 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
     const response = createRedirectResponse(
       request,
       getPathname({
-        href: getWorkspaceOverviewHref(acceptResponse.data.result.workspace.slug),
+        href: getOrganizationOverviewHref(acceptResponse.data.result.organization.slug),
         locale: appLocale,
       })
     );
 
-    setActiveWorkspaceSlugResponseCookie(response, acceptResponse.data.result.workspace.slug);
+    setActiveOrganizationSlugResponseCookie(response, acceptResponse.data.result.organization.slug);
 
     return appendAuthCookiesToResponse(response, sessionResponse.cookieMutations);
   }

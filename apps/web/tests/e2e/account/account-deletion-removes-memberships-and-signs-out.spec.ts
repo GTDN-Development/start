@@ -9,10 +9,10 @@ import {
 import {
   createPocketBaseAdminClient,
   createVerifiedUser,
-  createWorkspace,
-  createWorkspaceMembership,
+  createOrganization,
+  createOrganizationMembership,
   deleteSignedUpUsersByEmail,
-  deleteWorkspaceGraph,
+  deleteOrganizationGraph,
 } from "../helpers/pocketbase-test-admin";
 import { createE2ETestRun, createIsolatedTestEmail } from "../helpers/test-run";
 
@@ -26,8 +26,8 @@ test("account deletion removes memberships, clears the session, and returns to s
   const userEmail = createIsolatedTestEmail(run.id, "account-delete-user");
   const otherOwnerEmail = createIsolatedTestEmail(run.id, "account-delete-other-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const ownedWorkspaceSlug = `ws-account-delete-owned-${suffix}`;
-  const sharedWorkspaceSlug = `ws-account-delete-shared-${suffix}`;
+  const ownedOrganizationSlug = `ws-account-delete-owned-${suffix}`;
+  const sharedOrganizationSlug = `ws-account-delete-shared-${suffix}`;
 
   let pb: PocketBase | null = null;
   let userId = "";
@@ -46,30 +46,30 @@ test("account deletion removes memberships, clears the session, and returns to s
       password,
       name: `Other Owner ${suffix}`,
     });
-    const { workspace: ownedWorkspace } = await createWorkspace({
+    const { organization: ownedOrganization } = await createOrganization({
       pb,
       userId: otherOwner.id,
-      name: `Owned Workspace ${suffix}`,
-      slug: ownedWorkspaceSlug,
+      name: `Owned Organization ${suffix}`,
+      slug: ownedOrganizationSlug,
     });
-    const { workspace: sharedWorkspace } = await createWorkspace({
+    const { organization: sharedOrganization } = await createOrganization({
       pb,
       userId: otherOwner.id,
-      name: `Shared Workspace ${suffix}`,
-      slug: sharedWorkspaceSlug,
+      name: `Shared Organization ${suffix}`,
+      slug: sharedOrganizationSlug,
     });
 
     userId = user.id;
 
-    await createWorkspaceMembership({
+    await createOrganizationMembership({
       pb,
-      workspaceId: ownedWorkspace.id,
+      organizationId: ownedOrganization.id,
       userId: user.id,
       role: "owner",
     });
-    await createWorkspaceMembership({
+    await createOrganizationMembership({
       pb,
-      workspaceId: sharedWorkspace.id,
+      organizationId: sharedOrganization.id,
       userId: user.id,
       role: "member",
     });
@@ -92,7 +92,7 @@ test("account deletion removes memberships, clears the session, and returns to s
         userId,
       }),
     });
-    const memberships = await pb.collection("workspace_members").getFullList({
+    const memberships = await pb.collection("organization_members").getFullList({
       filter: pb.filter("user = {:userId}", {
         userId,
       }),
@@ -101,13 +101,13 @@ test("account deletion removes memberships, clears the session, and returns to s
     expect(memberships).toHaveLength(0);
   } finally {
     if (pb) {
-      await deleteWorkspaceGraph({
+      await deleteOrganizationGraph({
         pb,
-        workspaceSlug: ownedWorkspaceSlug,
+        organizationSlug: ownedOrganizationSlug,
       });
-      await deleteWorkspaceGraph({
+      await deleteOrganizationGraph({
         pb,
-        workspaceSlug: sharedWorkspaceSlug,
+        organizationSlug: sharedOrganizationSlug,
       });
       await deleteSignedUpUsersByEmail(pb, userEmail);
       await deleteSignedUpUsersByEmail(pb, otherOwnerEmail);

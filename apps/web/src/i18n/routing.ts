@@ -49,17 +49,17 @@ export const routing = defineRouting({
     "/app": {
       cs: "/aplikace",
     },
-    "/w/[workspaceSlug]": {
-      cs: "/w/[workspaceSlug]",
+    "/o/[organizationSlug]": {
+      cs: "/o/[organizationSlug]",
     },
-    "/w/[workspaceSlug]/overview": {
-      cs: "/w/[workspaceSlug]/prehled",
+    "/o/[organizationSlug]/overview": {
+      cs: "/o/[organizationSlug]/prehled",
     },
-    "/w/[workspaceSlug]/settings": {
-      cs: "/w/[workspaceSlug]/nastaveni",
+    "/o/[organizationSlug]/settings": {
+      cs: "/o/[organizationSlug]/nastaveni",
     },
-    "/w/[workspaceSlug]/settings/members": {
-      cs: "/w/[workspaceSlug]/nastaveni/clenove",
+    "/o/[organizationSlug]/settings/members": {
+      cs: "/o/[organizationSlug]/nastaveni/clenove",
     },
     "/forgot-password": {
       cs: "/zapomenute-heslo",

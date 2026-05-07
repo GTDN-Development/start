@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { SIGN_IN_PATH, getInviteHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { setPendingInviteTokenResponseCookie } from "@/server/workspaces/workspace-cookie";
-import { validateInviteToken } from "@/server/workspaces/workspace-invite-recipient-service";
+import { setPendingInviteTokenResponseCookie } from "@/server/organizations/organization-cookie";
+import { validateInviteToken } from "@/server/organizations/organization-invite-recipient-service";
 
 type InviteStartRouteContext = {
   params: Promise<{

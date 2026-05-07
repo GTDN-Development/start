@@ -1,6 +1,6 @@
 # Start
 
-Start is a workspace repository with the web application and the PocketBase backend in one place.
+Start is a repository with the web application and the PocketBase backend in one place.
 
 ## Repository Layout
 
@@ -21,7 +21,7 @@ Start is a workspace repository with the web application and the PocketBase back
 
 Run these from the repository root.
 
-Workspace-wide Turbo commands:
+Repository-wide Turbo commands:
 
 ```bash
 pnpm install
@@ -76,10 +76,10 @@ shortcut for `pnpm local:up && pnpm dev`.
 ## Dev/Test Mail Flow
 
 - `pnpm local:up` starts the persistent local PocketBase + Mailpit Docker stack and reapplies the local mail baseline
-- `pnpm dev` runs the workspace-wide Turbo dev task
+- `pnpm dev` runs the repository-wide Turbo dev task
 - `pnpm dev:web` starts only the Next.js app
 - `pnpm dev:full` is a convenience shortcut that runs `pnpm local:up` and then `pnpm dev`
-- `pnpm test` runs the workspace-wide Turbo test task and includes PocketBase script tests
+- `pnpm test` runs the repository-wide Turbo test task and includes PocketBase script tests
 - `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app, and runs Playwright against it
 - `pnpm local:down` stops the persistent local dev stack
 - PocketBase auth emails still use SMTP and are delivered to the local Mailpit container

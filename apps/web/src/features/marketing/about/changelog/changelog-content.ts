@@ -147,22 +147,22 @@ const changelogEntries: ChangelogEntryRecord[] = [
     },
   },
   {
-    id: "1-7-cleaner-workspace-settings",
+    id: "1-7-cleaner-organization-settings",
     version: "1.7",
     publishedAt: "2026-03-06",
     image: {
       altByLocale: {
-        cs: "Ukázka nové podoby nastavení workspace",
-        en: "Preview of the updated workspace settings layout",
+        cs: "Ukázka nové podoby nastavení organizace",
+        en: "Preview of the updated organization settings layout",
       },
     },
     copyByLocale: {
       cs: {
         date: "6. března 2026",
         versionLabel: "Verze 1.7",
-        title: "Detail workspace dostal čistší nastavení",
+        title: "Detail organizace dostal čistší nastavení",
         description:
-          "Sekce nastavení jsme rozřadili do logičtějších bloků, aby správci rychleji našli práci s členy, identitou workspace i základní konfigurací.",
+          "Sekce nastavení jsme rozřadili do logičtějších bloků, aby správci rychleji našli práci s členy, identitou organizace i základní konfigurací.",
         highlightsTitle: "Co je nové",
         highlights: [
           "Důležité akce jsou oddělené od běžných úprav, takže se v nastavení lépe orientuje.",
@@ -173,9 +173,9 @@ const changelogEntries: ChangelogEntryRecord[] = [
       en: {
         date: "March 6, 2026",
         versionLabel: "Version 1.7",
-        title: "Workspace detail now has cleaner settings",
+        title: "Organization detail now has cleaner settings",
         description:
-          "We regrouped settings into more logical sections so admins can find members, workspace identity, and core configuration faster.",
+          "We regrouped settings into more logical sections so admins can find members, organization identity, and core configuration faster.",
         highlightsTitle: "What changed",
         highlights: [
           "Critical actions are separated from routine edits, making settings easier to navigate.",

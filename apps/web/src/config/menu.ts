@@ -3,8 +3,8 @@ import {
   ACCOUNT_PATH,
   APP_HOME_PATH,
   SIGN_IN_PATH,
-  WORKSPACE_OVERVIEW_PATH,
-  WORKSPACE_SETTINGS_PATH,
+  ORGANIZATION_OVERVIEW_PATH,
+  ORGANIZATION_SETTINGS_PATH,
 } from "@/config/routes";
 import type { AppIcon } from "@/types/icons";
 import { LayoutDashboardIcon, LifeBuoyIcon, SettingsIcon, UserIcon } from "lucide-react";
@@ -12,8 +12,8 @@ import { LayoutDashboardIcon, LifeBuoyIcon, SettingsIcon, UserIcon } from "lucid
 type MenuHref = AppPathname;
 type ApplicationMenuHref =
   | MenuHref
-  | typeof WORKSPACE_OVERVIEW_PATH
-  | typeof WORKSPACE_SETTINGS_PATH;
+  | typeof ORGANIZATION_OVERVIEW_PATH
+  | typeof ORGANIZATION_SETTINGS_PATH;
 
 export type MenuLinkLabelKey =
   | "home"
@@ -28,7 +28,7 @@ export type MenuLinkLabelKey =
   | "roadmap"
   | "signIn"
   | "signUp"
-  | "workspace"
+  | "organization"
   | "overview"
   | "settings"
   | "account"
@@ -88,11 +88,11 @@ export const personalApplicationMenu = [
   matchNested?: boolean;
 }>;
 
-export const workspaceApplicationMenu = [
-  { labelKey: "overview", href: WORKSPACE_OVERVIEW_PATH, icon: LayoutDashboardIcon },
+export const organizationApplicationMenu = [
+  { labelKey: "overview", href: ORGANIZATION_OVERVIEW_PATH, icon: LayoutDashboardIcon },
   {
     labelKey: "settings",
-    href: WORKSPACE_SETTINGS_PATH,
+    href: ORGANIZATION_SETTINGS_PATH,
     icon: SettingsIcon,
     matchNested: true,
   },
@@ -114,8 +114,8 @@ export const applicationSidebarFooterMenu = [
 }>;
 
 export type PersonalApplicationMenuLink = (typeof personalApplicationMenu)[number];
-export type WorkspaceApplicationMenuLink = (typeof workspaceApplicationMenu)[number];
-export type ApplicationMenuLink = PersonalApplicationMenuLink | WorkspaceApplicationMenuLink;
+export type OrganizationApplicationMenuLink = (typeof organizationApplicationMenu)[number];
+export type ApplicationMenuLink = PersonalApplicationMenuLink | OrganizationApplicationMenuLink;
 
 export const authMenu: MenuLink[] = [
   { labelKey: "signIn", href: SIGN_IN_PATH },

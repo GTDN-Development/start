@@ -1,7 +1,7 @@
 import { authConfig } from "@/config/auth";
 import { COOKIE_CONSENT_SUBJECT_COOKIE_NAME, COOKIE_NAME } from "@/config/cookie-consent";
 import { preferencesConfig } from "@/config/preferences";
-import { workspaceConfig } from "@/config/workspace";
+import { organizationConfig } from "@/config/organization";
 import { LOCALE_COOKIE_NAME } from "@/i18n/routing";
 import type { Cookie } from "@/types/cookies";
 
@@ -225,7 +225,7 @@ export const cookieCatalog: Cookie[] = [
     requiresConsent: false,
   },
   {
-    name: workspaceConfig.cookies.pendingInvite.name,
+    name: organizationConfig.cookies.pendingInvite.name,
     provider: legal.domain,
     purposeKey: "pendingInvite",
     duration: { kind: "relative", value: 7, unit: "day" },
@@ -245,9 +245,9 @@ export const cookieCatalog: Cookie[] = [
     requiresConsent: false,
   },
   {
-    name: workspaceConfig.cookies.activeWorkspace.name,
+    name: organizationConfig.cookies.activeOrganization.name,
     provider: legal.domain,
-    purposeKey: "activeWorkspace",
+    purposeKey: "activeOrganization",
     duration: { kind: "relative", value: 1, unit: "year" },
     category: "functional",
     storageType: "cookie",

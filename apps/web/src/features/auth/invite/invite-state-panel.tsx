@@ -9,10 +9,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import {
-  WorkspaceAvatar,
-  WorkspaceAvatarFallback,
-  WorkspaceAvatarImage,
-} from "@/features/workspaces/workspace-avatar";
+  OrganizationAvatar,
+  OrganizationAvatarFallback,
+  OrganizationAvatarImage,
+} from "@/features/organizations/organization-avatar";
 
 export type InviteStatePanelState =
   | "auth_required"
@@ -24,7 +24,7 @@ export type InviteStatePanelState =
   | "email_mismatch"
   | "error";
 
-type InviteStatePanelWorkspace = {
+type InviteStatePanelOrganization = {
   id: string;
   name: string;
   avatarUrl: string | null;
@@ -32,7 +32,7 @@ type InviteStatePanelWorkspace = {
 
 type InviteStatePanelProps = {
   state: InviteStatePanelState;
-  workspace?: InviteStatePanelWorkspace;
+  organization?: InviteStatePanelOrganization;
   title: ReactNode;
   description: ReactNode;
   action?: ReactNode;
@@ -40,29 +40,31 @@ type InviteStatePanelProps = {
 
 export function InviteStatePanel({
   state,
-  workspace,
+  organization,
   title,
   description,
   action,
 }: InviteStatePanelProps) {
-  const workspaceAvatarColorClass = workspace ? getAvatarColorClass(workspace.id) : "";
-  const workspaceInitials = workspace ? getUserInitials(workspace.name) : "";
+  const organizationAvatarColorClass = organization ? getAvatarColorClass(organization.id) : "";
+  const organizationInitials = organization ? getUserInitials(organization.name) : "";
 
   return (
     <AuthHeroContent className="mx-auto flex w-full max-w-md flex-col justify-center">
-      {workspace && (
+      {organization && (
         <div className="mx-auto inline-flex max-w-full items-center gap-3">
-          <WorkspaceAvatar size="lg">
-            {workspace.avatarUrl ? <WorkspaceAvatarImage src={workspace.avatarUrl} alt="" /> : null}
-            <WorkspaceAvatarFallback
-              className={cn(workspaceAvatarColorClass, "text-xs font-semibold")}
+          <OrganizationAvatar size="lg">
+            {organization.avatarUrl ? (
+              <OrganizationAvatarImage src={organization.avatarUrl} alt="" />
+            ) : null}
+            <OrganizationAvatarFallback
+              className={cn(organizationAvatarColorClass, "text-xs font-semibold")}
             >
-              {workspaceInitials}
-            </WorkspaceAvatarFallback>
-          </WorkspaceAvatar>
+              {organizationInitials}
+            </OrganizationAvatarFallback>
+          </OrganizationAvatar>
         </div>
       )}
-      {!workspace && (
+      {!organization && (
         <div className="mx-auto">
           <InviteStateIcon state={state} />
         </div>

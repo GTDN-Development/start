@@ -22,7 +22,7 @@ test("support form requires sign-in and sends the submitted message with attachm
   const generalFormsRecipient = getRequiredTestEnv("GENERAL_FORMS_RECIPIENT");
   const attachmentName = "support-debug-log.txt";
   const message =
-    "Ahoj, při vytváření workspace se mi po kliknutí na uložit zobrazí neočekávaná chyba 500.";
+    "Ahoj, při vytváření organization se mi po kliknutí na uložit zobrazí neočekávaná chyba 500.";
 
   let pb: PocketBase | null = null;
 

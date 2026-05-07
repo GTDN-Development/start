@@ -44,8 +44,8 @@ export interface UsersRecord extends PocketBaseSystemFields {
   avatar?: string;
 }
 
-export interface WorkspaceInvitesRecord extends PocketBaseSystemFields {
-  workspace: string;
+export interface OrganizationInvitesRecord extends PocketBaseSystemFields {
+  organization: string;
   email_normalized: string;
   role: "member" | "admin";
   token_hash: string;
@@ -53,13 +53,13 @@ export interface WorkspaceInvitesRecord extends PocketBaseSystemFields {
   invited_by: string;
 }
 
-export interface WorkspaceMembersRecord extends PocketBaseSystemFields {
-  workspace: string;
+export interface OrganizationMembersRecord extends PocketBaseSystemFields {
+  organization: string;
   user: string;
   role: "owner" | "admin" | "member";
 }
 
-export interface WorkspacesRecord extends PocketBaseSystemFields {
+export interface OrganizationsRecord extends PocketBaseSystemFields {
   name: string;
   slug: string;
   kind: "organization";
@@ -71,9 +71,9 @@ export interface PocketBaseCollections {
   cookie_consent_events: CookieConsentEventsRecord;
   posts: PostsRecord;
   users: UsersRecord;
-  workspace_invites: WorkspaceInvitesRecord;
-  workspace_members: WorkspaceMembersRecord;
-  workspaces: WorkspacesRecord;
+  organization_invites: OrganizationInvitesRecord;
+  organization_members: OrganizationMembersRecord;
+  organizations: OrganizationsRecord;
 }
 
 export type PocketBaseCollectionName = keyof PocketBaseCollections;
