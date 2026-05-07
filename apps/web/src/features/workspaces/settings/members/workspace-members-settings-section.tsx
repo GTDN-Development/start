@@ -35,6 +35,13 @@ import {
 } from "@/features/workspaces/settings/members/workspace-invitations-table";
 import { WorkspaceInviteMembersSettingsItem } from "@/features/workspaces/settings/members/workspace-invite-members-settings-item";
 import { WorkspaceMembersTable } from "@/features/workspaces/settings/members/workspace-members-table";
+import {
+  addWorkspaceSettingsInvite,
+  removeWorkspaceSettingsInvite,
+  removeWorkspaceSettingsMember,
+  updateWorkspaceSettingsInvite,
+  updateWorkspaceSettingsMemberRole,
+} from "@/features/workspaces/settings/members/workspace-members-state";
 import type {
   WorkspaceSettingsInvite,
   WorkspaceSettingsMember,
@@ -51,7 +58,6 @@ import {
   type WorkspaceMemberRole,
 } from "@/features/workspaces/workspace-role-rules";
 import { useApplyWorkspaceNavigationPatch } from "@/features/workspaces/workspace-navigation-context";
-import { useRouter } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { runAsyncTransition } from "@/lib/app-utils";
 
@@ -94,15 +100,16 @@ export function WorkspaceMembersSettingsSection({
   const tLeave = useTranslations("pages.workspace.general.leave");
   const tRoles = useTranslations("pages.workspace.members.roles");
   const locale = useLocale() as AppLocale;
-  const router = useRouter();
   const applyWorkspaceNavigationPatch = useApplyWorkspaceNavigationPatch();
 
+  const [members, setMembers] = useState(initialMembers);
+  const [invites, setInvites] = useState(initialInvites);
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
 
-  const ownerCount = initialMembers.filter((member) => member.role === "owner").length;
+  const ownerCount = members.filter((member) => member.role === "owner").length;
   const currentUserMember =
-    initialMembers.find((member) => member.userId === workspace.currentUserId) ?? null;
+    members.find((member) => member.userId === workspace.currentUserId) ?? null;
   const isCurrentUserLastOwner = currentUserMember
     ? isLastWorkspaceOwner(currentUserMember.role, ownerCount)
     : false;
@@ -126,7 +133,11 @@ export function WorkspaceMembersSettingsSection({
     const response = await runAsyncTransition(() => createInviteAction(workspace.slug, input));
 
     if (response.ok) {
-      refreshServerState();
+      startTransition(() => {
+        setInvites((currentInvites) =>
+          addWorkspaceSettingsInvite(currentInvites, response.data.invite)
+        );
+      });
     }
 
     return response;
@@ -178,20 +189,10 @@ export function WorkspaceMembersSettingsSection({
     });
   }
 
-  function completeAction(refresh = true) {
+  function completeAction() {
     startTransition(() => {
       setIsActionSubmitting(false);
       setActionState(null);
-
-      if (refresh) {
-        router.refresh();
-      }
-    });
-  }
-
-  function refreshServerState() {
-    startTransition(() => {
-      router.refresh();
     });
   }
 
@@ -214,6 +215,14 @@ export function WorkspaceMembersSettingsSection({
         ),
       fallbackErrorMessage: t("status.roleChange.error"),
       successMessage: t("status.roleChange.success"),
+      onSuccess: () => {
+        setMembers((currentMembers) =>
+          updateWorkspaceSettingsMemberRole(currentMembers, {
+            memberId: changeRoleState.member.id,
+            role: changeRoleState.selectedRole,
+          })
+        );
+      },
     });
   }
 
@@ -247,7 +256,6 @@ export function WorkspaceMembersSettingsSection({
             action: () => leaveWorkspaceAction(workspace.slug),
             fallbackErrorMessage: tLeave("status.failed"),
             successMessage: tLeave("status.success"),
-            refresh: false,
             getErrorMessage: (errorCode) =>
               errorCode === "LAST_OWNER_GUARD"
                 ? tLeave("status.lastOwnerGuard")
@@ -277,6 +285,11 @@ export function WorkspaceMembersSettingsSection({
             action: () => removeMemberAction(workspace.slug, state.member.id),
             fallbackErrorMessage: t("status.memberRemove.error"),
             successMessage: t("status.memberRemove.success"),
+            onSuccess: () => {
+              setMembers((currentMembers) =>
+                removeWorkspaceSettingsMember(currentMembers, state.member.id)
+              );
+            },
           },
         };
       case "resend-invitation":
@@ -296,6 +309,17 @@ export function WorkspaceMembersSettingsSection({
                 action: () => resendInviteAction(workspace.slug, state.invitation.id, locale),
                 fallbackErrorMessage: t("status.inviteResend.error"),
                 successMessage: t("status.inviteResend.success"),
+                onSuccess: (response) => {
+                  const data = response.data as {
+                    inviteId: string;
+                    expiresAt: string;
+                    updatedAt: string;
+                  };
+
+                  setInvites((currentInvites) =>
+                    updateWorkspaceSettingsInvite(currentInvites, data)
+                  );
+                },
               },
             };
       case "remove-invitation":
@@ -316,6 +340,15 @@ export function WorkspaceMembersSettingsSection({
                 action: () => revokeInviteAction(workspace.slug, state.invitation.id),
                 fallbackErrorMessage: t("status.inviteRemove.error"),
                 successMessage: t("status.inviteRemove.success"),
+                onSuccess: (response) => {
+                  const data = response.data as {
+                    inviteId: string;
+                  };
+
+                  setInvites((currentInvites) =>
+                    removeWorkspaceSettingsInvite(currentInvites, data.inviteId)
+                  );
+                },
               },
             };
     }
@@ -336,7 +369,7 @@ export function WorkspaceMembersSettingsSection({
       return;
     }
 
-    completeAction(options.refresh);
+    completeAction();
     options.onSuccess?.(response);
     toast.success(options.successMessage);
   }
@@ -369,7 +402,7 @@ export function WorkspaceMembersSettingsSection({
 
                 <TabsContent value="members" className="grid gap-4">
                   <WorkspaceMembersTable
-                    rows={initialMembers}
+                    rows={members}
                     currentUserId={workspace.currentUserId}
                     actorRole={workspace.role}
                     ownerCount={ownerCount}
@@ -386,9 +419,9 @@ export function WorkspaceMembersSettingsSection({
                 </TabsContent>
 
                 <TabsContent value="pending-invitations" className="grid gap-4">
-                  {initialInvites.length > 0 ? (
+                  {invites.length > 0 ? (
                     <WorkspaceInvitationsTable
-                      rows={initialInvites}
+                      rows={invites}
                       isReadOnly={isInviteManagementReadOnly}
                       onResendInvitationRequestAction={(invitation) =>
                         openInviteConfirmDialog("resend-invitation", invitation)

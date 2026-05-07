@@ -104,6 +104,7 @@ export default async function Page({
     >
       {/* Keep members and invites under one client owner to avoid broad refreshes/remounts. */}
       <WorkspaceMembersSettingsSection
+        key={workspaceSettings.id}
         workspace={workspaceSettings}
         initialMembers={members}
         initialInvites={invites}

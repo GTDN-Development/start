@@ -39,7 +39,6 @@ export type WorkspaceMembersActionSubmitOptions = {
   action: () => Promise<WorkspaceMembersActionSubmitResponse>;
   fallbackErrorMessage: string;
   successMessage: string;
-  refresh?: boolean;
   getErrorMessage?: (errorCode: string) => string;
   onSuccess?: (response: Extract<WorkspaceMembersActionSubmitResponse, { ok: true }>) => void;
 };
