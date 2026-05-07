@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { authConfig } from "@/config/auth";
 import {
-  authPasswordSchema,
   normalizedEmailSchema,
+  passwordPolicySchema,
+  requiredPasswordSchema,
   type AuthPasswordValidationMessages,
 } from "@/lib/schemas";
 
@@ -10,8 +11,7 @@ export type { AuthPasswordValidationMessages };
 
 export type SignInValidationMessages = {
   email: string;
-  passwordMin: string;
-  passwordMax: string;
+  passwordRequired: string;
 };
 
 export type SignUpValidationMessages = {
@@ -22,11 +22,14 @@ export type SignUpValidationMessages = {
   email: string;
   passwordMin: string;
   passwordMax: string;
+  passwordUppercase: string;
+  passwordNumber: string;
+  passwordSpecialCharacter: string;
 };
 
 export const signInInputSchema = z.object({
   email: normalizedEmailSchema(),
-  password: authPasswordSchema(),
+  password: requiredPasswordSchema(),
   rememberMe: z.boolean(),
 });
 
@@ -40,9 +43,8 @@ export function createSignInFormSchema(messages: SignInValidationMessages) {
     email: z.email({
       message: messages.email,
     }),
-    password: authPasswordSchema({
-      min: messages.passwordMin,
-      max: messages.passwordMax,
+    password: requiredPasswordSchema({
+      required: messages.passwordRequired,
     }),
     rememberMe: z.boolean(),
   });
@@ -59,7 +61,7 @@ function createSignUpInputSchema() {
       .min(authConfig.limits.lastNameMinLength)
       .max(authConfig.limits.lastNameMaxLength),
     email: normalizedEmailSchema(),
-    password: authPasswordSchema(),
+    password: passwordPolicySchema(),
   });
 }
 
@@ -84,9 +86,12 @@ export function createSignUpFormSchema(messages: SignUpValidationMessages) {
     email: z.email({
       message: messages.email,
     }),
-    password: authPasswordSchema({
+    password: passwordPolicySchema({
       min: messages.passwordMin,
       max: messages.passwordMax,
+      uppercase: messages.passwordUppercase,
+      number: messages.passwordNumber,
+      specialCharacter: messages.passwordSpecialCharacter,
     }),
   });
 }

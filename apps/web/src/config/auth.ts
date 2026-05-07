@@ -36,8 +36,13 @@ export const authConfig = {
     firstNameMaxLength: 50,
     lastNameMinLength: 2,
     lastNameMaxLength: 50,
-    passwordMinLength: 8,
-    passwordMaxLength: 100,
+  },
+  passwordPolicy: {
+    minLength: 8,
+    maxLength: 100,
+    minUppercase: 1,
+    minNumbers: 1,
+    minSpecialCharacters: 1,
   },
   cookies: {
     authCookieName: "pb_auth",

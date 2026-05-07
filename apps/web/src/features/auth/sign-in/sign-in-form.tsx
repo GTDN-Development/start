@@ -36,8 +36,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
 
   const signInFormSchema = createSignInFormSchema({
     email: t("validation.email"),
-    passwordMin: t("validation.passwordMin"),
-    passwordMax: t("validation.passwordMax"),
+    passwordRequired: t("validation.passwordRequired"),
   });
 
   const form = useForm({

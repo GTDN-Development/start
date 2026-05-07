@@ -725,6 +725,10 @@
               "label": "New password",
               "errors": {
                 "min": "New password must be at least {min} characters.",
+                "max": "New password must not exceed {max} characters.",
+                "uppercase": "New password must contain at least one uppercase letter.",
+                "number": "New password must contain at least one number.",
+                "specialCharacter": "New password must contain at least one special character.",
                 "sameAsCurrent": "New password must be different from your current password."
               }
             },
@@ -1199,8 +1203,7 @@
     "signIn": {
       "validation": {
         "email": "Please enter a valid email address.",
-        "passwordMin": "Password must be at least 8 characters.",
-        "passwordMax": "Password must not exceed 100 characters."
+        "passwordRequired": "Please enter your password."
       },
       "passwordVisibility": {
         "show": "Show password",
@@ -1242,8 +1245,11 @@
         "lastNameMin": "Last name must be at least 2 characters.",
         "lastNameMax": "Last name must not exceed 50 characters.",
         "email": "Please enter a valid email address.",
-        "passwordMin": "Password must be at least 8 characters.",
-        "passwordMax": "Password must not exceed 100 characters.",
+        "passwordMin": "Password must be at least {min} characters.",
+        "passwordMax": "Password must not exceed {max} characters.",
+        "passwordUppercase": "Password must contain at least one uppercase letter.",
+        "passwordNumber": "Password must contain at least one number.",
+        "passwordSpecialCharacter": "Password must contain at least one special character.",
         "termsAccepted": "You must accept the privacy policy.",
         "turnstile": "Please complete the verification."
       },
@@ -1267,7 +1273,7 @@
         "password": {
           "label": "Password",
           "placeholder": "Create a strong password",
-          "description": "Use at least 8 characters."
+          "description": "Use at least 8 characters, including an uppercase letter, a number, and a special character."
         },
         "termsAccepted": {
           "label": "I agree to the <link>privacy policy</link>."
@@ -1321,7 +1327,12 @@
     },
     "resetPassword": {
       "validation": {
-        "password": "Password must be at least 8 characters.",
+        "passwordMin": "Password must be at least {min} characters.",
+        "passwordMax": "Password must not exceed {max} characters.",
+        "passwordUppercase": "Password must contain at least one uppercase letter.",
+        "passwordNumber": "Password must contain at least one number.",
+        "passwordSpecialCharacter": "Password must contain at least one special character.",
+        "confirmPasswordRequired": "Please confirm your new password.",
         "passwordMismatch": "Passwords do not match."
       },
       "passwordVisibility": {
@@ -1332,7 +1343,7 @@
         "password": {
           "label": "New password",
           "placeholder": "Create a new password",
-          "description": "Use at least 8 characters."
+          "description": "Use at least 8 characters, including an uppercase letter, a number, and a special character."
         },
         "confirmPassword": {
           "label": "Confirm new password",
@@ -1351,6 +1362,7 @@
         "error": {
           "title": "Reset failed",
           "message": "Unable to reset the password. Please try again.",
+          "passwordRequirements": "Make sure the new password meets all requirements.",
           "invalidOrExpiredToken": "This reset link is invalid or expired."
         }
       }

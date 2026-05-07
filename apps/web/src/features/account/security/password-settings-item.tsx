@@ -249,9 +249,14 @@ function getPasswordFormSchema(t: SecurityTranslationFn) {
   return createAccountPasswordFormSchema({
     currentPasswordRequired: t("security.password.fields.currentPassword.errors.required"),
     newPasswordMin: t("security.password.fields.newPassword.errors.min", {
-      min: String(authConfig.limits.passwordMinLength),
+      min: String(authConfig.passwordPolicy.minLength),
     }),
-    newPasswordMax: t("security.password.status.invalidInput"),
+    newPasswordMax: t("security.password.fields.newPassword.errors.max", {
+      max: String(authConfig.passwordPolicy.maxLength),
+    }),
+    newPasswordUppercase: t("security.password.fields.newPassword.errors.uppercase"),
+    newPasswordNumber: t("security.password.fields.newPassword.errors.number"),
+    newPasswordSpecialCharacter: t("security.password.fields.newPassword.errors.specialCharacter"),
     newPasswordSameAsCurrent: t("security.password.fields.newPassword.errors.sameAsCurrent"),
     confirmPasswordRequired: t("security.password.fields.confirmPassword.errors.required"),
     confirmPasswordMismatch: t("security.password.fields.confirmPassword.errors.mismatch"),

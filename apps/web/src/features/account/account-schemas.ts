@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { accountConfig } from "@/config/account";
 import {
-  authPasswordSchema,
   normalizedEmailSchema,
+  passwordPolicySchema,
   refinePasswordMatch,
   requiredPasswordSchema,
 } from "@/lib/schemas";
@@ -25,8 +25,8 @@ export const accountEmailChangeInputSchema = z.object({
 export const accountPasswordUpdateInputSchema = z
   .object({
     currentPassword: requiredPasswordSchema(),
-    newPassword: authPasswordSchema(),
-    confirmPassword: authPasswordSchema(),
+    newPassword: passwordPolicySchema(),
+    confirmPassword: requiredPasswordSchema(),
   })
   .superRefine(
     refinePasswordMatch<{
@@ -60,6 +60,9 @@ export type AccountPasswordValidationMessages = {
   currentPasswordRequired: string;
   newPasswordMin: string;
   newPasswordMax: string;
+  newPasswordUppercase: string;
+  newPasswordNumber: string;
+  newPasswordSpecialCharacter: string;
   newPasswordSameAsCurrent: string;
   confirmPasswordRequired: string;
   confirmPasswordMismatch: string;
@@ -110,9 +113,12 @@ export function createAccountPasswordFormSchema(messages: AccountPasswordValidat
   return z
     .object({
       currentPassword: z.string(),
-      newPassword: authPasswordSchema({
+      newPassword: passwordPolicySchema({
         min: messages.newPasswordMin,
         max: messages.newPasswordMax,
+        uppercase: messages.newPasswordUppercase,
+        number: messages.newPasswordNumber,
+        specialCharacter: messages.newPasswordSpecialCharacter,
       }),
       confirmPassword: z.string(),
     })

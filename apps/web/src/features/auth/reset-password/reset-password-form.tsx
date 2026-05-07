@@ -11,9 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
+import { authConfig } from "@/config/auth";
 import { resetPasswordWithToken } from "@/features/auth/auth-client";
 import { isAuthFieldInvalid } from "@/features/auth/auth-form-utils";
-import { authPasswordSchema } from "@/lib/schemas";
+import { passwordPolicySchema, requiredPasswordSchema } from "@/lib/schemas";
 import { AlertCircleIcon, KeyRoundIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,11 +39,19 @@ export function ResetPasswordForm({
 
   const resetPasswordFormSchema = z
     .object({
-      password: authPasswordSchema({
-        min: t("validation.password"),
+      password: passwordPolicySchema({
+        min: t("validation.passwordMin", {
+          min: String(authConfig.passwordPolicy.minLength),
+        }),
+        max: t("validation.passwordMax", {
+          max: String(authConfig.passwordPolicy.maxLength),
+        }),
+        uppercase: t("validation.passwordUppercase"),
+        number: t("validation.passwordNumber"),
+        specialCharacter: t("validation.passwordSpecialCharacter"),
       }),
-      confirmPassword: authPasswordSchema({
-        min: t("validation.password"),
+      confirmPassword: requiredPasswordSchema({
+        required: t("validation.confirmPasswordRequired"),
       }),
     })
     .superRefine((values, context) => {
@@ -218,7 +227,7 @@ function getSubmitErrorMessage(errorCode: SubmitErrorCode, t: (key: string) => s
   }
 
   if (errorCode === "password") {
-    return t("validation.password");
+    return t("status.error.passwordRequirements");
   }
 
   if (errorCode === "generic") {

@@ -725,6 +725,10 @@
               "label": "Nové heslo",
               "errors": {
                 "min": "Nové heslo musí mít alespoň {min} znaků.",
+                "max": "Nové heslo nesmí být delší než {max} znaků.",
+                "uppercase": "Nové heslo musí obsahovat alespoň jedno velké písmeno.",
+                "number": "Nové heslo musí obsahovat alespoň jedno číslo.",
+                "specialCharacter": "Nové heslo musí obsahovat alespoň jeden speciální znak.",
                 "sameAsCurrent": "Nové heslo se musí lišit od aktuálního hesla."
               }
             },
@@ -1199,8 +1203,7 @@
     "signIn": {
       "validation": {
         "email": "Zadejte prosím platnou e-mailovou adresu.",
-        "passwordMin": "Heslo musí mít alespoň 8 znaků.",
-        "passwordMax": "Heslo nesmí být delší než 100 znaků."
+        "passwordRequired": "Zadejte prosím heslo."
       },
       "passwordVisibility": {
         "show": "Zobrazit heslo",
@@ -1242,8 +1245,11 @@
         "lastNameMin": "Příjmení musí mít alespoň 2 znaky.",
         "lastNameMax": "Příjmení nesmí být delší než 50 znaků.",
         "email": "Zadejte prosím platnou e-mailovou adresu.",
-        "passwordMin": "Heslo musí mít alespoň 8 znaků.",
-        "passwordMax": "Heslo nesmí být delší než 100 znaků.",
+        "passwordMin": "Heslo musí mít alespoň {min} znaků.",
+        "passwordMax": "Heslo nesmí být delší než {max} znaků.",
+        "passwordUppercase": "Heslo musí obsahovat alespoň jedno velké písmeno.",
+        "passwordNumber": "Heslo musí obsahovat alespoň jedno číslo.",
+        "passwordSpecialCharacter": "Heslo musí obsahovat alespoň jeden speciální znak.",
         "termsAccepted": "Musíte přijmout zásady ochrany osobních údajů.",
         "turnstile": "Dokončete prosím ověření."
       },
@@ -1267,7 +1273,7 @@
         "password": {
           "label": "Heslo",
           "placeholder": "Vytvořte silné heslo",
-          "description": "Použijte alespoň 8 znaků."
+          "description": "Použijte alespoň 8 znaků včetně velkého písmene, čísla a speciálního znaku."
         },
         "termsAccepted": {
           "label": "Souhlasím se <link>zásadami ochrany osobních údajů</link>."
@@ -1321,7 +1327,12 @@
     },
     "resetPassword": {
       "validation": {
-        "password": "Heslo musí mít alespoň 8 znaků.",
+        "passwordMin": "Heslo musí mít alespoň {min} znaků.",
+        "passwordMax": "Heslo nesmí být delší než {max} znaků.",
+        "passwordUppercase": "Heslo musí obsahovat alespoň jedno velké písmeno.",
+        "passwordNumber": "Heslo musí obsahovat alespoň jedno číslo.",
+        "passwordSpecialCharacter": "Heslo musí obsahovat alespoň jeden speciální znak.",
+        "confirmPasswordRequired": "Potvrďte prosím nové heslo.",
         "passwordMismatch": "Hesla se neshodují."
       },
       "passwordVisibility": {
@@ -1332,7 +1343,7 @@
         "password": {
           "label": "Nové heslo",
           "placeholder": "Vytvořte nové heslo",
-          "description": "Použijte alespoň 8 znaků."
+          "description": "Použijte alespoň 8 znaků včetně velkého písmene, čísla a speciálního znaku."
         },
         "confirmPassword": {
           "label": "Potvrzení nového hesla",
@@ -1351,6 +1362,7 @@
         "error": {
           "title": "Obnova selhala",
           "message": "Heslo se nepodařilo obnovit. Zkuste to prosím znovu.",
+          "passwordRequirements": "Ověřte, že nové heslo splňuje všechny požadavky.",
           "invalidOrExpiredToken": "Tento odkaz pro obnovu je neplatný nebo vypršel."
         }
       }
