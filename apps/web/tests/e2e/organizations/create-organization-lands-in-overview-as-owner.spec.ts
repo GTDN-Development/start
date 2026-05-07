@@ -17,7 +17,7 @@ test("user creates an organization and lands in it as owner", async ({ page }) =
   const email = createIsolatedTestEmail(run.id, "organization-create-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const ownerName = `Organization Creator ${suffix}`;
-  const organizationName = `ws-${suffix}`;
+  const organizationName = `org-${suffix}`;
 
   let pb: PocketBase | null = null;
   let createdOrganizationSlug: string | null = null;

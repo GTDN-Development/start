@@ -19,9 +19,9 @@ test("scope switcher changes the current organization and personal scope correct
   const suffix = run.id.slice(-8);
   const userEmail = createIsolatedTestEmail(run.id, "scope-switcher-user");
   const userName = `Switcher ${suffix}`;
-  const organizationASlug = `ws-scope-a-${suffix}`;
+  const organizationASlug = `org-scope-a-${suffix}`;
   const organizationAName = `Scope Organization A ${suffix}`;
-  const organizationBSlug = `ws-scope-b-${suffix}`;
+  const organizationBSlug = `org-scope-b-${suffix}`;
   const organizationBName = `Scope Organization B ${suffix}`;
   const password = DEFAULT_AUTH_TEST_PASSWORD;
 

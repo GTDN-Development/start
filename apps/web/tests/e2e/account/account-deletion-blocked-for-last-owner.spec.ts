@@ -19,7 +19,7 @@ test("account deletion is blocked when the current user is the last organization
   const suffix = run.id.slice(-8);
   const ownerEmail = createIsolatedTestEmail(run.id, "account-delete-last-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const organizationSlug = `ws-account-last-owner-${suffix}`;
+  const organizationSlug = `org-account-last-owner-${suffix}`;
   const organizationName = `Organization Account Last Owner ${suffix}`;
 
   let pb: PocketBase | null = null;

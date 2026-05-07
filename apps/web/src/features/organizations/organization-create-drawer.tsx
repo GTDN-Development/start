@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { startTransition, useId } from "react";
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -79,11 +79,9 @@ export function OrganizationCreateDrawer({
         id: createToastId,
       });
 
-      startTransition(() => {
-        applyOrganizationNavigationPatch(response.data.navigationPatch);
-        form.reset();
-        onOpenChangeAction(false);
-      });
+      applyOrganizationNavigationPatch(response.data.navigationPatch);
+      form.reset();
+      onOpenChangeAction(false);
     },
   });
 

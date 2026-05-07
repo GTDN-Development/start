@@ -26,7 +26,7 @@ test("admin removes a member via UI and the removed user immediately loses acces
   const memberEmail = createIsolatedTestEmail(run.id, "organization-member-remove-member");
   const memberName = `Member ${suffix}`;
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const organizationSlug = `ws-remove-member-${suffix}`;
+  const organizationSlug = `org-remove-member-${suffix}`;
   const organizationName = `Organization Remove Member ${suffix}`;
 
   let pb: PocketBase | null = null;

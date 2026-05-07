@@ -20,7 +20,7 @@ test("member leaves an organization and immediately loses access to it", async (
   const ownerEmail = createIsolatedTestEmail(run.id, "organization-member-leave-owner");
   const memberEmail = createIsolatedTestEmail(run.id, "organization-member-leave-member");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const organizationSlug = `ws-member-leave-${suffix}`;
+  const organizationSlug = `org-member-leave-${suffix}`;
   const organizationName = `Organization Member Leave ${suffix}`;
 
   let pb: PocketBase | null = null;

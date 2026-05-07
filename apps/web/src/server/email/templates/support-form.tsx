@@ -82,7 +82,7 @@ export const PreviewProps = {
   emailLabel: "E-mail",
   email: "uzivatel@example.com",
   messageLabel: "Zpráva",
-  message: "Aplikace mi hlásí chybu při vytváření organization.\nMůžete se na to prosím podívat?",
+  message: "Aplikace mi hlásí chybu při vytváření organizace.\nMůžete se na to prosím podívat?",
   submittedAtLabel: "Odesláno",
   submittedAt: "19. 3. 2026 14:35",
   attachmentsLabel: "Přílohy",

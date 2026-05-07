@@ -17,7 +17,7 @@ test("organization root redirects to organization overview", async ({ page }) =>
   const suffix = run.id.slice(-8);
   const email = createIsolatedTestEmail(run.id, "organization-root");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const organizationSlug = `ws-root-${suffix}`;
+  const organizationSlug = `org-root-${suffix}`;
   const organizationName = `Organization Root ${suffix}`;
 
   let pb: PocketBase | null = null;

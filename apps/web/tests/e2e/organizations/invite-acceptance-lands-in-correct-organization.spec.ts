@@ -21,7 +21,7 @@ test("invited user accepts invite and lands in the correct organization", async 
   const ownerEmail = createIsolatedTestEmail(run.id, "organization-owner");
   const invitedEmail = createIsolatedTestEmail(run.id, "organization-invited");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const organizationSlug = `ws-invite-${suffix}`;
+  const organizationSlug = `org-invite-${suffix}`;
   const organizationName = `Organization Invite ${suffix}`;
 
   let pb: PocketBase | null = null;

@@ -23,7 +23,7 @@ test("member opens members page in read-only mode", async ({ page }) => {
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const ownerName = `Organization Owner ${suffix}`;
   const memberName = `Organization Member ${suffix}`;
-  const organizationSlug = `ws-member-view-${suffix}`;
+  const organizationSlug = `org-member-view-${suffix}`;
   const organizationName = `Organization Members ${suffix}`;
 
   let pb: PocketBase | null = null;

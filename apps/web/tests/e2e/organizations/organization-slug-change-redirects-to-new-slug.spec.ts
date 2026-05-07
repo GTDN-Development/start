@@ -20,8 +20,8 @@ test("changing an organization slug redirects to the same organization under the
   const suffix = run.id.slice(-8);
   const ownerEmail = createIsolatedTestEmail(run.id, "organization-slug-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const initialOrganizationSlug = `ws-slug-old-${suffix}`;
-  const nextOrganizationSlug = `ws-slug-new-${suffix}`;
+  const initialOrganizationSlug = `org-slug-old-${suffix}`;
+  const nextOrganizationSlug = `org-slug-new-${suffix}`;
   const organizationName = `Organization Slug ${suffix}`;
 
   let pb: PocketBase | null = null;

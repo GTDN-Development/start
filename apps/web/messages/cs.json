@@ -488,7 +488,7 @@
     },
     "app": {
       "title": "Domů",
-      "description": "Vaše osobní část je připravená hned. Tady spravujete svůj účet a organizace přidáte až ve chvíli, kdy potřebujete spolupráci.",
+      "description": "Vaše osobní část je připravená hned. Tady spravujete svůj účet a organizaci přidáte až ve chvíli, kdy potřebujete spolupráci.",
       "personal": {
         "eyebrow": "Osobní část"
       },
@@ -516,7 +516,7 @@
       },
       "organization": {
         "title": "Spolupráce pro váš tým",
-        "description": "Organizace je volitelná. Vytvořte ho ve chvíli, kdy chcete sdílet přístup, nastavení a pracovat s dalšími lidmi.",
+        "description": "Organizace je volitelná. Vytvořte ji ve chvíli, kdy chcete sdílet přístup, nastavení a pracovat s dalšími lidmi.",
         "create": "Vytvořit organizaci pro tým",
         "empty": {
           "title": "Produkt můžete používat i bez organizace",
@@ -762,7 +762,7 @@
       },
       "general": {
         "name": {
-          "title": "Název organizaci",
+          "title": "Název organizace",
           "description": "Upravte, jak se tato organizace zobrazuje napříč aplikací.",
           "field": {
             "label": "Název",
@@ -779,7 +779,7 @@
             "max": "Název organizace může mít maximálně {max} znaků."
           },
           "status": {
-            "updateFailed": "Název organizaci se nepodařilo aktualizovat.",
+            "updateFailed": "Název organizace se nepodařilo aktualizovat.",
             "updated": "Název organizace byl aktualizován."
           }
         },
@@ -808,7 +808,7 @@
         },
         "avatar": {
           "title": "Avatar organizace",
-          "description": "Nahrajte čtvercový avatar pro tato organizace.",
+          "description": "Nahrajte čtvercový avatar pro tuto organizaci.",
           "buttonLabel": "Změnit avatar organizace",
           "menu": {
             "change": "Změnit avatar",
@@ -1468,7 +1468,7 @@
         },
         "functional": {
           "title": "Funkční cookies",
-          "article1": "Funkční cookies umožňují zapamatovat si volitelné personalizační volby v aplikaci, například naposledy aktivní organizace nebo podobná nastavení pro větší pohodlí.",
+          "article1": "Funkční cookies umožňují zapamatovat si volitelné personalizační volby v aplikaci, například naposledy aktivní organizaci nebo podobná nastavení pro větší pohodlí.",
           "article2": "Tyto cookies mohou být používány pouze tehdy, pokud jsou v konkrétní implementaci aktivní."
         },
         "analytics": {
@@ -1891,7 +1891,7 @@
         "title": "Úvodní ustanovení",
         "article1": "Tyto obchodní podmínky upravují práva a povinnosti mezi společností {companyLegalName}, IČO {companyId}, se sídlem {companyAddress}, zapsanou v obchodním rejstříku {companyRegister}, kontaktní e-mail {contactEmail} (dále jen „Poskytovatel“), a fyzickou nebo právnickou osobou, která využívá webovou aplikaci, související webové stránky, funkce, obsah a související služby dostupné zejména na adrese {domain} (dále jen „Služba“).",
         "article2": "Tyto obchodní podmínky jsou nedílnou součástí každé smlouvy uzavřené mezi Poskytovatelem a uživatelem, není-li výslovně písemně sjednáno jinak.",
-        "article3": "Služba je digitální službou poskytovanou na dálku, zejména jako online nástroj pro organizace pro organizaci práce, správu úkolů, interních poznámek, souborů, kontaktů, členů týmu a dalších souvisejících dat.",
+        "article3": "Služba je digitální službou poskytovanou na dálku, zejména jako online nástroj pro organizaci práce, správu úkolů, interních poznámek, souborů, kontaktů, členů týmu a dalších souvisejících dat.",
         "article4": "Služba je určena jak podnikatelům, tak spotřebitelům, není-li u konkrétní funkce, tarifu nebo nabídky výslovně uvedeno jinak. Některé funkce mohou být určeny primárně pro pracovní, týmové nebo podnikatelské použití."
       },
       "definitions": {
@@ -1990,7 +1990,7 @@
           "lawfulUse": "nebude prostřednictvím Služby zpracovávat data v rozporu s právními předpisy,",
           "noHarm": "nebude do Služby ukládat obsah, který by mohl způsobit Poskytovateli právní, bezpečnostní, reputační nebo provozní újmu."
         },
-        "article3": "V rozsahu, v jakém uživatel do Služby vkládá osobní údaje třetích osob v rámci svého organizace, je zpravidla uživatel nebo subjekt, jehož jménem jedná, správcem těchto osobních údajů a Poskytovatel jejich zpracovatelem.",
+        "article3": "V rozsahu, v jakém uživatel do Služby vkládá osobní údaje třetích osob v rámci své organizace, je zpravidla uživatel nebo subjekt, jehož jménem jedná, správcem těchto osobních údajů a Poskytovatel jejich zpracovatelem.",
         "article4": "Podrobnosti o zpracování osobních údajů podle předchozího odstavce se řídí samostatnou smlouvou o zpracování osobních údajů (DPA), je-li používána."
       },
       "prohibitedUse": {
@@ -2020,8 +2020,8 @@
       },
       "termination": {
         "title": "Pozastavení a ukončení",
-        "article1": "Uživatel může používání Služby ukončit způsobem, který Služba umožňuje, zejména zrušením účtu, organizace, předplatného nebo neprodloužením tarifu.",
-        "article2": "Poskytovatel může účet, organizace nebo přístup ke Službě okamžitě omezit, pozastavit nebo ukončit, pokud:",
+        "article1": "Uživatel může používání Služby ukončit způsobem, který Služba umožňuje, zejména zrušením účtu, smazáním organizace, zrušením předplatného nebo neprodloužením tarifu.",
+        "article2": "Poskytovatel může účet, organizaci nebo přístup ke Službě okamžitě omezit, pozastavit nebo ukončit, pokud:",
         "items": {
           "termsBreach": "uživatel porušuje tyto podmínky,",
           "nonPayment": "je v prodlení s platbou,",
@@ -2034,7 +2034,7 @@
       },
       "postTerminationData": {
         "title": "Data po ukončení",
-        "article1": "Po ukončení smluvního vztahu může být uživateli omezen nebo ukončen přístup k účtu, organizace a Obsahu uživatele.",
+        "article1": "Po ukončení smluvního vztahu může být uživateli omezen nebo ukončen přístup k účtu, organizaci a Obsahu uživatele.",
         "article2": "Pokud je export dat součástí konkrétní funkce, tarifu nebo nabídky, může být uživateli umožněn export dat v rozsahu a formátu, který Poskytovatel podporuje.",
         "article3": "Poskytovatel je oprávněn po ukončení smluvního vztahu Obsah uživatele, účet a související data smazat, anonymizovat nebo jinak odstranit.",
         "article4": "Poskytovatel je oprávněn ponechat si data po přiměřenou dobu po ukončení smluvního vztahu, zejména z důvodu:",
@@ -2179,7 +2179,7 @@
           "functional": {
             "label": "Funkční",
             "ariaLabel": "Funkční cookies",
-            "description": "Pomáhají si zapamatovat volitelné personalizační volby v aplikaci, například naposledy aktivní organizace."
+            "description": "Pomáhají si zapamatovat volitelné personalizační volby v aplikaci, například naposledy aktivní organizaci."
           },
           "analytics": {
             "label": "Analytické",

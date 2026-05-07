@@ -8,8 +8,8 @@ const sourceRoot = path.join(repoRoot, "apps", "web", "src");
 
 const domainDefinitions = [
   {
-    name: "workspaces",
-    includePrefixes: ["features/workspaces/", "server/workspaces/"],
+    name: "organizations",
+    includePrefixes: ["features/organizations/", "server/organizations/"],
   },
   {
     name: "auth",
@@ -27,23 +27,23 @@ const domainDefinitions = [
 
 const representativeScenarios = [
   {
-    name: "workspace-general-update",
-    flow: "workspace-general-settings-section.tsx -> workspace-text-settings-item.tsx -> workspace-general-actions.ts",
-    why: "Tracks the concrete workspace slug update path after route handoff into the general-settings owner.",
+    name: "organization-general-update",
+    flow: "organization-general-settings-section.tsx -> organization-text-settings-item.tsx -> organization-general-actions.ts",
+    why: "Tracks the concrete organization slug update path after route handoff into the general-settings owner.",
     files: [
-      "apps/web/src/features/workspaces/settings/general/workspace-general-settings-section.tsx",
-      "apps/web/src/features/workspaces/settings/general/workspace-text-settings-item.tsx",
-      "apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts",
+      "apps/web/src/features/organizations/settings/general/organization-general-settings-section.tsx",
+      "apps/web/src/features/organizations/settings/general/organization-text-settings-item.tsx",
+      "apps/web/src/features/organizations/settings/general/organization-general-actions.ts",
     ],
   },
   {
-    name: "workspace-membership-change",
-    flow: "workspace-members-settings-section.tsx -> workspace-members-table.tsx -> workspace-members-actions.ts",
+    name: "organization-membership-change",
+    flow: "organization-members-settings-section.tsx -> organization-members-table.tsx -> organization-members-actions.ts",
     why: "Tracks the concrete member-role and member-removal path through the single members screen owner.",
     files: [
-      "apps/web/src/features/workspaces/settings/members/workspace-members-settings-section.tsx",
-      "apps/web/src/features/workspaces/settings/members/workspace-members-table.tsx",
-      "apps/web/src/features/workspaces/settings/members/workspace-members-actions.ts",
+      "apps/web/src/features/organizations/settings/members/organization-members-settings-section.tsx",
+      "apps/web/src/features/organizations/settings/members/organization-members-table.tsx",
+      "apps/web/src/features/organizations/settings/members/organization-members-actions.ts",
     ],
   },
   {
@@ -68,14 +68,14 @@ const representativeScenarios = [
     ],
   },
   {
-    name: "workspace-scope-switch",
-    flow: "scope-switcher.tsx -> workspace-general-actions.ts -> workspace-route-queries.ts -> workspace-cookie.ts",
-    why: "Tracks the concrete workspace switch mutation path across client navigation state and active-workspace persistence.",
+    name: "organization-scope-switch",
+    flow: "scope-switcher.tsx -> organization-general-actions.ts -> organization-route-queries.ts -> organization-cookie.ts",
+    why: "Tracks the concrete organization switch mutation path across client navigation state and active-organization persistence.",
     files: [
       "apps/web/src/features/application/scope-switcher.tsx",
-      "apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts",
-      "apps/web/src/server/workspaces/workspace-route-queries.ts",
-      "apps/web/src/server/workspaces/workspace-cookie.ts",
+      "apps/web/src/features/organizations/settings/general/organization-general-actions.ts",
+      "apps/web/src/server/organizations/organization-route-queries.ts",
+      "apps/web/src/server/organizations/organization-cookie.ts",
     ],
   },
 ];

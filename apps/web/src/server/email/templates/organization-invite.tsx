@@ -66,7 +66,7 @@ export const PreviewProps = {
   supportLabel: "Podpora",
   websiteLabel: "Web",
   title: "Pozvánka do organizace",
-  description: "Byli jste pozváni do organization Start Labs.",
+  description: "Byli jste pozváni do organizace Start Labs.",
   inviterLine: "Pozval vás Jan Novák.",
   ctaLabel: "Přijmout pozvánku",
   inviteUrl: createOrganizationInviteUrl("demo-token", "cs"),

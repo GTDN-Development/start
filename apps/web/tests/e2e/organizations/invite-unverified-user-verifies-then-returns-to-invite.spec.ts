@@ -29,7 +29,7 @@ test("unverified invited user verifies email and returns to invite handling befo
   const ownerEmail = createIsolatedTestEmail(run.id, "organization-owner-unverified-invite");
   const invitedEmail = createIsolatedTestEmail(run.id, "organization-invited-unverified");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const organizationSlug = `ws-unverified-invite-${suffix}`;
+  const organizationSlug = `org-unverified-invite-${suffix}`;
   const organizationName = `Organization Unverified Invite ${suffix}`;
 
   let pb: PocketBase | null = null;

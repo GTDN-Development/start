@@ -20,7 +20,7 @@ test("owner deletes the current organization and falls back to the personal app 
   const suffix = run.id.slice(-8);
   const ownerEmail = createIsolatedTestEmail(run.id, "organization-delete-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const organizationSlug = `ws-delete-${suffix}`;
+  const organizationSlug = `org-delete-${suffix}`;
   const organizationName = `Organization Delete ${suffix}`;
 
   let pb: PocketBase | null = null;

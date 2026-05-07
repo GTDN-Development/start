@@ -22,7 +22,7 @@ test("existing organization member opening an invite lands directly in organizat
   const ownerEmail = createIsolatedTestEmail(run.id, "organization-owner-existing-member");
   const memberEmail = createIsolatedTestEmail(run.id, "organization-member-existing-member");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const organizationSlug = `ws-existing-member-${suffix}`;
+  const organizationSlug = `org-existing-member-${suffix}`;
   const organizationName = `Organization Existing Member ${suffix}`;
 
   let pb: PocketBase | null = null;

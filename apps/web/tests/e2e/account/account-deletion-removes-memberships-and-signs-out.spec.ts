@@ -26,8 +26,8 @@ test("account deletion removes memberships, clears the session, and returns to s
   const userEmail = createIsolatedTestEmail(run.id, "account-delete-user");
   const otherOwnerEmail = createIsolatedTestEmail(run.id, "account-delete-other-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const ownedOrganizationSlug = `ws-account-delete-owned-${suffix}`;
-  const sharedOrganizationSlug = `ws-account-delete-shared-${suffix}`;
+  const ownedOrganizationSlug = `org-account-delete-owned-${suffix}`;
+  const sharedOrganizationSlug = `org-account-delete-shared-${suffix}`;
 
   let pb: PocketBase | null = null;
   let userId = "";

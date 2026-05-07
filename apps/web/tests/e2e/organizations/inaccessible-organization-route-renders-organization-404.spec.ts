@@ -18,7 +18,7 @@ test("inaccessible organization URL renders organization-scoped 404 state", asyn
   const ownerEmail = createIsolatedTestEmail(run.id, "organization-owner-404");
   const unrelatedEmail = createIsolatedTestEmail(run.id, "organization-unrelated-404");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
-  const organizationSlug = `ws-404-${suffix}`;
+  const organizationSlug = `org-404-${suffix}`;
   const organizationName = `Organization 404 ${suffix}`;
 
   let pb: PocketBase | null = null;
