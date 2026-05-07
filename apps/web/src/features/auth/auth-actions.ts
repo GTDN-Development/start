@@ -23,8 +23,8 @@ import {
   type SignInInput,
 } from "@/features/auth/auth-schemas";
 import {
-  authPasswordSchema,
   normalizedEmailSchema,
+  passwordPolicySchema,
   refinePasswordMatch,
   requiredPasswordSchema,
   requiredTokenSchema,
@@ -71,8 +71,8 @@ const requestEmailVerificationInputSchema = z.object({
 const resetPasswordInputSchema = z
   .object({
     token: requiredTokenSchema(),
-    password: authPasswordSchema(),
-    confirmPassword: authPasswordSchema(),
+    password: passwordPolicySchema(),
+    confirmPassword: requiredPasswordSchema(),
   })
   .superRefine(refinePasswordMatch());
 

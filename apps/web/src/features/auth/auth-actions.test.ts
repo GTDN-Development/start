@@ -87,7 +87,7 @@ describe("auth-actions", function describeAuthActions() {
           firstName: "Ada",
           lastName: "Lovelace",
           email: "ada@example.com",
-          password: "correct-horse-battery-staple",
+          password: "Correcthorsebatterystaple1.",
           turnstileToken: "turnstile-token",
         }),
       sideEffect: signUpWithPassword,

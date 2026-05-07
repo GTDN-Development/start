@@ -2,8 +2,12 @@ import { z } from "zod";
 import { authConfig } from "@/config/auth";
 
 export type AuthPasswordValidationMessages = {
+  required?: string;
   min?: string;
   max?: string;
+  uppercase?: string;
+  number?: string;
+  specialCharacter?: string;
 };
 
 type PasswordMatchRefineOptions<TValues extends Record<string, unknown>> = {
@@ -16,19 +20,32 @@ export function normalizedEmailSchema() {
   return z.string().trim().toLowerCase().pipe(z.email());
 }
 
-export function authPasswordSchema(messages?: AuthPasswordValidationMessages) {
+export function passwordPolicySchema(messages?: AuthPasswordValidationMessages) {
   return z
     .string()
-    .min(authConfig.limits.passwordMinLength, {
+    .min(authConfig.passwordPolicy.minLength, {
       message: messages?.min,
     })
-    .max(authConfig.limits.passwordMaxLength, {
+    .max(authConfig.passwordPolicy.maxLength, {
       message: messages?.max,
+    })
+    .refine((value) => /[A-Z]/.test(value), {
+      message: messages?.uppercase,
+    })
+    .refine((value) => /\d/.test(value), {
+      message: messages?.number,
+    })
+    .refine((value) => /[!@#$%^&*(),.?":{}|<>]/.test(value), {
+      message: messages?.specialCharacter,
     });
 }
 
-export function requiredPasswordSchema() {
-  return z.string().trim().min(1);
+export function requiredPasswordSchema(
+  messages?: Pick<AuthPasswordValidationMessages, "required">
+) {
+  return z.string().trim().min(1, {
+    message: messages?.required,
+  });
 }
 
 export function turnstileTokenSchema(options?: { enabled?: boolean }) {

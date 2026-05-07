@@ -14,6 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { AlertCircleIcon, UserPlusIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
+import { authConfig } from "@/config/auth";
 import { legalLinks } from "@/config/menu";
 import { isTurnstileEnabled } from "@/config/security";
 import { signUpAction } from "@/features/auth/auth-actions";
@@ -40,8 +41,15 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     lastNameMin: t("validation.lastNameMin"),
     lastNameMax: t("validation.lastNameMax"),
     email: t("validation.email"),
-    passwordMin: t("validation.passwordMin"),
-    passwordMax: t("validation.passwordMax"),
+    passwordMin: t("validation.passwordMin", {
+      min: String(authConfig.passwordPolicy.minLength),
+    }),
+    passwordMax: t("validation.passwordMax", {
+      max: String(authConfig.passwordPolicy.maxLength),
+    }),
+    passwordUppercase: t("validation.passwordUppercase"),
+    passwordNumber: t("validation.passwordNumber"),
+    passwordSpecialCharacter: t("validation.passwordSpecialCharacter"),
   });
   const turnstileSchema = z.object({
     turnstileToken: turnstileEnabled
