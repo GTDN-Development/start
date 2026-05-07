@@ -56,18 +56,18 @@ export function OrganizationMembersTable({
   return (
     <>
       <div className="hidden @lg/members-management:block">
-        <Table>
+        <Table className="table-fixed">
           <TableHeader>
             <TableRow>
               <TableHead>{t("table.members.user")}</TableHead>
-              <TableHead>{t("table.members.role")}</TableHead>
-              <TableHead className="text-right">{t("table.members.actions")}</TableHead>
+              <TableHead className="w-36">{t("table.members.role")}</TableHead>
+              <TableHead className="w-16 text-right">{t("table.members.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map((member) => (
               <TableRow key={member.id}>
-                <TableCell className="min-w-72">
+                <TableCell className="min-w-0">
                   <OrganizationMemberIdentityCell member={member} />
                 </TableCell>
                 <TableCell>{getOrganizationMemberRoleLabel(member.role, tRoles)}</TableCell>
@@ -149,7 +149,7 @@ function OrganizationMemberIdentityCell({ member }: { member: OrganizationSettin
   const avatarColorClass = getAvatarColorClass(member.userId);
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex min-w-0 items-center gap-3">
       <Avatar>
         {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt="" /> : null}
         <AvatarFallback className={avatarColorClass}>{initials}</AvatarFallback>

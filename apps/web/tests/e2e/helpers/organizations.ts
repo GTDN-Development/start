@@ -63,12 +63,9 @@ export async function removeOrganizationMember(options: {
   memberIdentifier: string;
 }): Promise<void> {
   const memberRow = getOrganizationMemberRow(options.page, options.memberIdentifier);
-  const actionButton = memberRow.getByRole("button", { name: "Otevřít akce člena" });
 
   await expect(memberRow).toBeVisible();
-  await expect(actionButton).toBeVisible();
-  await actionButton.focus();
-  await options.page.keyboard.press("Enter");
+  await memberRow.getByRole("button", { name: "Otevřít akce člena" }).click();
   await options.page.getByRole("menuitem", { name: "Odebrat z organizace" }).click();
 
   const dialog = options.page.getByRole("alertdialog");

@@ -102,11 +102,11 @@ test("admin removes a member via UI and the removed user immediately loses acces
 
     await removeOrganizationMember({
       page,
-      memberIdentifier: memberName,
+      memberIdentifier: memberEmail,
     });
 
     await expect(page.getByText("Člen byl odebrán.")).toBeVisible();
-    await expect(page.locator("tbody tr").filter({ hasText: memberName })).toHaveCount(0);
+    await expect(page.locator("tbody tr").filter({ hasText: memberEmail })).toHaveCount(0);
 
     await memberPage.goto("/cs/prihlasit-se");
     await expect(memberPage).toHaveURL(/\/cs\/aplikace$/);

@@ -422,6 +422,12 @@ routerAdd("POST", "/api/start/organization-invites/accept", function acceptOrgan
   }
 });
 
+onRecordCreateRequest(function defaultUserEmailVisibility(e) {
+  e.record.set("emailVisibility", true);
+
+  return e.next();
+}, "users");
+
 onRecordUpdateRequest(function guardOrganizationMemberUpdate(e) {
   var ORGANIZATION_ROLE_OWNER = "owner";
 

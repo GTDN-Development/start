@@ -65,6 +65,7 @@ export async function createVerifiedUser(options: {
 }): Promise<RecordModel> {
   return await options.pb.collection("users").create({
     email: options.email,
+    emailVisibility: true,
     password: options.password,
     passwordConfirm: options.password,
     name: options.name ?? "E2E User",
@@ -81,6 +82,7 @@ export async function createUser(options: {
 }): Promise<RecordModel> {
   return await options.pb.collection("users").create({
     email: options.email,
+    emailVisibility: true,
     password: options.password,
     passwordConfirm: options.password,
     name: options.name ?? "E2E User",
