@@ -7,6 +7,7 @@ const {
   deleteWorkspace,
   getActiveWorkspaceSlugCookie,
   leaveWorkspace,
+  resolveAccessibleWorkspaceForCurrentUser,
   setActiveWorkspaceSlugCookie,
   updateWorkspaceGeneral,
 } = vi.hoisted(function hoistWorkspaceGeneralActionMocks() {
@@ -17,6 +18,7 @@ const {
     deleteWorkspace: vi.fn(),
     getActiveWorkspaceSlugCookie: vi.fn(),
     leaveWorkspace: vi.fn(),
+    resolveAccessibleWorkspaceForCurrentUser: vi.fn(),
     setActiveWorkspaceSlugCookie: vi.fn(),
     updateWorkspaceGeneral: vi.fn(),
   };
@@ -36,20 +38,18 @@ vi.mock("@/server/workspaces/workspace-cookie", function mockWorkspaceCookie() {
   };
 });
 
-vi.mock("@/server/workspaces/workspace-mutations", function mockWorkspaceMutations() {
+vi.mock("@/server/workspaces/workspace-general-mutations", function mockWorkspaceMutations() {
   return {
-    workspaceMutations: {
-      createWorkspace,
-      deleteWorkspace,
-      leaveWorkspace,
-      updateWorkspaceGeneral,
-    },
+    createWorkspace,
+    deleteWorkspace,
+    leaveWorkspace,
+    updateWorkspaceGeneral,
   };
 });
 
 vi.mock("@/server/workspaces/workspace-route-queries", function mockWorkspaceRouteQueries() {
   return {
-    resolveAccessibleWorkspaceForCurrentUser: vi.fn(),
+    resolveAccessibleWorkspaceForCurrentUser,
   };
 });
 
@@ -57,6 +57,7 @@ import {
   createWorkspaceAction,
   deleteWorkspaceAction,
   leaveWorkspaceAction,
+  switchWorkspaceAction,
   updateWorkspaceGeneralAction,
 } from "./workspace-general-actions";
 
@@ -66,7 +67,7 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
     vi.mocked(applyServerActionAuthCookies).mockResolvedValue(undefined);
   });
 
-  it("returns the mapped workspace payload and sets the active cookie on create", async function testCreateWorkspace() {
+  it("returns the navigation patch and sets the active cookie on create", async function testCreateWorkspace() {
     vi.mocked(createWorkspace).mockResolvedValue({
       ok: true,
       data: {
@@ -85,13 +86,47 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
     expectWorkspaceActionSuccess(response, {
       workspaceSlug: "new-space",
       name: "New Space",
+      activeWorkspaceSlug: "new-space",
+      redirectPathname: "/w/[workspaceSlug]/overview",
+    });
+    expect(setActiveWorkspaceSlugCookie).toHaveBeenCalledWith("new-space");
+  });
+
+  it("returns the navigation patch and sets the active cookie on switch", async function testSwitchWorkspace() {
+    vi.mocked(resolveAccessibleWorkspaceForCurrentUser).mockResolvedValue({
+      ok: true,
+      data: {
+        workspace: createUserWorkspace({
+          slug: "new-space",
+          name: "New Space",
+        }),
+      },
+    });
+
+    const response = await switchWorkspaceAction("new-space");
+
+    expect(response).toMatchObject({
+      ok: true,
+      data: {
+        switched: true,
+        workspaceSlug: "new-space",
+        navigationPatch: {
+          activeWorkspaceSlug: "new-space",
+          redirectHref: {
+            pathname: "/w/[workspaceSlug]/overview",
+            params: {
+              workspaceSlug: "new-space",
+            },
+          },
+        },
+      },
     });
     expect(setActiveWorkspaceSlugCookie).toHaveBeenCalledWith("new-space");
   });
 
   it.each([
     {
-      name: "updates the active cookie when renaming the current workspace",
+      name: "updates the active cookie and redirects when renaming the current workspace",
       activeWorkspaceSlug: "team-space",
       input: {
         slug: "renamed-space",
@@ -104,11 +139,13 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
         workspaceSlug: "renamed-space",
         name: "Team Space",
         avatarUrl: null,
+        activeWorkspaceSlug: "renamed-space",
+        redirectPathname: "/w/[workspaceSlug]/settings",
       },
       shouldSetActiveCookie: true,
     },
     {
-      name: "does not touch the active cookie for metadata-only updates",
+      name: "only upserts navigation for metadata-only updates",
       activeWorkspaceSlug: "active-space",
       input: {
         name: "Updated Team Space",
@@ -150,13 +187,8 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
           ok: true,
           data: {
             left: true,
+            workspaceId: "workspace-1",
           },
-        });
-      },
-      resolveFailure: function resolveFailure() {
-        vi.mocked(leaveWorkspace).mockResolvedValue({
-          ok: false,
-          errorCode: "FORBIDDEN",
         });
       },
     },
@@ -168,29 +200,36 @@ describe("workspace-general-actions", function describeWorkspaceGeneralActions()
           ok: true,
           data: {
             deleted: true,
+            workspaceId: "workspace-1",
           },
-        });
-      },
-      resolveFailure: function resolveFailure() {
-        vi.mocked(deleteWorkspace).mockResolvedValue({
-          ok: false,
-          errorCode: "FORBIDDEN",
         });
       },
     },
   ])(
     "clears the active cookie after successful $name only for the active workspace",
     async function testWorkspaceRemovalCookieCleanup(input) {
-      input.resolveSuccess();
-
       for (const activeWorkspaceSlug of ["team-space", "other-space", null] as const) {
         vi.clearAllMocks();
         vi.mocked(applyServerActionAuthCookies).mockResolvedValue(undefined);
         input.resolveSuccess();
         vi.mocked(getActiveWorkspaceSlugCookie).mockResolvedValue(activeWorkspaceSlug);
 
-        await input.action("team-space");
+        const response = await input.action("team-space");
+        const expectedNavigationPatch = {
+          removeWorkspaceId: "workspace-1",
+          ...(activeWorkspaceSlug === "team-space" ? { activeWorkspaceSlug: null } : {}),
+          redirectHref: "/app",
+        };
 
+        expect(response).toMatchObject({
+          ok: true,
+          data: {
+            navigationPatch: expectedNavigationPatch,
+          },
+        });
+        if (activeWorkspaceSlug !== "team-space" && response.ok) {
+          expect(response.data.navigationPatch).not.toHaveProperty("activeWorkspaceSlug");
+        }
         expect(clearActiveWorkspaceSlugCookie).toHaveBeenCalledTimes(
           activeWorkspaceSlug === "team-space" ? 1 : 0
         );
@@ -272,18 +311,38 @@ function expectWorkspaceActionSuccess(
     workspaceSlug: string;
     name: string;
     avatarUrl?: string | null;
+    activeWorkspaceSlug?: string;
+    redirectPathname?: string;
   }
 ) {
+  const workspace = {
+    id: "workspace-1",
+    slug: expectedWorkspace.workspaceSlug,
+    name: expectedWorkspace.name,
+    role: "owner",
+    avatarUrl: expectedWorkspace.avatarUrl ?? null,
+  };
+
   expect(response).toEqual({
     ok: true,
     data: {
       workspaceSlug: expectedWorkspace.workspaceSlug,
-      workspace: {
-        id: "workspace-1",
-        slug: expectedWorkspace.workspaceSlug,
-        name: expectedWorkspace.name,
-        role: "owner",
-        avatarUrl: expectedWorkspace.avatarUrl ?? null,
+      workspace,
+      navigationPatch: {
+        upsertWorkspace: workspace,
+        ...(expectedWorkspace.activeWorkspaceSlug
+          ? { activeWorkspaceSlug: expectedWorkspace.activeWorkspaceSlug }
+          : {}),
+        ...(expectedWorkspace.redirectPathname
+          ? {
+              redirectHref: {
+                pathname: expectedWorkspace.redirectPathname,
+                params: {
+                  workspaceSlug: expectedWorkspace.workspaceSlug,
+                },
+              },
+            }
+          : {}),
       },
     },
   });

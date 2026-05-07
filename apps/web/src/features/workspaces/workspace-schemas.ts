@@ -64,11 +64,6 @@ export type WorkspaceCreateValidationMessages = {
   max: string;
 };
 
-export type WorkspaceUrlValidationMessages = {
-  required: string;
-  max: string;
-};
-
 export type WorkspaceConfirmationValidationMessages = {
   confirmationRequired: string;
   confirmationMismatch: string;
@@ -89,21 +84,7 @@ export function createWorkspaceNameFormSchema(messages: WorkspaceCreateValidatio
   });
 }
 
-export function createWorkspaceUrlFormSchema(messages: WorkspaceUrlValidationMessages) {
-  return z.object({
-    url: z
-      .string()
-      .trim()
-      .min(1, {
-        message: messages.required,
-      })
-      .max(workspaceSlugMaxLength, {
-        message: messages.max,
-      }),
-  });
-}
-
-export function createWorkspaceLeaveFormSchema(
+export function createWorkspaceConfirmationFormSchema(
   workspaceSlug: string,
   messages: WorkspaceConfirmationValidationMessages
 ) {
@@ -117,27 +98,7 @@ export function createWorkspaceLeaveFormSchema(
       .refine((value) => value === workspaceSlug, {
         message: messages.confirmationMismatch,
       }),
-    isLeavingAcknowledged: z.boolean().refine((value) => value === true, {
-      message: messages.acknowledged,
-    }),
-  });
-}
-
-export function createWorkspaceDeleteFormSchema(
-  workspaceSlug: string,
-  messages: WorkspaceConfirmationValidationMessages
-) {
-  return z.object({
-    confirmationUrl: z
-      .string()
-      .trim()
-      .min(1, {
-        message: messages.confirmationRequired,
-      })
-      .refine((value) => value === workspaceSlug, {
-        message: messages.confirmationMismatch,
-      }),
-    isDeletionAcknowledged: z.boolean().refine((value) => value === true, {
+    isAcknowledged: z.boolean().refine((value) => value === true, {
       message: messages.acknowledged,
     }),
   });

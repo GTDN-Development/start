@@ -1,7 +1,7 @@
 import {
   findWorkspaceMemberById,
   isLastOwnerGuardError,
-  mapMutationError,
+  mapMutationStatusError,
 } from "@/server/workspaces/workspace-mutation-utils";
 import { resolveWorkspaceActionAccess } from "@/server/workspaces/workspace-route-queries";
 import type {
@@ -44,24 +44,11 @@ export async function changeMemberRole(
       },
     };
   } catch (error) {
-    return mapMutationError(
-      "workspaceMutations.changeMemberRole",
+    return mapMutationStatusError(
+      "changeMemberRole",
       error,
-      function mapError(pocketBaseError) {
-        if (isLastOwnerGuardError(pocketBaseError)) {
-          return "LAST_OWNER_GUARD";
-        }
-
-        if (pocketBaseError.status === 400) {
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 403 || pocketBaseError.status === 404) {
-          return "FORBIDDEN";
-        }
-
-        return null;
-      }
+      { 400: "BAD_REQUEST", 403: "FORBIDDEN", 404: "FORBIDDEN" },
+      (pocketBaseError) => (isLastOwnerGuardError(pocketBaseError) ? "LAST_OWNER_GUARD" : null)
     );
   }
 }
@@ -103,20 +90,11 @@ export async function removeMember(
       },
     };
   } catch (error) {
-    return mapMutationError(
-      "workspaceMutations.removeMember",
+    return mapMutationStatusError(
+      "removeMember",
       error,
-      function mapError(pocketBaseError) {
-        if (isLastOwnerGuardError(pocketBaseError)) {
-          return "LAST_OWNER_GUARD";
-        }
-
-        if (pocketBaseError.status === 403 || pocketBaseError.status === 404) {
-          return "FORBIDDEN";
-        }
-
-        return null;
-      }
+      { 403: "FORBIDDEN", 404: "FORBIDDEN" },
+      (pocketBaseError) => (isLastOwnerGuardError(pocketBaseError) ? "LAST_OWNER_GUARD" : null)
     );
   }
 }

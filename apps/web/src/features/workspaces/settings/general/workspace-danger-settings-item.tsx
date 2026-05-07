@@ -4,7 +4,7 @@ import { useForm } from "@tanstack/react-form";
 import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { LogOutIcon } from "lucide-react";
+import { LogOutIcon, Trash2Icon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,31 +29,37 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
-import { createWorkspaceLeaveFormSchema } from "@/features/workspaces/workspace-schemas";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
+import { createWorkspaceConfirmationFormSchema } from "@/features/workspaces/workspace-schemas";
 import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
-type LeaveWorkspaceFormValues = {
-  confirmationUrl: string;
-  isLeavingAcknowledged: boolean;
+type WorkspaceDangerSettingsItemProps = {
+  kind: "leave" | "delete";
+  workspace: WorkspaceSettingsWorkspace;
+  onAction: () => Promise<WorkspaceResponse<{ left?: true; deleted?: true }>>;
 };
 
-export function WorkspaceLeaveSettingsItem({
+type WorkspaceDangerFormValues = {
+  confirmationUrl: string;
+  isAcknowledged: boolean;
+};
+
+export function WorkspaceDangerSettingsItem({
+  kind,
   workspace,
-  onLeaveWorkspaceAction,
-}: {
-  workspace: WorkspaceSettingsWorkspace;
-  onLeaveWorkspaceAction: () => Promise<WorkspaceResponse<{ left: true }>>;
-}) {
-  const t = useTranslations("pages.workspace.general.leave");
+  onAction,
+}: WorkspaceDangerSettingsItemProps) {
+  const t = useTranslations(`pages.workspace.general.${kind}`);
   const tCommon = useTranslations("pages.workspace.common");
-  const leaveWorkspaceToastId = useId();
-  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
+  const toastId = useId();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const isLeaveBlockedByLastOwnerGuard =
-    workspace.role === "owner" && workspace.isCurrentUserLastOwner;
-
-  const leaveWorkspaceSchema = createWorkspaceLeaveFormSchema(workspace.slug, {
+  const isBlocked =
+    kind === "leave"
+      ? workspace.role === "owner" && workspace.isCurrentUserLastOwner
+      : workspace.role !== "owner";
+  const Icon = kind === "leave" ? LogOutIcon : Trash2Icon;
+  const confirmationSchema = createWorkspaceConfirmationFormSchema(workspace.slug, {
     confirmationRequired: t("validation.confirmationUrl.required"),
     confirmationMismatch: t("validation.confirmationUrl.mismatch", {
       workspaceSlug: workspace.slug,
@@ -64,45 +70,40 @@ export function WorkspaceLeaveSettingsItem({
   const form = useForm({
     defaultValues: {
       confirmationUrl: "",
-      isLeavingAcknowledged: false,
+      isAcknowledged: false,
     },
     validators: {
-      onSubmit: leaveWorkspaceSchema,
+      onSubmit: confirmationSchema,
     },
-    onSubmit: async (_: { value: LeaveWorkspaceFormValues }) => {
-      if (isLeaveBlockedByLastOwnerGuard) {
+    onSubmit: async (_: { value: WorkspaceDangerFormValues }) => {
+      if (isBlocked) {
         return;
       }
 
-      const response = await onLeaveWorkspaceAction();
+      const response = await onAction();
 
       if (!response.ok) {
         toast.error(
-          response.errorCode === "LAST_OWNER_GUARD"
+          kind === "leave" && response.errorCode === "LAST_OWNER_GUARD"
             ? t("status.lastOwnerGuard")
             : t("status.failed"),
-          {
-            id: leaveWorkspaceToastId,
-          }
+          { id: toastId }
         );
         return;
       }
 
-      toast.success(t("status.success"), {
-        id: leaveWorkspaceToastId,
-      });
-
-      setIsLeaveDialogOpen(false);
+      toast.success(t("status.success"), { id: toastId });
+      setIsOpen(false);
       form.reset();
     },
   });
 
-  function handleLeaveDialogOpenChange(open: boolean) {
-    if (isLeaveBlockedByLastOwnerGuard && open) {
+  function handleOpenChange(open: boolean) {
+    if (isBlocked && open) {
       return;
     }
 
-    setIsLeaveDialogOpen(open);
+    setIsOpen(open);
 
     if (open) {
       form.reset();
@@ -110,7 +111,7 @@ export function WorkspaceLeaveSettingsItem({
   }
 
   return (
-    <SettingsItem variant="destructive" disabled={isLeaveBlockedByLastOwnerGuard}>
+    <SettingsItem variant="destructive" disabled={isBlocked}>
       <SettingsItemContent>
         <SettingsItemContentHeader>
           <SettingsItemTitle>{t("title")}</SettingsItemTitle>
@@ -123,10 +124,12 @@ export function WorkspaceLeaveSettingsItem({
       </SettingsItemContent>
 
       <SettingsItemFooter>
-        {isLeaveBlockedByLastOwnerGuard && (
-          <SettingsItemDescription>{t("ownerGuardHint")}</SettingsItemDescription>
+        {isBlocked && (
+          <SettingsItemDescription>
+            {kind === "leave" ? t("ownerGuardHint") : tCommon("readOnlyHint")}
+          </SettingsItemDescription>
         )}
-        <AlertDialog open={isLeaveDialogOpen} onOpenChange={handleLeaveDialogOpenChange}>
+        <AlertDialog open={isOpen} onOpenChange={handleOpenChange}>
           <AlertDialogTrigger
             nativeButton={true}
             render={
@@ -135,7 +138,7 @@ export function WorkspaceLeaveSettingsItem({
                 variant="destructive"
                 size="lg"
                 className="sm:ml-auto"
-                disabled={isLeaveBlockedByLastOwnerGuard}
+                disabled={isBlocked}
               >
                 {t("trigger")}
               </Button>
@@ -171,12 +174,12 @@ export function WorkspaceLeaveSettingsItem({
 
                           return (
                             <Field data-invalid={isInvalid}>
-                              <FieldLabel htmlFor={`workspace-leave-${field.name}`}>
+                              <FieldLabel htmlFor={`workspace-${kind}-${field.name}`}>
                                 {t("dialog.fields.confirmationUrl.label")}
                               </FieldLabel>
                               <Input
-                                id={`workspace-leave-${field.name}`}
-                                name={`workspace-leave-${field.name}`}
+                                id={`workspace-${kind}-${field.name}`}
+                                name={`workspace-${kind}-${field.name}`}
                                 value={field.state.value}
                                 onBlur={field.handleBlur}
                                 onChange={(event) => field.handleChange(event.target.value)}
@@ -195,7 +198,7 @@ export function WorkspaceLeaveSettingsItem({
                         }}
                       </form.Field>
 
-                      <form.Field name="isLeavingAcknowledged">
+                      <form.Field name="isAcknowledged">
                         {(field) => {
                           const isInvalid =
                             (field.state.meta.isTouched || submissionAttempts > 0) &&
@@ -205,8 +208,8 @@ export function WorkspaceLeaveSettingsItem({
                             <div className="flex flex-col gap-2">
                               <Field orientation="horizontal" data-invalid={isInvalid}>
                                 <Checkbox
-                                  id={`workspace-leave-${field.name}`}
-                                  name={`workspace-leave-${field.name}`}
+                                  id={`workspace-${kind}-${field.name}`}
+                                  name={`workspace-${kind}-${field.name}`}
                                   checked={field.state.value}
                                   onBlur={field.handleBlur}
                                   onCheckedChange={(checked) =>
@@ -214,7 +217,7 @@ export function WorkspaceLeaveSettingsItem({
                                   }
                                   aria-invalid={isInvalid}
                                 />
-                                <FieldLabel htmlFor={`workspace-leave-${field.name}`}>
+                                <FieldLabel htmlFor={`workspace-${kind}-${field.name}`}>
                                   {t("dialog.fields.acknowledged.label")}
                                 </FieldLabel>
                               </Field>
@@ -238,7 +241,7 @@ export function WorkspaceLeaveSettingsItem({
                         {isSubmitting ? (
                           <Spinner />
                         ) : (
-                          <LogOutIcon aria-hidden="true" className="size-4" />
+                          <Icon aria-hidden="true" className="size-4" />
                         )}
                         {isSubmitting ? t("dialog.submit.pending") : t("dialog.submit.default")}
                       </AlertDialogAction>

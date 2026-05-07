@@ -28,24 +28,22 @@ const domainDefinitions = [
 const representativeScenarios = [
   {
     name: "workspace-general-update",
-    flow: "workspace-general-settings-section.tsx -> workspace-url-settings-item.tsx -> workspace-general-actions.ts -> workspace-mutations.ts",
+    flow: "workspace-general-settings-section.tsx -> workspace-text-settings-item.tsx -> workspace-general-actions.ts",
     why: "Tracks the concrete workspace slug update path after route handoff into the general-settings owner.",
     files: [
       "apps/web/src/features/workspaces/settings/general/workspace-general-settings-section.tsx",
-      "apps/web/src/features/workspaces/settings/general/workspace-url-settings-item.tsx",
+      "apps/web/src/features/workspaces/settings/general/workspace-text-settings-item.tsx",
       "apps/web/src/features/workspaces/settings/general/workspace-general-actions.ts",
-      "apps/web/src/server/workspaces/workspace-mutations.ts",
     ],
   },
   {
     name: "workspace-membership-change",
-    flow: "workspace-members-settings-section.tsx -> workspace-members-table.tsx -> workspace-members-actions.ts -> workspace-mutations.ts",
+    flow: "workspace-members-settings-section.tsx -> workspace-members-table.tsx -> workspace-members-actions.ts",
     why: "Tracks the concrete member-role and member-removal path through the single members screen owner.",
     files: [
       "apps/web/src/features/workspaces/settings/members/workspace-members-settings-section.tsx",
       "apps/web/src/features/workspaces/settings/members/workspace-members-table.tsx",
       "apps/web/src/features/workspaces/settings/members/workspace-members-actions.ts",
-      "apps/web/src/server/workspaces/workspace-mutations.ts",
     ],
   },
   {

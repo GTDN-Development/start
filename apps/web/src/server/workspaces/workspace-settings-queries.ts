@@ -1,8 +1,5 @@
 import type PocketBase from "pocketbase";
-import {
-  mapWorkspaceErrorCode,
-  logWorkspaceServiceError,
-} from "@/server/workspaces/workspace-errors";
+import { createWorkspaceErrorResponse } from "@/server/workspaces/workspace-errors";
 import {
   mapWorkspaceInviteSummary,
   mapWorkspaceMemberSummary,
@@ -77,27 +74,8 @@ function mapSettingsQueryError<TData>(
   context: string,
   error: unknown
 ): ServerWorkspaceResponse<TData> {
-  const errorCode = mapWorkspaceErrorCode(
-    error,
-    function mapSettingsQueryErrorCode(pocketBaseError) {
-      if (pocketBaseError.status === 404) {
-        return "NOT_FOUND";
-      }
-
-      if (pocketBaseError.status === 403) {
-        return "FORBIDDEN";
-      }
-
-      return null;
-    }
-  );
-
-  if (errorCode === "UNKNOWN_ERROR") {
-    logWorkspaceServiceError(context, error);
-  }
-
-  return {
-    ok: false,
-    errorCode,
-  };
+  return createWorkspaceErrorResponse(context, error, {
+    403: "FORBIDDEN",
+    404: "NOT_FOUND",
+  });
 }

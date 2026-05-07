@@ -203,13 +203,7 @@ export function WorkspaceInviteMembersSettingsItem({
 }
 
 function getInviteErrorMessage(errorCode: string, tInvite: (key: string) => string): string {
-  if (errorCode === "BAD_REQUEST") {
-    return tInvite("status.alreadyMemberOrInvited");
-  }
-
-  if (errorCode === "FORBIDDEN") {
-    return tInvite("status.sendFailed");
-  }
-
-  return tInvite("status.sendFailed");
+  return errorCode === "BAD_REQUEST"
+    ? tInvite("status.alreadyMemberOrInvited")
+    : tInvite("status.sendFailed");
 }

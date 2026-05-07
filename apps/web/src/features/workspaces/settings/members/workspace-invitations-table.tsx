@@ -45,6 +45,11 @@ export function WorkspaceInvitationsTable({
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
+  const actionProps = {
+    isReadOnly,
+    onResendInvitationRequestAction,
+    onRemoveInvitationRequestAction,
+  };
 
   return (
     <>
@@ -65,12 +70,7 @@ export function WorkspaceInvitationsTable({
                 </TableCell>
                 <TableCell>{getWorkspaceMemberRoleLabel(invitation.role, tRoles)}</TableCell>
                 <TableCell className="text-right">
-                  <WorkspaceInvitationActionsMenu
-                    invitation={invitation}
-                    isReadOnly={isReadOnly}
-                    onResendInvitationRequestAction={onResendInvitationRequestAction}
-                    onRemoveInvitationRequestAction={onRemoveInvitationRequestAction}
-                  />
+                  <WorkspaceInvitationActionsMenu invitation={invitation} {...actionProps} />
                 </TableCell>
               </TableRow>
             ))}
@@ -94,12 +94,7 @@ export function WorkspaceInvitationsTable({
 
               <DescriptionTerm>{t("table.invites.actions")}</DescriptionTerm>
               <DescriptionDetails>
-                <WorkspaceInvitationActionsMenu
-                  invitation={invitation}
-                  isReadOnly={isReadOnly}
-                  onResendInvitationRequestAction={onResendInvitationRequestAction}
-                  onRemoveInvitationRequestAction={onRemoveInvitationRequestAction}
-                />
+                <WorkspaceInvitationActionsMenu invitation={invitation} {...actionProps} />
               </DescriptionDetails>
             </DescriptionList>
           </div>

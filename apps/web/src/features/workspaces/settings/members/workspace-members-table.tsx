@@ -34,15 +34,7 @@ import type {
 } from "@/features/workspaces/settings/workspace-settings-types";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 
-export function WorkspaceMembersTable({
-  rows,
-  currentUserId,
-  actorRole,
-  ownerCount,
-  onChangeRoleRequestAction,
-  onLeaveWorkspaceRequestAction,
-  onRemoveMemberRequestAction,
-}: {
+type WorkspaceMembersTableProps = {
   rows: WorkspaceSettingsMember[];
   currentUserId: string;
   actorRole: WorkspaceSettingsWorkspace["role"];
@@ -50,31 +42,48 @@ export function WorkspaceMembersTable({
   onChangeRoleRequestAction: (member: WorkspaceSettingsMember) => void;
   onLeaveWorkspaceRequestAction: () => void;
   onRemoveMemberRequestAction: (member: WorkspaceSettingsMember) => void;
-}) {
+};
+
+type WorkspaceMemberActionContext = Omit<WorkspaceMembersTableProps, "rows">;
+
+export function WorkspaceMembersTable({ rows, ...actionContext }: WorkspaceMembersTableProps) {
+  const t = useTranslations("pages.workspace.members.management");
+  const tRoles = useTranslations("pages.workspace.members.roles");
+
   return (
     <>
       <div className="hidden @lg/members-management:block">
-        <WorkspaceMembersDataTable
-          rows={rows}
-          currentUserId={currentUserId}
-          actorRole={actorRole}
-          ownerCount={ownerCount}
-          onChangeRoleRequestAction={onChangeRoleRequestAction}
-          onLeaveWorkspaceRequestAction={onLeaveWorkspaceRequestAction}
-          onRemoveMemberRequestAction={onRemoveMemberRequestAction}
-        />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t("table.members.user")}</TableHead>
+              <TableHead>{t("table.members.role")}</TableHead>
+              <TableHead className="text-right">{t("table.members.actions")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((member) => (
+              <TableRow key={member.id}>
+                <TableCell className="min-w-72">
+                  <WorkspaceMemberIdentityCell member={member} />
+                </TableCell>
+                <TableCell>{getWorkspaceMemberRoleLabel(member.role, tRoles)}</TableCell>
+                <TableCell className="text-right">
+                  <WorkspaceMembersActionMenu
+                    {...createMemberActionMenuProps(member, actionContext)}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
       <div className="grid gap-3 @lg/members-management:hidden">
         {rows.map((member) => (
           <WorkspaceMemberDescriptionRow
             key={member.id}
             member={member}
-            currentUserId={currentUserId}
-            actorRole={actorRole}
-            ownerCount={ownerCount}
-            onChangeRoleRequestAction={onChangeRoleRequestAction}
-            onLeaveWorkspaceRequestAction={onLeaveWorkspaceRequestAction}
-            onRemoveMemberRequestAction={onRemoveMemberRequestAction}
+            actionContext={actionContext}
           />
         ))}
       </div>
@@ -82,79 +91,12 @@ export function WorkspaceMembersTable({
   );
 }
 
-function WorkspaceMembersDataTable({
-  rows,
-  currentUserId,
-  actorRole,
-  ownerCount,
-  onChangeRoleRequestAction,
-  onLeaveWorkspaceRequestAction,
-  onRemoveMemberRequestAction,
-}: {
-  rows: WorkspaceSettingsMember[];
-  currentUserId: string;
-  actorRole: WorkspaceSettingsWorkspace["role"];
-  ownerCount: number;
-  onChangeRoleRequestAction: (member: WorkspaceSettingsMember) => void;
-  onLeaveWorkspaceRequestAction: () => void;
-  onRemoveMemberRequestAction: (member: WorkspaceSettingsMember) => void;
-}) {
-  const t = useTranslations("pages.workspace.members.management");
-  const tRoles = useTranslations("pages.workspace.members.roles");
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>{t("table.members.user")}</TableHead>
-          <TableHead>{t("table.members.role")}</TableHead>
-          <TableHead className="text-right">{t("table.members.actions")}</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rows.map((member) => (
-          <TableRow key={member.id}>
-            <TableCell className="min-w-72">
-              <WorkspaceMemberIdentityCell member={member} />
-            </TableCell>
-            <TableCell>{getWorkspaceMemberRoleLabel(member.role, tRoles)}</TableCell>
-            <TableCell className="text-right">
-              <WorkspaceMembersActionMenu
-                member={member}
-                currentUserId={currentUserId}
-                isChangeRoleDisabled={!canManageWorkspaceMemberRole(actorRole, member.role)}
-                isRemoveDisabled={
-                  !canManageWorkspaceMemberRole(actorRole, member.role) ||
-                  isLastWorkspaceOwner(member.role, ownerCount)
-                }
-                onChangeRoleRequestAction={onChangeRoleRequestAction}
-                onLeaveWorkspaceRequestAction={onLeaveWorkspaceRequestAction}
-                onRemoveMemberRequestAction={onRemoveMemberRequestAction}
-              />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
 function WorkspaceMemberDescriptionRow({
   member,
-  currentUserId,
-  actorRole,
-  ownerCount,
-  onChangeRoleRequestAction,
-  onLeaveWorkspaceRequestAction,
-  onRemoveMemberRequestAction,
+  actionContext,
 }: {
   member: WorkspaceSettingsMember;
-  currentUserId: string;
-  actorRole: WorkspaceSettingsWorkspace["role"];
-  ownerCount: number;
-  onChangeRoleRequestAction: (member: WorkspaceSettingsMember) => void;
-  onLeaveWorkspaceRequestAction: () => void;
-  onRemoveMemberRequestAction: (member: WorkspaceSettingsMember) => void;
+  actionContext: WorkspaceMemberActionContext;
 }) {
   const t = useTranslations("pages.workspace.members.management");
   const tRoles = useTranslations("pages.workspace.members.roles");
@@ -172,22 +114,28 @@ function WorkspaceMemberDescriptionRow({
 
         <DescriptionTerm>{t("table.members.actions")}</DescriptionTerm>
         <DescriptionDetails>
-          <WorkspaceMembersActionMenu
-            member={member}
-            currentUserId={currentUserId}
-            isChangeRoleDisabled={!canManageWorkspaceMemberRole(actorRole, member.role)}
-            isRemoveDisabled={
-              !canManageWorkspaceMemberRole(actorRole, member.role) ||
-              isLastWorkspaceOwner(member.role, ownerCount)
-            }
-            onChangeRoleRequestAction={onChangeRoleRequestAction}
-            onLeaveWorkspaceRequestAction={onLeaveWorkspaceRequestAction}
-            onRemoveMemberRequestAction={onRemoveMemberRequestAction}
-          />
+          <WorkspaceMembersActionMenu {...createMemberActionMenuProps(member, actionContext)} />
         </DescriptionDetails>
       </DescriptionList>
     </div>
   );
+}
+
+function createMemberActionMenuProps(
+  member: WorkspaceSettingsMember,
+  context: WorkspaceMemberActionContext
+) {
+  const isManageDisabled = !canManageWorkspaceMemberRole(context.actorRole, member.role);
+
+  return {
+    member,
+    currentUserId: context.currentUserId,
+    isChangeRoleDisabled: isManageDisabled,
+    isRemoveDisabled: isManageDisabled || isLastWorkspaceOwner(member.role, context.ownerCount),
+    onChangeRoleRequestAction: context.onChangeRoleRequestAction,
+    onLeaveWorkspaceRequestAction: context.onLeaveWorkspaceRequestAction,
+    onRemoveMemberRequestAction: context.onRemoveMemberRequestAction,
+  };
 }
 
 function WorkspaceMemberIdentityCell({ member }: { member: WorkspaceSettingsMember }) {

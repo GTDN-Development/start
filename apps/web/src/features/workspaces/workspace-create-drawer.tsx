@@ -17,14 +17,12 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
-import { getWorkspaceOverviewHref } from "@/config/routes";
 import { createWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import {
   createWorkspaceNameFormSchema,
   workspaceNameMaxLength,
 } from "@/features/workspaces/workspace-schemas";
-import { useOptionalWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
-import { useRouter } from "@/i18n/navigation";
+import { useApplyWorkspaceNavigationPatch } from "@/features/workspaces/workspace-navigation-context";
 import { resolveErrorMessage, runAsyncTransition } from "@/lib/app-utils";
 
 type WorkspaceCreateFormValues = {
@@ -38,8 +36,7 @@ type WorkspaceCreateDrawerProps = {
 
 export function WorkspaceCreateDrawer({ open, onOpenChangeAction }: WorkspaceCreateDrawerProps) {
   const t = useTranslations("layout.application.scopeSwitcher.createDrawer");
-  const workspaceNavigation = useOptionalWorkspaceNavigation();
-  const router = useRouter();
+  const applyWorkspaceNavigationPatch = useApplyWorkspaceNavigationPatch();
   const createToastId = useId();
 
   const createWorkspaceSchema = createWorkspaceNameFormSchema({
@@ -78,11 +75,9 @@ export function WorkspaceCreateDrawer({ open, onOpenChangeAction }: WorkspaceCre
       });
 
       startTransition(() => {
-        workspaceNavigation?.upsertWorkspace(response.data.workspace);
-        workspaceNavigation?.setActiveWorkspaceSlug(response.data.workspaceSlug);
+        applyWorkspaceNavigationPatch(response.data.navigationPatch);
         form.reset();
         onOpenChangeAction(false);
-        router.replace(getWorkspaceOverviewHref(response.data.workspaceSlug));
       });
     },
   });

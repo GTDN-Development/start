@@ -6,7 +6,7 @@ import type {
 
 type FinalizeWorkspaceActionOptions<TData, TResult> = {
   onSuccess?: (data: TData) => void | Promise<void>;
-  mapData?: (data: TData) => TResult;
+  mapData?: (data: TData) => TResult | Promise<TResult>;
 };
 
 export function createBadRequestWorkspaceResponse<TData>(): WorkspaceResponse<TData> {
@@ -33,15 +33,10 @@ export async function finalizeWorkspaceAction<TData, TResult = TData>(
     };
   }
 
-  if (!options.mapData) {
-    return {
-      ok: true,
-      data: response.data as unknown as TResult,
-    };
-  }
-
   return {
     ok: true,
-    data: options.mapData(response.data),
+    data: options.mapData
+      ? await options.mapData(response.data)
+      : (response.data as unknown as TResult),
   };
 }

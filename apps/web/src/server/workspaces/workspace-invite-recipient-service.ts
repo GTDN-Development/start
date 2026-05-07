@@ -2,10 +2,7 @@ import {
   createPocketBaseClient,
   createPocketBaseServerClient,
 } from "@/server/pocketbase/pocketbase-server";
-import {
-  mapWorkspaceErrorCode,
-  logWorkspaceServiceError,
-} from "@/server/workspaces/workspace-errors";
+import { createWorkspaceErrorResponse } from "@/server/workspaces/workspace-errors";
 import type {
   ServerWorkspaceResponse,
   WorkspaceInviteAcceptResult,
@@ -98,28 +95,10 @@ function mapInviteRecipientError<TData>(
   context: string,
   error: unknown
 ): ServerWorkspaceResponse<TData> {
-  const errorCode = mapWorkspaceErrorCode(error, function mapInviteErrorCode(pocketBaseError) {
-    if (pocketBaseError.status === 400 || pocketBaseError.status === 404) {
-      return "INVITE_INVALID_OR_EXPIRED";
-    }
-
-    if (pocketBaseError.status === 401) {
-      return "UNAUTHORIZED";
-    }
-
-    if (pocketBaseError.status === 403) {
-      return "FORBIDDEN";
-    }
-
-    return null;
+  return createWorkspaceErrorResponse(context, error, {
+    400: "INVITE_INVALID_OR_EXPIRED",
+    401: "UNAUTHORIZED",
+    403: "FORBIDDEN",
+    404: "INVITE_INVALID_OR_EXPIRED",
   });
-
-  if (errorCode === "UNKNOWN_ERROR") {
-    logWorkspaceServiceError(context, error);
-  }
-
-  return {
-    ok: false,
-    errorCode,
-  };
 }

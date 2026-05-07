@@ -1,10 +1,8 @@
 "use client";
 
-import { startTransition, useState, type ReactNode } from "react";
+import { type ReactNode, startTransition, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { LogOutIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
@@ -16,13 +14,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldLabel,
-  FieldTitle,
-} from "@/components/ui/field";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Field, FieldContent, FieldLabel, FieldTitle } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,7 +27,6 @@ import {
   SettingsItemDescription,
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
-import { APP_HOME_PATH } from "@/config/routes";
 import { leaveWorkspaceAction } from "@/features/workspaces/settings/general/workspace-general-actions";
 import {
   changeMemberRoleAction,
@@ -60,16 +52,22 @@ import {
 } from "@/features/workspaces/workspace-role-options";
 import {
   canAssignWorkspaceMemberRole,
-  canChangeWorkspaceMemberRole,
-  canManageWorkspaceMemberRole,
   isLastWorkspaceOwner,
   isWorkspaceMemberRole,
   type WorkspaceMemberRole,
 } from "@/features/workspaces/workspace-role-rules";
-import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
+import { useApplyWorkspaceNavigationPatch } from "@/features/workspaces/workspace-navigation-context";
+import type { WorkspaceNavigationPatch } from "@/features/workspaces/workspace-navigation-types";
 import { useRouter } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { getAvatarColorClass, getUserInitials, runAsyncTransition } from "@/lib/app-utils";
+
+const actionErrorMessageKeys: Record<string, string> = {
+  LAST_OWNER_GUARD: "errors.lastOwnerGuard",
+  RATE_LIMITED: "errors.rateLimited",
+  FORBIDDEN: "errors.forbidden",
+  NOT_FOUND: "errors.notFound",
+};
 
 type ChangeRoleActionState = {
   type: "change-role";
@@ -79,19 +77,11 @@ type ChangeRoleActionState = {
 
 type ConfirmActionState =
   | {
-      type: "remove-member";
+      type: "remove-member" | "leave-workspace";
       member: WorkspaceSettingsMember;
     }
   | {
-      type: "leave-workspace";
-      member: WorkspaceSettingsMember;
-    }
-  | {
-      type: "resend-invitation";
-      invitation: WorkspaceSettingsInvite;
-    }
-  | {
-      type: "remove-invitation";
+      type: "resend-invitation" | "remove-invitation";
       invitation: WorkspaceSettingsInvite;
     };
 
@@ -100,21 +90,32 @@ type ManagementActionState = ChangeRoleActionState | ConfirmActionState | null;
 type ActionSubmitResponse =
   | {
       ok: true;
+      data?: Record<string, unknown> & {
+        navigationPatch?: WorkspaceNavigationPatch;
+      };
     }
   | {
       ok: false;
       errorCode: string;
     };
 
-type ConfirmDialogModel = {
+type ActionSubmitOptions = {
+  action: () => Promise<ActionSubmitResponse>;
+  fallbackErrorMessage: string;
+  successMessage: string;
+  refresh?: boolean;
+  getErrorMessage?: (errorCode: string) => string;
+  onSuccess?: (response: Extract<ActionSubmitResponse, { ok: true }>) => void;
+};
+
+type ConfirmActionConfig = ActionSubmitOptions & {
   title: string;
   description: string;
   submitLabel: string;
   pendingLabel: string;
-  body: ReactNode;
+  body?: ReactNode;
   guard?: ReactNode;
-  variant?: "default" | "destructive";
-  icon?: ReactNode;
+  variant?: "destructive";
   disabled?: boolean;
 };
 
@@ -133,30 +134,24 @@ export function WorkspaceMembersSettingsSection({
   const tRoles = useTranslations("pages.workspace.members.roles");
   const locale = useLocale() as AppLocale;
   const router = useRouter();
-  const { removeWorkspace } = useWorkspaceNavigation();
+  const applyWorkspaceNavigationPatch = useApplyWorkspaceNavigationPatch();
 
   const [actionState, setActionState] = useState<ManagementActionState>(null);
   const [isActionSubmitting, setIsActionSubmitting] = useState(false);
 
-  const isInviteManagementReadOnly = workspace.role === "member";
   const ownerCount = initialMembers.filter((member) => member.role === "owner").length;
   const currentUserMember =
     initialMembers.find((member) => member.userId === workspace.currentUserId) ?? null;
   const isCurrentUserLastOwner = currentUserMember
     ? isLastWorkspaceOwner(currentUserMember.role, ownerCount)
     : false;
-  const hasPendingInvitations = initialInvites.length > 0;
+  const isInviteManagementReadOnly = workspace.role === "member";
   const roleOptions = getAssignableWorkspaceMemberRoleOptions(workspace.role);
-
   const changeRoleState = actionState?.type === "change-role" ? actionState : null;
   const confirmActionState = actionState && actionState.type !== "change-role" ? actionState : null;
   const isChangeRoleTargetLastOwner = changeRoleState
     ? isLastWorkspaceOwner(changeRoleState.member.role, ownerCount)
     : false;
-  const isRemoveMemberTargetLastOwner =
-    confirmActionState?.type === "remove-member"
-      ? isLastWorkspaceOwner(confirmActionState.member.role, ownerCount)
-      : false;
 
   async function handleCreateInviteAction(input: {
     locale: AppLocale;
@@ -172,11 +167,7 @@ export function WorkspaceMembersSettingsSection({
     return response;
   }
 
-  function handleChangeRoleRequest(member: WorkspaceSettingsMember) {
-    if (!canManageWorkspaceMemberRole(workspace.role, member.role)) {
-      return;
-    }
-
+  function openChangeRoleDialog(member: WorkspaceSettingsMember) {
     setActionState({
       type: "change-role",
       member,
@@ -184,98 +175,50 @@ export function WorkspaceMembersSettingsSection({
     });
   }
 
-  function handleRemoveMemberRequest(member: WorkspaceSettingsMember) {
-    if (
-      !canManageWorkspaceMemberRole(workspace.role, member.role) ||
-      isLastWorkspaceOwner(member.role, ownerCount)
-    ) {
-      return;
-    }
-
-    setActionState({
-      type: "remove-member",
-      member,
-    });
+  function openMemberConfirmDialog(
+    type: "remove-member" | "leave-workspace",
+    member: WorkspaceSettingsMember
+  ) {
+    setActionState({ type, member });
   }
 
-  function handleLeaveWorkspaceRequest() {
-    if (!currentUserMember) {
-      return;
+  function openInviteConfirmDialog(
+    type: "resend-invitation" | "remove-invitation",
+    invitation: WorkspaceSettingsInvite
+  ) {
+    if (!isInviteManagementReadOnly) {
+      setActionState({ type, invitation });
     }
-
-    setActionState({
-      type: "leave-workspace",
-      member: currentUserMember,
-    });
-  }
-
-  function handleResendInvitationRequest(invitation: WorkspaceSettingsInvite) {
-    if (isInviteManagementReadOnly) {
-      return;
-    }
-
-    setActionState({
-      type: "resend-invitation",
-      invitation,
-    });
-  }
-
-  function handleRemoveInvitationRequest(invitation: WorkspaceSettingsInvite) {
-    if (isInviteManagementReadOnly) {
-      return;
-    }
-
-    setActionState({
-      type: "remove-invitation",
-      invitation,
-    });
   }
 
   function handleActionDialogOpenChange(open: boolean) {
-    if (isActionSubmitting) {
-      return;
-    }
-
-    if (!open) {
+    if (!open && !isActionSubmitting) {
       setActionState(null);
     }
   }
 
   function handleChangeRoleSelection(value: string) {
-    if (actionState?.type !== "change-role") {
+    if (
+      actionState?.type !== "change-role" ||
+      !isWorkspaceMemberRole(value) ||
+      !canAssignWorkspaceMemberRole(workspace.role, value) ||
+      (isLastWorkspaceOwner(actionState.member.role, ownerCount) && value !== "owner")
+    ) {
       return;
     }
 
-    if (!isWorkspaceMemberRole(value)) {
-      return;
-    }
-
-    if (!canAssignWorkspaceMemberRole(workspace.role, value)) {
-      return;
-    }
-
-    if (isLastWorkspaceOwner(actionState.member.role, ownerCount) && value !== "owner") {
-      return;
-    }
-
-    setActionState((currentState) => {
-      if (currentState?.type !== "change-role") {
-        return currentState;
-      }
-
-      return {
-        ...currentState,
-        selectedRole: value,
-      };
+    setActionState({
+      ...actionState,
+      selectedRole: value,
     });
   }
 
-  function completeAction(options: { refresh?: boolean } = {}) {
+  function completeAction(refresh = true) {
     startTransition(() => {
       setIsActionSubmitting(false);
       setActionState(null);
 
-      if (options.refresh !== false) {
+      if (refresh) {
         router.refresh();
       }
     });
@@ -297,17 +240,6 @@ export function WorkspaceMembersSettingsSection({
       return;
     }
 
-    if (
-      !canChangeWorkspaceMemberRole(
-        workspace.role,
-        changeRoleState.member.role,
-        changeRoleState.selectedRole
-      )
-    ) {
-      toast.error(t("errors.forbidden"));
-      return;
-    }
-
     await submitManagementAction({
       action: () =>
         changeMemberRoleAction(
@@ -321,105 +253,12 @@ export function WorkspaceMembersSettingsSection({
   }
 
   async function handleConfirmAction() {
-    if (!confirmActionState) {
-      return;
-    }
-
-    switch (confirmActionState.type) {
-      case "leave-workspace": {
-        if (isCurrentUserLastOwner) {
-          toast.error(tLeave("status.lastOwnerGuard"));
-          return;
-        }
-
-        await submitManagementAction({
-          action: () => leaveWorkspaceAction(workspace.slug),
-          fallbackErrorMessage: tLeave("status.failed"),
-          successMessage: tLeave("status.success"),
-          refresh: false,
-          getErrorMessage: (errorCode) =>
-            errorCode === "LAST_OWNER_GUARD"
-              ? tLeave("status.lastOwnerGuard")
-              : tLeave("status.failed"),
-          onSuccess: () => {
-            removeWorkspace(workspace.id);
-            router.replace(APP_HOME_PATH);
-          },
-        });
-        return;
-      }
-
-      case "remove-member": {
-        if (isRemoveMemberTargetLastOwner) {
-          toast.error(t("status.lastOwnerGuard"));
-          return;
-        }
-
-        await submitManagementAction({
-          action: () => removeMemberAction(workspace.slug, confirmActionState.member.id),
-          fallbackErrorMessage: t("status.memberRemove.error"),
-          successMessage: t("status.memberRemove.success"),
-        });
-        return;
-      }
-
-      case "resend-invitation": {
-        if (isInviteManagementReadOnly) {
-          return;
-        }
-
-        await submitManagementAction({
-          action: () =>
-            resendInviteAction(workspace.slug, confirmActionState.invitation.id, locale),
-          fallbackErrorMessage: t("status.inviteResend.error"),
-          successMessage: t("status.inviteResend.success"),
-        });
-        return;
-      }
-
-      case "remove-invitation": {
-        if (isInviteManagementReadOnly) {
-          return;
-        }
-
-        await submitManagementAction({
-          action: () => revokeInviteAction(workspace.slug, confirmActionState.invitation.id),
-          fallbackErrorMessage: t("status.inviteRemove.error"),
-          successMessage: t("status.inviteRemove.success"),
-        });
-        return;
-      }
+    if (confirmActionConfig) {
+      await submitManagementAction(confirmActionConfig);
     }
   }
 
-  async function submitManagementAction(options: {
-    action: () => Promise<ActionSubmitResponse>;
-    fallbackErrorMessage: string;
-    successMessage: string;
-    refresh?: boolean;
-    getErrorMessage?: (errorCode: string) => string;
-    onSuccess?: () => void;
-  }) {
-    setIsActionSubmitting(true);
-
-    const response = await runAsyncTransition(options.action);
-
-    if (!response.ok) {
-      setIsActionSubmitting(false);
-      toast.error(
-        options.getErrorMessage
-          ? options.getErrorMessage(response.errorCode)
-          : getActionErrorMessage(response.errorCode, options.fallbackErrorMessage, t)
-      );
-      return;
-    }
-
-    completeAction({ refresh: options.refresh });
-    options.onSuccess?.();
-    toast.success(options.successMessage);
-  }
-
-  function getConfirmDialogModel(state: ConfirmActionState): ConfirmDialogModel {
+  function getConfirmActionConfig(state: ConfirmActionState): ConfirmActionConfig | null {
     switch (state.type) {
       case "leave-workspace":
         return {
@@ -438,66 +277,100 @@ export function WorkspaceMembersSettingsSection({
             </Alert>
           ),
           variant: "destructive",
-          icon: <LogOutIcon aria-hidden="true" className="size-4" />,
           disabled: isCurrentUserLastOwner,
+          action: () => leaveWorkspaceAction(workspace.slug),
+          fallbackErrorMessage: tLeave("status.failed"),
+          successMessage: tLeave("status.success"),
+          refresh: false,
+          getErrorMessage: (errorCode) =>
+            errorCode === "LAST_OWNER_GUARD"
+              ? tLeave("status.lastOwnerGuard")
+              : tLeave("status.failed"),
+          onSuccess: (response) => applyWorkspaceNavigationPatch(response.data?.navigationPatch),
         };
-
       case "remove-member":
         return {
           title: t("dialogs.removeMember.title"),
-          description: t("dialogs.removeMember.description", {
-            workspaceName: workspace.name,
-          }),
+          description: t("dialogs.removeMember.description", { workspaceName: workspace.name }),
           submitLabel: t("dialogs.removeMember.submit.default"),
           pendingLabel: t("dialogs.removeMember.submit.pending"),
           body: renderWorkspaceMemberSummary(
             state.member,
             getWorkspaceMemberRoleLabel(state.member.role, tRoles)
           ),
-          guard: isRemoveMemberTargetLastOwner && (
+          guard: isLastWorkspaceOwner(state.member.role, ownerCount) && (
             <Alert>
               <AlertTitle>{t("dialogs.lastOwnerGuard.title")}</AlertTitle>
               <AlertDescription>{t("dialogs.lastOwnerGuard.description")}</AlertDescription>
             </Alert>
           ),
           variant: "destructive",
-          disabled: isRemoveMemberTargetLastOwner,
+          disabled: isLastWorkspaceOwner(state.member.role, ownerCount),
+          action: () => removeMemberAction(workspace.slug, state.member.id),
+          fallbackErrorMessage: t("status.memberRemove.error"),
+          successMessage: t("status.memberRemove.success"),
         };
-
       case "resend-invitation":
-        return {
-          title: t("dialogs.resendInvite.title"),
-          description: t("dialogs.resendInvite.description", {
-            workspaceName: workspace.name,
-          }),
-          submitLabel: t("dialogs.resendInvite.submit.default"),
-          pendingLabel: t("dialogs.resendInvite.submit.pending"),
-          body: renderWorkspaceInviteSummary(
-            state.invitation,
-            getWorkspaceMemberRoleLabel(state.invitation.role, tRoles)
-          ),
-          disabled: isInviteManagementReadOnly,
-        };
-
+        return isInviteManagementReadOnly
+          ? null
+          : {
+              title: t("dialogs.resendInvite.title"),
+              description: t("dialogs.resendInvite.description", { workspaceName: workspace.name }),
+              submitLabel: t("dialogs.resendInvite.submit.default"),
+              pendingLabel: t("dialogs.resendInvite.submit.pending"),
+              body: renderWorkspaceInviteSummary(
+                state.invitation,
+                getWorkspaceMemberRoleLabel(state.invitation.role, tRoles)
+              ),
+              disabled: isInviteManagementReadOnly,
+              action: () => resendInviteAction(workspace.slug, state.invitation.id, locale),
+              fallbackErrorMessage: t("status.inviteResend.error"),
+              successMessage: t("status.inviteResend.success"),
+            };
       case "remove-invitation":
-        return {
-          title: t("dialogs.removeInvite.title"),
-          description: t("dialogs.removeInvite.description", {
-            workspaceName: workspace.name,
-          }),
-          submitLabel: t("dialogs.removeInvite.submit.default"),
-          pendingLabel: t("dialogs.removeInvite.submit.pending"),
-          body: renderWorkspaceInviteSummary(
-            state.invitation,
-            getWorkspaceMemberRoleLabel(state.invitation.role, tRoles)
-          ),
-          variant: "destructive",
-          disabled: isInviteManagementReadOnly,
-        };
+        return isInviteManagementReadOnly
+          ? null
+          : {
+              title: t("dialogs.removeInvite.title"),
+              description: t("dialogs.removeInvite.description", { workspaceName: workspace.name }),
+              submitLabel: t("dialogs.removeInvite.submit.default"),
+              pendingLabel: t("dialogs.removeInvite.submit.pending"),
+              body: renderWorkspaceInviteSummary(
+                state.invitation,
+                getWorkspaceMemberRoleLabel(state.invitation.role, tRoles)
+              ),
+              variant: "destructive",
+              disabled: isInviteManagementReadOnly,
+              action: () => revokeInviteAction(workspace.slug, state.invitation.id),
+              fallbackErrorMessage: t("status.inviteRemove.error"),
+              successMessage: t("status.inviteRemove.success"),
+            };
     }
   }
 
-  const confirmDialogModel = confirmActionState ? getConfirmDialogModel(confirmActionState) : null;
+  async function submitManagementAction(options: ActionSubmitOptions) {
+    setIsActionSubmitting(true);
+
+    const response = await runAsyncTransition(options.action);
+
+    if (!response.ok) {
+      setIsActionSubmitting(false);
+      toast.error(
+        options.getErrorMessage
+          ? options.getErrorMessage(response.errorCode)
+          : getActionErrorMessage(response.errorCode, options.fallbackErrorMessage, t)
+      );
+      return;
+    }
+
+    completeAction(options.refresh);
+    options.onSuccess?.(response);
+    toast.success(options.successMessage);
+  }
+
+  const confirmActionConfig = confirmActionState
+    ? getConfirmActionConfig(confirmActionState)
+    : null;
 
   return (
     <div className="grid gap-8">
@@ -529,19 +402,29 @@ export function WorkspaceMembersSettingsSection({
                     currentUserId={workspace.currentUserId}
                     actorRole={workspace.role}
                     ownerCount={ownerCount}
-                    onChangeRoleRequestAction={handleChangeRoleRequest}
-                    onLeaveWorkspaceRequestAction={handleLeaveWorkspaceRequest}
-                    onRemoveMemberRequestAction={handleRemoveMemberRequest}
+                    onChangeRoleRequestAction={openChangeRoleDialog}
+                    onLeaveWorkspaceRequestAction={() => {
+                      if (currentUserMember) {
+                        openMemberConfirmDialog("leave-workspace", currentUserMember);
+                      }
+                    }}
+                    onRemoveMemberRequestAction={(member) =>
+                      openMemberConfirmDialog("remove-member", member)
+                    }
                   />
                 </TabsContent>
 
                 <TabsContent value="pending-invitations" className="grid gap-4">
-                  {hasPendingInvitations ? (
+                  {initialInvites.length > 0 ? (
                     <WorkspaceInvitationsTable
                       rows={initialInvites}
                       isReadOnly={isInviteManagementReadOnly}
-                      onResendInvitationRequestAction={handleResendInvitationRequest}
-                      onRemoveInvitationRequestAction={handleRemoveInvitationRequest}
+                      onResendInvitationRequestAction={(invitation) =>
+                        openInviteConfirmDialog("resend-invitation", invitation)
+                      }
+                      onRemoveInvitationRequestAction={(invitation) =>
+                        openInviteConfirmDialog("remove-invitation", invitation)
+                      }
                     />
                   ) : (
                     <WorkspacePendingInvitationsEmptyState />
@@ -578,7 +461,6 @@ export function WorkspaceMembersSettingsSection({
                   <Field orientation="horizontal">
                     <FieldContent>
                       <FieldTitle>{tRoles(option.labelKey)}</FieldTitle>
-                      <FieldDescription>{tRoles(option.descriptionKey)}</FieldDescription>
                     </FieldContent>
                     <RadioGroupItem
                       id={`workspace-member-role-${changeRoleState.member.id}-${option.value}`}
@@ -627,12 +509,12 @@ export function WorkspaceMembersSettingsSection({
       <AlertDialog open={Boolean(confirmActionState)} onOpenChange={handleActionDialogOpenChange}>
         <AlertDialogContent className="sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>{confirmDialogModel?.title}</AlertDialogTitle>
-            <AlertDialogDescription>{confirmDialogModel?.description}</AlertDialogDescription>
+            <AlertDialogTitle>{confirmActionConfig?.title}</AlertDialogTitle>
+            <AlertDialogDescription>{confirmActionConfig?.description}</AlertDialogDescription>
           </AlertDialogHeader>
 
-          {confirmDialogModel?.body}
-          {confirmDialogModel?.guard}
+          {confirmActionConfig?.body}
+          {confirmActionConfig?.guard}
 
           <AlertDialogFooter>
             <AlertDialogCancel size="lg" disabled={isActionSubmitting}>
@@ -641,14 +523,14 @@ export function WorkspaceMembersSettingsSection({
             <AlertDialogAction
               type="button"
               size="lg"
-              variant={confirmDialogModel?.variant}
-              disabled={isActionSubmitting || Boolean(confirmDialogModel?.disabled)}
+              variant={confirmActionConfig?.variant}
+              disabled={isActionSubmitting || Boolean(confirmActionConfig?.disabled)}
               onClick={handleConfirmAction}
             >
-              {isActionSubmitting ? <Spinner /> : confirmDialogModel?.icon}
+              {isActionSubmitting && <Spinner />}
               {isActionSubmitting
-                ? confirmDialogModel?.pendingLabel
-                : confirmDialogModel?.submitLabel}
+                ? confirmActionConfig?.pendingLabel
+                : confirmActionConfig?.submitLabel}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -662,15 +544,15 @@ function renderWorkspaceMemberSummary(
   roleLabel: string
 ): ReactNode {
   const displayName = member.name ?? member.email;
-  const initials = getUserInitials(displayName);
-  const avatarColorClass = getAvatarColorClass(member.userId);
 
   return (
     <WorkspaceActionSummary roleLabel={roleLabel}>
       <div className="flex min-w-0 items-center gap-3">
         <Avatar>
           {member.avatarUrl && <AvatarImage src={member.avatarUrl} alt="" />}
-          <AvatarFallback className={avatarColorClass}>{initials}</AvatarFallback>
+          <AvatarFallback className={getAvatarColorClass(member.userId)}>
+            {getUserInitials(displayName)}
+          </AvatarFallback>
         </Avatar>
         <div className="flex min-w-0 flex-col">
           <p className="text-sm font-medium">{displayName}</p>
@@ -702,7 +584,7 @@ function WorkspaceActionSummary({
   return (
     <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
       {children}
-      <span className="text-muted-foreground text-sm">{roleLabel}</span>
+      <span className="text-muted-foreground shrink-0 text-sm">{roleLabel}</span>
     </div>
   );
 }
@@ -712,16 +594,7 @@ function getActionErrorMessage(
   fallbackMessage: string,
   t: (key: string) => string
 ): string {
-  switch (errorCode) {
-    case "LAST_OWNER_GUARD":
-      return t("errors.lastOwnerGuard");
-    case "RATE_LIMITED":
-      return t("errors.rateLimited");
-    case "FORBIDDEN":
-      return t("errors.forbidden");
-    case "NOT_FOUND":
-      return t("errors.notFound");
-    default:
-      return fallbackMessage;
-  }
+  const translationKey = actionErrorMessageKeys[errorCode];
+
+  return translationKey ? t(translationKey) : fallbackMessage;
 }

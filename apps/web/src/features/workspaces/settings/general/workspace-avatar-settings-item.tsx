@@ -48,30 +48,19 @@ export function WorkspaceAvatarSettingsItem({
 }) {
   const t = useTranslations("pages.workspace.general.avatar");
   const tCommon = useTranslations("pages.workspace.common");
-
   const avatarToastId = useId();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const [isAvatarUpdating, setIsAvatarUpdating] = useState(false);
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const isReadOnly = workspace.role === "member";
-
-  const initials = getUserInitials(workspace.name);
-  const avatarColorClass = getAvatarColorClass(workspace.id);
   const workspaceAvatarUrl =
     workspace.avatarUrl && workspace.avatarUrl !== failedAvatarUrl ? workspace.avatarUrl : null;
 
   async function handleAvatarInputChange(event: ChangeEvent<HTMLInputElement>) {
-    if (isReadOnly) {
-      return;
-    }
+    const selectedFile = event.currentTarget.files?.[0] ?? null;
+    event.currentTarget.value = "";
 
-    const input = event.currentTarget;
-    const selectedFile = input.files?.[0] ?? null;
-
-    input.value = "";
-
-    if (!selectedFile) {
+    if (isReadOnly || !selectedFile) {
       return;
     }
 
@@ -83,40 +72,17 @@ export function WorkspaceAvatarSettingsItem({
       });
 
       if (!preparedAvatarFileResult.ok) {
-        toast.error(
+        showAvatarError(
           resolveErrorMessage(preparedAvatarFileResult.errorCode, t("status.error"), {
             INVALID_FILE_TYPE: t("status.invalidFile"),
             IMAGE_PROCESSING_FAILED: t("status.processingFailed"),
             FILE_TOO_LARGE: t("status.fileTooLarge"),
-          }),
-          {
-            id: avatarToastId,
-          }
+          })
         );
         return;
       }
 
-      const response = await onUpdateWorkspaceAction({
-        avatarFile: preparedAvatarFileResult.file,
-      });
-
-      if (!response.ok) {
-        toast.error(
-          resolveErrorMessage(response.errorCode, t("status.error"), {
-            UNAUTHORIZED: t("status.unauthorized"),
-            VALIDATION_ERROR: t("status.fileTooLarge"),
-          }),
-          {
-            id: avatarToastId,
-          }
-        );
-        return;
-      }
-
-      setFailedAvatarUrl(null);
-      toast.success(t("status.updated"), {
-        id: avatarToastId,
-      });
+      await updateAvatar({ avatarFile: preparedAvatarFileResult.file }, t("status.updated"));
     } finally {
       setIsAvatarUpdating(false);
     }
@@ -130,24 +96,35 @@ export function WorkspaceAvatarSettingsItem({
     setIsAvatarUpdating(true);
 
     try {
-      const response = await onUpdateWorkspaceAction({
-        removeAvatar: true,
-      });
-
-      if (!response.ok) {
-        toast.error(t("status.removeFailed"), {
-          id: avatarToastId,
-        });
-        return;
-      }
-
-      setFailedAvatarUrl(null);
-      toast.success(t("status.removed"), {
-        id: avatarToastId,
-      });
+      await updateAvatar({ removeAvatar: true }, t("status.removed"), t("status.removeFailed"));
     } finally {
       setIsAvatarUpdating(false);
     }
+  }
+
+  async function updateAvatar(
+    input: { removeAvatar?: true; avatarFile?: File },
+    successMessage: string,
+    errorMessage = t("status.error")
+  ) {
+    const response = await onUpdateWorkspaceAction(input);
+
+    if (!response.ok) {
+      showAvatarError(
+        resolveErrorMessage(response.errorCode, errorMessage, {
+          UNAUTHORIZED: t("status.unauthorized"),
+          VALIDATION_ERROR: t("status.fileTooLarge"),
+        })
+      );
+      return;
+    }
+
+    setFailedAvatarUrl(null);
+    toast.success(successMessage, { id: avatarToastId });
+  }
+
+  function showAvatarError(message: string) {
+    toast.error(message, { id: avatarToastId });
   }
 
   function handleAvatarChangeMenuClick() {
@@ -193,9 +170,12 @@ export function WorkspaceAvatarSettingsItem({
                             />
                           ) : (
                             <WorkspaceAvatarFallback
-                              className={cn(avatarColorClass, "text-xl font-medium sm:text-2xl")}
+                              className={cn(
+                                getAvatarColorClass(workspace.id),
+                                "text-xl font-medium sm:text-2xl"
+                              )}
                             >
-                              {initials}
+                              {getUserInitials(workspace.name)}
                             </WorkspaceAvatarFallback>
                           )}
                         </WorkspaceAvatar>
@@ -231,7 +211,6 @@ export function WorkspaceAvatarSettingsItem({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
           <input
             ref={fileInputRef}
             id="workspace-avatar-file-input"

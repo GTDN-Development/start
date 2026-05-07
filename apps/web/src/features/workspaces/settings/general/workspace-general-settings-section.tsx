@@ -1,21 +1,20 @@
 "use client";
 
 import { startTransition, useState } from "react";
-import { APP_HOME_PATH, getWorkspaceSettingsHref } from "@/config/routes";
 import { WorkspaceAvatarSettingsItem } from "@/features/workspaces/settings/general/workspace-avatar-settings-item";
 import {
   deleteWorkspaceAction,
   leaveWorkspaceAction,
   updateWorkspaceGeneralAction,
 } from "@/features/workspaces/settings/general/workspace-general-actions";
-import { WorkspaceDeleteSettingsItem } from "@/features/workspaces/settings/general/workspace-delete-settings-item";
-import { WorkspaceLeaveSettingsItem } from "@/features/workspaces/settings/general/workspace-leave-settings-item";
-import { WorkspaceNameSettingsItem } from "@/features/workspaces/settings/general/workspace-name-settings-item";
-import { WorkspaceUrlSettingsItem } from "@/features/workspaces/settings/general/workspace-url-settings-item";
+import { WorkspaceDangerSettingsItem } from "@/features/workspaces/settings/general/workspace-danger-settings-item";
+import { WorkspaceTextSettingsItem } from "@/features/workspaces/settings/general/workspace-text-settings-item";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
-import { useWorkspaceNavigation } from "@/features/workspaces/workspace-navigation-context";
-import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
-import { useRouter } from "@/i18n/navigation";
+import { useApplyWorkspaceNavigationPatch } from "@/features/workspaces/workspace-navigation-context";
+import type {
+  WorkspaceNavigationItem,
+  WorkspaceNavigationPatch,
+} from "@/features/workspaces/workspace-navigation-types";
 import { runAsyncTransition } from "@/lib/app-utils";
 import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
 
@@ -29,16 +28,21 @@ type UpdateWorkspaceGeneralActionInput = {
 type UpdateWorkspaceGeneralActionResult = WorkspaceResponse<{
   workspaceSlug: string;
   workspace: WorkspaceNavigationItem;
+  navigationPatch: WorkspaceNavigationPatch;
 }>;
+
+type WorkspaceRemovalActionResult<TFlag extends "left" | "deleted"> = WorkspaceResponse<
+  Record<TFlag, true> & {
+    navigationPatch: WorkspaceNavigationPatch;
+  }
+>;
 
 export function WorkspaceGeneralSettingsSection({
   initialWorkspace,
 }: {
   initialWorkspace: WorkspaceSettingsWorkspace;
 }) {
-  const router = useRouter();
-  const { activeWorkspaceSlug, removeWorkspace, setActiveWorkspaceSlug, upsertWorkspace } =
-    useWorkspaceNavigation();
+  const applyWorkspaceNavigationPatch = useApplyWorkspaceNavigationPatch();
   const [workspace, setWorkspace] = useState(initialWorkspace);
 
   async function handleUpdateWorkspaceAction(
@@ -54,70 +58,49 @@ export function WorkspaceGeneralSettingsSection({
     }
 
     startTransition(() => {
-      const nextWorkspace = {
-        ...currentWorkspace,
-        ...response.data.workspace,
-      };
-      const shouldUpdateActiveWorkspaceSlug =
-        response.data.workspaceSlug !== currentWorkspace.slug &&
-        (!activeWorkspaceSlug || activeWorkspaceSlug === currentWorkspace.slug);
-
-      setWorkspace(nextWorkspace);
-      upsertWorkspace(response.data.workspace);
-
-      if (shouldUpdateActiveWorkspaceSlug) {
-        setActiveWorkspaceSlug(response.data.workspaceSlug);
-      }
-
-      if (response.data.workspaceSlug !== currentWorkspace.slug) {
-        router.replace(getWorkspaceSettingsHref(response.data.workspaceSlug));
-      }
+      setWorkspace({ ...currentWorkspace, ...response.data.workspace });
+      applyWorkspaceNavigationPatch(response.data.navigationPatch);
     });
 
     return response;
   }
 
-  async function handleLeaveWorkspaceAction(): Promise<WorkspaceResponse<{ left: true }>> {
+  async function handleWorkspaceRemovalAction<TFlag extends "left" | "deleted">(
+    action: (workspaceSlug: string) => Promise<WorkspaceRemovalActionResult<TFlag>>
+  ): Promise<WorkspaceRemovalActionResult<TFlag>> {
     const currentWorkspace = workspace;
-    const response = await runAsyncTransition(() => leaveWorkspaceAction(currentWorkspace.slug));
+    const response = await runAsyncTransition(() => action(currentWorkspace.slug));
 
     if (!response.ok) {
       return response;
     }
 
     startTransition(() => {
-      removeWorkspace(currentWorkspace.id);
-      router.replace(APP_HOME_PATH);
+      applyWorkspaceNavigationPatch(response.data.navigationPatch);
     });
 
     return response;
   }
 
-  async function handleDeleteWorkspaceAction(): Promise<WorkspaceResponse<{ deleted: true }>> {
-    const currentWorkspace = workspace;
-    const response = await runAsyncTransition(() => deleteWorkspaceAction(currentWorkspace.slug));
+  function handleLeaveWorkspaceAction() {
+    return handleWorkspaceRemovalAction(leaveWorkspaceAction);
+  }
 
-    if (!response.ok) {
-      return response;
-    }
-
-    startTransition(() => {
-      removeWorkspace(currentWorkspace.id);
-      router.replace(APP_HOME_PATH);
-    });
-
-    return response;
+  function handleDeleteWorkspaceAction() {
+    return handleWorkspaceRemovalAction(deleteWorkspaceAction);
   }
 
   return (
     <div className="grid gap-8">
-      <WorkspaceNameSettingsItem
+      <WorkspaceTextSettingsItem
         key={`workspace-general-name:${workspace.name}:${workspace.role}`}
+        field="name"
         workspace={workspace}
         onUpdateWorkspaceAction={handleUpdateWorkspaceAction}
       />
-      <WorkspaceUrlSettingsItem
+      <WorkspaceTextSettingsItem
         key={`workspace-general-url:${workspace.slug}:${workspace.role}`}
+        field="url"
         workspace={workspace}
         onUpdateWorkspaceAction={handleUpdateWorkspaceAction}
       />
@@ -125,13 +108,15 @@ export function WorkspaceGeneralSettingsSection({
         workspace={workspace}
         onUpdateWorkspaceAction={handleUpdateWorkspaceAction}
       />
-      <WorkspaceLeaveSettingsItem
+      <WorkspaceDangerSettingsItem
+        kind="leave"
         workspace={workspace}
-        onLeaveWorkspaceAction={handleLeaveWorkspaceAction}
+        onAction={handleLeaveWorkspaceAction}
       />
-      <WorkspaceDeleteSettingsItem
+      <WorkspaceDangerSettingsItem
+        kind="delete"
         workspace={workspace}
-        onDeleteWorkspaceAction={handleDeleteWorkspaceAction}
+        onAction={handleDeleteWorkspaceAction}
       />
     </div>
   );

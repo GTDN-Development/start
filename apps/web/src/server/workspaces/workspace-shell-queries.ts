@@ -1,6 +1,6 @@
 import type PocketBase from "pocketbase";
 import type { WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
-import { APP_HOME_PATH, getInviteHref, getWorkspaceOverviewHref } from "@/config/routes";
+import { getInviteHref } from "@/config/routes";
 import type { AppHref } from "@/i18n/navigation";
 import { createPocketBaseServerClient } from "@/server/pocketbase/pocketbase-server";
 import {
@@ -12,10 +12,7 @@ import {
   sortUserWorkspaces,
   type WorkspaceMemberRecordWithExpand,
 } from "@/server/workspaces/workspace-mappers";
-import {
-  mapWorkspaceErrorCode,
-  logWorkspaceServiceError,
-} from "@/server/workspaces/workspace-errors";
+import { createWorkspaceErrorResponse } from "@/server/workspaces/workspace-errors";
 import type {
   PostAuthDestination,
   ServerWorkspaceResponse,
@@ -50,30 +47,11 @@ export async function listUserWorkspaceShells(
       },
     };
   } catch (error) {
-    const errorCode = mapWorkspaceErrorCode(error, function mapListError(pocketBaseError) {
-      if (pocketBaseError.status === 400) {
-        return "BAD_REQUEST";
-      }
-
-      if (pocketBaseError.status === 401) {
-        return "UNAUTHORIZED";
-      }
-
-      if (pocketBaseError.status === 403) {
-        return "FORBIDDEN";
-      }
-
-      return null;
+    return createWorkspaceErrorResponse("listUserWorkspaceShells", error, {
+      400: "BAD_REQUEST",
+      401: "UNAUTHORIZED",
+      403: "FORBIDDEN",
     });
-
-    if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("listUserWorkspaceShells", error);
-    }
-
-    return {
-      ok: false,
-      errorCode,
-    };
   }
 }
 
@@ -118,16 +96,6 @@ export async function resolvePostAuthDestinationForUser({
   };
 }
 
-export async function resolveApplicationEntryHref(userId: string): Promise<AppHref> {
-  const workspaceResponse = await resolveActiveWorkspaceSlugForUser(userId);
-
-  if (!workspaceResponse.ok || !workspaceResponse.data.workspaceSlug) {
-    return APP_HOME_PATH;
-  }
-
-  return getWorkspaceOverviewHref(workspaceResponse.data.workspaceSlug);
-}
-
 export async function resolveActiveWorkspaceSlugForUser(
   userId: string
 ): Promise<ServerWorkspaceResponse<{ workspaceSlug: string | null }>> {
@@ -165,34 +133,21 @@ export async function resolveActiveWorkspaceSlugForUser(
       },
     };
   } catch (error) {
-    const errorCode = mapWorkspaceErrorCode(
+    const response = createWorkspaceErrorResponse<{ workspaceSlug: string | null }>(
+      "resolveActiveWorkspaceSlugForUser",
       error,
-      function mapActiveWorkspaceError(pocketBaseError) {
-        if (pocketBaseError.status === 400) {
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 401) {
-          return "UNAUTHORIZED";
-        }
-
-        if (pocketBaseError.status === 403) {
-          return "FORBIDDEN";
-        }
-
-        if (pocketBaseError.status === 404) {
-          return "NOT_FOUND";
-        }
-
-        return null;
+      {
+        400: "BAD_REQUEST",
+        401: "UNAUTHORIZED",
+        403: "FORBIDDEN",
+        404: "NOT_FOUND",
       }
     );
 
-    if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError("resolveActiveWorkspaceSlugForUser", error);
-    }
-
-    if (errorCode === "NOT_FOUND" || errorCode === "FORBIDDEN") {
+    if (
+      !response.ok &&
+      (response.errorCode === "NOT_FOUND" || response.errorCode === "FORBIDDEN")
+    ) {
       return {
         ok: true,
         data: {
@@ -201,10 +156,7 @@ export async function resolveActiveWorkspaceSlugForUser(
       };
     }
 
-    return {
-      ok: false,
-      errorCode,
-    };
+    return response;
   }
 }
 

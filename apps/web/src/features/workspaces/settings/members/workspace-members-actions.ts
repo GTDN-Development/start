@@ -11,11 +11,16 @@ import {
   WORKSPACE_MEMBER_ROLE_VALUES,
   type WorkspaceMemberRole,
 } from "@/features/workspaces/workspace-role-rules";
-import { workspaceMutations } from "@/server/workspaces/workspace-mutations";
 import {
   createBadRequestWorkspaceResponse,
   finalizeWorkspaceAction,
 } from "@/server/workspaces/workspace-response";
+import {
+  createInvite,
+  resendInvite,
+  revokeInvite,
+} from "@/server/workspaces/workspace-invite-mutations";
+import { changeMemberRole, removeMember } from "@/server/workspaces/workspace-member-mutations";
 import type {
   WorkspaceInviteSummary,
   WorkspaceResponse,
@@ -37,7 +42,7 @@ export async function changeMemberRoleAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await workspaceMutations.changeMemberRole(
+  const response = await changeMemberRole(
     parsedWorkspaceSlug.data,
     parsedMemberId.data,
     parsedRole.data
@@ -62,10 +67,7 @@ export async function removeMemberAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await workspaceMutations.removeMember(
-    parsedWorkspaceSlug.data,
-    parsedMemberId.data
-  );
+  const response = await removeMember(parsedWorkspaceSlug.data, parsedMemberId.data);
 
   return finalizeWorkspaceAction(response, {
     mapData: () => ({
@@ -89,10 +91,7 @@ export async function createInviteAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await workspaceMutations.createInvite(
-    parsedWorkspaceSlug.data,
-    parsedInput.data
-  );
+  const response = await createInvite(parsedWorkspaceSlug.data, parsedInput.data);
 
   return finalizeWorkspaceAction(response);
 }
@@ -110,7 +109,7 @@ export async function resendInviteAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await workspaceMutations.resendInvite(
+  const response = await resendInvite(
     parsedWorkspaceSlug.data,
     parsedInviteId.data,
     parsedLocale.data
@@ -130,10 +129,7 @@ export async function revokeInviteAction(
     return createBadRequestWorkspaceResponse();
   }
 
-  const response = await workspaceMutations.revokeInvite(
-    parsedWorkspaceSlug.data,
-    parsedInviteId.data
-  );
+  const response = await revokeInvite(parsedWorkspaceSlug.data, parsedInviteId.data);
 
   return finalizeWorkspaceAction(response, {
     mapData: () => ({

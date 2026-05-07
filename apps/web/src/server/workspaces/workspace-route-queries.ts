@@ -2,10 +2,7 @@ import PocketBase, { ClientResponseError } from "pocketbase";
 import type { UsersRecord, WorkspaceMembersRecord, WorkspacesRecord } from "@/types/pocketbase";
 import type { AuthCookieMutations } from "@/server/auth/auth-cookies";
 import { requireCurrentUser, requireCurrentWritableUser } from "@/server/auth/auth-session-service";
-import {
-  mapWorkspaceErrorCode,
-  logWorkspaceServiceError,
-} from "@/server/workspaces/workspace-errors";
+import { createWorkspaceErrorResponse } from "@/server/workspaces/workspace-errors";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
 import type {
   ServerWorkspaceResponse,
@@ -27,16 +24,6 @@ export type WorkspaceRouteAccessContext = WorkspaceAuthContext & {
   workspace: UserWorkspace;
 };
 
-type WorkspaceAuthContextResult =
-  | {
-      ok: true;
-      context: WorkspaceAuthContext;
-    }
-  | {
-      ok: false;
-      response: ServerWorkspaceResponse<never>;
-    };
-
 type WorkspaceMembershipContextResult =
   | {
       ok: true;
@@ -47,23 +34,14 @@ type WorkspaceMembershipContextResult =
       response: ServerWorkspaceResponse<never>;
     };
 
-type WorkspaceMembershipLookup =
-  | {
-      state: "workspace_not_found";
-    }
-  | {
-      state: "membership_not_found";
-    }
-  | {
-      state: "ready";
-      membership: WorkspaceMembersRecord;
-      workspace: WorkspacesRecord;
-    };
-
 export async function resolveWorkspaceRouteAccess(
   workspaceSlug: string
 ): Promise<ServerWorkspaceResponse<WorkspaceRouteAccessContext>> {
-  const workspaceAccess = await requireWorkspaceMembershipContext(workspaceSlug);
+  const workspaceAccess = await resolveWorkspaceMembership(
+    workspaceSlug,
+    "read",
+    "resolveWorkspaceRouteAccess"
+  );
 
   if (!workspaceAccess.ok) {
     return workspaceAccess.response;
@@ -84,11 +62,7 @@ export async function resolveWorkspaceRouteAccess(
 export async function resolveWorkspaceActionAccess(
   workspaceSlug: string
 ): Promise<WorkspaceMembershipContextResult> {
-  return resolveWorkspaceMembershipContext(
-    await requireWorkspaceContext("action"),
-    workspaceSlug,
-    "resolveWorkspaceActionAccess"
-  );
+  return resolveWorkspaceMembership(workspaceSlug, "action", "resolveWorkspaceActionAccess");
 }
 
 export async function resolveAccessibleWorkspaceForCurrentUser(
@@ -110,26 +84,18 @@ export async function resolveAccessibleWorkspaceForCurrentUser(
   };
 }
 
-async function requireWorkspaceMembershipContext(
-  workspaceSlug: string
+async function resolveWorkspaceMembership(
+  workspaceSlug: string,
+  mode: "read" | "action",
+  logContext: string
 ): Promise<WorkspaceMembershipContextResult> {
-  return resolveWorkspaceMembershipContext(
-    await requireWorkspaceContext("read"),
-    workspaceSlug,
-    "requireWorkspaceMembershipContext"
-  );
-}
-
-async function requireWorkspaceContext(
-  mode: "read" | "action"
-): Promise<WorkspaceAuthContextResult> {
   const currentUser =
     mode === "action" ? await requireCurrentWritableUser() : await requireCurrentUser();
 
   if (!currentUser.ok) {
-    const cookieMutations: AuthCookieMutations =
-      "cookieMutations" in currentUser && Array.isArray(currentUser.cookieMutations)
-        ? currentUser.cookieMutations
+    const cookieMutations =
+      "cookieMutations" in currentUser
+        ? (currentUser.cookieMutations as AuthCookieMutations)
         : undefined;
 
     return {
@@ -142,133 +108,71 @@ async function requireWorkspaceContext(
     };
   }
 
-  return {
-    ok: true,
-    context: {
-      pb: currentUser.pb,
-      user: currentUser.user,
-    },
-  };
-}
-
-async function resolveWorkspaceMembershipContext(
-  currentUser: WorkspaceAuthContextResult,
-  workspaceSlug: string,
-  logContext: string
-): Promise<WorkspaceMembershipContextResult> {
-  if (!currentUser.ok) {
-    return currentUser;
-  }
-
   try {
-    const workspaceMembership = await resolveWorkspaceMembershipContextBySlug(
-      currentUser.context.pb,
-      currentUser.context.user.id,
-      workspaceSlug
-    );
+    const workspace = await findWorkspaceBySlug(currentUser.pb, workspaceSlug);
 
-    if (workspaceMembership.state === "workspace_not_found") {
+    if (!workspace) {
       return createWorkspaceAccessFailure("NOT_FOUND");
     }
 
-    if (workspaceMembership.state === "membership_not_found") {
+    const membership = await findWorkspaceMembership(
+      currentUser.pb,
+      workspace.id,
+      currentUser.user.id
+    );
+
+    if (!membership) {
       return createWorkspaceAccessFailure("FORBIDDEN");
     }
 
     return {
       ok: true,
       context: {
-        ...currentUser.context,
-        workspace: workspaceMembership.workspace,
-        membership: workspaceMembership.membership,
+        pb: currentUser.pb,
+        user: currentUser.user,
+        workspace,
+        membership,
       },
     };
   } catch (error) {
-    const errorCode = mapWorkspaceErrorCode(error, function mapAccessError(pocketBaseError) {
-      if (pocketBaseError.status === 400) {
-        return "BAD_REQUEST";
-      }
-
-      if (pocketBaseError.status === 401) {
-        return "UNAUTHORIZED";
-      }
-
-      if (pocketBaseError.status === 403) {
-        return "FORBIDDEN";
-      }
-
-      if (pocketBaseError.status === 404) {
-        return "NOT_FOUND";
-      }
-
-      return null;
-    });
-
-    if (errorCode === "UNKNOWN_ERROR") {
-      logWorkspaceServiceError(logContext, error);
-    }
-
-    return createWorkspaceAccessFailure(errorCode);
-  }
-}
-
-async function resolveWorkspaceMembershipContextBySlug(
-  pb: PocketBase,
-  userId: string,
-  workspaceSlug: string
-): Promise<WorkspaceMembershipLookup> {
-  const workspace = await findWorkspaceBySlug(pb, workspaceSlug);
-
-  if (!workspace) {
     return {
-      state: "workspace_not_found",
+      ok: false,
+      response: createWorkspaceErrorResponse(logContext, error, {
+        400: "BAD_REQUEST",
+        401: "UNAUTHORIZED",
+        403: "FORBIDDEN",
+        404: "NOT_FOUND",
+      }),
     };
   }
-
-  const membership = await findWorkspaceMembershipByWorkspaceAndUser(pb, workspace.id, userId);
-
-  if (!membership) {
-    return {
-      state: "membership_not_found",
-    };
-  }
-
-  return {
-    state: "ready",
-    workspace,
-    membership,
-  };
 }
 
-async function findWorkspaceBySlug(
-  pb: PocketBase,
-  workspaceSlug: string
-): Promise<WorkspacesRecord | null> {
-  try {
-    return await pb
-      .collection("workspaces")
-      .getFirstListItem<WorkspacesRecord>(pb.filter("slug = {:workspaceSlug}", { workspaceSlug }));
-  } catch (error) {
-    if (error instanceof ClientResponseError && error.status === 404) {
-      return null;
-    }
-
-    throw error;
-  }
+async function findWorkspaceBySlug(pb: PocketBase, workspaceSlug: string) {
+  return findFirstListItemOrNull<WorkspacesRecord>(
+    pb,
+    "workspaces",
+    pb.filter("slug = {:workspaceSlug}", { workspaceSlug })
+  );
 }
 
-async function findWorkspaceMembershipByWorkspaceAndUser(
+async function findWorkspaceMembership(pb: PocketBase, workspaceId: string, userId: string) {
+  return findFirstListItemOrNull<WorkspaceMembersRecord>(
+    pb,
+    "workspace_members",
+    pb.filter("workspace = {:workspaceId} && user = {:userId}", {
+      workspaceId,
+      userId,
+    })
+  );
+}
+
+async function findFirstListItemOrNull<TRecord>(
   pb: PocketBase,
-  workspaceId: string,
-  userId: string
-): Promise<WorkspaceMembersRecord | null> {
+  collectionName: string,
+  filter: string
+): Promise<TRecord | null> {
   try {
-    return await pb.collection("workspace_members").getFirstListItem<WorkspaceMembersRecord>(
-      pb.filter("workspace = {:workspaceId} && user = {:userId}", {
-        workspaceId,
-        userId,
-      })
-    );
+    return await pb.collection(collectionName).getFirstListItem<TRecord>(filter);
   } catch (error) {
     if (error instanceof ClientResponseError && error.status === 404) {
       return null;

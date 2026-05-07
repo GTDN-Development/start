@@ -87,13 +87,5 @@ function createClearedCookie(name: string) {
 function normalizeCookieToken(value: string): string | null {
   const normalizedValue = value.trim();
 
-  if (!normalizedValue) {
-    return null;
-  }
-
-  if (normalizedValue.startsWith("[") && normalizedValue.endsWith("]")) {
-    return null;
-  }
-
-  return normalizedValue;
+  return normalizedValue && !/^\[.*\]$/.test(normalizedValue) ? normalizedValue : null;
 }

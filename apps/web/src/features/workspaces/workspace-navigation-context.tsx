@@ -1,7 +1,11 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import type { WorkspaceNavigationItem } from "./workspace-navigation-types";
+import { useRouter } from "@/i18n/navigation";
+import type {
+  WorkspaceNavigationItem,
+  WorkspaceNavigationPatch,
+} from "./workspace-navigation-types";
 
 type WorkspaceNavigationState = {
   activeWorkspaceSlug: string | null;
@@ -112,6 +116,35 @@ export function useWorkspaceNavigation() {
 
 export function useOptionalWorkspaceNavigation(): WorkspaceNavigationContextValue | null {
   return useContext(WorkspaceNavigationContext);
+}
+
+export function useApplyWorkspaceNavigationPatch() {
+  const router = useRouter();
+  const workspaceNavigation = useOptionalWorkspaceNavigation();
+
+  return function applyWorkspaceNavigationPatch(
+    patch: WorkspaceNavigationPatch | null | undefined
+  ) {
+    if (!patch) {
+      return;
+    }
+
+    if (patch.upsertWorkspace) {
+      workspaceNavigation?.upsertWorkspace(patch.upsertWorkspace);
+    }
+
+    if (patch.removeWorkspaceId) {
+      workspaceNavigation?.removeWorkspace(patch.removeWorkspaceId);
+    }
+
+    if ("activeWorkspaceSlug" in patch) {
+      workspaceNavigation?.setActiveWorkspaceSlug(patch.activeWorkspaceSlug ?? null);
+    }
+
+    if (patch.redirectHref) {
+      router.replace(patch.redirectHref);
+    }
+  };
 }
 
 function sortWorkspaceNavigationItems(workspaces: WorkspaceNavigationItem[]) {

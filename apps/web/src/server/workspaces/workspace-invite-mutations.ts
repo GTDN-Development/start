@@ -11,7 +11,7 @@ import {
 } from "@/server/workspaces/workspace-invite-utils";
 import {
   findInviteById,
-  mapMutationError,
+  mapMutationStatusError,
   safeDeleteRecord,
 } from "@/server/workspaces/workspace-mutation-utils";
 import { normalizeEmail } from "@/server/workspaces/workspace-normalization";
@@ -80,21 +80,11 @@ export async function createInvite(
       },
     };
   } catch (error) {
-    return mapMutationError(
-      "workspaceMutations.createInvite",
-      error,
-      function mapError(pocketBaseError) {
-        if (pocketBaseError.status === 400) {
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 403 || pocketBaseError.status === 404) {
-          return "FORBIDDEN";
-        }
-
-        return null;
-      }
-    );
+    return mapMutationStatusError("createInvite", error, {
+      400: "BAD_REQUEST",
+      403: "FORBIDDEN",
+      404: "FORBIDDEN",
+    });
   }
 }
 
@@ -166,25 +156,11 @@ export async function resendInvite(
       },
     };
   } catch (error) {
-    return mapMutationError(
-      "workspaceMutations.resendInvite",
-      error,
-      function mapError(pocketBaseError) {
-        if (pocketBaseError.status === 400) {
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 403) {
-          return "FORBIDDEN";
-        }
-
-        if (pocketBaseError.status === 404) {
-          return "NOT_FOUND";
-        }
-
-        return null;
-      }
-    );
+    return mapMutationStatusError("resendInvite", error, {
+      400: "BAD_REQUEST",
+      403: "FORBIDDEN",
+      404: "NOT_FOUND",
+    });
   }
 }
 
@@ -218,20 +194,9 @@ export async function revokeInvite(
       },
     };
   } catch (error) {
-    return mapMutationError(
-      "workspaceMutations.revokeInvite",
-      error,
-      function mapError(pocketBaseError) {
-        if (pocketBaseError.status === 403) {
-          return "FORBIDDEN";
-        }
-
-        if (pocketBaseError.status === 404) {
-          return "NOT_FOUND";
-        }
-
-        return null;
-      }
-    );
+    return mapMutationStatusError("revokeInvite", error, {
+      403: "FORBIDDEN",
+      404: "NOT_FOUND",
+    });
   }
 }

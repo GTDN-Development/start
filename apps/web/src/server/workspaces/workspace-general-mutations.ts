@@ -4,8 +4,8 @@ import { getNullableTrimmedString, hasValidationCode } from "@/server/pocketbase
 import { requireCurrentWritableUser } from "@/server/auth/auth-session-service";
 import { mapUserWorkspaceSummary } from "@/server/workspaces/workspace-mappers";
 import {
-  mapMutationError,
   isLastOwnerGuardError,
+  mapMutationStatusError,
 } from "@/server/workspaces/workspace-mutation-utils";
 import { normalizeWorkspaceName } from "@/server/workspaces/workspace-normalization";
 import { resolveWorkspaceActionAccess } from "@/server/workspaces/workspace-route-queries";
@@ -55,25 +55,11 @@ export async function createWorkspace(
       },
     };
   } catch (error) {
-    return mapMutationError(
-      "workspaceMutations.createWorkspace",
-      error,
-      function mapCreateError(pocketBaseError) {
-        if (pocketBaseError.status === 400) {
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 401) {
-          return "UNAUTHORIZED";
-        }
-
-        if (pocketBaseError.status === 403) {
-          return "FORBIDDEN";
-        }
-
-        return null;
-      }
-    );
+    return mapMutationStatusError("createWorkspace", error, {
+      400: "BAD_REQUEST",
+      401: "UNAUTHORIZED",
+      403: "FORBIDDEN",
+    });
   }
 }
 
@@ -142,23 +128,14 @@ export async function updateWorkspaceGeneral(
       },
     };
   } catch (error) {
-    return mapMutationError(
-      "workspaceMutations.updateWorkspaceGeneral",
+    return mapMutationStatusError(
+      "updateWorkspaceGeneral",
       error,
-      function mapError(pocketBaseError) {
-        if (pocketBaseError.status === 400) {
-          if (hasValidationCode(pocketBaseError.response?.data, "slug", "validation_not_unique")) {
-            return "SLUG_NOT_AVAILABLE";
-          }
-
-          return "BAD_REQUEST";
-        }
-
-        if (pocketBaseError.status === 403 || pocketBaseError.status === 404) {
-          return "FORBIDDEN";
-        }
-
-        return null;
+      { 400: "BAD_REQUEST", 403: "FORBIDDEN", 404: "FORBIDDEN" },
+      (pocketBaseError) => {
+        return hasValidationCode(pocketBaseError.response?.data, "slug", "validation_not_unique")
+          ? "SLUG_NOT_AVAILABLE"
+          : null;
       }
     );
   }
@@ -166,7 +143,7 @@ export async function updateWorkspaceGeneral(
 
 export async function deleteWorkspace(
   workspaceSlug: string
-): Promise<ServerWorkspaceResponse<{ deleted: true }>> {
+): Promise<ServerWorkspaceResponse<{ deleted: true; workspaceId: string }>> {
   const workspaceAccess = await resolveWorkspaceActionAccess(workspaceSlug);
 
   if (!workspaceAccess.ok) {
@@ -182,26 +159,20 @@ export async function deleteWorkspace(
       ok: true,
       data: {
         deleted: true,
+        workspaceId: workspaceAccess.context.workspace.id,
       },
     };
   } catch (error) {
-    return mapMutationError(
-      "workspaceMutations.deleteWorkspace",
-      error,
-      function mapError(pocketBaseError) {
-        if (pocketBaseError.status === 403 || pocketBaseError.status === 404) {
-          return "FORBIDDEN";
-        }
-
-        return null;
-      }
-    );
+    return mapMutationStatusError("deleteWorkspace", error, {
+      403: "FORBIDDEN",
+      404: "FORBIDDEN",
+    });
   }
 }
 
 export async function leaveWorkspace(
   workspaceSlug: string
-): Promise<ServerWorkspaceResponse<{ left: true }>> {
+): Promise<ServerWorkspaceResponse<{ left: true; workspaceId: string }>> {
   const workspaceAccess = await resolveWorkspaceActionAccess(workspaceSlug);
 
   if (!workspaceAccess.ok) {
@@ -217,27 +188,15 @@ export async function leaveWorkspace(
       ok: true,
       data: {
         left: true,
+        workspaceId: workspaceAccess.context.workspace.id,
       },
     };
   } catch (error) {
-    return mapMutationError(
-      "workspaceMutations.leaveWorkspace",
+    return mapMutationStatusError(
+      "leaveWorkspace",
       error,
-      function mapError(pocketBaseError) {
-        if (isLastOwnerGuardError(pocketBaseError)) {
-          return "LAST_OWNER_GUARD";
-        }
-
-        if (pocketBaseError.status === 403) {
-          return "FORBIDDEN";
-        }
-
-        if (pocketBaseError.status === 404) {
-          return "NOT_FOUND";
-        }
-
-        return null;
-      }
+      { 403: "FORBIDDEN", 404: "NOT_FOUND" },
+      (pocketBaseError) => (isLastOwnerGuardError(pocketBaseError) ? "LAST_OWNER_GUARD" : null)
     );
   }
 }

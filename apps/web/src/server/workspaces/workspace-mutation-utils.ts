@@ -11,6 +11,7 @@ import type {
 } from "@/server/workspaces/workspace-types";
 
 type WorkspaceOperationErrorMapper = (error: ClientResponseError) => WorkspaceErrorCode | null;
+type WorkspaceStatusErrorMap = Partial<Record<number, WorkspaceErrorCode>>;
 
 export async function findWorkspaceMemberById(
   pb: PocketBase,
@@ -85,6 +86,20 @@ export function mapMutationError<TData>(
     ok: false,
     errorCode,
   };
+}
+
+export function mapMutationStatusError<TData>(
+  context: string,
+  error: unknown,
+  statusMap: WorkspaceStatusErrorMap,
+  operationMapper?: WorkspaceOperationErrorMapper
+): ServerWorkspaceResponse<TData> {
+  return mapMutationError(
+    context,
+    error,
+    (pocketBaseError) =>
+      operationMapper?.(pocketBaseError) ?? statusMap[pocketBaseError.status] ?? null
+  );
 }
 
 export function isLastOwnerGuardError(error: ClientResponseError): boolean {
