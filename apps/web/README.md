@@ -14,49 +14,10 @@
 
 ## Commands
 
-From `apps/web`, use the local app scripts:
+Use the repository-root commands documented in [../../README.md](/Users/fanda/Dev/start/README.md).
 
-```bash
-pnpm install
-pnpm dev
-pnpm build
-pnpm lint
-pnpm lint:fix
-pnpm check-types
-pnpm check
-pnpm test
-pnpm test:watch
-pnpm test:e2e
-pnpm test:e2e:ui
-pnpm format
-pnpm format:check
-pnpm pocketbase:typegen
-```
-
-Useful repository-root shortcuts:
-
-```bash
-pnpm dev
-pnpm dev:web
-pnpm dev:full
-pnpm build
-pnpm lint
-pnpm test
-pnpm check-types
-pnpm check
-pnpm format
-pnpm format:check
-pnpm local:up
-pnpm local:down
-```
-
-`pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm test`, and `pnpm check-types` are repository-wide
-Turbo commands from the repository root. Repository-root `pnpm format` and `pnpm format:check`
-run the repo-wide Prettier baseline. Local `pnpm format` and `pnpm format:check` in `apps/web`
-are convenience wrappers that run that same baseline only against `apps/web`.
-`pnpm dev:web` keeps the focused web-only flow. `pnpm local:up` and `pnpm local:down` manage the
-persistent local PocketBase + Mailpit stack. `pnpm dev:full` is the repository-root shortcut for
-`pnpm local:up && pnpm dev`.
+The app package keeps local scripts for direct app work, but the root command list is the source of
+truth for daily development, checks, local stack management, E2E, and typegen.
 
 ## Env
 
@@ -77,11 +38,8 @@ Canonical public/runtime envs:
 - `MAIL_FROM_ADDRESS`
 - base URLs should be written without a trailing slash
 
-PocketBase typegen requires:
-
-- `NEXT_PUBLIC_PB_URL`
-- `PB_SUPERUSER_EMAIL`
-- `PB_SUPERUSER_PASSWORD`
+PocketBase typegen uses the local Docker PocketBase instance. It defaults to
+`http://127.0.0.1:8090`; set `NEXT_PUBLIC_PB_URL` only when using a different local port.
 
 ## PocketBase Typegen
 
@@ -92,13 +50,11 @@ PocketBase typegen requires:
 
 ## Testing
 
-Local testing uses `.env.test`.
+Vitest covers unit and business-rule tests. Playwright covers auth, organization, email, and App
+Router flows against a local Docker stack. Use the root README for the command list.
 
-- `pnpm test` runs the Vitest suite once from `apps/web`; from the repository root it runs the repository-wide Turbo test task
-- `pnpm test:watch` runs Vitest in watch mode
-- `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app with test env, runs Playwright, and tears the stack down again
-- `pnpm test:e2e:ui` is the same local stack with Playwright UI enabled
-- auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias` recipients from it
+Auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique
+`+alias` recipients from it.
 
 Local email defaults:
 
@@ -107,21 +63,13 @@ Local email defaults:
 - local web app emails go through the local Mailpit HTTP Send API
 - production email delivery is out of scope here
 
-Local stack contract:
-
-- `pnpm local:up` starts the persistent local PocketBase + Mailpit stack from the repository root and reapplies the local mail baseline
-- `pnpm dev` starts only the Next.js app from `apps/web`; from the repository root it runs the repository-wide Turbo dev task
-- `pnpm dev:web` starts only the Next.js app from the repository root
-- `pnpm dev:full` is a repository-root shortcut for `pnpm local:up && pnpm dev`
-- `pnpm test:e2e` starts a fresh isolated stack and removes its Docker volume after the run
-- `pnpm local:down` stops the persistent local dev stack from the repository root
-
 ## Tooling
 
-- `pnpm format` / `pnpm format:check` run the repository-root Prettier baseline with `prettier-plugin-tailwindcss`; from `apps/web` they stay scoped to `apps/web`
-- `pnpm lint` / `pnpm lint:fix` run ESLint with Next.js baseline rules plus project architectural guardrails
-- `pnpm check-types` runs `next typegen` and TypeScript without emitting
-- `pnpm check` runs format, lint, and type checks together
+Tooling is intentionally split by concern:
+
+- ESLint uses Next.js baseline rules plus project architectural guardrails
+- Type checks run Next.js route typegen and TypeScript without emitting
+- Prettier uses the repository-root baseline with `prettier-plugin-tailwindcss`
 
 Conventions:
 

@@ -28,6 +28,8 @@ Start the repository Docker stack from the repo root:
 pnpm local:up
 ```
 
+The root [README.md](/Users/fanda/Dev/start/README.md) is the source of truth for daily commands.
+
 Useful commands:
 
 ```sh
@@ -111,11 +113,10 @@ The script sets:
 - Mailpit SMTP host/port/TLS/auth settings
 - SMTP host is fixed to `mailpit`, the Docker Compose service hostname
 
-Required envs:
+Root `pnpm local:up` and `pnpm pocketbase:mailpit:apply` inject the local PocketBase superuser
+credentials automatically. The web local env still needs:
 
 - `NEXT_PUBLIC_PB_URL`
-- `PB_SUPERUSER_EMAIL`
-- `PB_SUPERUSER_PASSWORD`
 - `NEXT_PUBLIC_APP_URL`
 - `MAIL_FROM_NAME`
 - `MAIL_FROM_ADDRESS`

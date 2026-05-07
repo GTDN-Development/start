@@ -2,40 +2,39 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
+import { loadEnvConfig } from "@next/env";
 import PocketBase from "pocketbase";
 
 const DEFAULT_OUTPUT_PATH = "src/types/pocketbase.ts";
-const ENV_FILES = [".env.local.example", ".env", ".env.local"];
+const DEFAULT_POCKETBASE_URL = "http://127.0.0.1:8090";
 const BASE_RECORD_FIELDS = new Set(["id", "collectionId", "collectionName", "created", "updated"]);
 const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const LOCAL_POCKETBASE_SUPERUSER_EMAIL = "local-admin@example.com";
 const LOCAL_POCKETBASE_SUPERUSER_PASSWORD = "local-dev-password";
 
 async function main() {
-  await loadEnvironmentFiles(process.cwd(), ENV_FILES);
+  loadEnvConfig(process.cwd(), true);
 
-  const pocketBaseUrl = getRequiredEnv(["PB_TYPEGEN_URL", "NEXT_PUBLIC_PB_URL"]);
+  const pocketBaseUrl = getPocketBaseUrl();
   assertLocalPocketBaseUrl(pocketBaseUrl);
 
-  const superuserEmail = getTypegenSuperuserEmail(pocketBaseUrl);
-  const superuserPassword = getTypegenSuperuserPassword(pocketBaseUrl);
-  const includeSystemCollections = getBooleanEnv("PB_TYPEGEN_INCLUDE_SYSTEM", false);
-  const outputPath = path.resolve(
-    process.cwd(),
-    process.env.PB_TYPEGEN_OUTPUT?.trim() || DEFAULT_OUTPUT_PATH
-  );
+  const outputPath = path.resolve(process.cwd(), DEFAULT_OUTPUT_PATH);
 
   const pb = new PocketBase(pocketBaseUrl);
   pb.autoCancellation(false);
 
-  await authenticateSuperuser(pb, superuserEmail, superuserPassword);
+  await authenticateSuperuser(
+    pb,
+    LOCAL_POCKETBASE_SUPERUSER_EMAIL,
+    LOCAL_POCKETBASE_SUPERUSER_PASSWORD
+  );
 
   const allCollections = await pb.collections.getFullList({
     sort: "name",
   });
 
   const collections = allCollections.filter(function filterCollections(collection) {
-    return includeSystemCollections || !collection.system;
+    return !collection.system;
   });
 
   const output = renderPocketBaseTypesFile(collections);
@@ -54,167 +53,17 @@ async function main() {
   );
 }
 
-async function loadEnvironmentFiles(rootDir, fileNames) {
-  for (const fileName of fileNames) {
-    const filePath = path.join(rootDir, fileName);
-
-    let fileContent = "";
-
-    try {
-      fileContent = await fs.readFile(filePath, "utf8");
-    } catch (error) {
-      if (isFileNotFound(error)) {
-        continue;
-      }
-
-      throw error;
-    }
-
-    const parsedValues = parseEnvFile(fileContent);
-
-    for (const [key, value] of Object.entries(parsedValues)) {
-      process.env[key] = value;
-    }
-  }
-}
-
-function parseEnvFile(content) {
-  const env = {};
-  const lines = content.split(/\r?\n/);
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-
-    if (!line || line.startsWith("#")) {
-      continue;
-    }
-
-    const match = line.match(/^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/);
-
-    if (!match) {
-      continue;
-    }
-
-    const [, key, rawValue] = match;
-    env[key] = parseEnvValue(rawValue);
-  }
-
-  return env;
-}
-
-function parseEnvValue(rawValue) {
-  const value = rawValue.trim();
-
-  if (!value) {
-    return "";
-  }
-
-  if (value.startsWith('"') || value.startsWith("'")) {
-    const quote = value[0];
-    const closingQuoteIndex = findClosingQuoteIndex(value, quote);
-
-    if (closingQuoteIndex === -1) {
-      throw new Error(`Invalid quoted env value: ${rawValue}`);
-    }
-
-    const innerValue = value.slice(1, closingQuoteIndex);
-
-    if (quote === '"') {
-      return innerValue
-        .replace(/\\n/g, "\n")
-        .replace(/\\r/g, "\r")
-        .replace(/\\t/g, "\t")
-        .replace(/\\"/g, '"')
-        .replace(/\\\\/g, "\\");
-    }
-
-    return innerValue;
-  }
-
-  return value.replace(/\s+#.*$/, "").trim();
-}
-
-function findClosingQuoteIndex(value, quote) {
-  for (let index = 1; index < value.length; index += 1) {
-    if (value[index] !== quote) {
-      continue;
-    }
-
-    let backslashCount = 0;
-
-    for (
-      let escapeIndex = index - 1;
-      escapeIndex >= 0 && value[escapeIndex] === "\\";
-      escapeIndex -= 1
-    ) {
-      backslashCount += 1;
-    }
-
-    if (backslashCount % 2 === 0) {
-      return index;
-    }
-  }
-
-  return -1;
-}
-
-function getRequiredEnv(names) {
-  for (const name of names) {
-    const value = process.env[name]?.trim();
-
-    if (value) {
-      return value;
-    }
-  }
-
-  throw new Error(`Missing required environment variable. Tried: ${names.join(", ")}`);
-}
-
-function getBooleanEnv(name, defaultValue) {
-  const value = process.env[name]?.trim().toLowerCase();
-
-  if (!value) {
-    return defaultValue;
-  }
-
-  return value === "1" || value === "true" || value === "yes" || value === "on";
-}
-
-function getTypegenSuperuserEmail(pocketBaseUrl) {
-  const explicitValue = process.env.PB_TYPEGEN_SUPERUSER_EMAIL?.trim();
-
-  if (explicitValue) {
-    return explicitValue;
-  }
-
-  if (isLocalPocketBaseUrl(pocketBaseUrl)) {
-    return LOCAL_POCKETBASE_SUPERUSER_EMAIL;
-  }
-
-  return getRequiredEnv(["PB_SUPERUSER_EMAIL"]);
-}
-
-function getTypegenSuperuserPassword(pocketBaseUrl) {
-  const explicitValue = process.env.PB_TYPEGEN_SUPERUSER_PASSWORD?.trim();
-
-  if (explicitValue) {
-    return explicitValue;
-  }
-
-  if (isLocalPocketBaseUrl(pocketBaseUrl)) {
-    return LOCAL_POCKETBASE_SUPERUSER_PASSWORD;
-  }
-
-  return getRequiredEnv(["PB_SUPERUSER_PASSWORD"]);
+function getPocketBaseUrl() {
+  return process.env.NEXT_PUBLIC_PB_URL?.trim() || DEFAULT_POCKETBASE_URL;
 }
 
 function assertLocalPocketBaseUrl(value) {
-  if (isLocalPocketBaseUrl(value) || getBooleanEnv("PB_TYPEGEN_ALLOW_REMOTE", false)) {
+  if (isLocalPocketBaseUrl(value)) {
     return;
   }
 
   throw new Error(
-    "PocketBase typegen must target a local PocketBase instance. Set PB_TYPEGEN_ALLOW_REMOTE=true only for an intentional one-off remote run."
+    "PocketBase typegen only targets a local PocketBase instance. Start it with `pnpm local:up` and set NEXT_PUBLIC_PB_URL only when using a non-default local port."
   );
 }
 
@@ -440,10 +289,6 @@ function renderSelectFieldType(field) {
   }
 
   return Array.from(new Set(values)).join(" | ");
-}
-
-function isFileNotFound(error) {
-  return Boolean(error) && typeof error === "object" && error.code === "ENOENT";
 }
 
 main().catch(function handleError(error) {

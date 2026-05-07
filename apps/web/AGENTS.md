@@ -119,6 +119,6 @@ These instructions apply only to files under `apps/web/**`.
 ## PocketBase / Typegen
 
 - Generate PocketBase schema types with `pnpm pocketbase:typegen`
-- Required env vars for typegen: `NEXT_PUBLIC_PB_URL`, `PB_SUPERUSER_EMAIL`, `PB_SUPERUSER_PASSWORD`
+- Typegen targets the local Docker PocketBase instance; set `NEXT_PUBLIC_PB_URL` only when using a non-default local port
 - Generated file is `src/types/pocketbase.ts` — do not edit manually
 - Re-run typegen after PocketBase schema changes before writing/adjusting PocketBase integration code
