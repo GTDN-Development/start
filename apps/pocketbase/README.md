@@ -3,7 +3,7 @@
 `apps/pocketbase` is the PocketBase service for Start. It contains:
 
 - `pb_migrations/` for the initial schema snapshot and future schema history
-- `pb_hooks/` for optional JS hooks
+- `pb_hooks/` for PocketBase JS hooks and custom API endpoints
 - `pb_public/` for optional static files
 - persistent data in `/pb_data`
 - superuser bootstrap from environment variables
@@ -49,7 +49,7 @@ Local runtime data lives in the Docker volume for the `pocketbase` service and i
 ## Project Structure
 
 - `pb_migrations/` - PocketBase JS migrations, currently squashed to one initial schema snapshot
-- `pb_hooks/` - optional PocketBase JS hooks
+- `pb_hooks/` - PocketBase domain hooks and custom API endpoints
 - `pb_public/` - optional static files
 
 ## Workflow
@@ -60,7 +60,7 @@ Recommended workflow:
 2. Run `pnpm dev` separately if you also need the web app.
 3. Update collections or auth settings in the PocketBase admin UI.
 4. Let PocketBase generate new migration files in `pb_migrations/`.
-5. Add JS hooks in `pb_hooks/` when you need custom event logic.
+5. Add JS hooks in `pb_hooks/` when PocketBase must enforce data invariants or expose an atomic custom endpoint.
 6. Commit and push changes to `dev`.
 7. Verify in the Railway development environment.
 8. Promote the same changes to `main` for production.
@@ -141,6 +141,15 @@ Railway runs PocketBase with:
 - `--automigrate=false`
 
 That means Railway applies committed migrations on startup, but does not generate new ones in the deployed environment.
+
+## Hook Layout
+
+PocketBase loads all `.pb.js` files from `pb_hooks/`.
+
+- `organizations.pb.js` - atomic organization creation endpoint
+- `organization-invites.pb.js` - invite inspection and acceptance endpoints
+- `organization-members.pb.js` - membership owner guard hooks
+- `users.pb.js` - user lifecycle hooks
 
 ## Environments
 

@@ -16,7 +16,7 @@ Server shape:
 - General mutations handle create, rename, slug/avatar update, leave, and delete.
 - Member mutations handle role changes and removal.
 - Invite mutations create, resend, revoke, inspect, and accept invite tokens.
-- PocketBase hooks provide custom endpoints for atomic create and invite accept/inspect flows.
+- PocketBase domain hooks provide custom endpoints for atomic create and invite accept/inspect flows, plus membership owner guards.
 
 Useful files:
 
@@ -27,4 +27,4 @@ Useful files:
 - [shell queries](/Users/fanda/Dev/start/apps/web/src/server/organizations/organization-shell-queries.ts)
 - [general actions](/Users/fanda/Dev/start/apps/web/src/features/organizations/settings/general/organization-general-actions.ts)
 - [member actions](/Users/fanda/Dev/start/apps/web/src/features/organizations/settings/members/organization-members-actions.ts)
-- [PocketBase hooks](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks/organization-invites.pb.js)
+- [PocketBase hooks](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks)
