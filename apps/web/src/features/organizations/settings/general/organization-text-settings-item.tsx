@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, type FormEvent, useId, useState } from "react";
+import { type ChangeEvent, type SubmitEvent, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -86,7 +86,7 @@ export function OrganizationTextSettingsItem({
     setValue(event.target.value);
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (isReadOnly || isSubmitting) {
