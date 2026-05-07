@@ -31,12 +31,12 @@ const defaultFaqData: FaqItem[] = [
   {
     question: "Do you offer a free trial?",
     answer:
-      "Yes, all paid plans come with a 14-day free trial. No credit card is needed to start the trial.",
+      "Yes, <br/> all paid plans come with a 14-day free trial. No credit card is needed to start the trial.",
   },
   {
     question: "How do I cancel my subscription?",
     answer:
-      "You can cancel at any time from your billing settings. Your access continues until the end of the current billing period.",
+      "You can <strong>cancel at any time</strong> from your billing settings. Your access continues until the end of the current billing period.",
   },
 ];
 
@@ -64,7 +64,7 @@ export function FaqSection({
                 />
               </CollapsibleTrigger>
               <CollapsibleContent className="text-muted-foreground overflow-hidden">
-                <p className="pb-4">{faq.answer}</p>
+                <div className="prose pb-4" dangerouslySetInnerHTML={{ __html: faq.answer }} />
               </CollapsibleContent>
             </Collapsible>
           ))}
