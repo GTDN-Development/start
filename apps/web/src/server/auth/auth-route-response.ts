@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPathname, type AppHref } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import {
-  appendAuthCookiesToResponse,
-  type AuthCookieMutations,
-} from "@/server/auth/auth-cookies";
+import { appendAuthCookiesToResponse, type AuthCookieMutations } from "@/server/auth/auth-cookies";
 
 export function redirectHrefWithAuthCookies(
   request: NextRequest,

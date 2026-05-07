@@ -29,12 +29,9 @@ export function passwordPolicySchema(messages?: AuthPasswordValidationMessages) 
     .max(authConfig.passwordPolicy.maxLength, {
       message: messages?.max,
     })
-    .refine(
-      (value) => countMatches(value, /[A-Z]/g) >= authConfig.passwordPolicy.minUppercase,
-      {
-        message: messages?.uppercase,
-      }
-    )
+    .refine((value) => countMatches(value, /[A-Z]/g) >= authConfig.passwordPolicy.minUppercase, {
+      message: messages?.uppercase,
+    })
     .refine((value) => countMatches(value, /\d/g) >= authConfig.passwordPolicy.minNumbers, {
       message: messages?.number,
     })
