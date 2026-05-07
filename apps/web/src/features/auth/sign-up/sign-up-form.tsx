@@ -2,7 +2,6 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
-import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -17,6 +16,7 @@ import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/menu";
 import { isTurnstileEnabled } from "@/config/security";
 import { signUpAction } from "@/features/auth/auth-actions";
+import { createTurnstileFormSchema, isAuthFieldInvalid } from "@/features/auth/auth-form-utils";
 import { createPendingVerifyEmailHref } from "@/features/auth/verify-email/verify-email-state";
 import { createSignUpFormSchema, type SignUpInput } from "@/features/auth/auth-schemas";
 import { runAsyncTransition } from "@/lib/app-utils";
@@ -43,13 +43,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
     passwordMin: t("validation.passwordMin"),
     passwordMax: t("validation.passwordMax"),
   });
-  const turnstileSchema = z.object({
-    turnstileToken: turnstileEnabled
-      ? z.string().min(1, {
-          message: t("validation.turnstile"),
-        })
-      : z.string(),
-  });
+  const turnstileSchema = createTurnstileFormSchema(turnstileEnabled, t("validation.turnstile"));
 
   const form = useForm({
     defaultValues: {
@@ -120,9 +114,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
               <div className="grid gap-4 @sm:grid-cols-2">
                 <form.Field name="firstName">
                   {(field) => {
-                    const isInvalid =
-                      (field.state.meta.isTouched || submissionAttempts > 0) &&
-                      !field.state.meta.isValid;
+                    const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
                     return (
                       <Field data-invalid={isInvalid}>
                         <FieldLabel htmlFor={`signup-${field.name}`}>
@@ -146,9 +138,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
 
                 <form.Field name="lastName">
                   {(field) => {
-                    const isInvalid =
-                      (field.state.meta.isTouched || submissionAttempts > 0) &&
-                      !field.state.meta.isValid;
+                    const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
                     return (
                       <Field data-invalid={isInvalid}>
                         <FieldLabel htmlFor={`signup-${field.name}`}>
@@ -173,9 +163,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
 
               <form.Field name="email">
                 {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
+                  const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
                   return (
                     <Field data-invalid={isInvalid}>
                       <FieldLabel htmlFor={`signup-${field.name}`}>
@@ -200,9 +188,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
 
               <form.Field name="password">
                 {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
+                  const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
                   return (
                     <Field data-invalid={isInvalid}>
                       <FieldLabel htmlFor={`signup-${field.name}`}>
@@ -230,9 +216,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
               {turnstileEnabled && (
                 <form.Field name="turnstileToken">
                   {(field) => {
-                    const isInvalid =
-                      (field.state.meta.isTouched || submissionAttempts > 0) &&
-                      !field.state.meta.isValid;
+                    const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
                     return (
                       <Field data-invalid={isInvalid}>
                         <Turnstile

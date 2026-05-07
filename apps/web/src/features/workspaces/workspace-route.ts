@@ -2,7 +2,8 @@ import type { Locale } from "next-intl";
 import { notFound } from "next/navigation";
 import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
-import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
+import type { UserWorkspace } from "@/features/workspaces/workspace-types";
+import type { ServerWorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 export function requireWorkspaceRouteAccess<TData extends { workspace: UserWorkspace }>(
   response: ServerWorkspaceResponse<TData>,

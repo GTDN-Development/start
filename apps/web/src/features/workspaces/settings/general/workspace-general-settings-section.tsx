@@ -16,7 +16,7 @@ import type {
   WorkspaceNavigationPatch,
 } from "@/features/workspaces/workspace-navigation-types";
 import { runAsyncTransition } from "@/lib/app-utils";
-import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
+import type { WorkspaceResponse } from "@/features/workspaces/workspace-types";
 
 type UpdateWorkspaceGeneralActionInput = {
   name?: string;

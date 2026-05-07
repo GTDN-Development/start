@@ -24,7 +24,7 @@ import { changeMemberRole, removeMember } from "@/server/workspaces/workspace-me
 import type {
   WorkspaceInviteSummary,
   WorkspaceResponse,
-} from "@/server/workspaces/workspace-types";
+} from "@/features/workspaces/workspace-types";
 
 const workspaceMemberRoleSchema = z.enum(WORKSPACE_MEMBER_ROLE_VALUES);
 const createInviteInputSchema = createWorkspaceInviteInputSchema(z.enum(routing.locales));

@@ -1,7 +1,8 @@
 import type {
-  WorkspaceInvitableRole,
+  WorkspaceInviteSummary,
   WorkspaceMemberRole,
-} from "@/features/workspaces/workspace-role-rules";
+  WorkspaceMemberSummary,
+} from "@/features/workspaces/workspace-types";
 
 export type WorkspaceSettingsWorkspace = {
   id: string;
@@ -13,20 +14,5 @@ export type WorkspaceSettingsWorkspace = {
   avatarUrl: string | null;
 };
 
-export type WorkspaceSettingsMember = {
-  id: string;
-  userId: string;
-  email: string;
-  name: string | null;
-  avatarUrl: string | null;
-  role: WorkspaceMemberRole;
-};
-
-export type WorkspaceSettingsInvite = {
-  id: string;
-  emailNormalized: string;
-  role: WorkspaceInvitableRole;
-  expiresAt: string;
-  updatedAt: string;
-  invitedByName: string | null;
-};
+export type WorkspaceSettingsMember = WorkspaceMemberSummary;
+export type WorkspaceSettingsInvite = WorkspaceInviteSummary;

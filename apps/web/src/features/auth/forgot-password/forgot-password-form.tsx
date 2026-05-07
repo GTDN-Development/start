@@ -13,6 +13,7 @@ import { Turnstile, type TurnstileRef } from "@/components/ui/turnstile";
 import { AlertCircleIcon, CheckCircleIcon, MailIcon } from "lucide-react";
 import { isTurnstileEnabled } from "@/config/security";
 import { requestPasswordResetAction } from "@/features/auth/auth-actions";
+import { createTurnstileFormSchema, isAuthFieldInvalid } from "@/features/auth/auth-form-utils";
 import { runAsyncTransition } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 
@@ -32,16 +33,13 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
     message: string;
   }>({ type: null, message: "" });
 
-  const forgotPasswordFormSchema = z.object({
-    email: z.email({
-      message: tSignInValidation("email"),
-    }),
-    turnstileToken: turnstileEnabled
-      ? z.string().min(1, {
-          message: t("validation.turnstile"),
-        })
-      : z.string(),
-  });
+  const forgotPasswordFormSchema = z
+    .object({
+      email: z.email({
+        message: tSignInValidation("email"),
+      }),
+    })
+    .and(createTurnstileFormSchema(turnstileEnabled, t("validation.turnstile")));
 
   const form = useForm({
     defaultValues: {
@@ -120,9 +118,7 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
             <FieldGroup>
               <form.Field name="email">
                 {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
+                  const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
 
                   return (
                     <Field data-invalid={isInvalid}>
@@ -150,9 +146,7 @@ export function ForgotPasswordForm({ className, ...props }: React.ComponentProps
               {turnstileEnabled && (
                 <form.Field name="turnstileToken">
                   {(field) => {
-                    const isInvalid =
-                      (field.state.meta.isTouched || submissionAttempts > 0) &&
-                      !field.state.meta.isValid;
+                    const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
 
                     return (
                       <Field data-invalid={isInvalid}>

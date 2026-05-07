@@ -3,9 +3,10 @@ import type { UsersRecord } from "@/types/pocketbase";
 import { APP_HOME_PATH, getWorkspaceOverviewHref } from "@/config/routes";
 import type { AppHref } from "@/i18n/navigation";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
+import type { UserWorkspace } from "@/features/workspaces/workspace-types";
 import { getActiveWorkspaceSlugCookie } from "@/server/workspaces/workspace-cookie";
 import { listUserWorkspaceShells } from "@/server/workspaces/workspace-shell-queries";
-import type { ServerWorkspaceResponse, UserWorkspace } from "@/server/workspaces/workspace-types";
+import type { ServerWorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 export type ApplicationWorkspaceNavigation = {
   workspaces: WorkspaceNavigationItem[];

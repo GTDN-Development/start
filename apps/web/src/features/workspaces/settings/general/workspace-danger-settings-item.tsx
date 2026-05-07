@@ -31,7 +31,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import { createWorkspaceConfirmationFormSchema } from "@/features/workspaces/workspace-schemas";
-import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
+import type { WorkspaceResponse } from "@/features/workspaces/workspace-types";
 
 type WorkspaceDangerSettingsItemProps = {
   kind: "leave" | "delete";

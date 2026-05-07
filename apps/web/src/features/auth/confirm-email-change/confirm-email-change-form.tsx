@@ -12,6 +12,7 @@ import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/c
 import { PasswordInput } from "@/components/ui/password-input";
 import { Spinner } from "@/components/ui/spinner";
 import { confirmEmailChange } from "@/features/auth/auth-client";
+import { isAuthFieldInvalid } from "@/features/auth/auth-form-utils";
 import { AlertCircleIcon, MailCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -100,9 +101,7 @@ export function ConfirmEmailChangeForm({
 
               <form.Field name="password">
                 {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
+                  const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
 
                   return (
                     <Field data-invalid={isInvalid}>

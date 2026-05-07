@@ -21,10 +21,12 @@ import { app } from "@/config/app";
 import type { WorkspaceSettingsWorkspace } from "@/features/workspaces/settings/workspace-settings-types";
 import type { WorkspaceNavigationItem } from "@/features/workspaces/workspace-navigation-types";
 import {
+  createWorkspaceNameFormSchema,
+  createWorkspaceSlugTextFormSchema,
   workspaceNameMaxLength,
   workspaceSlugMaxLength,
 } from "@/features/workspaces/workspace-schemas";
-import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
+import type { WorkspaceResponse } from "@/features/workspaces/workspace-types";
 
 type WorkspaceTextSettingsItemProps = {
   workspace: WorkspaceSettingsWorkspace;
@@ -48,6 +50,20 @@ export function WorkspaceTextSettingsItem({
   const isReadOnly = workspace.role === "member";
   const maxLength = field === "name" ? workspaceNameMaxLength : workspaceSlugMaxLength;
   const initialValue = field === "name" ? workspace.name : workspace.slug;
+  const formSchema =
+    field === "name"
+      ? createWorkspaceNameFormSchema({
+          required: t("validation.required"),
+          max: t("validation.max", {
+            max: String(maxLength),
+          }),
+        })
+      : createWorkspaceSlugTextFormSchema({
+          required: t("validation.required"),
+          max: t("validation.max", {
+            max: String(maxLength),
+          }),
+        });
 
   const [value, setValue] = useState(initialValue);
   const [error, setError] = useState<string | null>(null);
@@ -76,16 +92,12 @@ export function WorkspaceTextSettingsItem({
     }
 
     const nextValue = value.trim();
-    const validationError = validateTextValue(nextValue, {
-      required: t("validation.required"),
-      max: t("validation.max", {
-        max: String(maxLength),
-      }),
-      maxLength,
-    });
+    const validationResult = formSchema.safeParse(
+      field === "name" ? { name: nextValue } : { slug: nextValue }
+    );
 
-    if (validationError) {
-      setError(validationError);
+    if (!validationResult.success) {
+      setError(validationResult.error.issues[0]?.message ?? t("validation.required"));
       return;
     }
 
@@ -167,15 +179,4 @@ export function WorkspaceTextSettingsItem({
       </form>
     </SettingsItem>
   );
-}
-
-function validateTextValue(
-  value: string,
-  messages: {
-    required: string;
-    max: string;
-    maxLength: number;
-  }
-) {
-  return !value ? messages.required : value.length > messages.maxLength ? messages.max : null;
 }

@@ -35,7 +35,7 @@ import type { AppLocale } from "@/i18n/routing";
 import type {
   WorkspaceInviteSummary,
   WorkspaceResponse,
-} from "@/server/workspaces/workspace-types";
+} from "@/features/workspaces/workspace-types";
 
 type InviteRole = WorkspaceInvitableRole;
 

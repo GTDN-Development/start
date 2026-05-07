@@ -84,6 +84,20 @@ export function createWorkspaceNameFormSchema(messages: WorkspaceCreateValidatio
   });
 }
 
+export function createWorkspaceSlugTextFormSchema(messages: WorkspaceCreateValidationMessages) {
+  return z.object({
+    slug: z
+      .string()
+      .trim()
+      .min(1, {
+        message: messages.required,
+      })
+      .max(workspaceSlugMaxLength, {
+        message: messages.max,
+      }),
+  });
+}
+
 export function createWorkspaceConfirmationFormSchema(
   workspaceSlug: string,
   messages: WorkspaceConfirmationValidationMessages

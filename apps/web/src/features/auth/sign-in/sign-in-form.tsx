@@ -17,6 +17,7 @@ import { AlertCircleIcon, LogInIcon } from "lucide-react";
 import { Link } from "@/components/ui/link";
 import { legalLinks } from "@/config/menu";
 import { signIn } from "@/features/auth/auth-client";
+import { isAuthFieldInvalid } from "@/features/auth/auth-form-utils";
 import { createPendingVerifyEmailHref } from "@/features/auth/verify-email/verify-email-state";
 import { createSignInFormSchema, type SignInInput } from "@/features/auth/auth-schemas";
 import { cn } from "@/lib/utils";
@@ -94,9 +95,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
             <FieldGroup>
               <form.Field name="email">
                 {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
+                  const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
                   return (
                     <Field data-invalid={isInvalid}>
                       <FieldLabel htmlFor={`sign-in-${field.name}`}>
@@ -121,9 +120,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
 
               <form.Field name="password">
                 {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
+                  const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
                   return (
                     <Field data-invalid={isInvalid}>
                       <div className="flex justify-between">
@@ -159,9 +156,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"div">)
 
               <form.Field name="rememberMe">
                 {(field) => {
-                  const isInvalid =
-                    (field.state.meta.isTouched || submissionAttempts > 0) &&
-                    !field.state.meta.isValid;
+                  const isInvalid = isAuthFieldInvalid(field.state.meta, submissionAttempts);
                   return (
                     <Field orientation="horizontal" data-invalid={isInvalid}>
                       <Checkbox

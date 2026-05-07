@@ -1,8 +1,6 @@
 import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
-import type {
-  ServerWorkspaceResponse,
-  WorkspaceResponse,
-} from "@/server/workspaces/workspace-types";
+import type { WorkspaceResponse } from "@/features/workspaces/workspace-types";
+import type { ServerWorkspaceResponse } from "@/server/workspaces/workspace-types";
 
 type FinalizeWorkspaceActionOptions<TData, TResult> = {
   onSuccess?: (data: TData) => void | Promise<void>;

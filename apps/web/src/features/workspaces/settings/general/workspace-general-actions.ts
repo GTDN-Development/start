@@ -27,7 +27,7 @@ import {
   updateWorkspaceGeneral,
 } from "@/server/workspaces/workspace-general-mutations";
 import { resolveAccessibleWorkspaceForCurrentUser } from "@/server/workspaces/workspace-route-queries";
-import type { UserWorkspace, WorkspaceResponse } from "@/server/workspaces/workspace-types";
+import type { UserWorkspace, WorkspaceResponse } from "@/features/workspaces/workspace-types";
 
 type WorkspaceUpdateInput = {
   name?: string;

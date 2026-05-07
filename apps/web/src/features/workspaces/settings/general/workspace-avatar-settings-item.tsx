@@ -32,7 +32,7 @@ import {
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
 import { getAvatarColorClass, getUserInitials, resolveErrorMessage } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
-import type { WorkspaceResponse } from "@/server/workspaces/workspace-types";
+import type { WorkspaceResponse } from "@/features/workspaces/workspace-types";
 
 export function WorkspaceAvatarSettingsItem({
   workspace,

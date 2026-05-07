@@ -1,97 +1,19 @@
-import type {
-  WorkspaceInvitableRole,
-  WorkspaceMemberRole,
-} from "@/features/workspaces/workspace-role-rules";
+import type { WorkspaceErrorCode } from "@/features/workspaces/workspace-types";
 import type { AuthCookieMutations } from "@/server/auth/auth-cookies";
 
-export type { WorkspaceMemberRole };
-export type WorkspaceInviteRole = WorkspaceInvitableRole;
-
-export type WorkspaceErrorCode =
-  | "BAD_REQUEST"
-  | "SLUG_NOT_AVAILABLE"
-  | "UNAUTHORIZED"
-  | "FORBIDDEN"
-  | "NOT_FOUND"
-  | "RATE_LIMITED"
-  | "LAST_OWNER_GUARD"
-  | "INVITE_INVALID_OR_EXPIRED"
-  | "UNKNOWN_ERROR";
-
-export type WorkspaceSummary = {
-  id: string;
-  name: string;
-  slug: string;
-  avatarUrl: string | null;
-};
-
-export type UserWorkspace = WorkspaceSummary & {
-  membershipId: string;
-  role: WorkspaceMemberRole;
-};
-
-export type WorkspaceMemberSummary = {
-  id: string;
-  userId: string;
-  email: string;
-  name: string | null;
-  avatarUrl: string | null;
-  role: WorkspaceMemberRole;
-};
-
-export type WorkspaceInviteSummary = {
-  id: string;
-  emailNormalized: string;
-  role: WorkspaceInviteRole;
-  expiresAt: string;
-  updatedAt: string;
-  invitedByName: string | null;
-};
-
-export type WorkspaceInviteInspectResult =
-  | {
-      state: "pending";
-      workspace: WorkspaceSummary;
-    }
-  | {
-      state: "already_member";
-      workspace: WorkspaceSummary;
-    }
-  | {
-      state: "invalid_or_expired";
-    }
-  | {
-      state: "email_mismatch";
-    };
-
-export type WorkspaceInviteAcceptResult =
-  | {
-      state: "accepted";
-      workspace: WorkspaceSummary;
-    }
-  | {
-      state: "already_member";
-      workspace: WorkspaceSummary;
-    }
-  | {
-      state: "invalid_or_expired";
-    }
-  | {
-      state: "email_mismatch";
-    };
-
-export type PostAuthDestination =
-  | {
-      state: "app";
-    }
-  | {
-      state: "workspace_redirect";
-      workspaceSlug: string;
-    }
-  | {
-      state: "invite_redirect";
-      inviteToken: string;
-    };
+export type {
+  PostAuthDestination,
+  UserWorkspace,
+  WorkspaceErrorCode,
+  WorkspaceInviteAcceptResult,
+  WorkspaceInviteInspectResult,
+  WorkspaceInviteRole,
+  WorkspaceInviteSummary,
+  WorkspaceMemberRole,
+  WorkspaceMemberSummary,
+  WorkspaceResponse,
+  WorkspaceSummary,
+} from "@/features/workspaces/workspace-types";
 
 export type ServerWorkspaceResponse<TData> =
   | {
@@ -103,14 +25,4 @@ export type ServerWorkspaceResponse<TData> =
       ok: false;
       errorCode: WorkspaceErrorCode;
       cookieMutations?: AuthCookieMutations;
-    };
-
-export type WorkspaceResponse<TData> =
-  | {
-      ok: true;
-      data: TData;
-    }
-  | {
-      ok: false;
-      errorCode: WorkspaceErrorCode;
     };
