@@ -1455,12 +1455,31 @@ migrate(
       },
     ];
 
-    return app.importCollections(snapshot, false);
+    const result = app.importCollections(snapshot, false);
+
+    setDefaultUserEmailVisibility(app);
+
+    return result;
   },
   (app) => {
     return null;
   }
 );
+
+function setDefaultUserEmailVisibility(app) {
+  const users = app.findRecordsByFilter(
+    "users",
+    "emailVisibility = false || emailVisibility = null",
+    "",
+    0,
+    0
+  );
+
+  for (const user of users) {
+    user.set("emailVisibility", true);
+    app.save(user);
+  }
+}
 
 function buildVerificationTemplate() {
   return renderAuthEmailLayout({
