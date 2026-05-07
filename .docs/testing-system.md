@@ -17,7 +17,7 @@ This is not a CI system and not a custom testing framework.
 The split is intentional:
 
 - `Vitest` is for unit and business-rule tests
-- `Playwright` is for auth flows, workspace flows, email flows, and App Router behavior
+- `Playwright` is for auth flows, organization flows, email flows, and App Router behavior
 
 Why:
 
@@ -40,10 +40,10 @@ The main reason for this shape is stability with low ceremony.
 We want the smallest setup that still works well for:
 
 - auth verification and reset flows
-- workspace invitation and membership flows
+- organization invitation and membership flows
 - email-driven flows through Mailtrap
 - account security flows
-- business-rule tests around auth, workspaces, account, and security
+- business-rule tests around auth, organizations, account, and security
 
 ## File Map
 
@@ -58,8 +58,7 @@ We want the smallest setup that still works well for:
 - current Vitest coverage example: [route.test.ts](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.test.ts>)
 - current Vitest coverage example: [route.test.ts](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/invite/[token]/start/route.test.ts>)
 - current Vitest coverage example: [route.test.ts](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/invite/[token]/accept/route.test.ts>)
-- current Vitest coverage example: [workspace-members-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-members-service.test.ts)
-- current Vitest coverage example: [workspace-resolution-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-resolution-service.test.ts)
+- current Vitest coverage example: [organization-general-actions.test.ts](/Users/fanda/Dev/start/apps/web/src/features/organizations/settings/general/organization-general-actions.test.ts)
 - current Vitest coverage example: [account-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/account/account-service.test.ts)
 - current Vitest coverage example: [auth-service.test.ts](/Users/fanda/Dev/start/apps/web/src/server/auth/auth-service.test.ts)
 

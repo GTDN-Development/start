@@ -153,7 +153,7 @@ There should not be a second email i18n system outside `next-intl`.
 Examples:
 
 - contact/support/newsletter: fixed internal locale
-- workspace invite: locale based on user or UI flow
+- organization invite: locale based on user or UI flow
 
 ## Reply-To And Attachments
 

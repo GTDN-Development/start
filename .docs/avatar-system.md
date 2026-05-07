@@ -2,7 +2,7 @@
 
 ## What This Solves
 
-This layer handles avatar upload, removal, fallback initials, and deterministic fallback colors for both user accounts and workspaces.
+This layer handles avatar upload, removal, fallback initials, and deterministic fallback colors for both user accounts and organizations.
 
 Current behavior:
 
@@ -13,7 +13,7 @@ Current behavior:
 
 ## Upload Flow
 
-Both account and workspace avatar settings use the same client-side preparation step before sending the file to a server action.
+Both account and organization avatar settings use the same client-side preparation step before sending the file to a server action.
 
 Short version:
 
@@ -21,15 +21,15 @@ Short version:
 2. `prepareAvatarUpload()` validates file type and optionally compresses/resizes the image in the browser
 3. the prepared file is sent to the relevant server action
 4. the server validates the file again and stores it in PocketBase
-5. the local profile/workspace state is patched with the updated avatar URL
+5. the local profile/organization state is patched with the updated avatar URL
 
 Main entrypoints:
 
 - client image preparation: [avatar-image-processing.ts](/Users/fanda/Dev/start/apps/web/src/lib/avatar-image-processing.ts)
 - account avatar UI: [avatar-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/account/profile/avatar-settings-item.tsx)
-- workspace avatar UI: [workspace-avatar-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/general/workspace-avatar-settings-item.tsx)
+- organization avatar UI: [organization-avatar-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/organizations/settings/general/organization-avatar-settings-item.tsx)
 - account server handling: [account-profile-service.ts](/Users/fanda/Dev/start/apps/web/src/server/account/account-profile-service.ts)
-- workspace server handling: [workspace-general-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-general-service.ts)
+- organization server handling: [organization-general-mutations.ts](/Users/fanda/Dev/start/apps/web/src/server/organizations/organization-general-mutations.ts)
 
 ## Client-Side Image Processing
 
@@ -48,7 +48,7 @@ Current rules:
 Current size limits:
 
 - account avatars: `1 MB`
-- workspace avatars: `1 MB`
+- organization avatars: `1 MB`
 
 Even after client-side processing, the server still validates MIME type and final file size before persistence.
 
@@ -61,10 +61,10 @@ Fallback colors come from `getAvatarColorClass()` in the same file. The helper h
 Current seeds:
 
 - user account avatars: `user.id`
-- all workspace avatars: `workspace.id`
-- workspace member avatars: `member.userId`
+- all organization avatars: `organization.id`
+- organization member avatars: `member.userId`
 
-For user avatars, account settings, header/account menus, and workspace member lists should all use the
+For user avatars, account settings, header/account menus, and organization member lists should all use the
 same `user.id` seed so the fallback color stays synced across surfaces.
 
 This keeps colors stable across reloads without storing any extra color field in the database.

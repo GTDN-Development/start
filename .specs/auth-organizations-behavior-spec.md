@@ -4,7 +4,7 @@
 
 - Product-level behavior contract for a Next.js App Router SaaS template.
 - Intended as input for Playwright E2E tests and Vitest business-rule tests.
-- In scope: auth, personal scope, collaborative workspaces, invitations, access control, redirects, and key error states.
+- In scope: auth, personal scope, collaborative organizations, invitations, access control, redirects, and key error states.
 - Out of scope: billing, subscriptions, credits, seats, OAuth/SSO, magic links, OTP, 2FA, teams, and provider-specific implementation details.
 
 ## Testing References
@@ -23,9 +23,9 @@
 
 - Guest: not authenticated.
 - Authenticated user: authenticated and verified user in personal scope.
-- Workspace member: can access a workspace but has read-only collaboration access.
-- Workspace admin: can manage most workspace collaboration behavior except owner-only actions.
-- Workspace owner: full workspace control.
+- Organization member: can access an organization but has read-only collaboration access.
+- Organization admin: can manage most organization collaboration behavior except owner-only actions.
+- Organization owner: full organization control.
 - Personal scope: private default scope for every authenticated user; not shareable and not deletable.
 
 ## Auth Behavior
@@ -51,35 +51,35 @@
 - Valid email-change token plus correct current password completes the change and requires fresh sign-in with the new email.
 - Change password from account settings clears the current browser session and requires fresh sign-in.
 - Sign out redirects to sign-in.
-- Account deletion is blocked if the user is the last owner of any workspace.
-- If account deletion is allowed, the user is removed from all shared workspaces and then the account is deleted.
+- Account deletion is blocked if the user is the last owner of any organization.
+- If account deletion is allowed, the user is removed from all shared organizations and then the account is deleted.
 
-## Workspace Behavior
+## Organization Behavior
 
 - Every authenticated user always has personal scope at `/app`.
 - First-time users start in personal scope.
-- Creating a workspace is always an explicit action.
-- Creating a workspace makes the creator an owner, sets that workspace active, and redirects to its overview.
-- Workspace root redirects to workspace overview.
-- Unknown or inaccessible workspace routes render a workspace-scoped 404.
-- Members page is accessible to all workspace members.
+- Creating an organization is always an explicit action.
+- Creating an organization makes the creator an owner, sets that organization active, and redirects to its overview.
+- Organization root redirects to organization overview.
+- Unknown or inaccessible organization routes render an organization-scoped 404.
+- Members page is accessible to all organization members.
 - Members can view the member roster and member roles.
 - Pending invites are hidden from regular members.
 - Admins and owners can view and manage pending invites.
-- Admins and owners can change workspace name, slug, and avatar.
-- Owners only can delete a workspace.
-- Any workspace member can leave the workspace.
+- Admins and owners can change organization name, slug, and avatar.
+- Owners only can delete an organization.
+- Any organization member can leave the organization.
 - The final remaining owner cannot leave until ownership is transferred.
-- Changing a workspace slug redirects to the same workspace under the new slug.
-- Leaving or deleting the currently active workspace returns the user to personal scope at `/app`.
+- Changing an organization slug redirects to the same organization under the new slug.
+- Leaving or deleting the currently active organization returns the user to personal scope at `/app`.
 
 ## Access Rules
 
-- Member can read workspace data and read the workspace roster.
-- Member cannot change workspace settings.
+- Member can read organization data and read the organization roster.
+- Member cannot change organization settings.
 - Member cannot create, resend, revoke, or inspect pending invites.
 - Member cannot change roles or remove members.
-- Admin can manage workspace general settings.
+- Admin can manage organization general settings.
 - Admin can create, resend, refresh, and revoke invitations.
 - Admin can remove non-owner members.
 - Admin can change roles for non-owner members, including other admins.
@@ -89,27 +89,27 @@
 - Owner can promote another member or admin to owner.
 - Multiple owners are allowed.
 - Last-owner guard blocks downgrading or removing the final remaining owner.
-- Delete-workspace is owner-only.
-- Personal scope has no workspace-style membership, sharing, leave, or delete actions.
+- Delete-organization is owner-only.
+- Personal scope has no organization-style membership, sharing, leave, or delete actions.
 
 ## Redirect Rules
 
-- Application entry resolution is: valid active workspace -> workspace overview; otherwise `/app`.
-- Post-auth resolution after successful sign-in or email verification is: pending invite -> active workspace if still accessible -> `/app`.
+- Application entry resolution is: valid active organization -> organization overview; otherwise `/app`.
+- Post-auth resolution after successful sign-in or email verification is: pending invite -> active organization if still accessible -> `/app`.
 - Direct invite link without session stores pending invite state and sends the user through sign-in or verification.
 - After successful auth with a pending invite, the user returns to invite handling before any other destination.
 - Guest auth pages visited by an already signed-in user redirect to effective app entry.
-- Effective app entry for guest-page redirects is: valid active workspace -> workspace overview; otherwise `/app`.
+- Effective app entry for guest-page redirects is: valid active organization -> organization overview; otherwise `/app`.
 - Sign out redirects to sign-in.
-- Self-initiated workspace leave redirects to `/app`.
-- If the user loses workspace access by someone else's action, the next server navigation or mutation treats that workspace as inaccessible; direct workspace routes become workspace-404 and app entry falls back to `/app`.
+- Self-initiated organization leave redirects to `/app`.
+- If the user loses organization access by someone else's action, the next server navigation or mutation treats that organization as inaccessible; direct organization routes become organization-404 and app entry falls back to `/app`.
 
 ## Invitation Behavior
 
 - Invite acceptance requires an authenticated and verified user.
 - Invite acceptance requires the signed-in email to match the invited email.
-- Invite acceptance with a matching verified account adds membership and redirects to workspace overview.
-- Invite acceptance for an already existing member redirects directly to workspace overview.
+- Invite acceptance with a matching verified account adds membership and redirects to organization overview.
+- Invite acceptance for an already existing member redirects directly to organization overview.
 - Invite acceptance with the wrong signed-in account shows an email-mismatch state and requires switching accounts.
 - Invalid or expired invite links show a blocked/error invite state and do not change membership.
 
@@ -119,10 +119,10 @@
 - Verification resend must not reveal whether an email exists or is already verified.
 - Duplicate sign-up email is an intentional explicit error.
 - Invalid or expired verification, reset, and invite tokens must resolve to recoverable user states.
-- Route-level workspace access denial should look like not found, not like access denied.
+- Route-level organization access denial should look like not found, not like access denied.
 - Mutation-level forbidden actions should surface as domain errors for business-rule testing.
-- A stale active workspace must be ignored if the user no longer has access to it.
-- Account deletion while last owner of any workspace must be blocked until ownership transfer or workspace deletion is completed.
+- A stale active organization must be ignored if the user no longer has access to it.
+- Account deletion while last owner of any organization must be blocked until ownership transfer or organization deletion is completed.
 
 ## Open Questions
 
@@ -139,20 +139,20 @@
 7. Password reset succeeds and the user must sign in again.
 8. User confirms an email change, is redirected to sign-in, and signs in again with the new email.
 9. Signed-in user opening sign-in or sign-up is redirected to effective app entry.
-10. User creates a workspace and lands on its overview as owner.
+10. User creates an organization and lands on its overview as owner.
 11. Member opens the members page, sees roster and roles, and does not see pending invites or management controls.
-12. Admin invites a user, invited user follows the link while signed out, signs in, accepts, and lands on workspace overview.
+12. Admin invites a user, invited user follows the link while signed out, signs in, accepts, and lands on organization overview.
 13. Invited user signs in with the wrong email and sees the account-mismatch state.
 14. Owner promotes another user to owner, then the original owner can leave successfully.
 15. Final remaining owner attempts to leave and is blocked.
-16. User opens an inaccessible workspace URL and gets workspace-scoped 404.
-17. User removed from a workspace elsewhere loses that workspace on next app entry and falls back to `/app`.
+16. User opens an inaccessible organization URL and gets organization-scoped 404.
+17. User removed from an organization elsewhere loses that organization on next app entry and falls back to `/app`.
 18. Account security lets a user change password, requires fresh sign-in, and rejects the old password.
 
 ## Candidate Business-Rule / Unit Scenarios
 
-1. Post-auth destination resolver prioritizes pending invite over active workspace over `/app`.
-2. Application entry resolver returns active workspace only when it is still accessible.
+1. Post-auth destination resolver prioritizes pending invite over active organization over `/app`.
+2. Application entry resolver returns active organization only when it is still accessible.
 3. Duplicate sign-up email returns explicit duplicate-email outcome.
 4. Verification resend returns generic success for unknown and already verified email.
 5. Email verification is idempotent for already verified email.
@@ -166,6 +166,6 @@
 13. Final-owner downgrade, removal, or leave is blocked.
 14. Members-page data for regular members excludes pending invites.
 15. Invite acceptance requires both verified session and matching email.
-16. Active workspace is cleared or ignored after leave, deletion, or external loss of access.
-17. Account deletion is blocked while the user remains the final owner of any workspace.
-18. Account deletion removes the user from shared workspaces when deletion is allowed.
+16. Active organization is cleared or ignored after leave, deletion, or external loss of access.
+17. Account deletion is blocked while the user remains the final owner of any organization.
+18. Account deletion removes the user from shared organizations when deletion is allowed.

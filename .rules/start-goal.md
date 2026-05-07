@@ -38,6 +38,6 @@ Redesign should stay concrete, local, and easy to trace.
 ## Success Looks Like
 
 - a new contributor can understand the main flows quickly
-- auth, workspace, and cookie boundaries are explicit and consistent
+- auth, organization, and cookie boundaries are explicit and consistent
 - there are no hidden fallbacks that silently ignore invalid architecture
 - new features extend the template by adding focused files, not generic layers

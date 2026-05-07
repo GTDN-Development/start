@@ -68,7 +68,7 @@ Direct function calls are the default extension model.
 Prefer:
 
 - action -> service -> repository/helper
-- sign-in -> post-auth workspace resolution
+- sign-in -> post-auth organization resolution
 - route-local orchestration
 
 Be skeptical of:

@@ -1,4 +1,4 @@
-# Workspace Members Table: Pointer Clickability and Email Visibility
+# Organization Members Table: Pointer Clickability and Email Visibility
 
 ## Summary
 
@@ -27,9 +27,9 @@ První bod je potvrzený UI bug. Druhý bod je buď bug, nebo nedořešený prod
 
 ### Likely Affected Files
 
-- [/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-table.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-table.tsx)
+- [organization-members-table.tsx](/Users/fanda/Dev/start/apps/web/src/features/organizations/settings/members/organization-members-table.tsx)
 - případně i související layout / stacking context v:
-  - [/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-management-settings-item.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-management-settings-item.tsx)
+  - [organization-members-settings-section.tsx](/Users/fanda/Dev/start/apps/web/src/features/organizations/settings/members/organization-members-settings-section.tsx)
   - nebo shared table / shell wrapperu, pokud tam vzniká overlay nebo stacking conflict
 
 ### Expected Behavior
@@ -41,7 +41,7 @@ První bod je potvrzený UI bug. Druhý bod je buď bug, nebo nedořešený prod
 
 - pointer click na `Otevřít akce člena` funguje stabilně v desktop layoutu
 - není potřeba testový workaround přes `focus + Enter`
-- `removeWorkspaceMember(...)` helper v E2E se může vrátit zpět na běžný `.click()`
+- `removeOrganizationMember(...)` helper v E2E se může vrátit zpět na běžný `.click()`
 
 ## Open Product / UI Contract Question: Missing Email for Non-Self Members
 
@@ -53,8 +53,8 @@ První bod je potvrzený UI bug. Druhý bod je buď bug, nebo nedořešený prod
 
 ### Why This Is Suspicious
 
-- UI typ očekává `WorkspaceSettingsMember.email: string`
-- renderer v `WorkspaceMemberIdentityCell` vždy vykresluje druhý řádek s `member.email`
+- UI typ očekává `OrganizationSettingsMember.email: string`
+- renderer v `OrganizationMemberIdentityCell` vždy vykresluje druhý řádek s `member.email`
 - prázdný druhý řádek u non-self members naznačuje, že hodnota není do UI dotažená konzistentně
 
 ### Practical Impact
@@ -65,9 +65,9 @@ První bod je potvrzený UI bug. Druhý bod je buď bug, nebo nedořešený prod
 
 ### Likely Affected Files
 
-- [/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-mappers.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-mappers.ts)
-- [/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-members-service.ts](/Users/fanda/Dev/start/apps/web/src/server/workspaces/workspace-members-service.ts)
-- [/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-table.tsx](/Users/fanda/Dev/start/apps/web/src/features/workspaces/settings/members/workspace-members-table.tsx)
+- [organization-mappers.ts](/Users/fanda/Dev/start/apps/web/src/server/organizations/organization-mappers.ts)
+- [organization-settings-queries.ts](/Users/fanda/Dev/start/apps/web/src/server/organizations/organization-settings-queries.ts)
+- [organization-members-table.tsx](/Users/fanda/Dev/start/apps/web/src/features/organizations/settings/members/organization-members-table.tsx)
 
 ### Decision Needed
 
