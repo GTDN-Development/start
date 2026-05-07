@@ -29,15 +29,27 @@ export function passwordPolicySchema(messages?: AuthPasswordValidationMessages) 
     .max(authConfig.passwordPolicy.maxLength, {
       message: messages?.max,
     })
-    .refine((value) => /[A-Z]/.test(value), {
-      message: messages?.uppercase,
-    })
-    .refine((value) => /\d/.test(value), {
+    .refine(
+      (value) => countMatches(value, /[A-Z]/g) >= authConfig.passwordPolicy.minUppercase,
+      {
+        message: messages?.uppercase,
+      }
+    )
+    .refine((value) => countMatches(value, /\d/g) >= authConfig.passwordPolicy.minNumbers, {
       message: messages?.number,
     })
-    .refine((value) => /[!@#$%^&*(),.?":{}|<>]/.test(value), {
-      message: messages?.specialCharacter,
-    });
+    .refine(
+      (value) =>
+        countMatches(value, /[!@#$%^&*(),.?":{}|<>]/g) >=
+        authConfig.passwordPolicy.minSpecialCharacters,
+      {
+        message: messages?.specialCharacter,
+      }
+    );
+}
+
+function countMatches(value: string, pattern: RegExp) {
+  return value.match(pattern)?.length ?? 0;
 }
 
 export function requiredPasswordSchema(
