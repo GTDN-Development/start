@@ -1,32 +1,25 @@
 # Start Repository Instructions
 
-This repository uses `pnpm` workspaces and `turborepo`.
+This repository uses `pnpm` workspaces and Turborepo.
 
 ## Scope
 
 - `apps/web/**`: follow [apps/web/AGENTS.md](/Users/fanda/Dev/start/apps/web/AGENTS.md)
 - `apps/pocketbase/**`: follow the PocketBase rules below
-- repo root: use this file for workspace, shared tooling, deployment notes, and documentation changes
+- repo root: workspace tooling, scripts, docs, and cross-app configuration only
 
-## Repository Rules
+## Repo Rules
 
-- Keep the workspace layout simple and predictable
-- Put app-specific code and config inside the owning app directory
-- Keep shared repo concerns at the root: workspace tooling, root scripts, docs, and rules
-- Add new apps under `apps/*`
-- Prefer direct configuration over extra shared packages until there is a real need for them
-- Treat this repository as a forkable starter, not a framework or plugin platform
-- Prefer concrete files, direct imports, and explicit composition over provider/adapter/registry layers before there is a real current need
-- Small duplication is acceptable when an abstraction would hide simple control flow without adding domain meaning
+- Keep app-specific code and config inside the owning `apps/*` directory.
+- Do not introduce shared packages, provider layers, adapters, registries, or compatibility facades before there is a real current need.
+- Prefer direct imports, concrete files, and explicit composition. Small duplication is acceptable when an abstraction would hide simple control flow.
 
-## PocketBase Rules
+## PocketBase App Rules
 
 These rules apply to `apps/pocketbase/**`.
 
-- Treat `apps/pocketbase` as a deployment app for PocketBase, not as a Next.js or Node application
-- Keep the structure direct: `Dockerfile`, `pb_migrations`, `pb_hooks`, `pb_public`, and focused docs
-- Keep schema and auth configuration in committed migrations
-- Keep environment-specific settings outside the repository
-- Do not edit already deployed migrations in place; add a new migration for each schema change
-- `pb_data/` and local PocketBase binaries are local-only and must never be committed
-- Keep Railway and Docker behavior explicit and easy to trace from the files in `apps/pocketbase`
+- Treat `apps/pocketbase` as a PocketBase deployment app, not as a Next.js or Node application.
+- Keep the structure direct: `Dockerfile`, `pb_migrations`, `pb_hooks`, `pb_public`, and focused docs.
+- Do not edit already deployed migrations in place; add a new migration for each schema change.
+- Keep schema and auth configuration in committed migrations, but keep environment-specific settings outside the repository.
+- Never commit `pb_data/` or local PocketBase binaries.
