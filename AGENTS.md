@@ -15,6 +15,9 @@ This repository uses `pnpm` workspaces and `turborepo`.
 - Keep shared repo concerns at the root: workspace tooling, root scripts, docs, and rules
 - Add new apps under `apps/*`
 - Prefer direct configuration over extra shared packages until there is a real need for them
+- Treat this repository as a forkable starter, not a framework or plugin platform
+- Prefer concrete files, direct imports, and explicit composition over provider/adapter/registry layers before there is a real current need
+- Small duplication is acceptable when an abstraction would hide simple control flow without adding domain meaning
 
 ## PocketBase Rules
 

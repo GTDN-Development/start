@@ -89,7 +89,7 @@ Conventions:
 - `src/lib` - shared utilities (`utils.ts` for shadcn-safe helpers, `app-utils.ts` for app-specific shared helpers)
 - `src/types` - shared types + generated PocketBase types
 - `scripts/pocketbase-typegen.mjs` - PocketBase type generator
-- repo-level PocketBase integration notes live in `.rules/pocketbase-integration.md`
+- PocketBase service and migration notes live in [../pocketbase/README.md](/Users/fanda/Dev/start/apps/pocketbase/README.md)
 
 ## Architecture Conventions
 

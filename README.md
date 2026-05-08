@@ -101,8 +101,7 @@ repo code, docs, and tooling files. `pnpm check` runs format, lint, and type che
 - web app guide: [apps/web/README.md](/Users/fanda/Dev/start/apps/web/README.md)
 - PocketBase service guide: [apps/pocketbase/README.md](/Users/fanda/Dev/start/apps/pocketbase/README.md)
 - Mailpit service guide: [apps/mailpit/README.md](/Users/fanda/Dev/start/apps/mailpit/README.md)
-- project goal: [.rules/start-goal.md](/Users/fanda/Dev/start/.rules/start-goal.md)
-- architecture principles: [.rules/kiss-project-architecture-principles.md](/Users/fanda/Dev/start/.rules/kiss-project-architecture-principles.md)
+- focused project notes: [.docs/README.md](/Users/fanda/Dev/start/.docs/README.md)
 
 Environment examples live inside the owning app directories:
 

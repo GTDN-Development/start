@@ -17,6 +17,8 @@ These instructions apply only to files under `apps/web/**`.
 - In JSX, prefer `condition && <Element />` over `condition ? <Element /> : null` when there is no else branch
 - Prefer named React hook imports (e.g. `import { useState } from "react"`) over `React.useState`
 - Keep setup sections readable: group related constants/hooks/state/derived values together and separate those groups with a blank line in pages, components, and server helpers
+- In hook-heavy components, prefer the order `inputs -> hooks/state -> derived values -> handlers/actions -> external sync -> UI`
+- Place conditional early returns after hook setup so hook order stays stable
 
 ## Next.js
 
@@ -118,6 +120,8 @@ These instructions apply only to files under `apps/web/**`.
 
 ## PocketBase / Typegen
 
+- Never share one global user PocketBase instance on the server; user-scoped server code must create a fresh client per request through the server PocketBase helpers
+- Treat `pb.authStore` cookie export as response metadata; pages/layouts may read auth state, but cookie writes belong only in Server Actions or Route Handlers
 - Generate PocketBase schema types with `pnpm pocketbase:typegen`
 - Typegen targets the local Docker PocketBase instance; set `NEXT_PUBLIC_PB_URL` only when using a non-default local port
 - Generated file is `src/types/pocketbase.ts` — do not edit manually
