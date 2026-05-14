@@ -1,4 +1,5 @@
 import type PocketBase from "pocketbase";
+import { organizationConfig } from "@/config/organization";
 import type { UsersRecord } from "@/types/pocketbase";
 import { APP_HOME_PATH, getOrganizationOverviewHref } from "@/config/routes";
 import type { AppHref } from "@/i18n/navigation";
@@ -22,6 +23,16 @@ export async function buildApplicationShellModel(input: {
   pb: PocketBase;
   user: UsersRecord;
 }): Promise<ServerOrganizationResponse<ApplicationShellModel>> {
+  if (!organizationConfig.enabled) {
+    return {
+      ok: true,
+      data: {
+        applicationEntryHref: APP_HOME_PATH,
+        organizationNavigation: null,
+      },
+    };
+  }
+
   const userOrganizationsResponse = await listUserOrganizationShells(input.pb, input.user.id);
 
   if (!userOrganizationsResponse.ok) {

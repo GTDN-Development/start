@@ -2,6 +2,10 @@
 
 Organizations are PocketBase records with membership-based access.
 
+- `organizationConfig.enabled` is the frontend rollout switch for the organization feature.
+  When false, the app shell stays in personal scope, organization navigation is omitted, scope
+  switching/creation UI is hidden, and `/o/[organizationSlug]` redirects to `/app`.
+- Setting `organizationConfig.enabled` to true exposes the prepared organization UI again.
 - Main routes live under `/o/[organizationSlug]`: overview, settings, and members.
 - Users can create, switch, update, leave, and delete organizations.
 - Roles are `owner`, `admin`, and `member`; invites can create `admin` or `member`.

@@ -1,4 +1,5 @@
 export const organizationConfig = {
+  enabled: false,
   limits: {
     nameMaxLength: 32,
     slugMaxLength: 48,

@@ -31,6 +31,7 @@ import type { OrganizationNavigationItem } from "@/features/organizations/organi
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
+import { organizationConfig } from "@/config/organization";
 import { APP_HOME_PATH } from "@/config/routes";
 import {
   OrganizationAvatar,
@@ -50,10 +51,13 @@ type ScopeSwitcherProps = {
 
 export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
   const t = useTranslations("layout.application.scopeSwitcher");
+  const areOrganizationsEnabled = organizationConfig.enabled;
   const accountProfile = useOptionalAccountProfile();
   const organizationNavigation = useOptionalOrganizationNavigation();
   const activeOrganizationSlug = organizationNavigation?.activeOrganizationSlug ?? null;
-  const organizations = organizationNavigation?.organizations ?? [];
+  const organizations = areOrganizationsEnabled
+    ? (organizationNavigation?.organizations ?? [])
+    : [];
   const applyOrganizationNavigationPatch = useApplyOrganizationNavigationPatch();
 
   const pathname = usePathname();
@@ -260,79 +264,87 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
-            <DropdownMenuSeparator />
+            {areOrganizationsEnabled && (
+              <>
+                <DropdownMenuSeparator />
 
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-xs">{t("labels.organizations")}</DropdownMenuLabel>
-              {organizationOptions.length === 0 && (
-                <DropdownMenuItem className="pointer-events-none p-2 opacity-100">
-                  <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">{t("empty.title")}</span>
-                    <span className="text-muted-foreground truncate text-xs">
-                      {t("empty.description")}
-                    </span>
-                  </div>
-                </DropdownMenuItem>
-              )}
-              {organizationOptions.map((organization) => {
-                const organizationAvatarUrl = getOrganizationAvatarUrl(
-                  organization,
-                  failedAvatarUrls
-                );
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="text-xs">
+                    {t("labels.organizations")}
+                  </DropdownMenuLabel>
+                  {organizationOptions.length === 0 && (
+                    <DropdownMenuItem className="pointer-events-none p-2 opacity-100">
+                      <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-medium">{t("empty.title")}</span>
+                        <span className="text-muted-foreground truncate text-xs">
+                          {t("empty.description")}
+                        </span>
+                      </div>
+                    </DropdownMenuItem>
+                  )}
+                  {organizationOptions.map((organization) => {
+                    const organizationAvatarUrl = getOrganizationAvatarUrl(
+                      organization,
+                      failedAvatarUrls
+                    );
 
-                return (
-                  <DropdownMenuItem
-                    key={organization.id}
-                    className="gap-2 p-2"
-                    onClick={() => handleOrganizationSwitch(organization)}
-                    disabled={isSwitchingOrganization}
-                  >
-                    <OrganizationAvatar
-                      key={getOrganizationAvatarStateKey(organization, organizationAvatarUrl)}
-                      size="sm"
-                    >
-                      {organizationAvatarUrl ? (
-                        <OrganizationAvatarImage
-                          src={organizationAvatarUrl}
-                          alt=""
-                          onError={() => handleOrganizationAvatarError(organizationAvatarUrl)}
-                        />
-                      ) : (
-                        <OrganizationAvatarFallback
-                          className={cn(organization.chipClassName, "text-xs font-semibold")}
+                    return (
+                      <DropdownMenuItem
+                        key={organization.id}
+                        className="gap-2 p-2"
+                        onClick={() => handleOrganizationSwitch(organization)}
+                        disabled={isSwitchingOrganization}
+                      >
+                        <OrganizationAvatar
+                          key={getOrganizationAvatarStateKey(organization, organizationAvatarUrl)}
+                          size="sm"
                         >
-                          {organization.initials}
-                        </OrganizationAvatarFallback>
-                      )}
-                    </OrganizationAvatar>
-                    <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-medium">{organization.name}</span>
-                    </div>
-                    {organization.slug === selectedOrganization?.slug &&
-                      applicationScope === "organization" && (
-                        <CheckIcon aria-hidden="true" className="size-4" />
-                      )}
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="gap-2 p-2"
-              disabled={isSwitchingOrganization}
-              onClick={handleCreateOrganizationClick}
-            >
-              <div className="bg-background border-border flex size-6 items-center justify-center rounded-md border">
-                <PlusIcon aria-hidden="true" className="size-4" />
-              </div>
-              <span className="font-medium">{t("actions.create")}</span>
-            </DropdownMenuItem>
+                          {organizationAvatarUrl ? (
+                            <OrganizationAvatarImage
+                              src={organizationAvatarUrl}
+                              alt=""
+                              onError={() => handleOrganizationAvatarError(organizationAvatarUrl)}
+                            />
+                          ) : (
+                            <OrganizationAvatarFallback
+                              className={cn(organization.chipClassName, "text-xs font-semibold")}
+                            >
+                              {organization.initials}
+                            </OrganizationAvatarFallback>
+                          )}
+                        </OrganizationAvatar>
+                        <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+                          <span className="truncate font-medium">{organization.name}</span>
+                        </div>
+                        {organization.slug === selectedOrganization?.slug &&
+                          applicationScope === "organization" && (
+                            <CheckIcon aria-hidden="true" className="size-4" />
+                          )}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="gap-2 p-2"
+                  disabled={isSwitchingOrganization}
+                  onClick={handleCreateOrganizationClick}
+                >
+                  <div className="bg-background border-border flex size-6 items-center justify-center rounded-md border">
+                    <PlusIcon aria-hidden="true" className="size-4" />
+                  </div>
+                  <span className="font-medium">{t("actions.create")}</span>
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
-        <OrganizationCreateDrawer
-          open={isCreateOrganizationDrawerOpen}
-          onOpenChangeAction={handleCreateOrganizationDrawerOpenChange}
-        />
+        {areOrganizationsEnabled && (
+          <OrganizationCreateDrawer
+            open={isCreateOrganizationDrawerOpen}
+            onOpenChangeAction={handleCreateOrganizationDrawerOpenChange}
+          />
+        )}
       </SidebarMenuItem>
     </SidebarMenu>
   );
