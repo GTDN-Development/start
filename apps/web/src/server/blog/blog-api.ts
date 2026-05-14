@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import sanitizeHtml from "sanitize-html";
 import { getPocketBaseUrl } from "@/config/public-env";
 import type { PostsRecord } from "@/types/pocketbase";
 
@@ -32,8 +33,60 @@ function getFileUrl(collectionId: string, recordId: string, filename: string): s
 function embedYouTubeLinks(html: string): string {
   return html.replace(
     /(?:<a[^>]*>)?\s*https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([\w-]+)[^\s<]*\s*(?:<\/a>)?/g,
-    '<iframe src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>'
+    '<iframe src="https://www.youtube.com/embed/$1" title="YouTube video" frameborder="0" allowfullscreen></iframe>'
   );
+}
+
+function sanitizePostContent(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: [
+      "a",
+      "b",
+      "blockquote",
+      "br",
+      "code",
+      "del",
+      "em",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "hr",
+      "i",
+      "iframe",
+      "img",
+      "li",
+      "ol",
+      "p",
+      "pre",
+      "q",
+      "strong",
+      "sub",
+      "sup",
+      "table",
+      "tbody",
+      "td",
+      "tfoot",
+      "th",
+      "thead",
+      "tr",
+      "ul",
+    ],
+    allowedAttributes: {
+      a: ["href", "rel", "target"],
+      iframe: ["allow", "allowfullscreen", "frameborder", "src", "title"],
+      img: ["alt", "height", "src", "title", "width"],
+      td: ["colspan", "rowspan"],
+      th: ["colspan", "rowspan"],
+    },
+    allowedIframeHostnames: ["www.youtube.com", "youtube.com"],
+    allowedSchemes: ["http", "https", "mailto", "tel"],
+    allowedSchemesByTag: {
+      iframe: ["https"],
+    },
+  });
 }
 
 function escapePBValue(value: string): string {
@@ -46,7 +99,7 @@ function mapPost(record: PostsRecord): BlogPost {
     date: record.published_at || record.created,
     slug: record.slug,
     title: record.title,
-    content: record.content ? embedYouTubeLinks(record.content) : "",
+    content: record.content ? sanitizePostContent(embedYouTubeLinks(record.content)) : "",
     excerpt: record.excerpt,
     locale: record.locale ?? null,
     translationSharedId: record.translation_shared_id ?? null,

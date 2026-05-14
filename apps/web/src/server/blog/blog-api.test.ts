@@ -120,4 +120,49 @@ describe("blog api cache profile", function describeBlogApiCacheProfile() {
       })
     );
   });
+
+  it("sanitizes post content before returning it for rendering", async function testPostContentSanitization() {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async function fetchPostBySlug() {
+        return new Response(
+          JSON.stringify({
+            items: [
+              {
+                id: "post_xss",
+                collectionId: "posts",
+                created: "2025-01-01T00:00:00.000Z",
+                updated: "2025-01-01T00:00:00.000Z",
+                title: "Unsafe post",
+                slug: "unsafe-post",
+                excerpt: "Short excerpt",
+                content:
+                  '<p>Hello</p><script>alert(1)</script><img src="https://example.test/image.jpg" alt="Image" onerror="alert(2)"><p>https://www.youtube.com/watch?v=dQw4w9WgXcQ</p>',
+                locale: "en",
+                translation_shared_id: "shared_3",
+                cover_image: "",
+                cover_image_alt: "",
+                published_at: "2025-01-04T00:00:00.000Z",
+                status: "published",
+              },
+            ],
+            page: 1,
+            perPage: 1,
+            totalItems: 1,
+            totalPages: 1,
+          }),
+          { status: 200 }
+        );
+      })
+    );
+
+    const post = await getPostBySlug("unsafe-post", "en");
+
+    expect(post?.content).toContain("<p>Hello</p>");
+    expect(post?.content).toContain('src="https://example.test/image.jpg"');
+    expect(post?.content).toContain('alt="Image"');
+    expect(post?.content).toContain('src="https://www.youtube.com/embed/dQw4w9WgXcQ"');
+    expect(post?.content).not.toContain("<script>");
+    expect(post?.content).not.toContain("onerror");
+  });
 });

@@ -28,5 +28,10 @@
     "prettier": "~3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.4",
     "turbo": "^2.9.12"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "^8.5.14"
+    }
   }
 }
