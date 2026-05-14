@@ -16,6 +16,7 @@ export function AppProviders({ children }: AppProvidersProps) {
         defaultTheme="system"
         enableSystem
         disableTransitionOnChange
+        storage="local"
         storageKey={preferencesConfig.theme.storageKey}
       >
         {children}

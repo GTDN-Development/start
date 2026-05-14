@@ -24,5 +24,5 @@ Useful files:
 - [auth config](/Users/fanda/Dev/start/apps/web/src/config/auth.ts)
 - [auth client wrapper](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-client.ts)
 - [auth schemas](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-schemas.ts)
-- [post-auth route](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts)
-- [verify-email complete route](/Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts)
+- [post-auth route](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts>)
+- [verify-email complete route](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts>)
