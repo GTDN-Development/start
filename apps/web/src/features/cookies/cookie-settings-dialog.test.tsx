@@ -10,10 +10,23 @@ vi.hoisted(function hoistCookieEnvironment() {
 });
 
 const { persistCookieConsentAction } = vi.hoisted(function hoistCookieActionMocks() {
+  type PersistCookieConsentActionResponse =
+    | {
+        ok: true;
+      }
+    | {
+        ok: false;
+        errorCode: "INTERNAL_ERROR";
+      };
+
   return {
-    persistCookieConsentAction: vi.fn(async function persistCookieConsentAction() {
-      return undefined;
-    }),
+    persistCookieConsentAction: vi.fn(
+      async function persistCookieConsentAction(): Promise<PersistCookieConsentActionResponse> {
+        return {
+          ok: true,
+        };
+      }
+    ),
   };
 });
 

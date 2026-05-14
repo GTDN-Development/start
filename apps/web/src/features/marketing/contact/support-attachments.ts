@@ -1,4 +1,4 @@
-export const SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES = 8 * 1024 * 1024;
+export const SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES = 1 * 1024 * 1024;
 
 export type SupportAttachmentValue = {
   filename: string;

@@ -1157,7 +1157,7 @@
         "phoneInvalid": "Zadejte prosím platné telefonní číslo.",
         "messageMin": "Zpráva musí mít alespoň 10 znaků.",
         "messageMax": "Zpráva nesmí být delší než 1000 znaků.",
-        "attachmentsMaxTotalSize": "Celková velikost příloh nesmí překročit 8 MB.",
+        "attachmentsMaxTotalSize": "Celková velikost příloh nesmí překročit 1 MB.",
         "gdprConsent": "Musíte souhlasit se zpracováním osobních údajů.",
         "turnstile": "Dokončete prosím ověření."
       },
