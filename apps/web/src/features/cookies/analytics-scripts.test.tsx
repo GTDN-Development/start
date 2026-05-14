@@ -12,7 +12,6 @@ import {
 vi.hoisted(function hoistCookieEnvironment() {
   process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED = "true";
   process.env.NEXT_PUBLIC_GA_ID = "ga-test-id";
-  process.env.NEXT_PUBLIC_GTM_ID = "gtm-test-id";
 });
 
 const { persistCookieConsentAction } = vi.hoisted(function hoistCookieActionMocks() {
@@ -66,9 +65,6 @@ vi.mock("@next/third-parties/google", function mockGoogleThirdParties() {
     GoogleAnalytics: function GoogleAnalytics({ gaId }: { gaId: string }) {
       return <div data-testid="google-analytics">{gaId}</div>;
     },
-    GoogleTagManager: function GoogleTagManager({ gtmId }: { gtmId: string }) {
-      return <div data-testid="google-tag-manager">{gtmId}</div>;
-    },
   };
 });
 
@@ -78,8 +74,9 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
     vi.resetModules();
     process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED = "true";
     process.env.NEXT_PUBLIC_GA_ID = "ga-test-id";
-    process.env.NEXT_PUBLIC_GTM_ID = "gtm-test-id";
     clearConsentCookie();
+    clearCookie("_ga");
+    clearCookie("_ga_test");
   });
 
   it("shows the consent banner for first-time visitors after hydration", async function testFirstVisitBanner() {
@@ -119,7 +116,7 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
     });
   });
 
-  it("does not mount analytics before consent and mounts GTM after accept all", async function testMountsGtmAfterConsent() {
+  it("does not mount analytics before consent and mounts GA after accept all", async function testMountsGaAfterConsent() {
     const { AnalyticsScripts, CookieContextProvider, useCookieContext } = await loadCookieUi();
     const ConsentTestHarness = createConsentTestHarness(useCookieContext, AnalyticsScripts);
 
@@ -130,15 +127,12 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
     );
 
     expect(screen.queryByTestId("google-analytics")).toBeNull();
-    expect(screen.queryByTestId("google-tag-manager")).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Accept all" }));
 
     await waitFor(function expectAnalyticsScripts() {
-      expect(screen.getByTestId("google-tag-manager").textContent).toBe("gtm-test-id");
+      expect(screen.getByTestId("google-analytics").textContent).toBe("ga-test-id");
     });
-
-    expect(screen.queryByTestId("google-analytics")).toBeNull();
 
     expect(persistCookieConsentAction).toHaveBeenCalledWith({
       eventType: "accept_all",
@@ -147,9 +141,7 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
     });
   });
 
-  it("mounts Google Analytics when GTM is not configured", async function testMountsGaFallback() {
-    process.env.NEXT_PUBLIC_GTM_ID = "";
-
+  it("mounts Google Analytics for returning visitors with analytics consent", async function testMountsGaForReturningVisitor() {
     const { AnalyticsScripts, CookieContextProvider } = await loadCookieUi();
 
     document.cookie = [
@@ -164,30 +156,9 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
     );
 
     expect((await screen.findByTestId("google-analytics")).textContent).toBe("ga-test-id");
-    expect(screen.queryByTestId("google-tag-manager")).toBeNull();
-  });
-
-  it("mounts only GTM when both GTM and GA are configured", async function testGtmTakesPriority() {
-    const { AnalyticsScripts, CookieContextProvider } = await loadCookieUi();
-
-    document.cookie = [
-      `${COOKIE_NAME}=${serializeConsentCookieValue(acceptAllConsent)}`,
-      "path=/",
-    ].join("; ");
-
-    render(
-      <CookieContextProvider>
-        <AnalyticsScripts />
-      </CookieContextProvider>
-    );
-
-    expect((await screen.findByTestId("google-tag-manager")).textContent).toBe("gtm-test-id");
-    expect(screen.queryByTestId("google-analytics")).toBeNull();
   });
 
   it("mounts nothing when analytics consent is not granted", async function testNoAnalyticsWithoutConsent() {
-    process.env.NEXT_PUBLIC_GTM_ID = "";
-
     const { AnalyticsScripts, CookieContextProvider } = await loadCookieUi();
 
     render(
@@ -198,7 +169,30 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
 
     await waitFor(function expectNoAnalyticsScripts() {
       expect(screen.queryByTestId("google-analytics")).toBeNull();
-      expect(screen.queryByTestId("google-tag-manager")).toBeNull();
+    });
+  });
+
+  it("clears existing GA cookies when analytics consent is rejected", async function testClearsGaCookiesOnReject() {
+    const { AnalyticsScripts, CookieContextProvider, useCookieContext } = await loadCookieUi();
+    const ConsentTestHarness = createRejectConsentTestHarness(useCookieContext, AnalyticsScripts);
+
+    document.cookie = "_ga=GA1.1.123; path=/";
+    document.cookie = "_ga_test=GS1.1.123; path=/";
+
+    render(
+      <CookieContextProvider>
+        <ConsentTestHarness />
+      </CookieContextProvider>
+    );
+
+    expect(document.cookie).toContain("_ga=");
+    expect(document.cookie).toContain("_ga_test=");
+
+    fireEvent.click(screen.getByRole("button", { name: "Reject all" }));
+
+    await waitFor(function expectGaCookiesCleared() {
+      expect(document.cookie).not.toContain("_ga=");
+      expect(document.cookie).not.toContain("_ga_test=");
     });
   });
 
@@ -220,7 +214,6 @@ describe("cookie consent client bootstrap", function describeCookieConsentClient
 
     await waitFor(function expectNoAnalyticsScripts() {
       expect(screen.queryByTestId("google-analytics")).toBeNull();
-      expect(screen.queryByTestId("google-tag-manager")).toBeNull();
     });
   });
 });
@@ -237,6 +230,26 @@ function createConsentTestHarness(
         <AnalyticsScripts />
         <button type="button" onClick={acceptAll}>
           Accept all
+        </button>
+      </>
+    );
+  }
+
+  return ConsentTestHarness;
+}
+
+function createRejectConsentTestHarness(
+  useCookieContext: typeof import("./cookie-context").useCookieContext,
+  AnalyticsScripts: typeof import("./analytics-scripts").AnalyticsScripts
+) {
+  function ConsentTestHarness() {
+    const { rejectAll } = useCookieContext();
+
+    return (
+      <>
+        <AnalyticsScripts />
+        <button type="button" onClick={rejectAll}>
+          Reject all
         </button>
       </>
     );
@@ -266,4 +279,8 @@ async function loadCookieUi() {
 
 function clearConsentCookie() {
   document.cookie = `${COOKIE_NAME}=; Max-Age=0; path=/`;
+}
+
+function clearCookie(name: string) {
+  document.cookie = `${name}=; Max-Age=0; path=/`;
 }

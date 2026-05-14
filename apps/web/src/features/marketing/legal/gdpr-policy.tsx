@@ -248,6 +248,7 @@ export function GdprPolicy({ company, contact, policy, effectiveDate, ...props }
           <li>{t("security.items.backups")}</li>
           <li>{t("security.items.incidents")}</li>
         </ul>
+        <p>{t("security.turnstile")}</p>
         <p>{t("security.article3")}</p>
       </section>
 

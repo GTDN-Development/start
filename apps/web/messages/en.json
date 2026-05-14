@@ -1463,7 +1463,7 @@
         "article1": "We may use in particular the following categories of cookies:",
         "essential": {
           "title": "Essential cookies",
-          "article1": "These cookies are necessary for the basic operation of the website, application, security features, and core interface behavior such as keeping the language or appearance you actively choose. Without them, some parts of the service may not function properly.",
+          "article1": "These cookies are necessary for the basic operation of the website, application, security features, and core interface behavior such as keeping the language, appearance, or organization context you actively choose. Without them, some parts of the service may not function properly.",
           "article2": "Essential cookies generally do not require consent because they are used for the purpose of providing the service you requested or to meet our legitimate technical and security needs."
         },
         "functional": {
@@ -1485,7 +1485,7 @@
       "legalBasis": {
         "title": "Legal basis for cookie use",
         "article1": "We use essential cookies on the basis of our legitimate interest or because they are necessary for providing the service you requested.",
-        "article2": "Functional, analytics, and marketing cookies are generally used only on the basis of your consent unless legal regulations or the nature of the specific technology allow another regime.",
+        "article2": "Functional and analytics cookies are generally used only on the basis of your consent unless legal regulations or the nature of the specific technology allow another regime.",
         "article3": "You may change or withdraw the consent you have given at any time through cookie settings."
       },
       "purposes": {
@@ -1593,7 +1593,8 @@
         "persistent": "Persistent",
         "conditional": {
           "sessionOrTokenExpiry": "Session or token expiry",
-          "sessionOrOneYear": "Session or 1 year"
+          "sessionOrOneYear": "Session or 1 year",
+          "providerManagedSecurity": "Provider-managed security duration"
         },
         "relative": {
           "minute": "{count, plural, one {# minute} other {# minutes}}",
@@ -1613,6 +1614,7 @@
         "theme": "Stores theme preference (system/light/dark mode).",
         "sidebarState": "Stores whether the app sidebar is expanded or collapsed on this device.",
         "activeOrganization": "Stores the last active organization selection for faster navigation in the app.",
+        "turnstileSecurity": "Helps protect forms against spam and automated abuse through Cloudflare Turnstile security checks.",
         "ga": "Used by Google Analytics 4 to distinguish users (with consent).",
         "gaWildcard": "Used by Google Analytics 4 to persist session state (with consent)."
       }
@@ -1813,6 +1815,7 @@
           "backups": "backups,",
           "incidents": "internal processes for incident prevention and response."
         },
+        "turnstile": "Selected forms may use Cloudflare Turnstile to distinguish legitimate users from automated abuse. Turnstile may process security signals such as IP address, user-agent and challenge metadata for this purpose.",
         "article3": "Nevertheless, absolute security of any transfer or storage of data cannot be guaranteed."
       },
       "minors": {
@@ -2161,7 +2164,7 @@
     "consent": {
       "banner": {
         "title": "We use cookies",
-        "description": "We use necessary cookies to keep the website working properly and, with your consent, also functional, analytics and, where applicable, marketing cookies. You can change your preferences at any time in cookie settings.",
+        "description": "We use necessary cookies to keep the website working properly and, with your consent, also functional and analytics cookies. You can change your preferences at any time in cookie settings.",
         "rejectAll": "Reject all",
         "acceptAll": "Accept all",
         "settings": "Consent settings"
@@ -2174,7 +2177,7 @@
             "label": "Necessary",
             "alwaysEnabled": "Always enabled",
             "ariaLabel": "Necessary cookies (always enabled)",
-            "description": "Required for the website and app to function, including security, session handling, storing your cookie choices, and keeping core language or appearance preferences you actively choose."
+            "description": "Required for the website and app to function, including security, session handling, storing your cookie choices, and keeping core language, appearance, or organization-context preferences you actively choose."
           },
           "functional": {
             "label": "Functional",

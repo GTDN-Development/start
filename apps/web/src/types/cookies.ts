@@ -11,6 +11,7 @@ export type CookiePurposeKey =
   | "theme"
   | "sidebarState"
   | "activeOrganization"
+  | "turnstileSecurity"
   | "ga"
   | "gaWildcard";
 
@@ -23,7 +24,7 @@ export type CookieDuration =
     }
   | {
       kind: "conditional";
-      labelKey: "sessionOrTokenExpiry" | "sessionOrOneYear";
+      labelKey: "sessionOrTokenExpiry" | "sessionOrOneYear" | "providerManagedSecurity";
     }
   | {
       kind: "relative";

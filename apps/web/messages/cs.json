@@ -1463,7 +1463,7 @@
         "article1": "Používat můžeme zejména tyto kategorie cookies:",
         "essential": {
           "title": "Nezbytné cookies",
-          "article1": "Tyto cookies jsou nutné pro základní fungování webu, aplikace, bezpečnostních funkcí a základního chování rozhraní, například pro zachování jazyka nebo vzhledu, které si aktivně zvolíte. Bez nich by některé části služby nemusely fungovat správně.",
+          "article1": "Tyto cookies jsou nutné pro základní fungování webu, aplikace, bezpečnostních funkcí a základního chování rozhraní, například pro zachování jazyka, vzhledu nebo kontextu organizace, které si aktivně zvolíte. Bez nich by některé části služby nemusely fungovat správně.",
           "article2": "Nezbytné cookies zpravidla nevyžadují souhlas, protože jsou používány za účelem poskytování služby, kterou jste si vyžádali, nebo za účelem splnění našich oprávněných technických a bezpečnostních potřeb."
         },
         "functional": {
@@ -1485,7 +1485,7 @@
       "legalBasis": {
         "title": "Na jakém základě cookies používáme",
         "article1": "Nezbytné cookies používáme na základě našeho oprávněného zájmu nebo proto, že jsou nezbytné pro poskytování služby, kterou jste si vyžádali.",
-        "article2": "Funkční, analytické a marketingové cookies používáme zpravidla pouze na základě vašeho souhlasu, pokud právní předpisy nebo povaha konkrétní technologie neumožňují jiný režim.",
+        "article2": "Funkční a analytické cookies používáme zpravidla pouze na základě vašeho souhlasu, pokud právní předpisy nebo povaha konkrétní technologie neumožňují jiný režim.",
         "article3": "Udělený souhlas můžete kdykoli změnit nebo odvolat prostřednictvím nastavení cookies."
       },
       "purposes": {
@@ -1593,7 +1593,8 @@
         "persistent": "Trvalé",
         "conditional": {
           "sessionOrTokenExpiry": "Relace nebo do vypršení tokenu",
-          "sessionOrOneYear": "Relace nebo 1 rok"
+          "sessionOrOneYear": "Relace nebo 1 rok",
+          "providerManagedSecurity": "Doba řízená poskytovatelem bezpečnostní služby"
         },
         "relative": {
           "minute": "{count, plural, one {# minuta} few {# minuty} other {# minut}}",
@@ -1613,6 +1614,7 @@
         "theme": "Ukládá preferenci motivu (systémový/světlý/tmavý režim).",
         "sidebarState": "Ukládá, zda je postranní panel aplikace na tomto zařízení rozbalený nebo sbalený.",
         "activeOrganization": "Ukládá naposledy aktivní organizaci pro rychlejší navigaci v aplikaci.",
+        "turnstileSecurity": "Pomáhá chránit formuláře proti spamu a automatizovanému zneužití pomocí bezpečnostních kontrol Cloudflare Turnstile.",
         "ga": "Používá Google Analytics 4 k rozlišení uživatelů (se souhlasem).",
         "gaWildcard": "Používá Google Analytics 4 k uchování stavu relace (se souhlasem)."
       }
@@ -1813,6 +1815,7 @@
           "backups": "zálohování,",
           "incidents": "interní procesy pro prevenci a řešení incidentů."
         },
+        "turnstile": "Vybrané formuláře mohou používat Cloudflare Turnstile k rozlišení legitimních uživatelů od automatizovaného zneužití. Turnstile může za tímto účelem zpracovávat bezpečnostní signály, například IP adresu, user-agent a metadata výzvy.",
         "article3": "Přesto nelze zaručit absolutní bezpečnost jakéhokoli přenosu nebo uchování dat."
       },
       "minors": {
@@ -2161,7 +2164,7 @@
     "consent": {
       "banner": {
         "title": "Používáme cookies",
-        "description": "Používáme nezbytné cookies pro správné fungování webu a se vaším souhlasem také funkční, analytické a případně marketingové cookies. Své preference můžete kdykoli změnit v nastavení cookies.",
+        "description": "Používáme nezbytné cookies pro správné fungování webu a se vaším souhlasem také funkční a analytické cookies. Své preference můžete kdykoli změnit v nastavení cookies.",
         "rejectAll": "Odmítnout vše",
         "acceptAll": "Přijmout vše",
         "settings": "Nastavení souhlasu"
@@ -2174,7 +2177,7 @@
             "label": "Nezbytné",
             "alwaysEnabled": "Vždy zapnuté",
             "ariaLabel": "Nezbytné cookies (vždy povolené)",
-            "description": "Jsou nutné pro fungování webu a aplikace, zabezpečení, udržení relace, uložení vašich voleb ohledně cookies a zachování základních preferencí jazyka nebo vzhledu, které si aktivně zvolíte."
+            "description": "Jsou nutné pro fungování webu a aplikace, zabezpečení, udržení relace, uložení vašich voleb ohledně cookies a zachování základních preferencí jazyka, vzhledu nebo kontextu organizace, které si aktivně zvolíte."
           },
           "functional": {
             "label": "Funkční",

@@ -16,7 +16,7 @@ src/config/
 src/features/cookies/
 ├── cookie-consent-actions.ts               # Server action for consent audit events
 ├── cookie-context.tsx                      # Client state and actions
-├── analytics-scripts.tsx                   # Consent-gated GA/GTM wrappers
+├── analytics-scripts.tsx                   # Consent-gated GA wrapper
 ├── cookie-consent-banner.tsx               # Bottom banner UI
 ├── cookie-settings-dialog.tsx              # Category settings dialog
 ├── cookie-settings-trigger.tsx             # Reusable trigger button
@@ -75,12 +75,11 @@ Current baseline is intentionally wrapper-first and hydration-timed:
 - earliest possible first hit is not optimized in this baseline by design
 - moving to `next/script` or a custom bootstrap would be a separate architectural decision
 
-Analytics precedence is explicit:
+Analytics behavior is explicit:
 
-- if `NEXT_PUBLIC_GTM_ID` is set, only `GoogleTagManager` mounts
-- if `NEXT_PUBLIC_GTM_ID` is not set and `NEXT_PUBLIC_GA_ID` is set, `GoogleAnalytics` mounts
-- if both are set, GTM wins and `NEXT_PUBLIC_GA_ID` is ignored
+- if `NEXT_PUBLIC_GA_ID` is set, `GoogleAnalytics` mounts after analytics consent
 - if cookie consent is disabled, analytics do not mount even if IDs are configured
+- when analytics consent is rejected or withdrawn, visible `_ga` and `_ga_*` cookies are cleared
 
 ## Trigger usage
 

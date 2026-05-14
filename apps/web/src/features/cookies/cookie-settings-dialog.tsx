@@ -31,7 +31,6 @@ const COOKIE_CATEGORY_CONFIG: CookieCategoryConfig[] = [
   { key: "necessary", isEditable: false },
   { key: "functional", isEditable: true },
   { key: "analytics", isEditable: true },
-  { key: "marketing", isEditable: true },
 ];
 
 export function CookieSettingsDialog() {

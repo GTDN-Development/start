@@ -305,6 +305,9 @@ function commitConsent(input: {
   isSettingsOpen: boolean;
 }) {
   setConsentCookie(input.consent);
+  if (!input.consent.analytics) {
+    clearAnalyticsCookies();
+  }
 
   setCookieStoreSnapshot({
     ...getCookieStoreSnapshot(),
@@ -330,6 +333,56 @@ function commitConsent(input: {
     .catch((error) => {
       console.error("Error persisting cookie consent event:", error);
     });
+}
+
+function clearAnalyticsCookies() {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const cookieNames = document.cookie
+    .split(";")
+    .map((cookie) => cookie.split("=")[0]?.trim() ?? "")
+    .filter((name) => name === "_ga" || name.startsWith("_ga_"));
+
+  for (const name of new Set(cookieNames)) {
+    clearCookie(name);
+  }
+}
+
+function clearCookie(name: string) {
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  const expires = "Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax";
+  const encodedName = encodeURIComponent(name);
+
+  document.cookie = `${encodedName}=; ${expires}${secure}`;
+
+  for (const domain of getCookieClearDomains(window.location.hostname)) {
+    document.cookie = `${encodedName}=; ${expires}; Domain=${domain}${secure}`;
+  }
+}
+
+function getCookieClearDomains(hostname: string): string[] {
+  const normalizedHostname = hostname.trim().toLowerCase();
+
+  if (
+    !normalizedHostname ||
+    normalizedHostname === "localhost" ||
+    /^\d+\.\d+\.\d+\.\d+$/.test(normalizedHostname)
+  ) {
+    return [];
+  }
+
+  const parts = normalizedHostname.split(".").filter(Boolean);
+  const domains = new Set<string>();
+
+  for (let index = 0; index <= parts.length - 2; index += 1) {
+    const domain = parts.slice(index).join(".");
+    domains.add(domain);
+    domains.add(`.${domain}`);
+  }
+
+  return Array.from(domains);
 }
 
 function logCookieDebugState(input: {

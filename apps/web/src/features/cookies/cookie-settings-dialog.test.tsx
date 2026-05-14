@@ -3,7 +3,7 @@
 import type { ComponentProps } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { COOKIE_NAME } from "@/config/cookie-consent";
+import { acceptAllConsent, COOKIE_NAME } from "@/config/cookie-consent";
 
 vi.hoisted(function hoistCookieEnvironment() {
   process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED = "true";
@@ -70,6 +70,34 @@ describe("cookie settings dialog", function describeCookieSettingsDialog() {
     fireEvent.click(screen.getByRole("button", { name: "Open settings" }));
 
     expect(await screen.findByText("cookies.consent.dialog.title")).toBeDefined();
+    expect(screen.queryByText("cookies.consent.dialog.categories.marketing.label")).toBeNull();
+  });
+
+  it("keeps marketing disabled when accepting all visible cookie categories", async function testAcceptAllKeepsMarketingDisabled() {
+    const [{ CookieContextProvider }, { CookieSettingsDialog }, { CookieSettingsTrigger }] =
+      await Promise.all([
+        import("./cookie-context"),
+        import("./cookie-settings-dialog"),
+        import("./cookie-settings-trigger"),
+      ]);
+
+    render(
+      <CookieContextProvider>
+        <CookieSettingsTrigger type="button">Open settings</CookieSettingsTrigger>
+        <CookieSettingsDialog />
+      </CookieContextProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open settings" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "cookies.consent.dialog.actions.acceptAll" })
+    );
+
+    expect(persistCookieConsentAction).toHaveBeenCalledWith({
+      eventType: "accept_all",
+      consent: acceptAllConsent,
+      locale: "en",
+    });
   });
 
   it("does not render the trigger when cookie consent is disabled", async function testDisabledCookieSettingsTrigger() {

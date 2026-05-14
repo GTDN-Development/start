@@ -74,7 +74,7 @@ export type CookiePolicyConfig = {
   hasFunctionalStorage: boolean;
   // Include analytics cookies and analytics-specific explanations.
   hasAnalytics: boolean;
-  // Include marketing cookies and marketing-specific explanations.
+  // Include campaign/ads category copy if a future implementation adds it.
   hasMarketing: boolean;
 };
 
@@ -170,7 +170,7 @@ export const gdprPolicy: GdprPolicyConfig = {
 export const cookiePolicy: CookiePolicyConfig = {
   hasFunctionalStorage: true,
   hasAnalytics: true,
-  hasMarketing: true,
+  hasMarketing: false,
 };
 
 // Effective dates for the currently published legal documents.
@@ -249,10 +249,10 @@ export const cookieCatalog: Cookie[] = [
     provider: legal.domain,
     purposeKey: "activeOrganization",
     duration: { kind: "relative", value: 1, unit: "year" },
-    category: "functional",
+    category: "essential",
     storageType: "cookie",
     thirdParty: false,
-    requiresConsent: true,
+    requiresConsent: false,
   },
   {
     name: "sidebar_state",
@@ -272,6 +272,16 @@ export const cookieCatalog: Cookie[] = [
     category: "essential",
     storageType: "localStorage",
     thirdParty: false,
+    requiresConsent: false,
+  },
+  {
+    name: "Cloudflare Turnstile",
+    provider: "Cloudflare",
+    purposeKey: "turnstileSecurity",
+    duration: { kind: "conditional", labelKey: "providerManagedSecurity" },
+    category: "essential",
+    storageType: "cookie",
+    thirdParty: true,
     requiresConsent: false,
   },
   {

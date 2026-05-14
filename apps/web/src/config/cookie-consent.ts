@@ -36,7 +36,7 @@ export const acceptAllConsent: ConsentState = {
   necessary: true,
   functional: true,
   analytics: true,
-  marketing: true,
+  marketing: false,
 };
 
 export const rejectAllConsent: ConsentState = {
@@ -57,7 +57,7 @@ export function normalizeConsent(value: unknown): ConsentState {
     necessary: true,
     functional: input.functional === true,
     analytics: input.analytics === true,
-    marketing: input.marketing === true,
+    marketing: false,
   };
 }
 
