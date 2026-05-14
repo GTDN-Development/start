@@ -203,6 +203,28 @@ describe("auth-service", function describeAuthService() {
     });
   });
 
+  it("treats transient auth lookups for unverified cached sessions as signed out without error logs", async function testGetServerAuthSessionTransientFailure() {
+    const context = createAuthServiceContext({
+      authStoreRecord: createUserRecord("user-1", "user@example.com", {
+        verified: false,
+      }),
+      authStoreValid: true,
+    });
+
+    context.usersCollection.getOne.mockRejectedValue(createClientResponseError(0));
+    vi.mocked(createPocketBaseServerClient).mockResolvedValue(context.client);
+
+    const response = await getServerAuthSession();
+
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        session: null,
+      },
+    });
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
   it("requires the current render user from a validated PocketBase record", async function testRequireCurrentUser() {
     const user = createUserRecord("user-1", "user@example.com");
     const context = createAuthServiceContext({

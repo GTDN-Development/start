@@ -286,9 +286,13 @@ async function getVerifiedUserRecordReadOnly(
       return null;
     }
 
-    if (isTransientError(error) && authenticatedUser.verified === true) {
-      console.warn("[auth-session-service] getVerifiedUserRecordReadOnly transient backend error");
-      return authenticatedUser;
+    if (isTransientError(error)) {
+      if (authenticatedUser.verified === true) {
+        console.warn("[auth-session-service] getVerifiedUserRecordReadOnly transient backend error");
+        return authenticatedUser;
+      }
+
+      return null;
     }
 
     throw error;
