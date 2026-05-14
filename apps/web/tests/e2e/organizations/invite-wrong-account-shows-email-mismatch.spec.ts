@@ -21,7 +21,7 @@ test("wrong account opening invite sees email mismatch and recoverable state", a
   const wrongEmail = createIsolatedTestEmail(run.id, "organization-wrong-account");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const organizationSlug = `org-mismatch-${suffix}`;
-  const organizationName = `Organization Mismatch ${suffix}`;
+  const organizationName = `Org Mismatch ${suffix}`;
 
   let pb: PocketBase | null = null;
 

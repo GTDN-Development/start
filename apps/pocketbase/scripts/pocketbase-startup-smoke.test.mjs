@@ -80,8 +80,8 @@ test("committed snapshot applies production readiness defaults", async function 
   );
   assert.match(
     snapshot,
-    /id: "file376926767",\n\s+maxSelect: 1,\n\s+maxSize: 5242880,\n\s+mimeTypes: \["image\/png", "image\/jpeg", "image\/webp"\],\n\s+name: "avatar",/,
-    "organization avatar uploads must have a 5 MB server-side limit"
+    /id: "file376926767",\n\s+maxSelect: 1,\n\s+maxSize: 1048576,\n\s+mimeTypes: \["image\/png", "image\/jpeg", "image\/webp"\],\n\s+name: "avatar",/,
+    "organization avatar uploads must have a 1 MB server-side limit"
   );
 });
 
@@ -153,6 +153,7 @@ test(
 
         assert.equal(inviteInspectBody.message, "Missing invite token.");
 
+        await assertOrganizationSchemaLimits(port);
         await assertOrganizationCreateHook(port);
         await assertOrganizationMemberAuthzHooks(port);
         await assertLastOwnerGuards(port);
@@ -164,6 +165,23 @@ test(
     }
   }
 );
+
+async function assertOrganizationSchemaLimits(port) {
+  const pb = await createSuperuserClient(port);
+  const collection = await pb.collections.getOne("organizations");
+
+  assert.equal(getCollectionField(collection, "name").max, 32);
+  assert.equal(getCollectionField(collection, "slug").max, 48);
+  assert.equal(getCollectionField(collection, "avatar").maxSize, 1048576);
+}
+
+function getCollectionField(collection, fieldName) {
+  const field = collection.fields.find((currentField) => currentField.name === fieldName);
+
+  assert.ok(field, `Expected ${collection.name}.${fieldName} to exist.`);
+
+  return field;
+}
 
 async function assertOrganizationCreateHook(port) {
   const pb = await createSuperuserClient(port);
@@ -333,7 +351,7 @@ async function createVerifiedUserClient(port, pb, slug) {
 
 async function createOrganizationWithOwner(pb, user, slug) {
   const organization = await pb.collection("organizations").create({
-    name: `Organization ${slug}`,
+    name: `Org ${slug}`,
     slug,
     kind: "organization",
     created_by: user.id,

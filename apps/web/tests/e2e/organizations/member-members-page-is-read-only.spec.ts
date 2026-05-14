@@ -24,7 +24,7 @@ test("member opens members page in read-only mode", async ({ page }) => {
   const ownerName = `Organization Owner ${suffix}`;
   const memberName = `Organization Member ${suffix}`;
   const organizationSlug = `org-member-view-${suffix}`;
-  const organizationName = `Organization Members ${suffix}`;
+  const organizationName = `Org Members ${suffix}`;
 
   let pb: PocketBase | null = null;
 

@@ -27,7 +27,7 @@ test("admin removes a member via UI and the removed user immediately loses acces
   const memberName = `Member ${suffix}`;
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const organizationSlug = `org-remove-member-${suffix}`;
-  const organizationName = `Organization Remove Member ${suffix}`;
+  const organizationName = `Org Remove Member ${suffix}`;
 
   let pb: PocketBase | null = null;
   let memberContext: BrowserContext | null = null;

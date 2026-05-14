@@ -18,7 +18,7 @@ test("final remaining owner cannot leave the organization", async ({ page }) => 
   const ownerEmail = createIsolatedTestEmail(run.id, "organization-last-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const organizationSlug = `org-last-owner-${suffix}`;
-  const organizationName = `Organization Last Owner ${suffix}`;
+  const organizationName = `Org Last Owner ${suffix}`;
 
   let pb: PocketBase | null = null;
   let ownerId = "";

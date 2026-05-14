@@ -31,7 +31,7 @@ test("admin creates invite from UI and invited user accepts it from email", asyn
   const invitedEmail = createIsolatedTestEmail(run.id, "organization-invited-ui-invite");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const organizationSlug = `org-ui-invite-${suffix}`;
-  const organizationName = `Organization UI Invite ${suffix}`;
+  const organizationName = `Org UI Invite ${suffix}`;
 
   let pb: PocketBase | null = null;
   let invitedContext: BrowserContext | null = null;

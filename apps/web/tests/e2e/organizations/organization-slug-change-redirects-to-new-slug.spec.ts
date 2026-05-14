@@ -22,7 +22,7 @@ test("changing an organization slug redirects to the same organization under the
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const initialOrganizationSlug = `org-slug-old-${suffix}`;
   const nextOrganizationSlug = `org-slug-new-${suffix}`;
-  const organizationName = `Organization Slug ${suffix}`;
+  const organizationName = `Org Slug ${suffix}`;
 
   let pb: PocketBase | null = null;
 

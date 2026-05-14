@@ -65,7 +65,7 @@ test("PocketBase organization rules enforce membership and role boundaries", asy
     const { organization } = await createOrganization({
       pb: adminPb,
       userId: owner.id,
-      name: `Organization Rules ${suffix}`,
+      name: `Org Rules ${suffix}`,
       slug: organizationSlug,
     });
 
@@ -184,9 +184,9 @@ test("PocketBase organization rules enforce membership and role boundaries", asy
     const updatedOrganization = await ownerClient
       .collection("organizations")
       .update(organization.id, {
-        name: `Organization Rules Updated ${suffix}`,
+        name: `Org Rules Updated ${suffix}`,
       });
-    expect(updatedOrganization.name).toBe(`Organization Rules Updated ${suffix}`);
+    expect(updatedOrganization.name).toBe(`Org Rules Updated ${suffix}`);
 
     const bootstrapOrganization = await bootstrapClient.send<{
       organization: {
@@ -197,7 +197,7 @@ test("PocketBase organization rules enforce membership and role boundaries", asy
     }>("/api/start/organizations", {
       method: "POST",
       body: {
-        name: `Organization Bootstrap ${suffix}`,
+        name: `Org Bootstrap ${suffix}`,
         slug: bootstrapOrganizationSlug,
       },
     });

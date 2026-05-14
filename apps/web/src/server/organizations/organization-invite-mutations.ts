@@ -10,6 +10,7 @@ import {
   isDateStringExpired,
 } from "@/server/organizations/organization-invite-utils";
 import {
+  findInviteByEmail,
   findInviteById,
   mapMutationStatusError,
   safeDeleteRecord,
@@ -48,6 +49,19 @@ export async function createInvite(
 
   try {
     const { pb, user, organization } = organizationAccess.context;
+    const existingInvite = await findInviteByEmail(pb, organization.id, normalizedEmail);
+
+    if (existingInvite) {
+      if (!isDateStringExpired(existingInvite.expires_at)) {
+        return {
+          ok: false,
+          errorCode: "BAD_REQUEST",
+        };
+      }
+
+      await safeDeleteRecord(pb, "organization_invites", existingInvite.id);
+    }
+
     const inviteToken = createInviteToken();
     const inviteRecord = await pb
       .collection("organization_invites")

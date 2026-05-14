@@ -29,9 +29,9 @@ test("pending invite overrides an otherwise valid active organization after sign
   const inviteOwnerEmail = createIsolatedTestEmail(run.id, "organization-invite-priority-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const organizationASlug = `org-invite-priority-a-${suffix}`;
-  const organizationAName = `Organization Invite Priority A ${suffix}`;
+  const organizationAName = `Org Invite Priority A ${suffix}`;
   const organizationBSlug = `org-invite-priority-b-${suffix}`;
-  const organizationBName = `Organization Invite Priority B ${suffix}`;
+  const organizationBName = `Org Invite Priority B ${suffix}`;
 
   let pb: PocketBase | null = null;
 

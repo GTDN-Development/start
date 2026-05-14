@@ -57,6 +57,27 @@ export async function findInviteById(
   }
 }
 
+export async function findInviteByEmail(
+  pb: PocketBase,
+  organizationId: string,
+  emailNormalized: string
+): Promise<OrganizationInvitesRecord | null> {
+  try {
+    return await pb.collection("organization_invites").getFirstListItem<OrganizationInvitesRecord>(
+      pb.filter("organization = {:organizationId} && email_normalized = {:emailNormalized}", {
+        organizationId,
+        emailNormalized,
+      })
+    );
+  } catch (error) {
+    if (error instanceof ClientResponseError && error.status === 404) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
 export async function safeDeleteRecord(
   pb: PocketBase,
   collectionName: string,

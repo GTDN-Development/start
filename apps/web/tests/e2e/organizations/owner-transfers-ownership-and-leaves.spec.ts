@@ -26,7 +26,7 @@ test("owner promotes another member to owner, then leaves the organization succe
   const memberEmail = createIsolatedTestEmail(run.id, "organization-member-transfer");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const organizationSlug = `org-owner-transfer-${suffix}`;
-  const organizationName = `Organization Owner Transfer ${suffix}`;
+  const organizationName = `Org Owner Transfer ${suffix}`;
   const memberName = `Member ${suffix}`;
 
   let pb: PocketBase | null = null;

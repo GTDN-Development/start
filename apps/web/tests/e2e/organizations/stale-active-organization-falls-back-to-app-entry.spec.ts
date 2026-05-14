@@ -23,7 +23,7 @@ test("stale active organization falls back to personal app entry after external 
   const memberEmail = createIsolatedTestEmail(run.id, "organization-member-stale");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const organizationSlug = `org-stale-${suffix}`;
-  const organizationName = `Organization Stale ${suffix}`;
+  const organizationName = `Org Stale ${suffix}`;
 
   let pb: PocketBase | null = null;
   let memberMembership: OrganizationMembersRecord | null = null;

@@ -21,7 +21,7 @@ test("owner deletes the current organization and falls back to the personal app 
   const ownerEmail = createIsolatedTestEmail(run.id, "organization-delete-owner");
   const password = DEFAULT_AUTH_TEST_PASSWORD;
   const organizationSlug = `org-delete-${suffix}`;
-  const organizationName = `Organization Delete ${suffix}`;
+  const organizationName = `Org Delete ${suffix}`;
 
   let pb: PocketBase | null = null;
   let organizationId = "";
