@@ -120,7 +120,7 @@ async function fetchPosts(params: Record<string, string>): Promise<PostsRecord[]
   );
 
   if (!response.ok) {
-    return [];
+    throw new Error(`PocketBase posts request failed with status ${response.status}.`);
   }
 
   const data: PBListResponse<PostsRecord> = await response.json();
@@ -132,41 +132,33 @@ export async function getAllPosts(locale: "cs" | "en"): Promise<BlogPost[]> {
   "use cache";
   cacheLife("blog");
 
-  try {
-    const items = await fetchPosts({
-      sort: "-published_at",
-      filter: `status="published" && locale="${locale}"`,
-      perPage: "100",
-      fields:
-        "id,collectionId,title,slug,excerpt,published_at,created,cover_image,cover_image_alt,locale,translation_shared_id",
-    });
+  const items = await fetchPosts({
+    sort: "-published_at",
+    filter: `status="published" && locale="${locale}"`,
+    perPage: "100",
+    fields:
+      "id,collectionId,title,slug,excerpt,published_at,created,cover_image,cover_image_alt,locale,translation_shared_id",
+  });
 
-    return items.map(mapPost);
-  } catch {
-    return [];
-  }
+  return items.map(mapPost);
 }
 
 export async function getPostBySlug(slug: string, locale: "cs" | "en"): Promise<BlogPost | null> {
   "use cache";
   cacheLife("blog");
 
-  try {
-    const items = await fetchPosts({
-      filter: `slug="${escapePBValue(slug)}" && status="published" && locale="${locale}"`,
-      perPage: "1",
-    });
+  const items = await fetchPosts({
+    filter: `slug="${escapePBValue(slug)}" && status="published" && locale="${locale}"`,
+    perPage: "1",
+  });
 
-    const record = items[0];
+  const record = items[0];
 
-    if (!record) {
-      return null;
-    }
-
-    return mapPost(record);
-  } catch {
+  if (!record) {
     return null;
   }
+
+  return mapPost(record);
 }
 
 export function stripHtmlTags(html: string): string {

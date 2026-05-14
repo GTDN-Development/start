@@ -4,7 +4,12 @@ export const COOKIE_NAME = "cookie_consent";
 export const COOKIE_CONSENT_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
 export const COOKIE_CONSENT_VERSION = "1";
 export const COOKIE_CONSENT_SUBJECT_COOKIE_NAME = "cookie_consent_subject";
-export const COOKIE_CONSENT_EVENT_TYPES = ["accept_all", "reject_all", "save_preferences"] as const;
+export const COOKIE_CONSENT_EVENT_TYPES = [
+  "accept_all",
+  "reject_all",
+  "save_preferences",
+  "withdraw",
+] as const;
 
 export type ConsentState = {
   necessary: boolean;

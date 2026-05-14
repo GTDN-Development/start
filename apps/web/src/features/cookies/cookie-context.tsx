@@ -321,9 +321,15 @@ function commitConsent(input: {
     eventType: input.eventType,
     consent: input.consent,
     locale: input.locale,
-  }).catch((error) => {
-    console.error("Error persisting cookie consent event:", error);
-  });
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.warn("Cookie consent audit event was not persisted:", response.errorCode);
+      }
+    })
+    .catch((error) => {
+      console.error("Error persisting cookie consent event:", error);
+    });
 }
 
 function logCookieDebugState(input: {

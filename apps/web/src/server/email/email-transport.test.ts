@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { sendEmail } from "./email-transport";
+import { sendEmail, sendFormEmail } from "./email-transport";
 
 const { sendMailMock, createTransportMock } = vi.hoisted(function createTransportMocks() {
   const sendMailMock = vi.fn();
@@ -146,5 +146,54 @@ describe("email-transport", function describeEmailTransport() {
       text: "Plain text",
       html: "<p>Hello</p>",
     });
+  });
+
+  it.each([
+    {
+      name: "MAIL_FROM_ADDRESS",
+      setup: () => {
+        process.env.MAIL_TRANSPORT = "mailpit-api";
+        process.env.MAILPIT_BASE_URL = "https://mailpit.example.com";
+        process.env.MAIL_FROM_ADDRESS = "";
+      },
+      send: () =>
+        sendEmail({
+          to: "invitee@example.com",
+          subject: "Hello",
+          text: "Plain text",
+          html: "<p>Hello</p>",
+        }),
+    },
+    {
+      name: "GENERAL_FORMS_RECIPIENT",
+      setup: () => {
+        process.env.GENERAL_FORMS_RECIPIENT = "";
+      },
+      send: () =>
+        sendFormEmail({
+          subject: "Contact",
+          text: "Plain text",
+          html: "<p>Hello</p>",
+        }),
+    },
+    {
+      name: "MAIL_HOST",
+      setup: () => {
+        delete process.env.MAIL_TRANSPORT;
+        process.env.MAIL_HOST = "";
+        process.env.MAIL_FROM_ADDRESS = "support@example.com";
+      },
+      send: () =>
+        sendEmail({
+          to: "invitee@example.com",
+          subject: "Hello",
+          text: "Plain text",
+          html: "<p>Hello</p>",
+        }),
+    },
+  ])("requires $name", async function testRequiredMailEnv({ name, setup, send }) {
+    setup();
+
+    await expect(send()).rejects.toThrow(`${name} is required for email delivery.`);
   });
 });

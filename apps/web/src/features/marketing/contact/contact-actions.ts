@@ -1,7 +1,6 @@
 "use server";
 
 import { headers } from "next/headers";
-import type Mail from "nodemailer/lib/mailer";
 import { z } from "zod";
 import { routing } from "@/i18n/routing";
 import { isTurnstileEnabled } from "@/config/security";

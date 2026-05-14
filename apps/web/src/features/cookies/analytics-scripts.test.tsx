@@ -18,7 +18,7 @@ vi.hoisted(function hoistCookieEnvironment() {
 const { persistCookieConsentAction } = vi.hoisted(function hoistCookieActionMocks() {
   return {
     persistCookieConsentAction: vi.fn(async function persistCookieConsentAction() {
-      return undefined;
+      return { ok: true };
     }),
   };
 });

@@ -75,6 +75,39 @@ describe("blog api cache profile", function describeBlogApiCacheProfile() {
     ]);
   });
 
+  it("returns an empty list when PocketBase has no published posts", async function testEmptyPostList() {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async function fetchEmptyPosts() {
+        return new Response(
+          JSON.stringify({
+            items: [],
+            page: 1,
+            perPage: 100,
+            totalItems: 0,
+            totalPages: 0,
+          }),
+          { status: 200 }
+        );
+      })
+    );
+
+    await expect(getAllPosts("en")).resolves.toEqual([]);
+  });
+
+  it("rejects when PocketBase cannot list posts", async function testPostListFailure() {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async function fetchPostsFailure() {
+        return new Response("Unavailable", { status: 503 });
+      })
+    );
+
+    await expect(getAllPosts("en")).rejects.toThrow(
+      "PocketBase posts request failed with status 503."
+    );
+  });
+
   it("applies the blog cache profile when resolving a post by slug", async function testGetPostBySlugCacheLife() {
     vi.stubGlobal(
       "fetch",

@@ -16,7 +16,7 @@ type EmailMessage = BaseEmailMessage & {
 };
 
 export async function sendFormEmail(message: BaseEmailMessage) {
-  const recipientEmail = process.env.GENERAL_FORMS_RECIPIENT ?? "";
+  const recipientEmail = getRequiredMailEnv("GENERAL_FORMS_RECIPIENT");
 
   await sendEmail({
     to: recipientEmail,
@@ -26,7 +26,7 @@ export async function sendFormEmail(message: BaseEmailMessage) {
 
 export async function sendEmail(message: EmailMessage) {
   const fromName = process.env.MAIL_FROM_NAME?.trim() ?? "";
-  const fromAddress = process.env.MAIL_FROM_ADDRESS?.trim() ?? "";
+  const fromAddress = getRequiredMailEnv("MAIL_FROM_ADDRESS");
 
   if (getMailTransportMode() === MAIL_TRANSPORT_MAILPIT_API) {
     await sendMailpitApiEmail({
@@ -55,9 +55,10 @@ function getOrCreateMailTransporter() {
 
   const port = Number.parseInt(process.env.MAIL_PORT || "587", 10);
   const secure = getMailTransportSecureValue(port);
+  const host = getRequiredMailEnv("MAIL_HOST");
 
   const transporter = nodemailer.createTransport({
-    host: process.env.MAIL_HOST,
+    host,
     port,
     secure,
     auth: {
@@ -87,6 +88,16 @@ function getMailTransportSecureValue(port: number) {
 
 function getMailTransportMode(): string {
   return process.env.MAIL_TRANSPORT?.trim().toLowerCase() ?? "smtp";
+}
+
+function getRequiredMailEnv(name: string): string {
+  const value = process.env[name]?.trim();
+
+  if (!value) {
+    throw new Error(`${name} is required for email delivery.`);
+  }
+
+  return value;
 }
 
 async function sendMailpitApiEmail(options: {
