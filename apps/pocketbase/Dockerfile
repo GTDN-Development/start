@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-ARG PB_VERSION=0.36.7
+ARG PB_VERSION=0.38.0
 ARG TARGETARCH
 
 RUN apk add --no-cache unzip ca-certificates wget

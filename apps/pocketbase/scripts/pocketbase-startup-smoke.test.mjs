@@ -20,8 +20,70 @@ const HOOKS_DIR = join(APP_DIR, "pb_hooks");
 const MIGRATIONS_DIR = join(APP_DIR, "pb_migrations");
 const PUBLIC_DIR = join(APP_DIR, "pb_public");
 const LOCAL_BINARY_PATH = join(APP_DIR, "pocketbase");
+const COLLECTIONS_SNAPSHOT_PATH = join(MIGRATIONS_DIR, "1774467906_collections_snapshot.js");
 const TEST_SUPERUSER_EMAIL = "startup-smoke-admin@example.com";
 const TEST_SUPERUSER_PASSWORD = "startup-smoke-password";
+
+test("Dockerfile pins the current PocketBase release", async function testDockerfileVersion() {
+  const dockerfile = await readFile(DOCKERFILE_PATH, "utf8");
+
+  assert.match(dockerfile, /^ARG PB_VERSION=0\.38\.0$/m);
+});
+
+test("committed posts snapshot exposes only published posts publicly", async function testPostsSnapshotRules() {
+  const snapshot = await readFile(COLLECTIONS_SNAPSHOT_PATH, "utf8");
+
+  assert.match(
+    snapshot,
+    /listRule: 'status = "published"',\n\s+name: "posts",/,
+    "posts listRule must only expose published posts"
+  );
+  assert.match(
+    snapshot,
+    /name: "posts",[\s\S]*?viewRule: 'status = "published"',/,
+    "posts viewRule must only expose published posts"
+  );
+});
+
+test("committed snapshot applies production readiness defaults", async function testProductionReadinessDefaults() {
+  const snapshot = await readFile(COLLECTIONS_SNAPSHOT_PATH, "utf8");
+
+  assert.match(snapshot, /settings\.rateLimits\.enabled = true/);
+  assert.match(
+    snapshot,
+    /label: "\*:auth",\n\s+audience: "@guest",\n\s+maxRequests: 5,\n\s+duration: 60,/
+  );
+  assert.match(
+    snapshot,
+    /label: "\*:requestPasswordReset",\n\s+audience: "@guest",\n\s+maxRequests: 3,\n\s+duration: 300,/
+  );
+  assert.match(
+    snapshot,
+    /label: "\*:requestVerification",\n\s+audience: "@guest",\n\s+maxRequests: 3,\n\s+duration: 300,/
+  );
+  assert.match(
+    snapshot,
+    /label: "\*:create",\n\s+audience: "@guest",\n\s+maxRequests: 20,\n\s+duration: 60,/
+  );
+  assert.match(
+    snapshot,
+    /label: "\/api\/",\n\s+audience: "",\n\s+maxRequests: 300,\n\s+duration: 60,/
+  );
+  assert.match(
+    snapshot,
+    /label: "POST \/api\/start\/organization-invites\/inspect",\n\s+audience: "@guest",\n\s+maxRequests: 30,\n\s+duration: 60,/
+  );
+  assert.match(
+    snapshot,
+    /id: "file376926767",\n\s+maxSelect: 1,\n\s+maxSize: 5242880,\n\s+mimeTypes: \["image\/jpeg", "image\/png", "image\/webp"\],\n\s+name: "avatar",/,
+    "users avatar uploads must have a 5 MB server-side limit"
+  );
+  assert.match(
+    snapshot,
+    /id: "file376926767",\n\s+maxSelect: 1,\n\s+maxSize: 5242880,\n\s+mimeTypes: \["image\/png", "image\/jpeg", "image\/webp"\],\n\s+name: "avatar",/,
+    "organization avatar uploads must have a 5 MB server-side limit"
+  );
+});
 
 test(
   "PocketBase boots from committed migrations and hooks",
@@ -260,10 +322,8 @@ async function createVerifiedUserClient(port, pb, slug) {
     name: slug,
     verified: true,
   });
-  const client = new PocketBase(`http://127.0.0.1:${port}`);
+  const client = await pb.collection("users").impersonate(user.id, 3600);
   client.autoCancellation(false);
-
-  await client.collection("users").authWithPassword(email, password);
 
   return {
     client,

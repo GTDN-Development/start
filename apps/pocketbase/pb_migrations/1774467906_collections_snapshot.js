@@ -689,7 +689,7 @@ migrate(
             hidden: false,
             id: "file376926767",
             maxSelect: 1,
-            maxSize: 0,
+            maxSize: 5242880,
             mimeTypes: ["image/jpeg", "image/png", "image/webp"],
             name: "avatar",
             presentable: false,
@@ -1486,7 +1486,7 @@ migrate(
             hidden: false,
             id: "file376926767",
             maxSelect: 1,
-            maxSize: 0,
+            maxSize: 5242880,
             mimeTypes: ["image/png", "image/jpeg", "image/webp"],
             name: "avatar",
             presentable: false,
@@ -1547,6 +1547,7 @@ migrate(
     const result = app.importCollections(snapshot, false);
 
     setDefaultUserEmailVisibility(app);
+    setProductionReadinessBaseline(app);
 
     return result;
   },
@@ -1568,6 +1569,52 @@ function setDefaultUserEmailVisibility(app) {
     user.set("emailVisibility", true);
     app.save(user);
   }
+}
+
+function setProductionReadinessBaseline(app) {
+  const settings = app.settings();
+
+  settings.rateLimits.enabled = true;
+  settings.rateLimits.rules = [
+    {
+      label: "*:auth",
+      audience: "@guest",
+      maxRequests: 5,
+      duration: 60,
+    },
+    {
+      label: "*:requestPasswordReset",
+      audience: "@guest",
+      maxRequests: 3,
+      duration: 300,
+    },
+    {
+      label: "*:requestVerification",
+      audience: "@guest",
+      maxRequests: 3,
+      duration: 300,
+    },
+    {
+      label: "*:create",
+      audience: "@guest",
+      maxRequests: 20,
+      duration: 60,
+    },
+    {
+      label: "/api/",
+      audience: "",
+      maxRequests: 300,
+      duration: 60,
+    },
+    {
+      label: "POST /api/start/organization-invites/inspect",
+      audience: "@guest",
+      maxRequests: 30,
+      duration: 60,
+    },
+  ];
+
+  app.save(settings);
 }
 
 function buildVerificationTemplate() {
