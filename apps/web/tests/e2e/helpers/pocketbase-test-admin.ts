@@ -9,7 +9,20 @@ import { getRequiredTestEnv } from "./test-env";
 
 const DEFAULT_ORGANIZATION_INVITE_TTL_DAYS = 7;
 
+let adminClientPromise: Promise<PocketBase> | null = null;
+
 export async function createPocketBaseAdminClient(): Promise<PocketBase> {
+  adminClientPromise ??= createAuthenticatedPocketBaseAdminClient();
+
+  try {
+    return await adminClientPromise;
+  } catch (error) {
+    adminClientPromise = null;
+    throw error;
+  }
+}
+
+async function createAuthenticatedPocketBaseAdminClient(): Promise<PocketBase> {
   const pb = new PocketBase(getRequiredTestEnv("NEXT_PUBLIC_PB_URL"));
 
   pb.autoCancellation(false);

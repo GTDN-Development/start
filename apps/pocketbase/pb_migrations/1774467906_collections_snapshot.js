@@ -1577,9 +1577,9 @@ function setProductionReadinessBaseline(app) {
   settings.rateLimits.enabled = true;
   settings.rateLimits.rules = [
     {
-      label: "*:auth",
+      label: "users:authWithPassword",
       audience: "@guest",
-      maxRequests: 5,
+      maxRequests: 60,
       duration: 60,
     },
     {

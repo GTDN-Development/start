@@ -14,7 +14,9 @@ the setting is template-safe.
   migrations.
 - Public `posts` reads expose only records with `status = "published"`.
 - PocketBase rate limiting is enabled in the initial migration with conservative public API,
-  auth, create, and invite inspection limits.
+  public user auth, create, and invite inspection limits. The auth rule is scoped to
+  `users:authWithPassword` so superuser operations can be controlled separately with the
+  production `_superusers` IP/CIDR whitelist.
 - User and organization avatar uploads allow only JPEG, PNG, and WebP files, capped at 5 MB per
   file. The web app still optimizes avatar uploads before sending them, but direct PocketBase API
   uploads have a server-side ceiling.

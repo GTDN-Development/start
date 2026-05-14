@@ -51,7 +51,7 @@ test("committed snapshot applies production readiness defaults", async function 
   assert.match(snapshot, /settings\.rateLimits\.enabled = true/);
   assert.match(
     snapshot,
-    /label: "\*:auth",\n\s+audience: "@guest",\n\s+maxRequests: 5,\n\s+duration: 60,/
+    /label: "users:authWithPassword",\n\s+audience: "@guest",\n\s+maxRequests: 60,\n\s+duration: 60,/
   );
   assert.match(
     snapshot,
