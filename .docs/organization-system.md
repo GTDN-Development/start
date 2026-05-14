@@ -3,8 +3,10 @@
 Organizations are PocketBase records with membership-based access.
 
 - `organizationConfig.enabled` is the frontend rollout switch for the organization feature.
+  It is controlled by `NEXT_PUBLIC_ORGANIZATIONS_ENABLED` and defaults to false.
   When false, the app shell stays in personal scope, organization navigation is omitted, scope
-  switching/creation UI is hidden, and `/o/[organizationSlug]` redirects to `/app`.
+  switching/creation UI is hidden, `/o/[organizationSlug]` redirects to `/app`, invite routes do
+  not inspect or accept invites, and post-auth routing falls back to `/app`.
 - Setting `organizationConfig.enabled` to true exposes the prepared organization UI again.
 - Main routes live under `/o/[organizationSlug]`: overview, settings, and members.
 - Users can create, switch, update, leave, and delete organizations.
@@ -28,7 +30,8 @@ Useful files:
 - [role rules](/Users/fanda/Dev/start/apps/web/src/features/organizations/organization-role-rules.ts)
 - [navigation context](/Users/fanda/Dev/start/apps/web/src/features/organizations/organization-navigation-context.tsx)
 - [route queries](/Users/fanda/Dev/start/apps/web/src/server/organizations/organization-route-queries.ts)
-- [shell queries](/Users/fanda/Dev/start/apps/web/src/server/organizations/organization-shell-queries.ts)
+- [navigation queries](/Users/fanda/Dev/start/apps/web/src/server/organizations/organization-navigation-queries.ts)
+- [post-auth destination](/Users/fanda/Dev/start/apps/web/src/server/organizations/post-auth-destination.ts)
 - [general actions](/Users/fanda/Dev/start/apps/web/src/features/organizations/settings/general/organization-general-actions.ts)
 - [member actions](/Users/fanda/Dev/start/apps/web/src/features/organizations/settings/members/organization-members-actions.ts)
 - [PocketBase hooks](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks)

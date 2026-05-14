@@ -1,5 +1,7 @@
+const ORGANIZATIONS_ENABLED_ENV = process.env.NEXT_PUBLIC_ORGANIZATIONS_ENABLED;
+
 export const organizationConfig = {
-  enabled: false,
+  enabled: isOrganizationFeatureEnabled(ORGANIZATIONS_ENABLED_ENV),
   limits: {
     nameMaxLength: 32,
     slugMaxLength: 48,
@@ -30,3 +32,17 @@ export const organizationConfig = {
     invitableValues: ["admin", "member"] as const,
   },
 } as const;
+
+function isOrganizationFeatureEnabled(value: string | undefined) {
+  const normalizedValue = value?.trim().toLowerCase();
+
+  if (normalizedValue === "true") {
+    return true;
+  }
+
+  if (normalizedValue === "false") {
+    return false;
+  }
+
+  return false;
+}

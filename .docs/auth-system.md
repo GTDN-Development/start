@@ -17,12 +17,14 @@ Main flows:
 - Sign in accepts only verified users; unverified users are sent back to email verification.
 - Email verification and invite redirects use route handlers so cookies can be committed safely.
 - Password reset and email change use PocketBase tokens and clear auth cookies after completion.
-- Post-auth routing sends users to a pending invite, active organization, or `/app`.
+- Post-auth routing sends users to a pending invite, active organization, or `/app`; when
+  organizations are disabled it always falls back to `/app`.
 
 Useful files:
 
 - [auth config](/Users/fanda/Dev/start/apps/web/src/config/auth.ts)
 - [auth client wrapper](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-client.ts)
 - [auth schemas](/Users/fanda/Dev/start/apps/web/src/features/auth/auth-schemas.ts)
+- [post-auth destination](/Users/fanda/Dev/start/apps/web/src/server/organizations/post-auth-destination.ts)
 - [post-auth route](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/post-auth/route.ts>)
 - [verify-email complete route](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(auth)/(flow)/verify-email/complete/route.ts>)

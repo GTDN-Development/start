@@ -5,6 +5,8 @@ The repo keeps tests small and local.
 - Vitest covers units, route helpers, services, and business rules.
 - Playwright covers full browser flows: auth, email links, organizations, account settings, redirects, and App Router behavior.
 - E2E starts an isolated local stack, builds Next, runs Playwright, and removes test volumes.
+- The E2E runner sets `NEXT_PUBLIC_ORGANIZATIONS_ENABLED=true` so organization browser flows cover
+  the enabled mode even though the default config is off.
 - Mailpit is the local email inbox used by dev and E2E tests.
 - Test data uses `e2e-<runId>-...` style prefixes.
 - Keep helpers thin; no page-object framework or custom test DSL for now.

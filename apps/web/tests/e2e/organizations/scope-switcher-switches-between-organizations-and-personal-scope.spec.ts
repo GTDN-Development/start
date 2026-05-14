@@ -86,6 +86,7 @@ async function switchScope(page: Page, triggerLabel: string, nextLabel: string):
 
   await expect(trigger).toBeVisible();
   await trigger.click();
-  await expect(page.getByText("Organizace")).toBeVisible();
-  await page.getByRole("menuitem", { name: nextLabel }).click();
+  const menu = page.getByRole("menu");
+  await expect(menu.getByText("Organizace", { exact: true })).toBeVisible();
+  await menu.getByRole("menuitem", { name: nextLabel }).click();
 }
