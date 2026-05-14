@@ -690,7 +690,7 @@ migrate(
             id: "file376926767",
             maxSelect: 1,
             maxSize: 0,
-            mimeTypes: ["image/jpeg", "image/png", "image/svg+xml", "image/gif", "image/webp"],
+            mimeTypes: ["image/jpeg", "image/png", "image/webp"],
             name: "avatar",
             presentable: false,
             protected: false,

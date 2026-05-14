@@ -18,6 +18,7 @@ export type PrepareAvatarUploadResult =
 
 type PrepareAvatarUploadOptions = {
   maxFileSizeBytes: number;
+  allowedMimeTypes: readonly string[];
   targetFileSizeMb?: number;
   maxImageDimension?: number;
 };
@@ -26,7 +27,7 @@ export async function prepareAvatarUpload(
   file: File,
   options: PrepareAvatarUploadOptions
 ): Promise<PrepareAvatarUploadResult> {
-  if (!isImageFile(file)) {
+  if (!isAllowedImageFile(file, options.allowedMimeTypes)) {
     return {
       ok: false,
       errorCode: "INVALID_FILE_TYPE",
@@ -49,7 +50,7 @@ export async function prepareAvatarUpload(
       initialQuality: 0.9,
     });
 
-    if (!isImageFile(optimizedFile)) {
+    if (!isAllowedImageFile(optimizedFile, options.allowedMimeTypes)) {
       return {
         ok: false,
         errorCode: "IMAGE_PROCESSING_FAILED",
@@ -75,8 +76,8 @@ export async function prepareAvatarUpload(
   }
 }
 
-function isImageFile(file: File) {
-  return file.type.startsWith("image/");
+function isAllowedImageFile(file: File, allowedMimeTypes: readonly string[]) {
+  return allowedMimeTypes.includes(file.type);
 }
 
 async function loadImageCompression() {

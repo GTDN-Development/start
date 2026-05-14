@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { prepareAvatarUpload } from "@/lib/avatar-image-processing";
+import { accountConfig } from "@/config/account";
 import {
   getAvatarColorClass,
   getUserInitials,
@@ -65,6 +66,7 @@ export function AccountAvatarSettingsItem() {
     try {
       const preparedAvatarFileResult = await prepareAvatarUpload(avatarFile, {
         maxFileSizeBytes: accountAvatarMaxSizeBytes,
+        allowedMimeTypes: accountConfig.avatar.allowedMimeTypes,
       });
 
       if (!preparedAvatarFileResult.ok) {

@@ -73,6 +73,7 @@ export function OrganizationAvatarSettingsItem({
     try {
       const preparedAvatarFileResult = await prepareAvatarUpload(selectedFile, {
         maxFileSizeBytes: organizationConfig.limits.avatarMaxSizeBytes,
+        allowedMimeTypes: organizationConfig.avatar.allowedMimeTypes,
       });
 
       if (!preparedAvatarFileResult.ok) {

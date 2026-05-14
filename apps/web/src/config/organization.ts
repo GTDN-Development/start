@@ -9,6 +9,9 @@ export const organizationConfig = {
     maxOrganizationsPerUser: null as number | null,
     maxMembersPerOrganization: null as number | null,
   },
+  avatar: {
+    allowedMimeTypes: ["image/png", "image/jpeg", "image/webp"] as readonly string[],
+  },
   validation: {
     slugPattern: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
   },

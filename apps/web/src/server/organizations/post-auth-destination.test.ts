@@ -9,6 +9,14 @@ const { getPendingInviteTokenCookieMock, resolveActiveOrganizationSlugMock } = v
   }
 );
 
+vi.mock("@/config/organization", function mockOrganizationConfig() {
+  return {
+    organizationConfig: {
+      enabled: false,
+    },
+  };
+});
+
 vi.mock("@/server/organizations/organization-cookie", function mockOrganizationCookie() {
   return {
     getPendingInviteTokenCookie: getPendingInviteTokenCookieMock,

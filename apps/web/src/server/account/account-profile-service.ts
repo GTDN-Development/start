@@ -14,6 +14,7 @@ import {
   mapUpdateProfileErrorCode,
 } from "@/server/account/account-errors";
 import { requireCurrentWritableUser } from "@/server/auth/auth-session-service";
+import { accountConfig } from "@/config/account";
 
 type RequestAccountEmailChangePayload = {
   sent: true;
@@ -70,7 +71,7 @@ export async function updateCurrentUserProfileName(
 export async function updateCurrentUserAvatar(
   avatarFile: File
 ): Promise<ServerAuthResponse<AccountProfileSnapshot>> {
-  if (!avatarFile.type.startsWith("image/")) {
+  if (!accountConfig.avatar.allowedMimeTypes.includes(avatarFile.type)) {
     return {
       ok: false,
       errorCode: "VALIDATION_ERROR",
