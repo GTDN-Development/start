@@ -19,8 +19,7 @@ Start is a repository with the web application and the PocketBase backend in one
 
 ## Commands
 
-Run project commands from the repository root. App READMEs describe app-specific behavior, but this
-section is the source of truth for daily commands.
+Run daily commands from the repository root. App READMEs cover app-specific behavior.
 
 Install and run:
 
@@ -57,10 +56,8 @@ pnpm local:down
 pnpm pocketbase:mailpit:apply
 ```
 
-`pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm test`, and `pnpm check-types` run through Turborepo.
-`pnpm dev` starts the web app. `pnpm dev:full` starts the local Docker stack first and then runs
-`pnpm dev`. `pnpm format` and `pnpm format:check` run the repository-root Prettier baseline across
-repo code, docs, and tooling files. `pnpm check` runs format, lint, and type checks.
+Turbo runs `dev`, `build`, `lint`, `test`, and `check-types`. `pnpm check` runs format, lint, and
+type checks. `pnpm dev:full` starts the local Docker stack before the web dev server.
 
 ## Deployment
 
@@ -71,20 +68,16 @@ repo code, docs, and tooling files. `pnpm check` runs format, lint, and type che
 - `dev` is the shared development branch
 - development and production use separate services, volumes, domains, and environment variables
 
-## Dev/Test Mail Flow
+## Local Dev And Tests
 
-- `pnpm local:up` starts the persistent local PocketBase + Mailpit Docker stack and reapplies the local mail baseline
-- `pnpm dev` runs the repository-wide Turbo dev task
-- `pnpm dev:full` is a convenience shortcut that runs `pnpm local:up` and then `pnpm dev`
-- `pnpm test` runs the repository-wide Turbo test task and includes PocketBase script tests
-- `pnpm test:e2e` starts an isolated local PocketBase + Mailpit Docker stack, builds the app, and runs Playwright against it
-- `pnpm local:down` stops the persistent local dev stack
-- PocketBase auth emails still use SMTP and are delivered to the local Mailpit container
-- local web app emails use the local Mailpit HTTP Send API
-- Playwright reads inbox content through the local Mailpit API and rendered message endpoints
-- production email delivery is intentionally out of scope for this setup
+- `pnpm local:up` starts the persistent PocketBase + Mailpit stack and applies the local mail baseline.
+- `pnpm dev` runs the workspace dev task; `pnpm dev:full` starts the local stack first.
+- `pnpm test` runs Turbo tests, including PocketBase script tests.
+- `pnpm test:e2e` starts an isolated PocketBase + Mailpit stack, builds the web app, and runs Playwright.
+- Details live in [.docs/local-stack.md](/Users/fanda/Dev/start/.docs/local-stack.md) and
+  [.docs/testing-system.md](/Users/fanda/Dev/start/.docs/testing-system.md).
 
-## Environment Contract
+## Core Env Conventions
 
 - public values shared by client and server use one `NEXT_PUBLIC_*` variable
 - `NEXT_PUBLIC_APP_URL` is the canonical public app URL
@@ -93,8 +86,7 @@ repo code, docs, and tooling files. `pnpm check` runs format, lint, and type che
 - base URLs are written without a trailing slash
 - sender identity uses `MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS`
 - local dev and E2E both use `MAIL_TRANSPORT="mailpit-api"`
-- `pnpm pocketbase:typegen` targets the local Docker PocketBase instance and uses the local
-  superuser created by `pnpm local:up`; web env files do not need PocketBase superuser credentials
+- complete examples live inside the owning app directories
 
 ## Documentation
 

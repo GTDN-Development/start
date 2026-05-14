@@ -6,8 +6,8 @@ It captures PocketBase auth emails and local web app emails during development a
 
 ## Local Usage
 
-The repository root `compose.yaml` builds this image. Use the root commands documented in
-[../../README.md](/Users/fanda/Dev/start/README.md) to start, stop, or test the local stack.
+The repository root `compose.yaml` builds this image. Use the root
+[README.md](/Users/fanda/Dev/start/README.md) for local stack commands.
 
 Default exposed ports:
 

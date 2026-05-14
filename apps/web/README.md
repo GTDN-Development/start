@@ -15,9 +15,7 @@
 ## Commands
 
 Use the repository-root commands documented in [../../README.md](/Users/fanda/Dev/start/README.md).
-
-The app package keeps local scripts for direct app work, but the root command list is the source of
-truth for daily development, checks, local stack management, E2E, and typegen.
+The app package keeps local scripts for direct app work.
 
 ## Env
 
@@ -29,7 +27,7 @@ Explicit examples:
 - `.env.prod.example` for production deployment values
 - `.env.test.example` for Playwright runs against the local Docker stack
 
-Canonical public/runtime envs:
+Core URL and mail envs:
 
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_PB_URL`
@@ -38,8 +36,8 @@ Canonical public/runtime envs:
 - `MAIL_FROM_ADDRESS`
 - base URLs should be written without a trailing slash
 
-PocketBase typegen uses the local Docker PocketBase instance. It defaults to
-`http://127.0.0.1:8090`; set `NEXT_PUBLIC_PB_URL` only when using a different local port.
+See [.docs/local-stack.md](/Users/fanda/Dev/start/.docs/local-stack.md) for local stack and Mailpit
+details.
 
 ## PocketBase Typegen
 
@@ -51,17 +49,11 @@ PocketBase typegen uses the local Docker PocketBase instance. It defaults to
 ## Testing
 
 Vitest covers unit and business-rule tests. Playwright covers auth, organization, email, and App
-Router flows against a local Docker stack. Use the root README for the command list.
+Router flows against a local Docker stack. Use the root README for commands and
+[.docs/testing-system.md](/Users/fanda/Dev/start/.docs/testing-system.md) for the test flow.
 
 Auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique
 `+alias` recipients from it.
-
-Local email defaults:
-
-- local dev and `pnpm test:e2e` both use `MAIL_TRANSPORT="mailpit-api"`
-- PocketBase auth emails still use SMTP delivery, but they deliver to the local Mailpit container
-- local web app emails go through the local Mailpit HTTP Send API
-- production email delivery is out of scope here
 
 ## Tooling
 
@@ -81,9 +73,9 @@ Conventions:
 ## Structure
 
 - `src/app` - routes, layouts, metadata, API route adapters
-- `src/features` - feature-first modules (`auth`, `account`, `marketing`, `cookies`, `application`)
+- `src/features` - feature-first modules (`account`, `application`, `auth`, `cookies`, `error-handling`, `marketing`, `organizations`)
 - `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `dev`)
-- `src/server` - server-only infrastructure (`captcha`, `email`)
+- `src/server` - server-only domains for auth, account, application state, email, PocketBase, and feature backends
 - `src/config` - structural config (menus, links, site data)
 - `src/i18n` + `messages` - routing and translations
 - `src/lib` - shared utilities (`utils.ts` for shadcn-safe helpers, `app-utils.ts` for app-specific shared helpers)
@@ -104,8 +96,7 @@ Conventions:
 - Keep `src/lib/utils.ts` limited to shadcn-safe helpers such as `cn()`
 - Put app-specific shared helpers in `src/lib/app-utils.ts`; avoid spreading utility helpers across many micro files
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
-- API groups are path-based:
-  - Marketing: `/api/marketing/*`
+- API route handlers live under `src/app/api/*`; the current public adapter is the PocketBase email-link route.
 
 ## i18n Routing (EN keys + CS aliases)
 

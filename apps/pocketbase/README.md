@@ -22,13 +22,11 @@ tests. These versions are intentionally tracked separately because they are diff
 
 ## Local Development
 
-Start the repository Docker stack from the repo root:
+Use the root README for daily commands. To start the local PocketBase + Mailpit stack:
 
 ```sh
 pnpm local:up
 ```
-
-The root [README.md](/Users/fanda/Dev/start/README.md) is the source of truth for daily commands.
 
 Useful commands:
 
@@ -100,7 +98,7 @@ Environment examples:
 
 - `.env.example` as the shared base for both `dev` and `prod`
 
-## Dev/Test Mailpit Setup
+## Mailpit Setup
 
 `pnpm local:up` already applies the local mail baseline to PocketBase.
 Use `pnpm pocketbase:mailpit:apply` from the repository root when you need to reapply it manually without restarting the stack.
@@ -121,10 +119,7 @@ credentials automatically. The web local env still needs:
 - `MAIL_FROM_NAME`
 - `MAIL_FROM_ADDRESS`
 
-URL convention:
-
-- use base URLs without a trailing slash
-- Mailpit is for local development and testing only
+Use base URLs without a trailing slash. Mailpit is for local development and testing only.
 
 The container startup sequence is:
 
