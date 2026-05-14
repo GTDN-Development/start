@@ -1193,12 +1193,12 @@ migrate(
         ],
         id: "pbc_1125843985",
         indexes: ["CREATE UNIQUE INDEX `idx_lTE3YsxAHd` ON `posts` (`slug`)"],
-        listRule: "",
+        listRule: 'status = "published"',
         name: "posts",
         system: false,
         type: "base",
         updateRule: null,
-        viewRule: "",
+        viewRule: 'status = "published"',
       },
       {
         createRule:

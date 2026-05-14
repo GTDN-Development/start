@@ -32,13 +32,13 @@ const contactFormPayloadSchema = z.object({
 });
 
 const supportFormPayloadSchema = z.object({
-  message: z.string().trim().min(1),
+  message: z.string().trim().min(10).max(1000),
   attachments: z
     .array(
       z.object({
-        filename: z.string(),
-        data: z.string(),
-        mimeType: z.string(),
+        filename: z.string().trim().min(1),
+        data: z.base64(),
+        mimeType: z.string().trim().min(1),
         size: z.number().int().nonnegative(),
       })
     )
@@ -116,23 +116,25 @@ export async function submitSupportFormAction(input: {
     return createErrorResponse("BAD_REQUEST");
   }
 
-  if (
-    getSupportAttachmentsTotalDecodedSize(parsedInput.data.attachments) >
-    SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES
-  ) {
+  const attachments = parsedInput.data.attachments.map((attachment) => ({
+    filename: attachment.filename,
+    content: Buffer.from(attachment.data, "base64"),
+    contentType: attachment.mimeType,
+  }));
+  const totalAttachmentSize = attachments.reduce(
+    (total, attachment) => total + attachment.content.byteLength,
+    0
+  );
+  const hasInvalidAttachmentSize = attachments.some(
+    (attachment, index) =>
+      attachment.content.byteLength !== parsedInput.data.attachments[index].size
+  );
+
+  if (totalAttachmentSize > SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES || hasInvalidAttachmentSize) {
     return createErrorResponse("BAD_REQUEST");
   }
 
   try {
-    const attachments: Mail.Attachment[] | undefined =
-      parsedInput.data.attachments.length > 0
-        ? parsedInput.data.attachments.map((attachment) => ({
-            filename: attachment.filename,
-            content: Buffer.from(attachment.data, "base64"),
-            contentType: attachment.mimeType,
-          }))
-        : undefined;
-
     await sendFormEmail(
       await renderEmail(
         await buildSupportFormEmail({
@@ -140,7 +142,7 @@ export async function submitSupportFormAction(input: {
           email: currentUser.user.email,
           message: parsedInput.data.message,
           submittedAt: new Date(),
-          attachments,
+          attachments: attachments.length > 0 ? attachments : undefined,
         })
       )
     );
@@ -164,11 +166,4 @@ function createErrorResponse(errorCode: MarketingActionErrorCode): MarketingActi
     ok: false,
     errorCode,
   };
-}
-
-function getSupportAttachmentsTotalDecodedSize(attachments: SupportAttachmentValue[]): number {
-  return attachments.reduce(
-    (total, attachment) => total + Buffer.byteLength(attachment.data, "base64"),
-    0
-  );
 }
