@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { cacheLife, getAllPosts } = vi.hoisted(function hoistSitemapMocks() {
+const { connection, getAllPosts } = vi.hoisted(function hoistSitemapMocks() {
   return {
-    cacheLife: vi.fn(),
+    connection: vi.fn(),
     getAllPosts: vi.fn(),
   };
 });
 
-vi.mock("next/cache", function mockNextCache() {
+vi.mock("next/server", function mockNextServer() {
   return {
-    cacheLife,
+    connection,
   };
 });
 
@@ -45,7 +45,7 @@ vi.mock("@/i18n/navigation", function mockI18nNavigation() {
 
 import sitemap from "./sitemap";
 
-describe("sitemap cache profile", function describeSitemapCacheProfile() {
+describe("sitemap", function describeSitemap() {
   beforeEach(function setup() {
     vi.clearAllMocks();
     getAllPosts
@@ -77,10 +77,10 @@ describe("sitemap cache profile", function describeSitemapCacheProfile() {
       ]);
   });
 
-  it("applies the blog cache profile and includes localized blog entries", async function testSitemapCacheLife() {
+  it("defers to request time and includes localized blog entries", async function testSitemap() {
     const entries = await sitemap();
 
-    expect(cacheLife).toHaveBeenCalledWith("blog");
+    expect(connection).toHaveBeenCalledOnce();
     expect(getAllPosts).toHaveBeenNthCalledWith(1, "cs");
     expect(getAllPosts).toHaveBeenNthCalledWith(2, "en");
     expect(entries).toEqual(

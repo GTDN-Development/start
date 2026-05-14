@@ -1,5 +1,5 @@
-import { cacheLife } from "next/cache";
 import { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { app } from "@/config/app";
 import { type AppHref, type AppPathname, getPathname } from "@/i18n/navigation";
 import { routing, type AppLocale } from "@/i18n/routing";
@@ -47,8 +47,7 @@ function createStaticEntry(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  "use cache";
-  cacheLife("blog");
+  await connection();
 
   const currentDate = new Date();
   const staticRoutes = (Object.keys(routing.pathnames) as AppPathname[]).filter(

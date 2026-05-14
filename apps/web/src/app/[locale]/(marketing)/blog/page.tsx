@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { connection } from "next/server";
 import { NewspaperIcon } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import {
@@ -74,6 +75,8 @@ async function BlogPosts({
   emptyTitle: string;
   emptyDescription: string;
 }) {
+  await connection();
+
   const posts = await getAllPosts(locale);
 
   if (posts.length > 0) {
