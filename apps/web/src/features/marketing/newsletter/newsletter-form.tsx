@@ -3,7 +3,7 @@
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import { startTransition, useState, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ type NewsletterFormValues = {
 };
 
 export function NewsletterForm({ className, ...props }: React.ComponentProps<"div">) {
+  const locale = useLocale();
   const t = useTranslations("forms.newsletter");
   const turnstileEnabled = isTurnstileEnabled();
 
@@ -60,10 +61,12 @@ export function NewsletterForm({ className, ...props }: React.ComponentProps<"di
           turnstileEnabled
             ? {
                 email: value["newsletter-email"],
+                locale,
                 turnstileToken: value.turnstileToken,
               }
             : {
                 email: value["newsletter-email"],
+                locale,
               }
         )
       );

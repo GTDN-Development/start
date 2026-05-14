@@ -21,27 +21,10 @@ export interface CookieConsentEventsRecord extends PocketBaseSystemFields {
   idempotency_key: string;
 }
 
-export interface PostsRecord extends PocketBaseSystemFields {
-  title: string;
-  slug: string;
-  excerpt: string;
-  published_at: string;
-  status: "draft" | "published";
-  cover_image: string;
-  cover_image_alt?: string;
-  content?: string;
-  locale?: "cs" | "en";
-  translation_shared_id?: string;
-}
-
-export interface UsersRecord extends PocketBaseSystemFields {
-  password?: string;
-  tokenKey?: string;
+export interface NewsletterSubscriptionsRecord extends PocketBaseSystemFields {
   email: string;
-  emailVisibility?: boolean;
-  verified?: boolean;
-  name?: string;
-  avatar?: string;
+  locale: "cs" | "en";
+  source: string;
 }
 
 export interface OrganizationInvitesRecord extends PocketBaseSystemFields {
@@ -67,13 +50,37 @@ export interface OrganizationsRecord extends PocketBaseSystemFields {
   created_by?: string;
 }
 
+export interface PostsRecord extends PocketBaseSystemFields {
+  title: string;
+  slug: string;
+  excerpt: string;
+  published_at: string;
+  status: "draft" | "published";
+  cover_image: string;
+  cover_image_alt?: string;
+  content?: string;
+  locale?: "cs" | "en";
+  translation_shared_id?: string;
+}
+
+export interface UsersRecord extends PocketBaseSystemFields {
+  password?: string;
+  tokenKey?: string;
+  email: string;
+  emailVisibility?: boolean;
+  verified?: boolean;
+  name?: string;
+  avatar?: string;
+}
+
 export interface PocketBaseCollections {
   cookie_consent_events: CookieConsentEventsRecord;
-  posts: PostsRecord;
-  users: UsersRecord;
+  newsletter_subscriptions: NewsletterSubscriptionsRecord;
   organization_invites: OrganizationInvitesRecord;
   organization_members: OrganizationMembersRecord;
   organizations: OrganizationsRecord;
+  posts: PostsRecord;
+  users: UsersRecord;
 }
 
 export type PocketBaseCollectionName = keyof PocketBaseCollections;

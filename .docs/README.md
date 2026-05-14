@@ -21,5 +21,6 @@ Focused notes:
 - [I18n and routing](i18n-routing-system.md)
 - [Local stack](local-stack.md)
 - [Marketing and content](marketing-content-system.md)
+- [Newsletter system](newsletter-system.md)
 - [Organization system](organization-system.md)
 - [Testing system](testing-system.md)
