@@ -150,6 +150,9 @@ PocketBase loads all `.pb.js` files from `pb_hooks/`.
 - `organization-invites.pb.js` - invite inspection and acceptance endpoints
 - `organization-members.pb.js` - membership owner guard hooks
 - `users.pb.js` - user lifecycle hooks
+- `cookie-consent-cleanup.pb.js` - daily retention cleanup for `cookie_consent_events`
+
+Cookie consent audit events are retained for 395 days. The cleanup hook runs daily through PocketBase cron and removes old rows in bounded batches, reusing the existing `created` index.
 
 ## Environments
 
