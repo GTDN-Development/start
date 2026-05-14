@@ -10,6 +10,8 @@ export const VERIFY_EMAIL_COMPLETE_PATH = "/verify-email/complete" as const;
 export const RESET_PASSWORD_PATH = "/reset-password" as const;
 export const CONFIRM_EMAIL_CHANGE_PATH = "/confirm-email-change" as const;
 export const ACCOUNT_PATH = "/account" as const;
+export const ACCOUNT_PREFERENCES_PATH = "/account/preferences" as const;
+export const ACCOUNT_SECURITY_PATH = "/account/security" as const;
 export const INVITE_PATH = "/invite/[token]" as const;
 export const INVITE_ACCEPT_PATH = "/invite/[token]/accept" as const;
 export const INVITE_START_PATH = "/invite/[token]/start" as const;
@@ -35,10 +37,6 @@ export function getOrganizationSettingsPath(organizationSlug: string): string {
   return `${getOrganizationRootPath(organizationSlug)}/settings`;
 }
 
-export function getOrganizationSettingsMembersPath(organizationSlug: string): string {
-  return `${getOrganizationSettingsPath(organizationSlug)}/members`;
-}
-
 export function getOrganizationOverviewHref(organizationSlug: string): AppHref {
   return {
     pathname: ORGANIZATION_OVERVIEW_PATH,
@@ -51,15 +49,6 @@ export function getOrganizationOverviewHref(organizationSlug: string): AppHref {
 export function getOrganizationSettingsHref(organizationSlug: string): AppHref {
   return {
     pathname: ORGANIZATION_SETTINGS_PATH,
-    params: {
-      organizationSlug,
-    },
-  };
-}
-
-export function getOrganizationSettingsMembersHref(organizationSlug: string): AppHref {
-  return {
-    pathname: ORGANIZATION_SETTINGS_MEMBERS_PATH,
     params: {
       organizationSlug,
     },

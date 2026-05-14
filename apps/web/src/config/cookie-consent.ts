@@ -19,7 +19,7 @@ export type ConsentState = {
 };
 
 export type CookieConsentEventType = (typeof COOKIE_CONSENT_EVENT_TYPES)[number];
-export type ParsedConsentCookieValue = {
+type ParsedConsentCookieValue = {
   consent: ConsentState;
   version: string | null;
   isCurrentVersion: boolean;

@@ -1,4 +1,4 @@
-import { ACCOUNT_PATH } from "@/config/routes";
+import { ACCOUNT_PATH, ACCOUNT_PREFERENCES_PATH, ACCOUNT_SECURITY_PATH } from "@/config/routes";
 import type { InnerSidebarItemDefinition } from "@/features/application/inner-sidebar/inner-sidebar-items";
 
 export const accountInnerSidebarItems = [
@@ -8,12 +8,12 @@ export const accountInnerSidebarItems = [
     icon: "user",
   },
   {
-    href: "/account/preferences",
+    href: ACCOUNT_PREFERENCES_PATH,
     labelKey: "nav.preferences",
     icon: "slidersHorizontal",
   },
   {
-    href: "/account/security",
+    href: ACCOUNT_SECURITY_PATH,
     labelKey: "nav.security",
     icon: "shield",
     matchNested: true,

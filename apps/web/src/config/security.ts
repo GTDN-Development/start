@@ -1,6 +1,6 @@
 type TurnstileEnv = Record<string, string | undefined>;
 
-export type TurnstileConfig = {
+type TurnstileConfig = {
   enabled: boolean;
   siteKey: string | undefined;
   secretKey: string | undefined;

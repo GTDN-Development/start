@@ -1,12 +1,12 @@
 import type { AppIcon } from "@/types/icons";
 import { GitHubIcon, InstagramIcon, TwitterXIcon, YoutubeIcon } from "@/components/ui/icon-brand";
 
-export type ExternalLink = {
+type ExternalLink = {
   name: string;
   href: string;
 };
 
-export type SocialMediaLink = ExternalLink & {
+type SocialMediaLink = ExternalLink & {
   icon: AppIcon;
 };
 
@@ -25,7 +25,7 @@ export const avatarColorClassNames = [
   "bg-pink-600 text-white",
 ] as const;
 
-export const socialMediaLinks = {
+const socialMediaLinks = {
   instagram: {
     name: "Instagram",
     href: "https://www.instagram.com/user-name/",

@@ -2,7 +2,6 @@ import type { AppPathname } from "@/i18n/navigation";
 import {
   ACCOUNT_PATH,
   APP_HOME_PATH,
-  SIGN_IN_PATH,
   ORGANIZATION_OVERVIEW_PATH,
   ORGANIZATION_SETTINGS_PATH,
 } from "@/config/routes";
@@ -15,7 +14,7 @@ type ApplicationMenuHref =
   | typeof ORGANIZATION_OVERVIEW_PATH
   | typeof ORGANIZATION_SETTINGS_PATH;
 
-export type MenuLinkLabelKey =
+type MenuLinkLabelKey =
   | "home"
   | "app"
   | "contact"
@@ -37,7 +36,7 @@ export type MenuLinkLabelKey =
   | "termsOfService"
   | "cookiePolicy";
 
-export type MenuNestedLabelKey = "aboutApp" | "legal";
+type MenuNestedLabelKey = "aboutApp" | "legal";
 
 export type MenuLabelKey = MenuLinkLabelKey | MenuNestedLabelKey;
 
@@ -48,14 +47,14 @@ export type MenuLink = {
   matchNested?: boolean;
 };
 
-export type MenuNested = {
+type MenuNested = {
   labelKey: MenuNestedLabelKey;
   items: MenuLink[];
 };
 
 export type MenuItem = MenuLink | MenuNested;
 
-export type LegalLinkKey = "gdpr" | "termsOfService" | "cookies";
+type LegalLinkKey = "gdpr" | "termsOfService" | "cookies";
 
 export const legalLinks = {
   gdpr: { labelKey: "privacyPolicy", href: "/gdpr" },
@@ -113,14 +112,9 @@ export const applicationSidebarFooterMenu = [
   matchNested?: boolean;
 }>;
 
-export type PersonalApplicationMenuLink = (typeof personalApplicationMenu)[number];
-export type OrganizationApplicationMenuLink = (typeof organizationApplicationMenu)[number];
+type PersonalApplicationMenuLink = (typeof personalApplicationMenu)[number];
+type OrganizationApplicationMenuLink = (typeof organizationApplicationMenu)[number];
 export type ApplicationMenuLink = PersonalApplicationMenuLink | OrganizationApplicationMenuLink;
-
-export const authMenu: MenuLink[] = [
-  { labelKey: "signIn", href: SIGN_IN_PATH },
-  { labelKey: "signUp", href: "/sign-up" },
-];
 
 export const legalItems: MenuLink[] = [
   legalLinks.gdpr,
