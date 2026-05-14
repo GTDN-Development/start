@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { organizationConfig } from "@/config/organization";
 import type { AuthCookieMutation } from "@/server/auth/auth-cookies";
 import { getResponseAuthSession } from "@/server/auth/auth-session-service";
-import { resolvePostAuthDestinationForUser } from "@/server/organizations/organization-shell-queries";
+import { resolvePostAuthDestination } from "@/server/organizations/post-auth-destination";
 import { GET } from "./route";
 
 vi.mock("@/i18n/navigation", function mockNavigation() {
@@ -30,14 +30,11 @@ vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() 
   };
 });
 
-vi.mock(
-  "@/server/organizations/organization-shell-queries",
-  function mockOrganizationShellQueries() {
-    return {
-      resolvePostAuthDestinationForUser: vi.fn(),
-    };
-  }
-);
+vi.mock("@/server/organizations/post-auth-destination", function mockPostAuthDestination() {
+  return {
+    resolvePostAuthDestination: vi.fn(),
+  };
+});
 
 describe("post-auth route", function describePostAuthRoute() {
   beforeEach(function resetMocks() {
@@ -59,7 +56,7 @@ describe("post-auth route", function describePostAuthRoute() {
     expect(response.status).toBe(303);
     expect(response.headers.get("location")).toBe("https://example.com/sign-in");
     expect(setCookieHeader).toContain("pb_auth=");
-    expect(resolvePostAuthDestinationForUser).not.toHaveBeenCalled();
+    expect(resolvePostAuthDestination).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -73,7 +70,7 @@ describe("post-auth route", function describePostAuthRoute() {
         data: {
           state: "app",
         },
-      } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>,
+      } as Awaited<ReturnType<typeof resolvePostAuthDestination>>,
       expectedLocation: "https://example.com/app",
       expectedCookies: ["pb_auth=token"],
     },
@@ -88,7 +85,7 @@ describe("post-auth route", function describePostAuthRoute() {
           state: "invite_redirect",
           inviteToken: "invite-1",
         },
-      } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>,
+      } as Awaited<ReturnType<typeof resolvePostAuthDestination>>,
       expectedLocation: "https://example.com/invite/invite-1",
       expectedCookies: ["pb_auth=token", `${organizationConfig.cookies.pendingInvite.name}=`],
     },
@@ -101,13 +98,13 @@ describe("post-auth route", function describePostAuthRoute() {
           state: "organization_redirect",
           organizationSlug: "team-space",
         },
-      } as Awaited<ReturnType<typeof resolvePostAuthDestinationForUser>>,
+      } as Awaited<ReturnType<typeof resolvePostAuthDestination>>,
       expectedLocation: "https://example.com/o/team-space/overview",
       expectedCookies: [`${organizationConfig.cookies.activeOrganization.name}=team-space`],
     },
   ])("$name", async function testPostAuthRedirects(input) {
     vi.mocked(getResponseAuthSession).mockResolvedValue(input.authResponse);
-    vi.mocked(resolvePostAuthDestinationForUser).mockResolvedValue(input.destination);
+    vi.mocked(resolvePostAuthDestination).mockResolvedValue(input.destination);
 
     const response = await getPostAuthResponse();
     const setCookieHeader = getSetCookieHeader(response);
@@ -117,7 +114,7 @@ describe("post-auth route", function describePostAuthRoute() {
     for (const expectedCookie of input.expectedCookies) {
       expect(setCookieHeader).toContain(expectedCookie);
     }
-    expect(resolvePostAuthDestinationForUser).toHaveBeenCalledWith({
+    expect(resolvePostAuthDestination).toHaveBeenCalledWith({
       userId: "user-1",
     });
   });

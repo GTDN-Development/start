@@ -63,20 +63,20 @@ export async function resolveOrganizationRouteAccess(
   };
 }
 
-export async function resolveOrganizationActionAccess(
+export async function resolveWritableOrganizationAccess(
   organizationSlug: string
 ): Promise<OrganizationMembershipContextResult> {
   return resolveOrganizationMembership(
     organizationSlug,
-    "action",
-    "resolveOrganizationActionAccess"
+    "write",
+    "resolveWritableOrganizationAccess"
   );
 }
 
 export async function resolveAccessibleOrganizationForCurrentUser(
   organizationSlug: string
 ): Promise<ServerOrganizationResponse<{ organization: UserOrganization }>> {
-  const organizationAccess = await resolveOrganizationActionAccess(organizationSlug);
+  const organizationAccess = await resolveWritableOrganizationAccess(organizationSlug);
 
   if (!organizationAccess.ok) {
     return organizationAccess.response;
@@ -94,11 +94,11 @@ export async function resolveAccessibleOrganizationForCurrentUser(
 
 async function resolveOrganizationMembership(
   organizationSlug: string,
-  mode: "read" | "action",
+  mode: "read" | "write",
   logContext: string
 ): Promise<OrganizationMembershipContextResult> {
   const currentUser =
-    mode === "action" ? await requireCurrentWritableUser() : await requireCurrentUser();
+    mode === "write" ? await requireCurrentWritableUser() : await requireCurrentUser();
 
   if (!currentUser.ok) {
     const cookieMutations =

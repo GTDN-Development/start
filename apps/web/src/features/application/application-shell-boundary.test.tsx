@@ -39,7 +39,7 @@ vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() 
   };
 });
 
-vi.mock("./application-composition", function mockApplicationComposition() {
+vi.mock("./application-shell-model", function mockApplicationShellModel() {
   return {
     buildApplicationShellModel: buildApplicationShellModelMock,
   };

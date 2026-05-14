@@ -15,7 +15,7 @@ import {
   safeDeleteRecord,
 } from "@/server/organizations/organization-mutation-utils";
 import { normalizeEmail } from "@/server/organizations/organization-normalization";
-import { resolveOrganizationActionAccess } from "@/server/organizations/organization-route-queries";
+import { resolveWritableOrganizationAccess } from "@/server/organizations/organization-route-queries";
 import type {
   ServerOrganizationResponse,
   OrganizationInviteRole,
@@ -32,7 +32,7 @@ export async function createInvite(
   organizationSlug: string,
   input: CreateOrganizationInviteInput
 ): Promise<ServerOrganizationResponse<{ invite: OrganizationInviteSummary }>> {
-  const organizationAccess = await resolveOrganizationActionAccess(organizationSlug);
+  const organizationAccess = await resolveWritableOrganizationAccess(organizationSlug);
   const normalizedEmail = normalizeEmail(input.email);
 
   if (!organizationAccess.ok) {
@@ -95,7 +95,7 @@ export async function resendInvite(
   inviteId: string,
   locale: AppLocale
 ): Promise<ServerOrganizationResponse<{ inviteId: string; expiresAt: string; updatedAt: string }>> {
-  const organizationAccess = await resolveOrganizationActionAccess(organizationSlug);
+  const organizationAccess = await resolveWritableOrganizationAccess(organizationSlug);
 
   if (!organizationAccess.ok) {
     return organizationAccess.response;
@@ -170,7 +170,7 @@ export async function revokeInvite(
   organizationSlug: string,
   inviteId: string
 ): Promise<ServerOrganizationResponse<{ revoked: true }>> {
-  const organizationAccess = await resolveOrganizationActionAccess(organizationSlug);
+  const organizationAccess = await resolveWritableOrganizationAccess(organizationSlug);
 
   if (!organizationAccess.ok) {
     return organizationAccess.response;

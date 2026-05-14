@@ -4,7 +4,7 @@ import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
 import { requireCurrentUser } from "@/server/auth/auth-session-service";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
-import { buildApplicationShellModel } from "./application-composition";
+import { buildApplicationShellModel } from "./application-shell-model";
 import { ApplicationRoot } from "./application-root";
 import { ApplicationOrganizationRoot } from "./application-organization-root";
 

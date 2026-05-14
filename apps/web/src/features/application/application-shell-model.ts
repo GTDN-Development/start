@@ -6,7 +6,7 @@ import type { AppHref } from "@/i18n/navigation";
 import type { OrganizationNavigationItem } from "@/features/organizations/organization-navigation-types";
 import type { UserOrganization } from "@/features/organizations/organization-types";
 import { getActiveOrganizationSlugCookie } from "@/server/organizations/organization-cookie";
-import { listUserOrganizationShells } from "@/server/organizations/organization-shell-queries";
+import { listUserOrganizationsForNavigation } from "@/server/organizations/organization-navigation-queries";
 import type { ServerOrganizationResponse } from "@/server/organizations/organization-types";
 
 export type ApplicationOrganizationNavigation = {
@@ -33,7 +33,10 @@ export async function buildApplicationShellModel(input: {
     };
   }
 
-  const userOrganizationsResponse = await listUserOrganizationShells(input.pb, input.user.id);
+  const userOrganizationsResponse = await listUserOrganizationsForNavigation(
+    input.pb,
+    input.user.id
+  );
 
   if (!userOrganizationsResponse.ok) {
     return userOrganizationsResponse;

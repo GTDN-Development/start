@@ -1,5 +1,30 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { organizationConfigMock } = vi.hoisted(function hoistOrganizationConfig() {
+  return {
+    organizationConfigMock: {
+      enabled: true,
+      cookies: {
+        activeOrganization: {
+          name: "active_organization",
+          maxAgeSeconds: 60 * 60 * 24 * 365,
+        },
+        pendingInvite: {
+          name: "pending_invite",
+          maxAgeSeconds: 60 * 60 * 24 * 7,
+        },
+      },
+    },
+  };
+});
+
+vi.mock("@/config/organization", function mockOrganizationConfig() {
+  return {
+    organizationConfig: organizationConfigMock,
+  };
+});
+
 import { organizationConfig } from "@/config/organization";
 
 vi.mock("@/i18n/navigation", function mockNavigation() {
@@ -33,6 +58,7 @@ import { GET } from "./route";
 describe("invite start route", function describeInviteStartRoute() {
   beforeEach(function resetMocks() {
     vi.clearAllMocks();
+    organizationConfigMock.enabled = true;
   });
 
   it.each([

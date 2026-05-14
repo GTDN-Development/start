@@ -20,8 +20,9 @@ export function normalizeOrganizationSlug(
 
 export function getOrganizationSlugFromPathname(pathname: string): string | null {
   const segments = pathname.split("/").filter(Boolean);
+  const organizationRootPath = `/${segments[0] ?? ""}`;
 
-  if (segments.length < 2 || segments[0] !== "w") {
+  if (segments.length < 2 || organizationRootPath !== ORGANIZATION_PATH_PREFIX) {
     return null;
   }
 

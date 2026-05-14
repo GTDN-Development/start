@@ -3,7 +3,7 @@ import {
   isLastOwnerGuardError,
   mapMutationStatusError,
 } from "@/server/organizations/organization-mutation-utils";
-import { resolveOrganizationActionAccess } from "@/server/organizations/organization-route-queries";
+import { resolveWritableOrganizationAccess } from "@/server/organizations/organization-route-queries";
 import type {
   ServerOrganizationResponse,
   OrganizationMemberRole,
@@ -14,7 +14,7 @@ export async function changeMemberRole(
   memberId: string,
   role: OrganizationMemberRole
 ): Promise<ServerOrganizationResponse<{ updated: true }>> {
-  const organizationAccess = await resolveOrganizationActionAccess(organizationSlug);
+  const organizationAccess = await resolveWritableOrganizationAccess(organizationSlug);
 
   if (!organizationAccess.ok) {
     return organizationAccess.response;
@@ -57,7 +57,7 @@ export async function removeMember(
   organizationSlug: string,
   memberId: string
 ): Promise<ServerOrganizationResponse<{ removed: true }>> {
-  const organizationAccess = await resolveOrganizationActionAccess(organizationSlug);
+  const organizationAccess = await resolveWritableOrganizationAccess(organizationSlug);
 
   if (!organizationAccess.ok) {
     return organizationAccess.response;

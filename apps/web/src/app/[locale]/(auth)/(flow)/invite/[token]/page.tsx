@@ -5,11 +5,13 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/components/ui/link";
 import { Button } from "@/components/ui/button";
 import {
+  APP_HOME_PATH,
   SIGN_IN_PATH,
   getInviteAcceptHref,
   getInviteHref,
   getInviteStartHref,
 } from "@/config/routes";
+import { organizationConfig } from "@/config/organization";
 import { resolveApplicationEntryHref } from "@/server/application/application-entry-href";
 import { getPathname, redirect } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
@@ -58,6 +60,26 @@ export default async function Page({ params }: InviteTokenPageProps) {
     locale: locale as Locale,
     namespace: "common.error",
   });
+
+  if (!organizationConfig.enabled) {
+    return (
+      <InviteStatePanel
+        state="blocked"
+        title={t("states.blocked.title")}
+        description={t("states.blocked.description")}
+        action={
+          <Button
+            size="lg"
+            nativeButton={false}
+            className="w-full"
+            render={<Link href={APP_HOME_PATH} />}
+          >
+            {tCommonError("goToApp")}
+          </Button>
+        }
+      />
+    );
+  }
 
   const sessionResponse = await getServerAuthSession();
 

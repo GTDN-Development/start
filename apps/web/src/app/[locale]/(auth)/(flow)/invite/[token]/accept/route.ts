@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { organizationConfig } from "@/config/organization";
 import { getInviteHref, getInviteStartHref, getOrganizationOverviewHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
@@ -24,6 +25,11 @@ type InviteAcceptRouteContext = {
 export async function GET(request: NextRequest, context: InviteAcceptRouteContext) {
   const { locale, token } = await context.params;
   const appLocale = locale as AppLocale;
+
+  if (!organizationConfig.enabled) {
+    return redirectToInvitePage(request, token, appLocale);
+  }
+
   const sessionResponse = await getResponseAuthSession();
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
 
@@ -67,6 +73,11 @@ export async function GET(request: NextRequest, context: InviteAcceptRouteContex
 export async function POST(request: NextRequest, context: InviteAcceptRouteContext) {
   const { locale, token } = await context.params;
   const appLocale = locale as AppLocale;
+
+  if (!organizationConfig.enabled) {
+    return redirectToInvitePage(request, token, appLocale);
+  }
+
   const sessionResponse = await getResponseAuthSession();
 
   const session = sessionResponse.ok ? sessionResponse.data.session : null;
@@ -119,5 +130,15 @@ export async function POST(request: NextRequest, context: InviteAcceptRouteConte
       locale: appLocale,
     }),
     sessionResponse.cookieMutations
+  );
+}
+
+function redirectToInvitePage(request: NextRequest, token: string, locale: AppLocale) {
+  return createRedirectResponse(
+    request,
+    getPathname({
+      href: getInviteHref(token),
+      locale,
+    })
   );
 }

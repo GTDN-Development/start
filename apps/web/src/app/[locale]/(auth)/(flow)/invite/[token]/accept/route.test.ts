@@ -1,5 +1,30 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { organizationConfigMock } = vi.hoisted(function hoistOrganizationConfig() {
+  return {
+    organizationConfigMock: {
+      enabled: true,
+      cookies: {
+        activeOrganization: {
+          name: "active_organization",
+          maxAgeSeconds: 60 * 60 * 24 * 365,
+        },
+        pendingInvite: {
+          name: "pending_invite",
+          maxAgeSeconds: 60 * 60 * 24 * 7,
+        },
+      },
+    },
+  };
+});
+
+vi.mock("@/config/organization", function mockOrganizationConfig() {
+  return {
+    organizationConfig: organizationConfigMock,
+  };
+});
+
 import { organizationConfig } from "@/config/organization";
 import type { AuthCookieMutation } from "@/server/auth/auth-cookies";
 
@@ -47,6 +72,7 @@ import { GET, POST } from "./route";
 describe("invite accept route", function describeInviteAcceptRoute() {
   beforeEach(function resetMocks() {
     vi.clearAllMocks();
+    organizationConfigMock.enabled = true;
   });
 
   it("redirects unauthenticated requests to invite start and forwards auth cookies", async function testUnauthenticatedRedirect() {

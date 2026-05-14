@@ -17,7 +17,7 @@ import {
   clearPendingInviteTokenResponseCookie,
   setActiveOrganizationSlugResponseCookie,
 } from "@/server/organizations/organization-cookie";
-import { resolvePostAuthDestinationForUser } from "@/server/organizations/organization-shell-queries";
+import { resolvePostAuthDestination } from "@/server/organizations/post-auth-destination";
 
 type PostAuthRouteContext = {
   params: Promise<{
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest, context: PostAuthRouteContext) {
     );
   }
 
-  const destinationResponse = await resolvePostAuthDestinationForUser({
+  const destinationResponse = await resolvePostAuthDestination({
     userId: session.user.id,
   });
   const authCookies = [

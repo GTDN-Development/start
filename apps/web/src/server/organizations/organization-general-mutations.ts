@@ -8,7 +8,7 @@ import {
   mapMutationStatusError,
 } from "@/server/organizations/organization-mutation-utils";
 import { normalizeOrganizationName } from "@/server/organizations/organization-normalization";
-import { resolveOrganizationActionAccess } from "@/server/organizations/organization-route-queries";
+import { resolveWritableOrganizationAccess } from "@/server/organizations/organization-route-queries";
 import type {
   ServerOrganizationResponse,
   UserOrganization,
@@ -70,7 +70,7 @@ export async function updateOrganizationGeneral(
   organizationSlug: string,
   input: UpdateOrganizationGeneralInput
 ): Promise<ServerOrganizationResponse<{ organization: UserOrganization; previousSlug: string }>> {
-  const organizationAccess = await resolveOrganizationActionAccess(organizationSlug);
+  const organizationAccess = await resolveWritableOrganizationAccess(organizationSlug);
 
   if (!organizationAccess.ok) {
     return organizationAccess.response;
@@ -147,7 +147,7 @@ export async function updateOrganizationGeneral(
 export async function deleteOrganization(
   organizationSlug: string
 ): Promise<ServerOrganizationResponse<{ deleted: true; organizationId: string }>> {
-  const organizationAccess = await resolveOrganizationActionAccess(organizationSlug);
+  const organizationAccess = await resolveWritableOrganizationAccess(organizationSlug);
 
   if (!organizationAccess.ok) {
     return organizationAccess.response;
@@ -176,7 +176,7 @@ export async function deleteOrganization(
 export async function leaveOrganization(
   organizationSlug: string
 ): Promise<ServerOrganizationResponse<{ left: true; organizationId: string }>> {
-  const organizationAccess = await resolveOrganizationActionAccess(organizationSlug);
+  const organizationAccess = await resolveWritableOrganizationAccess(organizationSlug);
 
   if (!organizationAccess.ok) {
     return organizationAccess.response;
