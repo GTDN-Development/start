@@ -4,6 +4,25 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": [
+        "EMAIL_SECURE",
+        "GENERAL_FORMS_RECIPIENT",
+        "MAIL_FROM_ADDRESS",
+        "MAIL_FROM_NAME",
+        "MAIL_HOST",
+        "MAIL_PASSWORD",
+        "MAIL_PORT",
+        "MAIL_TRANSPORT",
+        "MAIL_USERNAME",
+        "NEXT_PUBLIC_APP_URL",
+        "NEXT_PUBLIC_COOKIE_CONSENT_ENABLED",
+        "NEXT_PUBLIC_GA_ID",
+        "NEXT_PUBLIC_ORGANIZATIONS_ENABLED",
+        "NEXT_PUBLIC_PB_URL",
+        "NEXT_PUBLIC_TURNSTILE_ENABLED",
+        "NEXT_PUBLIC_TURNSTILE_SITE_KEY",
+        "TURNSTILE_SECRET_KEY"
+      ],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"]
     },

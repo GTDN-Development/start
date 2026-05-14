@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -36,10 +37,7 @@ export default async function Page({ params }: PageProps<"/[locale]/blog">) {
 
   setRequestLocale(locale as Locale);
 
-  const [t, posts] = await Promise.all([
-    getTranslations({ locale: locale as Locale, namespace: "pages.blog" }),
-    getAllPosts(locale as "cs" | "en"),
-  ]);
+  const t = await getTranslations({ locale: locale as Locale, namespace: "pages.blog" });
   const emptyTitle = t.has("empty.title") ? t("empty.title") : t("title");
   const emptyDescription = t.has("empty.description") ? t("empty.description") : t("description");
 
@@ -54,21 +52,43 @@ export default async function Page({ params }: PageProps<"/[locale]/blog">) {
 
       <div className="pb-24">
         <Container render={<section />}>
-          {posts.length > 0 ? (
-            <BlogPostGrid posts={posts} />
-          ) : (
-            <Empty className="border-border bg-card/40">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <NewspaperIcon aria-hidden="true" />
-                </EmptyMedia>
-                <EmptyTitle>{emptyTitle}</EmptyTitle>
-                <EmptyDescription>{emptyDescription}</EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          )}
+          <Suspense fallback={null}>
+            <BlogPosts
+              locale={locale as "cs" | "en"}
+              emptyTitle={emptyTitle}
+              emptyDescription={emptyDescription}
+            />
+          </Suspense>
         </Container>
       </div>
     </div>
+  );
+}
+
+async function BlogPosts({
+  locale,
+  emptyTitle,
+  emptyDescription,
+}: {
+  locale: "cs" | "en";
+  emptyTitle: string;
+  emptyDescription: string;
+}) {
+  const posts = await getAllPosts(locale);
+
+  if (posts.length > 0) {
+    return <BlogPostGrid posts={posts} />;
+  }
+
+  return (
+    <Empty className="border-border bg-card/40">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <NewspaperIcon aria-hidden="true" />
+        </EmptyMedia>
+        <EmptyTitle>{emptyTitle}</EmptyTitle>
+        <EmptyDescription>{emptyDescription}</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }
