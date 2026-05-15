@@ -390,62 +390,60 @@ export function OrganizationMembersSettingsSection({
         onCreateInviteAction={handleCreateInviteAction}
       />
 
-      <div className="pt-6">
-        <SettingsItem>
-          <SettingsItemContent className="flex flex-col gap-6">
-            <SettingsItemContentHeader>
-              <SettingsItemTitle>{t("title")}</SettingsItemTitle>
-              <SettingsItemDescription>{t("description")}</SettingsItemDescription>
-            </SettingsItemContentHeader>
+      <SettingsItem>
+        <SettingsItemContent className="flex flex-col gap-6">
+          <SettingsItemContentHeader>
+            <SettingsItemTitle>{t("title")}</SettingsItemTitle>
+            <SettingsItemDescription>{t("description")}</SettingsItemDescription>
+          </SettingsItemContentHeader>
 
-            <SettingsItemContentBody className="@container/members-management grid gap-4">
-              <Tabs defaultValue="members" className="flex-col gap-4">
-                <TabsList>
-                  <TabsTrigger value="members">{t("tabs.members")}</TabsTrigger>
-                  <TabsTrigger value="pending-invitations">
-                    {t("tabs.pendingInvitations")}
-                  </TabsTrigger>
-                </TabsList>
+          <SettingsItemContentBody className="@container/members-management grid gap-4">
+            <Tabs defaultValue="members" className="flex-col gap-4">
+              <TabsList>
+                <TabsTrigger value="members">{t("tabs.members")}</TabsTrigger>
+                <TabsTrigger value="pending-invitations">
+                  {t("tabs.pendingInvitations")}
+                </TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="members" className="grid gap-4">
-                  <OrganizationMembersTable
-                    rows={members}
-                    currentUserId={organization.currentUserId}
-                    actorRole={organization.role}
-                    ownerCount={ownerCount}
-                    onChangeRoleRequestAction={openChangeRoleDialog}
-                    onLeaveOrganizationRequestAction={() => {
-                      if (currentUserMember) {
-                        openMemberConfirmDialog("leave-organization", currentUserMember);
-                      }
-                    }}
-                    onRemoveMemberRequestAction={(member) =>
-                      openMemberConfirmDialog("remove-member", member)
+              <TabsContent value="members" className="grid gap-4">
+                <OrganizationMembersTable
+                  rows={members}
+                  currentUserId={organization.currentUserId}
+                  actorRole={organization.role}
+                  ownerCount={ownerCount}
+                  onChangeRoleRequestAction={openChangeRoleDialog}
+                  onLeaveOrganizationRequestAction={() => {
+                    if (currentUserMember) {
+                      openMemberConfirmDialog("leave-organization", currentUserMember);
+                    }
+                  }}
+                  onRemoveMemberRequestAction={(member) =>
+                    openMemberConfirmDialog("remove-member", member)
+                  }
+                />
+              </TabsContent>
+
+              <TabsContent value="pending-invitations" className="grid gap-4">
+                {invites.length > 0 ? (
+                  <OrganizationInvitationsTable
+                    rows={invites}
+                    isReadOnly={isInviteManagementReadOnly}
+                    onResendInvitationRequestAction={(invitation) =>
+                      openInviteConfirmDialog("resend-invitation", invitation)
+                    }
+                    onRemoveInvitationRequestAction={(invitation) =>
+                      openInviteConfirmDialog("remove-invitation", invitation)
                     }
                   />
-                </TabsContent>
-
-                <TabsContent value="pending-invitations" className="grid gap-4">
-                  {invites.length > 0 ? (
-                    <OrganizationInvitationsTable
-                      rows={invites}
-                      isReadOnly={isInviteManagementReadOnly}
-                      onResendInvitationRequestAction={(invitation) =>
-                        openInviteConfirmDialog("resend-invitation", invitation)
-                      }
-                      onRemoveInvitationRequestAction={(invitation) =>
-                        openInviteConfirmDialog("remove-invitation", invitation)
-                      }
-                    />
-                  ) : (
-                    <OrganizationPendingInvitationsEmptyState />
-                  )}
-                </TabsContent>
-              </Tabs>
-            </SettingsItemContentBody>
-          </SettingsItemContent>
-        </SettingsItem>
-      </div>
+                ) : (
+                  <OrganizationPendingInvitationsEmptyState />
+                )}
+              </TabsContent>
+            </Tabs>
+          </SettingsItemContentBody>
+        </SettingsItemContent>
+      </SettingsItem>
 
       <OrganizationMemberRoleDialog
         open={Boolean(changeRoleState)}
