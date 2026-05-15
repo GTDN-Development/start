@@ -11,7 +11,7 @@ type ApplicationLayoutProps = {
 
 export function ApplicationLayout({ children, sidebar }: ApplicationLayoutProps) {
   const t = useTranslations("layout");
-  const contentId = "gtdn-app-content";
+  const contentId = "app-content";
 
   return (
     <div className="relative isolate [--navbar-height:--spacing(16)]">

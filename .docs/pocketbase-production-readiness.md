@@ -3,14 +3,14 @@
 This project treats `apps/pocketbase` as a deployable PocketBase app with committed migrations,
 hooks, and deployment documentation. The baseline follows the official
 [PocketBase Going to production](https://pocketbase.io/docs/going-to-production/) checklist where
-the setting is template-safe.
+the setting is safe for this baseline.
 
 ## Template Baseline
 
 - The Docker image pins the PocketBase binary version explicitly.
 - The container starts by running committed migrations, then optional superuser bootstrap, then
   `serve` with `--automigrate=false`.
-- Collection schema, auth settings, rules, indexes, and auth email templates live in committed
+- Collection schema, auth settings, rules, indexes, and auth email copy live in committed
   migrations.
 - Public `posts` reads expose only records with `status = "published"`.
 - PocketBase rate limiting is enabled in the initial migration with conservative public API,
@@ -24,7 +24,7 @@ the setting is template-safe.
 ## Production Deployment Setup
 
 These values depend on the deployment provider, domains, and infrastructure. Configure them in the
-production PocketBase environment or dashboard instead of hardcoding them in the template.
+production PocketBase environment or dashboard instead of hardcoding them in the baseline.
 
 - Set PocketBase application URL, sender name, sender email, and SMTP delivery so auth emails are
   sent from the production domain.
@@ -42,7 +42,7 @@ production PocketBase environment or dashboard instead of hardcoding them in the
 
 ## Intentional Template Choices
 
-- `_superusers` MFA and OTP remain disabled in this template. Enable them manually when the team
+- `_superusers` MFA and OTP remain disabled in this baseline. Enable them manually when the team
   wants that operational flow.
 - Provider-specific settings are documented here rather than encoded in migrations because they
   should differ across local development, staging, and production.

@@ -85,6 +85,7 @@ type LegalDocumentDates = {
 };
 
 // Company and contact data shared across all legal documents.
+// Replace these placeholder values during product adoption.
 type LegalConfig = {
   name: string;
   legalName: string;
@@ -110,25 +111,25 @@ type LegalConfig = {
 };
 
 export const legal: LegalConfig = {
-  name: "FBLS Tech s.r.o.",
-  legalName: "FBLS Tech s.r.o.",
-  address: "Moravská 854/2, 312 00 Plzeň",
-  id: "19433166",
-  domain: "www.gtdn.online",
+  name: "Example Company s.r.o.",
+  legalName: "Example Company s.r.o.",
+  address: "Example Street 1, 110 00 Prague",
+  id: "00000000",
+  domain: "www.example.com",
   contact: {
-    email: "hello@gtdn.online",
+    email: "hello@example.com",
     phone: "+420123456789",
     support: {
-      email: "support@gtdn.online",
+      email: "support@example.com",
     },
     sales: {
-      email: "hello@gtdn.online",
+      email: "sales@example.com",
       phone: "+420123456789",
     },
   },
 };
 
-// Current Terms variant for this product.
+// Terms variant for the adopted product.
 export const termsOfService: TermsOfServiceConfig = {
   minimumAge: 18,
   supportsConsumers: true,
@@ -154,7 +155,7 @@ export const termsOfService: TermsOfServiceConfig = {
   },
 };
 
-// Current Privacy/GDPR variant for this product.
+// Privacy/GDPR variant for the adopted product.
 export const gdprPolicy: GdprPolicyConfig = {
   minimumAge: 15,
   hasMarketingCommunications: true,
@@ -166,7 +167,7 @@ export const gdprPolicy: GdprPolicyConfig = {
   hasDpo: false,
 };
 
-// Current Cookie Policy category setup for this product.
+// Cookie Policy category setup for the adopted product.
 export const cookiePolicy: CookiePolicyConfig = {
   hasFunctionalStorage: true,
   hasAnalytics: true,

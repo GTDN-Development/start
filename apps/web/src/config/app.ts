@@ -6,19 +6,20 @@ type AppAuthor = {
 };
 
 export const app = {
+  // Adopted products should replace every value in this block before launch.
   site: {
-    name: "Start App by Gtdn",
-    defaultTitle: "Production-Ready SaaS Starter Template",
+    name: "Start App",
+    defaultTitle: "Start App",
     defaultDescription:
-      "Fully featured SaaS template built with Next.js 16, TypeScript, shadcn/ui, and modern production-ready foundations.",
-    domain: "gtdn.online",
+      "A production-ready white-label application with authentication, account management, organizations, and deployment foundations.",
+    domain: "example.com",
     url: getPublicAppUrl(),
   },
   metadata: {
     authors: [
       {
-        name: "gtdn.online",
-        url: "https://www.gtdn.online",
+        name: "Example Company",
+        url: "https://www.example.com",
       },
     ] as AppAuthor[],
   },

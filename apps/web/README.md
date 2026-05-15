@@ -19,7 +19,7 @@ The app package keeps local scripts for direct app work.
 
 ## Env
 
-Use `.env.local.example` as the quickest local template.
+Use `.env.local.example` as the quickest local baseline.
 
 Explicit examples:
 
@@ -82,6 +82,15 @@ Conventions:
 - `src/types` - shared types + generated PocketBase types
 - `scripts/pocketbase-typegen.mjs` - PocketBase type generator
 - PocketBase service and migration notes live in [../pocketbase/README.md](/Users/fanda/Dev/start/apps/pocketbase/README.md)
+
+## New Project Setup
+
+Before using this app for a new product, follow the
+[project adoption checklist](/Users/fanda/Dev/start/.docs/adoption-checklist.md).
+
+Organizations are enabled by default and still feature-flagged. Set
+`NEXT_PUBLIC_ORGANIZATIONS_ENABLED=false` only for products that do not need team scope, invites, or
+roles.
 
 ## Architecture Conventions
 

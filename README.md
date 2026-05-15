@@ -1,6 +1,8 @@
 # Start
 
-Start is a repository with the web application and the PocketBase backend in one place.
+Start is an internal baseline for building new products with the web application, PocketBase backend,
+and local email tooling in one place. It is maintained for company projects, not as a public
+open-source starter.
 
 ## Repository Layout
 
@@ -16,6 +18,15 @@ Start is a repository with the web application and the PocketBase backend in one
 - `turborepo`
 - Next.js 16 / React 19
 - PocketBase
+
+## New Project Setup
+
+Use the [project adoption checklist](/Users/fanda/Dev/start/.docs/adoption-checklist.md) when
+starting a new product. Replace the product-specific values and keep the robust platform pieces
+intact.
+
+Organizations, invites, and roles are enabled by default. Personal-scope products can turn them off
+with `NEXT_PUBLIC_ORGANIZATIONS_ENABLED=false`.
 
 ## Commands
 

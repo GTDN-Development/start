@@ -26,13 +26,13 @@
       "goHome": "Go to Home page"
     },
     "manifest": {
-      "name": "GTDN"
+      "name": "Start App"
     }
   },
   "layout": {
     "metadata": {
-      "title": "Production-Ready SaaS Starter Template",
-      "description": "Fully featured SaaS template built with Next.js 16, TypeScript, shadcn/ui, and modern production-ready foundations."
+      "title": "Start App",
+      "description": "A production-ready white-label application with authentication, account management, organizations, and deployment foundations."
     },
     "header": {
       "homeAriaLabel": "Home page",
@@ -73,7 +73,7 @@
     },
     "footer": {
       "homeAriaLabel": "Home page",
-      "description": "Fully featured SaaS template built with Next.js 16, TypeScript, shadcn/ui, and modern production-ready foundations.",
+      "description": "A production-ready white-label application with authentication, account management, organizations, and deployment foundations.",
       "sections": {
         "navigation": "Menu",
         "legal": "Other links",
@@ -147,8 +147,8 @@
   },
   "pages": {
     "home": {
-      "title": "Production-Ready<break></break>SaaS Starter Template",
-      "description": "Fully featured SaaS template built with Next.js 16, TypeScript, shadcn/ui, and modern production-ready foundations.",
+      "title": "Production-ready<break></break>white-label application",
+      "description": "A production-ready white-label application with authentication, account management, organizations, and deployment foundations.",
       "learnMore": "Learn more",
       "shadcnDocs": "Shadcn ui docs",
       "changelogCarousel": {
@@ -468,7 +468,7 @@
       "backToBlog": "Back to blog",
       "empty": {
         "title": "No posts published yet",
-        "description": "This starter keeps the blog route ready from day one. Publish your first post when you're ready."
+        "description": "The blog route is ready for the adopted product. Publish the first post when the content strategy is clear."
       }
     },
     "gdpr": {
@@ -478,7 +478,7 @@
     },
     "termsOfService": {
       "title": "Terms of Service",
-      "description": "Rules for using our SaaS application, including user responsibilities, liability limits, and consumer information under EU and Czech law.",
+      "description": "Rules for using the application, including user responsibilities, liability limits, and consumer information under EU and Czech law.",
       "effectiveDate": "March 3, 2026"
     },
     "cookies": {
@@ -1840,12 +1840,12 @@
       "defaults": {
         "thirdParties": [
           {
-            "name": "FBLS Tech s.r.o.",
+            "name": "Example Company s.r.o.",
             "service": "Technical services and development",
             "country": "Czech Republic"
           },
           {
-            "name": "GTDN dev s.r.o.",
+            "name": "Implementation Partner s.r.o.",
             "service": "Technical services and development",
             "country": "Czech Republic"
           },
@@ -1937,7 +1937,7 @@
       },
       "service": {
         "title": "Nature of the Service and product changes",
-        "article1": "The Service is provided as an evolving SaaS solution.",
+        "article1": "The Service is provided as an evolving digital application.",
         "article2": "The Provider may develop, change, modify, or discontinue individual features, modules, integrations, limits, technical solutions, data structures, user interface, and the method of providing the Service.",
         "article3": "The Provider is not obliged to preserve any specific feature, parameter, or integration for an unlimited period unless expressly agreed individually.",
         "article4": "Features and properties of the Service marked as optional, test, beta, preview, trial, AI, or similarly may be provided in a limited mode, without guarantee of availability, accuracy, or continuity.",

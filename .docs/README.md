@@ -3,6 +3,7 @@
 Focused implementation notes for the current app. The root [README.md](/Users/fanda/Dev/start/README.md)
 is the daily entrypoint; these files hold subsystem details.
 
+- [Project adoption checklist](adoption-checklist.md)
 - [Account system](account-system.md)
 - [Application shell](application-shell.md)
 - [Auth system](auth-system.md)

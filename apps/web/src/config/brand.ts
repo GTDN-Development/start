@@ -25,25 +25,26 @@ export const avatarColorClassNames = [
   "bg-pink-600 text-white",
 ] as const;
 
+// Replace or prune these links during product adoption.
 const socialMediaLinks = {
   instagram: {
     name: "Instagram",
-    href: "https://www.instagram.com/user-name/",
+    href: "https://www.instagram.com/example/",
     icon: InstagramIcon,
   },
   twitter: {
     name: "Twitter",
-    href: "https://x.com/user-name",
+    href: "https://x.com/example",
     icon: TwitterXIcon,
   },
   youtube: {
     name: "YouTube",
-    href: "https://www.youtube.com/@user-name",
+    href: "https://www.youtube.com/@example",
     icon: YoutubeIcon,
   },
   github: {
     name: "GitHub",
-    href: "https://github.com/user-name",
+    href: "https://github.com/example",
     icon: GitHubIcon,
   },
 } as const satisfies Record<string, SocialMediaLink>;

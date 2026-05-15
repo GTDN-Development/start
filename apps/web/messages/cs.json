@@ -26,13 +26,13 @@
       "goHome": "Přejít na domovskou stránku"
     },
     "manifest": {
-      "name": "GTDN"
+      "name": "Start App"
     }
   },
   "layout": {
     "metadata": {
-      "title": "Produkčně připravený SaaS startovací projekt",
-      "description": "Plně vybavená SaaS šablona postavená na Next.js 16, TypeScriptu, shadcn/ui a moderních základech pro produkční použití."
+      "title": "Start App",
+      "description": "Produkčně připravená white-label aplikace s autentizací, správou účtu, organizacemi a nasazením."
     },
     "header": {
       "homeAriaLabel": "Domovská stránka",
@@ -73,7 +73,7 @@
     },
     "footer": {
       "homeAriaLabel": "Domovská stránka",
-      "description": "Plně vybavená SaaS šablona postavená na Next.js 16, TypeScriptu, shadcn/ui a moderních základech pro produkční použití.",
+      "description": "Produkčně připravená white-label aplikace s autentizací, správou účtu, organizacemi a nasazením.",
       "sections": {
         "navigation": "Menu",
         "legal": "Další odkazy",
@@ -147,8 +147,8 @@
   },
   "pages": {
     "home": {
-      "title": "Produkčně připravený<break></break>SaaS startovací projekt",
-      "description": "Plně vybavená SaaS šablona postavená na Next.js 16, TypeScriptu, shadcn/ui a moderních základech pro produkční použití.",
+      "title": "Produkčně připravená<break></break>white-label aplikace",
+      "description": "Produkčně připravená white-label aplikace s autentizací, správou účtu, organizacemi a nasazením.",
       "learnMore": "Zjistit více",
       "shadcnDocs": "Shadcn ui docs",
       "changelogCarousel": {
@@ -468,7 +468,7 @@
       "backToBlog": "Zpět na blog",
       "empty": {
         "title": "Zatím tu nejsou žádné články",
-        "description": "Starter drží blogovou route připravenou od prvního dne. První článek můžete publikovat, až to bude dávat smysl."
+        "description": "Blogová route je připravená pro adoptovaný produkt. První článek publikujte, až bude jasná obsahová strategie."
       }
     },
     "gdpr": {
@@ -478,7 +478,7 @@
     },
     "termsOfService": {
       "title": "Obchodní podmínky",
-      "description": "Podmínky používání SaaS aplikace včetně odpovědnosti uživatele, omezení odpovědnosti provozovatele a spotřebitelských informací dle práva EU a ČR.",
+      "description": "Podmínky používání aplikace včetně odpovědnosti uživatele, omezení odpovědnosti provozovatele a spotřebitelských informací dle práva EU a ČR.",
       "effectiveDate": "3. března 2026"
     },
     "cookies": {
@@ -1840,12 +1840,12 @@
       "defaults": {
         "thirdParties": [
           {
-            "name": "FBLS Tech s.r.o.",
+            "name": "Example Company s.r.o.",
             "service": "Technické služby a vývoj",
             "country": "Česká republika"
           },
           {
-            "name": "GTDN dev s.r.o.",
+            "name": "Implementation Partner s.r.o.",
             "service": "Technické služby a vývoj",
             "country": "Česká republika"
           },
@@ -1937,7 +1937,7 @@
       },
       "service": {
         "title": "Charakter Služby a změny produktu",
-        "article1": "Služba je poskytována jako průběžně se vyvíjející SaaS řešení.",
+        "article1": "Služba je poskytována jako průběžně se vyvíjející digitální aplikace.",
         "article2": "Poskytovatel je oprávněn Službu rozvíjet, měnit, upravovat nebo ukončovat jednotlivé funkce, moduly, integrace, limity, technická řešení, datové struktury, uživatelské rozhraní a způsob poskytování Služby.",
         "article3": "Poskytovatel není povinen zachovat konkrétní funkci, parametr nebo integraci po neomezenou dobu, pokud nebyla výslovně individuálně sjednána.",
         "article4": "Funkce a vlastnosti Služby, které jsou označeny jako volitelné, testovací, beta, preview, trial, AI nebo obdobně, mohou být poskytovány v omezeném režimu, bez garance dostupnosti, přesnosti nebo kontinuity.",

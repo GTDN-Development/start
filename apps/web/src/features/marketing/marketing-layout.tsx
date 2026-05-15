@@ -23,7 +23,7 @@ export function MarketingLayout({
   skipToContentLabel: string;
   locale: Locale;
 }) {
-  const contentId = "gtdn-app-content";
+  const contentId = "app-content";
 
   return (
     <div

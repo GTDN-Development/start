@@ -1,6 +1,8 @@
 const ORGANIZATIONS_ENABLED_ENV = process.env.NEXT_PUBLIC_ORGANIZATIONS_ENABLED;
 
 export const organizationConfig = {
+  // Keep enabled for products that use shared team scope. Set the env to false for personal-scope
+  // products that do not need organizations, invites, or roles.
   enabled: isOrganizationFeatureEnabled(ORGANIZATIONS_ENABLED_ENV),
   limits: {
     nameMaxLength: 32,
