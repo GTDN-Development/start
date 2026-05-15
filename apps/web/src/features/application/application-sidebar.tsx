@@ -12,6 +12,7 @@ import {
   SidebarHeader,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { organizationConfig } from "@/config/organization";
 import { ApplicationMenuTree } from "./application-menu-tree";
 import { useApplicationRootContext } from "./application-root";
 import { ApplicationSidebarFooterNavigation } from "./application-sidebar-footer-navigation";
@@ -21,6 +22,7 @@ import { ScopeSwitcher } from "./scope-switcher";
 export function ApplicationSidebar() {
   const t = useTranslations("layout");
   const { applicationEntryHref, mobileMenuLabels } = useApplicationRootContext();
+  const shouldShowScopeSwitcher = organizationConfig.enabled;
 
   return (
     <Sidebar collapsible="offcanvas">
@@ -35,9 +37,11 @@ export function ApplicationSidebar() {
           </Link>
         </div>
 
-        <div className="max-w-full lg:hidden">
-          <ScopeSwitcher />
-        </div>
+        {shouldShowScopeSwitcher && (
+          <div className="max-w-full lg:hidden">
+            <ScopeSwitcher />
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

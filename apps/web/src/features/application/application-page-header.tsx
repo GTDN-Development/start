@@ -7,6 +7,7 @@ import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { UserAccountMenu } from "@/features/account/user-account-menu";
+import { organizationConfig } from "@/config/organization";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useApplicationRootContext } from "./application-root";
@@ -24,6 +25,7 @@ export function ApplicationPageHeader({
   const { user, userMenuLabels, mobileMenuLabels, applicationEntryHref } =
     useApplicationRootContext();
   const t = useTranslations("layout.header");
+  const shouldShowScopeSwitcher = organizationConfig.enabled;
 
   return (
     <FloatingBar
@@ -58,11 +60,15 @@ export function ApplicationPageHeader({
                 className="shrink-0"
               />
 
-              <div className="hidden w-48 min-w-0 lg:block">
-                <ScopeSwitcher />
-              </div>
+              {shouldShowScopeSwitcher && (
+                <div className="hidden w-48 min-w-0 lg:block">
+                  <ScopeSwitcher />
+                </div>
+              )}
 
-              {breadcrumbs && <BreadcrumbSeparator className="hidden shrink-0 lg:block" />}
+              {shouldShowScopeSwitcher && breadcrumbs && (
+                <BreadcrumbSeparator className="hidden shrink-0 lg:block" />
+              )}
 
               {breadcrumbs && <div className="min-w-0">{breadcrumbs}</div>}
             </>
