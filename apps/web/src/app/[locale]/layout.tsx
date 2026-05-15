@@ -5,7 +5,7 @@ import { Locale, hasLocale } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
-import { app } from "@/config/app";
+import { product } from "@/config/product";
 import { isCookieConsentEnabled } from "@/config/cookie-consent";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
@@ -57,11 +57,11 @@ export async function generateMetadata(
   return {
     title: {
       default: t("title"),
-      template: `%s | ${app.site.name}`,
+      template: `%s | ${product.site.name}`,
     },
     description: t("description"),
-    metadataBase: new URL(app.site.url),
-    authors: app.metadata.authors,
+    metadataBase: new URL(product.site.url),
+    authors: product.metadata.authors,
   };
 }
 

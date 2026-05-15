@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
-import { legal, legalDocumentDates } from "@/config/legal";
-import { termsOfService } from "@/config/legal";
+import { termsOfService, termsOfServiceUpdatedAt } from "@/config/legal/terms";
+import { product } from "@/config/product";
 import { TermsOfService } from "@/features/marketing/legal/terms-of-service";
 
 export async function generateMetadata(
@@ -30,7 +30,7 @@ export default async function Page({ params }: PageProps<"/[locale]/terms-of-ser
   const { locale } = await params;
   const formattedEffectiveDate = new Intl.DateTimeFormat(locale as Locale, {
     dateStyle: "long",
-  }).format(new Date(legalDocumentDates.termsOfService));
+  }).format(new Date(termsOfServiceUpdatedAt));
 
   // Enable static rendering
   setRequestLocale(locale as Locale);
@@ -40,17 +40,17 @@ export default async function Page({ params }: PageProps<"/[locale]/terms-of-ser
       <Container size="sm" className="prose py-16">
         <TermsOfService
           company={{
-            name: legal.name,
-            legalName: legal.legalName,
-            address: legal.address,
-            id: legal.id,
-            domain: legal.domain,
-            vatId: legal.vatId,
-            registration: legal.registration,
+            name: product.company.name,
+            legalName: product.company.legalName,
+            address: product.company.address,
+            id: product.company.id,
+            domain: product.site.domain,
+            vatId: product.company.vatId,
+            registration: product.company.registration,
           }}
           contact={{
-            email: legal.contact.email,
-            phone: legal.contact.phone,
+            email: product.company.contact.email,
+            phone: product.company.contact.phone,
           }}
           terms={termsOfService}
           effectiveDate={formattedEffectiveDate}

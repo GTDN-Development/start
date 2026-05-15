@@ -1,3 +1,4 @@
+import { parseEnvBoolean } from "@/config/env";
 import { isRecord } from "@/lib/app-utils";
 
 export const COOKIE_NAME = "cookie_consent";
@@ -47,7 +48,7 @@ export const rejectAllConsent: ConsentState = {
 };
 
 export function isCookieConsentEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED !== "false";
+  return parseEnvBoolean(process.env.NEXT_PUBLIC_COOKIE_CONSENT_ENABLED, true);
 }
 
 export function normalizeConsent(value: unknown): ConsentState {

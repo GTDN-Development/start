@@ -1,4 +1,4 @@
-import { app } from "@/config/app";
+import { product } from "@/config/product";
 import { getInviteHref } from "@/config/routes";
 import { getPathname } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
@@ -9,7 +9,7 @@ export function createOrganizationInviteUrl(inviteToken: string, locale: AppLoca
     locale,
   });
 
-  const baseUrl = app.site.url.replace(/\/+$/g, "");
+  const baseUrl = product.site.url.replace(/\/+$/g, "");
 
   return `${baseUrl}${pathname}`;
 }

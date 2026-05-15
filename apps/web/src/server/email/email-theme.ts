@@ -1,10 +1,9 @@
-import { app } from "@/config/app";
-import { legal } from "@/config/legal";
+import { product } from "@/config/product";
 
 export const emailTheme = {
-  brandName: app.site.name,
-  siteUrl: app.site.url,
-  supportEmail: legal.contact.support.email,
+  brandName: product.site.name,
+  siteUrl: product.site.url,
+  supportEmail: product.company.contact.support.email,
   canvasColor: "#f4f4f5",
   surfaceColor: "#ffffff",
   textColor: "#111827",

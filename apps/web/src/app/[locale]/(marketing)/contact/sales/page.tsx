@@ -9,7 +9,7 @@ import { Container } from "@/components/ui/container";
 import { Card, CardContent } from "@/components/ui/card";
 import { createPublicPageMetadata } from "@/lib/metadata";
 import { ContactCopyItem } from "@/features/marketing/contact/contact-copy-item";
-import { legal } from "@/config/legal";
+import { product } from "@/config/product";
 import { formatPhoneNumber } from "@/lib/app-utils";
 
 export async function generateMetadata(props: {
@@ -62,16 +62,16 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             </div>
             <div className="flex flex-col gap-4">
               <ContactCopyItem
-                toCopy={legal.contact.sales.email}
+                toCopy={product.company.contact.sales.email}
                 className="text-foreground w-fit text-left underline underline-offset-2 transition-colors hover:no-underline"
               >
-                {legal.contact.sales.email}
+                {product.company.contact.sales.email}
               </ContactCopyItem>
               <ContactCopyItem
-                toCopy={legal.contact.sales.phone}
+                toCopy={product.company.contact.sales.phone}
                 className="text-foreground w-fit text-left underline underline-offset-2 transition-colors hover:no-underline"
               >
-                {formatPhoneNumber(legal.contact.sales.phone)}
+                {formatPhoneNumber(product.company.contact.sales.phone)}
               </ContactCopyItem>
             </div>
             <div className="mt-5 flex flex-col gap-2">

@@ -8,7 +8,7 @@ import { Container } from "@/components/ui/container";
 import { Card, CardContent } from "@/components/ui/card";
 import { createPublicPageMetadata } from "@/lib/metadata";
 import { ContactCopyItem } from "@/features/marketing/contact/contact-copy-item";
-import { legal } from "@/config/legal";
+import { product } from "@/config/product";
 import { SupportFormCardSkeleton } from "@/features/marketing/contact/support-form-card-skeleton";
 import { SupportFormGate } from "@/features/marketing/contact/support-form-gate";
 
@@ -61,10 +61,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <p className="text-muted-foreground">{copy.infoDescription}</p>
             </div>
             <ContactCopyItem
-              toCopy={legal.contact.support.email}
+              toCopy={product.company.contact.support.email}
               className="text-foreground w-fit text-left underline underline-offset-2 transition-colors hover:no-underline"
             >
-              {legal.contact.support.email}
+              {product.company.contact.support.email}
             </ContactCopyItem>
           </div>
 

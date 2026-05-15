@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import type { TermsOfServiceConfig } from "@/config/legal";
+import type { TermsOfServiceConfig } from "@/config/legal/terms";
 
 type CompanyInfo = {
   name: string;

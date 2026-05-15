@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
-import { gdprPolicy, legal, legalDocumentDates } from "@/config/legal";
+import { gdprPolicy, gdprPolicyUpdatedAt } from "@/config/legal/privacy";
+import { product } from "@/config/product";
 import { GdprPolicy } from "@/features/marketing/legal/gdpr-policy";
 
 export async function generateMetadata(props: PageProps<"/[locale]/gdpr">): Promise<Metadata> {
@@ -27,7 +28,7 @@ export default async function Page({ params }: PageProps<"/[locale]/gdpr">) {
   const { locale } = await params;
   const formattedEffectiveDate = new Intl.DateTimeFormat(locale as Locale, {
     dateStyle: "long",
-  }).format(new Date(legalDocumentDates.gdprPolicy));
+  }).format(new Date(gdprPolicyUpdatedAt));
 
   // Enable static rendering
   setRequestLocale(locale as Locale);
@@ -37,14 +38,14 @@ export default async function Page({ params }: PageProps<"/[locale]/gdpr">) {
       <Container size="sm" className="prose py-16">
         <GdprPolicy
           company={{
-            name: legal.legalName,
-            address: legal.address,
-            id: legal.id,
-            domain: legal.domain,
+            name: product.company.legalName,
+            address: product.company.address,
+            id: product.company.id,
+            domain: product.site.domain,
           }}
           contact={{
-            email: legal.contact.email,
-            phone: legal.contact.phone,
+            email: product.company.contact.email,
+            phone: product.company.contact.phone,
           }}
           policy={gdprPolicy}
           effectiveDate={formattedEffectiveDate}

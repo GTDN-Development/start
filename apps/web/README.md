@@ -76,7 +76,7 @@ Conventions:
 - `src/features` - feature-first modules (`account`, `application`, `auth`, `cookies`, `error-handling`, `marketing`, `organizations`)
 - `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `dev`)
 - `src/server` - server-only domains for auth, account, application state, email, PocketBase, and feature backends
-- `src/config` - structural config (menus, links, site data)
+- `src/config` - structural config (routes, menus, product identity, legal variants, env parsing)
 - `src/i18n` + `messages` - routing and translations
 - `src/lib` - shared utilities (`utils.ts` for shadcn-safe helpers, `app-utils.ts` for app-specific shared helpers)
 - `src/types` - shared types + generated PocketBase types

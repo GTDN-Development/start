@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import type { GdprPolicyConfig } from "@/config/legal";
+import type { GdprPolicyConfig } from "@/config/legal/privacy";
 
 type GdprPolicyProps = React.ComponentProps<"div"> & {
   company: {

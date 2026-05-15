@@ -17,7 +17,7 @@ import {
   SettingsItemTitle,
 } from "@/components/ui/settings-item";
 import { Spinner } from "@/components/ui/spinner";
-import { app } from "@/config/app";
+import { product } from "@/config/product";
 import type { OrganizationSettingsOrganization } from "@/features/organizations/settings/organization-settings-types";
 import type { OrganizationNavigationItem } from "@/features/organizations/organization-navigation-types";
 import {
@@ -142,7 +142,7 @@ export function OrganizationTextSettingsItem({
               <FieldLabel htmlFor={fieldId}>{t("field.label")}</FieldLabel>
               {field === "url" ? (
                 <InputGroup>
-                  <InputGroupAddon>{app.site.domain}/o/</InputGroupAddon>
+                  <InputGroupAddon>{product.site.domain}/o/</InputGroupAddon>
                   <InputGroupInput {...inputProps} autoComplete="off" />
                 </InputGroup>
               ) : (

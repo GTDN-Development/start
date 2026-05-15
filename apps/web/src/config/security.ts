@@ -1,3 +1,5 @@
+import { parseEnvBoolean } from "@/config/env";
+
 type TurnstileEnv = Record<string, string | undefined>;
 
 type TurnstileConfig = {
@@ -14,7 +16,7 @@ const runtimeTurnstileEnv: TurnstileEnv = {
 
 export function getTurnstileConfig(env: TurnstileEnv = runtimeTurnstileEnv): TurnstileConfig {
   return {
-    enabled: parseSecurityEnvBoolean(env.NEXT_PUBLIC_TURNSTILE_ENABLED, true),
+    enabled: parseEnvBoolean(env.NEXT_PUBLIC_TURNSTILE_ENABLED, true),
     siteKey: getOptionalTrimmedSecurityEnvValue("NEXT_PUBLIC_TURNSTILE_SITE_KEY", env),
     secretKey: getOptionalTrimmedSecurityEnvValue("TURNSTILE_SECRET_KEY", env),
   };
@@ -22,24 +24,6 @@ export function getTurnstileConfig(env: TurnstileEnv = runtimeTurnstileEnv): Tur
 
 export function isTurnstileEnabled(env: TurnstileEnv = runtimeTurnstileEnv) {
   return getTurnstileConfig(env).enabled;
-}
-
-function parseSecurityEnvBoolean(value: string | undefined, defaultValue: boolean) {
-  const normalizedValue = value?.trim().toLowerCase();
-
-  if (!normalizedValue) {
-    return defaultValue;
-  }
-
-  if (normalizedValue === "true") {
-    return true;
-  }
-
-  if (normalizedValue === "false") {
-    return false;
-  }
-
-  return defaultValue;
 }
 
 function getOptionalTrimmedSecurityEnvValue(name: string, env: TurnstileEnv) {

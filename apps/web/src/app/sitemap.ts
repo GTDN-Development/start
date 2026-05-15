@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 import { connection } from "next/server";
-import { app } from "@/config/app";
+import { product } from "@/config/product";
 import { type AppHref, type AppPathname, getPathname } from "@/i18n/navigation";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { getAllPosts } from "@/server/blog/blog-api";
@@ -20,7 +20,7 @@ const excludedSitemapRoutes = new Set<AppPathname>([
 ]);
 
 function getAbsoluteUrl(href: AppHref, locale: AppLocale) {
-  return `${app.site.url}${getPathname({ href, locale })}`;
+  return `${product.site.url}${getPathname({ href, locale })}`;
 }
 
 function createAlternates(href: AppHref) {

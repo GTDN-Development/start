@@ -7,7 +7,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { BackLink } from "@/components/ui/back-navigation";
 import { Container } from "@/components/ui/container";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
-import { app } from "@/config/app";
+import { product } from "@/config/product";
 import { getPathname } from "@/i18n/navigation";
 import { defaultSocialPreviewImage, getLocalizedAlternates } from "@/lib/metadata";
 import { getPostBySlug, stripHtmlTags } from "@/server/blog/blog-api";
@@ -23,7 +23,7 @@ export async function generateMetadata(
   }
 
   const title = stripHtmlTags(post.title);
-  const description = stripHtmlTags(post.excerpt) || app.site.defaultDescription;
+  const description = stripHtmlTags(post.excerpt) || product.site.defaultDescription;
   const href = { pathname: "/blog/[slug]" as const, params: { slug } };
   const localizedUrl = getPathname({ href, locale: locale as Locale });
   const socialImage = post.coverImage
@@ -36,7 +36,7 @@ export async function generateMetadata(
     alternates: getLocalizedAlternates(href, locale as Locale),
     openGraph: {
       type: "article",
-      siteName: app.site.name,
+      siteName: product.site.name,
       url: localizedUrl,
       title,
       description,

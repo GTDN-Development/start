@@ -1,6 +1,6 @@
 import StartLogoSvg from "@/assets/svgs/start-logo.svg";
 import StartSymbolSvg from "@/assets/svgs/start-symbol.svg";
-import { app } from "@/config/app";
+import { product } from "@/config/product";
 import { cn } from "@/lib/utils";
 
 export type MarqueeItem = {
@@ -9,7 +9,7 @@ export type MarqueeItem = {
   href: string;
 };
 
-const siteUrl = `${app.site.url.replace(/\/+$/g, "")}/`;
+const siteUrl = `${product.site.url.replace(/\/+$/g, "")}/`;
 
 const marqueePartnersDefault: MarqueeItem[] = [
   { name: "Start Logo", logo: StartLogoSvg, href: siteUrl },

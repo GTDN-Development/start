@@ -23,9 +23,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { app } from "@/config/app";
+import { product } from "@/config/product";
 import { CopyButton } from "@/components/ui/copy-button";
-import { legal } from "@/config/legal";
 import { toast } from "sonner";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { isCookieConsentEnabled } from "@/config/cookie-consent";
@@ -127,7 +126,11 @@ export function MarketingFooter({
   const tNav = useTranslations("layout.navigation.items");
   const cookieConsentEnabled = isCookieConsentEnabled();
 
-  const primaryLegalDetails = [legal.legalName, legal.id, legal.address];
+  const primaryLegalDetails = [
+    product.company.legalName,
+    product.company.id,
+    product.company.address,
+  ];
 
   return (
     <footer {...props} className={cn("border-t-border border-t", props.className)}>
@@ -163,19 +166,19 @@ export function MarketingFooter({
           <ul className="flex flex-col gap-3">
             <li>
               <FooterItemToCopy
-                toCopy={legal.contact.email}
+                toCopy={product.company.contact.email}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
-                {legal.contact.email}
+                {product.company.contact.email}
               </FooterItemToCopy>
             </li>
-            {legal.contact.phone && (
+            {product.company.contact.phone && (
               <li>
                 <FooterItemToCopy
-                  toCopy={legal.contact.phone}
+                  toCopy={product.company.contact.phone}
                   className="text-muted-foreground hover:text-foreground text-sm transition-colors"
                 >
-                  {formatPhoneNumber(legal.contact.phone)}
+                  {formatPhoneNumber(product.company.contact.phone)}
                 </FooterItemToCopy>
               </li>
             )}
@@ -209,7 +212,7 @@ export function MarketingFooter({
       {/* Third row - Footer meta with basic app settings */}
       <Container className="border-t-border flex min-w-0 flex-col flex-wrap items-center justify-between gap-6 border-t py-8 md:flex-row">
         <div className="flex flex-1 items-center justify-center md:justify-start">
-          <Copyright company={app.site.name} />
+          <Copyright company={product.site.name} />
         </div>
         <div className="flex flex-1 items-center justify-center gap-4">
           <AgencyCredit />
@@ -244,7 +247,7 @@ function Copyright({
 
 function AgencyCredit(props: React.ComponentProps<"p">) {
   const t = useTranslations("layout.footer");
-  const author = app.metadata.authors[0];
+  const author = product.metadata.authors[0];
 
   if (!author) {
     return null;

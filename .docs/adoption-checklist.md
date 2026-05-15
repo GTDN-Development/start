@@ -5,15 +5,14 @@ change only the product-specific surfaces.
 
 ## Product Surface
 
-- Update product metadata in [app config](/Users/fanda/Dev/start/apps/web/src/config/app.ts).
+- Update product identity, company/contact details, metadata, and social links in
+  [product config](/Users/fanda/Dev/start/apps/web/src/config/product.ts).
 - Replace logo/favicon/OG/email assets:
   [logo component](/Users/fanda/Dev/start/apps/web/src/components/brand/logo-start.tsx),
   [SVG assets](/Users/fanda/Dev/start/apps/web/src/assets/svgs),
   [favicon](/Users/fanda/Dev/start/apps/web/src/app/favicon.ico),
   [OG image](/Users/fanda/Dev/start/apps/web/src/assets/images/og-image.jpg), and
   [email logo](/Users/fanda/Dev/start/apps/web/public/email/start-logo-email.png).
-- Update social links in [brand config](/Users/fanda/Dev/start/apps/web/src/config/brand.ts) or
-  remove unused profiles.
 - Rewrite product-facing copy in [English messages](/Users/fanda/Dev/start/apps/web/messages/en.json)
   and [Czech messages](/Users/fanda/Dev/start/apps/web/messages/cs.json).
 
@@ -26,9 +25,14 @@ change only the product-specific surfaces.
 
 ## Legal And Compliance
 
-- Review company/contact values and legal toggles in
-  [legal config](/Users/fanda/Dev/start/apps/web/src/config/legal.ts).
-- Update `legalDocumentDates`, cookie catalog entries, and GDPR third-party defaults before launch.
+- Review company/contact values in
+  [product config](/Users/fanda/Dev/start/apps/web/src/config/product.ts).
+- Review Terms toggles and the published date in
+  [terms config](/Users/fanda/Dev/start/apps/web/src/config/legal/terms.ts).
+- Review GDPR toggles and the published date in
+  [privacy config](/Users/fanda/Dev/start/apps/web/src/config/legal/privacy.ts).
+- Review Cookie Policy toggles, cookie catalog entries, and the published date in
+  [cookies config](/Users/fanda/Dev/start/apps/web/src/config/legal/cookies.ts).
 
 ## Environment And Deployment
 

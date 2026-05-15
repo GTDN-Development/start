@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cookieCatalog, cookiePolicy } from "./legal";
+import { cookieCatalog, cookiePolicy } from "./legal/cookies";
 
 describe("legal cookie catalog", function describeLegalCookieCatalog() {
   it("documents Turnstile and keeps marketing cookies disabled", function testTurnstileAndMarketingCookieCatalog() {

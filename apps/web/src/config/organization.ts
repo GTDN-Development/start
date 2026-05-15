@@ -1,9 +1,11 @@
+import { parseEnvBoolean } from "@/config/env";
+
 const ORGANIZATIONS_ENABLED_ENV = process.env.NEXT_PUBLIC_ORGANIZATIONS_ENABLED;
 
 export const organizationConfig = {
   // Keep enabled for products that use shared team scope. Set the env to false for personal-scope
   // products that do not need organizations, invites, or roles.
-  enabled: isOrganizationFeatureEnabled(ORGANIZATIONS_ENABLED_ENV),
+  enabled: parseEnvBoolean(ORGANIZATIONS_ENABLED_ENV, false),
   limits: {
     nameMaxLength: 32,
     slugMaxLength: 48,
@@ -37,17 +39,3 @@ export const organizationConfig = {
     invitableValues: ["admin", "member"] as const,
   },
 } as const;
-
-function isOrganizationFeatureEnabled(value: string | undefined) {
-  const normalizedValue = value?.trim().toLowerCase();
-
-  if (normalizedValue === "true") {
-    return true;
-  }
-
-  if (normalizedValue === "false") {
-    return false;
-  }
-
-  return false;
-}

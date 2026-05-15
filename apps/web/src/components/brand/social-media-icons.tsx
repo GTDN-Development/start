@@ -1,11 +1,11 @@
-import { socialMediaLinksArray } from "@/config/brand";
+import { product } from "@/config/product";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export function SocialMediaIcons(props: React.ComponentProps<"ul">) {
   return (
     <ul {...props} className={cn("flex flex-wrap gap-3", props.className)}>
-      {socialMediaLinksArray.map((item) => (
+      {product.socialLinks.map((item) => (
         <li key={item.href}>
           <Button
             size="icon-lg"
