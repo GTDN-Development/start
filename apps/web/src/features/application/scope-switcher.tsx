@@ -274,9 +274,7 @@ function EnabledScopeSwitcher({ className }: ScopeSwitcherProps) {
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-xs">
-                {t("labels.organizations")}
-              </DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs">{t("labels.organizations")}</DropdownMenuLabel>
               {organizationOptions.length === 0 && (
                 <DropdownMenuItem className="pointer-events-none p-2 opacity-100">
                   <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">

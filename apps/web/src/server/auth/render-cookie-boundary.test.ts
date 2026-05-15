@@ -29,7 +29,6 @@ describe("render cookie boundary", function describeRenderCookieBoundary() {
       }
     }
   });
-
 });
 
 function collectRenderFiles(directoryPath: string): string[] {

@@ -20,7 +20,6 @@ import { ChangelogSection } from "@/features/marketing/home/changelog-section";
 import { NewsletterCta } from "@/features/marketing/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
 import { MarqueeCompanies } from "@/features/marketing/home/marquee-companies";
-// import { Placeholder, PlaceholderTitle } from "@/components/ui/placeholder";
 import { createPublicPageMetadata } from "@/lib/metadata";
 import {
   HomeFeature,
@@ -110,10 +109,6 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
         </Container>
 
         <Container render={<section />}>
-          {/*<Placeholder>
-            <PlaceholderTitle>Content</PlaceholderTitle>
-          </Placeholder>*/}
-
           <HomeFeature>
             <HomeFeatureHeader>
               <HomeFeatureTitle>Lorem ipsum dolor</HomeFeatureTitle>
