@@ -61,19 +61,19 @@ export default async function Page({
     >
       <Container size="xl" className="space-y-16 pt-10 pb-24">
         <Placeholder>
-          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+          <PlaceholderTitle>Content</PlaceholderTitle>
         </Placeholder>
 
         <Placeholder>
-          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+          <PlaceholderTitle>Content</PlaceholderTitle>
         </Placeholder>
 
         <Placeholder>
-          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+          <PlaceholderTitle>Content</PlaceholderTitle>
         </Placeholder>
 
         <Placeholder>
-          <PlaceholderTitle>Overview Content</PlaceholderTitle>
+          <PlaceholderTitle>Content</PlaceholderTitle>
         </Placeholder>
       </Container>
     </ApplicationPageShell>
