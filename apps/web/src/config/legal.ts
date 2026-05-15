@@ -85,7 +85,7 @@ type LegalDocumentDates = {
 };
 
 // Company and contact data shared across all legal documents.
-// Replace these placeholder values during product adoption.
+// Start apps are operated by FBLS Tech s.r.o. by default.
 type LegalConfig = {
   name: string;
   legalName: string;
@@ -111,11 +111,16 @@ type LegalConfig = {
 };
 
 export const legal: LegalConfig = {
-  name: "Example Company s.r.o.",
-  legalName: "Example Company s.r.o.",
-  address: "Example Street 1, 110 00 Prague",
-  id: "00000000",
+  name: "FBLS Tech s.r.o.",
+  legalName: "FBLS Tech s.r.o.",
+  address: "Moravská 854/2, Doubravka, 312 00 Plzeň",
+  id: "19433166",
+  vatId: "CZ19433166",
   domain: "www.example.com",
+  registration: {
+    court: "Krajský soud v Plzni",
+    fileNumber: "C 43916/KSPL",
+  },
   contact: {
     email: "hello@example.com",
     phone: "+420123456789",

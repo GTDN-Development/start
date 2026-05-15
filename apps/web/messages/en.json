@@ -1623,7 +1623,7 @@
       "title": "Privacy Policy",
       "effectiveFrom": "Effective from:",
       "common": {
-        "companyRegisterFallback": "the relevant commercial register"
+        "companyRegisterFallback": "the Commercial Register maintained by the Regional Court in Plzeň, file number C 43916/KSPL"
       },
       "controller": {
         "title": "Who processes your data",
@@ -1840,12 +1840,7 @@
       "defaults": {
         "thirdParties": [
           {
-            "name": "Example Company s.r.o.",
-            "service": "Technical services and development",
-            "country": "Czech Republic"
-          },
-          {
-            "name": "Implementation Partner s.r.o.",
+            "name": "FBLS Tech s.r.o.",
             "service": "Technical services and development",
             "country": "Czech Republic"
           },

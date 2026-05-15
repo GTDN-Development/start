@@ -1623,7 +1623,7 @@
       "title": "Zásady ochrany osobních údajů",
       "effectiveFrom": "Účinné od:",
       "common": {
-        "companyRegisterFallback": "v příslušném obchodním rejstříku"
+        "companyRegisterFallback": "vedeném Krajským soudem v Plzni, spisová značka C 43916/KSPL"
       },
       "controller": {
         "title": "Kdo vaše údaje zpracovává",
@@ -1840,12 +1840,7 @@
       "defaults": {
         "thirdParties": [
           {
-            "name": "Example Company s.r.o.",
-            "service": "Technické služby a vývoj",
-            "country": "Česká republika"
-          },
-          {
-            "name": "Implementation Partner s.r.o.",
+            "name": "FBLS Tech s.r.o.",
             "service": "Technické služby a vývoj",
             "country": "Česká republika"
           },

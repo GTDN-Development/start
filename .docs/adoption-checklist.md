@@ -26,7 +26,7 @@ change only the product-specific surfaces.
 
 ## Legal And Compliance
 
-- Replace company/contact values and legal toggles in
+- Review company/contact values and legal toggles in
   [legal config](/Users/fanda/Dev/start/apps/web/src/config/legal.ts).
 - Update `legalDocumentDates`, cookie catalog entries, and GDPR third-party defaults before launch.
 
