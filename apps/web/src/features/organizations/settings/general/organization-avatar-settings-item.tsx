@@ -166,7 +166,10 @@ export function OrganizationAvatarSettingsItem({
                       <Skeleton className="size-14 rounded-md sm:size-18" />
                     ) : (
                       <>
-                        <OrganizationAvatar className="size-14 rounded-md sm:size-18">
+                        <OrganizationAvatar
+                          key={getOrganizationAvatarStateKey(organization, organizationAvatarUrl)}
+                          className="size-14 rounded-md sm:size-18"
+                        >
                           {organizationAvatarUrl ? (
                             <OrganizationAvatarImage
                               src={organizationAvatarUrl}
@@ -236,4 +239,11 @@ export function OrganizationAvatarSettingsItem({
       </SettingsItemFooter>
     </SettingsItem>
   );
+}
+
+function getOrganizationAvatarStateKey(
+  organization: OrganizationSettingsOrganization,
+  avatarUrl: string | null
+) {
+  return `${organization.id}:${avatarUrl ?? "fallback"}`;
 }

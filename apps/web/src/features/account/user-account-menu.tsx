@@ -72,7 +72,7 @@ export function UserAccountMenu({
             <Skeleton className="size-8 rounded-full" />
           </span>
         ) : (
-          <Avatar className={className}>
+          <Avatar key={getAvatarStateKey(currentViewer.id, avatarUrl)} className={className}>
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} alt="" onError={() => setFailedAvatarUrl(avatarUrl)} />
             ) : (
@@ -89,7 +89,7 @@ export function UserAccountMenu({
                 <Skeleton className="size-8 rounded-full" />
               </span>
             ) : (
-              <Avatar className={className}>
+              <Avatar key={getAvatarStateKey(currentViewer.id, avatarUrl)} className={className}>
                 {avatarUrl ? (
                   <AvatarImage
                     src={avatarUrl}
@@ -138,4 +138,8 @@ function getUserDisplayName(viewer: UserAccountMenuViewer) {
   const name = viewer.name?.trim();
 
   return name || null;
+}
+
+function getAvatarStateKey(viewerId: string, avatarUrl: string | null) {
+  return `${viewerId}:${avatarUrl ?? "fallback"}`;
 }

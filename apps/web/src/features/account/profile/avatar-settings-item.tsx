@@ -177,7 +177,10 @@ export function AccountAvatarSettingsItem() {
                       <Skeleton className="size-14 rounded-full sm:size-18" />
                     ) : (
                       <>
-                        <Avatar className="size-14 sm:size-18">
+                        <Avatar
+                          key={getAvatarStateKey(profile.id, avatarUrl)}
+                          className="size-14 sm:size-18"
+                        >
                           {avatarUrl ? (
                             <AvatarImage
                               src={avatarUrl}
@@ -240,4 +243,8 @@ export function AccountAvatarSettingsItem() {
       </SettingsItemFooter>
     </SettingsItem>
   );
+}
+
+function getAvatarStateKey(profileId: string, avatarUrl: string | null) {
+  return `${profileId}:${avatarUrl ?? "fallback"}`;
 }
