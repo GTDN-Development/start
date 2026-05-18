@@ -21,10 +21,14 @@ export async function signInUser(options: {
   page: Page;
   email: string;
   password: string;
+  rememberMe?: boolean;
 }): Promise<void> {
   await options.page.goto("/cs/prihlasit-se");
   await options.page.locator("#sign-in-email").fill(options.email);
   await options.page.locator("#sign-in-password").fill(options.password);
+  if (options.rememberMe) {
+    await options.page.getByRole("checkbox", { name: "Zapamatovat si mě" }).click();
+  }
   await options.page.locator('form button[type="submit"]').click();
 }
 

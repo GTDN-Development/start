@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { Buffer } from "node:buffer";
 import PocketBase, { cookieParse, type SendOptions } from "pocketbase";
 import { authConfig } from "@/config/auth";
 import { getPocketBaseUrl } from "@/config/public-env";
@@ -13,6 +14,10 @@ export type CreatePocketBaseServerClientResult = {
 
 type ExportPocketBaseAuthCookieOptions = {
   sessionOnly?: boolean;
+};
+
+type AuthTokenPayload = {
+  exp?: unknown;
 };
 
 export async function createPocketBaseServerClient(): Promise<CreatePocketBaseServerClientResult> {
@@ -87,19 +92,21 @@ function createPocketBaseAuthCookieMutation(
   pb: PocketBase,
   options: ExportPocketBaseAuthCookieOptions
 ): AuthCookieMutation {
+  const cookieOptions = getPocketBaseAuthCookieOptions(pb, options);
   const exportedCookie = pb.authStore.exportToCookie(
-    getPocketBaseAuthCookieOptions(options),
+    cookieOptions,
     authConfig.cookies.authCookieName
   );
 
   return {
     name: authConfig.cookies.authCookieName,
     value: cookieParse(exportedCookie)[authConfig.cookies.authCookieName] ?? "",
-    ...getPocketBaseAuthCookieOptions(options),
+    ...cookieOptions,
   };
 }
 
 function getPocketBaseAuthCookieOptions(
+  pb: PocketBase,
   options: ExportPocketBaseAuthCookieOptions
 ): ServerCookieOptions {
   const cookieOptions = getBaseServerCookieOptions();
@@ -112,7 +119,10 @@ function getPocketBaseAuthCookieOptions(
     };
   }
 
-  return cookieOptions;
+  return {
+    ...cookieOptions,
+    expires: getAuthTokenExpiryDate(pb.authStore.token),
+  };
 }
 
 function createPersistSessionCookie(options: { sessionOnly: boolean }): AuthCookieMutation {
@@ -141,4 +151,35 @@ function createClearedCookie(name: string): AuthCookieMutation {
     maxAge: 0,
     expires: new Date(0),
   };
+}
+
+function getAuthTokenExpiryDate(token: string): Date {
+  const payload = getAuthTokenPayload(token);
+  const expiresAtSeconds = payload?.exp;
+
+  if (typeof expiresAtSeconds !== "number" || !Number.isFinite(expiresAtSeconds)) {
+    return new Date(0);
+  }
+
+  return new Date(expiresAtSeconds * 1000);
+}
+
+function getAuthTokenPayload(token: string): AuthTokenPayload | null {
+  const payloadSegment = token.split(".")[1];
+
+  if (!payloadSegment) {
+    return null;
+  }
+
+  try {
+    const payload: unknown = JSON.parse(Buffer.from(payloadSegment, "base64url").toString("utf8"));
+
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      return null;
+    }
+
+    return payload;
+  } catch {
+    return null;
+  }
 }
