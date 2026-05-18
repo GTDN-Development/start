@@ -3,7 +3,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { chromium, expect, test, type BrowserContext } from "@playwright/test";
 import type PocketBase from "pocketbase";
-import { DEFAULT_AUTH_TEST_PASSWORD, expectSignInPage, signInUser } from "../helpers/auth";
+import {
+  DEFAULT_AUTH_TEST_PASSWORD,
+  expectSignInPage,
+  signInUser,
+  signOutCurrentUser,
+} from "../helpers/auth";
 import {
   createPocketBaseAdminClient,
   createVerifiedUser,
@@ -85,6 +90,61 @@ test("sign in with remember me survives a browser restart while the token is val
       await expect(reopenedPage).toHaveURL(/\/cs\/aplikace$/);
     } finally {
       await reopenedContext.close();
+    }
+  } finally {
+    await rm(userDataDir, { force: true, recursive: true });
+
+    if (pb) {
+      await deleteSignedUpUsersByEmail(pb, email);
+    }
+  }
+});
+
+test("sign out clears a remembered session across browser restarts", async ({ baseURL }) => {
+  test.setTimeout(120_000);
+
+  const run = createE2ETestRun();
+  const email = createIsolatedTestEmail(run.id, "remember-me-sign-out");
+  const password = DEFAULT_AUTH_TEST_PASSWORD;
+  const userDataDir = await mkdtemp(path.join(tmpdir(), "start-auth-remembered-sign-out-"));
+
+  let pb: PocketBase | null = null;
+
+  try {
+    pb = await createPocketBaseAdminClient();
+    await createVerifiedUser({ pb, email, password });
+
+    await signInAndCloseBrowser({
+      baseURL,
+      email,
+      password,
+      rememberMe: true,
+      userDataDir,
+    });
+
+    const rememberedContext = await launchPersistentAuthContext(userDataDir, baseURL);
+
+    try {
+      const rememberedPage = rememberedContext.pages()[0] ?? (await rememberedContext.newPage());
+
+      await rememberedPage.goto("/cs/aplikace");
+      await expect(rememberedPage).toHaveURL(/\/cs\/aplikace$/);
+
+      await signOutCurrentUser(rememberedPage);
+      await expectSignInPage(rememberedPage);
+    } finally {
+      await rememberedContext.close();
+    }
+
+    const signedOutContext = await launchPersistentAuthContext(userDataDir, baseURL);
+
+    try {
+      const signedOutPage = signedOutContext.pages()[0] ?? (await signedOutContext.newPage());
+
+      await signedOutPage.goto("/cs/aplikace");
+      await expectSignInPage(signedOutPage);
+    } finally {
+      await signedOutContext.close();
     }
   } finally {
     await rm(userDataDir, { force: true, recursive: true });
