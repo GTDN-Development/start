@@ -6,12 +6,6 @@ export const ORGANIZATION_INVITABLE_ROLE_VALUES = organizationConfig.roles.invit
 export type OrganizationMemberRole = (typeof ORGANIZATION_MEMBER_ROLE_VALUES)[number];
 export type OrganizationInvitableRole = (typeof ORGANIZATION_INVITABLE_ROLE_VALUES)[number];
 
-const ORGANIZATION_MEMBER_ROLE_ORDER: Record<OrganizationMemberRole, number> = {
-  owner: 0,
-  admin: 1,
-  member: 2,
-};
-
 export function isOrganizationMemberRole(value: string): value is OrganizationMemberRole {
   return ORGANIZATION_MEMBER_ROLE_VALUES.includes(value as OrganizationMemberRole);
 }
@@ -21,7 +15,7 @@ export function isOrganizationInvitableRole(value: string): value is Organizatio
 }
 
 export function getOrganizationMemberRoleOrder(role: OrganizationMemberRole): number {
-  return ORGANIZATION_MEMBER_ROLE_ORDER[role];
+  return ORGANIZATION_MEMBER_ROLE_VALUES.indexOf(role);
 }
 
 export function canManageOrganizationMemberRole(
