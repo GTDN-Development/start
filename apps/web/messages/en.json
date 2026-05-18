@@ -1157,7 +1157,7 @@
         "phoneInvalid": "Please enter a valid phone number.",
         "messageMin": "Message must be at least 10 characters.",
         "messageMax": "Message must not be longer than 1000 characters.",
-        "attachmentsMaxTotalSize": "The total size of attachments must not exceed 1 MB.",
+        "attachmentsMaxTotalSize": "The total size of attachments must not exceed 8 MB.",
         "gdprConsent": "You must agree to the processing of personal data.",
         "turnstile": "Please complete the verification."
       },
