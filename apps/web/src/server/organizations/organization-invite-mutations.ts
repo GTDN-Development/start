@@ -15,7 +15,7 @@ import {
   mapMutationStatusError,
   safeDeleteRecord,
 } from "@/server/organizations/organization-mutation-utils";
-import { normalizeEmail } from "@/server/organizations/organization-normalization";
+import { normalizeEmail } from "@/lib/schemas";
 import { resolveWritableOrganizationAccess } from "@/server/organizations/organization-route-queries";
 import type {
   ServerOrganizationResponse,

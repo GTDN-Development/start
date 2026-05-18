@@ -13,7 +13,3 @@ export function normalizeOrganizationName(value: string): string | null {
 
   return normalizedValue;
 }
-
-export function normalizeEmail(value: string): string {
-  return value.trim().toLowerCase();
-}

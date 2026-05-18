@@ -5,6 +5,7 @@ import type { UserAccountMenuViewer } from "@/features/account/user-account-menu
 import { type AppHref } from "@/i18n/navigation";
 import { Locale } from "next-intl";
 import { LocalizedNavLink } from "@/components/layout/localized-nav-link";
+import { ACCOUNT_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from "@/config/routes";
 
 type MarketingFooterAccountSectionProps = {
   viewer: UserAccountMenuViewer | null;
@@ -56,7 +57,7 @@ export function MarketingFooterAccountSection({
             </li>
             <li>
               <LocalizedNavLink
-                href="/account"
+                href={ACCOUNT_PATH}
                 locale={locale}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
@@ -78,7 +79,7 @@ export function MarketingFooterAccountSection({
           <>
             <li>
               <LocalizedNavLink
-                href="/sign-in"
+                href={SIGN_IN_PATH}
                 locale={locale}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
@@ -87,7 +88,7 @@ export function MarketingFooterAccountSection({
             </li>
             <li>
               <LocalizedNavLink
-                href="/sign-up"
+                href={SIGN_UP_PATH}
                 locale={locale}
                 className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >

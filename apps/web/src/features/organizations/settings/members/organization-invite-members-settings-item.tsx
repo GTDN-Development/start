@@ -32,6 +32,7 @@ import {
 import { organizationInviteEmailSchema } from "@/features/organizations/organization-schemas";
 import type { OrganizationSettingsOrganization } from "@/features/organizations/settings/organization-settings-types";
 import type { AppLocale } from "@/i18n/routing";
+import { normalizeEmail } from "@/lib/schemas";
 import type {
   OrganizationInviteSummary,
   OrganizationResponse,
@@ -82,7 +83,7 @@ export function OrganizationInviteMembersSettingsItem({
       return;
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = normalizeEmail(email);
 
     if (!inviteEmailSchema.safeParse(normalizedEmail).success) {
       setSubmitErrorMessage(tInvite("status.invalidRows"));

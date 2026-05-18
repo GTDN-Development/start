@@ -34,6 +34,7 @@ import { Spinner } from "@/components/ui/spinner";
 import type { InlineStatus } from "@/features/account/account-types";
 import { AlertCircleIcon, CheckCircle2Icon, MailIcon } from "lucide-react";
 import { runAsyncTransition } from "@/lib/app-utils";
+import { normalizeEmail } from "@/lib/schemas";
 
 type EmailChangeFormValues = {
   newEmail: string;
@@ -47,7 +48,7 @@ export function AccountEmailSettingsItem() {
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
   const [emailDialogStatus, setEmailDialogStatus] = useState<InlineStatus>(null);
 
-  const normalizedCurrentEmail = profile.email.trim().toLowerCase();
+  const normalizedCurrentEmail = normalizeEmail(profile.email);
   const emailChangeFormSchema = createAccountEmailChangeFormSchema(
     {
       email: t("email.dialog.errors.invalidOrUnavailable"),

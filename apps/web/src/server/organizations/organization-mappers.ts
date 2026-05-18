@@ -2,9 +2,7 @@ import type PocketBase from "pocketbase";
 import type {
   UserOrganization,
   OrganizationInviteSummary,
-  OrganizationInviteRole,
   OrganizationMemberSummary,
-  OrganizationMemberRole,
   OrganizationSummary,
 } from "@/server/organizations/organization-types";
 import type {
@@ -13,6 +11,7 @@ import type {
   OrganizationMembersRecord,
   OrganizationsRecord,
 } from "@/types/pocketbase";
+import { getOrganizationMemberRoleOrder } from "@/features/organizations/organization-role-rules";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
 
 export type OrganizationMemberRecordWithExpand = OrganizationMembersRecord & {
@@ -95,7 +94,10 @@ export function sortOrganizationMembers(
     );
   }
 
-  return getOrganizationRoleOrder(firstMember.role) - getOrganizationRoleOrder(secondMember.role);
+  return (
+    getOrganizationMemberRoleOrder(firstMember.role) -
+    getOrganizationMemberRoleOrder(secondMember.role)
+  );
 }
 
 export function sortUserOrganizations(
@@ -116,18 +118,6 @@ function getOrganizationAvatarUrl(
   }
 
   return pb.files.getURL(organization, avatarName);
-}
-
-function getOrganizationRoleOrder(role: OrganizationMemberRole | OrganizationInviteRole): number {
-  if (role === "owner") {
-    return 0;
-  }
-
-  if (role === "admin") {
-    return 1;
-  }
-
-  return 2;
 }
 
 function getOrganizationMemberSortKey(member: OrganizationMemberSummary): string {

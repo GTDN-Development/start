@@ -81,25 +81,13 @@ export function createAccountProfileNameFormSchema(messages: AccountProfileNameV
   });
 }
 
-export function createAccountEmailChangeValueSchema(messages?: { email?: string }) {
-  return z
-    .string()
-    .trim()
-    .toLowerCase()
-    .pipe(
-      z.email({
-        message: messages?.email,
-      })
-    );
-}
-
 export function createAccountEmailChangeFormSchema(
   messages: AccountEmailChangeValidationMessages,
   normalizedCurrentEmail: string
 ) {
   return z.object({
-    newEmail: createAccountEmailChangeValueSchema({
-      email: messages.email,
+    newEmail: normalizedEmailSchema({
+      message: messages.email,
     }).refine((value) => value !== normalizedCurrentEmail, {
       message: messages.sameAsCurrent,
     }),

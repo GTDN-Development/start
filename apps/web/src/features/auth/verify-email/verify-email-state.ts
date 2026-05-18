@@ -1,6 +1,7 @@
 import type { AppHref } from "@/i18n/navigation";
 import { VERIFY_EMAIL_COMPLETE_PATH, VERIFY_EMAIL_PATH } from "@/config/routes";
 import { parseAuthFlowToken } from "@/features/auth/auth-flow-token";
+import { normalizeEmail } from "@/lib/schemas";
 
 export type VerifyEmailResultState = "pending" | "verified" | "invalid";
 export type VerifyEmailDeliveryState = "sent" | "needs_resend";
@@ -24,7 +25,7 @@ export function createPendingVerifyEmailHref(input: {
   delivery?: VerifyEmailDeliveryState;
 }): AppHref {
   const searchParams = new URLSearchParams({
-    email: input.email.trim().toLowerCase(),
+    email: normalizeEmail(input.email),
   });
 
   if (input.delivery === "needs_resend") {
@@ -43,7 +44,7 @@ export function createVerifyEmailResultHref(input: {
   });
 
   if (input.email?.trim()) {
-    searchParams.set("email", input.email.trim().toLowerCase());
+    searchParams.set("email", normalizeEmail(input.email));
   }
 
   return `${VERIFY_EMAIL_PATH}?${searchParams.toString()}` as AppHref;
@@ -58,7 +59,7 @@ export function createVerifyEmailCompletionHref(input: {
   });
 
   if (input.email?.trim()) {
-    searchParams.set("email", input.email.trim().toLowerCase());
+    searchParams.set("email", normalizeEmail(input.email));
   }
 
   return `${VERIFY_EMAIL_COMPLETE_PATH}?${searchParams.toString()}` as AppHref;

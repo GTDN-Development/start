@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { MobileMenuClose } from "@/components/ui/mobile-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { APP_HOME_PATH } from "@/config/routes";
+import { APP_HOME_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from "@/config/routes";
 import { getServerAuthSession } from "@/server/auth/auth-session-service";
 import { resolveApplicationEntryHref } from "@/server/application/application-entry-href";
 import type { UserAccountMenuViewer } from "@/features/account/user-account-menu";
@@ -55,12 +55,17 @@ export async function MarketingHeaderDesktopAuthSlot() {
   return (
     <>
       <li>
-        <Button variant="ghost" size="lg" nativeButton={false} render={<Link href="/sign-in" />}>
+        <Button
+          variant="ghost"
+          size="lg"
+          nativeButton={false}
+          render={<Link href={SIGN_IN_PATH} />}
+        >
           {tNav("signIn")}
         </Button>
       </li>
       <li>
-        <Button size="lg" nativeButton={false} render={<Link href="/sign-up" />}>
+        <Button size="lg" nativeButton={false} render={<Link href={SIGN_UP_PATH} />}>
           {tNav("signUp")}
         </Button>
       </li>
@@ -164,7 +169,7 @@ export async function MarketingHeaderMobileFooterActionsSlot() {
         size="lg"
         className="w-full"
         nativeButton={false}
-        render={<MobileMenuClose render={<Link href="/sign-up" />} />}
+        render={<MobileMenuClose render={<Link href={SIGN_UP_PATH} />} />}
       >
         {tNav("signUp")}
       </Button>
@@ -173,7 +178,7 @@ export async function MarketingHeaderMobileFooterActionsSlot() {
         size="lg"
         className="w-full"
         nativeButton={false}
-        render={<MobileMenuClose render={<Link href="/sign-in" />} />}
+        render={<MobileMenuClose render={<Link href={SIGN_IN_PATH} />} />}
       >
         {tNav("signIn")}
       </Button>

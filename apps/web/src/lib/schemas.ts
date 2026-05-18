@@ -16,8 +16,23 @@ type PasswordMatchRefineOptions<TValues extends Record<string, unknown>> = {
   message?: string;
 };
 
-export function normalizedEmailSchema() {
-  return z.string().trim().toLowerCase().pipe(z.email());
+type NormalizedEmailSchemaOptions = {
+  message?: string;
+};
+
+export function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+export function normalizedEmailSchema(options?: NormalizedEmailSchemaOptions) {
+  return z
+    .string()
+    .transform((value) => normalizeEmail(value))
+    .pipe(
+      z.email({
+        message: options?.message,
+      })
+    );
 }
 
 export function passwordPolicySchema(messages?: AuthPasswordValidationMessages) {

@@ -2,13 +2,10 @@ import type {
   OrganizationSettingsInvite,
   OrganizationSettingsMember,
 } from "@/features/organizations/settings/organization-settings-types";
-import type { OrganizationMemberRole } from "@/features/organizations/organization-role-rules";
-
-const organizationMemberRoleOrder: Record<OrganizationMemberRole, number> = {
-  owner: 0,
-  admin: 1,
-  member: 2,
-};
+import {
+  getOrganizationMemberRoleOrder,
+  type OrganizationMemberRole,
+} from "@/features/organizations/organization-role-rules";
 
 export function addOrganizationSettingsInvite(
   invites: OrganizationSettingsInvite[],
@@ -74,8 +71,8 @@ function sortOrganizationSettingsMembers(
 ): OrganizationSettingsMember[] {
   return [...members].sort((firstMember, secondMember) => {
     const roleDifference =
-      organizationMemberRoleOrder[firstMember.role] -
-      organizationMemberRoleOrder[secondMember.role];
+      getOrganizationMemberRoleOrder(firstMember.role) -
+      getOrganizationMemberRoleOrder(secondMember.role);
 
     if (roleDifference !== 0) {
       return roleDifference;
