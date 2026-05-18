@@ -3,8 +3,8 @@ import { parseEnvBoolean } from "@/config/env";
 const ORGANIZATIONS_ENABLED_ENV = process.env.NEXT_PUBLIC_ORGANIZATIONS_ENABLED;
 
 export const organizationConfig = {
-  // Keep enabled for products that use shared team scope. Set the env to false for personal-scope
-  // products that do not need organizations, invites, or roles.
+  // Env examples enable organizations for new team-scope products, but the runtime fallback is
+  // intentionally disabled when NEXT_PUBLIC_ORGANIZATIONS_ENABLED is missing.
   enabled: parseEnvBoolean(ORGANIZATIONS_ENABLED_ENV, false),
   limits: {
     nameMaxLength: 32,

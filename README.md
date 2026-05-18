@@ -25,8 +25,10 @@ Use the [project adoption checklist](/Users/fanda/Dev/start/.docs/adoption-check
 starting a new product. Replace the product-specific values and keep the robust platform pieces
 intact.
 
-Organizations, invites, and roles are enabled by default. Personal-scope products can turn them off
-with `NEXT_PUBLIC_ORGANIZATIONS_ENABLED=false`.
+Organizations, invites, and roles are enabled in the project env examples, so new team-scope
+products start with them on. This is an explicit bootstrap choice, not the runtime fallback: if
+`NEXT_PUBLIC_ORGANIZATIONS_ENABLED` is missing, the web app treats organizations as disabled.
+Personal-scope products should keep the variable set to `false` or omit it.
 
 ## Commands
 

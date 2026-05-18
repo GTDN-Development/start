@@ -88,9 +88,10 @@ Conventions:
 Before using this app for a new product, follow the
 [project adoption checklist](/Users/fanda/Dev/start/.docs/adoption-checklist.md).
 
-Organizations are enabled by default and still feature-flagged. Set
-`NEXT_PUBLIC_ORGANIZATIONS_ENABLED=false` only for products that do not need team scope, invites, or
-roles.
+Organizations are enabled in the app env examples and still feature-flagged. This is an explicit
+bootstrap default for new team-scope products; the runtime fallback is intentionally conservative,
+so a missing `NEXT_PUBLIC_ORGANIZATIONS_ENABLED` disables organizations. Personal-scope products
+should keep the variable set to `false` or omit it.
 
 ## Architecture Conventions
 
