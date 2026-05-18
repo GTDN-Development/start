@@ -1,0 +1,655 @@
+---
+title: Remove next-intl and all language support
+status: ready
+---
+
+# Remove next-intl and all language support
+
+## Mission
+
+Turn this repository into a clean single-language application, as if language support and the `next-intl` implementation had never existed.
+
+This is not a "disable the language switcher" task. The final codebase must not have locale-prefixed routes, `next-intl`, `src/i18n`, locale-aware navigation wrappers, locale cookies, localized path maps, language-specific PocketBase schema fields, or test expectations that depend on `/cs` or `/en`.
+
+## Non-negotiable constraints
+
+- Read `AGENTS.md` and `apps/web/AGENTS.md` before editing.
+- This app uses Next.js 16 and `apps/web/src/proxy.ts`; do not introduce `middleware.ts`.
+- Do not edit already deployed PocketBase migrations in place. Add a new migration under `apps/pocketbase/pb_migrations`.
+- Do not edit generated `apps/web/src/types/pocketbase.ts` manually. Regenerate it after the PocketBase schema migration.
+- Do not replace `next-intl` with a fake translation facade, provider, registry, or compatibility layer. Use direct strings, feature-local copy constants, and explicit route helpers.
+- Keep app-specific code inside `apps/web` or `apps/pocketbase`.
+- Keep the final implementation direct and concrete. Small duplication is acceptable.
+
+## Primary language decision
+
+Before implementation, determine the primary language that should remain.
+
+If the task that links this plan already names the primary language, use that. Otherwise inspect the repo:
+
+- `apps/web/src/i18n/routing.ts` currently has `defaultLocale: "cs"`.
+- The current E2E suite overwhelmingly uses Czech URLs such as `/cs/aplikace`, `/cs/prihlasit-se`, `/cs/ucet`, and `/cs/o/:slug/prehled`.
+- Email preview props are currently Czech.
+
+That makes Czech (`cs`) the apparent primary language. If anything contradicts this or the primary language is not obvious, ask the user exactly one blocking question:
+
+> What primary language should remain after removing language support, and should the public URLs keep the Czech slugs or use the English/internal route names?
+
+Record the decision in your notes before editing:
+
+```ts
+type PrimaryLanguage = "cs" | "en";
+
+const PRIMARY_LANGUAGE: PrimaryLanguage = "cs"; // replace only if user chooses otherwise
+const PRIMARY_HTML_LANG = PRIMARY_LANGUAGE;
+const PRIMARY_FORMAT_LOCALE = PRIMARY_LANGUAGE === "cs" ? "cs-CZ" : "en-US";
+```
+
+Use `apps/web/messages/<PRIMARY_LANGUAGE>.json` as the source copy while converting translations. Delete the message files by the end of the task.
+
+## References already checked
+
+- Current implementation: `apps/web/src/i18n/routing.ts`, `apps/web/src/i18n/request.ts`, `apps/web/src/i18n/navigation.ts`.
+- Current proxy boundary: `apps/web/src/proxy.ts`.
+- Current localized app router root: `apps/web/src/app/[locale]`.
+- Current PocketBase locale fields: `apps/pocketbase/pb_migrations/1774467906_collections_snapshot.js`.
+- next-intl reference app: `/Users/fanda/Dev/next-intl-main-2/examples/example-app-router`.
+- PocketBase migration examples: `apps/pocketbase/pb_migrations/1779106002_remove_auth_alert_info_from_users_email.js` and `apps/pocketbase/pb_migrations/1774467906_collections_snapshot.js`.
+- Next.js 16 local docs are available under `apps/web/node_modules/next/dist/docs/`, especially:
+  - `01-app/03-api-reference/03-file-conventions/proxy.md`
+  - `01-app/03-api-reference/03-file-conventions/dynamic-routes.md`
+  - `01-app/02-guides/migrating/app-router-migration.md`
+
+## Current language implementation map
+
+Remove or rewrite every item in this map:
+
+- `apps/web/package.json`: `next-intl` dependency.
+- `apps/web/next.config.ts`: `createNextIntlPlugin` wrapper and generated message declaration.
+- `apps/web/messages`: `cs.json`, `en.json`, and generated `en.d.json.ts`.
+- `apps/web/src/i18n`: `routing.ts`, `request.ts`, and `navigation.ts`.
+- `apps/web/src/proxy.ts`: `next-intl/middleware`, localized route stripping, localized protected route matching.
+- `apps/web/src/app/[locale]`: the whole locale segment and all page/layout boilerplate around `params.locale`, `setRequestLocale`, `hasLocale`, `getMessages`, and `NextIntlClientProvider`.
+- `apps/web/src/app/page.tsx`: currently redirects to the default locale via `@/i18n/navigation`.
+- `apps/web/src/app/not-found.tsx`: comments and fallback behavior assume `app/[locale]/layout.tsx`.
+- `apps/web/src/components/ui/link.tsx`: currently re-exports the `next-intl` navigation `Link`.
+- `apps/web/src/components/layout/localized-nav-link.tsx`: localized pre-resolved link helper.
+- `apps/web/src/components/layout/nav-link.tsx`: resolves active state through `getPathname({ href, locale })`.
+- `apps/web/src/components/layout/locale-switcher.tsx`: delete.
+- `apps/web/src/features/account/preferences/account-language-settings-item.tsx`: delete and remove from preferences UI.
+- `apps/web/src/config/routes.ts`, `apps/web/src/config/auth.ts`, `apps/web/src/config/menu.ts`: route types currently come from `@/i18n/navigation`.
+- `apps/web/src/lib/metadata.ts`: localized canonical and alternate URLs.
+- `apps/web/src/app/sitemap.ts`: localized static routes and localized blog entries.
+- `apps/web/src/app/manifest.ts`: `getTranslations` for manifest copy.
+- `apps/web/src/app/api/pocketbase/email-link/route.ts`: locale cookie and `Accept-Language` resolution.
+- Auth route handlers under `apps/web/src/app/[locale]/(auth)/(flow)`: locale params and localized redirects.
+- Organization invite route and mailer code: locale flows into invite URLs and email copy.
+- Email builders under `apps/web/src/server/email/templates/*.builder.ts`: `createTranslator`, `getEmailMessages`, and `AppLocale`.
+- `apps/web/src/server/email/email-messages.ts`: delete or replace with a single formatting helper.
+- Cookie consent code: locale is persisted in client action, server service, legal cookie catalog, and PB schema.
+- Newsletter code: locale is submitted, stored in PB, and used for email notification copy.
+- Blog code: `posts.locale`, `posts.translation_shared_id`, localized filtering, and localized metadata.
+- Tests: many unit and E2E tests mock `@/i18n/navigation`, use `locale: "cs"`, or assert `/cs/...` and Czech path aliases.
+
+## Route decision
+
+Choose final public routes from the selected primary language. Remove the locale prefix in all cases.
+
+For `PRIMARY_LANGUAGE = "cs"`, keep the Czech public route aliases that currently exist under `/cs`. For `PRIMARY_LANGUAGE = "en"`, use the English/internal route names.
+
+Use this map when moving files, updating route constants, generating redirects, and rewriting tests:
+
+```ts
+const publicRoutesByPrimaryLanguage = {
+  cs: {
+    "/": "/",
+    "/about/features": "/o-aplikaci/funkce",
+    "/about/integrations": "/o-aplikaci/integrace",
+    "/about/changelog": "/o-aplikaci/nove-funkce",
+    "/about/roadmap": "/o-aplikaci/roadmapa",
+    "/blog": "/blog",
+    "/blog/[slug]": "/blog/[slug]",
+    "/confirm-email-change": "/potvrdit-zmenu-emailu",
+    "/contact": "/kontakt",
+    "/contact/support": "/kontakt/podpora",
+    "/contact/sales": "/kontakt/obchod",
+    "/cookies": "/cookies",
+    "/app": "/aplikace",
+    "/o/[organizationSlug]": "/o/[organizationSlug]",
+    "/o/[organizationSlug]/overview": "/o/[organizationSlug]/prehled",
+    "/o/[organizationSlug]/settings": "/o/[organizationSlug]/nastaveni",
+    "/o/[organizationSlug]/settings/members": "/o/[organizationSlug]/nastaveni/clenove",
+    "/forgot-password": "/zapomenute-heslo",
+    "/post-auth": "/post-auth",
+    "/gdpr": "/gdpr",
+    "/terms-of-service": "/obchodni-podminky",
+    "/sign-in": "/prihlasit-se",
+    "/pricing": "/cenik",
+    "/reset-password": "/obnovit-heslo",
+    "/account": "/ucet",
+    "/account/[...rest]": "/ucet/[...rest]",
+    "/account/preferences": "/ucet/preference",
+    "/account/security": "/ucet/zabezpeceni",
+    "/sign-up": "/registrace",
+    "/verify-email": "/overit-email",
+    "/verify-email/complete": "/verify-email/complete",
+    "/invite/[token]": "/invite/[token]",
+    "/invite/[token]/accept": "/invite/[token]/accept",
+    "/invite/[token]/start": "/invite/[token]/start",
+  },
+  en: {
+    "/": "/",
+    "/about/features": "/about/features",
+    "/about/integrations": "/about/integrations",
+    "/about/changelog": "/about/changelog",
+    "/about/roadmap": "/about/roadmap",
+    "/blog": "/blog",
+    "/blog/[slug]": "/blog/[slug]",
+    "/confirm-email-change": "/confirm-email-change",
+    "/contact": "/contact",
+    "/contact/support": "/contact/support",
+    "/contact/sales": "/contact/sales",
+    "/cookies": "/cookies",
+    "/app": "/app",
+    "/o/[organizationSlug]": "/o/[organizationSlug]",
+    "/o/[organizationSlug]/overview": "/o/[organizationSlug]/overview",
+    "/o/[organizationSlug]/settings": "/o/[organizationSlug]/settings",
+    "/o/[organizationSlug]/settings/members": "/o/[organizationSlug]/settings/members",
+    "/forgot-password": "/forgot-password",
+    "/post-auth": "/post-auth",
+    "/gdpr": "/gdpr",
+    "/terms-of-service": "/terms-of-service",
+    "/sign-in": "/sign-in",
+    "/pricing": "/pricing",
+    "/reset-password": "/reset-password",
+    "/account": "/account",
+    "/account/[...rest]": "/account/[...rest]",
+    "/account/preferences": "/account/preferences",
+    "/account/security": "/account/security",
+    "/sign-up": "/sign-up",
+    "/verify-email": "/verify-email",
+    "/verify-email/complete": "/verify-email/complete",
+    "/invite/[token]": "/invite/[token]",
+    "/invite/[token]/accept": "/invite/[token]/accept",
+    "/invite/[token]/start": "/invite/[token]/start",
+  },
+} as const;
+```
+
+If `PRIMARY_LANGUAGE = "cs"`, examples of required file moves:
+
+- `apps/web/src/app/[locale]/(marketing)/page.tsx` -> `apps/web/src/app/(marketing)/page.tsx`
+- `apps/web/src/app/[locale]/(marketing)/about/features/page.tsx` -> `apps/web/src/app/(marketing)/o-aplikaci/funkce/page.tsx`
+- `apps/web/src/app/[locale]/(auth)/(guest)/sign-in/page.tsx` -> `apps/web/src/app/(auth)/(guest)/prihlasit-se/page.tsx`
+- `apps/web/src/app/[locale]/(auth)/(guest)/sign-up/page.tsx` -> `apps/web/src/app/(auth)/(guest)/registrace/page.tsx`
+- `apps/web/src/app/[locale]/(application)/(application-shell)/app/page.tsx` -> `apps/web/src/app/(application)/(application-shell)/aplikace/page.tsx`
+- `apps/web/src/app/[locale]/(application)/(account-settings)/account/security/page.tsx` -> `apps/web/src/app/(application)/(account-settings)/ucet/zabezpeceni/page.tsx`
+- `apps/web/src/app/[locale]/(application)/(application-shell)/o/[organizationSlug]/overview/page.tsx` -> `apps/web/src/app/(application)/(application-shell)/o/[organizationSlug]/prehled/page.tsx`
+- `apps/web/src/app/[locale]/(application)/(application-shell)/o/[organizationSlug]/settings/members/page.tsx` -> `apps/web/src/app/(application)/(application-shell)/o/[organizationSlug]/nastaveni/clenove/page.tsx`
+
+If `PRIMARY_LANGUAGE = "en"`, mostly remove only the `[locale]` segment and keep the existing internal route folders.
+
+Do not keep `/cs` or `/en` redirects in the final state unless the product owner explicitly asks for migration redirects. The stated goal is "as if language support never existed", so locale-prefixed paths should no longer be part of the app.
+
+## Implementation plan
+
+### 1. Prepare and inventory
+
+- Confirm the primary language decision.
+- Run `git status --short` and avoid reverting unrelated user changes.
+- Run targeted searches before editing:
+
+```bash
+rg -n "next-intl|@/i18n|\\[locale\\]|AppLocale|AppHref|AppPathname|setRequestLocale|getTranslations|useTranslations|createTranslator|NextIntlClientProvider|LOCALE_COOKIE_NAME|NEXT_LOCALE" apps/web
+rg -n "/cs/|/en/|prihlasit-se|registrace|aplikace|ucet|prehled|nastaveni|overit-email|obnovit-heslo|zapomenute-heslo" apps/web/tests apps/web/src
+rg -n "locale|translation_shared_id" apps/pocketbase apps/web/src apps/web/tests
+```
+
+### 2. Remove `next-intl` from framework configuration
+
+- In `apps/web/next.config.ts`, remove:
+  - `import createNextIntlPlugin from "next-intl/plugin";`
+  - `const withNextIntl = createNextIntlPlugin(...)`
+  - `export default withNextIntl(nextConfig);`
+- Export `nextConfig` directly.
+- Remove `next-intl` from `apps/web/package.json`.
+- Update the lockfile with `pnpm install` from the repo root after dependency removal.
+- Delete `apps/web/messages` after all copy has been migrated.
+- Delete `apps/web/src/i18n` after all imports are gone.
+
+### 3. Flatten the app router
+
+- Move everything from `apps/web/src/app/[locale]` into `apps/web/src/app`, preserving route groups.
+- Rename route segments according to the selected primary language route map.
+- Remove the old `apps/web/src/app/[locale]` directory completely.
+- Update all `PageProps` and `LayoutProps` literals from `"/[locale]/..."` to the final unprefixed route literal.
+- Remove every `params.locale` read, `Locale` cast, `hasLocale`, `setRequestLocale`, `generateStaticParams`, `getMessages`, and `NextIntlClientProvider`.
+- Put the real root document layout in `apps/web/src/app/layout.tsx`:
+  - keep `globals.css`, fonts, viewport, providers, toaster, cookie UI, analytics, and `TailwindScreen`;
+  - use `<html lang={PRIMARY_HTML_LANG}>`;
+  - keep `suppressHydrationWarning`;
+  - do not wrap children in any i18n provider.
+- Make `apps/web/src/app/(marketing)/page.tsx` the actual `/` route.
+- Delete or rewrite `apps/web/src/app/page.tsx`; it must not redirect to a locale.
+- Update `apps/web/src/app/not-found.tsx`; remove comments and behavior that assume `app/[locale]/layout.tsx`.
+- Move localized `error.tsx`, `not-found.tsx`, catch-all pages, and loading files to their final route groups without locale setup.
+
+### 4. Replace localized navigation with direct navigation
+
+- Replace `apps/web/src/components/ui/link.tsx` with a direct `next/link` wrapper/re-export suitable for internal links.
+- Delete `apps/web/src/components/layout/localized-nav-link.tsx`.
+- Rewrite `apps/web/src/components/layout/nav-link.tsx`:
+  - use `next/navigation`'s `usePathname`;
+  - compare the current pathname to the final href directly;
+  - no `locale`, no `getPathname`, no `useLocale`.
+- Update `apps/web/src/components/layout/site-navigation-menu.tsx` to call `resolveNavLinkState({ href, pathname, matchNested })`.
+- Update every component that passes `locale` into `LocalizedNavLink`; use the normal `Link`/`NavLink` instead.
+- Replace `redirect` imports from `@/i18n/navigation` with `redirect` from `next/navigation`, and pass final string paths.
+- Replace `getPathname({ href, locale })` usage with explicit route constructors from `apps/web/src/config/routes.ts`.
+
+### 5. Make route config single-language
+
+Rewrite `apps/web/src/config/routes.ts` so it owns concrete final public paths:
+
+- Remove `AppHref` and `AppPathname` imports.
+- Export route constants as final strings based on the chosen primary language.
+- Keep explicit dynamic route builders, for example:
+
+```ts
+export const ORGANIZATION_PATH_PREFIX = "/o" as const;
+export const ORGANIZATION_OVERVIEW_SEGMENT = "prehled" as const; // use "overview" for English
+export const ORGANIZATION_SETTINGS_SEGMENT = "nastaveni" as const; // use "settings" for English
+
+export function getOrganizationRootPath(organizationSlug: string): string {
+  return `${ORGANIZATION_PATH_PREFIX}/${organizationSlug}`;
+}
+
+export function getOrganizationOverviewPath(organizationSlug: string): string {
+  return `${getOrganizationRootPath(organizationSlug)}/${ORGANIZATION_OVERVIEW_SEGMENT}`;
+}
+```
+
+- Update `apps/web/src/config/auth.ts` so `emailLinkActionTargets` is a string route map, not `AppPathname`.
+- Update `apps/web/src/config/menu.ts` so menu hrefs are plain strings or a narrow local `type MenuHref = string`.
+- Keep route construction explicit in `config/routes.ts`; do not add a generic router adapter.
+
+### 6. Simplify the proxy
+
+Rewrite `apps/web/src/proxy.ts` as auth-only request interception:
+
+- Remove `next-intl/middleware`.
+- Remove `routing`, `AppLocale`, `resolveLocaleFromPathname`, `stripLocalePrefix`, and `getLocalizedRoutePath`.
+- `evaluateAuthProxyGuard` should inspect `request.nextUrl.pathname` directly.
+- Protected route matching should use final unprefixed route constants.
+- Unauthenticated redirects should go directly to `AUTH_REDIRECTS.unauthenticatedTo`.
+- Keep the matcher unless Next.js local docs require an update:
+
+```ts
+export const config = {
+  matcher: "/((?!api|trpc|_next|_vercel|.*\\..*).*)",
+};
+```
+
+- Update `apps/web/src/features/auth/auth-proxy.test.ts` for unprefixed paths.
+
+### 7. Convert translations to static primary-language copy
+
+Use `apps/web/messages/<PRIMARY_LANGUAGE>.json` as the source of truth during conversion.
+
+Rules:
+
+- Remove every `useTranslations`, `getTranslations`, and `createTranslator` import.
+- Do not keep a generic `t()` helper that mimics `next-intl`.
+- Prefer hardcoded strings directly in JSX/markup for ordinary one-off UI copy such as labels, button text, CTA text, headings, helper text, and short descriptions. For example, replace `t("hero.cta.learnMore")` with `Learn more` directly in the component.
+- Do not move text into JSON files, message objects, or copy registries just because it used to be translated. The goal is to make the project simpler to edit after language support is gone.
+- Use constants or local data objects only when they are structurally useful: repeated copy, long legal/email blocks, metadata reused in multiple places, arrays that are mapped over, option lists, navigation/menu data, pricing cards, FAQ items, or plural/interpolated formatting helpers.
+- Keep those constants colocated with the owning feature or page. Avoid central "copy" folders unless the same copy is genuinely shared across multiple feature boundaries.
+- For page metadata, inline simple title/description strings in `generateMetadata`/`metadata` when practical. Use a local `const metadataCopy = { title, description }` only when it reduces duplication.
+- Convert interpolation explicitly with template literals or small named functions.
+- Convert `t.rich(...)` into normal JSX.
+- Convert plural/ICU messages into explicit functions:
+
+```ts
+function formatAttachmentSummary(count: number) {
+  return count === 1 ? "1 attachment" : `${count} attachments`;
+}
+```
+
+- For formatting dates and times, use `PRIMARY_FORMAT_LOCALE` or a feature-local constant. This is formatting, not app language routing.
+- Remove "language switcher" and "locale switcher" copy entirely.
+- Delete dead files and components instead of leaving unused abstractions behind. This includes locale switchers, account language preferences, message declarations, i18n helpers, and any copy constants that become unused after inlining.
+
+High-volume conversion areas:
+
+- All files under `apps/web/src/app/[locale]` after they are moved.
+- `apps/web/src/features/auth/*`
+- `apps/web/src/features/account/*`
+- `apps/web/src/features/application/*`
+- `apps/web/src/features/marketing/*`
+- `apps/web/src/features/organizations/*`
+- `apps/web/src/components/layout/*`
+- `apps/web/src/components/ui/loading-state.tsx`
+- `apps/web/src/features/cookies/*`
+- `apps/web/src/features/error-handling/error-state-content.tsx`
+- `apps/web/src/server/email/templates/*.builder.ts`
+
+### 8. Remove language UI and locale cookie behavior
+
+- Delete `apps/web/src/components/layout/locale-switcher.tsx`.
+- Delete `apps/web/src/features/account/preferences/account-language-settings-item.tsx`.
+- Remove `AccountLanguageSettingsItem` from the account preferences page and any tests/imports.
+- Remove `NEXT_LOCALE` and `LOCALE_COOKIE_NAME`.
+- In `apps/web/src/config/legal/cookies.ts`, remove the locale cookie entry.
+- In `apps/web/src/types/cookies.ts`, remove `"locale"` from `CookiePurposeKey`.
+- Remove locale switcher text from copied UI/legal copy.
+
+### 9. Update cookie consent persistence
+
+Update:
+
+- `apps/web/src/features/cookies/cookie-context.tsx`
+- `apps/web/src/features/cookies/cookie-consent-actions.ts`
+- `apps/web/src/server/cookie-consent/cookie-consent-service.ts`
+- `apps/web/src/features/cookies/cookie-settings-dialog.test.tsx`
+
+Required changes:
+
+- `useCookieContext()` must not call `useLocale`.
+- `commitConsent` must not receive or submit a locale.
+- `persistCookieConsentAction` input schema must not include `locale`.
+- `recordCookieConsentEvent` must not normalize or store locale.
+- Remove `routing` imports from cookie consent service.
+
+PocketBase schema changes for this are in the migration section.
+
+### 10. Update newsletter flow
+
+Update:
+
+- `apps/web/src/features/marketing/newsletter/newsletter-form.tsx`
+- `apps/web/src/features/marketing/newsletter/newsletter-actions.ts`
+- newsletter email builder and tests.
+
+Required changes:
+
+- The client form must not call `useLocale`.
+- `submitNewsletterFormAction` input schema must not require `locale`.
+- `recordNewsletterSubscription` must store only `email` and `source`.
+- `sendNewsletterSignupNotification` must not receive a locale.
+- Newsletter email copy must be static primary-language copy.
+
+PocketBase schema changes for this are in the migration section.
+
+### 11. Update blog flow
+
+Update:
+
+- `apps/web/src/server/blog/blog-api.ts`
+- `apps/web/src/server/blog/blog-api.test.ts`
+- `apps/web/src/server/blog/blog-message-contract.test.ts`
+- `apps/web/src/features/marketing/blog/*`
+- blog pages under the moved app router.
+
+Required changes:
+
+- Remove `locale` and `translationSharedId` from `BlogPost`.
+- `getAllPosts()` takes no locale argument.
+- `getPostBySlug(slug)` takes no locale argument.
+- PocketBase filters should use `status="published"` and slug only, not locale.
+- Requested fields should not include `locale` or `translation_shared_id`.
+- Blog date formatting should use `PRIMARY_FORMAT_LOCALE`.
+- Delete or rewrite `blog-message-contract.test.ts`; it currently exists only to enforce messages in both locales.
+- Update blog metadata so it has a canonical URL only, no language alternates.
+
+PocketBase schema changes for this are in the migration section.
+
+### 12. Update auth flows and redirect helpers
+
+Update all auth flow routes after moving them out of `[locale]`:
+
+- `post-auth/route.ts`
+- `verify-email/complete/route.ts`
+- `invite/[token]/accept/route.ts`
+- `invite/[token]/start/route.ts`
+- related route tests.
+
+Required changes:
+
+- Route contexts must not include `locale`.
+- `redirectHrefWithAuthCookies` must not take a locale.
+- `createRedirectResponse` should receive a final pathname string.
+- `post-auth` should redirect to string routes from `config/routes.ts`.
+- Invite accept/start routes should use `getInviteHref`, `getInviteStartPath`, `getOrganizationOverviewPath`, etc. as final string builders.
+- `apps/web/src/app/api/pocketbase/email-link/route.ts` must stop reading `NEXT_LOCALE` and `Accept-Language`; it should redirect to the fixed action target plus token.
+- Update unit tests that currently construct URLs like `https://example.com/cs/post-auth`.
+
+### 13. Update organization invites and emails
+
+Update:
+
+- `apps/web/src/server/organizations/organization-invite-url.ts`
+- `apps/web/src/server/organizations/organization-invite-mailer.ts`
+- `apps/web/src/server/organizations/organization-invite-mutations.ts`
+- `apps/web/src/features/organizations/settings/members/organization-members-actions.ts`
+- `apps/web/src/features/organizations/settings/members/organization-invite-members-settings-item.tsx`
+- `apps/web/src/features/organizations/settings/members/organization-members-settings-section.tsx`
+
+Required changes:
+
+- `createOrganizationInviteUrl(inviteToken)` should not take locale.
+- Invite mutation inputs should not include locale.
+- Resend invite actions should not validate locale with `z.enum(routing.locales)`.
+- Email builders should use static primary-language copy.
+- Email preview props should use the final `PRIMARY_HTML_LANG` directly.
+
+### 14. Update metadata, manifest, and sitemap
+
+Update:
+
+- `apps/web/src/lib/metadata.ts`
+- `apps/web/src/app/manifest.ts`
+- `apps/web/src/app/sitemap.ts`
+- `apps/web/src/app/sitemap.test.ts`
+
+Required changes:
+
+- Remove `Locale`, `AppHref`, `getPathname`, `routing`, and `getLocalizedAlternates`.
+- `createPublicPageMetadata` should accept a final pathname string and return:
+  - `title`
+  - `description`
+  - `metadataBase`
+  - `openGraph.url`
+  - `alternates.canonical` only if currently desired.
+- Do not generate `alternates.languages`.
+- `manifest()` should return static primary-language copy.
+- `sitemap()` should list final unprefixed static routes and blog URLs once.
+- `excludedSitemapRoutes` should be plain final path strings.
+
+### 15. Add a PocketBase migration
+
+Create a new migration in `apps/pocketbase/pb_migrations`, for example:
+
+```text
+apps/pocketbase/pb_migrations/<timestamp>_remove_language_fields.js
+```
+
+Do not edit `1774467906_collections_snapshot.js`.
+
+The migration must remove language-specific schema:
+
+- `cookie_consent_events.locale`
+- `newsletter_subscriptions.locale`
+- `posts.locale`
+- `posts.translation_shared_id`
+
+It must also clean existing data so the database looks single-language:
+
+- Keep `posts` where `locale` is the selected primary language or where `locale` is empty/null.
+- Delete `posts` for other locales before dropping `posts.locale`.
+- Dropping `translation_shared_id` is expected.
+- Keep newsletter rows; only remove their `locale` field.
+- Keep cookie consent event rows; only remove their `locale` field.
+
+Use the current migration style:
+
+```js
+/// <reference path="../pb_data/types.d.ts" />
+
+const PRIMARY_LANGUAGE = "cs";
+
+migrate(
+  (app) => {
+    deleteNonPrimaryPosts(app);
+    removeCollectionFields(app, "cookie_consent_events", ["locale"]);
+    removeCollectionFields(app, "newsletter_subscriptions", ["locale"]);
+    removeCollectionFields(app, "posts", ["locale", "translation_shared_id"]);
+  },
+  (app) => {
+    // Re-add fields with the original definitions copied from
+    // 1774467906_collections_snapshot.js if rollback support is required.
+    // A rollback cannot restore deleted non-primary post records.
+  }
+);
+
+function deleteNonPrimaryPosts(app) {
+  const nonPrimaryPosts = app.findRecordsByFilter(
+    "posts",
+    `locale != "${PRIMARY_LANGUAGE}" && locale != ""`,
+    "",
+    0,
+    0
+  );
+
+  for (const post of nonPrimaryPosts) {
+    app.delete(post);
+  }
+}
+
+function removeCollectionFields(app, collectionName, fieldNames) {
+  const collection = app.findCollectionByNameOrId(collectionName);
+  const names = new Set(fieldNames);
+
+  collection.fields = collection.fields.filter((field) => !names.has(field.name));
+
+  app.save(collection);
+}
+```
+
+Before committing the migration, verify the exact field mutation API against the existing PocketBase version if needed. The existing repo uses `app.findCollectionByNameOrId(...)`, `app.findRecordsByFilter(...)`, `app.save(...)`, and `app.delete(...)`.
+
+After applying the migration locally:
+
+- Run `pnpm pocketbase:typegen`.
+- Confirm `apps/web/src/types/pocketbase.ts` no longer has:
+  - `CookieConsentEventsRecord.locale`
+  - `NewsletterSubscriptionsRecord.locale`
+  - `PostsRecord.locale`
+  - `PostsRecord.translation_shared_id`
+
+### 16. Update generated and package artifacts
+
+- Run `pnpm install` from the repository root after removing `next-intl`.
+- Run `pnpm local:up` if PocketBase is not running.
+- Run `pnpm pocketbase:typegen` after the new migration is applied.
+- Do not manually edit `apps/web/src/types/pocketbase.ts`.
+
+### 17. Update tests
+
+Update all tests to final unprefixed routes.
+
+Common Czech route replacements if `PRIMARY_LANGUAGE = "cs"`:
+
+- `/cs/registrace` -> `/registrace`
+- `/cs/prihlasit-se` -> `/prihlasit-se`
+- `/cs/zapomenute-heslo` -> `/zapomenute-heslo`
+- `/cs/overit-email` -> `/overit-email`
+- `/cs/obnovit-heslo` -> `/obnovit-heslo`
+- `/cs/potvrdit-zmenu-emailu` -> `/potvrdit-zmenu-emailu`
+- `/cs/aplikace` -> `/aplikace`
+- `/cs/ucet` -> `/ucet`
+- `/cs/ucet/preference` -> `/ucet/preference`
+- `/cs/ucet/zabezpeceni` -> `/ucet/zabezpeceni`
+- `/cs/kontakt/podpora` -> `/kontakt/podpora`
+- `/cs/o/:slug/prehled` -> `/o/:slug/prehled`
+- `/cs/o/:slug/nastaveni` -> `/o/:slug/nastaveni`
+- `/cs/o/:slug/nastaveni/clenove` -> `/o/:slug/nastaveni/clenove`
+- `/cs/invite/:token` -> `/invite/:token`
+- `/cs/post-auth` -> `/post-auth`
+
+Common English replacements if `PRIMARY_LANGUAGE = "en"`:
+
+- `/cs/registrace` -> `/sign-up`
+- `/cs/prihlasit-se` -> `/sign-in`
+- `/cs/zapomenute-heslo` -> `/forgot-password`
+- `/cs/overit-email` -> `/verify-email`
+- `/cs/obnovit-heslo` -> `/reset-password`
+- `/cs/aplikace` -> `/app`
+- `/cs/ucet` -> `/account`
+- `/cs/o/:slug/prehled` -> `/o/:slug/overview`
+- `/cs/o/:slug/nastaveni` -> `/o/:slug/settings`
+- `/cs/o/:slug/nastaveni/clenove` -> `/o/:slug/settings/members`
+
+Specific test cleanups:
+
+- Remove `vi.mock("@/i18n/navigation", ...)` from unit tests and assert final hrefs directly.
+- Remove `locale: "cs"` and `locale: "en"` fixture fields unless they are only `Intl` formatting test data.
+- Rewrite `apps/web/src/app/sitemap.test.ts` for a single sitemap entry per route/post.
+- Rewrite `apps/web/src/components/layout/nav-link.test.tsx` for direct href matching.
+- Rewrite `apps/web/src/features/auth/auth-proxy.test.ts` for auth-only proxy behavior.
+- Rewrite blog API tests to call `getAllPosts()` and `getPostBySlug(slug)`.
+- Delete tests that only assert both message files contain matching keys.
+
+### 18. Update repository guidance
+
+Update `apps/web/AGENTS.md` because it currently contains rules that become false after this task:
+
+- Remove the rule requiring localized link wrappers.
+- Remove the rule forbidding manual `/${locale}/...` URLs.
+- Remove the rule requiring `messages/*.json` for new app copy.
+- Remove `src/config/menu.ts` message-key instructions.
+- Remove "Internal app routes stay in English; Czech aliases belong only in `src/i18n/routing.ts`".
+- Keep the Next.js 16, proxy, PocketBase, UI, and generated type rules.
+
+If the root `AGENTS.md` remains correct, leave it alone.
+
+## Final cleanup checklist
+
+The task is not done until these verification commands have no unexpected hits or failures:
+
+```bash
+rg -n "next-intl|@/i18n|\\[locale\\]|setRequestLocale|getTranslations|useTranslations|createTranslator|NextIntlClientProvider|LOCALE_COOKIE_NAME|NEXT_LOCALE|routing\\.locales|routing\\.pathnames|routing\\.defaultLocale" apps/web
+rg -n "/cs/|/en/" apps/web/src apps/web/tests
+rg -n "translation_shared_id|locale" apps/web/src apps/web/tests
+pnpm --dir apps/pocketbase test
+pnpm --dir apps/web lint
+pnpm --dir apps/web check-types
+pnpm --dir apps/web test
+pnpm check
+```
+
+The second `rg` may still find unrelated text in user-facing copy or external examples; review each hit and keep only intentional non-routing content.
+
+The third `rg` may still find `localeCompare` or a single formatting locale constant. That is acceptable only if it is not app language selection, schema, routing, cookies, or persisted user preference.
+
+Do not use the old PocketBase snapshot migration as a cleanup signal. Existing deployed migrations will still contain historical `locale` fields by design. Instead, verify that the new migration removes those fields and that regenerated `apps/web/src/types/pocketbase.ts` no longer exposes them.
+
+Run E2E if the local stack credentials and browsers are available:
+
+```bash
+pnpm local:up
+pnpm test:e2e
+```
+
+## Expected final state
+
+- No `next-intl` dependency.
+- No `apps/web/messages`.
+- No `apps/web/src/i18n`.
+- No `apps/web/src/app/[locale]`.
+- No locale-prefixed public routes.
+- No language switcher or account language preference.
+- No `NEXT_LOCALE` cookie.
+- No `locale` or `translation_shared_id` fields in PocketBase app-owned collections.
+- No localized alternates in metadata or sitemap.
+- No tests depending on `/cs`, `/en`, `AppLocale`, or mocked i18n navigation.
+- The app keeps the selected primary language's copy and URL shape directly.
