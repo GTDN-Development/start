@@ -11,9 +11,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   cacheLife: {
     blog: {
-      stale: 30,
-      revalidate: 60,
-      expire: 120,
+      stale: 10,
+      revalidate: 30,
+      expire: 86400,
     },
   },
   reactStrictMode: true,
