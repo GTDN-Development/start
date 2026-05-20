@@ -59,6 +59,7 @@ function createWebAppEnv(config, appPort, env = process.env) {
     NEXT_PUBLIC_APP_URL: `http://localhost:${appPort}`,
     NEXT_PUBLIC_PB_URL: config.pbUrl,
     MAILPIT_BASE_URL: config.mailpitUrl,
+    GOTENBERG_BASE_URL: config.gotenbergUrl,
     NEXT_PUBLIC_ORGANIZATIONS_ENABLED: "true",
     PB_SUPERUSER_EMAIL: LOCAL_POCKETBASE_SUPERUSER_EMAIL,
     PB_SUPERUSER_PASSWORD: LOCAL_POCKETBASE_SUPERUSER_PASSWORD,

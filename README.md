@@ -9,6 +9,7 @@ open-source starter.
 - `apps/web` - Next.js 16 application for marketing, auth, and the authenticated app
 - `apps/pocketbase` - PocketBase service with migrations, hooks, public assets, and Railway deployment files
 - `apps/mailpit` - Mailpit service for development and test email capture
+- `apps/gotenberg` - Gotenberg Chromium PDF rendering service for local and Railway deployments
 - `.rules` - project goals and architecture rules
 - `.docs` - implementation notes for key subsystems
 
@@ -76,17 +77,19 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 
 - Vercel deploys `apps/web`
 - Railway deploys `apps/pocketbase`
+- Railway deploys `apps/gotenberg`
 - the Railway service for PocketBase must use `apps/pocketbase` as its `Root Directory`
+- the Railway service for Gotenberg must use `apps/gotenberg` as its `Root Directory`
 - `main` is the production branch
 - `dev` is the shared development branch
 - development and production use separate services, volumes, domains, and environment variables
 
 ## Local Dev And Tests
 
-- `pnpm local:up` starts the persistent PocketBase + Mailpit stack and applies the local mail baseline.
+- `pnpm local:up` starts the persistent PocketBase + Mailpit + Gotenberg stack and applies the local mail baseline.
 - `pnpm dev` runs the workspace dev task; `pnpm dev:full` starts the local stack first.
 - `pnpm test` runs Turbo tests, including PocketBase script tests.
-- `pnpm test:e2e` starts an isolated PocketBase + Mailpit stack, builds the web app, and runs Playwright.
+- `pnpm test:e2e` starts an isolated PocketBase + Mailpit + Gotenberg stack, builds the web app, and runs Playwright.
 - Details live in [.docs/local-stack.md](/Users/fanda/Dev/start/.docs/local-stack.md) and
   [.docs/testing-system.md](/Users/fanda/Dev/start/.docs/testing-system.md).
 
@@ -96,6 +99,7 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 - `NEXT_PUBLIC_APP_URL` is the canonical public app URL
 - `NEXT_PUBLIC_PB_URL` is the canonical PocketBase base URL
 - `MAILPIT_BASE_URL` is required for local Mailpit API delivery
+- `GOTENBERG_BASE_URL` is the server-only Gotenberg base URL for PDF rendering
 - base URLs are written without a trailing slash
 - sender identity uses `MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS`
 - local dev and E2E both use `MAIL_TRANSPORT="mailpit-api"`
@@ -106,6 +110,7 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 - web app guide: [apps/web/README.md](/Users/fanda/Dev/start/apps/web/README.md)
 - PocketBase service guide: [apps/pocketbase/README.md](/Users/fanda/Dev/start/apps/pocketbase/README.md)
 - Mailpit service guide: [apps/mailpit/README.md](/Users/fanda/Dev/start/apps/mailpit/README.md)
+- Gotenberg service guide: [apps/gotenberg/README.md](/Users/fanda/Dev/start/apps/gotenberg/README.md)
 - focused project notes: [.docs/README.md](/Users/fanda/Dev/start/.docs/README.md)
 
 Environment examples live inside the owning app directories:

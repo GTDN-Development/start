@@ -150,6 +150,7 @@
       "title": "Production-ready<break></break>white-label application",
       "description": "A production-ready white-label application with authentication, account management, organizations, and deployment foundations.",
       "learnMore": "Learn more",
+      "pdfDemo": "Open PDF demo",
       "shadcnDocs": "Shadcn ui docs",
       "changelogCarousel": {
         "title": "Changelog",

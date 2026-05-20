@@ -8,6 +8,7 @@ const DEFAULT_PORTS = {
   pocketbase: 8090,
   mailpitHttp: 8025,
   mailpitSmtp: 1025,
+  gotenberg: 3031,
 };
 
 export const LOCAL_POCKETBASE_SUPERUSER_EMAIL = "local-admin@example.com";
@@ -36,11 +37,13 @@ export function createDevStackConfig(env = process.env) {
       DEFAULT_PORTS.mailpitSmtp,
       "MAILPIT_SMTP_PORT"
     ),
+    gotenbergPort: readPort(env.GOTENBERG_PORT, DEFAULT_PORTS.gotenberg, "GOTENBERG_PORT"),
   });
 }
 
 export async function createE2EStackConfig() {
-  const [pbPort, mailpitHttpPort, mailpitSmtpPort] = await Promise.all([
+  const [pbPort, mailpitHttpPort, mailpitSmtpPort, gotenbergPort] = await Promise.all([
+    findFreePort(),
     findFreePort(),
     findFreePort(),
     findFreePort(),
@@ -51,6 +54,7 @@ export async function createE2EStackConfig() {
     pbPort,
     mailpitHttpPort,
     mailpitSmtpPort,
+    gotenbergPort,
   });
 }
 
@@ -68,6 +72,7 @@ export async function prepareLocalStack(config, env = process.env) {
     await Promise.all([
       waitUntilOk(`${config.pbUrl}/api/health`, "PocketBase"),
       waitUntilOk(`${config.mailpitUrl}/readyz`, "Mailpit"),
+      waitUntilOk(`${config.gotenbergUrl}/health`, "Gotenberg"),
     ]);
 
     await run("pnpm", ["--filter", "@start/pocketbase", "run", "mailpit:apply"], {
@@ -121,6 +126,7 @@ function createStackConfig(config) {
     ...config,
     pbUrl: `http://127.0.0.1:${config.pbPort}`,
     mailpitUrl: `http://127.0.0.1:${config.mailpitHttpPort}`,
+    gotenbergUrl: `http://127.0.0.1:${config.gotenbergPort}`,
   };
 }
 
@@ -131,6 +137,7 @@ function createComposeEnv(config, env = process.env) {
     POCKETBASE_PORT: String(config.pbPort),
     MAILPIT_HTTP_PORT: String(config.mailpitHttpPort),
     MAILPIT_SMTP_PORT: String(config.mailpitSmtpPort),
+    GOTENBERG_PORT: String(config.gotenbergPort),
     PB_SUPERUSER_EMAIL: LOCAL_POCKETBASE_SUPERUSER_EMAIL,
     PB_SUPERUSER_PASSWORD: LOCAL_POCKETBASE_SUPERUSER_PASSWORD,
   };
@@ -146,7 +153,9 @@ function assertDockerCompose() {
     return;
   }
 
-  throw new Error("Docker with Compose is required for the local PocketBase + Mailpit stack.");
+  throw new Error(
+    "Docker with Compose is required for the local PocketBase + Mailpit + Gotenberg stack."
+  );
 }
 
 function readPort(value, fallback, envName) {
@@ -243,6 +252,7 @@ function createLocalStackCommandEnv(config, env = process.env) {
     ...env,
     NEXT_PUBLIC_PB_URL: config.pbUrl,
     MAILPIT_BASE_URL: config.mailpitUrl,
+    GOTENBERG_BASE_URL: config.gotenbergUrl,
     PB_SUPERUSER_EMAIL: LOCAL_POCKETBASE_SUPERUSER_EMAIL,
     PB_SUPERUSER_PASSWORD: LOCAL_POCKETBASE_SUPERUSER_PASSWORD,
   };

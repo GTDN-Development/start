@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FileTextIcon } from "lucide-react";
 import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Button } from "@/components/ui/button";
@@ -102,6 +103,18 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
           <div className="bg-muted mt-20 aspect-video w-full rounded-3xl"></div>
         </HeroContent>
       </Hero>
+
+      <Container render={<section />} className="pt-10">
+        <Button
+          size="lg"
+          variant="outline"
+          nativeButton={false}
+          render={<a href="/api/pdf/demo" target="_blank" rel="noopener noreferrer" />}
+        >
+          <FileTextIcon aria-hidden="true" />
+          {t("pdfDemo")}
+        </Button>
+      </Container>
 
       <div className="space-y-16 pt-16 pb-24 md:space-y-32">
         <Container render={<section />}>

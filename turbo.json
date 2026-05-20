@@ -7,6 +7,9 @@
       "env": [
         "EMAIL_SECURE",
         "GENERAL_FORMS_RECIPIENT",
+        "GOTENBERG_API_BASIC_AUTH_PASSWORD",
+        "GOTENBERG_API_BASIC_AUTH_USERNAME",
+        "GOTENBERG_BASE_URL",
         "MAIL_FROM_ADDRESS",
         "MAIL_FROM_NAME",
         "MAIL_HOST",
