@@ -727,6 +727,7 @@
                 "min": "New password must be at least {min} characters.",
                 "max": "New password must not exceed {max} characters.",
                 "uppercase": "New password must contain at least one uppercase letter.",
+                "lowercase": "New password must contain at least one lowercase letter.",
                 "number": "New password must contain at least one number.",
                 "specialCharacter": "New password must contain at least one special character.",
                 "sameAsCurrent": "New password must be different from your current password."
@@ -1248,6 +1249,7 @@
         "passwordMin": "Password must be at least {min} characters.",
         "passwordMax": "Password must not exceed {max} characters.",
         "passwordUppercase": "Password must contain at least one uppercase letter.",
+        "passwordLowercase": "Password must contain at least one lowercase letter.",
         "passwordNumber": "Password must contain at least one number.",
         "passwordSpecialCharacter": "Password must contain at least one special character.",
         "termsAccepted": "You must accept the privacy policy.",
@@ -1273,7 +1275,7 @@
         "password": {
           "label": "Password",
           "placeholder": "Create a strong password",
-          "description": "Use at least 8 characters, including an uppercase letter, a number, and a special character."
+          "description": "Use at least 8 characters, including uppercase and lowercase letters, a number, and a special character."
         },
         "termsAccepted": {
           "label": "I agree to the <link>privacy policy</link>."
@@ -1330,6 +1332,7 @@
         "passwordMin": "Password must be at least {min} characters.",
         "passwordMax": "Password must not exceed {max} characters.",
         "passwordUppercase": "Password must contain at least one uppercase letter.",
+        "passwordLowercase": "Password must contain at least one lowercase letter.",
         "passwordNumber": "Password must contain at least one number.",
         "passwordSpecialCharacter": "Password must contain at least one special character.",
         "confirmPasswordRequired": "Please confirm your new password.",
@@ -1343,7 +1346,7 @@
         "password": {
           "label": "New password",
           "placeholder": "Create a new password",
-          "description": "Use at least 8 characters, including an uppercase letter, a number, and a special character."
+          "description": "Use at least 8 characters, including uppercase and lowercase letters, a number, and a special character."
         },
         "confirmPassword": {
           "label": "Confirm new password",

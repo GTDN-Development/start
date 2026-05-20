@@ -727,6 +727,7 @@
                 "min": "Nové heslo musí mít alespoň {min} znaků.",
                 "max": "Nové heslo nesmí být delší než {max} znaků.",
                 "uppercase": "Nové heslo musí obsahovat alespoň jedno velké písmeno.",
+                "lowercase": "Nové heslo musí obsahovat alespoň jedno malé písmeno.",
                 "number": "Nové heslo musí obsahovat alespoň jedno číslo.",
                 "specialCharacter": "Nové heslo musí obsahovat alespoň jeden speciální znak.",
                 "sameAsCurrent": "Nové heslo se musí lišit od aktuálního hesla."
@@ -1248,6 +1249,7 @@
         "passwordMin": "Heslo musí mít alespoň {min} znaků.",
         "passwordMax": "Heslo nesmí být delší než {max} znaků.",
         "passwordUppercase": "Heslo musí obsahovat alespoň jedno velké písmeno.",
+        "passwordLowercase": "Heslo musí obsahovat alespoň jedno malé písmeno.",
         "passwordNumber": "Heslo musí obsahovat alespoň jedno číslo.",
         "passwordSpecialCharacter": "Heslo musí obsahovat alespoň jeden speciální znak.",
         "termsAccepted": "Musíte přijmout zásady ochrany osobních údajů.",
@@ -1273,7 +1275,7 @@
         "password": {
           "label": "Heslo",
           "placeholder": "Vytvořte silné heslo",
-          "description": "Použijte alespoň 8 znaků včetně velkého písmene, čísla a speciálního znaku."
+          "description": "Použijte alespoň 8 znaků včetně velkého a malého písmene, čísla a speciálního znaku."
         },
         "termsAccepted": {
           "label": "Souhlasím se <link>zásadami ochrany osobních údajů</link>."
@@ -1330,6 +1332,7 @@
         "passwordMin": "Heslo musí mít alespoň {min} znaků.",
         "passwordMax": "Heslo nesmí být delší než {max} znaků.",
         "passwordUppercase": "Heslo musí obsahovat alespoň jedno velké písmeno.",
+        "passwordLowercase": "Heslo musí obsahovat alespoň jedno malé písmeno.",
         "passwordNumber": "Heslo musí obsahovat alespoň jedno číslo.",
         "passwordSpecialCharacter": "Heslo musí obsahovat alespoň jeden speciální znak.",
         "confirmPasswordRequired": "Potvrďte prosím nové heslo.",
@@ -1343,7 +1346,7 @@
         "password": {
           "label": "Nové heslo",
           "placeholder": "Vytvořte nové heslo",
-          "description": "Použijte alespoň 8 znaků včetně velkého písmene, čísla a speciálního znaku."
+          "description": "Použijte alespoň 8 znaků včetně velkého a malého písmene, čísla a speciálního znaku."
         },
         "confirmPassword": {
           "label": "Potvrzení nového hesla",

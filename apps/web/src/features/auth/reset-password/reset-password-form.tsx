@@ -47,6 +47,7 @@ export function ResetPasswordForm({
           max: String(authConfig.passwordPolicy.maxLength),
         }),
         uppercase: t("validation.passwordUppercase"),
+        lowercase: t("validation.passwordLowercase"),
         number: t("validation.passwordNumber"),
         specialCharacter: t("validation.passwordSpecialCharacter"),
       }),

@@ -48,6 +48,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
       max: String(authConfig.passwordPolicy.maxLength),
     }),
     passwordUppercase: t("validation.passwordUppercase"),
+    passwordLowercase: t("validation.passwordLowercase"),
     passwordNumber: t("validation.passwordNumber"),
     passwordSpecialCharacter: t("validation.passwordSpecialCharacter"),
   });

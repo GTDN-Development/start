@@ -41,6 +41,7 @@ export const authConfig = {
     minLength: 8,
     maxLength: 100,
     minUppercase: 1,
+    minLowercase: 1,
     minNumbers: 1,
     minSpecialCharacters: 1,
   },

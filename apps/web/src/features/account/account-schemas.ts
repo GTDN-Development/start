@@ -61,6 +61,7 @@ export type AccountPasswordValidationMessages = {
   newPasswordMin: string;
   newPasswordMax: string;
   newPasswordUppercase: string;
+  newPasswordLowercase: string;
   newPasswordNumber: string;
   newPasswordSpecialCharacter: string;
   newPasswordSameAsCurrent: string;
@@ -105,6 +106,7 @@ export function createAccountPasswordFormSchema(messages: AccountPasswordValidat
         min: messages.newPasswordMin,
         max: messages.newPasswordMax,
         uppercase: messages.newPasswordUppercase,
+        lowercase: messages.newPasswordLowercase,
         number: messages.newPasswordNumber,
         specialCharacter: messages.newPasswordSpecialCharacter,
       }),

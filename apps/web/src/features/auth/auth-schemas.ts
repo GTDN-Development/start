@@ -23,6 +23,7 @@ export type SignUpValidationMessages = {
   passwordMin: string;
   passwordMax: string;
   passwordUppercase: string;
+  passwordLowercase: string;
   passwordNumber: string;
   passwordSpecialCharacter: string;
 };
@@ -90,6 +91,7 @@ export function createSignUpFormSchema(messages: SignUpValidationMessages) {
       min: messages.passwordMin,
       max: messages.passwordMax,
       uppercase: messages.passwordUppercase,
+      lowercase: messages.passwordLowercase,
       number: messages.passwordNumber,
       specialCharacter: messages.passwordSpecialCharacter,
     }),

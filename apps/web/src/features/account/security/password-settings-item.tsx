@@ -255,6 +255,7 @@ function getPasswordFormSchema(t: SecurityTranslationFn) {
       max: String(authConfig.passwordPolicy.maxLength),
     }),
     newPasswordUppercase: t("security.password.fields.newPassword.errors.uppercase"),
+    newPasswordLowercase: t("security.password.fields.newPassword.errors.lowercase"),
     newPasswordNumber: t("security.password.fields.newPassword.errors.number"),
     newPasswordSpecialCharacter: t("security.password.fields.newPassword.errors.specialCharacter"),
     newPasswordSameAsCurrent: t("security.password.fields.newPassword.errors.sameAsCurrent"),

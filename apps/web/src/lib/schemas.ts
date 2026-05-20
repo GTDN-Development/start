@@ -6,6 +6,7 @@ export type AuthPasswordValidationMessages = {
   min?: string;
   max?: string;
   uppercase?: string;
+  lowercase?: string;
   number?: string;
   specialCharacter?: string;
 };
@@ -46,6 +47,9 @@ export function passwordPolicySchema(messages?: AuthPasswordValidationMessages) 
     })
     .refine((value) => countMatches(value, /[A-Z]/g) >= authConfig.passwordPolicy.minUppercase, {
       message: messages?.uppercase,
+    })
+    .refine((value) => countMatches(value, /[a-z]/g) >= authConfig.passwordPolicy.minLowercase, {
+      message: messages?.lowercase,
     })
     .refine((value) => countMatches(value, /\d/g) >= authConfig.passwordPolicy.minNumbers, {
       message: messages?.number,
