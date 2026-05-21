@@ -36,7 +36,7 @@ export function renderDemoReportHtml(data: DemoReportData): string {
       body {
         color: #111827;
         font-family: Arial, Helvetica, sans-serif;
-        font-size: 13px;
+        font-size: 11px;
         line-height: 1.5;
         margin: 0;
       }
@@ -46,6 +46,7 @@ export function renderDemoReportHtml(data: DemoReportData): string {
         border-bottom: 1px solid #d1d5db;
         display: flex;
         justify-content: space-between;
+        break-inside: avoid;
         padding-bottom: 24px;
       }
 
@@ -75,11 +76,24 @@ export function renderDemoReportHtml(data: DemoReportData): string {
         width: 100%;
       }
 
+      thead {
+        display: table-header-group;
+      }
+
+      tbody {
+        display: table-row-group;
+      }
+
+      tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
       th {
         background: #f3f4f6;
         border-bottom: 1px solid #d1d5db;
         color: #374151;
-        font-size: 11px;
+        font-size: 12px;
         letter-spacing: 0.06em;
         padding: 10px 12px;
         text-align: left;
@@ -93,7 +107,7 @@ export function renderDemoReportHtml(data: DemoReportData): string {
       }
 
       .value {
-        font-size: 20px;
+        font-size: 11px;
         font-weight: 700;
         white-space: nowrap;
       }

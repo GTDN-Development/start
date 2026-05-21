@@ -35,8 +35,7 @@ const demoReportDataSchema = z.object({
         value: z.string().trim().min(1).max(80),
       })
     )
-    .min(1)
-    .max(20),
+    .min(1),
   footerNote: z.string().trim().min(1).max(240),
 }) satisfies z.ZodType<DemoReportData>;
 
