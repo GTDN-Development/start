@@ -1,0 +1,179 @@
+---
+title: Remove Gotenberg PDF integration
+status: ready
+---
+
+# Remove Gotenberg PDF integration
+
+## Mission
+
+Remove the Gotenberg/PDF demo feature completely, as if this repository never had built-in PDF
+rendering.
+
+The final codebase must not contain `apps/gotenberg`, Gotenberg env variables, PDF demo routes,
+PDF sidebar entries, PDF form code, PDF server templates, PDF route tests, local-stack Gotenberg
+bootstrapping, or documentation that describes PDF rendering as a built-in system.
+
+## Non-negotiable constraints
+
+- Read `AGENTS.md` and `apps/web/AGENTS.md` before editing.
+- Do not add replacement provider layers, PDF abstractions, disabled feature flags, placeholder routes,
+  or compatibility shims.
+- Keep app-specific cleanup inside the owning app directories.
+- Do not revert unrelated user changes in the working tree.
+- Use direct deletion and explicit cleanup. The end state should have no dead imports, no unused route
+  constants, no stale docs, and no stale env examples.
+
+## Current implementation map
+
+Remove or rewrite every item in this map:
+
+- `apps/gotenberg/**`: delete the whole deploy wrapper app.
+- `compose.yaml`: remove the `gotenberg` service and `GOTENBERG_PORT` binding.
+- `scripts/local-stack.mjs`: remove Gotenberg ports, free-port allocation, `/health` waiting,
+  Compose env, and `GOTENBERG_BASE_URL` injection.
+- `scripts/run-web-e2e.mjs`: stop passing `GOTENBERG_BASE_URL` into the isolated web app.
+- `turbo.json`: remove Gotenberg env passthrough keys.
+- `pnpm-lock.yaml`: remove the `apps/gotenberg` workspace lock entry by running `pnpm install`
+  after deleting the app.
+- `README.md`: remove Gotenberg app, Railway service, local stack, e2e stack, env, and service guide
+  references.
+- `.docs/pdf-system.md`: delete this document.
+- `.docs/local-stack.md`: remove Gotenberg from the local stack description, ports, health checks,
+  and links.
+- `.docs/testing-system.md`: remove Gotenberg from the E2E stack and PDF test notes.
+- `.docs/adoption-checklist.md`: remove PDF/Gotenberg adoption notes.
+- `apps/gotenberg/README.md`: deleted with `apps/gotenberg`.
+- `apps/web/README.md`: remove `GOTENBERG_BASE_URL`.
+- `apps/web/.env.local.example`: remove `GOTENBERG_BASE_URL`.
+- `apps/web/.env.test.example`: remove `GOTENBERG_BASE_URL`.
+- `apps/web/.env.prod.example`: remove `GOTENBERG_BASE_URL`,
+  `GOTENBERG_API_BASIC_AUTH_USERNAME`, `GOTENBERG_API_BASIC_AUTH_PASSWORD`, and the note about
+  `API_ENABLE_BASIC_AUTH=true` on the Gotenberg service.
+- `apps/web/src/server/pdf/gotenberg-client.ts`: delete.
+- `apps/web/src/server/pdf/gotenberg-client.test.ts`: delete.
+- `apps/web/src/server/pdf/templates/demo-report.ts`: delete.
+- `apps/web/src/server/pdf/**`: delete the directory once empty.
+- `apps/web/src/app/api/pdf/demo/route.ts`: delete.
+- `apps/web/src/app/api/pdf/demo/route.test.ts`: delete.
+- `apps/web/src/app/api/pdf/**`: delete empty route directories.
+- `apps/web/src/features/pdf/pdf-demo-form.tsx`: delete.
+- `apps/web/src/features/pdf/**`: delete the directory once empty.
+- `apps/web/src/app/[locale]/(application)/(application-shell)/app/pdf-demo/page.tsx`: delete.
+- `apps/web/src/app/[locale]/(application)/(application-shell)/o/[organizationSlug]/pdf-demo/page.tsx`:
+  delete.
+- `apps/web/src/app/[locale]/(application)/(application-shell)/**/pdf-demo`: delete empty route
+  directories.
+- `apps/web/src/config/routes.ts`: remove `APP_PDF_DEMO_PATH`, `ORGANIZATION_PDF_DEMO_PATH`,
+  `getOrganizationPdfDemoPath`, and `getOrganizationPdfDemoHref`.
+- `apps/web/src/config/menu.ts`: remove PDF demo menu entries and any now-unused `FileTextIcon`
+  import/type references.
+- `apps/web/src/features/application/application-menu-tree.tsx`: remove PDF demo route special cases
+  and any now-unused imports.
+- `apps/web/src/features/application/application-scope.ts`: remove `APP_PDF_DEMO_PATH` from personal
+  scope detection.
+- `apps/web/src/i18n/routing.ts`: remove `/app/pdf-demo` and
+  `/o/[organizationSlug]/pdf-demo` pathnames.
+- `apps/web/messages/cs.json` and `apps/web/messages/en.json`: remove:
+  - `layout.navigation.items.pdfDemo`
+  - `application.pdfDemo`
+  - `forms.pdfDemo`
+  - any other PDF demo strings discovered by search.
+
+## Implementation plan
+
+### 1. Prepare and inventory
+
+- Run `git status --short` and identify unrelated changes before editing.
+- Run targeted searches:
+
+```bash
+rg -n "GOTENBERG|Gotenberg|gotenberg|pdf-demo|PDF demo|renderHtmlToPdf|DemoReport|demo-report|forms\\.pdfDemo|APP_PDF_DEMO|ORGANIZATION_PDF_DEMO|PdfDemo" . --glob '!node_modules' --glob '!apps/web/.next' --glob '!apps/pocketbase/pb_data'
+find apps/gotenberg -maxdepth 2 -type f -print | sort
+find apps/web/src -path '*pdf*' -print | sort
+```
+
+- Treat the output as the deletion checklist. If new references appear, remove them too.
+
+### 2. Delete the standalone Gotenberg app
+
+- Delete `apps/gotenberg`.
+- Remove the `gotenberg` service from `compose.yaml`.
+- Run `pnpm install` from the repository root so the workspace lockfile no longer contains
+  `apps/gotenberg`.
+
+### 3. Clean local and E2E stack wiring
+
+- In `scripts/local-stack.mjs`, remove all Gotenberg-specific state:
+  - default port `3031`
+  - `GOTENBERG_PORT`
+  - free-port allocation
+  - `gotenbergUrl`
+  - `/health` wait
+  - Compose env injection
+  - `GOTENBERG_BASE_URL` web env injection
+  - user-facing text that says the stack includes Gotenberg.
+- In `scripts/run-web-e2e.mjs`, remove `GOTENBERG_BASE_URL`.
+- Ensure `pnpm local:up` and `pnpm test:e2e` still start only the services they actually need.
+
+### 4. Remove the web PDF backend
+
+- Delete `apps/web/src/server/pdf`.
+- Delete `apps/web/src/app/api/pdf`.
+- Remove all tests that only cover Gotenberg/PDF rendering.
+- Do not replace the API route with a stub. `/api/pdf/demo` should stop existing.
+
+### 5. Remove authenticated PDF demo UI
+
+- Delete the shared PDF form feature directory.
+- Delete the User Scope PDF demo page.
+- Delete the Organization Scope PDF demo page.
+- Remove PDF demo entries from sidebar/menu configuration.
+- Remove route constants, route helpers, and active-state special cases.
+- Remove localized pathnames for the PDF demo routes.
+- Remove all PDF demo messages from `messages/cs.json` and `messages/en.json`.
+
+### 6. Clean documentation and environment examples
+
+- Delete `.docs/pdf-system.md`.
+- Update README and docs so they describe only the remaining stack.
+- Remove Gotenberg from Railway setup notes.
+- Remove Gotenberg from local-stack docs, default port lists, health check examples, and E2E stack
+  docs.
+- Remove all Gotenberg variables from env examples and from `turbo.json`.
+
+### 7. Verification
+
+- Repeat the inventory search and expect no product references:
+
+```bash
+rg -n "GOTENBERG|Gotenberg|gotenberg|pdf-demo|PDF demo|renderHtmlToPdf|DemoReport|demo-report|forms\\.pdfDemo|APP_PDF_DEMO|ORGANIZATION_PDF_DEMO|PdfDemo" . --glob '!node_modules' --glob '!apps/web/.next' --glob '!apps/pocketbase/pb_data'
+```
+
+- Acceptable remaining matches should be limited to this plan file, or remove them if the task
+  requires the plan to be deleted after completion.
+- Run:
+
+```bash
+pnpm format:check
+pnpm lint
+pnpm check-types
+pnpm test
+```
+
+- If the repository normally uses the combined command, `pnpm check` can replace the first three
+  commands.
+- If E2E is available in the environment, run `pnpm test:e2e` to confirm stack startup still works
+  without Gotenberg.
+
+## Expected final state
+
+- No `apps/gotenberg`.
+- No Docker Compose Gotenberg service.
+- No Gotenberg env variables in examples, docs, Turbo config, local stack scripts, or E2E scripts.
+- No `src/server/pdf`, `src/features/pdf`, or `app/api/pdf`.
+- No `/app/pdf-demo` or `/o/[organizationSlug]/pdf-demo` pages, menu items, route constants, or
+  localized pathnames.
+- No PDF demo strings in `messages/*.json`.
+- No built-in PDF system documentation.
+- `pnpm check` passes.
