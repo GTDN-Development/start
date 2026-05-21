@@ -14,6 +14,9 @@ import {
 } from "@/config/menu";
 import {
   APP_HOME_PATH,
+  APP_PDF_DEMO_PATH,
+  getOrganizationPdfDemoHref,
+  getOrganizationPdfDemoPath,
   getOrganizationOverviewHref,
   getOrganizationOverviewPath,
   getOrganizationRootPath,
@@ -33,6 +36,13 @@ function isMenuItemActive(pathname: string, item: ApplicationMenuLink) {
   switch (item.labelKey) {
     case "home":
       return pathname === APP_HOME_PATH;
+    case "pdfDemo": {
+      if (!pathnameOrganizationSlug) {
+        return pathname === APP_PDF_DEMO_PATH;
+      }
+
+      return pathname === getOrganizationPdfDemoPath(pathnameOrganizationSlug);
+    }
     case "overview": {
       if (!pathnameOrganizationSlug) {
         return false;
@@ -63,8 +73,12 @@ function resolveMenuHref(
   item: ApplicationMenuLink,
   selectedOrganizationSlug: string | null
 ): AppHref {
-  if (item.labelKey !== "overview" && item.labelKey !== "settings") {
+  if (item.labelKey === "home") {
     return item.href;
+  }
+
+  if (item.labelKey === "pdfDemo" && item.href === APP_PDF_DEMO_PATH) {
+    return APP_PDF_DEMO_PATH;
   }
 
   if (!selectedOrganizationSlug) {
@@ -73,6 +87,10 @@ function resolveMenuHref(
 
   if (item.labelKey === "overview") {
     return getOrganizationOverviewHref(selectedOrganizationSlug);
+  }
+
+  if (item.labelKey === "pdfDemo") {
+    return getOrganizationPdfDemoHref(selectedOrganizationSlug);
   }
 
   return getOrganizationSettingsHref(selectedOrganizationSlug);

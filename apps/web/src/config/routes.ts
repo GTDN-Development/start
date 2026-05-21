@@ -17,6 +17,8 @@ export const INVITE_ACCEPT_PATH = "/invite/[token]/accept" as const;
 export const INVITE_START_PATH = "/invite/[token]/start" as const;
 export const ORGANIZATION_PATH_PREFIX = "/o" as const;
 export const ORGANIZATION_OVERVIEW_PATH = "/o/[organizationSlug]/overview" as const;
+export const APP_PDF_DEMO_PATH = "/app/pdf-demo" as const;
+export const ORGANIZATION_PDF_DEMO_PATH = "/o/[organizationSlug]/pdf-demo" as const;
 export const ORGANIZATION_SETTINGS_PATH = "/o/[organizationSlug]/settings" as const;
 export const ORGANIZATION_SETTINGS_MEMBERS_PATH = "/o/[organizationSlug]/settings/members" as const;
 
@@ -33,6 +35,10 @@ export function getOrganizationOverviewPath(organizationSlug: string): string {
   return `${getOrganizationRootPath(organizationSlug)}/overview`;
 }
 
+export function getOrganizationPdfDemoPath(organizationSlug: string): string {
+  return `${getOrganizationRootPath(organizationSlug)}/pdf-demo`;
+}
+
 export function getOrganizationSettingsPath(organizationSlug: string): string {
   return `${getOrganizationRootPath(organizationSlug)}/settings`;
 }
@@ -40,6 +46,15 @@ export function getOrganizationSettingsPath(organizationSlug: string): string {
 export function getOrganizationOverviewHref(organizationSlug: string): AppHref {
   return {
     pathname: ORGANIZATION_OVERVIEW_PATH,
+    params: {
+      organizationSlug,
+    },
+  };
+}
+
+export function getOrganizationPdfDemoHref(organizationSlug: string): AppHref {
+  return {
+    pathname: ORGANIZATION_PDF_DEMO_PATH,
     params: {
       organizationSlug,
     },

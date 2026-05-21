@@ -65,6 +65,7 @@
         "signIn": "Přihlášení",
         "signUp": "Registrace",
         "overview": "Přehled",
+        "pdfDemo": "PDF demo",
         "legal": "Právní informace",
         "privacyPolicy": "Zásady ochrany osobních údajů",
         "termsOfService": "Obchodní podmínky",
@@ -150,7 +151,6 @@
       "title": "Produkčně připravená<break></break>white-label aplikace",
       "description": "Produkčně připravená white-label aplikace s autentizací, správou účtu, organizacemi a nasazením.",
       "learnMore": "Zjistit více",
-      "pdfDemo": "Otevřít PDF ukázku",
       "shadcnDocs": "Shadcn ui docs",
       "changelogCarousel": {
         "title": "Poslední změny",
@@ -528,6 +528,22 @@
           "description": "Do sdíleného prostoru se můžete kdykoli vrátit.",
           "cta": "Otevřít přehled"
         }
+      }
+    },
+    "pdfDemo": {
+      "user": {
+        "title": "PDF demo",
+        "description": "Vyplňte pár polí a vygenerujte z nich PDF ve svém osobním rozsahu."
+      },
+      "organization": {
+        "title": "PDF demo organizace",
+        "metadataDescription": "Vyplňte pár polí a vygenerujte PDF pro organizaci.",
+        "description": "Vyplňte pár polí a vygenerujte PDF pro organizaci {organizationName}."
+      },
+      "defaults": {
+        "documentTitle": "Měsíční výkaz práce",
+        "firstItemName": "Implementace",
+        "secondItemName": "Konzultace"
       }
     },
     "account": {
@@ -1065,6 +1081,54 @@
     }
   },
   "forms": {
+    "pdfDemo": {
+      "fields": {
+        "logo": {
+          "label": "Logo"
+        },
+        "documentTitle": {
+          "label": "Název dokumentu",
+          "placeholder": "Měsíční výkaz práce"
+        },
+        "items": {
+          "label": "Položky"
+        },
+        "itemName": {
+          "label": "Název položky",
+          "placeholder": "Implementace"
+        },
+        "itemPrice": {
+          "label": "Cena",
+          "placeholder": "24 000 Kč"
+        }
+      },
+      "items": {
+        "add": "Přidat položku",
+        "remove": "Odebrat položku"
+      },
+      "report": {
+        "logoAlt": "Start",
+        "eyebrow": {
+          "user": "PDF uživatele",
+          "organization": "PDF organizace"
+        },
+        "footerNote": "Vygenerováno pomocí aplikace {appName}."
+      },
+      "submit": {
+        "default": "Vygenerovat PDF",
+        "pending": "Generuji..."
+      },
+      "status": {
+        "errorTitle": "PDF se nepodařilo vygenerovat",
+        "error": "Zkontrolujte formulář a zkuste to znovu. Pokud problém trvá, ověřte, že běží Gotenberg."
+      },
+      "validation": {
+        "required": "Vyplňte toto pole.",
+        "max": "Použijte kratší hodnotu.",
+        "logoInvalid": "Vyberte obrázek ve formátu PNG, JPEG, WebP nebo SVG.",
+        "itemsRequired": "Přidejte alespoň jednu položku s názvem a cenou."
+      }
+    },
     "newsletter": {
       "validation": {
         "email": "Zadejte prosím platnou e-mailovou adresu.",

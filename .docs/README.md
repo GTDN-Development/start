@@ -16,5 +16,6 @@ is the daily entrypoint; these files hold subsystem details.
 - [Marketing and content](marketing-content-system.md)
 - [Newsletter system](newsletter-system.md)
 - [Organization system](organization-system.md)
+- [PDF system](pdf-system.md)
 - [PocketBase production readiness](pocketbase-production-readiness.md)
 - [Testing system](testing-system.md)

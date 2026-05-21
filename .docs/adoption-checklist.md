@@ -39,8 +39,11 @@ change only the product-specific surfaces.
 - Configure web envs from [prod example](/Users/fanda/Dev/start/apps/web/.env.prod.example).
 - Configure PocketBase envs from
   [PocketBase env example](/Users/fanda/Dev/start/apps/pocketbase/.env.example).
+- Configure PDF rendering from [web prod env example](/Users/fanda/Dev/start/apps/web/.env.prod.example)
+  and [Gotenberg service guide](/Users/fanda/Dev/start/apps/gotenberg/README.md).
 - Keep `NEXT_PUBLIC_APP_URL` and `NEXT_PUBLIC_PB_URL` without trailing slashes.
 - On Railway, keep `apps/pocketbase` as the root directory and mount a volume to `/pb_data`.
+- On Railway, keep `apps/gotenberg` as the root directory and enable basic auth.
 - Use Mailpit only for local development and E2E tests.
 
 ## Organizations
@@ -52,7 +55,7 @@ change only the product-specific surfaces.
 ## Keep Stable Foundations Intact
 
 - Do not rewrite auth, account, cookie boundaries, PocketBase migrations/hooks, Railway startup,
-  Mailpit integration, or E2E helpers unless the product has a concrete need.
+  Mailpit, Gotenberg, or E2E helpers unless the product has a concrete need.
 - Do not edit deployed PocketBase migrations in place. Add a new migration for schema changes.
 
 ## Verification

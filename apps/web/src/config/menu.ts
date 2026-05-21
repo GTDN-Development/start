@@ -1,17 +1,27 @@
 import type { AppPathname } from "@/i18n/navigation";
 import {
   ACCOUNT_PATH,
+  APP_PDF_DEMO_PATH,
   APP_HOME_PATH,
+  ORGANIZATION_PDF_DEMO_PATH,
   ORGANIZATION_OVERVIEW_PATH,
   ORGANIZATION_SETTINGS_PATH,
 } from "@/config/routes";
 import type { AppIcon } from "@/types/icons";
-import { LayoutDashboardIcon, LifeBuoyIcon, SettingsIcon, UserIcon } from "lucide-react";
+import {
+  FileTextIcon,
+  LayoutDashboardIcon,
+  LifeBuoyIcon,
+  SettingsIcon,
+  UserIcon,
+} from "lucide-react";
 
 type MenuHref = AppPathname;
 type ApplicationMenuHref =
   | MenuHref
+  | typeof APP_PDF_DEMO_PATH
   | typeof ORGANIZATION_OVERVIEW_PATH
+  | typeof ORGANIZATION_PDF_DEMO_PATH
   | typeof ORGANIZATION_SETTINGS_PATH;
 
 type MenuLinkLabelKey =
@@ -30,6 +40,7 @@ type MenuLinkLabelKey =
   | "organization"
   | "overview"
   | "settings"
+  | "pdfDemo"
   | "account"
   | "myAccount"
   | "privacyPolicy"
@@ -80,8 +91,9 @@ export const marketingMenu: MenuItem[] = [
 
 export const personalApplicationMenu = [
   { labelKey: "home", href: APP_HOME_PATH, icon: LayoutDashboardIcon },
+  { labelKey: "pdfDemo", href: APP_PDF_DEMO_PATH, icon: FileTextIcon },
 ] as const satisfies ReadonlyArray<{
-  labelKey: "home";
+  labelKey: "home" | "pdfDemo";
   href: MenuHref;
   icon: AppIcon;
   matchNested?: boolean;
@@ -89,6 +101,7 @@ export const personalApplicationMenu = [
 
 export const organizationApplicationMenu = [
   { labelKey: "overview", href: ORGANIZATION_OVERVIEW_PATH, icon: LayoutDashboardIcon },
+  { labelKey: "pdfDemo", href: ORGANIZATION_PDF_DEMO_PATH, icon: FileTextIcon },
   {
     labelKey: "settings",
     href: ORGANIZATION_SETTINGS_PATH,
@@ -96,7 +109,7 @@ export const organizationApplicationMenu = [
     matchNested: true,
   },
 ] as const satisfies ReadonlyArray<{
-  labelKey: "overview" | "settings";
+  labelKey: "overview" | "pdfDemo" | "settings";
   href: ApplicationMenuHref;
   icon: AppIcon;
   matchNested?: boolean;

@@ -49,11 +49,17 @@ export const routing = defineRouting({
     "/app": {
       cs: "/aplikace",
     },
+    "/app/pdf-demo": {
+      cs: "/aplikace/pdf-demo",
+    },
     "/o/[organizationSlug]": {
       cs: "/o/[organizationSlug]",
     },
     "/o/[organizationSlug]/overview": {
       cs: "/o/[organizationSlug]/prehled",
+    },
+    "/o/[organizationSlug]/pdf-demo": {
+      cs: "/o/[organizationSlug]/pdf-demo",
     },
     "/o/[organizationSlug]/settings": {
       cs: "/o/[organizationSlug]/nastaveni",

@@ -65,6 +65,7 @@
         "signIn": "Sign in",
         "signUp": "Sign up",
         "overview": "Overview",
+        "pdfDemo": "PDF demo",
         "legal": "Legal",
         "privacyPolicy": "Privacy Policy",
         "termsOfService": "Terms of Service",
@@ -150,7 +151,6 @@
       "title": "Production-ready<break></break>white-label application",
       "description": "A production-ready white-label application with authentication, account management, organizations, and deployment foundations.",
       "learnMore": "Learn more",
-      "pdfDemo": "Open PDF demo",
       "shadcnDocs": "Shadcn ui docs",
       "changelogCarousel": {
         "title": "Changelog",
@@ -528,6 +528,22 @@
           "description": "Jump back into a collaborative space at any time.",
           "cta": "Open overview"
         }
+      }
+    },
+    "pdfDemo": {
+      "user": {
+        "title": "PDF demo",
+        "description": "Fill in a few fields and render the result as a PDF in your personal scope."
+      },
+      "organization": {
+        "title": "Organization PDF demo",
+        "metadataDescription": "Fill in a few fields and render an organization PDF.",
+        "description": "Fill in a few fields and render a PDF for {organizationName}."
+      },
+      "defaults": {
+        "documentTitle": "Monthly work report",
+        "firstItemName": "Implementation",
+        "secondItemName": "Consultation"
       }
     },
     "account": {
@@ -1065,6 +1081,54 @@
     }
   },
   "forms": {
+    "pdfDemo": {
+      "fields": {
+        "logo": {
+          "label": "Logo"
+        },
+        "documentTitle": {
+          "label": "Document title",
+          "placeholder": "Monthly work report"
+        },
+        "items": {
+          "label": "Items"
+        },
+        "itemName": {
+          "label": "Item name",
+          "placeholder": "Implementation"
+        },
+        "itemPrice": {
+          "label": "Price",
+          "placeholder": "24 000 CZK"
+        }
+      },
+      "items": {
+        "add": "Add item",
+        "remove": "Remove item"
+      },
+      "report": {
+        "logoAlt": "Start",
+        "eyebrow": {
+          "user": "User PDF",
+          "organization": "Organization PDF"
+        },
+        "footerNote": "Generated with {appName}."
+      },
+      "submit": {
+        "default": "Generate PDF",
+        "pending": "Generating..."
+      },
+      "status": {
+        "errorTitle": "PDF could not be generated",
+        "error": "Check the form and try again. If the problem continues, verify that Gotenberg is running."
+      },
+      "validation": {
+        "required": "Fill in this field.",
+        "max": "Use a shorter value.",
+        "logoInvalid": "Choose a PNG, JPEG, WebP, or SVG image.",
+        "itemsRequired": "Add at least one item with a name and price."
+      }
+    },
     "newsletter": {
       "validation": {
         "email": "Please enter a valid email address.",
