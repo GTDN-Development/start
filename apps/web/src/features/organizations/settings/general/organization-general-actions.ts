@@ -30,7 +30,6 @@ import {
   leaveOrganization,
   updateOrganizationGeneral,
 } from "@/server/organizations/organization-general-mutations";
-import { resolveAccessibleOrganizationForCurrentUser } from "@/server/organizations/organization-route-queries";
 import type {
   UserOrganization,
   OrganizationResponse,
@@ -71,34 +70,6 @@ export async function createOrganizationAction(input: { name: string; slug?: str
         activeOrganizationSlug: data.organization.slug,
         redirectHref: getOrganizationOverviewHref(data.organization.slug),
       });
-    },
-  });
-}
-
-export async function switchOrganizationAction(
-  organizationSlug: string
-): Promise<
-  OrganizationResponse<OrganizationNavigationPayload<{ switched: true; organizationSlug: string }>>
-> {
-  const parsedOrganizationSlug = organizationSlugSchema.safeParse(organizationSlug);
-
-  if (!parsedOrganizationSlug.success) {
-    return createBadRequestOrganizationResponse();
-  }
-
-  const response = await resolveAccessibleOrganizationForCurrentUser(parsedOrganizationSlug.data);
-
-  return finalizeOrganizationAction(response, {
-    mapData: async (data) => {
-      await setActiveOrganizationSlugCookie(data.organization.slug);
-
-      return {
-        switched: true as const,
-        ...createOrganizationNavigationPayload(data.organization, {
-          activeOrganizationSlug: data.organization.slug,
-          redirectHref: getOrganizationOverviewHref(data.organization.slug),
-        }),
-      };
     },
   });
 }

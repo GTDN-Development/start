@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -21,18 +21,15 @@ import {
 } from "@/components/ui/sidebar";
 import { useOptionalAccountProfile } from "@/features/account/account-profile-context";
 import { resolveApplicationScope } from "@/features/application/application-scope";
+import { switchApplicationScopeAction } from "@/features/application/application-scope-actions";
 import { resolveSelectedOrganizationSlug } from "@/features/application/organization-selection";
-import { switchOrganizationAction } from "@/features/organizations/settings/general/organization-general-actions";
-import {
-  useApplyOrganizationNavigationPatch,
-  useOptionalOrganizationNavigation,
-} from "@/features/organizations/organization-navigation-context";
+import { useOptionalOrganizationNavigation } from "@/features/organizations/organization-navigation-context";
 import type { OrganizationNavigationItem } from "@/features/organizations/organization-navigation-types";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
+import type { AppLocale } from "@/i18n/routing";
 import { getAvatarColorClass, getUserInitials } from "@/lib/app-utils";
 import { cn } from "@/lib/utils";
 import { organizationConfig } from "@/config/organization";
-import { APP_HOME_PATH } from "@/config/routes";
 import {
   OrganizationAvatar,
   OrganizationAvatarFallback,
@@ -61,17 +58,16 @@ export function ScopeSwitcher({ className }: ScopeSwitcherProps) {
 
 function EnabledScopeSwitcher({ className }: ScopeSwitcherProps) {
   const t = useTranslations("layout.application.scopeSwitcher");
+  const locale = useLocale() as AppLocale;
   const accountProfile = useOptionalAccountProfile();
   const organizationNavigation = useOptionalOrganizationNavigation();
   const activeOrganizationSlug = organizationNavigation?.activeOrganizationSlug ?? null;
   const organizations = organizationNavigation?.organizations ?? [];
-  const applyOrganizationNavigationPatch = useApplyOrganizationNavigationPatch();
 
   const pathname = usePathname();
-  const router = useRouter();
   const { isMobile, setOpenMobile } = useSidebar();
 
-  const [isSwitchingOrganization, startSwitchOrganizationTransition] = useTransition();
+  const [isSwitchingScope, startSwitchScopeTransition] = useTransition();
   const [isScopeMenuOpen, setIsScopeMenuOpen] = useState(false);
   const [failedAvatarUrls, setFailedAvatarUrls] = useState<string[]>([]);
   const [failedPersonalAvatarUrl, setFailedPersonalAvatarUrl] = useState<string | null>(null);
@@ -118,7 +114,7 @@ function EnabledScopeSwitcher({ className }: ScopeSwitcherProps) {
   }
 
   function handlePersonalScopeClick() {
-    if (isSwitchingOrganization) {
+    if (isSwitchingScope) {
       return;
     }
 
@@ -127,12 +123,17 @@ function EnabledScopeSwitcher({ className }: ScopeSwitcherProps) {
     }
 
     setIsScopeMenuOpen(false);
-    router.replace(APP_HOME_PATH);
+    startSwitchScopeTransition(async () => {
+      await switchApplicationScopeAction({
+        scope: "personal",
+        locale,
+      });
+    });
   }
 
   function handleOrganizationSwitch(organization: OrganizationOption) {
     if (
-      isSwitchingOrganization ||
+      isSwitchingScope ||
       (applicationScope === "organization" && selectedOrganization?.slug === organization.slug)
     ) {
       return;
@@ -144,19 +145,17 @@ function EnabledScopeSwitcher({ className }: ScopeSwitcherProps) {
 
     setIsScopeMenuOpen(false);
 
-    startSwitchOrganizationTransition(async () => {
-      const response = await switchOrganizationAction(organization.slug);
-
-      if (!response.ok) {
-        return;
-      }
-
-      applyOrganizationNavigationPatch(response.data.navigationPatch);
+    startSwitchScopeTransition(async () => {
+      await switchApplicationScopeAction({
+        scope: "organization",
+        organizationSlug: organization.slug,
+        locale,
+      });
     });
   }
 
   function handleCreateOrganizationClick() {
-    if (isSwitchingOrganization) {
+    if (isSwitchingScope) {
       return;
     }
 
@@ -248,7 +247,7 @@ function EnabledScopeSwitcher({ className }: ScopeSwitcherProps) {
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className="gap-2 p-2"
-                disabled={isSwitchingOrganization}
+                disabled={isSwitchingScope}
                 onClick={handlePersonalScopeClick}
               >
                 <Avatar key={`personal:${personalAvatarUrl ?? "fallback"}`} size="sm">
@@ -296,7 +295,7 @@ function EnabledScopeSwitcher({ className }: ScopeSwitcherProps) {
                     key={organization.id}
                     className="gap-2 p-2"
                     onClick={() => handleOrganizationSwitch(organization)}
-                    disabled={isSwitchingOrganization}
+                    disabled={isSwitchingScope}
                   >
                     <OrganizationAvatar
                       key={getOrganizationAvatarStateKey(organization, organizationAvatarUrl)}
@@ -330,7 +329,7 @@ function EnabledScopeSwitcher({ className }: ScopeSwitcherProps) {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="gap-2 p-2"
-              disabled={isSwitchingOrganization}
+              disabled={isSwitchingScope}
               onClick={handleCreateOrganizationClick}
             >
               <div className="bg-background border-border flex size-6 items-center justify-center rounded-md border">

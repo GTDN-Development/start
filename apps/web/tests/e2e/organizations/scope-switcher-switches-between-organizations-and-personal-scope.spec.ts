@@ -66,6 +66,9 @@ test("scope switcher changes the current organization and personal scope correct
 
     await switchScope(page, organizationBName, userName);
     await expect(page).toHaveURL(/\/cs\/aplikace$/);
+
+    await page.goto("/cs/prihlasit-se");
+    await expect(page).toHaveURL(/\/cs\/aplikace$/);
   } finally {
     if (pb) {
       await deleteOrganizationGraph({

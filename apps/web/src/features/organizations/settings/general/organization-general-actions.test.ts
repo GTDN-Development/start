@@ -7,7 +7,6 @@ const {
   deleteOrganization,
   getActiveOrganizationSlugCookie,
   leaveOrganization,
-  resolveAccessibleOrganizationForCurrentUser,
   setActiveOrganizationSlugCookie,
   updateOrganizationGeneral,
 } = vi.hoisted(function hoistOrganizationGeneralActionMocks() {
@@ -18,7 +17,6 @@ const {
     deleteOrganization: vi.fn(),
     getActiveOrganizationSlugCookie: vi.fn(),
     leaveOrganization: vi.fn(),
-    resolveAccessibleOrganizationForCurrentUser: vi.fn(),
     setActiveOrganizationSlugCookie: vi.fn(),
     updateOrganizationGeneral: vi.fn(),
   };
@@ -50,20 +48,10 @@ vi.mock(
   }
 );
 
-vi.mock(
-  "@/server/organizations/organization-route-queries",
-  function mockOrganizationRouteQueries() {
-    return {
-      resolveAccessibleOrganizationForCurrentUser,
-    };
-  }
-);
-
 import {
   createOrganizationAction,
   deleteOrganizationAction,
   leaveOrganizationAction,
-  switchOrganizationAction,
   updateOrganizationGeneralAction,
 } from "./organization-general-actions";
 
@@ -94,38 +82,6 @@ describe("organization-general-actions", function describeOrganizationGeneralAct
       name: "New Space",
       activeOrganizationSlug: "new-space",
       redirectPathname: "/o/[organizationSlug]/overview",
-    });
-    expect(setActiveOrganizationSlugCookie).toHaveBeenCalledWith("new-space");
-  });
-
-  it("returns the navigation patch and sets the active cookie on switch", async function testSwitchOrganization() {
-    vi.mocked(resolveAccessibleOrganizationForCurrentUser).mockResolvedValue({
-      ok: true,
-      data: {
-        organization: createUserOrganization({
-          slug: "new-space",
-          name: "New Space",
-        }),
-      },
-    });
-
-    const response = await switchOrganizationAction("new-space");
-
-    expect(response).toMatchObject({
-      ok: true,
-      data: {
-        switched: true,
-        organizationSlug: "new-space",
-        navigationPatch: {
-          activeOrganizationSlug: "new-space",
-          redirectHref: {
-            pathname: "/o/[organizationSlug]/overview",
-            params: {
-              organizationSlug: "new-space",
-            },
-          },
-        },
-      },
     });
     expect(setActiveOrganizationSlugCookie).toHaveBeenCalledWith("new-space");
   });
