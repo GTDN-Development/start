@@ -2,7 +2,6 @@
 
 import { Fragment } from "react";
 import { CookieIcon } from "lucide-react";
-import { NavLink } from "@/components/layout/nav-link";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -12,17 +11,9 @@ import {
 import { isCookieConsentEnabled } from "@/config/cookie-consent";
 import { applicationSidebarFooterMenu } from "@/config/menu";
 import { CookieSettingsTrigger } from "@/features/cookies/cookie-settings-trigger";
-import { usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-
-function isFooterItemActive(pathname: string, href: string, matchNested?: boolean) {
-  if (!matchNested) {
-    return pathname === href;
-  }
-
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
+import { ApplicationSidebarNavButton } from "./application-sidebar-nav-button";
 
 export function ApplicationSidebarFooterNavigation({
   className,
@@ -30,7 +21,6 @@ export function ApplicationSidebarFooterNavigation({
 }: React.ComponentProps<"nav">) {
   const tNav = useTranslations("layout.navigation.items");
   const tFooter = useTranslations("layout.footer");
-  const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
   const cookieConsentEnabled = isCookieConsentEnabled();
 
@@ -52,21 +42,13 @@ export function ApplicationSidebarFooterNavigation({
           return (
             <Fragment key={item.labelKey}>
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  isActive={isFooterItemActive(pathname, item.href, item.matchNested)}
-                  tooltip={itemLabel}
-                  render={
-                    <NavLink
-                      href={item.href}
-                      matchNested={item.matchNested === true}
-                      onClick={handleItemClick}
-                    />
-                  }
-                  className="text-sidebar-foreground/80 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-[current=true]:bg-sidebar-accent data-[current=true]:text-sidebar-accent-foreground"
-                >
-                  <ItemIcon aria-hidden="true" />
-                  {itemLabel}
-                </SidebarMenuButton>
+                <ApplicationSidebarNavButton
+                  href={item.href}
+                  icon={ItemIcon}
+                  label={itemLabel}
+                  matchNested={item.matchNested === true}
+                  onClick={handleItemClick}
+                />
               </SidebarMenuItem>
 
               {shouldRenderCookieSettingsAfterItem && (
@@ -74,7 +56,7 @@ export function ApplicationSidebarFooterNavigation({
                   <SidebarMenuButton
                     tooltip={tFooter("cookieSettings")}
                     render={<CookieSettingsTrigger type="button" onClick={handleItemClick} />}
-                    className="text-sidebar-foreground/80 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-[current=true]:bg-sidebar-accent data-[current=true]:text-sidebar-accent-foreground"
+                    className="text-sidebar-foreground/80"
                   >
                     <CookieIcon aria-hidden="true" />
                     {tFooter("cookieSettings")}

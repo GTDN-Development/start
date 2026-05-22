@@ -116,7 +116,7 @@ function MobileNavigation({
                 <MobileMenuTrigger
                   className={cn(
                     "text-foreground flex w-full items-center justify-between gap-3 py-3",
-                    isCurrentGroup(item) && "font-medium"
+                    isCurrentGroup(item) && "text-primary"
                   )}
                 >
                   {translate(item.labelKey)}
@@ -134,7 +134,7 @@ function MobileNavigation({
                             render={
                               <NavLink
                                 href={subItem.href}
-                                className="text-foreground block w-full py-3 data-current:font-medium"
+                                className="text-foreground data-current:text-primary block w-full py-3"
                               />
                             }
                           >
@@ -157,7 +157,7 @@ function MobileNavigation({
                 <NavLink
                   href={item.href}
                   matchNested={item.matchNested}
-                  className="text-foreground block w-full py-3 data-current:font-medium"
+                  className="text-foreground data-current:text-primary block w-full py-3"
                 />
               }
             >

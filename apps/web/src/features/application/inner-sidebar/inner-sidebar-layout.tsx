@@ -84,8 +84,6 @@ function InnerSidebarMobileNav({ className, title, items }: InnerSidebarMobileNa
 }
 
 export function InnerSidebarLayout({ children, title, items, className }: InnerSidebarLayoutProps) {
-  const pathname = usePathname();
-
   return (
     <div className={cn("@container/inner-sidebar", className)}>
       <div className="grid gap-6 @3xl/inner-sidebar:grid-cols-[auto_1fr] @3xl/inner-sidebar:gap-12">
@@ -95,7 +93,6 @@ export function InnerSidebarLayout({ children, title, items, className }: InnerS
           <nav className="relative hidden w-64 @3xl/inner-sidebar:block" aria-label={title}>
             <ul className="sticky top-[calc(var(--navbar-height,64px)+2rem)] flex flex-col gap-1">
               {items.map((item) => {
-                const isActive = isCurrentInnerSidebarNavItem(pathname, item);
                 const itemPathname = getHrefPathname(item.href);
 
                 return (
@@ -105,8 +102,7 @@ export function InnerSidebarLayout({ children, title, items, className }: InnerS
                       matchNested={item.matchNested}
                       className={cn(
                         "text-muted-foreground hover:bg-accent/50 hover:text-foreground data-current:bg-accent data-current:text-accent-foreground flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-                        isActive && "bg-accent text-accent-foreground"
+                        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
                       )}
                     >
                       <InnerSidebarItemIcon icon={item.icon} />
