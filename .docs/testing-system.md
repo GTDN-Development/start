@@ -9,7 +9,7 @@ The repo keeps tests small and local.
   covered even if a local environment disables organizations.
 - Mailpit is the local email inbox used by dev and E2E tests.
 - Gotenberg is available in the isolated E2E stack on a free local port.
-- PDF tests cover the Gotenberg client and authenticated route behavior.
+- PDF tests cover the Gotenberg client, the document export route, and the sample document template.
 - Test data uses `e2e-<runId>-...` style prefixes.
 - Keep helpers thin; no page-object framework or custom test DSL for now.
 

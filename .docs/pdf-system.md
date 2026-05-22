@@ -11,10 +11,13 @@ PDF rendering is backed by Gotenberg.
 - V1 supports HTML to PDF through Chromium.
 
 The document export example lives behind auth in User Scope `/document-export` and
-Organization Scope `/o/[organizationSlug]/document-export`. Both pages link to the same API route:
-`/api/document-export/sample`. The route requires a signed-in user, verifies Organization Scope
-access when relevant, builds a localized sample document on the server, renders it through
-Gotenberg, and returns an inline PDF.
+Organization Scope `/o/[organizationSlug]/document-export`. Both pages link to the same GET route:
+`/api/document-export/sample`. The route defaults to personal scope; adding
+`organizationSlug=<slug>` switches to Organization Scope. The pages pass an explicit validated
+`locale` query parameter, and the route falls back to the default locale for direct API visits. The
+route requires a signed-in user, verifies Organization Scope access when relevant, builds a
+localized sample document on the server, renders it through Gotenberg, and returns an inline PDF
+with `Cache-Control: private, no-store`.
 
 The example is intentionally small. Products that need PDF as core functionality should add their
 own PocketBase schema, document UI, persistence, and domain-specific export routes in the owning

@@ -73,7 +73,7 @@ Conventions:
 ## Structure
 
 - `src/app` - routes, layouts, metadata, API route adapters
-- `src/features` - feature-first modules (`account`, `application`, `auth`, `cookies`, `error-handling`, `marketing`, `organizations`)
+- `src/features` - feature-first modules (`account`, `application`, `auth`, `cookies`, `document-export`, `error-handling`, `marketing`, `organizations`)
 - `src/components` - shared cross-feature UI infrastructure (`ui`, `layout`, `brand`, `dev`)
 - `src/server` - server-only domains for auth, account, application state, email, PDF, PocketBase, and feature backends
 - `src/config` - structural config (routes, menus, product identity, legal variants, env parsing)
@@ -106,7 +106,8 @@ should keep the variable set to `false` or omit it.
 - Keep `src/lib/utils.ts` limited to shadcn-safe helpers such as `cn()`
 - Put app-specific shared helpers in `src/lib/app-utils.ts`; avoid spreading utility helpers across many micro files
 - Keep server-only helpers in `src/server/*` domains (example: `src/server/captcha/turnstile.ts`)
-- API route handlers live under `src/app/api/*`; the current public adapter is the PocketBase email-link route.
+- API route handlers live under `src/app/api/*`; current adapters include the PocketBase email-link
+  route and the sample document export route.
 
 ## i18n Routing (EN keys + CS aliases)
 
