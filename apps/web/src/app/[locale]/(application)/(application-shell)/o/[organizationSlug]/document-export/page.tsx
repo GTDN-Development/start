@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
-import { product } from "@/config/product";
 import { getOrganizationOverviewHref } from "@/config/routes";
 import {
   ApplicationPageHero,
@@ -20,18 +19,18 @@ import {
   ApplicationPageHeroTitle,
 } from "@/features/application/application-page-hero";
 import { ApplicationPageShell } from "@/features/application/application-page-shell";
-import { PdfDemoForm } from "@/features/pdf/pdf-demo-form";
+import { DocumentExportPanel } from "@/features/document-export/document-export-panel";
 import { requireOrganizationRouteAccess } from "@/features/organizations/organization-route";
 import { resolveOrganizationRouteAccess } from "@/server/organizations/organization-route-queries";
 
 export async function generateMetadata(
-  props: PageProps<"/[locale]/o/[organizationSlug]/pdf-demo">
+  props: PageProps<"/[locale]/o/[organizationSlug]/document-export">
 ): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.pdfDemo",
+    namespace: "pages.documentExport",
   });
 
   return {
@@ -42,7 +41,7 @@ export async function generateMetadata(
 
 export default async function Page({
   params,
-}: PageProps<"/[locale]/o/[organizationSlug]/pdf-demo">) {
+}: PageProps<"/[locale]/o/[organizationSlug]/document-export">) {
   const { locale, organizationSlug } = await params;
   const currentLocale = locale as Locale;
 
@@ -56,7 +55,7 @@ export default async function Page({
   const [t, tNav] = await Promise.all([
     getTranslations({
       locale: currentLocale,
-      namespace: "pages.pdfDemo",
+      namespace: "pages.documentExport",
     }),
     getTranslations({
       locale: currentLocale,
@@ -78,7 +77,7 @@ export default async function Page({
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>{tNav("pdfDemo")}</BreadcrumbPage>
+              <BreadcrumbPage>{tNav("documentExport")}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -96,26 +95,13 @@ export default async function Page({
       </ApplicationPageHero>
 
       <Container size="xl" className="pt-4 pb-24">
-        <PdfDemoForm
-          scope={{
-            type: "organization",
-            name: organization.name,
-            organizationSlug: organization.slug,
-          }}
-          appName={product.site.name}
-          defaultDocumentTitle={t("defaults.documentTitle")}
-          defaultItems={[
-            {
-              id: "organization-item-1",
-              name: t("defaults.firstItemName"),
-              price: "32 000 CZK",
-            },
-            {
-              id: "organization-item-2",
-              name: t("defaults.secondItemName"),
-              price: "16 000 CZK",
-            },
-          ]}
+        <DocumentExportPanel
+          title={t("panel.title")}
+          description={t("panel.description")}
+          ctaLabel={t("panel.cta")}
+          href={`/api/document-export/sample?organizationSlug=${encodeURIComponent(
+            organization.slug
+          )}&locale=${encodeURIComponent(currentLocale)}`}
         />
       </Container>
     </ApplicationPageShell>

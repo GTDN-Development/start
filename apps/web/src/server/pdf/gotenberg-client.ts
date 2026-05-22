@@ -10,6 +10,19 @@ type GotenbergConfig = {
 
 type GotenbergEnv = Record<string, string | undefined>;
 
+type RenderHtmlToPdfPageOptions = {
+  printBackground?: boolean;
+  preferCssPageSize?: boolean;
+};
+
+export type RenderHtmlToPdfInput = {
+  html: string;
+  page?: RenderHtmlToPdfPageOptions;
+  timeoutMs?: number;
+};
+
+const DEFAULT_TIMEOUT_MS = 30_000;
+
 export function resolveGotenbergConfig(env: GotenbergEnv = process.env): GotenbergConfig {
   const baseUrl = env.GOTENBERG_BASE_URL?.trim() ?? "";
 
@@ -32,25 +45,39 @@ export function resolveGotenbergConfig(env: GotenbergEnv = process.env): Gotenbe
   };
 }
 
-export async function renderHtmlToPdf(html: string): Promise<ArrayBuffer> {
+export async function renderHtmlToPdf(input: RenderHtmlToPdfInput): Promise<ArrayBuffer> {
   const config = resolveGotenbergConfig();
   const formData = new FormData();
+  const controller = new AbortController();
+  const timeout = setTimeout(function abortGotenbergRequest() {
+    controller.abort();
+  }, resolveTimeoutMs(input.timeoutMs));
 
-  formData.append("files", new Blob([html], { type: "text/html" }), "index.html");
-  formData.append("printBackground", "true");
-  formData.append("preferCssPageSize", "true");
+  formData.append("files", new Blob([input.html], { type: "text/html" }), "index.html");
+  appendPdfPageOptions(formData, input.page);
 
-  const response = await fetch(`${config.baseUrl}/forms/chromium/convert/html`, {
-    method: "POST",
-    headers: createGotenbergHeaders(config),
-    body: formData,
-  });
+  try {
+    const response = await fetch(`${config.baseUrl}/forms/chromium/convert/html`, {
+      method: "POST",
+      headers: createGotenbergHeaders(config),
+      body: formData,
+      signal: controller.signal,
+    });
 
-  if (!response.ok) {
-    throw new Error(`Gotenberg HTML to PDF request failed with status ${response.status}.`);
+    if (!response.ok) {
+      throw new Error(`Gotenberg HTML to PDF request failed with status ${response.status}.`);
+    }
+
+    return response.arrayBuffer();
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error("Gotenberg HTML to PDF request timed out.");
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return response.arrayBuffer();
 }
 
 function createGotenbergHeaders(config: GotenbergConfig): Headers {
@@ -67,4 +94,21 @@ function createGotenbergHeaders(config: GotenbergConfig): Headers {
   }
 
   return headers;
+}
+
+function appendPdfPageOptions(formData: FormData, page: RenderHtmlToPdfPageOptions = {}) {
+  formData.append("printBackground", String(page.printBackground ?? true));
+  formData.append("preferCssPageSize", String(page.preferCssPageSize ?? true));
+}
+
+function resolveTimeoutMs(timeoutMs: number | undefined): number {
+  if (!timeoutMs) {
+    return DEFAULT_TIMEOUT_MS;
+  }
+
+  if (!Number.isFinite(timeoutMs) || timeoutMs < 1) {
+    throw new Error("Gotenberg timeout must be a positive number.");
+  }
+
+  return timeoutMs;
 }

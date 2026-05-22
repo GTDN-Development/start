@@ -3,6 +3,7 @@ import { renderHtmlToPdf, resolveGotenbergConfig } from "./gotenberg-client";
 
 describe("Gotenberg client", function describeGotenbergClient() {
   afterEach(function resetEnvironment() {
+    vi.useRealTimers();
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
   });
@@ -35,7 +36,7 @@ describe("Gotenberg client", function describeGotenbergClient() {
     );
   });
 
-  it("sends HTML as multipart form data with basic auth", async function testRenderRequest() {
+  it("sends HTML as multipart form data with basic PDF options and auth", async function testRenderRequest() {
     vi.stubEnv("GOTENBERG_BASE_URL", "https://gotenberg.example.com/");
     vi.stubEnv("GOTENBERG_API_BASIC_AUTH_USERNAME", "user");
     vi.stubEnv("GOTENBERG_API_BASIC_AUTH_PASSWORD", "pass");
@@ -49,7 +50,9 @@ describe("Gotenberg client", function describeGotenbergClient() {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    const pdf = await renderHtmlToPdf("<h1>Hello</h1>");
+    const pdf = await renderHtmlToPdf({
+      html: "<h1>Hello</h1>",
+    });
 
     expect(new Uint8Array(pdf)).toEqual(new Uint8Array([37, 80, 68, 70]));
     expect(fetchMock).toHaveBeenCalledOnce();
@@ -70,6 +73,8 @@ describe("Gotenberg client", function describeGotenbergClient() {
     expect(await (file as File).text()).toBe("<h1>Hello</h1>");
     expect(formData.get("printBackground")).toBe("true");
     expect(formData.get("preferCssPageSize")).toBe("true");
+    expect(formData.has("paperWidth")).toBe(false);
+    expect(formData.has("paperHeight")).toBe(false);
   });
 
   it("throws when Gotenberg rejects the request", async function testRenderFailure() {
@@ -83,8 +88,36 @@ describe("Gotenberg client", function describeGotenbergClient() {
       })
     );
 
-    await expect(renderHtmlToPdf("<h1>Hello</h1>")).rejects.toThrow(
+    await expect(renderHtmlToPdf({ html: "<h1>Hello</h1>" })).rejects.toThrow(
       "Gotenberg HTML to PDF request failed with status 503."
     );
+  });
+
+  it("aborts requests after the configured timeout", async function testRenderTimeout() {
+    vi.useFakeTimers();
+    vi.stubEnv("GOTENBERG_BASE_URL", "https://gotenberg.example.com");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(function mockFetch(_input: RequestInfo | URL, init?: RequestInit) {
+        return new Promise<Response>(function resolveOnAbort(_resolve, reject) {
+          init?.signal?.addEventListener("abort", function handleAbort() {
+            reject(new DOMException("Aborted", "AbortError"));
+          });
+        });
+      })
+    );
+
+    const renderPromise = renderHtmlToPdf({
+      html: "<h1>Hello</h1>",
+      timeoutMs: 10,
+    });
+    const expectation = expect(renderPromise).rejects.toThrow(
+      "Gotenberg HTML to PDF request timed out."
+    );
+
+    await vi.advanceTimersByTimeAsync(10);
+
+    await expectation;
+    vi.useRealTimers();
   });
 });

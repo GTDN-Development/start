@@ -65,7 +65,7 @@
         "signIn": "Přihlášení",
         "signUp": "Registrace",
         "overview": "Přehled",
-        "pdfDemo": "PDF demo",
+        "documentExport": "Export dokumentu",
         "legal": "Právní informace",
         "privacyPolicy": "Zásady ochrany osobních údajů",
         "termsOfService": "Obchodní podmínky",
@@ -530,20 +530,43 @@
         }
       }
     },
-    "pdfDemo": {
+    "documentExport": {
       "user": {
-        "title": "PDF demo",
-        "description": "Vyplňte pár polí a vygenerujte z nich PDF ve svém osobním rozsahu."
+        "title": "Export dokumentu",
+        "description": "Vygenerujte serverově připravený ukázkový dokument jako PDF ve svém osobním rozsahu."
       },
       "organization": {
-        "title": "PDF demo organizace",
-        "metadataDescription": "Vyplňte pár polí a vygenerujte PDF pro organizaci.",
-        "description": "Vyplňte pár polí a vygenerujte PDF pro organizaci {organizationName}."
+        "title": "Export dokumentu organizace",
+        "metadataDescription": "Vygenerujte serverově připravený ukázkový dokument jako PDF pro organizaci.",
+        "description": "Vygenerujte serverově připravený ukázkový dokument jako PDF pro organizaci {organizationName}."
       },
-      "defaults": {
-        "documentTitle": "Měsíční výkaz práce",
-        "firstItemName": "Implementace",
-        "secondItemName": "Konzultace"
+      "panel": {
+        "title": "Ukázkový export do PDF",
+        "description": "Tento příklad nechává data dokumentu na serveru a do exportní route posílá jen rozsah a jazyk.",
+        "cta": "Otevřít PDF"
+      },
+      "sample": {
+        "eyebrow": {
+          "user": "Osobní export",
+          "organization": "Export organizace"
+        },
+        "title": "Ukázkový export dokumentu",
+        "issuedAtLabel": "Vystaveno",
+        "itemHeader": "Položka",
+        "valueHeader": "Částka",
+        "items": {
+          "discovery": "Analýza a nastavení",
+          "implementation": "Implementace",
+          "review": "Kontrola a předání"
+        },
+        "amounts": {
+          "discovery": "8 000 Kč",
+          "implementation": "24 000 Kč",
+          "review": "6 000 Kč"
+        },
+        "totalLabel": "Celkem",
+        "total": "380 000 Kč",
+        "footerNote": "Vygenerováno pomocí aplikace {appName}."
       }
     },
     "account": {
@@ -1081,54 +1104,6 @@
     }
   },
   "forms": {
-    "pdfDemo": {
-      "fields": {
-        "logo": {
-          "label": "Logo"
-        },
-        "documentTitle": {
-          "label": "Název dokumentu",
-          "placeholder": "Měsíční výkaz práce"
-        },
-        "items": {
-          "label": "Položky"
-        },
-        "itemName": {
-          "label": "Název položky",
-          "placeholder": "Implementace"
-        },
-        "itemPrice": {
-          "label": "Cena",
-          "placeholder": "24 000 Kč"
-        }
-      },
-      "items": {
-        "add": "Přidat položku",
-        "remove": "Odebrat položku"
-      },
-      "report": {
-        "logoAlt": "Start",
-        "eyebrow": {
-          "user": "PDF uživatele",
-          "organization": "PDF organizace"
-        },
-        "footerNote": "Vygenerováno pomocí aplikace {appName}."
-      },
-      "submit": {
-        "default": "Vygenerovat PDF",
-        "pending": "Generuji..."
-      },
-      "status": {
-        "errorTitle": "PDF se nepodařilo vygenerovat",
-        "error": "Zkontrolujte formulář a zkuste to znovu. Pokud problém trvá, ověřte, že běží Gotenberg."
-      },
-      "validation": {
-        "required": "Vyplňte toto pole.",
-        "max": "Použijte kratší hodnotu.",
-        "logoInvalid": "Vyberte obrázek ve formátu PNG, JPEG, WebP nebo SVG.",
-        "itemsRequired": "Přidejte alespoň jednu položku s názvem a cenou."
-      }
-    },
     "newsletter": {
       "validation": {
         "email": "Zadejte prosím platnou e-mailovou adresu.",

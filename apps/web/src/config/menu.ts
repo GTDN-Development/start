@@ -1,9 +1,9 @@
 import type { AppPathname } from "@/i18n/navigation";
 import {
   ACCOUNT_PATH,
-  APP_PDF_DEMO_PATH,
+  APP_DOCUMENT_EXPORT_PATH,
   APP_HOME_PATH,
-  ORGANIZATION_PDF_DEMO_PATH,
+  ORGANIZATION_DOCUMENT_EXPORT_PATH,
   ORGANIZATION_OVERVIEW_PATH,
   ORGANIZATION_SETTINGS_PATH,
 } from "@/config/routes";
@@ -19,9 +19,9 @@ import {
 type MenuHref = AppPathname;
 type ApplicationMenuHref =
   | MenuHref
-  | typeof APP_PDF_DEMO_PATH
+  | typeof APP_DOCUMENT_EXPORT_PATH
   | typeof ORGANIZATION_OVERVIEW_PATH
-  | typeof ORGANIZATION_PDF_DEMO_PATH
+  | typeof ORGANIZATION_DOCUMENT_EXPORT_PATH
   | typeof ORGANIZATION_SETTINGS_PATH;
 
 type MenuLinkLabelKey =
@@ -40,7 +40,7 @@ type MenuLinkLabelKey =
   | "organization"
   | "overview"
   | "settings"
-  | "pdfDemo"
+  | "documentExport"
   | "account"
   | "myAccount"
   | "privacyPolicy"
@@ -91,9 +91,9 @@ export const marketingMenu: MenuItem[] = [
 
 export const personalApplicationMenu = [
   { labelKey: "home", href: APP_HOME_PATH, icon: LayoutDashboardIcon },
-  { labelKey: "pdfDemo", href: APP_PDF_DEMO_PATH, icon: FileTextIcon },
+  { labelKey: "documentExport", href: APP_DOCUMENT_EXPORT_PATH, icon: FileTextIcon },
 ] as const satisfies ReadonlyArray<{
-  labelKey: "home" | "pdfDemo";
+  labelKey: "home" | "documentExport";
   href: MenuHref;
   icon: AppIcon;
   matchNested?: boolean;
@@ -101,7 +101,7 @@ export const personalApplicationMenu = [
 
 export const organizationApplicationMenu = [
   { labelKey: "overview", href: ORGANIZATION_OVERVIEW_PATH, icon: LayoutDashboardIcon },
-  { labelKey: "pdfDemo", href: ORGANIZATION_PDF_DEMO_PATH, icon: FileTextIcon },
+  { labelKey: "documentExport", href: ORGANIZATION_DOCUMENT_EXPORT_PATH, icon: FileTextIcon },
   {
     labelKey: "settings",
     href: ORGANIZATION_SETTINGS_PATH,
@@ -109,7 +109,7 @@ export const organizationApplicationMenu = [
     matchNested: true,
   },
 ] as const satisfies ReadonlyArray<{
-  labelKey: "overview" | "pdfDemo" | "settings";
+  labelKey: "overview" | "documentExport" | "settings";
   href: ApplicationMenuHref;
   icon: AppIcon;
   matchNested?: boolean;

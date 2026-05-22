@@ -10,17 +10,23 @@ PDF rendering is backed by Gotenberg.
 - Production should enable Gotenberg basic auth and use matching server-only web credentials.
 - V1 supports HTML to PDF through Chromium.
 
-The demo lives behind auth in User Scope `/app/pdf-demo` and Organization Scope
-`/o/[organizationSlug]/pdf-demo`. Both pages render the same TanStack Form component. The API route
-requires a signed-in user, validates the payload, verifies Organization Scope access when relevant,
-and returns an inline PDF.
+The document export example lives behind auth in User Scope `/app/document-export` and
+Organization Scope `/o/[organizationSlug]/document-export`. Both pages link to the same API route:
+`/api/document-export/sample`. The route requires a signed-in user, verifies Organization Scope
+access when relevant, builds a localized sample document on the server, renders it through
+Gotenberg, and returns an inline PDF.
+
+The example is intentionally small. Products that need PDF as core functionality should add their
+own PocketBase schema, document UI, persistence, and domain-specific export routes in the owning
+feature. Products that do not need PDF can remove `apps/gotenberg`, the document export pages/API,
+PDF env variables, and this note.
 
 Useful files:
 
 - [Gotenberg client](/Users/fanda/Dev/start/apps/web/src/server/pdf/gotenberg-client.ts)
-- [Demo PDF route](/Users/fanda/Dev/start/apps/web/src/app/api/pdf/demo/route.ts)
-- [Demo PDF form](/Users/fanda/Dev/start/apps/web/src/features/pdf/pdf-demo-form.tsx)
-- [Demo report template](/Users/fanda/Dev/start/apps/web/src/server/pdf/templates/demo-report.ts)
+- [Document export route](/Users/fanda/Dev/start/apps/web/src/app/api/document-export/sample/route.ts)
+- [Document export page panel](/Users/fanda/Dev/start/apps/web/src/features/document-export/document-export-panel.tsx)
+- [Sample document builder](/Users/fanda/Dev/start/apps/web/src/server/document-export/sample-document.ts)
 - [Gotenberg README](/Users/fanda/Dev/start/apps/gotenberg/README.md)
 
 Useful commands: `pnpm local:up`, `curl http://127.0.0.1:3031/health`, `pnpm check`.

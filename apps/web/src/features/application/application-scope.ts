@@ -1,4 +1,4 @@
-import { APP_HOME_PATH, APP_PDF_DEMO_PATH, ORGANIZATION_PATH_PREFIX } from "@/config/routes";
+import { APP_DOCUMENT_EXPORT_PATH, APP_HOME_PATH, ORGANIZATION_PATH_PREFIX } from "@/config/routes";
 
 export type ApplicationScope = "personal" | "organization" | "other";
 
@@ -30,7 +30,7 @@ export function getOrganizationSlugFromPathname(pathname: string): string | null
 }
 
 export function isPersonalScopePath(pathname: string): boolean {
-  return pathname === APP_HOME_PATH || pathname === APP_PDF_DEMO_PATH;
+  return pathname === APP_HOME_PATH || pathname === APP_DOCUMENT_EXPORT_PATH;
 }
 
 export function isOrganizationScopePath(pathname: string): boolean {

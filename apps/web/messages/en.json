@@ -65,7 +65,7 @@
         "signIn": "Sign in",
         "signUp": "Sign up",
         "overview": "Overview",
-        "pdfDemo": "PDF demo",
+        "documentExport": "Document export",
         "legal": "Legal",
         "privacyPolicy": "Privacy Policy",
         "termsOfService": "Terms of Service",
@@ -530,20 +530,43 @@
         }
       }
     },
-    "pdfDemo": {
+    "documentExport": {
       "user": {
-        "title": "PDF demo",
-        "description": "Fill in a few fields and render the result as a PDF in your personal scope."
+        "title": "Document export",
+        "description": "Render a server-side sample document as a PDF in your personal scope."
       },
       "organization": {
-        "title": "Organization PDF demo",
-        "metadataDescription": "Fill in a few fields and render an organization PDF.",
-        "description": "Fill in a few fields and render a PDF for {organizationName}."
+        "title": "Organization document export",
+        "metadataDescription": "Render a server-side sample document as a PDF for an organization.",
+        "description": "Render a server-side sample document as a PDF for {organizationName}."
       },
-      "defaults": {
-        "documentTitle": "Monthly work report",
-        "firstItemName": "Implementation",
-        "secondItemName": "Consultation"
+      "panel": {
+        "title": "Sample PDF export",
+        "description": "This example keeps document data on the server and sends only scope and locale to the export route.",
+        "cta": "Open PDF"
+      },
+      "sample": {
+        "eyebrow": {
+          "user": "Personal export",
+          "organization": "Organization export"
+        },
+        "title": "Sample document export",
+        "issuedAtLabel": "Issued",
+        "itemHeader": "Item",
+        "valueHeader": "Amount",
+        "items": {
+          "discovery": "Discovery and setup",
+          "implementation": "Implementation",
+          "review": "Review and handoff"
+        },
+        "amounts": {
+          "discovery": "8 000 CZK",
+          "implementation": "24 000 CZK",
+          "review": "6 000 CZK"
+        },
+        "totalLabel": "Total",
+        "total": "380 000 CZK",
+        "footerNote": "Generated with {appName}."
       }
     },
     "account": {
@@ -1081,54 +1104,6 @@
     }
   },
   "forms": {
-    "pdfDemo": {
-      "fields": {
-        "logo": {
-          "label": "Logo"
-        },
-        "documentTitle": {
-          "label": "Document title",
-          "placeholder": "Monthly work report"
-        },
-        "items": {
-          "label": "Items"
-        },
-        "itemName": {
-          "label": "Item name",
-          "placeholder": "Implementation"
-        },
-        "itemPrice": {
-          "label": "Price",
-          "placeholder": "24 000 CZK"
-        }
-      },
-      "items": {
-        "add": "Add item",
-        "remove": "Remove item"
-      },
-      "report": {
-        "logoAlt": "Start",
-        "eyebrow": {
-          "user": "User PDF",
-          "organization": "Organization PDF"
-        },
-        "footerNote": "Generated with {appName}."
-      },
-      "submit": {
-        "default": "Generate PDF",
-        "pending": "Generating..."
-      },
-      "status": {
-        "errorTitle": "PDF could not be generated",
-        "error": "Check the form and try again. If the problem continues, verify that Gotenberg is running."
-      },
-      "validation": {
-        "required": "Fill in this field.",
-        "max": "Use a shorter value.",
-        "logoInvalid": "Choose a PNG, JPEG, WebP, or SVG image.",
-        "itemsRequired": "Add at least one item with a name and price."
-      }
-    },
     "newsletter": {
       "validation": {
         "email": "Please enter a valid email address.",

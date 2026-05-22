@@ -13,10 +13,10 @@ import {
   type ApplicationMenuLink,
 } from "@/config/menu";
 import {
+  APP_DOCUMENT_EXPORT_PATH,
   APP_HOME_PATH,
-  APP_PDF_DEMO_PATH,
-  getOrganizationPdfDemoHref,
-  getOrganizationPdfDemoPath,
+  getOrganizationDocumentExportHref,
+  getOrganizationDocumentExportPath,
   getOrganizationOverviewHref,
   getOrganizationOverviewPath,
   getOrganizationRootPath,
@@ -36,12 +36,12 @@ function isMenuItemActive(pathname: string, item: ApplicationMenuLink) {
   switch (item.labelKey) {
     case "home":
       return pathname === APP_HOME_PATH;
-    case "pdfDemo": {
+    case "documentExport": {
       if (!pathnameOrganizationSlug) {
-        return pathname === APP_PDF_DEMO_PATH;
+        return pathname === APP_DOCUMENT_EXPORT_PATH;
       }
 
-      return pathname === getOrganizationPdfDemoPath(pathnameOrganizationSlug);
+      return pathname === getOrganizationDocumentExportPath(pathnameOrganizationSlug);
     }
     case "overview": {
       if (!pathnameOrganizationSlug) {
@@ -77,8 +77,8 @@ function resolveMenuHref(
     return item.href;
   }
 
-  if (item.labelKey === "pdfDemo" && item.href === APP_PDF_DEMO_PATH) {
-    return APP_PDF_DEMO_PATH;
+  if (item.labelKey === "documentExport" && item.href === APP_DOCUMENT_EXPORT_PATH) {
+    return APP_DOCUMENT_EXPORT_PATH;
   }
 
   if (!selectedOrganizationSlug) {
@@ -89,8 +89,8 @@ function resolveMenuHref(
     return getOrganizationOverviewHref(selectedOrganizationSlug);
   }
 
-  if (item.labelKey === "pdfDemo") {
-    return getOrganizationPdfDemoHref(selectedOrganizationSlug);
+  if (item.labelKey === "documentExport") {
+    return getOrganizationDocumentExportHref(selectedOrganizationSlug);
   }
 
   return getOrganizationSettingsHref(selectedOrganizationSlug);

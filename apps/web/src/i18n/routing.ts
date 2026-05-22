@@ -49,8 +49,8 @@ export const routing = defineRouting({
     "/app": {
       cs: "/aplikace",
     },
-    "/app/pdf-demo": {
-      cs: "/aplikace/pdf-demo",
+    "/app/document-export": {
+      cs: "/aplikace/export-dokumentu",
     },
     "/o/[organizationSlug]": {
       cs: "/o/[organizationSlug]",
@@ -58,8 +58,8 @@ export const routing = defineRouting({
     "/o/[organizationSlug]/overview": {
       cs: "/o/[organizationSlug]/prehled",
     },
-    "/o/[organizationSlug]/pdf-demo": {
-      cs: "/o/[organizationSlug]/pdf-demo",
+    "/o/[organizationSlug]/document-export": {
+      cs: "/o/[organizationSlug]/export-dokumentu",
     },
     "/o/[organizationSlug]/settings": {
       cs: "/o/[organizationSlug]/nastaveni",
