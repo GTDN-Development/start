@@ -49,8 +49,8 @@ export const routing = defineRouting({
     "/app": {
       cs: "/aplikace",
     },
-    "/app/document-export": {
-      cs: "/aplikace/export-dokumentu",
+    "/document-export": {
+      cs: "/export-dokumentu",
     },
     "/o/[organizationSlug]": {
       cs: "/o/[organizationSlug]",

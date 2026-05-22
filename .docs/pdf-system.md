@@ -10,7 +10,7 @@ PDF rendering is backed by Gotenberg.
 - Production should enable Gotenberg basic auth and use matching server-only web credentials.
 - V1 supports HTML to PDF through Chromium.
 
-The document export example lives behind auth in User Scope `/app/document-export` and
+The document export example lives behind auth in User Scope `/document-export` and
 Organization Scope `/o/[organizationSlug]/document-export`. Both pages link to the same API route:
 `/api/document-export/sample`. The route requires a signed-in user, verifies Organization Scope
 access when relevant, builds a localized sample document on the server, renders it through

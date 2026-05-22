@@ -4,14 +4,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
-import { Link } from "@/components/ui/link";
-import { APP_HOME_PATH } from "@/config/routes";
 import {
   ApplicationPageHero,
   ApplicationPageHeroContent,
@@ -25,7 +21,7 @@ import { redirect } from "@/i18n/navigation";
 import { requireCurrentUser } from "@/server/auth/auth-session-service";
 
 export async function generateMetadata(
-  props: PageProps<"/[locale]/app/document-export">
+  props: PageProps<"/[locale]/document-export">
 ): Promise<Metadata> {
   const { locale } = await props.params;
 
@@ -40,7 +36,7 @@ export async function generateMetadata(
   };
 }
 
-export default async function Page({ params }: PageProps<"/[locale]/app/document-export">) {
+export default async function Page({ params }: PageProps<"/[locale]/document-export">) {
   const { locale } = await params;
   const currentLocale = locale as Locale;
 
@@ -72,10 +68,6 @@ export default async function Page({ params }: PageProps<"/[locale]/app/document
       breadcrumbs={
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href={APP_HOME_PATH} />}>{tNav("home")}</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage>{tNav("documentExport")}</BreadcrumbPage>
             </BreadcrumbItem>
