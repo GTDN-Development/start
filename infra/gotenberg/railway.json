@@ -3,7 +3,7 @@
   "build": {
     "builder": "DOCKERFILE",
     "buildCommand": null,
-    "watchPatterns": ["/apps/gotenberg/**"]
+    "watchPatterns": ["/infra/gotenberg/**"]
   },
   "deploy": {
     "startCommand": null,

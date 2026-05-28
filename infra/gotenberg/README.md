@@ -1,6 +1,6 @@
 # Start Gotenberg
 
-`apps/gotenberg` is the PDF rendering service for Start.
+`infra/gotenberg` is the PDF rendering deployment wrapper for Start.
 
 ## Image
 
@@ -31,7 +31,7 @@ The Docker Compose port is bound to `127.0.0.1` only. Local Gotenberg is not exp
 ## Railway Deployment
 
 1. Create a Railway service from this repository.
-2. Set the Railway service Root Directory to `apps/gotenberg`.
+2. Set the Railway service Root Directory to `infra/gotenberg`.
 3. Add a public or private service domain, depending on how the web app will reach it.
 4. Add production environment variables:
    - `API_ENABLE_BASIC_AUTH=true`
@@ -39,7 +39,7 @@ The Docker Compose port is bound to `127.0.0.1` only. Local Gotenberg is not exp
    - `GOTENBERG_API_BASIC_AUTH_PASSWORD`
 5. Deploy or redeploy the service.
 
-`Root Directory = apps/gotenberg` is a Railway service setting. The committed `railway.json`
+`Root Directory = infra/gotenberg` is a Railway service setting. The committed `railway.json`
 configures the Dockerfile builder and watch patterns, but it does not replace that service setting.
 
 The web deployment must also receive:

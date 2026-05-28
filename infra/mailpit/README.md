@@ -1,6 +1,6 @@
 # Start Mailpit
 
-`apps/mailpit` is the local Mailpit image used by the repository Docker stack.
+`infra/mailpit` is the local Mailpit image wrapper used by the repository Docker stack.
 
 It captures PocketBase auth emails and local web app emails during development and end-to-end testing.
 

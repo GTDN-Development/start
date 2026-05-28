@@ -21,6 +21,6 @@ Useful files:
 - [web local env example](/Users/fanda/Dev/start/apps/web/.env.local.example)
 - [web test env example](/Users/fanda/Dev/start/apps/web/.env.test.example)
 - [PocketBase README](/Users/fanda/Dev/start/apps/pocketbase/README.md)
-- [Mailpit README](/Users/fanda/Dev/start/apps/mailpit/README.md)
-- [Gotenberg README](/Users/fanda/Dev/start/apps/gotenberg/README.md)
+- [Mailpit README](/Users/fanda/Dev/start/infra/mailpit/README.md)
+- [Gotenberg README](/Users/fanda/Dev/start/infra/gotenberg/README.md)
 - [PDF system](/Users/fanda/Dev/start/.docs/pdf-system.md)

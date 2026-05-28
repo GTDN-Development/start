@@ -8,8 +8,8 @@ open-source starter.
 
 - `apps/web` - Next.js 16 application for marketing, auth, and the authenticated app
 - `apps/pocketbase` - PocketBase service with migrations, hooks, public assets, and Railway deployment files
-- `apps/mailpit` - Mailpit service for development and test email capture
-- `apps/gotenberg` - Gotenberg Chromium PDF rendering service for local and Railway deployments
+- `infra/mailpit` - Mailpit deployment wrapper for development and test email capture
+- `infra/gotenberg` - Gotenberg Chromium PDF rendering deployment wrapper for local and Railway
 - `.rules` - project goals and architecture rules
 - `.docs` - implementation notes for key subsystems
 
@@ -77,9 +77,9 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 
 - Vercel deploys `apps/web`
 - Railway deploys `apps/pocketbase`
-- Railway deploys `apps/gotenberg`
+- Railway deploys `infra/gotenberg`
 - the Railway service for PocketBase must use `apps/pocketbase` as its `Root Directory`
-- the Railway service for Gotenberg must use `apps/gotenberg` as its `Root Directory`
+- the Railway service for Gotenberg must use `infra/gotenberg` as its `Root Directory`
 - `main` is the production branch
 - `dev` is the shared development branch
 - development and production use separate services, volumes, domains, and environment variables
@@ -109,8 +109,8 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 
 - web app guide: [apps/web/README.md](/Users/fanda/Dev/start/apps/web/README.md)
 - PocketBase service guide: [apps/pocketbase/README.md](/Users/fanda/Dev/start/apps/pocketbase/README.md)
-- Mailpit service guide: [apps/mailpit/README.md](/Users/fanda/Dev/start/apps/mailpit/README.md)
-- Gotenberg service guide: [apps/gotenberg/README.md](/Users/fanda/Dev/start/apps/gotenberg/README.md)
+- Mailpit infrastructure guide: [infra/mailpit/README.md](/Users/fanda/Dev/start/infra/mailpit/README.md)
+- Gotenberg infrastructure guide: [infra/gotenberg/README.md](/Users/fanda/Dev/start/infra/gotenberg/README.md)
 - focused project notes: [.docs/README.md](/Users/fanda/Dev/start/.docs/README.md)
 
 Environment examples live inside the owning app directories:

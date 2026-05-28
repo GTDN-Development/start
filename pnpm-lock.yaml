@@ -21,10 +21,6 @@ importers:
         specifier: ^2.9.12
         version: 2.9.12
 
-  apps/gotenberg: {}
-
-  apps/mailpit: {}
-
   apps/pocketbase:
     dependencies:
       pocketbase:

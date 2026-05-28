@@ -22,7 +22,7 @@ tests. These versions are intentionally tracked separately because they are diff
 
 ## Local Development
 
-Use the root README for daily commands. To start the local PocketBase + Mailpit stack:
+Use the root README for daily commands. To start the repository local Docker stack:
 
 ```sh
 pnpm local:up

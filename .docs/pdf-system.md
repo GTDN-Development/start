@@ -2,7 +2,7 @@
 
 PDF rendering is backed by Gotenberg.
 
-- `apps/gotenberg` is a deploy wrapper around the pinned
+- `infra/gotenberg` is a deploy wrapper around the pinned
   `gotenberg/gotenberg:8.32.0-chromium` image.
 - The web app talks to Gotenberg from server-only code in
   [src/server/pdf](/Users/fanda/Dev/start/apps/web/src/server/pdf).
@@ -21,7 +21,7 @@ with `Cache-Control: private, no-store`.
 
 The example is intentionally small. Products that need PDF as core functionality should add their
 own PocketBase schema, document UI, persistence, and domain-specific export routes in the owning
-feature. Products that do not need PDF can remove `apps/gotenberg`, the document export pages/API,
+feature. Products that do not need PDF can remove `infra/gotenberg`, the document export pages/API,
 PDF env variables, and this note.
 
 Useful files:
@@ -30,6 +30,6 @@ Useful files:
 - [Document export route](/Users/fanda/Dev/start/apps/web/src/app/api/document-export/sample/route.ts)
 - [Document export page panel](/Users/fanda/Dev/start/apps/web/src/features/document-export/document-export-panel.tsx)
 - [Sample document builder](/Users/fanda/Dev/start/apps/web/src/server/document-export/sample-document.ts)
-- [Gotenberg README](/Users/fanda/Dev/start/apps/gotenberg/README.md)
+- [Gotenberg README](/Users/fanda/Dev/start/infra/gotenberg/README.md)
 
 Useful commands: `pnpm local:up`, `curl http://127.0.0.1:3031/health`, `pnpm check`.
