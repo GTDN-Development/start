@@ -157,10 +157,6 @@
         "actions": {
           "viewAll": "Zobrazit všechny změny"
         }
-      },
-      "newsletterCta": {
-        "title": "Přihlaste se k newsletteru",
-        "description": "Buďte v obraze s nejnovějšími novinkami, poznatky a aktualizacemi. Připojte se k odběratelům a nepropásněte důležitá oznámení."
       }
     },
     "contact": {
@@ -1104,33 +1100,6 @@
     }
   },
   "forms": {
-    "newsletter": {
-      "validation": {
-        "email": "Zadejte prosím platnou e-mailovou adresu.",
-        "turnstile": "Dokončete prosím ověření."
-      },
-      "fields": {
-        "email": {
-          "label": "E-mailová adresa *",
-          "placeholder": "vas-email@example.com"
-        }
-      },
-      "submit": {
-        "default": "Přihlásit",
-        "pending": "Přihlašování..."
-      },
-      "consent": "Kliknutím na Přihlásit souhlasíte se zasíláním newsletteru. Odběr můžete kdykoliv zrušit. Více informací najdete v <link>zásadách ochrany osobních údajů</link>.",
-      "status": {
-        "success": {
-          "title": "Úspěšně přihlášeno!",
-          "message": "Úspěšně jste se přihlásili k newsletteru!"
-        },
-        "error": {
-          "title": "Přihlášení se nezdařilo",
-          "message": "Během přihlášení došlo k chybě. Zkuste to prosím později."
-        }
-      }
-    },
     "contact": {
       "validation": {
         "fullNameMin": "Jméno a příjmení musí mít alespoň 3 znaky.",
@@ -1764,7 +1733,7 @@
       },
       "roles": {
         "title": "Když jsme správcem a když zpracovatelem",
-        "article1": "V postavení správce jsme zejména tehdy, když zpracováváme osobní údaje našich uživatelů a zákazníků, návštěvníků webu, osob, které nás kontaktují, osob přihlášených k newsletteru nebo obchodní komunikaci a osob uvedených na fakturačních a objednávkových údajích.",
+        "article1": "V postavení správce jsme zejména tehdy, když zpracováváme osobní údaje našich uživatelů a zákazníků, návštěvníků webu, osob, které nás kontaktují, osob přijímajících obchodní komunikaci a osob uvedených na fakturačních a objednávkových údajích.",
         "article2": "V postavení zpracovatele můžeme být tehdy, když uživatelé do organizace ukládají osobní údaje třetích osob a my tyto údaje zpracováváme jejich jménem při poskytování Služby.",
         "article3": "Typicky může jít o údaje uložené v organizaci v rámci:",
         "items": {
@@ -2187,15 +2156,6 @@
         "submittedAt": "Odesláno"
       },
       "attachmentsSummary": "{count, plural, one {# příloha} few {# přílohy} other {# příloh}}"
-    },
-    "newsletterSignup": {
-      "previewText": "Nové přihlášení k newsletteru",
-      "subject": "Nové přihlášení k newsletteru - {email}",
-      "title": "Nové přihlášení k newsletteru",
-      "fields": {
-        "email": "E-mail",
-        "subscribedAt": "Přihlášeno"
-      }
     }
   },
   "cookies": {

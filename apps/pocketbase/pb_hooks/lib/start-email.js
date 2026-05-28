@@ -192,30 +192,6 @@ function createSupportRequestEmail(input) {
   };
 }
 
-function createNewsletterSignupEmail(input) {
-  const subject = "Nové přihlášení k newsletteru - " + input.email;
-  const sections = [
-    renderDetail("E-mail", input.email),
-    renderDetail("Přihlášeno", formatDateTime(input.subscribedAt)),
-  ].join("");
-
-  return {
-    to: getRequiredEnv(GENERAL_FORMS_RECIPIENT_ENV),
-    subject,
-    html: renderEmailLayout({
-      previewText: "Nové přihlášení k newsletteru",
-      title: "Nové přihlášení k newsletteru",
-      bodyHtml: sections,
-    }),
-    text: [
-      "Nové přihlášení k newsletteru",
-      "",
-      "E-mail: " + input.email,
-      "Přihlášeno: " + formatDateTime(input.subscribedAt),
-    ].join("\n"),
-  };
-}
-
 function createOrganizationInviteEmail(app, input) {
   const inviteUrl = createInviteUrl(app, input.inviteToken);
   const subject = "Pozvánka do organizace " + input.organizationName;
@@ -451,7 +427,6 @@ module.exports = {
   createContactRequestEmail,
   createInviteExpiryDate,
   createInviteToken,
-  createNewsletterSignupEmail,
   createOrganizationInviteEmail,
   createSupportRequestEmail,
   hashInviteToken,

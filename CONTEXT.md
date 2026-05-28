@@ -118,10 +118,6 @@ _Avoid_: Lead, ticket
 A public support message submitted with support-specific fields and optional attachments.
 _Avoid_: Ticket, issue
 
-**Newsletter Signup**:
-A marketing-site email subscription request.
-_Avoid_: Subscriber account
-
 ### Content and Legal
 
 **Marketing Site**:

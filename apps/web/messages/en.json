@@ -157,10 +157,6 @@
         "actions": {
           "viewAll": "See all releases"
         }
-      },
-      "newsletterCta": {
-        "title": "Subscribe to our newsletter",
-        "description": "Stay up to date with the latest news, insights, and updates. Join our community of subscribers and never miss important announcements."
       }
     },
     "contact": {
@@ -1104,33 +1100,6 @@
     }
   },
   "forms": {
-    "newsletter": {
-      "validation": {
-        "email": "Please enter a valid email address.",
-        "turnstile": "Please complete verification."
-      },
-      "fields": {
-        "email": {
-          "label": "Email address *",
-          "placeholder": "your-email@example.com"
-        }
-      },
-      "submit": {
-        "default": "Subscribe",
-        "pending": "Subscribing..."
-      },
-      "consent": "By clicking Subscribe you agree to receive our newsletter. You can unsubscribe at any time. Learn more in our <link>privacy policy</link>.",
-      "status": {
-        "success": {
-          "title": "Successfully subscribed!",
-          "message": "Successfully subscribed to newsletter!"
-        },
-        "error": {
-          "title": "Subscription failed",
-          "message": "An error occurred during subscription. Please try again later."
-        }
-      }
-    },
     "contact": {
       "validation": {
         "fullNameMin": "Full name must be at least 3 characters.",
@@ -1764,7 +1733,7 @@
       },
       "roles": {
         "title": "When we are controller and when we are processor",
-        "article1": "We act as controller mainly when processing personal data of our users and customers, website visitors, persons who contact us, persons subscribed to newsletters or commercial communications, and persons listed in billing and order details.",
+        "article1": "We act as controller mainly when processing personal data of our users and customers, website visitors, persons who contact us, persons receiving commercial communications, and persons listed in billing and order details.",
         "article2": "We may act as processor when users store personal data of third parties in an organization and we process those data on their behalf while providing the Service.",
         "article3": "Typically, this may concern data stored in the organization within:",
         "items": {
@@ -2187,15 +2156,6 @@
         "submittedAt": "Submitted at"
       },
       "attachmentsSummary": "{count, plural, one {# attachment} other {# attachments}}"
-    },
-    "newsletterSignup": {
-      "previewText": "New newsletter signup",
-      "subject": "New newsletter signup - {email}",
-      "title": "New newsletter signup",
-      "fields": {
-        "email": "Email",
-        "subscribedAt": "Subscribed at"
-      }
     }
   },
   "cookies": {

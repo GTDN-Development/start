@@ -99,7 +99,7 @@ should keep the variable set to `false` or omit it.
 - No `shared/` folders inside features; feature-wide types/helpers live at feature root
 - Keep `src/components/ui` as the shadcn CLI target
 - Application shell/composition belongs to `src/features/application`; account domain stays in `src/features/account`
-- Keep route-scoped UI close to route context (example: `src/features/marketing/home/newsletter-cta.tsx`)
+- Keep route-scoped UI close to route context.
 - Keep marketing shell files flat in `src/features/marketing` (`marketing-header.tsx`, `marketing-footer.tsx`)
 - Keep `src/lib/utils.ts` limited to shadcn-safe helpers such as `cn()`
 - Put app-specific shared helpers in `src/lib/app-utils.ts`; avoid spreading utility helpers across many micro files

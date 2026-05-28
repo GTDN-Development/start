@@ -13,7 +13,6 @@ Current custom email flows:
 
 - Contact Request notification
 - Support Request notification with bounded attachments
-- Newsletter Signup notification
 - Organization Invite create/resend emails
 
 Useful files:

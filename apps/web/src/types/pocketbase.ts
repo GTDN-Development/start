@@ -21,12 +21,6 @@ export interface CookieConsentEventsRecord extends PocketBaseSystemFields {
   idempotency_key: string;
 }
 
-export interface NewsletterSubscriptionsRecord extends PocketBaseSystemFields {
-  email: string;
-  locale: "cs" | "en";
-  source: string;
-}
-
 export interface OrganizationInvitesRecord extends PocketBaseSystemFields {
   organization: string;
   email_normalized: string;
@@ -75,7 +69,6 @@ export interface UsersRecord extends PocketBaseSystemFields {
 
 export interface PocketBaseCollections {
   cookie_consent_events: CookieConsentEventsRecord;
-  newsletter_subscriptions: NewsletterSubscriptionsRecord;
   organization_invites: OrganizationInvitesRecord;
   organization_members: OrganizationMembersRecord;
   organizations: OrganizationsRecord;

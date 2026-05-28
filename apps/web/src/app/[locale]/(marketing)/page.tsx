@@ -17,7 +17,6 @@ import {
   isChangelogLocale,
 } from "@/features/marketing/about/changelog/changelog-content";
 import { ChangelogSection } from "@/features/marketing/home/changelog-section";
-import { NewsletterCta } from "@/features/marketing/home/newsletter-cta";
 import { PatternGrid } from "@/components/ui/patterns";
 import { MarqueeCompanies } from "@/features/marketing/home/marquee-companies";
 import { createPublicPageMetadata } from "@/lib/metadata";
@@ -162,10 +161,6 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
 
         <Container render={<section />}>
           <ChangelogSection entries={changelogEntries} />
-        </Container>
-
-        <Container render={<section />}>
-          <NewsletterCta />
         </Container>
 
         <Container render={<section />}>
