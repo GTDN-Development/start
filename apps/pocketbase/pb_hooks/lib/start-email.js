@@ -395,14 +395,12 @@ function createAttachments(rawAttachments) {
   for (let index = 0; index < rawAttachments.length; index += 1) {
     const rawAttachment = rawAttachments[index] || {};
     const filename = normalizeRequiredString(rawAttachment.filename, 200);
-    const data = String(rawAttachment.data || "");
     const declaredSize = Number(rawAttachment.size || 0);
+    const bytes = normalizeByteArray(rawAttachment.bytes);
 
-    if (!filename || !data || !Number.isFinite(declaredSize) || declaredSize < 0) {
+    if (!filename || bytes.length === 0 || !Number.isFinite(declaredSize) || declaredSize < 0) {
       throw new BadRequestError("Invalid attachment.");
     }
-
-    const bytes = Array.from(Buffer.from(data, "base64"));
 
     if (bytes.length !== declaredSize) {
       throw new BadRequestError("Invalid attachment size.");
@@ -419,6 +417,26 @@ function createAttachments(rawAttachments) {
   }
 
   return attachments;
+}
+
+function normalizeByteArray(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const bytes = [];
+
+  for (let index = 0; index < value.length; index += 1) {
+    const byte = Number(value[index]);
+
+    if (!Number.isInteger(byte) || byte < 0 || byte > 255) {
+      return [];
+    }
+
+    bytes.push(byte);
+  }
+
+  return bytes;
 }
 
 module.exports = {

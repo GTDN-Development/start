@@ -118,6 +118,7 @@ export async function submitSupportFormAction(input: {
     filename: attachment.filename,
     content: Buffer.from(attachment.data, "base64"),
     contentType: attachment.mimeType,
+    size: attachment.size,
   }));
   const totalAttachmentSize = attachments.reduce(
     (total, attachment) => total + attachment.content.byteLength,
@@ -140,7 +141,14 @@ export async function submitSupportFormAction(input: {
         body: {
           message: parsedInput.data.message,
           attachments:
-            parsedInput.data.attachments.length > 0 ? parsedInput.data.attachments : undefined,
+            attachments.length > 0
+              ? attachments.map((attachment) => ({
+                  filename: attachment.filename,
+                  bytes: Array.from(attachment.content),
+                  mimeType: attachment.contentType,
+                  size: attachment.size,
+                }))
+              : undefined,
         },
       })
     );
