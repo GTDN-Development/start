@@ -1,11 +1,34 @@
 import type PocketBase from "pocketbase";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { LayoutBannersRecord } from "@/types/pocketbase";
 import { getActiveLayoutBanner, getActiveLayoutBannerWithClient } from "./layout-banner-service";
 
-const { createPocketBaseClientMock } = vi.hoisted(function hoistLayoutBannerServiceMocks() {
+const { cacheLifeMock, cacheTagMock, createPocketBaseClientMock } = vi.hoisted(
+  function hoistLayoutBannerServiceMocks() {
+    return {
+      cacheLifeMock: vi.fn(),
+      cacheTagMock: vi.fn(),
+      createPocketBaseClientMock: vi.fn(),
+    };
+  }
+);
+
+vi.mock("next/cache", function mockNextCache() {
   return {
-    createPocketBaseClientMock: vi.fn(),
+    cacheLife: cacheLifeMock,
+    cacheTag: cacheTagMock,
+  };
+});
+
+vi.mock("@/i18n/navigation", function mockNavigation() {
+  return {
+    getPathname: vi.fn(({ href, locale }: { href: string; locale: string }) => {
+      if (href === "/app" && locale === "cs") {
+        return "/cs/aplikace";
+      }
+
+      return `/${locale}${href}`;
+    }),
   };
 });
 
@@ -18,6 +41,10 @@ vi.mock("@/server/pocketbase/pocketbase-server", function mockPocketBaseServer()
 describe("layout banner service", function describeLayoutBannerService() {
   beforeEach(function resetMocks() {
     vi.clearAllMocks();
+  });
+
+  afterEach(function cleanupGlobals() {
+    vi.unstubAllGlobals();
   });
 
   it("selects the highest priority banner for the requested application area", async function testApplicationBannerSelection() {
@@ -119,11 +146,61 @@ describe("layout banner service", function describeLayoutBannerService() {
     });
   });
 
+  it("loads public banners through a cached REST request", async function testCachedRestRequest() {
+    const fetchMock = vi.fn(async function fetchLayoutBanners(_input: RequestInfo | URL) {
+      return Response.json({
+        items: [
+          createLayoutBannerRecord({
+            id: "rest-banner",
+            bg_image: "sale image.webp",
+            cta_href: "/app?from=banner",
+            cta_label_cs: "Otevrit aplikaci",
+            show_marketing: true,
+            title_cs: "Cached banner",
+          }),
+        ],
+      });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      getActiveLayoutBanner({
+        area: "marketing",
+        locale: "cs",
+      })
+    ).resolves.toMatchObject({
+      id: "rest-banner",
+      bgImageUrl: expect.stringContaining(
+        "/api/files/layout-banners/rest-banner/sale%20image.webp"
+      ),
+      cta: {
+        href: "/cs/aplikace?from=banner",
+      },
+    });
+
+    const requestUrl = new URL(String(fetchMock.mock.calls[0]?.[0] ?? ""));
+
+    expect(requestUrl.pathname).toBe("/api/collections/layout_banners/records");
+    expect(requestUrl.searchParams.get("filter")).toBe("enabled = true && show_marketing = true");
+    expect(requestUrl.searchParams.get("sort")).toBe("-priority");
+    expect(cacheLifeMock).toHaveBeenCalledWith({
+      stale: 30,
+      revalidate: 60,
+      expire: 3600,
+    });
+    expect(cacheTagMock).toHaveBeenCalledWith("layout-banners");
+  });
+
   it("fails closed when PocketBase loading fails", async function testPocketBaseFailure() {
     const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
-    const pb = createPocketBaseMock([], new Error("PocketBase unavailable"));
 
-    createPocketBaseClientMock.mockReturnValue(pb);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async function fetchFailure() {
+        return new Response("Unavailable", { status: 503 });
+      })
+    );
 
     await expect(
       getActiveLayoutBanner({

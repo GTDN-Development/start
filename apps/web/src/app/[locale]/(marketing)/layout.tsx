@@ -30,11 +30,7 @@ export default async function Layout({ children, params }: MarketingRouteLayoutP
   return (
     <MarketingLayout
       skipToContentLabel={copy.skipToContent}
-      layoutBannerSlot={
-        <Suspense fallback={null}>
-          <LayoutBannerSlot area="marketing" locale={currentLocale} />
-        </Suspense>
-      }
+      layoutBannerSlot={<LayoutBannerSlot area="marketing" locale={currentLocale} />}
       locale={currentLocale}
       headerDesktopAuthSlot={
         <Suspense fallback={<MarketingHeaderDesktopAuthSkeleton />}>

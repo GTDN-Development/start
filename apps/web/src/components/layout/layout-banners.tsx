@@ -3,10 +3,12 @@
 import { useState, useSyncExternalStore, type ComponentPropsWithRef, type ReactNode } from "react";
 import { ArrowRightIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link, type LinkProps } from "@/components/ui/link";
 import { cn } from "@/lib/utils";
 
 export const LAYOUT_BANNER_DISMISSED_IDS_STORAGE_KEY = "layout_banner_dismissed_ids";
+
+const LAYOUT_BANNER_DISMISSED_IDS_COOKIE_NAME = "layout_banner_dismissed_ids";
+const LAYOUT_BANNER_DISMISS_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
 
 const dismissedBannerStoreSubscribers = new Set<() => void>();
 
@@ -76,29 +78,35 @@ export function LayoutBanners({ banner, labels, className }: LayoutBannersProps)
   }
 
   return (
-    <Banner
-      backgroundImageUrl={banner.bgImageUrl}
-      className={className}
-      closeLabel={labels.dismiss}
-      data-testid="layout-banner"
-      intent={banner.severity}
-      isDismissable={banner.rememberDismiss}
-      isOpen={!isDismissed}
-      onClose={handleOpenChange}
-    >
-      {banner.title && <BannerTitle>{banner.title}</BannerTitle>}
-      {banner.title && banner.body && <BannerDivider />}
-      {banner.body && <BannerDescription>{banner.body}</BannerDescription>}
-      {banner.cta && (
-        <BannerLink
-          href={banner.cta.href}
-          openNewTab={banner.cta.openNewTab}
-          className={banner.title || banner.body ? "ml-3" : undefined}
-        >
-          {banner.cta.label}
-        </BannerLink>
+    <>
+      {banner.rememberDismiss && (
+        <LayoutBannerDismissBeforePaintScript bannerId={banner.id} />
       )}
-    </Banner>
+      <Banner
+        backgroundImageUrl={banner.bgImageUrl}
+        className={className}
+        closeLabel={labels.dismiss}
+        data-layout-banner-id={banner.id}
+        data-testid="layout-banner"
+        intent={banner.severity}
+        isDismissable={banner.rememberDismiss}
+        isOpen={!isDismissed}
+        onClose={handleOpenChange}
+      >
+        {banner.title && <BannerTitle>{banner.title}</BannerTitle>}
+        {banner.title && banner.body && <BannerDivider />}
+        {banner.body && <BannerDescription>{banner.body}</BannerDescription>}
+        {banner.cta && (
+          <BannerLink
+            href={banner.cta.href}
+            openNewTab={banner.cta.openNewTab}
+            className={banner.title || banner.body ? "ml-3" : undefined}
+          >
+            {banner.cta.label}
+          </BannerLink>
+        )}
+      </Banner>
+    </>
   );
 }
 
@@ -229,27 +237,12 @@ export function BannerLink({
   const target = openNewTab ? "_blank" : undefined;
   const rel = openNewTab ? "noreferrer" : undefined;
 
-  if (isInternalHref(href)) {
-    const internalHref = href as LinkProps["href"];
-
-    return (
-      <Link href={internalHref} target={target} rel={rel} className={linkClassName}>
-        {children}
-        <ArrowRightIcon aria-hidden="true" className="ml-2 inline size-[1em]" />
-      </Link>
-    );
-  }
-
   return (
     <a href={href} target={target} rel={rel} className={linkClassName}>
       {children}
       <ArrowRightIcon aria-hidden="true" className="ml-2 inline size-[1em]" />
     </a>
   );
-}
-
-function isInternalHref(value: string): value is `/${string}` {
-  return value.startsWith("/");
 }
 
 function subscribeDismissedBannerStore(listener: () => void) {
@@ -274,11 +267,19 @@ function getDismissedBannerSnapshot(): string {
     return "[]";
   }
 
+  const dismissedIds = new Set(readDismissedBannerCookieIds());
+
   try {
-    return window.localStorage.getItem(LAYOUT_BANNER_DISMISSED_IDS_STORAGE_KEY) ?? "[]";
+    for (const id of parseDismissedBannerIds(
+      window.localStorage.getItem(LAYOUT_BANNER_DISMISSED_IDS_STORAGE_KEY) ?? "[]"
+    )) {
+      dismissedIds.add(id);
+    }
   } catch {
-    return "[]";
+    // Browser storage can be disabled; the cookie still gives us reload-safe dismiss state.
   }
+
+  return JSON.stringify(Array.from(dismissedIds));
 }
 
 function getServerDismissedBannerSnapshot(): string {
@@ -290,18 +291,48 @@ function persistDismissedBannerId(id: string): void {
     return;
   }
 
-  try {
-    const dismissedIds = new Set(parseDismissedBannerIds(getDismissedBannerSnapshot()));
-    dismissedIds.add(id);
+  const dismissedIds = new Set(parseDismissedBannerIds(getDismissedBannerSnapshot()));
+  dismissedIds.add(id);
+  const nextDismissedIds = Array.from(dismissedIds).slice(-100);
 
+  try {
     window.localStorage.setItem(
       LAYOUT_BANNER_DISMISSED_IDS_STORAGE_KEY,
-      JSON.stringify(Array.from(dismissedIds).slice(-100))
+      JSON.stringify(nextDismissedIds)
     );
-
-    notifyDismissedBannerStoreSubscribers();
   } catch {
     // Dismiss is a convenience preference; blocked storage should not break the banner.
+  }
+
+  persistDismissedBannerCookie(nextDismissedIds);
+  notifyDismissedBannerStoreSubscribers();
+}
+
+function persistDismissedBannerCookie(ids: string[]): void {
+  try {
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    const value = encodeURIComponent(JSON.stringify(ids));
+
+    document.cookie = `${LAYOUT_BANNER_DISMISSED_IDS_COOKIE_NAME}=${value}; Path=/; Max-Age=${LAYOUT_BANNER_DISMISS_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax${secure}`;
+  } catch {
+    // Dismiss still applies for the current tab through component state/localStorage.
+  }
+}
+
+function readDismissedBannerCookieIds(): string[] {
+  try {
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((cookie) => cookie.startsWith(`${LAYOUT_BANNER_DISMISSED_IDS_COOKIE_NAME}=`))
+      ?.slice(LAYOUT_BANNER_DISMISSED_IDS_COOKIE_NAME.length + 1);
+
+    if (!cookieValue) {
+      return [];
+    }
+
+    return parseDismissedBannerIds(decodeURIComponent(cookieValue));
+  } catch {
+    return [];
   }
 }
 
@@ -323,4 +354,40 @@ function notifyDismissedBannerStoreSubscribers() {
   for (const subscriber of dismissedBannerStoreSubscribers) {
     subscriber();
   }
+}
+
+function LayoutBannerDismissBeforePaintScript({ bannerId }: { bannerId: string }) {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: getLayoutBannerDismissBeforePaintScript(bannerId),
+      }}
+      suppressHydrationWarning
+    />
+  );
+}
+
+function getLayoutBannerDismissBeforePaintScript(bannerId: string): string {
+  const cookieName = JSON.stringify(LAYOUT_BANNER_DISMISSED_IDS_COOKIE_NAME);
+  const serializedBannerId = JSON.stringify(bannerId);
+  const cookiePattern = `(?:^|; )${escapeRegExp(
+    LAYOUT_BANNER_DISMISSED_IDS_COOKIE_NAME
+  )}=([^;]*)`;
+  const styleText = `[data-layout-banner-id="${escapeCssAttributeValue(
+    bannerId
+  )}"]{display:none!important}`;
+
+  return `(function(){try{var cookieName=${cookieName};var match=document.cookie.match(new RegExp(${JSON.stringify(
+    cookiePattern
+  )}));var ids=match?JSON.parse(decodeURIComponent(match[1])):[];if(Array.isArray(ids)&&ids.indexOf(${serializedBannerId})!==-1){var style=document.createElement("style");style.setAttribute("data-layout-banner-dismiss-style",${serializedBannerId});style.textContent=${JSON.stringify(
+    styleText
+  )};document.head.appendChild(style);}}catch(_){}})();`;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function escapeCssAttributeValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }

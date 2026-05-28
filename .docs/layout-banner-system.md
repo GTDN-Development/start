@@ -13,7 +13,8 @@ Layout banners are global notices shown above navigation in the marketing and ap
 - `enabled` controls whether the record can be displayed.
 - `show_marketing` displays the banner above the marketing navigation.
 - `show_application` displays the banner in the application content area, not across the sidebar.
-- `remember_dismiss` enables the close button and stores dismissal locally in `localStorage`.
+- `remember_dismiss` enables the close button and stores dismissal in both `localStorage` and a
+  client-readable cookie.
 - `priority` is an integer. Use higher values for more important banners.
 - `bg_image` is an optional JPEG, PNG, or WebP background image rendered full-width at 40% opacity.
 - `severity` controls the visual intent: `info`, `warning`, or `success`.
@@ -26,16 +27,23 @@ Layout banners are global notices shown above navigation in the marketing and ap
 - A banner must be `enabled` and enabled for the requested area.
 - A banner must have a non-empty localized title or body for the active locale.
 - CTA renders only when both localized label and `cta_href` are present.
+- Known app CTA hrefs such as `/app`, `/pricing`, `/contact`, and `/blog` are localized server-side
+  before rendering. Unknown root-relative hrefs are rendered as entered.
 - PocketBase failures fail closed: the layout renders without a banner.
-- Marketing banner rendering stays behind a `Suspense` boundary with an empty fallback because
-  PocketBase reads are uncached dynamic data.
+- Banner reads use Next.js Cache Components with `cacheTag("layout-banners")` and a short profile:
+  `stale = 30s`, `revalidate = 60s`, `expire = 3600s`. This keeps the banner in the initial
+  server-rendered layout without requiring a `Suspense` fallback above navigation.
 
 ## Dismiss Behavior
 
 Dismissal is local to the current browser/device.
 
 - The storage key is `layout_banner_dismissed_ids`.
+- The cookie name is also `layout_banner_dismissed_ids`; it expires after 180 days.
 - The stored value is a JSON array of banner record IDs.
+- The cookie is used by a small pre-paint guard so a dismissed server-rendered banner is hidden
+  before it can cause a visible layout shift on reload. Next.js Cache Components do not allow this
+  marketing layout to read request cookies directly without moving the slot back behind `Suspense`.
 - Changing a banner by creating a new record gives it a new ID and shows it again.
 - Disabling `remember_dismiss` removes the close button and does not write storage.
 
