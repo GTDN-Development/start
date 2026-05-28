@@ -3,10 +3,10 @@
 Marketing pages are mostly static UI, with a few server-backed flows.
 
 - Marketing routes include home, pricing, blog, contact, sales/support, legal, changelog, roadmap, features, and integrations.
-- Contact and newsletter forms validate input, verify Turnstile when enabled, and send app-owned form emails.
+- Contact and newsletter forms validate input, verify Turnstile when enabled, and call PocketBase email endpoints.
 - Newsletter signups are captured in PocketBase as a simple interim list; see [Newsletter system](newsletter-system.md).
 - Support form requires an authenticated user and can include bounded attachments.
-- Form emails use the shared email system and `GENERAL_FORMS_RECIPIENT`.
+- Form emails are rendered and sent by PocketBase; `GENERAL_FORMS_RECIPIENT` belongs to the PocketBase environment.
 - Blog posts are fetched from PocketBase `posts` records with `status="published"` and matching locale.
 - Blog fetching uses Next cache with the `blog` cache life profile.
 - YouTube watch links inside blog HTML are converted to iframe embeds.

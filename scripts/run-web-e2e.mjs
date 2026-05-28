@@ -5,8 +5,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   createE2EStackConfig,
+  LOCAL_INTERNAL_API_SECRET,
   LOCAL_POCKETBASE_SUPERUSER_EMAIL,
   LOCAL_POCKETBASE_SUPERUSER_PASSWORD,
+  loadPocketBaseEnv,
   loadWebEnv,
   prepareLocalStack,
   stopLocalStack,
@@ -16,6 +18,7 @@ const WEB_APP_DIR = fileURLToPath(new URL("../apps/web/", import.meta.url));
 const DEFAULT_E2E_APP_PORT = 3100;
 
 async function main() {
+  loadPocketBaseEnv("test");
   loadWebEnv("test");
 
   const config = await createE2EStackConfig();
@@ -55,7 +58,6 @@ function createWebAppEnv(config, appPort, env = process.env) {
   return {
     ...env,
     PORT: String(appPort),
-    MAIL_TRANSPORT: "mailpit-api",
     NEXT_PUBLIC_APP_URL: `http://localhost:${appPort}`,
     NEXT_PUBLIC_PB_URL: config.pbUrl,
     MAILPIT_BASE_URL: config.mailpitUrl,
@@ -63,6 +65,10 @@ function createWebAppEnv(config, appPort, env = process.env) {
     NEXT_PUBLIC_ORGANIZATIONS_ENABLED: "true",
     PB_SUPERUSER_EMAIL: LOCAL_POCKETBASE_SUPERUSER_EMAIL,
     PB_SUPERUSER_PASSWORD: LOCAL_POCKETBASE_SUPERUSER_PASSWORD,
+    START_INTERNAL_API_SECRET: env.START_INTERNAL_API_SECRET || LOCAL_INTERNAL_API_SECRET,
+    GENERAL_FORMS_RECIPIENT: env.GENERAL_FORMS_RECIPIENT || "hello@example.com",
+    MAIL_FROM_ADDRESS: env.MAIL_FROM_ADDRESS || "hello@example.com",
+    MAIL_FROM_NAME: env.MAIL_FROM_NAME || "Start App (Test)",
   };
 }
 

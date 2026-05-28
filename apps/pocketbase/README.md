@@ -112,12 +112,12 @@ The script sets:
 - SMTP host is fixed to `mailpit`, the Docker Compose service hostname
 
 Root `pnpm local:up` and `pnpm pocketbase:mailpit:apply` inject the local PocketBase superuser
-credentials automatically. The web local env still needs:
+credentials automatically. The local environment still needs:
 
 - `NEXT_PUBLIC_PB_URL`
 - `NEXT_PUBLIC_APP_URL`
-- `MAIL_FROM_NAME`
-- `MAIL_FROM_ADDRESS`
+- matching `START_INTERNAL_API_SECRET` values for the web app and PocketBase
+- PocketBase email values such as `MAIL_FROM_NAME`, `MAIL_FROM_ADDRESS`, and `GENERAL_FORMS_RECIPIENT`
 
 Use base URLs without a trailing slash. Mailpit is for local development and testing only.
 

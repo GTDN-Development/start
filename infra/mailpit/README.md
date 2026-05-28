@@ -2,7 +2,7 @@
 
 `infra/mailpit` is the local Mailpit image wrapper used by the repository Docker stack.
 
-It captures PocketBase auth emails and local web app emails during development and end-to-end testing.
+It captures PocketBase auth and custom emails during development and end-to-end testing.
 
 ## Local Usage
 
@@ -18,4 +18,4 @@ Operational notes:
 
 - the local stack keeps Mailpit unauthenticated because it runs only in trusted dev/test environments
 - PocketBase talks to Mailpit over the Docker network hostname `mailpit`
-- the web app talks to Mailpit over `MAILPIT_BASE_URL` from `.env.local`
+- Playwright helpers use the Mailpit HTTP API to inspect captured messages during E2E runs

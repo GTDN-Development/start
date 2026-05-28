@@ -23,6 +23,8 @@ const LOCAL_BINARY_PATH = join(APP_DIR, "pocketbase");
 const COLLECTIONS_SNAPSHOT_PATH = join(MIGRATIONS_DIR, "1774467906_collections_snapshot.js");
 const TEST_SUPERUSER_EMAIL = "startup-smoke-admin@example.com";
 const TEST_SUPERUSER_PASSWORD = "startup-smoke-password";
+const TEST_INTERNAL_API_SECRET = "startup-smoke-internal-secret";
+const TEST_GENERAL_FORMS_RECIPIENT = "forms@example.com";
 
 test("Dockerfile pins the current PocketBase release", async function testDockerfileVersion() {
   const dockerfile = await readFile(DOCKERFILE_PATH, "utf8");
@@ -127,6 +129,11 @@ test(
         ],
         {
           cwd: APP_DIR,
+          env: {
+            ...process.env,
+            START_INTERNAL_API_SECRET: TEST_INTERNAL_API_SECRET,
+            GENERAL_FORMS_RECIPIENT: TEST_GENERAL_FORMS_RECIPIENT,
+          },
           stdio: ["ignore", "pipe", "pipe"],
         }
       );
@@ -153,6 +160,7 @@ test(
 
         assert.equal(inviteInspectBody.message, "Missing invite token.");
 
+        await assertEmailEndpointGuards(port);
         await assertOrganizationSchemaLimits(port);
         await assertOrganizationCreateHook(port);
         await assertOrganizationMemberAuthzHooks(port);
@@ -165,6 +173,99 @@ test(
     }
   }
 );
+
+async function assertEmailEndpointGuards(port) {
+  const contactResponse = await fetch(`http://127.0.0.1:${port}/api/start/contact-requests/email`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      fullName: "Contact User",
+      email: "contact@example.com",
+      phone: "+420 123 456 789",
+      message: "Dobrý den, mám dotaz k projektu.",
+    }),
+  });
+
+  assert.equal(contactResponse.status, 403);
+
+  const contactInvalidPayloadResponse = await fetch(
+    `http://127.0.0.1:${port}/api/start/contact-requests/email`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-start-internal-token": TEST_INTERNAL_API_SECRET,
+      },
+      body: JSON.stringify({
+        fullName: "",
+        email: "not-an-email",
+        phone: "",
+        message: "",
+      }),
+    }
+  );
+
+  assert.equal(contactInvalidPayloadResponse.status, 400);
+
+  const contactInvalidPayloadBody = await contactInvalidPayloadResponse.json();
+
+  assert.equal(contactInvalidPayloadBody.message, "Missing or invalid contact request.");
+
+  const supportResponse = await fetch(`http://127.0.0.1:${port}/api/start/support-requests/email`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-start-internal-token": TEST_INTERNAL_API_SECRET,
+    },
+    body: JSON.stringify({
+      message: "Potřebuji pomoct se svým účtem.",
+    }),
+  });
+
+  assert.equal(supportResponse.status, 401);
+
+  const unauthenticatedInviteResponse = await fetch(
+    `http://127.0.0.1:${port}/api/start/organization-invites/create`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-start-internal-token": TEST_INTERNAL_API_SECRET,
+      },
+      body: JSON.stringify({
+        organizationSlug: "missing-auth",
+        email: "invite@example.com",
+        role: "member",
+      }),
+    }
+  );
+
+  assert.equal(unauthenticatedInviteResponse.status, 401);
+
+  const pb = await createSuperuserClient(port);
+  const suffix = Math.random().toString(16).slice(2, 10);
+  const owner = await createVerifiedUserClient(port, pb, `invite-owner-${suffix}`);
+  const member = await createVerifiedUserClient(port, pb, `invite-member-${suffix}`);
+  const organization = await createOrganizationWithOwner(pb, owner.user, `invite-${suffix}`);
+
+  await createOrganizationMembership(pb, organization.id, member.user.id, "member");
+  await assertRejectsWithStatus(
+    member.client.send("/api/start/organization-invites/create", {
+      method: "POST",
+      headers: {
+        "x-start-internal-token": TEST_INTERNAL_API_SECRET,
+      },
+      body: {
+        organizationSlug: organization.slug,
+        email: `new-member-${suffix}@example.com`,
+        role: "member",
+      },
+    }),
+    403
+  );
+}
 
 async function assertOrganizationSchemaLimits(port) {
   const pb = await createSuperuserClient(port);

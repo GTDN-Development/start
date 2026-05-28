@@ -15,5 +15,5 @@ Useful files:
 
 - [newsletter form](/Users/fanda/Dev/start/apps/web/src/features/marketing/newsletter/newsletter-form.tsx)
 - [newsletter action](/Users/fanda/Dev/start/apps/web/src/features/marketing/newsletter/newsletter-actions.ts)
-- [newsletter email builder](/Users/fanda/Dev/start/apps/web/src/server/email/templates/newsletter-signup.builder.ts)
+- [PocketBase email endpoints](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks/emails.pb.js)
 - [PocketBase schema snapshot](/Users/fanda/Dev/start/apps/pocketbase/pb_migrations/1774467906_collections_snapshot.js)

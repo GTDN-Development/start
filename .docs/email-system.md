@@ -1,36 +1,26 @@
 # Email System
 
-App-owned emails use React Email templates, localized copy, and a shared transport.
+PocketBase owns transactional email rendering and delivery.
 
-- App email code lives in [src/server/email](/Users/fanda/Dev/start/apps/web/src/server/email).
-- PocketBase-native system emails are separate from this layer.
-- Builders prepare subject, locale copy, URLs, `replyTo`, and attachments.
-- Templates render email markup and local preview props.
-- `renderEmail()` creates HTML and plain text.
-- `sendEmail()` sends through SMTP or Mailpit API, based on `MAIL_TRANSPORT`.
-- Form inbox emails usually use `sendFormEmail()`.
-- Copy lives in `apps/web/messages/en.json` and `apps/web/messages/cs.json` under `emails`.
-- Email images live in `apps/web/public/email`.
+- Email hooks live in [pb_hooks](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks).
+- Custom app emails are Czech-only and file-backed.
+- Next.js server actions validate UI input, run Turnstile when enabled, then call PocketBase with `START_INTERNAL_API_SECRET`.
+- PocketBase validates payloads again, checks PB auth/roles for user-bound flows, renders HTML/text, and sends through its configured SMTP client.
+- Auth email templates stay in committed PocketBase migrations.
+- Email images live in `apps/web/public/email` because email links resolve against `NEXT_PUBLIC_APP_URL`.
 
-Add a new app email:
+Current custom email flows:
 
-1. Add `templates/my-email.tsx`.
-2. Add `templates/my-email.builder.ts`.
-3. Add copy under `emails` in both locale files.
-4. Send it with:
-
-```ts
-await sendEmail({
-  to,
-  ...(await renderEmail(await buildMyEmail(...))),
-});
-```
+- Contact Request notification
+- Support Request notification with bounded attachments
+- Newsletter Signup notification
+- Organization Invite create/resend emails
 
 Useful files:
 
-- [email-transport.ts](/Users/fanda/Dev/start/apps/web/src/server/email/email-transport.ts)
-- [render-email.ts](/Users/fanda/Dev/start/apps/web/src/server/email/render-email.ts)
-- [email-layout.tsx](/Users/fanda/Dev/start/apps/web/src/server/email/email-layout.tsx)
-- [email-theme.ts](/Users/fanda/Dev/start/apps/web/src/server/email/email-theme.ts)
+- [PocketBase email helper](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks/lib/start-email.js)
+- [PocketBase email endpoints](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks/emails.pb.js)
+- [Organization invite hooks](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks/organization-invites.pb.js)
+- [PocketBase Mailpit settings](/Users/fanda/Dev/start/apps/pocketbase/scripts/apply-mailpit-settings.mjs)
 
-Useful commands: `pnpm email:dev`, `pnpm test`, `pnpm check`.
+Useful commands: `pnpm local:up`, `pnpm pocketbase:mailpit:apply`, `pnpm test`, `pnpm check`.

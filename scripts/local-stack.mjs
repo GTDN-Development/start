@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import net from "node:net";
 import path from "node:path";
@@ -13,6 +14,7 @@ const DEFAULT_PORTS = {
 
 export const LOCAL_POCKETBASE_SUPERUSER_EMAIL = "local-admin@example.com";
 export const LOCAL_POCKETBASE_SUPERUSER_PASSWORD = "local-dev-password";
+export const LOCAL_INTERNAL_API_SECRET = "local-internal-secret";
 
 const STACK_READY_TIMEOUT_MS = 90_000;
 const POLL_INTERVAL_MS = 1_000;
@@ -20,6 +22,7 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, "..");
 const COMPOSE_FILE_PATH = path.join(REPO_ROOT, "compose.yaml");
 const WEB_APP_DIR = fileURLToPath(new URL("../apps/web/", import.meta.url));
+const POCKETBASE_APP_DIR = fileURLToPath(new URL("../apps/pocketbase/", import.meta.url));
 const envRequire = createRequire(new URL("../apps/web/package.json", import.meta.url));
 const { loadEnvConfig } = envRequire("@next/env");
 
@@ -109,16 +112,77 @@ export async function stopLocalStack(config, options = {}) {
 }
 
 export function loadWebEnv(mode) {
+  loadAppEnv(WEB_APP_DIR, mode);
+}
+
+export function loadPocketBaseEnv(mode) {
+  for (const envFileName of getEnvFileNames(mode)) {
+    const envFilePath = path.join(POCKETBASE_APP_DIR, envFileName);
+
+    if (!existsSync(envFilePath)) {
+      continue;
+    }
+
+    const parsedEnv = parseEnvFile(readFileSync(envFilePath, "utf8"));
+
+    for (const [key, value] of Object.entries(parsedEnv)) {
+      if (process.env[key] === undefined) {
+        process.env[key] = value;
+      }
+    }
+  }
+}
+
+function loadAppEnv(appDir, mode) {
   const previousNodeEnv = process.env.NODE_ENV;
 
   process.env.NODE_ENV = mode;
-  loadEnvConfig(WEB_APP_DIR, false);
+  loadEnvConfig(appDir, false);
 
   if (previousNodeEnv === undefined) {
     delete process.env.NODE_ENV;
   } else {
     process.env.NODE_ENV = previousNodeEnv;
   }
+}
+
+function getEnvFileNames(mode) {
+  return [`.env.${mode}.local`, ...(mode === "test" ? [] : [".env.local"]), `.env.${mode}`, ".env"];
+}
+
+function parseEnvFile(contents) {
+  const parsedEnv = {};
+  const lines = contents.replace(/\r\n?/g, "\n").split("\n");
+
+  for (const line of lines) {
+    const match = line.match(/^\s*(?:export\s+)?([\w.-]+)\s*=\s*(.*)?\s*$/);
+
+    if (!match) {
+      continue;
+    }
+
+    parsedEnv[match[1]] = normalizeEnvValue(match[2] ?? "");
+  }
+
+  return parsedEnv;
+}
+
+function normalizeEnvValue(value) {
+  const trimmedValue = value.trim();
+  const quote = trimmedValue[0];
+
+  if (
+    (quote === `"` || quote === `'` || quote === "`") &&
+    trimmedValue[trimmedValue.length - 1] === quote
+  ) {
+    const unquotedValue = trimmedValue.slice(1, -1);
+
+    return quote === `"`
+      ? unquotedValue.replace(/\\n/g, "\n").replace(/\\r/g, "\r")
+      : unquotedValue;
+  }
+
+  return trimmedValue.replace(/\s+#.*$/, "").trim();
 }
 
 function createStackConfig(config) {
@@ -140,6 +204,8 @@ function createComposeEnv(config, env = process.env) {
     GOTENBERG_PORT: String(config.gotenbergPort),
     PB_SUPERUSER_EMAIL: LOCAL_POCKETBASE_SUPERUSER_EMAIL,
     PB_SUPERUSER_PASSWORD: LOCAL_POCKETBASE_SUPERUSER_PASSWORD,
+    START_INTERNAL_API_SECRET: env.START_INTERNAL_API_SECRET || LOCAL_INTERNAL_API_SECRET,
+    GENERAL_FORMS_RECIPIENT: env.GENERAL_FORMS_RECIPIENT || "hello@example.com",
   };
 }
 
@@ -251,10 +317,13 @@ function createLocalStackCommandEnv(config, env = process.env) {
   return {
     ...env,
     NEXT_PUBLIC_PB_URL: config.pbUrl,
-    MAILPIT_BASE_URL: config.mailpitUrl,
     GOTENBERG_BASE_URL: config.gotenbergUrl,
     PB_SUPERUSER_EMAIL: LOCAL_POCKETBASE_SUPERUSER_EMAIL,
     PB_SUPERUSER_PASSWORD: LOCAL_POCKETBASE_SUPERUSER_PASSWORD,
+    START_INTERNAL_API_SECRET: env.START_INTERNAL_API_SECRET || LOCAL_INTERNAL_API_SECRET,
+    GENERAL_FORMS_RECIPIENT: env.GENERAL_FORMS_RECIPIENT || "hello@example.com",
+    MAIL_FROM_ADDRESS: env.MAIL_FROM_ADDRESS || "hello@example.com",
+    MAIL_FROM_NAME: env.MAIL_FROM_NAME || "Start App (Local Dev)",
   };
 }
 
@@ -267,6 +336,7 @@ async function main() {
     return;
   }
 
+  loadPocketBaseEnv("development");
   loadWebEnv("development");
 
   const config = createDevStackConfig();

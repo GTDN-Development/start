@@ -59,7 +59,6 @@ pnpm format:check
 Focused utilities:
 
 ```bash
-pnpm email:dev
 pnpm lint:fix
 pnpm test:watch
 pnpm test:e2e
@@ -98,11 +97,10 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 - public values shared by client and server use one `NEXT_PUBLIC_*` variable
 - `NEXT_PUBLIC_APP_URL` is the canonical public app URL
 - `NEXT_PUBLIC_PB_URL` is the canonical PocketBase base URL
-- `MAILPIT_BASE_URL` is required for local Mailpit API delivery
+- `START_INTERNAL_API_SECRET` must match between the web app and PocketBase
 - `GOTENBERG_BASE_URL` is the server-only Gotenberg base URL for PDF rendering
 - base URLs are written without a trailing slash
-- sender identity uses `MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS`
-- local dev and E2E both use `MAIL_TRANSPORT="mailpit-api"`
+- sender identity and form recipient values belong to the PocketBase environment
 - complete examples live inside the owning app directories
 
 ## Documentation

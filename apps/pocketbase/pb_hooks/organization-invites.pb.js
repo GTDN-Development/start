@@ -254,3 +254,15 @@ routerAdd("POST", "/api/start/organization-invites/accept", function acceptOrgan
     };
   }
 });
+
+routerAdd("POST", "/api/start/organization-invites/create", function createOrganizationInvite(e) {
+  return require(`${__hooks}/lib/start-organization-invites.js`).createOrganizationInvite(e);
+});
+
+routerAdd("POST", "/api/start/organization-invites/resend", function resendOrganizationInvite(e) {
+  return require(`${__hooks}/lib/start-organization-invites.js`).resendOrganizationInvite(e);
+});
+
+routerAdd("POST", "/api/start/organization-invites/revoke", function revokeOrganizationInvite(e) {
+  return require(`${__hooks}/lib/start-organization-invites.js`).revokeOrganizationInvite(e);
+});

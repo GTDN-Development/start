@@ -9,7 +9,6 @@
     "local:down": "node ./scripts/local-stack.mjs down",
     "build": "turbo run build",
     "start": "pnpm --filter @start/web run start",
-    "email:dev": "pnpm --filter @start/web run email:dev",
     "lint": "turbo run lint",
     "lint:fix": "pnpm --filter @start/web run lint:fix",
     "test": "turbo run test",

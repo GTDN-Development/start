@@ -2,16 +2,13 @@
 
 import { headers } from "next/headers";
 import { z } from "zod";
-import { routing } from "@/i18n/routing";
 import { isTurnstileEnabled } from "@/config/security";
 import { normalizedEmailSchema, turnstileTokenSchema } from "@/lib/schemas";
 import { getClientIPFromHeaders, verifyTurnstileToken } from "@/server/captcha/turnstile";
 import { applyServerActionAuthCookies } from "@/server/auth/auth-cookies";
 import { requireCurrentWritableUser } from "@/server/auth/auth-session-service";
-import { sendFormEmail } from "@/server/email/email-transport";
-import { renderEmail } from "@/server/email/render-email";
-import { buildContactFormEmail } from "@/server/email/templates/contact-form.builder";
-import { buildSupportFormEmail } from "@/server/email/templates/support-form.builder";
+import { createPocketBaseClient } from "@/server/pocketbase/pocketbase-server";
+import { withInternalPocketBaseHeaders } from "@/server/pocketbase/pocketbase-internal";
 import {
   SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES,
   type SupportAttachmentValue,
@@ -74,17 +71,19 @@ export async function submitContactFormAction(input: {
   }
 
   try {
-    await sendFormEmail(
-      await renderEmail(
-        await buildContactFormEmail({
-          locale: routing.defaultLocale,
+    const pb = createPocketBaseClient();
+
+    await pb.send(
+      "/api/start/contact-requests/email",
+      withInternalPocketBaseHeaders({
+        method: "POST",
+        body: {
           fullName: parsedInput.data.fullName,
           email: parsedInput.data.email,
           phone: parsedInput.data.phone,
           message: parsedInput.data.message,
-          submittedAt: new Date(),
-        })
-      )
+        },
+      })
     );
 
     return {
@@ -134,16 +133,16 @@ export async function submitSupportFormAction(input: {
   }
 
   try {
-    await sendFormEmail(
-      await renderEmail(
-        await buildSupportFormEmail({
-          locale: routing.defaultLocale,
-          email: currentUser.user.email,
+    await currentUser.pb.send(
+      "/api/start/support-requests/email",
+      withInternalPocketBaseHeaders({
+        method: "POST",
+        body: {
           message: parsedInput.data.message,
-          submittedAt: new Date(),
-          attachments: attachments.length > 0 ? attachments : undefined,
-        })
-      )
+          attachments:
+            parsedInput.data.attachments.length > 0 ? parsedInput.data.attachments : undefined,
+        },
+      })
     );
 
     return { ok: true };
