@@ -89,6 +89,7 @@ Remove or rewrite every item in this map:
 - Cookie consent code: locale is persisted in client action, server service, legal cookie catalog, and PB schema.
 - Newsletter code: locale is submitted, stored in PB, and used for email notification copy.
 - Blog code: `posts.locale`, `posts.translation_shared_id`, localized filtering, and localized metadata.
+- Layout banner code and schema: `layout_banners` uses `title_cs`, `title_en`, `body_cs`, `body_en`, `cta_label_cs`, and `cta_label_en`.
 - Tests: many unit and E2E tests mock `@/i18n/navigation`, use `locale: "cs"`, or assert `/cs/...` and Czech path aliases.
 
 ## Route decision
@@ -481,6 +482,9 @@ The migration must remove language-specific schema:
 - `newsletter_subscriptions.locale`
 - `posts.locale`
 - `posts.translation_shared_id`
+- non-primary `layout_banners` language fields:
+  - for Czech primary language, remove `title_en`, `body_en`, and `cta_label_en`
+  - for English primary language, remove `title_cs`, `body_cs`, and `cta_label_cs`
 
 It must also clean existing data so the database looks single-language:
 
@@ -489,6 +493,7 @@ It must also clean existing data so the database looks single-language:
 - Dropping `translation_shared_id` is expected.
 - Keep newsletter rows; only remove their `locale` field.
 - Keep cookie consent event rows; only remove their `locale` field.
+- Keep layout banner rows; rename the selected primary language fields to `title`, `body`, and `cta_label`, then remove the other language fields.
 
 Use the current migration style:
 
@@ -503,6 +508,7 @@ migrate(
     removeCollectionFields(app, "cookie_consent_events", ["locale"]);
     removeCollectionFields(app, "newsletter_subscriptions", ["locale"]);
     removeCollectionFields(app, "posts", ["locale", "translation_shared_id"]);
+    convertLayoutBannerLanguageFields(app);
   },
   (app) => {
     // Re-add fields with the original definitions copied from
@@ -525,6 +531,30 @@ function deleteNonPrimaryPosts(app) {
   }
 }
 
+function convertLayoutBannerLanguageFields(app) {
+  const collection = app.findCollectionByNameOrId("layout_banners");
+  const suffix = PRIMARY_LANGUAGE === "en" ? "en" : "cs";
+  const selectedNames = new Set([`title_${suffix}`, `body_${suffix}`, `cta_label_${suffix}`]);
+  const languageFieldNames = new Set([
+    "title_cs",
+    "title_en",
+    "body_cs",
+    "body_en",
+    "cta_label_cs",
+    "cta_label_en",
+  ]);
+
+  renameCollectionField(collection, `title_${suffix}`, "title");
+  renameCollectionField(collection, `body_${suffix}`, "body");
+  renameCollectionField(collection, `cta_label_${suffix}`, "cta_label");
+
+  collection.fields = collection.fields.filter((field) => {
+    return selectedNames.has(field.name) || !languageFieldNames.has(field.name);
+  });
+
+  app.save(collection);
+}
+
 function removeCollectionFields(app, collectionName, fieldNames) {
   const collection = app.findCollectionByNameOrId(collectionName);
   const names = new Set(fieldNames);
@@ -532,6 +562,14 @@ function removeCollectionFields(app, collectionName, fieldNames) {
   collection.fields = collection.fields.filter((field) => !names.has(field.name));
 
   app.save(collection);
+}
+
+function renameCollectionField(collection, fromName, toName) {
+  const field = collection.fields.find((item) => item.name === fromName);
+
+  if (field) {
+    field.name = toName;
+  }
 }
 ```
 
@@ -545,6 +583,8 @@ After applying the migration locally:
   - `NewsletterSubscriptionsRecord.locale`
   - `PostsRecord.locale`
   - `PostsRecord.translation_shared_id`
+  - `LayoutBannersRecord.title_cs`, `title_en`, `body_cs`, `body_en`, `cta_label_cs`, and `cta_label_en`
+  - `LayoutBannersRecord.title`, `body`, and `cta_label` should exist instead
 
 ### 16. Update generated and package artifacts
 

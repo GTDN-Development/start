@@ -12,6 +12,7 @@ export function MarketingLayout({
   headerMobileFooterActionsSlot,
   footerAccountSection,
   skipToContentLabel,
+  layoutBannerSlot,
   locale,
 }: {
   children: React.ReactNode;
@@ -21,6 +22,7 @@ export function MarketingLayout({
   headerMobileFooterActionsSlot: React.ReactNode;
   footerAccountSection: React.ReactNode;
   skipToContentLabel: string;
+  layoutBannerSlot: React.ReactNode;
   locale: Locale;
 }) {
   const contentId = "app-content";
@@ -33,6 +35,8 @@ export function MarketingLayout({
       )}
     >
       <SkipToContent href={`#${contentId}`}>{skipToContentLabel}</SkipToContent>
+
+      {layoutBannerSlot}
 
       <MarketingHeader
         desktopAuthSlot={headerDesktopAuthSlot}

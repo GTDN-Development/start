@@ -4,6 +4,7 @@ import { AUTH_REDIRECTS } from "@/config/auth";
 import { redirect } from "@/i18n/navigation";
 import { requireCurrentUser } from "@/server/auth/auth-session-service";
 import { getAvatarUrl, getNullableTrimmedString } from "@/server/pocketbase/pocketbase-utils";
+import { getActiveLayoutBanner } from "@/server/layout-banners/layout-banner-service";
 import { buildApplicationShellModel } from "./application-shell-model";
 import { ApplicationRoot } from "./application-root";
 import { ApplicationOrganizationRoot } from "./application-organization-root";
@@ -60,24 +61,33 @@ export async function ApplicationShellBoundary({
       `[application-root] Failed to build shell model: ${shellModelResponse.errorCode}`
     );
   }
-  const [tApplication, tHeader, tHeaderMenu, tNavigation] = await Promise.all([
-    getTranslations({
-      locale: appLocale,
-      namespace: "layout.application",
-    }),
-    getTranslations({
-      locale: appLocale,
-      namespace: "layout.header",
-    }),
-    getTranslations({
-      locale: appLocale,
-      namespace: "layout.header.menu",
-    }),
-    getTranslations({
-      locale: appLocale,
-      namespace: "layout.navigation.items",
-    }),
-  ]);
+  const [layoutBanner, tApplication, tHeader, tHeaderMenu, tNavigation, tLayoutBanner] =
+    await Promise.all([
+      getActiveLayoutBanner({
+        area: "application",
+        locale: appLocale,
+      }),
+      getTranslations({
+        locale: appLocale,
+        namespace: "layout.application",
+      }),
+      getTranslations({
+        locale: appLocale,
+        namespace: "layout.header",
+      }),
+      getTranslations({
+        locale: appLocale,
+        namespace: "layout.header.menu",
+      }),
+      getTranslations({
+        locale: appLocale,
+        namespace: "layout.navigation.items",
+      }),
+      getTranslations({
+        locale: appLocale,
+        namespace: "layout.banner",
+      }),
+    ]);
 
   const root = (
     <ApplicationRoot
@@ -87,6 +97,10 @@ export async function ApplicationShellBoundary({
           ? shellModelResponse.data.applicationEntryHref
           : AUTH_REDIRECTS.authenticatedTo
       }
+      layoutBanner={layoutBanner}
+      layoutBannerLabels={{
+        dismiss: tLayoutBanner("close"),
+      }}
       labels={{
         userMenu: {
           account: tNavigation("myAccount"),

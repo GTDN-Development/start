@@ -6,6 +6,7 @@ services:
       PORT: 8080
       PB_SUPERUSER_EMAIL: ${PB_SUPERUSER_EMAIL:-local-admin@example.com}
       PB_SUPERUSER_PASSWORD: ${PB_SUPERUSER_PASSWORD:-local-dev-password}
+      PB_SEED_LAYOUT_BANNER_DEMO: ${PB_SEED_LAYOUT_BANNER_DEMO:-false}
       START_INTERNAL_API_SECRET: ${START_INTERNAL_API_SECRET:-local-internal-secret}
       GENERAL_FORMS_RECIPIENT: ${GENERAL_FORMS_RECIPIENT:-hello@example.com}
     ports:

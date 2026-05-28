@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Locale } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import { LayoutBannerSlot } from "@/components/layout/layout-banner-slot";
 import { MarketingLayout } from "@/features/marketing/marketing-layout";
 import {
   MarketingFooterAccountSectionSkeleton,
@@ -23,12 +24,18 @@ type MarketingRouteLayoutProps = {
 
 export default async function Layout({ children, params }: MarketingRouteLayoutProps) {
   const { locale } = await params;
-  const copy = await getMarketingLayoutCopy(locale as Locale);
+  const currentLocale = locale as Locale;
+  const copy = await getMarketingLayoutCopy(currentLocale);
 
   return (
     <MarketingLayout
       skipToContentLabel={copy.skipToContent}
-      locale={locale as Locale}
+      layoutBannerSlot={
+        <Suspense fallback={null}>
+          <LayoutBannerSlot area="marketing" locale={currentLocale} />
+        </Suspense>
+      }
+      locale={currentLocale}
       headerDesktopAuthSlot={
         <Suspense fallback={<MarketingHeaderDesktopAuthSkeleton />}>
           <MarketingHeaderDesktopAuthSlot />
@@ -51,7 +58,7 @@ export default async function Layout({ children, params }: MarketingRouteLayoutP
       }
       footerAccountSection={
         <Suspense fallback={<MarketingFooterAccountSectionSkeleton />}>
-          <MarketingFooterAccountSectionSlot locale={locale as Locale} />
+          <MarketingFooterAccountSectionSlot locale={currentLocale} />
         </Suspense>
       }
     >

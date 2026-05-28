@@ -8,6 +8,7 @@ const {
   redirectMock,
   requireCurrentUserMock,
   buildApplicationShellModelMock,
+  getActiveLayoutBannerMock,
   applicationRootMock,
   applicationOrganizationRootMock,
 } = vi.hoisted(function hoistApplicationShellBoundaryMocks() {
@@ -16,6 +17,7 @@ const {
     redirectMock: vi.fn(),
     requireCurrentUserMock: vi.fn(),
     buildApplicationShellModelMock: vi.fn(),
+    getActiveLayoutBannerMock: vi.fn(),
     applicationRootMock: vi.fn(),
     applicationOrganizationRootMock: vi.fn(),
   };
@@ -45,6 +47,12 @@ vi.mock("./application-shell-model", function mockApplicationShellModel() {
   };
 });
 
+vi.mock("@/server/layout-banners/layout-banner-service", function mockLayoutBannerService() {
+  return {
+    getActiveLayoutBanner: getActiveLayoutBannerMock,
+  };
+});
+
 vi.mock("./application-root", function mockApplicationRoot() {
   return {
     ApplicationRoot: applicationRootMock,
@@ -61,6 +69,7 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
   beforeEach(function resetMocks() {
     vi.clearAllMocks();
     getTranslationsMock.mockResolvedValue(() => "label");
+    getActiveLayoutBannerMock.mockResolvedValue(null);
   });
 
   it("wraps the host root with organization navigation when the shell model includes organizations", async function testOrganizationShell() {
@@ -124,6 +133,10 @@ describe("application-shell-boundary", function describeApplicationShellBoundary
     ]);
     expect(root.type).toBe(applicationRootMock);
     expect(root.props.applicationEntryHref).toEqual(getOrganizationOverviewHref("team-space"));
+    expect(root.props.layoutBanner).toBeNull();
+    expect(root.props.layoutBannerLabels).toEqual({
+      dismiss: "label",
+    });
   });
 
   it("wraps the host root with an empty organization snapshot when the shell model omits navigation", async function testHostOnlyShell() {

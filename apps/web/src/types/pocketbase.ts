@@ -21,6 +21,24 @@ export interface CookieConsentEventsRecord extends PocketBaseSystemFields {
   idempotency_key: string;
 }
 
+export interface LayoutBannersRecord extends PocketBaseSystemFields {
+  enabled?: boolean;
+  show_marketing?: boolean;
+  show_application?: boolean;
+  remember_dismiss?: boolean;
+  priority?: number;
+  bg_image?: string;
+  severity: "info" | "warning" | "success";
+  title_cs?: string;
+  title_en?: string;
+  body_cs?: string;
+  body_en?: string;
+  cta_label_cs?: string;
+  cta_label_en?: string;
+  cta_href?: string;
+  cta_open_new_tab?: boolean;
+}
+
 export interface OrganizationInvitesRecord extends PocketBaseSystemFields {
   organization: string;
   email_normalized: string;
@@ -69,6 +87,7 @@ export interface UsersRecord extends PocketBaseSystemFields {
 
 export interface PocketBaseCollections {
   cookie_consent_events: CookieConsentEventsRecord;
+  layout_banners: LayoutBannersRecord;
   organization_invites: OrganizationInvitesRecord;
   organization_members: OrganizationMembersRecord;
   organizations: OrganizationsRecord;

@@ -3,6 +3,7 @@
 import { createContext, useContext } from "react";
 import { useLocale } from "next-intl";
 import { AUTH_REDIRECTS } from "@/config/auth";
+import type { LayoutBannerLabels, LayoutBannerViewModel } from "@/components/layout/layout-banners";
 import { AccountProfileProvider } from "@/features/account/account-profile-context";
 import type { AccountProfileSnapshot } from "@/features/account/account-profile-types";
 import { subscribeToAuthClientEvents } from "@/features/auth/auth-client-events";
@@ -21,6 +22,8 @@ type ApplicationRootContextValue = {
   userMenuLabels: UserAccountMenuLabels;
   mobileMenuLabels: ApplicationMobileMenuLabels;
   applicationEntryHref: AppHref;
+  layoutBanner: LayoutBannerViewModel | null;
+  layoutBannerLabels: LayoutBannerLabels;
 };
 
 export type ApplicationRootLabels = {
@@ -32,6 +35,8 @@ type ApplicationRootProps = {
   children: React.ReactNode;
   user: AccountProfileSnapshot;
   applicationEntryHref: AppHref;
+  layoutBanner: LayoutBannerViewModel | null;
+  layoutBannerLabels: LayoutBannerLabels;
   labels: ApplicationRootLabels;
 };
 
@@ -47,10 +52,16 @@ export function useApplicationRootContext() {
   return applicationLayoutContext;
 }
 
+export function useOptionalApplicationRootContext() {
+  return useContext(ApplicationRootContext);
+}
+
 export function ApplicationRoot({
   children,
   user,
   applicationEntryHref,
+  layoutBanner,
+  layoutBannerLabels,
   labels,
 }: ApplicationRootProps) {
   const profileProviderKey = `${user.email}:${user.name ?? ""}:${user.avatarUrl ?? ""}`;
@@ -63,6 +74,8 @@ export function ApplicationRoot({
           userMenuLabels: labels.userMenu,
           mobileMenuLabels: labels.mobileMenu,
           applicationEntryHref,
+          layoutBanner,
+          layoutBannerLabels,
         }}
       >
         <ApplicationSignOutSync />
