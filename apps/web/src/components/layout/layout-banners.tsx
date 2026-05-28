@@ -79,9 +79,7 @@ export function LayoutBanners({ banner, labels, className }: LayoutBannersProps)
 
   return (
     <>
-      {banner.rememberDismiss && (
-        <LayoutBannerDismissBeforePaintScript bannerId={banner.id} />
-      )}
+      {banner.rememberDismiss && <LayoutBannerDismissBeforePaintScript bannerId={banner.id} />}
       <Banner
         backgroundImageUrl={banner.bgImageUrl}
         className={className}
@@ -370,9 +368,7 @@ function LayoutBannerDismissBeforePaintScript({ bannerId }: { bannerId: string }
 function getLayoutBannerDismissBeforePaintScript(bannerId: string): string {
   const cookieName = JSON.stringify(LAYOUT_BANNER_DISMISSED_IDS_COOKIE_NAME);
   const serializedBannerId = JSON.stringify(bannerId);
-  const cookiePattern = `(?:^|; )${escapeRegExp(
-    LAYOUT_BANNER_DISMISSED_IDS_COOKIE_NAME
-  )}=([^;]*)`;
+  const cookiePattern = `(?:^|; )${escapeRegExp(LAYOUT_BANNER_DISMISSED_IDS_COOKIE_NAME)}=([^;]*)`;
   const styleText = `[data-layout-banner-id="${escapeCssAttributeValue(
     bannerId
   )}"]{display:none!important}`;

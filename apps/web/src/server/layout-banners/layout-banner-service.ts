@@ -61,7 +61,9 @@ async function getCachedActiveLayoutBanner(
 
     return selectActiveLayoutBanner(records, input, getLayoutBannerFileUrl);
   } catch (error) {
-    logServiceError("layout-banners", "Failed to load active layout banner", error);
+    if (shouldLogLayoutBannerLoadError(error)) {
+      logServiceError("layout-banners", "Failed to load active layout banner", error);
+    }
 
     return null;
   }
@@ -226,4 +228,18 @@ function isStaticLayoutBannerHref(
   value: string
 ): value is (typeof staticLayoutBannerHrefs)[number] {
   return staticLayoutBannerHrefs.some((href) => href === value);
+}
+
+function shouldLogLayoutBannerLoadError(error: unknown): boolean {
+  return !isFetchNetworkFailure(error);
+}
+
+function isFetchNetworkFailure(error: unknown): boolean {
+  if (!(error instanceof TypeError)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+
+  return message === "fetch failed" || message === "failed to fetch" || message === "load failed";
 }

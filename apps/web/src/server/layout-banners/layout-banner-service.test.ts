@@ -209,6 +209,30 @@ describe("layout banner service", function describeLayoutBannerService() {
       })
     ).resolves.toBeNull();
 
+    expect(consoleErrorSpy).toHaveBeenCalledOnce();
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("does not log network fetch failures for optional banner content", async function testNetworkFailureFallback() {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async function fetchFailure() {
+        throw new TypeError("fetch failed");
+      })
+    );
+
+    await expect(
+      getActiveLayoutBanner({
+        area: "application",
+        locale: "cs",
+      })
+    ).resolves.toBeNull();
+
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+
     consoleErrorSpy.mockRestore();
   });
 });
