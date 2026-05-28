@@ -1,6 +1,7 @@
 import type { AppHref } from "@/i18n/navigation";
 
 export const APP_HOME_PATH = "/app" as const;
+export const BRAND_PATH = "/brand" as const;
 export const SIGN_IN_PATH = "/sign-in" as const;
 export const SIGN_UP_PATH = "/sign-up" as const;
 export const POST_AUTH_PATH = "/post-auth" as const;

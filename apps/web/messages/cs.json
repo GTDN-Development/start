@@ -53,6 +53,7 @@
         "support": "Kontakt a podpora",
         "pricing": "Ceník",
         "blog": "Blog",
+        "brand": "Brand assety",
         "aboutApp": "O aplikaci",
         "features": "Funkce",
         "integrations": "Integrace",
@@ -320,6 +321,67 @@
     "aboutRoadmap": {
       "title": "Roadmapa",
       "description": "Podívejte se, co je v plánu a jak se produkt bude dál vyvíjet."
+    },
+    "brand": {
+      "title": "Brand assety",
+      "description": "Stáhněte si zdrojové assety Startu a zkopírujte hlavní barevné hodnoty aktuálního tématu.",
+      "colors": {
+        "title": "Barvy",
+        "description": "Hlavní barevné tokeny nakonfigurované pro aktuální Start téma. Vykreslí se jen vyplněné hodnoty.",
+        "items": {
+          "primary": {
+            "title": "Primary",
+            "description": "Hlavní barva pro akce a zvýraznění."
+          },
+          "secondary": {
+            "title": "Secondary",
+            "description": "Jemná plocha pro sekundární akce."
+          },
+          "accent": {
+            "title": "Accent",
+            "description": "Měkké zvýraznění pro aktivní a hover stavy."
+          },
+          "background": {
+            "title": "Background",
+            "description": "Výchozí pozadí stránky a aplikace."
+          },
+          "foreground": {
+            "title": "Foreground",
+            "description": "Výchozí barva textu a ikon."
+          },
+          "muted": {
+            "title": "Muted",
+            "description": "Klidná plocha pro méně důležitý obsah."
+          },
+          "destructive": {
+            "title": "Destructive",
+            "description": "Barva pro destruktivní akce a kritické stavy."
+          }
+        }
+      },
+      "assets": {
+        "title": "Assety",
+        "description": "Připravené SVG a PNG soubory pro aktuální Start brand set.",
+        "downloadAriaLabel": "Stáhnout {asset} jako {format}",
+        "items": {
+          "startLogo": {
+            "title": "Start logo",
+            "description": "Primární wordmark pro hlavičky, patičky a partnerské umístění."
+          },
+          "startSymbol": {
+            "title": "Start symbol",
+            "description": "Kompaktní značka pro čtvercové nebo úzké umístění."
+          },
+          "startAppIcon": {
+            "title": "Start app ikona",
+            "description": "Ikona aplikace pro produktové plochy a launchery."
+          }
+        }
+      },
+      "copy": {
+        "ariaLabel": "Zkopírovat hodnotu {format}",
+        "copied": "Zkopírováno {format}: {value}"
+      }
     },
     "pricing": {
       "title": "Ceník",

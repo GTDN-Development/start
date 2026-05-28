@@ -53,6 +53,7 @@
         "support": "Contact & support",
         "pricing": "Pricing",
         "blog": "Blog",
+        "brand": "Brand assets",
         "aboutApp": "About app",
         "features": "Features",
         "integrations": "Integrations",
@@ -320,6 +321,67 @@
     "aboutRoadmap": {
       "title": "Roadmap",
       "description": "See what is planned next and how the product is evolving."
+    },
+    "brand": {
+      "title": "Brand assets",
+      "description": "Download Start source assets and copy the core color values used by the current theme.",
+      "colors": {
+        "title": "Colors",
+        "description": "Core color tokens configured for the current Start theme. Only configured values are shown.",
+        "items": {
+          "primary": {
+            "title": "Primary",
+            "description": "Main action and highlight color."
+          },
+          "secondary": {
+            "title": "Secondary",
+            "description": "Subtle surface color for secondary actions."
+          },
+          "accent": {
+            "title": "Accent",
+            "description": "Soft emphasis color for active and hovered surfaces."
+          },
+          "background": {
+            "title": "Background",
+            "description": "Default page and application background."
+          },
+          "foreground": {
+            "title": "Foreground",
+            "description": "Default text and icon color."
+          },
+          "muted": {
+            "title": "Muted",
+            "description": "Quiet surface color for low-emphasis content."
+          },
+          "destructive": {
+            "title": "Destructive",
+            "description": "Color for destructive actions and critical states."
+          }
+        }
+      },
+      "assets": {
+        "title": "Assets",
+        "description": "Prepared SVG and PNG files for the current Start brand set.",
+        "downloadAriaLabel": "Download {asset} as {format}",
+        "items": {
+          "startLogo": {
+            "title": "Start logo",
+            "description": "Primary wordmark for headers, footers, and partner placements."
+          },
+          "startSymbol": {
+            "title": "Start symbol",
+            "description": "Compact mark for square or narrow placements."
+          },
+          "startAppIcon": {
+            "title": "Start app icon",
+            "description": "App icon for product surfaces and launcher contexts."
+          }
+        }
+      },
+      "copy": {
+        "ariaLabel": "Copy {format} value",
+        "copied": "Copied {format}: {value}"
+      }
     },
     "pricing": {
       "title": "Pricing",

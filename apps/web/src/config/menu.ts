@@ -3,6 +3,7 @@ import {
   ACCOUNT_PATH,
   APP_DOCUMENT_EXPORT_PATH,
   APP_HOME_PATH,
+  BRAND_PATH,
   ORGANIZATION_DOCUMENT_EXPORT_PATH,
   ORGANIZATION_OVERVIEW_PATH,
   ORGANIZATION_SETTINGS_PATH,
@@ -31,6 +32,7 @@ type MenuLinkLabelKey =
   | "support"
   | "pricing"
   | "blog"
+  | "brand"
   | "features"
   | "integrations"
   | "changelog"
@@ -65,9 +67,10 @@ type MenuNested = {
 
 export type MenuItem = MenuLink | MenuNested;
 
-type LegalLinkKey = "gdpr" | "termsOfService" | "cookies";
+type LegalLinkKey = "brand" | "gdpr" | "termsOfService" | "cookies";
 
 export const legalLinks = {
+  brand: { labelKey: "brand", href: BRAND_PATH },
   gdpr: { labelKey: "privacyPolicy", href: "/gdpr" },
   termsOfService: { labelKey: "termsOfService", href: "/terms-of-service" },
   cookies: { labelKey: "cookiePolicy", href: "/cookies" },
@@ -130,6 +133,7 @@ type OrganizationApplicationMenuLink = (typeof organizationApplicationMenu)[numb
 export type ApplicationMenuLink = PersonalApplicationMenuLink | OrganizationApplicationMenuLink;
 
 export const legalItems: MenuLink[] = [
+  legalLinks.brand,
   legalLinks.gdpr,
   legalLinks.termsOfService,
   legalLinks.cookies,
