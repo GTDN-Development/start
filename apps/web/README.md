@@ -37,6 +37,10 @@ Core URL and service envs:
 - base URLs should be written without a trailing slash
 - PocketBase-specific mail recipient and SMTP/sender setup live with the PocketBase service
 
+Local development uses Cloudflare Turnstile dummy keys in `.env.local.example`, so the widget and
+server-side verification can run without production credentials. Playwright keeps Turnstile disabled
+through `.env.test.example`.
+
 See [.docs/local-stack.md](/Users/fanda/Dev/start/.docs/local-stack.md) for local stack details.
 
 ## PocketBase Typegen
