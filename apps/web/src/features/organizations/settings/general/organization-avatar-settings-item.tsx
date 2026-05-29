@@ -79,7 +79,7 @@ export function OrganizationAvatarSettingsItem({
       if (!preparedAvatarFileResult.ok) {
         showAvatarError(
           resolveErrorMessage(preparedAvatarFileResult.errorCode, t("status.error"), {
-            INVALID_FILE_TYPE: t("status.invalidFile"),
+            INVALID_FILE_TYPE: t("status.invalidFileType"),
             IMAGE_PROCESSING_FAILED: t("status.processingFailed"),
             FILE_TOO_LARGE: t("status.fileTooLarge"),
           })

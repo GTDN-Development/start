@@ -915,7 +915,7 @@
           },
           "hint": "Only standard image formats are supported (JPEG, PNG, WebP). Oversized images are optimized automatically.",
           "status": {
-            "invalidFile": "Please upload a valid image up to 1 MB.",
+            "invalidFileType": "Please upload a valid image file.",
             "fileTooLarge": "We couldn't reduce the image size enough. Please choose a different image.",
             "processingFailed": "We couldn't process the selected image. Please try a different file.",
             "unauthorized": "Your session expired. Please sign in again.",

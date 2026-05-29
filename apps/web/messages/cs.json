@@ -915,7 +915,7 @@
           },
           "hint": "Jsou podporovány pouze standardní formáty obrázků (JPEG, PNG, WebP). Nadměrně velké obrázky automaticky optimalizujeme.",
           "status": {
-            "invalidFile": "Nahrajte prosím platný obrázek do 1 MB.",
+            "invalidFileType": "Nahrajte prosím platný obrázek.",
             "fileTooLarge": "Obrázek se nepodařilo dostatečně zmenšit. Zkuste prosím jiný soubor.",
             "processingFailed": "Vybraný obrázek se nepodařilo zpracovat. Zkuste prosím jiný soubor.",
             "unauthorized": "Vaše relace vypršela. Přihlaste se prosím znovu.",
