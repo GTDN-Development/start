@@ -10,7 +10,7 @@ import { SocialMediaIcons } from "@/components/brand/social-media-icons";
 import { LocalizedNavLink } from "@/components/layout/localized-nav-link";
 import { NavLink, resolveNavLinkState } from "@/components/layout/nav-link";
 import {
-  legalItems,
+  marketingFooterItems,
   marketingMenu,
   type MenuItem,
   type MenuLabelKey,
@@ -188,7 +188,7 @@ export function MarketingFooter({
         <div className="flex flex-col items-start justify-start gap-7">
           <p className="font-heading text-sm font-semibold">{t("sections.legal")}</p>
           <ul className="flex flex-col gap-2">
-            {legalItems.map((item) => (
+            {marketingFooterItems.map((item) => (
               <li key={item.href}>
                 <NavLink
                   href={item.href}

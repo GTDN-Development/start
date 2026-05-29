@@ -4,14 +4,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Container } from "@/components/ui/container";
-import { Link } from "@/components/ui/link";
-import { getOrganizationOverviewHref } from "@/config/routes";
 import {
   ApplicationPageHero,
   ApplicationPageHeroContent,
@@ -68,14 +64,6 @@ export default async function Page({
       breadcrumbs={
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink
-                render={<Link href={getOrganizationOverviewHref(organization.slug)} />}
-              >
-                {tNav("overview")}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage>{tNav("documentExport")}</BreadcrumbPage>
             </BreadcrumbItem>

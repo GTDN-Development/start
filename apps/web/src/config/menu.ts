@@ -67,10 +67,11 @@ type MenuNested = {
 
 export type MenuItem = MenuLink | MenuNested;
 
-type LegalLinkKey = "brand" | "gdpr" | "termsOfService" | "cookies";
+type LegalLinkKey = "gdpr" | "termsOfService" | "cookies";
+
+export const brandLink = { labelKey: "brand", href: BRAND_PATH } as const satisfies MenuLink;
 
 export const legalLinks = {
-  brand: { labelKey: "brand", href: BRAND_PATH },
   gdpr: { labelKey: "privacyPolicy", href: "/gdpr" },
   termsOfService: { labelKey: "termsOfService", href: "/terms-of-service" },
   cookies: { labelKey: "cookiePolicy", href: "/cookies" },
@@ -133,15 +134,17 @@ type OrganizationApplicationMenuLink = (typeof organizationApplicationMenu)[numb
 export type ApplicationMenuLink = PersonalApplicationMenuLink | OrganizationApplicationMenuLink;
 
 export const legalItems: MenuLink[] = [
-  legalLinks.brand,
   legalLinks.gdpr,
   legalLinks.termsOfService,
   legalLinks.cookies,
 ];
 
+export const marketingFooterItems: MenuLink[] = [brandLink, ...legalItems];
+
 export const applicationFooterMenu: MenuItem[] = [
   { labelKey: "home", href: "/" },
   { labelKey: "blog", href: "/blog", matchNested: true },
   { labelKey: "contact", href: "/contact", matchNested: true },
+  brandLink,
   { labelKey: "legal", items: legalItems },
 ];
