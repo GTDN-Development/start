@@ -3,42 +3,42 @@ import { Locale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/hero";
 import {
-  getChangelogEntries,
-  isChangelogLocale,
-} from "@/features/marketing/about/changelog/changelog-content";
-import { ChangelogTimeline } from "@/features/marketing/about/changelog/changelog-timeline";
+  getVersionHistoryEntries,
+  isVersionHistoryLocale,
+} from "@/features/marketing/about/version-history/version-history-content";
+import { VersionHistoryTimeline } from "@/features/marketing/about/version-history/version-history-timeline";
 import { createPublicPageMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(
-  props: PageProps<"/[locale]/about/changelog">
+  props: PageProps<"/[locale]/about/version-history">
 ): Promise<Metadata> {
   const { locale } = await props.params;
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.aboutChangelog",
+    namespace: "pages.aboutVersionHistory",
   });
 
   return createPublicPageMetadata({
     title: t("title"),
     description: t("description"),
     locale: locale as Locale,
-    pathname: "/about/changelog",
+    pathname: "/about/version-history",
   });
 }
 
-export default async function Page({ params }: PageProps<"/[locale]/about/changelog">) {
+export default async function Page({ params }: PageProps<"/[locale]/about/version-history">) {
   const { locale } = await params;
 
   setRequestLocale(locale as Locale);
 
   const t = await getTranslations({
     locale: locale as Locale,
-    namespace: "pages.aboutChangelog",
+    namespace: "pages.aboutVersionHistory",
   });
 
-  const changelogLocale = isChangelogLocale(locale) ? locale : "cs";
-  const entries = getChangelogEntries(changelogLocale);
+  const versionHistoryLocale = isVersionHistoryLocale(locale) ? locale : "cs";
+  const entries = getVersionHistoryEntries(versionHistoryLocale);
 
   return (
     <div className="relative">
@@ -49,7 +49,7 @@ export default async function Page({ params }: PageProps<"/[locale]/about/change
         </HeroContent>
       </Hero>
 
-      <ChangelogTimeline entries={entries} />
+      <VersionHistoryTimeline entries={entries} />
     </div>
   );
 }

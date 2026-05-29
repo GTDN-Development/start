@@ -1,6 +1,6 @@
-type ChangelogLocale = "cs" | "en";
+type VersionHistoryLocale = "cs" | "en";
 
-type ChangelogEntryCopy = {
+type VersionHistoryEntryCopy = {
   date: string;
   versionLabel: string;
   title: string;
@@ -9,17 +9,17 @@ type ChangelogEntryCopy = {
   highlights: string[];
 };
 
-type ChangelogEntryRecord = {
+type VersionHistoryEntryRecord = {
   id: string;
   version: string;
   publishedAt: string;
   image: {
-    altByLocale: Record<ChangelogLocale, string>;
+    altByLocale: Record<VersionHistoryLocale, string>;
   } | null;
-  copyByLocale: Record<ChangelogLocale, ChangelogEntryCopy>;
+  copyByLocale: Record<VersionHistoryLocale, VersionHistoryEntryCopy>;
 };
 
-export type ChangelogEntry = ChangelogEntryCopy & {
+export type VersionHistoryEntry = VersionHistoryEntryCopy & {
   id: string;
   version: string;
   publishedAt: string;
@@ -28,7 +28,7 @@ export type ChangelogEntry = ChangelogEntryCopy & {
   } | null;
 };
 
-const changelogEntries: ChangelogEntryRecord[] = [
+const versionHistoryEntries: VersionHistoryEntryRecord[] = [
   {
     id: "1-10-command-center",
     version: "1.10",
@@ -46,7 +46,7 @@ const changelogEntries: ChangelogEntryRecord[] = [
         title: "Nové command center pro rychlejší práci napříč produktem",
         description:
           "Přidali jsme centralizovaný panel pro rychlé akce, poslední položky a nejdůležitější zkratky, aby se tým dostal k práci během pár kliknutí.",
-        highlightsTitle: "Co je nové",
+        highlightsTitle: "Změny ve verzi",
         highlights: [
           "Rychlé akce spojují nejčastější workflow do jednoho místa.",
           "Poslední položky a kontextové zkratky se přizpůsobují tomu, kde tým naposledy pracoval.",
@@ -85,7 +85,7 @@ const changelogEntries: ChangelogEntryRecord[] = [
         title: "Týmový activity stream dává důležité změny na jedno místo",
         description:
           "Sjednotili jsme poslední aktivitu týmu do přehlednějšího feedu, aby bylo jasně vidět, co se změnilo a co vyžaduje další pozornost.",
-        highlightsTitle: "Co je nové",
+        highlightsTitle: "Změny ve verzi",
         highlights: [
           "Nový feed lépe seskupuje podobné změny a snižuje vizuální šum.",
           "Důležitější události mají výraznější hierarchii a lepší čitelnost.",
@@ -124,7 +124,7 @@ const changelogEntries: ChangelogEntryRecord[] = [
         title: "Přehlednější domácí obrazovka pro rychlý start",
         description:
           "Upravili jsme úvodní pohled tak, aby se tým dostal k rozpracovaným věcem, posledním aktivitám a nejdůležitějším zkratkám bez zbytečného hledání.",
-        highlightsTitle: "Co je nové",
+        highlightsTitle: "Změny ve verzi",
         highlights: [
           "Přepracované rozložení úvodního přehledu s důrazem na rozpracovanou práci.",
           "Rychlé akce jsou dostupné hned v horní části stránky a nezahlcují zbytek rozhraní.",
@@ -163,7 +163,7 @@ const changelogEntries: ChangelogEntryRecord[] = [
         title: "Detail organizace dostal čistší nastavení",
         description:
           "Sekce nastavení jsme rozřadili do logičtějších bloků, aby správci rychleji našli práci s členy, identitou organizace i základní konfigurací.",
-        highlightsTitle: "Co je nové",
+        highlightsTitle: "Změny ve verzi",
         highlights: [
           "Důležité akce jsou oddělené od běžných úprav, takže se v nastavení lépe orientuje.",
           "Správa členů má jasnější prioritizaci rolí a pozvánek.",
@@ -202,7 +202,7 @@ const changelogEntries: ChangelogEntryRecord[] = [
         title: "Lepší kvalita formulářů a menší množství slepých míst",
         description:
           "Zaměřili jsme se na drobná UX zlepšení napříč marketingem i aplikací, aby formuláře dávaly přesnější zpětnou vazbu a celé prostředí působilo konzistentněji.",
-        highlightsTitle: "Co je nové",
+        highlightsTitle: "Změny ve verzi",
         highlights: [
           "Stavy odeslání a chybové zprávy jsou čitelnější a lépe navázané na konkrétní pole.",
           "Byly upraveny mezery, ohraničení a kontrast ve sdílených UI prvcích.",
@@ -226,12 +226,12 @@ const changelogEntries: ChangelogEntryRecord[] = [
   },
 ];
 
-export function isChangelogLocale(locale: string): locale is ChangelogLocale {
+export function isVersionHistoryLocale(locale: string): locale is VersionHistoryLocale {
   return locale === "cs" || locale === "en";
 }
 
-export function getChangelogEntries(locale: ChangelogLocale): ChangelogEntry[] {
-  return changelogEntries.map((entry) => ({
+export function getVersionHistoryEntries(locale: VersionHistoryLocale): VersionHistoryEntry[] {
+  return versionHistoryEntries.map((entry) => ({
     id: entry.id,
     version: entry.version,
     publishedAt: entry.publishedAt,

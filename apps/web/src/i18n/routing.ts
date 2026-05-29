@@ -16,8 +16,8 @@ export const routing = defineRouting({
     "/about/features": {
       cs: "/o-aplikaci/funkce",
     },
-    "/about/changelog": {
-      cs: "/o-aplikaci/nove-funkce",
+    "/about/version-history": {
+      cs: "/o-aplikaci/historie-verzi",
     },
     "/blog": {
       cs: "/blog",

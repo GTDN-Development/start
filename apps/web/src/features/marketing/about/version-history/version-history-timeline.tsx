@@ -6,13 +6,13 @@ import {
   TimelineItem,
   TimelineStickyAside,
 } from "@/components/ui/timeline";
-import type { ChangelogEntry } from "./changelog-content";
+import type { VersionHistoryEntry } from "./version-history-content";
 
-type ChangelogTimelineProps = {
-  entries: ChangelogEntry[];
+type VersionHistoryTimelineProps = {
+  entries: VersionHistoryEntry[];
 };
 
-export function ChangelogTimeline({ entries }: ChangelogTimelineProps) {
+export function VersionHistoryTimeline({ entries }: VersionHistoryTimelineProps) {
   return (
     <Container render={<section />} size="xl" className="pb-24 sm:pb-28">
       <div className="mx-auto max-w-5xl">
@@ -67,4 +67,3 @@ export function ChangelogTimeline({ entries }: ChangelogTimelineProps) {
 }
 
 // poznámka k dalšímu vývoji: chybí pagination
-//

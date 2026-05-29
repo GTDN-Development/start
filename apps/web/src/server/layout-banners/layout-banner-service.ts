@@ -28,8 +28,8 @@ type LayoutBannerFileUrlResolver = (record: LayoutBannersRecord, filename: strin
 const layoutBannerSeverities = ["info", "warning", "success"] as const;
 const staticLayoutBannerHrefs = [
   "/",
-  "/about/changelog",
   "/about/features",
+  "/about/version-history",
   "/app",
   "/blog",
   "/contact",

@@ -56,7 +56,7 @@
         "brand": "Identita značky",
         "aboutApp": "O aplikaci",
         "features": "Funkce",
-        "changelog": "Nové funkce",
+        "versionHistory": "Historie verzí",
         "organization": "Organizace",
         "settings": "Nastavení organizace",
         "account": "Účet",
@@ -151,10 +151,10 @@
       "description": "Produkčně připravená white-label aplikace s autentizací, správou účtu, organizacemi a nasazením.",
       "learnMore": "Zjistit více",
       "shadcnDocs": "Shadcn ui docs",
-      "changelogCarousel": {
-        "title": "Poslední změny",
+      "versionHistory": {
+        "title": "Historie verzí",
         "actions": {
-          "viewAll": "Zobrazit všechny změny"
+          "viewAll": "Zobrazit celou historii verzí"
         }
       }
     },
@@ -308,9 +308,9 @@
       "title": "Funkce",
       "description": "Prozkoumejte klíčové možnosti, které týmům pomáhají rychleji spouštět a škálovat produkt."
     },
-    "aboutChangelog": {
-      "title": "Nové funkce",
-      "description": "Průběžný přehled změn, vylepšení a oprav, které v produktu právě přistály."
+    "aboutVersionHistory": {
+      "title": "Historie verzí",
+      "description": "Chronologický přehled vydaných verzí, produktových změn, vylepšení a oprav."
     },
     "brand": {
       "title": "Identita značky",

@@ -3,14 +3,14 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { Separator } from "@/components/ui/separator";
-import type { ChangelogEntry } from "@/features/marketing/about/changelog/changelog-content";
+import type { VersionHistoryEntry } from "@/features/marketing/about/version-history/version-history-content";
 
-type ChangelogCarouselProps = {
-  entries: ChangelogEntry[];
+type VersionHistorySectionProps = {
+  entries: VersionHistoryEntry[];
 };
 
-export function ChangelogSection({ entries }: ChangelogCarouselProps) {
-  const t = useTranslations("pages.home.changelogCarousel");
+export function VersionHistorySection({ entries }: VersionHistorySectionProps) {
+  const t = useTranslations("pages.home.versionHistory");
   const recentEntries = entries.slice(0, 4);
 
   return (
@@ -63,7 +63,7 @@ export function ChangelogSection({ entries }: ChangelogCarouselProps) {
             </div>
             <div className="flex-1 space-y-2">
               <h3 className="text-foreground font-heading group-hover:text-foreground/70 text-lg font-semibold tracking-tight text-balance transition-colors">
-                <Link href="/about/changelog" className="after:absolute after:inset-0">
+                <Link href="/about/version-history" className="after:absolute after:inset-0">
                   {entry.title}
                 </Link>
               </h3>
@@ -76,7 +76,11 @@ export function ChangelogSection({ entries }: ChangelogCarouselProps) {
       </div>
 
       <div>
-        <Button nativeButton={false} render={<Link href="/about/changelog" />} variant="secondary">
+        <Button
+          nativeButton={false}
+          render={<Link href="/about/version-history" />}
+          variant="secondary"
+        >
           {t("actions.viewAll")}
         </Button>
       </div>
@@ -84,4 +88,4 @@ export function ChangelogSection({ entries }: ChangelogCarouselProps) {
   );
 }
 
-// poznámka pro budoucí vývoj: bude se dělat slug k jednotlivým příspěvkům/updatům?
+// poznámka pro budoucí vývoj: bude se dělat slug k jednotlivým verzím?

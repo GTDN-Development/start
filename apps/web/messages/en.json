@@ -56,7 +56,7 @@
         "brand": "Brand assets",
         "aboutApp": "About app",
         "features": "Features",
-        "changelog": "Changelog",
+        "versionHistory": "Version history",
         "organization": "Organization",
         "settings": "Organization settings",
         "account": "Account",
@@ -151,10 +151,10 @@
       "description": "A production-ready white-label application with authentication, account management, organizations, and deployment foundations.",
       "learnMore": "Learn more",
       "shadcnDocs": "Shadcn ui docs",
-      "changelogCarousel": {
-        "title": "Changelog",
+      "versionHistory": {
+        "title": "Version history",
         "actions": {
-          "viewAll": "See all releases"
+          "viewAll": "See full version history"
         }
       }
     },
@@ -308,9 +308,9 @@
       "title": "Features",
       "description": "Explore the core capabilities that help teams launch and scale faster."
     },
-    "aboutChangelog": {
-      "title": "Changelog",
-      "description": "An ongoing record of product changes, improvements, and fixes that have just shipped."
+    "aboutVersionHistory": {
+      "title": "Version history",
+      "description": "A chronological record of released versions, product changes, improvements, and fixes."
     },
     "brand": {
       "title": "Brand assets",

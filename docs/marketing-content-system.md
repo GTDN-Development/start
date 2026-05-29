@@ -2,7 +2,7 @@
 
 Marketing pages are mostly static UI, with a few server-backed flows.
 
-- Marketing routes include home, pricing, blog, contact, sales/support, legal, changelog, roadmap, features, and integrations.
+- Marketing routes include home, pricing, blog, contact, sales/support, legal, version history, roadmap, features, and integrations.
 - Contact forms validate input, verify Turnstile when enabled, and call PocketBase email endpoints.
 - Support form requires an authenticated user and can include bounded attachments.
 - Form emails are rendered and sent by PocketBase; `GENERAL_FORMS_RECIPIENT` belongs to the PocketBase environment.

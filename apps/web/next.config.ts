@@ -9,6 +9,25 @@ const withNextIntl = createNextIntlPlugin({
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  async redirects() {
+    return [
+      {
+        source: "/about/changelog",
+        destination: "/about/version-history",
+        permanent: true,
+      },
+      {
+        source: "/en/about/changelog",
+        destination: "/en/about/version-history",
+        permanent: true,
+      },
+      {
+        source: "/cs/o-aplikaci/nove-funkce",
+        destination: "/cs/o-aplikaci/historie-verzi",
+        permanent: true,
+      },
+    ];
+  },
   cacheLife: {
     blog: {
       stale: 10,

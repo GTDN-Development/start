@@ -13,10 +13,10 @@ import {
 } from "@/components/ui/hero";
 import AppIconSvg from "@/assets/svgs/start-app-icon.svg";
 import {
-  getChangelogEntries,
-  isChangelogLocale,
-} from "@/features/marketing/about/changelog/changelog-content";
-import { ChangelogSection } from "@/features/marketing/home/changelog-section";
+  getVersionHistoryEntries,
+  isVersionHistoryLocale,
+} from "@/features/marketing/about/version-history/version-history-content";
+import { VersionHistorySection } from "@/features/marketing/home/version-history-section";
 import { PatternGrid } from "@/components/ui/patterns";
 import { MarqueeCompanies } from "@/features/marketing/home/marquee-companies";
 import { createPublicPageMetadata } from "@/lib/metadata";
@@ -69,8 +69,8 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
     namespace: "pages.home",
   });
 
-  const changelogLocale = isChangelogLocale(locale) ? locale : "cs";
-  const changelogEntries = getChangelogEntries(changelogLocale).slice(0, 5);
+  const versionHistoryLocale = isVersionHistoryLocale(locale) ? locale : "cs";
+  const versionHistoryEntries = getVersionHistoryEntries(versionHistoryLocale).slice(0, 5);
 
   return (
     <div className="relative">
@@ -160,7 +160,7 @@ export default async function Page({ params }: PageProps<"/[locale]">) {
         </Container>
 
         <Container render={<section />}>
-          <ChangelogSection entries={changelogEntries} />
+          <VersionHistorySection entries={versionHistoryEntries} />
         </Container>
 
         <Container render={<section />}>
