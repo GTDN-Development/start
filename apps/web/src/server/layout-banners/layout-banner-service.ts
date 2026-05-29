@@ -30,8 +30,6 @@ const staticLayoutBannerHrefs = [
   "/",
   "/about/changelog",
   "/about/features",
-  "/about/integrations",
-  "/about/roadmap",
   "/app",
   "/blog",
   "/contact",

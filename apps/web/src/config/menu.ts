@@ -34,9 +34,7 @@ type MenuLinkLabelKey =
   | "blog"
   | "brand"
   | "features"
-  | "integrations"
   | "changelog"
-  | "roadmap"
   | "signIn"
   | "signUp"
   | "organization"
@@ -83,9 +81,7 @@ export const marketingMenu: MenuItem[] = [
     labelKey: "aboutApp",
     items: [
       { labelKey: "features", href: "/about/features" },
-      { labelKey: "integrations", href: "/about/integrations" },
       { labelKey: "changelog", href: "/about/changelog" },
-      { labelKey: "roadmap", href: "/about/roadmap" },
     ],
   },
   { labelKey: "pricing", href: "/pricing" },

@@ -56,9 +56,7 @@
         "brand": "Brand assets",
         "aboutApp": "About app",
         "features": "Features",
-        "integrations": "Integrations",
         "changelog": "Changelog",
-        "roadmap": "Roadmap",
         "organization": "Organization",
         "settings": "Organization settings",
         "account": "Account",
@@ -310,17 +308,9 @@
       "title": "Features",
       "description": "Explore the core capabilities that help teams launch and scale faster."
     },
-    "aboutIntegrations": {
-      "title": "Integrations",
-      "description": "Connect your stack with the tools your team already uses every day."
-    },
     "aboutChangelog": {
       "title": "Changelog",
       "description": "An ongoing record of product changes, improvements, and fixes that have just shipped."
-    },
-    "aboutRoadmap": {
-      "title": "Roadmap",
-      "description": "See what is planned next and how the product is evolving."
     },
     "brand": {
       "title": "Brand assets",

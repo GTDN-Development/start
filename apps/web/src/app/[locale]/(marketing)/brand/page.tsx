@@ -17,19 +17,8 @@ import { Hero, HeroContent, HeroDescription, HeroTitle } from "@/components/ui/h
 import { BRAND_PATH } from "@/config/routes";
 import { createPublicPageMetadata } from "@/lib/metadata";
 import { cn } from "@/lib/utils";
-import {
-  brandAssetFormatLabels,
-  brandAssetsConfig,
-  brandColorFormatLabels,
-  type BrandAsset,
-} from "@/features/marketing/brand/brand-assets-config";
+import { brandAssetsConfig } from "@/features/marketing/brand/brand-assets-config";
 import { BrandCopyValueButton } from "@/features/marketing/brand/brand-copy-value-button";
-
-const assetPreviewClassNames = {
-  wide: "h-auto max-h-24 w-full",
-  portrait: "h-full max-h-40 w-auto",
-  square: "size-28",
-} as const satisfies Record<BrandAsset["previewShape"], string>;
 
 export async function generateMetadata(props: PageProps<"/[locale]/brand">): Promise<Metadata> {
   const { locale } = await props.params;
@@ -93,8 +82,8 @@ export default async function Page({ params }: PageProps<"/[locale]/brand">) {
                 <CardContent className="flex flex-col gap-2">
                   {color.values.map((item) => (
                     <BrandCopyValueButton
-                      key={item.format}
-                      format={brandColorFormatLabels[item.format]}
+                      key={`${item.format}:${item.value}`}
+                      format={item.format}
                       value={item.value}
                     />
                   ))}
@@ -130,20 +119,15 @@ export default async function Page({ params }: PageProps<"/[locale]/brand">) {
                         height={asset.previewHeight}
                         loading="eager"
                         unoptimized
-                        className={cn(
-                          "max-w-full object-contain",
-                          assetPreviewClassNames[asset.previewShape]
-                        )}
+                        className={cn("max-w-full object-contain", asset.previewClassName)}
                       />
                     </div>
                   </CardContent>
                   <CardFooter className="flex flex-wrap gap-2">
                     {asset.downloads.map((download) => {
-                      const formatLabel = brandAssetFormatLabels[download.format];
-
                       return (
                         <Button
-                          key={download.format}
+                          key={`${download.format}:${download.href}`}
                           variant="outline"
                           size="sm"
                           nativeButton={false}
@@ -153,13 +137,13 @@ export default async function Page({ params }: PageProps<"/[locale]/brand">) {
                               download={download.fileName}
                               aria-label={t("assets.downloadAriaLabel", {
                                 asset: assetTitle,
-                                format: formatLabel,
+                                format: download.format,
                               })}
                             />
                           }
                         >
                           <DownloadIcon aria-hidden="true" data-icon="inline-start" />
-                          {formatLabel}
+                          {download.format}
                         </Button>
                       );
                     })}
