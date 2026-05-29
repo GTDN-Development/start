@@ -3,13 +3,17 @@
 ## 26-05-29
 
 - Move changelog to the repository root so it tracks the whole project, not only `apps/web`.
+- Rename changelog surfaces to version history across routes, menu labels, docs, and content.
+- Rename the Czech brand page route and copy to brand identity.
 - Reorganize repository docs and adoption checklist.
+- Add repository `AGENTS.md` instructions for workspace, PocketBase, and infrastructure boundaries.
 - Consolidate PocketBase migrations into one initial schema baseline.
 - Remove unused about pages and simplify brand assets config.
 - Add accordion FAQ component to the marketing contact page.
 - Document Shoptet feed sync scheduling context.
 - Clarify PocketBase deployment env requirements.
 - Use Turnstile test keys for local registration.
+- Set toast notifications to the top center and shorten layout banner cache revalidation.
 - Fix organization invite avatar URLs, document export breadcrumbs, invalid avatar toast copy,
   layout banner dismissal, and localized banner links.
 

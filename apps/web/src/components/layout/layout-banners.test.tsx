@@ -45,9 +45,7 @@ describe("LayoutBanners", function describeLayoutBanners() {
   });
 });
 
-function createLayoutBanner(
-  overrides: Partial<LayoutBannerViewModel> = {}
-): LayoutBannerViewModel {
+function createLayoutBanner(overrides: Partial<LayoutBannerViewModel> = {}): LayoutBannerViewModel {
   return {
     id: "layout-banner",
     title: "System notice",
