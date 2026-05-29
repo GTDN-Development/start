@@ -14,7 +14,7 @@ export function BrandCopyValueButton({ format, value }: { format: string; value:
     <CopyButton
       toCopy={value}
       aria-label={t("ariaLabel", { format })}
-      onCopy={() => toast(t("copied", { format, value }), { position: "bottom-center" })}
+      onCopy={() => toast(t("copied", { format, value }))}
       className={cn(
         buttonVariants({ variant: "outline", size: "sm" }),
         "h-auto min-h-8 w-full justify-start gap-3 px-2 py-2 text-left whitespace-normal"

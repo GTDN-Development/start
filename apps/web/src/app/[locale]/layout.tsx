@@ -102,7 +102,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
               </CookieErrorBoundary>
             )}
             <TailwindScreen />
-            <Toaster />
+            <Toaster position="top-center" />
             <AnalyticsScripts />
           </AppProviders>
         </NextIntlClientProvider>

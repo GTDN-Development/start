@@ -282,9 +282,7 @@ function FooterItemToCopy({
   return (
     <CopyButton
       toCopy={toCopy}
-      onCopy={() =>
-        toast(t("copiedValueToClipboard", { value: toCopy }), { position: "bottom-center" })
-      }
+      onCopy={() => toast(t("copiedValueToClipboard", { value: toCopy }))}
       className={cn("relative", className)}
     >
       {({ isCopied }) => (
