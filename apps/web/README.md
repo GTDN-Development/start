@@ -33,7 +33,9 @@ Core URL and service envs:
 - `NEXT_PUBLIC_PB_URL`
 - `START_INTERNAL_API_SECRET`
 - `GOTENBERG_BASE_URL`
+- `NEXT_PUBLIC_TURNSTILE_ENABLED`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, and `TURNSTILE_SECRET_KEY`
 - base URLs should be written without a trailing slash
+- PocketBase-specific mail recipient and SMTP/sender setup live with the PocketBase service
 
 See [.docs/local-stack.md](/Users/fanda/Dev/start/.docs/local-stack.md) for local stack details.
 
@@ -50,8 +52,8 @@ Vitest covers unit and business-rule tests. Playwright covers auth, organization
 Router flows against a local Docker stack. Use the root README for commands and
 [.docs/testing-system.md](/Users/fanda/Dev/start/.docs/testing-system.md) for the test flow.
 
-Auth/email E2E flows should set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique
-`+alias` recipients from it.
+Auth/email E2E flows can set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias`
+recipients from it. Without it, tests use isolated `example.com` addresses against Mailpit.
 
 ## Tooling
 

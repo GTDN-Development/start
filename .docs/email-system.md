@@ -6,6 +6,7 @@ PocketBase owns transactional email rendering and delivery.
 - Custom app emails are Czech-only and file-backed.
 - Next.js server actions validate UI input, run Turnstile when enabled, then call PocketBase with `START_INTERNAL_API_SECRET`.
 - PocketBase validates payloads again, checks PB auth/roles for user-bound flows, renders HTML/text, and sends through its configured SMTP client.
+- `GENERAL_FORMS_RECIPIENT` is a PocketBase runtime env value. PocketBase `appURL`, sender identity, and SMTP delivery are configured in PocketBase settings.
 - Auth email templates stay in committed PocketBase migrations.
 - Email images live in `apps/web/public/email` because email links resolve against `NEXT_PUBLIC_APP_URL`.
 

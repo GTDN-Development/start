@@ -39,6 +39,7 @@ change only the product-specific surfaces.
 - Configure web envs from [prod example](/Users/fanda/Dev/start/apps/web/.env.prod.example).
 - Configure PocketBase envs from
   [PocketBase env example](/Users/fanda/Dev/start/apps/pocketbase/.env.example).
+- In PocketBase settings, configure `appURL`, sender identity, and production SMTP delivery.
 - Configure PDF rendering from [web prod env example](/Users/fanda/Dev/start/apps/web/.env.prod.example)
   and [Gotenberg infrastructure guide](/Users/fanda/Dev/start/infra/gotenberg/README.md).
 - If the adopted product does not need PDF/document export, remove `infra/gotenberg`, the

@@ -89,14 +89,21 @@ For dev/test mail flows, prefer the repository-managed Mailpit apply script over
 5. Add:
    - `PB_SUPERUSER_EMAIL`
    - `PB_SUPERUSER_PASSWORD`
+   - `START_INTERNAL_API_SECRET`
+   - `GENERAL_FORMS_RECIPIENT`
 6. Deploy or redeploy the service.
-7. Open `https://your-domain/_/` and sign in with the configured superuser.
+7. Open `https://your-domain/_/`, sign in with the configured superuser, and configure PocketBase
+   `appURL`, sender identity, and SMTP delivery in settings.
 
 `Root Directory = apps/pocketbase` is required in Railway for this monorepo layout. Without it, Railway will build from the repository root instead of the PocketBase app and the deployment will fail or build the wrong service.
 
 Environment examples:
 
 - `.env.example` as the shared base for both `dev` and `prod`
+
+Production SMTP, sender identity, and `appURL` are PocketBase settings, not committed migrations.
+`MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS` in `.env.example` are used by the local Mailpit apply
+script; set production sender values in PocketBase settings.
 
 ## Mailpit Setup
 
@@ -117,7 +124,8 @@ credentials automatically. The local environment still needs:
 - `NEXT_PUBLIC_PB_URL`
 - `NEXT_PUBLIC_APP_URL`
 - matching `START_INTERNAL_API_SECRET` values for the web app and PocketBase
-- PocketBase email values such as `MAIL_FROM_NAME`, `MAIL_FROM_ADDRESS`, and `GENERAL_FORMS_RECIPIENT`
+- `GENERAL_FORMS_RECIPIENT`
+- `MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS` for the Mailpit sender baseline
 
 Use base URLs without a trailing slash. Mailpit is for local development and testing only.
 
@@ -143,9 +151,13 @@ PocketBase loads all `.pb.js` files from `pb_hooks/`.
 
 - `organizations.pb.js` - atomic organization creation endpoint
 - `organization-invites.pb.js` - invite inspection and acceptance endpoints
+- `emails.pb.js` - contact and support email endpoints
 - `organization-members.pb.js` - membership owner guard hooks
 - `users.pb.js` - user lifecycle hooks
 - `cookie-consent-cleanup.pb.js` - daily retention cleanup for `cookie_consent_events`
+
+Invite create/resend/revoke endpoint logic lives in `pb_hooks/lib/start-organization-invites.js`.
+Email rendering and delivery helpers live in `pb_hooks/lib/start-email.js`.
 
 Cookie consent audit events are retained for 395 days. The cleanup hook runs daily through PocketBase cron and removes old rows in bounded batches, reusing the existing `created` index.
 

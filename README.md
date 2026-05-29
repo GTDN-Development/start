@@ -100,7 +100,8 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 - `START_INTERNAL_API_SECRET` must match between the web app and PocketBase
 - `GOTENBERG_BASE_URL` is the server-only Gotenberg base URL for PDF rendering
 - base URLs are written without a trailing slash
-- sender identity and form recipient values belong to the PocketBase environment
+- custom email form recipient values belong to the PocketBase environment
+- production PocketBase `appURL`, sender identity, and SMTP delivery are configured in PocketBase settings
 - complete examples live inside the owning app directories
 
 ## Documentation
