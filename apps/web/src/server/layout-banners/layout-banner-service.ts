@@ -51,7 +51,7 @@ async function getCachedActiveLayoutBanner(
   "use cache";
   cacheLife({
     stale: 30,
-    revalidate: 60,
+    revalidate: 30,
     expire: 3600,
   });
   cacheTag("layout-banners");

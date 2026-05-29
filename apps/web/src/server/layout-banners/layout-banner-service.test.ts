@@ -186,7 +186,7 @@ describe("layout banner service", function describeLayoutBannerService() {
     expect(requestUrl.searchParams.get("sort")).toBe("-priority");
     expect(cacheLifeMock).toHaveBeenCalledWith({
       stale: 30,
-      revalidate: 60,
+      revalidate: 30,
       expire: 3600,
     });
     expect(cacheTagMock).toHaveBeenCalledWith("layout-banners");
