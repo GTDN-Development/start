@@ -32,7 +32,7 @@ These instructions apply only to files under `apps/web/**`.
 
 ## State And Effects
 
-- Default to no raw `useEffect` in app code; follow `../../.rules/use-effect-guidelines.md`.
+- Default to no raw `useEffect` in app code; follow `../../docs/guidelines/use-effect.md`.
 - Do not move business logic into `useMountEffect()` just to satisfy lint. It is only for mount/unmount sync with external systems.
 - Treat `useLayoutEffect()` as DOM measurement or pre-paint sync only.
 - Treat `router.refresh()` as a last resort for server-driven views. Do not pair it with an already-applied local/context patch, and do not call it immediately after `router.push()` or `router.replace()`.

@@ -42,12 +42,12 @@ const eslintConfig = defineConfig([
         {
           selector: "ImportSpecifier[imported.name='useEffect']",
           message:
-            "Raw useEffect is restricted. Follow .rules/use-effect-guidelines.md. Prefer render-time derivation, handlers, keys, server/data abstractions, or useSyncExternalStore. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
+            "Raw useEffect is restricted. Follow docs/guidelines/use-effect.md. Prefer render-time derivation, handlers, keys, server/data abstractions, or useSyncExternalStore. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
         },
         {
           selector: "MemberExpression[object.name='React'][property.name='useEffect']",
           message:
-            "Raw useEffect is restricted. Follow .rules/use-effect-guidelines.md. Prefer render-time derivation, handlers, keys, server/data abstractions, or useSyncExternalStore. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
+            "Raw useEffect is restricted. Follow docs/guidelines/use-effect.md. Prefer render-time derivation, handlers, keys, server/data abstractions, or useSyncExternalStore. For mount/unmount sync with external systems, use @/hooks/use-mount-effect.",
         },
       ],
     },

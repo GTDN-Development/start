@@ -23,4 +23,4 @@ Useful files:
 - [PocketBase README](/Users/fanda/Dev/start/apps/pocketbase/README.md)
 - [Mailpit README](/Users/fanda/Dev/start/infra/mailpit/README.md)
 - [Gotenberg README](/Users/fanda/Dev/start/infra/gotenberg/README.md)
-- [PDF system](/Users/fanda/Dev/start/.docs/pdf-system.md)
+- [PDF system](pdf-system.md)

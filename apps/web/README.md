@@ -41,7 +41,7 @@ Local development uses Cloudflare Turnstile dummy keys in `.env.local.example`, 
 server-side verification can run without production credentials. Playwright keeps Turnstile disabled
 through `.env.test.example`.
 
-See [.docs/local-stack.md](/Users/fanda/Dev/start/.docs/local-stack.md) for local stack details.
+See [../../docs/local-stack.md](../../docs/local-stack.md) for local stack details.
 
 ## PocketBase Typegen
 
@@ -54,7 +54,7 @@ See [.docs/local-stack.md](/Users/fanda/Dev/start/.docs/local-stack.md) for loca
 
 Vitest covers unit and business-rule tests. Playwright covers auth, organization, email, and App
 Router flows against a local Docker stack. Use the root README for commands and
-[.docs/testing-system.md](/Users/fanda/Dev/start/.docs/testing-system.md) for the test flow.
+[../../docs/testing-system.md](../../docs/testing-system.md) for the test flow.
 
 Auth/email E2E flows can set `PLAYWRIGHT_TEST_EMAIL` in `.env.test`; tests derive unique `+alias`
 recipients from it. Without it, tests use isolated `example.com` addresses against Mailpit.
@@ -90,7 +90,7 @@ Conventions:
 ## New Project Setup
 
 Before using this app for a new product, follow the
-[project adoption checklist](/Users/fanda/Dev/start/.docs/adoption-checklist.md).
+[project adoption checklist](../../ADOPTION_CHECKLIST.md).
 
 Organizations are enabled in the app env examples and still feature-flagged. This is an explicit
 bootstrap default for new team-scope products; the runtime fallback is intentionally conservative,

@@ -15,6 +15,9 @@ change only the product-specific surfaces.
   [email logo](/Users/fanda/Dev/start/apps/web/public/email/start-logo-email.png).
 - Rewrite product-facing copy in [English messages](/Users/fanda/Dev/start/apps/web/messages/en.json)
   and [Czech messages](/Users/fanda/Dev/start/apps/web/messages/cs.json).
+- Review public product pages, including the
+  [brand page](</Users/fanda/Dev/start/apps/web/src/app/[locale]/(marketing)/brand/page.tsx>),
+  so they match the adopted product's positioning.
 
 ## Theme And UI Preset
 

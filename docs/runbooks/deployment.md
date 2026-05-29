@@ -79,7 +79,7 @@ PocketBase starts by applying committed migrations, then optionally upserting th
 serving with `--automigrate=false`. Deployed environments do not generate migrations.
 
 For production hardening, also review
-[PocketBase production readiness](pocketbase-production-readiness.md).
+[PocketBase production readiness](../pocketbase-production-readiness.md).
 
 ## 4. Deploy Gotenberg On Railway
 

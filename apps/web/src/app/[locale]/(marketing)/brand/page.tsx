@@ -122,7 +122,7 @@ export default async function Page({ params }: PageProps<"/[locale]/brand">) {
                     <CardDescription>{t(`assets.items.${asset.id}.description`)}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-muted/50 border-border flex aspect-[4/3] items-center justify-center rounded-lg border p-8">
+                    <div className="bg-muted/50 border-border flex aspect-4/3 items-center justify-center rounded-lg border p-8">
                       <Image
                         src={asset.previewSrc}
                         alt={assetTitle}

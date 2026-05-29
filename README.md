@@ -10,8 +10,7 @@ open-source starter.
 - `apps/pocketbase` - PocketBase service with migrations, hooks, public assets, and Railway deployment files
 - `infra/mailpit` - Mailpit deployment wrapper for development and test email capture
 - `infra/gotenberg` - Gotenberg Chromium PDF rendering deployment wrapper for local and Railway
-- `.rules` - project goals and architecture rules
-- `.docs` - implementation notes for key subsystems
+- `docs` - implementation notes, guidelines, plans, runbooks, and architecture decision records
 
 ## Tooling
 
@@ -22,9 +21,8 @@ open-source starter.
 
 ## New Project Setup
 
-Use the [project adoption checklist](/Users/fanda/Dev/start/.docs/adoption-checklist.md) when
-starting a new product. Replace the product-specific values and keep the robust platform pieces
-intact.
+Use the [project adoption checklist](ADOPTION_CHECKLIST.md) when starting a new product.
+Replace the product-specific values and keep the robust platform pieces intact.
 
 Organizations, invites, and roles are enabled in the project env examples, so new team-scope
 products start with them on. This is an explicit bootstrap choice, not the runtime fallback: if
@@ -89,8 +87,8 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 - `pnpm dev` runs the workspace dev task; `pnpm dev:full` starts the local stack first.
 - `pnpm test` runs Turbo tests, including PocketBase script tests.
 - `pnpm test:e2e` starts an isolated PocketBase + Mailpit + Gotenberg stack, builds the web app, and runs Playwright.
-- Details live in [.docs/local-stack.md](/Users/fanda/Dev/start/.docs/local-stack.md) and
-  [.docs/testing-system.md](/Users/fanda/Dev/start/.docs/testing-system.md).
+- Details live in [docs/local-stack.md](docs/local-stack.md) and
+  [docs/testing-system.md](docs/testing-system.md).
 
 ## Core Env Conventions
 
@@ -110,7 +108,7 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 - PocketBase service guide: [apps/pocketbase/README.md](/Users/fanda/Dev/start/apps/pocketbase/README.md)
 - Mailpit infrastructure guide: [infra/mailpit/README.md](/Users/fanda/Dev/start/infra/mailpit/README.md)
 - Gotenberg infrastructure guide: [infra/gotenberg/README.md](/Users/fanda/Dev/start/infra/gotenberg/README.md)
-- focused project notes: [.docs/README.md](/Users/fanda/Dev/start/.docs/README.md)
+- focused project notes: [docs/README.md](docs/README.md)
 
 Environment examples live inside the owning app directories:
 

@@ -36,11 +36,11 @@ Remove or rewrite every item in this map:
 - `turbo.json`: remove Gotenberg env passthrough keys.
 - `README.md`: remove Gotenberg infrastructure wrapper, Railway service, local stack, e2e stack,
   env, and service guide references.
-- `.docs/pdf-system.md`: delete this document.
-- `.docs/local-stack.md`: remove Gotenberg from the local stack description, ports, health checks,
+- `docs/pdf-system.md`: delete this document.
+- `docs/local-stack.md`: remove Gotenberg from the local stack description, ports, health checks,
   and links.
-- `.docs/testing-system.md`: remove Gotenberg from the E2E stack and PDF test notes.
-- `.docs/adoption-checklist.md`: remove PDF/Gotenberg adoption notes.
+- `docs/testing-system.md`: remove Gotenberg from the E2E stack and PDF test notes.
+- `ADOPTION_CHECKLIST.md`: remove PDF/Gotenberg adoption notes.
 - `infra/gotenberg/README.md`: deleted with `infra/gotenberg`.
 - `apps/web/README.md`: remove `GOTENBERG_BASE_URL`.
 - `apps/web/.env.local.example`: remove `GOTENBERG_BASE_URL`.
@@ -132,7 +132,7 @@ find apps/web/src -path '*pdf*' -print | sort
 
 ### 6. Clean documentation and environment examples
 
-- Delete `.docs/pdf-system.md`.
+- Delete `docs/pdf-system.md`.
 - Update README and docs so they describe only the remaining stack.
 - Remove Gotenberg from Railway setup notes.
 - Remove Gotenberg from local-stack docs, default port lists, health check examples, and E2E stack
