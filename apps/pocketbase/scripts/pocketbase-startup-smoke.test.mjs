@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
+import { File } from "node:buffer";
 import { execFile as execFileCallback, spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { access, chmod, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { createServer } from "node:net";
@@ -162,6 +164,7 @@ test(
 
         await assertEmailEndpointGuards(port);
         await assertOrganizationSchemaLimits(port);
+        await assertOrganizationInviteOrganizationAvatar(port);
         await assertOrganizationCreateHook(port);
         await assertOrganizationMemberAuthzHooks(port);
         await assertLastOwnerGuards(port);
@@ -282,6 +285,74 @@ function getCollectionField(collection, fieldName) {
   assert.ok(field, `Expected ${collection.name}.${fieldName} to exist.`);
 
   return field;
+}
+
+async function assertOrganizationInviteOrganizationAvatar(port) {
+  const pb = await createSuperuserClient(port);
+  const suffix = Math.random().toString(16).slice(2, 10);
+  const owner = await createVerifiedUserClient(port, pb, `invite-avatar-owner-${suffix}`);
+  const recipient = await createVerifiedUserClient(port, pb, `invite-avatar-recipient-${suffix}`);
+  const organization = await createOrganizationWithOwner(pb, owner.user, `invite-avatar-${suffix}`);
+  const organizationWithAvatar = await pb.collection("organizations").update(organization.id, {
+    avatar: createTinyPngFile("organization-avatar.png"),
+  });
+  const inviteToken = `invite-avatar-token-${suffix}`;
+
+  await pb.collection("organization_invites").create({
+    organization: organization.id,
+    email_normalized: recipient.user.email,
+    role: "member",
+    token_hash: createSha256Hash(inviteToken),
+    expires_at: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+    invited_by: owner.user.id,
+  });
+
+  const inspectResponse = await recipient.client.send("/api/start/organization-invites/inspect", {
+    method: "POST",
+    body: {
+      token: inviteToken,
+    },
+  });
+
+  assert.equal(inspectResponse.state, "pending");
+  assert.equal(inspectResponse.organization.id, organization.id);
+  assertOrganizationAvatarUrl(inspectResponse.organization.avatarUrl, organizationWithAvatar, port);
+
+  const avatarResponse = await fetch(inspectResponse.organization.avatarUrl);
+
+  assert.equal(avatarResponse.status, 200);
+
+  const forwardedInspectResponse = await recipient.client.send(
+    "/api/start/organization-invites/inspect",
+    {
+      method: "POST",
+      headers: {
+        "x-forwarded-proto": "https",
+      },
+      body: {
+        token: inviteToken,
+      },
+    }
+  );
+
+  assert.equal(forwardedInspectResponse.state, "pending");
+  assertOrganizationAvatarUrl(
+    forwardedInspectResponse.organization.avatarUrl,
+    organizationWithAvatar,
+    port,
+    "https"
+  );
+
+  const acceptResponse = await recipient.client.send("/api/start/organization-invites/accept", {
+    method: "POST",
+    body: {
+      token: inviteToken,
+    },
+  });
+
+  assert.equal(acceptResponse.state, "accepted");
+  assert.equal(acceptResponse.organization.id, organization.id);
+  assertOrganizationAvatarUrl(acceptResponse.organization.avatarUrl, organizationWithAvatar, port);
 }
 
 async function assertOrganizationCreateHook(port) {
@@ -478,6 +549,28 @@ async function findOrganizationMembership(pb, organizationId, userId) {
       userId,
     })
   );
+}
+
+function assertOrganizationAvatarUrl(avatarUrl, organization, port, protocol = "http") {
+  assert.equal(
+    avatarUrl,
+    `${protocol}://127.0.0.1:${port}/api/files/${organization.collectionId}/${organization.id}/${encodeURIComponent(organization.avatar)}`
+  );
+}
+
+function createTinyPngFile(filename) {
+  const image = Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
+    "base64"
+  );
+
+  return new File([image], filename, {
+    type: "image/png",
+  });
+}
+
+function createSha256Hash(value) {
+  return createHash("sha256").update(value).digest("hex");
 }
 
 async function assertRejectsWithStatus(promise, status) {

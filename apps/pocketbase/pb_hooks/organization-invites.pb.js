@@ -1,4 +1,5 @@
 routerAdd("POST", "/api/start/organization-invites/inspect", function inspectOrganizationInvite(e) {
+  var organizationSummary = require(`${__hooks}/lib/start-organization-summary.js`);
   var requestInfo = e.requestInfo();
   var inviteToken = String((requestInfo.body && requestInfo.body.token) || "").trim();
 
@@ -46,7 +47,7 @@ routerAdd("POST", "/api/start/organization-invites/inspect", function inspectOrg
 
   return e.json(200, {
     state: membership ? "already_member" : "pending",
-    organization: serializeOrganization(organization),
+    organization: organizationSummary.serializeOrganization(organization, e),
   });
 
   function normalizeEmail(value) {
@@ -101,18 +102,10 @@ routerAdd("POST", "/api/start/organization-invites/inspect", function inspectOrg
       app.delete(record);
     } catch (_) {}
   }
-
-  function serializeOrganization(record) {
-    return {
-      id: record.id,
-      name: record.getString("name"),
-      slug: record.getString("slug"),
-      avatarUrl: null,
-    };
-  }
 });
 
 routerAdd("POST", "/api/start/organization-invites/accept", function acceptOrganizationInvite(e) {
+  var organizationSummary = require(`${__hooks}/lib/start-organization-summary.js`);
   var requestInfo = e.requestInfo();
   var auth = requestInfo.auth;
 
@@ -169,7 +162,7 @@ routerAdd("POST", "/api/start/organization-invites/accept", function acceptOrgan
       safeDeleteRecord(txApp, inviteRecord);
       acceptedResult = {
         state: "already_member",
-        organization: serializeOrganization(organization),
+        organization: organizationSummary.serializeOrganization(organization, e),
       };
       return;
     }
@@ -186,7 +179,7 @@ routerAdd("POST", "/api/start/organization-invites/accept", function acceptOrgan
 
     acceptedResult = {
       state: "accepted",
-      organization: serializeOrganization(organization),
+      organization: organizationSummary.serializeOrganization(organization, e),
     };
   });
 
@@ -243,15 +236,6 @@ routerAdd("POST", "/api/start/organization-invites/accept", function acceptOrgan
     try {
       app.delete(record);
     } catch (_) {}
-  }
-
-  function serializeOrganization(record) {
-    return {
-      id: record.id,
-      name: record.getString("name"),
-      slug: record.getString("slug"),
-      avatarUrl: null,
-    };
   }
 });
 
