@@ -57,24 +57,30 @@ const bannerIntentClassNames: Record<LayoutBannerIntent, string> = {
 };
 
 export function LayoutBanners({ banner, labels, className }: LayoutBannersProps) {
+  const [transientDismissedBannerId, setTransientDismissedBannerId] = useState<string | null>(null);
   const dismissedBannerSnapshot = useSyncExternalStore(
     subscribeDismissedBannerStore,
     getDismissedBannerSnapshot,
     getServerDismissedBannerSnapshot
   );
-  const isDismissed =
+  const isPersistentlyDismissed =
     banner.rememberDismiss && parseDismissedBannerIds(dismissedBannerSnapshot).includes(banner.id);
+  const isDismissed = isPersistentlyDismissed || transientDismissedBannerId === banner.id;
 
   if (isDismissed) {
     return null;
   }
 
   function handleOpenChange(newIsOpen: boolean) {
-    if (newIsOpen || !banner.rememberDismiss) {
+    if (newIsOpen) {
       return;
     }
 
-    persistDismissedBannerId(banner.id);
+    setTransientDismissedBannerId(banner.id);
+
+    if (banner.rememberDismiss) {
+      persistDismissedBannerId(banner.id);
+    }
   }
 
   return (
@@ -87,7 +93,7 @@ export function LayoutBanners({ banner, labels, className }: LayoutBannersProps)
         data-layout-banner-id={banner.id}
         data-testid="layout-banner"
         intent={banner.severity}
-        isDismissable={banner.rememberDismiss}
+        isDismissable
         isOpen={!isDismissed}
         onClose={handleOpenChange}
       >

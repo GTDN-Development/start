@@ -7,6 +7,7 @@ import type {
 } from "@/components/layout/layout-banners";
 import { getPocketBaseUrl } from "@/config/public-env";
 import { getPathname, type AppPathname } from "@/i18n/navigation";
+import { routing, type AppLocale } from "@/i18n/routing";
 import { getNullableTrimmedString, logServiceError } from "@/server/pocketbase/pocketbase-utils";
 import type { LayoutBannersRecord } from "@/types/pocketbase";
 
@@ -212,16 +213,58 @@ function localizeLayoutBannerHref(href: string, locale: LayoutBannerLocale): str
   }
 
   const [, pathname = href, suffix = ""] = /^([^?#]*)([?#].*)?$/.exec(href) ?? [];
+  const routeKey = resolveStaticLayoutBannerRouteKey(pathname);
 
-  if (!isStaticLayoutBannerHref(pathname)) {
+  if (!routeKey) {
     return href;
   }
 
-  return `${getPathname({ href: pathname, locale })}${suffix}`;
+  return `${getPathname({ href: routeKey, locale })}${suffix}`;
 }
 
 function isRootRelativeHref(value: string): value is `/${string}` {
   return value.startsWith("/") && !value.startsWith("//");
+}
+
+function resolveStaticLayoutBannerRouteKey(
+  pathname: string
+): (typeof staticLayoutBannerHrefs)[number] | null {
+  const normalizedPathname = stripSupportedLocalePrefix(pathname);
+
+  if (isStaticLayoutBannerHref(normalizedPathname)) {
+    return normalizedPathname;
+  }
+
+  return (
+    staticLayoutBannerHrefs.find((routeKey) =>
+      routing.locales.some(
+        (locale) => getLocalizedStaticLayoutBannerPath(routeKey, locale) === normalizedPathname
+      )
+    ) ?? null
+  );
+}
+
+function stripSupportedLocalePrefix(pathname: string): string {
+  const localePrefix = routing.locales.find(
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
+  );
+
+  if (!localePrefix) {
+    return pathname;
+  }
+
+  return pathname.slice(localePrefix.length + 1) || "/";
+}
+
+function getLocalizedStaticLayoutBannerPath(
+  routeKey: (typeof staticLayoutBannerHrefs)[number],
+  locale: AppLocale
+): string {
+  const localized = (
+    routing.pathnames as Record<string, string | Partial<Record<AppLocale, string>>>
+  )[routeKey];
+
+  return typeof localized === "object" ? (localized[locale] ?? routeKey) : (localized ?? routeKey);
 }
 
 function isStaticLayoutBannerHref(

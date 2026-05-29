@@ -27,6 +27,14 @@ vi.mock("@/i18n/navigation", function mockNavigation() {
         return "/cs/aplikace";
       }
 
+      if (href === "/contact" && locale === "cs") {
+        return "/cs/kontakt";
+      }
+
+      if (href === "/contact/support" && locale === "cs") {
+        return "/cs/kontakt/podpora";
+      }
+
       return `/${locale}${href}`;
     }),
   };
@@ -115,6 +123,29 @@ describe("layout banner service", function describeLayoutBannerService() {
         label: "Open sale",
         href: "https://example.com/sale",
         openNewTab: true,
+      },
+    });
+  });
+
+  it("normalizes localized static CTA hrefs before rendering them for the current locale", async function testLocalizedStaticCtaHrefNormalization() {
+    const pb = createPocketBaseMock([
+      createLayoutBannerRecord({
+        id: "localized-href-banner",
+        cta_href: "/kontakt?from=banner#form",
+        cta_label_en: "Contact us",
+        show_marketing: true,
+        title_en: "Need help?",
+      }),
+    ]);
+
+    await expect(
+      getActiveLayoutBannerWithClient(pb, {
+        area: "marketing",
+        locale: "en",
+      })
+    ).resolves.toMatchObject({
+      cta: {
+        href: "/en/contact?from=banner#form",
       },
     });
   });
