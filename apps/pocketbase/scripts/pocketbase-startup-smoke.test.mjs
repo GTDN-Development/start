@@ -20,7 +20,7 @@ const HOOKS_DIR = join(APP_DIR, "pb_hooks");
 const MIGRATIONS_DIR = join(APP_DIR, "pb_migrations");
 const PUBLIC_DIR = join(APP_DIR, "pb_public");
 const LOCAL_BINARY_PATH = join(APP_DIR, "pocketbase");
-const COLLECTIONS_SNAPSHOT_PATH = join(MIGRATIONS_DIR, "1774467906_collections_snapshot.js");
+const INITIAL_MIGRATION_PATH = join(MIGRATIONS_DIR, "1774467906_initial.js");
 const TEST_SUPERUSER_EMAIL = "startup-smoke-admin@example.com";
 const TEST_SUPERUSER_PASSWORD = "startup-smoke-password";
 const TEST_INTERNAL_API_SECRET = "startup-smoke-internal-secret";
@@ -33,7 +33,7 @@ test("Dockerfile pins the current PocketBase release", async function testDocker
 });
 
 test("committed posts snapshot exposes only published posts publicly", async function testPostsSnapshotRules() {
-  const snapshot = await readFile(COLLECTIONS_SNAPSHOT_PATH, "utf8");
+  const snapshot = await readFile(INITIAL_MIGRATION_PATH, "utf8");
 
   assert.match(
     snapshot,
@@ -48,7 +48,7 @@ test("committed posts snapshot exposes only published posts publicly", async fun
 });
 
 test("committed snapshot applies production readiness defaults", async function testProductionReadinessDefaults() {
-  const snapshot = await readFile(COLLECTIONS_SNAPSHOT_PATH, "utf8");
+  const snapshot = await readFile(INITIAL_MIGRATION_PATH, "utf8");
 
   assert.match(snapshot, /settings\.rateLimits\.enabled = true/);
   assert.match(

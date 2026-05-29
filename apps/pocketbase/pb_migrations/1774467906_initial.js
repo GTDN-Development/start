@@ -936,95 +936,6 @@ migrate(
         viewRule: null,
       },
       {
-        createRule: "",
-        deleteRule: null,
-        fields: [
-          {
-            autogeneratePattern: "[a-z0-9]{15}",
-            hidden: false,
-            id: "text3208210256",
-            max: 15,
-            min: 15,
-            name: "id",
-            pattern: "^[a-z0-9]+$",
-            presentable: false,
-            primaryKey: true,
-            required: true,
-            system: true,
-            type: "text",
-          },
-          {
-            autogeneratePattern: "",
-            hidden: false,
-            id: "text1198071845",
-            max: 254,
-            min: 1,
-            name: "email",
-            pattern: "",
-            presentable: false,
-            primaryKey: false,
-            required: true,
-            system: false,
-            type: "text",
-          },
-          {
-            hidden: false,
-            id: "select1796014025",
-            maxSelect: 1,
-            name: "locale",
-            presentable: false,
-            required: true,
-            system: false,
-            type: "select",
-            values: ["cs", "en"],
-          },
-          {
-            autogeneratePattern: "",
-            hidden: false,
-            id: "text2579369476",
-            max: 64,
-            min: 1,
-            name: "source",
-            pattern: "",
-            presentable: false,
-            primaryKey: false,
-            required: true,
-            system: false,
-            type: "text",
-          },
-          {
-            hidden: false,
-            id: "autodate2990389176",
-            name: "created",
-            onCreate: true,
-            onUpdate: false,
-            presentable: false,
-            system: false,
-            type: "autodate",
-          },
-          {
-            hidden: false,
-            id: "autodate3332085495",
-            name: "updated",
-            onCreate: true,
-            onUpdate: true,
-            presentable: false,
-            system: false,
-            type: "autodate",
-          },
-        ],
-        id: "pbc_3424179071",
-        indexes: [
-          "CREATE UNIQUE INDEX `idx_newsletter_subscriptions_email` ON `newsletter_subscriptions` (`email`)",
-        ],
-        listRule: null,
-        name: "newsletter_subscriptions",
-        system: false,
-        type: "base",
-        updateRule: null,
-        viewRule: null,
-      },
-      {
         createRule: null,
         deleteRule: null,
         fields: [
@@ -1546,6 +1457,8 @@ migrate(
 
     const result = app.importCollections(snapshot, false);
 
+    createLayoutBannersCollection(app);
+    seedLocalLayoutBannerDemo(app);
     setDefaultUserEmailVisibility(app);
     setProductionReadinessBaseline(app);
 
@@ -1569,6 +1482,168 @@ function setDefaultUserEmailVisibility(app) {
     user.set("emailVisibility", true);
     app.save(user);
   }
+}
+
+function createLayoutBannersCollection(app) {
+  if (findLayoutBannersCollection(app)) {
+    return null;
+  }
+
+  const collection = new Collection({
+    createRule: null,
+    deleteRule: null,
+    fields: [
+      {
+        name: "enabled",
+        type: "bool",
+      },
+      {
+        name: "show_marketing",
+        type: "bool",
+      },
+      {
+        name: "show_application",
+        type: "bool",
+      },
+      {
+        name: "remember_dismiss",
+        type: "bool",
+      },
+      {
+        name: "priority",
+        onlyInt: true,
+        type: "number",
+      },
+      {
+        maxSelect: 1,
+        maxSize: 5242880,
+        mimeTypes: ["image/jpeg", "image/png", "image/webp"],
+        name: "bg_image",
+        type: "file",
+      },
+      {
+        maxSelect: 1,
+        name: "severity",
+        required: true,
+        type: "select",
+        values: ["info", "warning", "success"],
+      },
+      {
+        max: 200,
+        name: "title_cs",
+        type: "text",
+      },
+      {
+        max: 200,
+        name: "title_en",
+        type: "text",
+      },
+      {
+        name: "body_cs",
+        type: "text",
+      },
+      {
+        name: "body_en",
+        type: "text",
+      },
+      {
+        max: 80,
+        name: "cta_label_cs",
+        type: "text",
+      },
+      {
+        max: 80,
+        name: "cta_label_en",
+        type: "text",
+      },
+      {
+        max: 2048,
+        name: "cta_href",
+        type: "text",
+      },
+      {
+        name: "cta_open_new_tab",
+        type: "bool",
+      },
+    ],
+    indexes: [
+      "CREATE INDEX `idx_layout_banners_marketing` ON `layout_banners` (`enabled`, `show_marketing`, `priority`)",
+      "CREATE INDEX `idx_layout_banners_application` ON `layout_banners` (`enabled`, `show_application`, `priority`)",
+    ],
+    listRule: "enabled = true",
+    name: "layout_banners",
+    system: false,
+    type: "base",
+    updateRule: null,
+    viewRule: "enabled = true",
+  });
+
+  return app.save(collection);
+}
+
+function seedLocalLayoutBannerDemo(app) {
+  if (!isEnabledEnv("PB_SEED_LAYOUT_BANNER_DEMO")) {
+    return null;
+  }
+
+  const collection = findLayoutBannersCollection(app);
+
+  if (!collection || findDemoLayoutBanner(app)) {
+    return null;
+  }
+
+  const record = new Record(collection, {
+    enabled: true,
+    show_marketing: true,
+    show_application: true,
+    remember_dismiss: true,
+    priority: 100,
+    severity: "warning",
+    title_cs: "Lokální testovací banner",
+    title_en: "Local layout banner demo",
+    body_cs: "Tento banner je jen pro lokální kontrolu marketingu i aplikace.",
+    body_en: "This banner is only for local testing across marketing and application layouts.",
+    cta_label_cs: "Otevřít aplikaci",
+    cta_label_en: "Open app",
+    cta_href: "/app",
+    cta_open_new_tab: false,
+  });
+
+  return app.save(record);
+}
+
+function isEnabledEnv(name) {
+  const value = String($os.getenv(name) || "")
+    .trim()
+    .toLowerCase();
+
+  return value === "1" || value === "true" || value === "yes" || value === "on";
+}
+
+function findLayoutBannersCollection(app) {
+  try {
+    return app.findCollectionByNameOrId("layout_banners");
+  } catch (_) {
+    return null;
+  }
+}
+
+function findDemoLayoutBanner(app) {
+  const collection = findLayoutBannersCollection(app);
+
+  if (!collection) {
+    return null;
+  }
+
+  const records = app.findRecordsByFilter(
+    "layout_banners",
+    'title_en = "Local layout banner demo"',
+    "",
+    1,
+    0
+  );
+
+  return records.length > 0 ? records[0] : null;
 }
 
 function setProductionReadinessBaseline(app) {
@@ -1660,7 +1735,6 @@ function buildAuthAlertTemplate() {
   return renderAuthEmailLayout({
     title: "Přihlášení z nového místa",
     intro: "Zaznamenali jsme přihlášení k vašemu účtu {APP_NAME} z nového místa.",
-    emphasizedValue: "{ALERT_INFO}",
     noticeText:
       "Pokud jste to nebyli vy, okamžitě si změňte heslo k účtu {APP_NAME}, abyste zamezili přístupu ze všech ostatních míst.",
     secondaryText: "Pokud jste to byli vy, můžete tento e-mail ignorovat.",
