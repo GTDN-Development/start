@@ -25,7 +25,9 @@ export const routing = defineRouting({
     "/blog/[slug]": {
       cs: "/blog/[slug]",
     },
-    "/brand": "/brand",
+    "/brand": {
+      cs: "/identita-znacky",
+    },
     "/confirm-email-change": {
       cs: "/potvrdit-zmenu-emailu",
     },

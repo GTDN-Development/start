@@ -53,7 +53,7 @@
         "support": "Kontakt a podpora",
         "pricing": "Ceník",
         "blog": "Blog",
-        "brand": "Brand assety",
+        "brand": "Identita značky",
         "aboutApp": "O aplikaci",
         "features": "Funkce",
         "changelog": "Nové funkce",
@@ -313,8 +313,8 @@
       "description": "Průběžný přehled změn, vylepšení a oprav, které v produktu právě přistály."
     },
     "brand": {
-      "title": "Brand assety",
-      "description": "Stáhněte si zdrojové assety Startu a zkopírujte hlavní barevné hodnoty aktuálního tématu.",
+      "title": "Identita značky",
+      "description": "Stáhněte si zdrojové soubory značky Start a zkopírujte hlavní barevné hodnoty aktuálního tématu.",
       "colors": {
         "title": "Barvy",
         "description": "Hlavní barevné tokeny nakonfigurované pro aktuální Start téma. Vykreslí se jen vyplněné hodnoty.",
@@ -350,8 +350,8 @@
         }
       },
       "assets": {
-        "title": "Assety",
-        "description": "Připravené SVG a PNG soubory pro aktuální Start brand set.",
+        "title": "Soubory ke stažení",
+        "description": "Připravené SVG a PNG soubory pro aktuální vizuální identitu Startu.",
         "downloadAriaLabel": "Stáhnout {asset} jako {format}",
         "items": {
           "startLogo": {
