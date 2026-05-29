@@ -10,6 +10,7 @@ is the daily entrypoint; these files hold subsystem details.
 - [Avatar system](avatar-system.md)
 - [Back navigation](back-navigation.md)
 - [Cookie consent system](cookie-consent-system.md)
+- [Deployment runbook](deployment-runbook.md)
 - [Email system](email-system.md)
 - [I18n and routing](i18n-routing-system.md)
 - [Layout banner system](layout-banner-system.md)
