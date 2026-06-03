@@ -95,7 +95,7 @@ export function OrganizationCreateDrawer({
 
   return (
     <Drawer open={open} onOpenChange={handleDrawerOpenChange} direction="right">
-      <DrawerContent className="w-full p-0 sm:max-w-md">
+      <DrawerContent>
         <DrawerHeader className="border-border border-b p-5">
           <DrawerTitle>{t("title")}</DrawerTitle>
           <DrawerDescription>{t("description")}</DrawerDescription>
