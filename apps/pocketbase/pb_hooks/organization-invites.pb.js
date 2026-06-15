@@ -1,5 +1,5 @@
-routerAdd("POST", "/api/start/organization-invites/inspect", function inspectOrganizationInvite(e) {
-  var organizationSummary = require(`${__hooks}/lib/start-organization-summary.js`);
+routerAdd("POST", "/api/web/organization-invites/inspect", function inspectOrganizationInvite(e) {
+  var organizationSummary = require(`${__hooks}/lib/organization-summary.js`);
   var requestInfo = e.requestInfo();
   var inviteToken = String((requestInfo.body && requestInfo.body.token) || "").trim();
 
@@ -104,8 +104,8 @@ routerAdd("POST", "/api/start/organization-invites/inspect", function inspectOrg
   }
 });
 
-routerAdd("POST", "/api/start/organization-invites/accept", function acceptOrganizationInvite(e) {
-  var organizationSummary = require(`${__hooks}/lib/start-organization-summary.js`);
+routerAdd("POST", "/api/web/organization-invites/accept", function acceptOrganizationInvite(e) {
+  var organizationSummary = require(`${__hooks}/lib/organization-summary.js`);
   var requestInfo = e.requestInfo();
   var auth = requestInfo.auth;
 
@@ -239,14 +239,14 @@ routerAdd("POST", "/api/start/organization-invites/accept", function acceptOrgan
   }
 });
 
-routerAdd("POST", "/api/start/organization-invites/create", function createOrganizationInvite(e) {
-  return require(`${__hooks}/lib/start-organization-invites.js`).createOrganizationInvite(e);
+routerAdd("POST", "/api/web/organization-invites/create", function createOrganizationInvite(e) {
+  return require(`${__hooks}/lib/organization-invites.js`).createOrganizationInvite(e);
 });
 
-routerAdd("POST", "/api/start/organization-invites/resend", function resendOrganizationInvite(e) {
-  return require(`${__hooks}/lib/start-organization-invites.js`).resendOrganizationInvite(e);
+routerAdd("POST", "/api/web/organization-invites/resend", function resendOrganizationInvite(e) {
+  return require(`${__hooks}/lib/organization-invites.js`).resendOrganizationInvite(e);
 });
 
-routerAdd("POST", "/api/start/organization-invites/revoke", function revokeOrganizationInvite(e) {
-  return require(`${__hooks}/lib/start-organization-invites.js`).revokeOrganizationInvite(e);
+routerAdd("POST", "/api/web/organization-invites/revoke", function revokeOrganizationInvite(e) {
+  return require(`${__hooks}/lib/organization-invites.js`).revokeOrganizationInvite(e);
 });

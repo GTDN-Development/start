@@ -28,10 +28,10 @@ production PocketBase environment or dashboard instead of hardcoding them in the
 
 - Set PocketBase application URL, sender name, sender email, and SMTP delivery so auth emails are
   sent from the production domain. Custom app emails use the same PocketBase mail client.
-- Set `START_INTERNAL_API_SECRET` to the same secret as the web deployment and set
+- Set `WEB_INTERNAL_API_SECRET` to the same secret as the web deployment and set
   `GENERAL_FORMS_RECIPIENT` for contact/support notifications.
 - Keep Turnstile verification in the web deployment; PocketBase email endpoints use
-  `START_INTERNAL_API_SECRET`, payload validation, and PB user auth/role checks.
+  `WEB_INTERNAL_API_SECRET`, payload validation, and PB user auth/role checks.
 - Configure backups, preferably to a separate S3-compatible bucket with retention appropriate for
   the deployment.
 - Configure trusted proxy headers so PocketBase sees the real client IP behind Railway, a CDN, or

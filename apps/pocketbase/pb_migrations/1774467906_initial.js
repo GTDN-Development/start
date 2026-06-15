@@ -1682,7 +1682,7 @@ function setProductionReadinessBaseline(app) {
       duration: 60,
     },
     {
-      label: "POST /api/start/organization-invites/inspect",
+      label: "POST /api/web/organization-invites/inspect",
       audience: "@guest",
       maxRequests: 30,
       duration: 60,

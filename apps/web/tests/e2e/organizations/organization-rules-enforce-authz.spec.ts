@@ -155,7 +155,7 @@ test("PocketBase organization rules enforce membership and role boundaries", asy
       organization?: {
         id: string;
       };
-    }>("/api/start/organization-invites/accept", {
+    }>("/api/web/organization-invites/accept", {
       method: "POST",
       body: {
         token: inviteToken,
@@ -194,7 +194,7 @@ test("PocketBase organization rules enforce membership and role boundaries", asy
         slug: string;
         role: string;
       };
-    }>("/api/start/organizations", {
+    }>("/api/web/organizations", {
       method: "POST",
       body: {
         name: `Org Bootstrap ${suffix}`,

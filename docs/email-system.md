@@ -4,7 +4,8 @@ PocketBase owns transactional email rendering and delivery.
 
 - Email hooks live in [pb_hooks](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks).
 - Custom app emails are Czech-only and file-backed.
-- Next.js server actions validate UI input, run Turnstile when enabled, then call PocketBase with `START_INTERNAL_API_SECRET`.
+- Next.js server actions validate UI input, run Turnstile when enabled, then call PocketBase with `WEB_INTERNAL_API_SECRET`.
+- `web` in PocketBase custom API names means the server side of `apps/web`, not the browser client.
 - PocketBase validates payloads again, checks PB auth/roles for user-bound flows, renders HTML/text, and sends through its configured SMTP client.
 - `GENERAL_FORMS_RECIPIENT` is a PocketBase runtime env value. PocketBase `appURL`, sender identity, and SMTP delivery are configured in PocketBase settings.
 - Auth email templates stay in committed PocketBase migrations.
@@ -18,7 +19,7 @@ Current custom email flows:
 
 Useful files:
 
-- [PocketBase email helper](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks/lib/start-email.js)
+- [PocketBase email helper](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks/lib/app-email.js)
 - [PocketBase email endpoints](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks/emails.pb.js)
 - [Organization invite hooks](/Users/fanda/Dev/start/apps/pocketbase/pb_hooks/organization-invites.pb.js)
 - [PocketBase Mailpit settings](/Users/fanda/Dev/start/apps/pocketbase/scripts/apply-mailpit-settings.mjs)

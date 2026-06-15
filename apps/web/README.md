@@ -31,11 +31,12 @@ Core URL and service envs:
 
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_PB_URL`
-- `START_INTERNAL_API_SECRET`
+- `WEB_INTERNAL_API_SECRET`
 - `GOTENBERG_BASE_URL`
 - `NEXT_PUBLIC_TURNSTILE_ENABLED`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, and `TURNSTILE_SECRET_KEY`
 - base URLs should be written without a trailing slash
 - PocketBase-specific mail recipient and SMTP/sender setup live with the PocketBase service
+- `web` in PocketBase custom API names means the server side of `apps/web`, not the browser client.
 
 Local development uses Cloudflare Turnstile dummy keys in `.env.local.example`, so the widget and
 server-side verification can run without production credentials. Playwright keeps Turnstile disabled

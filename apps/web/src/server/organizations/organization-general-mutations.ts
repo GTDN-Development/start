@@ -41,7 +41,7 @@ export async function createOrganization(
 
   try {
     const response = await currentUser.pb.send<{ organization: UserOrganization }>(
-      "/api/start/organizations",
+      "/api/web/organizations",
       {
         method: "POST",
         body: {

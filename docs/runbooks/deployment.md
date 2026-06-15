@@ -25,7 +25,7 @@ For every non-local environment, keep these separate:
 - domains
 - Railway volumes
 - PocketBase superuser credentials
-- `START_INTERNAL_API_SECRET`
+- `WEB_INTERNAL_API_SECRET`
 - SMTP provider credentials
 - Gotenberg credentials
 - Turnstile site/secret keys
@@ -42,7 +42,7 @@ Before creating services, decide:
 - web app domain, for example `https://app.example.com`
 - PocketBase domain, for example `https://pb.example.com`
 - Gotenberg domain or private Railway URL
-- random `START_INTERNAL_API_SECRET`, same value in Vercel web and Railway PocketBase
+- random `WEB_INTERNAL_API_SECRET`, same value in Vercel web and Railway PocketBase
 - PocketBase superuser email/password
 - production SMTP sender address, sender name, host, port, username, password, TLS/auth settings
 - `GENERAL_FORMS_RECIPIENT` for contact/support notifications
@@ -63,7 +63,7 @@ Create one Railway service per environment.
 6. Add Railway variables:
    - `PB_SUPERUSER_EMAIL`
    - `PB_SUPERUSER_PASSWORD`
-   - `START_INTERNAL_API_SECRET`
+   - `WEB_INTERNAL_API_SECRET`
    - `GENERAL_FORMS_RECIPIENT`
 7. Deploy the service.
 8. Open `https://your-pocketbase-domain/_/`.
@@ -111,7 +111,7 @@ Create or configure the Vercel project for `apps/web`.
    - output: Next.js default
 4. Configure the environment's web domain.
 5. Add Vercel variables from `apps/web/.env.prod.example`:
-   - `START_INTERNAL_API_SECRET`
+   - `WEB_INTERNAL_API_SECRET`
    - `NEXT_PUBLIC_APP_URL`
    - `NEXT_PUBLIC_PB_URL`
    - `GOTENBERG_BASE_URL`
@@ -125,7 +125,7 @@ Create or configure the Vercel project for `apps/web`.
    - `NEXT_PUBLIC_GA_ID` if analytics is used
 6. Deploy the web app.
 
-`START_INTERNAL_API_SECRET` must exactly match the PocketBase environment value.
+`WEB_INTERNAL_API_SECRET` must exactly match the PocketBase environment value.
 `NEXT_PUBLIC_PB_URL` must point at the matching PocketBase environment.
 `GOTENBERG_BASE_URL` must point at the matching Gotenberg environment.
 
@@ -198,6 +198,6 @@ environment at the production PocketBase unless that is an intentional one-off d
 - Do not edit already deployed migrations.
 - Keep auth email templates in committed migrations.
 - Keep SMTP credentials and app URLs in PocketBase settings/environment, not migrations.
-- Rotate `START_INTERNAL_API_SECRET` by updating Vercel and Railway together.
+- Rotate `WEB_INTERNAL_API_SECRET` by updating Vercel and Railway together.
 - Keep Gotenberg basic auth enabled for non-local deployments.
 - Keep Mailpit limited to local development and E2E tests.

@@ -30,7 +30,7 @@ export async function createInvite(
 
   try {
     const response = await currentUser.pb.send<{ invite: OrganizationInviteSummary }>(
-      "/api/start/organization-invites/create",
+      "/api/web/organization-invites/create",
       withInternalPocketBaseHeaders({
         method: "POST",
         body: {
@@ -78,7 +78,7 @@ export async function resendInvite(
       expiresAt: string;
       updatedAt: string;
     }>(
-      "/api/start/organization-invites/resend",
+      "/api/web/organization-invites/resend",
       withInternalPocketBaseHeaders({
         method: "POST",
         body: {
@@ -130,7 +130,7 @@ export async function revokeInvite(
 
   try {
     await currentUser.pb.send(
-      "/api/start/organization-invites/revoke",
+      "/api/web/organization-invites/revoke",
       withInternalPocketBaseHeaders({
         method: "POST",
         body: {

@@ -1,21 +1,21 @@
-const startEmail = require(`${__hooks}/lib/start-email.js`);
+const appEmail = require(`${__hooks}/lib/app-email.js`);
 
 function createOrganizationInvite(e) {
   var requestInfo = e.requestInfo();
-  var auth = startEmail.requireUsersAuth(requestInfo);
+  var auth = appEmail.requireUsersAuth(requestInfo);
   var body = requestInfo.body || {};
 
-  startEmail.requireInternalRequest(e);
+  appEmail.requireInternalRequest(e);
 
   var organizationSlug = normalizeOrganizationSlug(body.organizationSlug);
-  var emailNormalized = startEmail.normalizeEmail(body.email);
+  var emailNormalized = appEmail.normalizeEmail(body.email);
   var role = normalizeInviteRole(body.role);
 
   if (!organizationSlug || !emailNormalized || !role) {
     throw new BadRequestError("Missing or invalid organization invite.");
   }
 
-  var inviteToken = startEmail.createInviteToken();
+  var inviteToken = appEmail.createInviteToken();
   var inviteEmailInput = null;
   var inviteSummary = null;
 
@@ -30,7 +30,7 @@ function createOrganizationInvite(e) {
 
     var existingInvite = findInviteByEmail(txApp, organization.id, emailNormalized);
 
-    if (existingInvite && !startEmail.isDateStringExpired(existingInvite.getString("expires_at"))) {
+    if (existingInvite && !appEmail.isDateStringExpired(existingInvite.getString("expires_at"))) {
       throw new BadRequestError("Organization invite already exists.");
     }
 
@@ -49,8 +49,8 @@ function createOrganizationInvite(e) {
       organization: organization.id,
       email_normalized: emailNormalized,
       role: role,
-      token_hash: startEmail.hashInviteToken(inviteToken),
-      expires_at: startEmail.createInviteExpiryDate(),
+      token_hash: appEmail.hashInviteToken(inviteToken),
+      expires_at: appEmail.createInviteExpiryDate(),
       invited_by: auth.id,
     });
 
@@ -65,7 +65,7 @@ function createOrganizationInvite(e) {
     };
   });
 
-  startEmail.sendAppEmail(e.app, startEmail.createOrganizationInviteEmail(e.app, inviteEmailInput));
+  appEmail.sendAppEmail(e.app, appEmail.createOrganizationInviteEmail(e.app, inviteEmailInput));
 
   return e.json(200, {
     invite: inviteSummary,
@@ -74,10 +74,10 @@ function createOrganizationInvite(e) {
 
 function resendOrganizationInvite(e) {
   var requestInfo = e.requestInfo();
-  var auth = startEmail.requireUsersAuth(requestInfo);
+  var auth = appEmail.requireUsersAuth(requestInfo);
   var body = requestInfo.body || {};
 
-  startEmail.requireInternalRequest(e);
+  appEmail.requireInternalRequest(e);
 
   var organizationSlug = normalizeOrganizationSlug(body.organizationSlug);
   var inviteId = getNullableTrimmedString(body.inviteId);
@@ -86,7 +86,7 @@ function resendOrganizationInvite(e) {
     throw new BadRequestError("Missing or invalid organization invite.");
   }
 
-  var inviteToken = startEmail.createInviteToken();
+  var inviteToken = appEmail.createInviteToken();
   var inviteEmailInput = null;
   var resendResult = null;
 
@@ -105,7 +105,7 @@ function resendOrganizationInvite(e) {
       throw new NotFoundError("Organization invite not found.");
     }
 
-    if (startEmail.isDateStringExpired(inviteRecord.getString("expires_at"))) {
+    if (appEmail.isDateStringExpired(inviteRecord.getString("expires_at"))) {
       safeDeleteRecord(txApp, inviteRecord);
       throw new BadRequestError("Organization invite is invalid or expired.");
     }
@@ -114,13 +114,13 @@ function resendOrganizationInvite(e) {
 
     if (
       isFinite(inviteLastUpdatedAt) &&
-      Date.now() - inviteLastUpdatedAt < startEmail.INVITE_RESEND_COOLDOWN_SECONDS * 1000
+      Date.now() - inviteLastUpdatedAt < appEmail.INVITE_RESEND_COOLDOWN_SECONDS * 1000
     ) {
       throw new TooManyRequestsError("Organization invite resend is rate limited.");
     }
 
-    inviteRecord.set("token_hash", startEmail.hashInviteToken(inviteToken));
-    inviteRecord.set("expires_at", startEmail.createInviteExpiryDate());
+    inviteRecord.set("token_hash", appEmail.hashInviteToken(inviteToken));
+    inviteRecord.set("expires_at", appEmail.createInviteExpiryDate());
 
     txApp.save(inviteRecord);
 
@@ -137,17 +137,17 @@ function resendOrganizationInvite(e) {
     };
   });
 
-  startEmail.sendAppEmail(e.app, startEmail.createOrganizationInviteEmail(e.app, inviteEmailInput));
+  appEmail.sendAppEmail(e.app, appEmail.createOrganizationInviteEmail(e.app, inviteEmailInput));
 
   return e.json(200, resendResult);
 }
 
 function revokeOrganizationInvite(e) {
   var requestInfo = e.requestInfo();
-  var auth = startEmail.requireUsersAuth(requestInfo);
+  var auth = appEmail.requireUsersAuth(requestInfo);
   var body = requestInfo.body || {};
 
-  startEmail.requireInternalRequest(e);
+  appEmail.requireInternalRequest(e);
 
   var organizationSlug = normalizeOrganizationSlug(body.organizationSlug);
   var inviteId = getNullableTrimmedString(body.inviteId);

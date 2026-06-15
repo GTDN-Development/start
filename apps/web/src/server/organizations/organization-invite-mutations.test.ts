@@ -22,7 +22,7 @@ vi.mock("@/server/auth/auth-session-service", function mockAuthSessionService() 
 describe("organization-invite-mutations", function describeOrganizationInviteMutations() {
   beforeEach(function resetMocks() {
     vi.clearAllMocks();
-    process.env.START_INTERNAL_API_SECRET = "test-internal-secret";
+    process.env.WEB_INTERNAL_API_SECRET = "test-internal-secret";
     mocks.requireCurrentWritableUser.mockResolvedValue({
       ok: true,
       user: {
@@ -60,7 +60,7 @@ describe("organization-invite-mutations", function describeOrganizationInviteMut
         invite,
       },
     });
-    expect(mocks.pbSend).toHaveBeenCalledWith("/api/start/organization-invites/create", {
+    expect(mocks.pbSend).toHaveBeenCalledWith("/api/web/organization-invites/create", {
       method: "POST",
       body: {
         organizationSlug: "acme",
@@ -68,7 +68,7 @@ describe("organization-invite-mutations", function describeOrganizationInviteMut
         role: "member",
       },
       headers: {
-        "X-Start-Internal-Token": "test-internal-secret",
+        "X-Web-Internal-Token": "test-internal-secret",
       },
     });
   });
@@ -110,14 +110,14 @@ describe("organization-invite-mutations", function describeOrganizationInviteMut
         revoked: true,
       },
     });
-    expect(mocks.pbSend).toHaveBeenCalledWith("/api/start/organization-invites/revoke", {
+    expect(mocks.pbSend).toHaveBeenCalledWith("/api/web/organization-invites/revoke", {
       method: "POST",
       body: {
         organizationSlug: "acme",
         inviteId: "invite_1",
       },
       headers: {
-        "X-Start-Internal-Token": "test-internal-secret",
+        "X-Web-Internal-Token": "test-internal-secret",
       },
     });
   });
@@ -130,6 +130,6 @@ function createClientResponseError(status: number, message: string) {
       message,
     },
     status,
-    url: "http://localhost:8090/api/start/organization-invites/resend",
+    url: "http://localhost:8090/api/web/organization-invites/resend",
   });
 }

@@ -1,6 +1,6 @@
-const INTERNAL_SECRET_HEADER = "x-start-internal-token";
+const INTERNAL_SECRET_HEADER = "x-web-internal-token";
 const GENERAL_FORMS_RECIPIENT_ENV = "GENERAL_FORMS_RECIPIENT";
-const START_INTERNAL_API_SECRET_ENV = "START_INTERNAL_API_SECRET";
+const WEB_INTERNAL_API_SECRET_ENV = "WEB_INTERNAL_API_SECRET";
 const SUPPORT_ATTACHMENTS_MAX_TOTAL_SIZE_BYTES = 8 * 1024 * 1024;
 const INVITE_TTL_DAYS = 7;
 const INVITE_RESEND_COOLDOWN_SECONDS = 60;
@@ -8,7 +8,7 @@ const INVITE_TOKEN_LENGTH = 64;
 const INVITE_TOKEN_ALPHABET = "0123456789abcdef";
 
 function requireInternalRequest(e) {
-  const expectedSecret = getRequiredEnv(START_INTERNAL_API_SECRET_ENV);
+  const expectedSecret = getRequiredEnv(WEB_INTERNAL_API_SECRET_ENV);
   const providedSecret = getRequestHeader(e.requestInfo(), INTERNAL_SECRET_HEADER);
 
   if (!providedSecret || providedSecret !== expectedSecret) {

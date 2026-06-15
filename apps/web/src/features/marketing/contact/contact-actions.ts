@@ -74,7 +74,7 @@ export async function submitContactFormAction(input: {
     const pb = createPocketBaseClient();
 
     await pb.send(
-      "/api/start/contact-requests/email",
+      "/api/web/contact-requests/email",
       withInternalPocketBaseHeaders({
         method: "POST",
         body: {
@@ -135,7 +135,7 @@ export async function submitSupportFormAction(input: {
 
   try {
     await currentUser.pb.send(
-      "/api/start/support-requests/email",
+      "/api/web/support-requests/email",
       withInternalPocketBaseHeaders({
         method: "POST",
         body: {

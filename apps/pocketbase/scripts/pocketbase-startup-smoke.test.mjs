@@ -75,7 +75,7 @@ test("committed snapshot applies production readiness defaults", async function 
   );
   assert.match(
     snapshot,
-    /label: "POST \/api\/start\/organization-invites\/inspect",\n\s+audience: "@guest",\n\s+maxRequests: 30,\n\s+duration: 60,/
+    /label: "POST \/api\/web\/organization-invites\/inspect",\n\s+audience: "@guest",\n\s+maxRequests: 30,\n\s+duration: 60,/
   );
   assert.match(
     snapshot,
@@ -133,7 +133,7 @@ test(
           cwd: APP_DIR,
           env: {
             ...process.env,
-            START_INTERNAL_API_SECRET: TEST_INTERNAL_API_SECRET,
+            WEB_INTERNAL_API_SECRET: TEST_INTERNAL_API_SECRET,
             GENERAL_FORMS_RECIPIENT: TEST_GENERAL_FORMS_RECIPIENT,
           },
           stdio: ["ignore", "pipe", "pipe"],
@@ -146,7 +146,7 @@ test(
         await waitForHealth(port, server, logs);
 
         const inviteInspectResponse = await fetch(
-          `http://127.0.0.1:${port}/api/start/organization-invites/inspect`,
+          `http://127.0.0.1:${port}/api/web/organization-invites/inspect`,
           {
             method: "POST",
             headers: {
@@ -178,7 +178,7 @@ test(
 );
 
 async function assertEmailEndpointGuards(port) {
-  const contactResponse = await fetch(`http://127.0.0.1:${port}/api/start/contact-requests/email`, {
+  const contactResponse = await fetch(`http://127.0.0.1:${port}/api/web/contact-requests/email`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -194,12 +194,12 @@ async function assertEmailEndpointGuards(port) {
   assert.equal(contactResponse.status, 403);
 
   const contactInvalidPayloadResponse = await fetch(
-    `http://127.0.0.1:${port}/api/start/contact-requests/email`,
+    `http://127.0.0.1:${port}/api/web/contact-requests/email`,
     {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-start-internal-token": TEST_INTERNAL_API_SECRET,
+        "x-web-internal-token": TEST_INTERNAL_API_SECRET,
       },
       body: JSON.stringify({
         fullName: "",
@@ -216,11 +216,11 @@ async function assertEmailEndpointGuards(port) {
 
   assert.equal(contactInvalidPayloadBody.message, "Missing or invalid contact request.");
 
-  const supportResponse = await fetch(`http://127.0.0.1:${port}/api/start/support-requests/email`, {
+  const supportResponse = await fetch(`http://127.0.0.1:${port}/api/web/support-requests/email`, {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      "x-start-internal-token": TEST_INTERNAL_API_SECRET,
+      "x-web-internal-token": TEST_INTERNAL_API_SECRET,
     },
     body: JSON.stringify({
       message: "Potřebuji pomoct se svým účtem.",
@@ -230,12 +230,12 @@ async function assertEmailEndpointGuards(port) {
   assert.equal(supportResponse.status, 401);
 
   const unauthenticatedInviteResponse = await fetch(
-    `http://127.0.0.1:${port}/api/start/organization-invites/create`,
+    `http://127.0.0.1:${port}/api/web/organization-invites/create`,
     {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-start-internal-token": TEST_INTERNAL_API_SECRET,
+        "x-web-internal-token": TEST_INTERNAL_API_SECRET,
       },
       body: JSON.stringify({
         organizationSlug: "missing-auth",
@@ -255,10 +255,10 @@ async function assertEmailEndpointGuards(port) {
 
   await createOrganizationMembership(pb, organization.id, member.user.id, "member");
   await assertRejectsWithStatus(
-    member.client.send("/api/start/organization-invites/create", {
+    member.client.send("/api/web/organization-invites/create", {
       method: "POST",
       headers: {
-        "x-start-internal-token": TEST_INTERNAL_API_SECRET,
+        "x-web-internal-token": TEST_INTERNAL_API_SECRET,
       },
       body: {
         organizationSlug: organization.slug,
@@ -307,7 +307,7 @@ async function assertOrganizationInviteOrganizationAvatar(port) {
     invited_by: owner.user.id,
   });
 
-  const inspectResponse = await recipient.client.send("/api/start/organization-invites/inspect", {
+  const inspectResponse = await recipient.client.send("/api/web/organization-invites/inspect", {
     method: "POST",
     body: {
       token: inviteToken,
@@ -323,7 +323,7 @@ async function assertOrganizationInviteOrganizationAvatar(port) {
   assert.equal(avatarResponse.status, 200);
 
   const forwardedInspectResponse = await recipient.client.send(
-    "/api/start/organization-invites/inspect",
+    "/api/web/organization-invites/inspect",
     {
       method: "POST",
       headers: {
@@ -343,7 +343,7 @@ async function assertOrganizationInviteOrganizationAvatar(port) {
     "https"
   );
 
-  const acceptResponse = await recipient.client.send("/api/start/organization-invites/accept", {
+  const acceptResponse = await recipient.client.send("/api/web/organization-invites/accept", {
     method: "POST",
     body: {
       token: inviteToken,
@@ -361,7 +361,7 @@ async function assertOrganizationCreateHook(port) {
   const suffix = Math.random().toString(16).slice(2, 10);
   const creator = await createVerifiedUserClient(port, pb, `organization-create-${suffix}`);
 
-  const organizationResponse = await creator.client.send("/api/start/organizations", {
+  const organizationResponse = await creator.client.send("/api/web/organizations", {
     method: "POST",
     body: {
       name: `Příliš žluťoučký ${suffix}`,

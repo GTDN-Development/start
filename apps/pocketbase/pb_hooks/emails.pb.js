@@ -1,22 +1,22 @@
-routerAdd("POST", "/api/start/contact-requests/email", function sendContactRequestEmail(e) {
-  var startEmail = require(`${__hooks}/lib/start-email.js`);
+routerAdd("POST", "/api/web/contact-requests/email", function sendContactRequestEmail(e) {
+  var appEmail = require(`${__hooks}/lib/app-email.js`);
   const requestInfo = e.requestInfo();
   const body = requestInfo.body || {};
 
-  startEmail.requireInternalRequest(e);
+  appEmail.requireInternalRequest(e);
 
-  const fullName = startEmail.normalizeRequiredString(body.fullName, 200);
-  const email = startEmail.normalizeEmail(body.email);
-  const phone = startEmail.normalizeRequiredString(body.phone, 80);
-  const message = startEmail.normalizeRequiredString(body.message, 5000);
+  const fullName = appEmail.normalizeRequiredString(body.fullName, 200);
+  const email = appEmail.normalizeEmail(body.email);
+  const phone = appEmail.normalizeRequiredString(body.phone, 80);
+  const message = appEmail.normalizeRequiredString(body.message, 5000);
 
   if (!fullName || !email || !phone || !message) {
     throw new BadRequestError("Missing or invalid contact request.");
   }
 
-  startEmail.sendAppEmail(
+  appEmail.sendAppEmail(
     e.app,
-    startEmail.createContactRequestEmail({
+    appEmail.createContactRequestEmail({
       fullName,
       email,
       phone,
@@ -30,24 +30,24 @@ routerAdd("POST", "/api/start/contact-requests/email", function sendContactReque
   });
 });
 
-routerAdd("POST", "/api/start/support-requests/email", function sendSupportRequestEmail(e) {
-  var startEmail = require(`${__hooks}/lib/start-email.js`);
+routerAdd("POST", "/api/web/support-requests/email", function sendSupportRequestEmail(e) {
+  var appEmail = require(`${__hooks}/lib/app-email.js`);
   const requestInfo = e.requestInfo();
-  const auth = startEmail.requireUsersAuth(requestInfo);
+  const auth = appEmail.requireUsersAuth(requestInfo);
   const body = requestInfo.body || {};
-  const message = startEmail.normalizeRequiredString(body.message, 1000);
+  const message = appEmail.normalizeRequiredString(body.message, 1000);
 
-  startEmail.requireInternalRequest(e);
+  appEmail.requireInternalRequest(e);
 
   if (!message || message.length < 10) {
     throw new BadRequestError("Missing or invalid support request.");
   }
 
-  const attachments = startEmail.createAttachments(body.attachments);
+  const attachments = appEmail.createAttachments(body.attachments);
 
-  startEmail.sendAppEmail(
+  appEmail.sendAppEmail(
     e.app,
-    startEmail.createSupportRequestEmail({
+    appEmail.createSupportRequestEmail({
       email: auth.getString("email"),
       message,
       submittedAt: new Date(),

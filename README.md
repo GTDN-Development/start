@@ -95,7 +95,8 @@ type checks. `pnpm dev:full` starts the local Docker stack before the web dev se
 - public values shared by client and server use one `NEXT_PUBLIC_*` variable
 - `NEXT_PUBLIC_APP_URL` is the canonical public app URL
 - `NEXT_PUBLIC_PB_URL` is the canonical PocketBase base URL
-- `START_INTERNAL_API_SECRET` must match between the web app and PocketBase
+- `WEB_INTERNAL_API_SECRET` must match between the web app and PocketBase
+- `web` in PocketBase custom API names means the server side of `apps/web`, not the browser client.
 - `GOTENBERG_BASE_URL` is the server-only Gotenberg base URL for PDF rendering
 - base URLs are written without a trailing slash
 - custom email form recipient values belong to the PocketBase environment

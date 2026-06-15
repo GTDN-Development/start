@@ -15,7 +15,7 @@
         "NEXT_PUBLIC_PB_URL",
         "NEXT_PUBLIC_TURNSTILE_ENABLED",
         "NEXT_PUBLIC_TURNSTILE_SITE_KEY",
-        "START_INTERNAL_API_SECRET",
+        "WEB_INTERNAL_API_SECRET",
         "TURNSTILE_SECRET_KEY"
       ],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],

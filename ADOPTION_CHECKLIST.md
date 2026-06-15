@@ -53,6 +53,15 @@ change only the product-specific surfaces.
 - On Railway, keep `infra/gotenberg` as the root directory and enable basic auth.
 - Use Mailpit only for local development and E2E tests.
 
+## Stable Internal Contracts
+
+- Keep PocketBase custom API endpoints under `/api/web/...`.
+- `web` in PocketBase custom API names means the server side of `apps/web`, not the browser client.
+- Keep `WEB_INTERNAL_API_SECRET` matched between the web app server and PocketBase.
+- Keep internal server-to-PocketBase requests on the `X-Web-Internal-Token` header.
+- Do not rename these contracts during product adoption; they are intentionally neutral platform
+  contracts rather than Start-branded product surfaces.
+
 ## Organizations
 
 - Organizations, invites, and roles are enabled by default.

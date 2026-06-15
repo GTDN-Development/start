@@ -19,7 +19,7 @@ export async function validateInviteToken(
   try {
     const pb = createPocketBaseClient();
     const result = await pb.send<PocketBaseGuestInviteInspectResult>(
-      "/api/start/organization-invites/inspect",
+      "/api/web/organization-invites/inspect",
       {
         method: "POST",
         body: {
@@ -45,7 +45,7 @@ export async function getInviteTokenForUser(
   try {
     const { pb } = await createPocketBaseServerClient();
     const result = await pb.send<OrganizationInviteInspectResult>(
-      "/api/start/organization-invites/inspect",
+      "/api/web/organization-invites/inspect",
       {
         method: "POST",
         body: {
@@ -71,7 +71,7 @@ export async function acceptInviteTokenForUser(
   try {
     const { pb } = await createPocketBaseServerClient();
     const result = await pb.send<OrganizationInviteAcceptResult>(
-      "/api/start/organization-invites/accept",
+      "/api/web/organization-invites/accept",
       {
         method: "POST",
         body: {

@@ -1,4 +1,4 @@
-routerAdd("POST", "/api/start/organizations", function createOrganization(e) {
+routerAdd("POST", "/api/web/organizations", function createOrganization(e) {
   var ORGANIZATION_NAME_MAX_LENGTH = 32;
   var ORGANIZATION_SLUG_MAX_LENGTH = 48;
   var ORGANIZATION_SLUG_FALLBACK = "organization";

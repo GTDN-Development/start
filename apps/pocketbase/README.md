@@ -46,7 +46,8 @@ Local runtime data lives in the Docker volume for the `pocketbase` service and i
 
 ## Project Structure
 
-- `pb_migrations/` - PocketBase JS migrations, currently squashed to one initial schema snapshot
+- `pb_migrations/` - PocketBase JS migrations: the initial schema snapshot plus follow-up
+  compatibility changes for already-created local/test databases
 - `pb_hooks/` - PocketBase domain hooks and custom API endpoints
 - `pb_public/` - optional static files
 
@@ -89,7 +90,7 @@ For dev/test mail flows, prefer the repository-managed Mailpit apply script over
 5. Add:
    - `PB_SUPERUSER_EMAIL`
    - `PB_SUPERUSER_PASSWORD`
-   - `START_INTERNAL_API_SECRET`
+   - `WEB_INTERNAL_API_SECRET`
    - `GENERAL_FORMS_RECIPIENT`
 6. Deploy or redeploy the service.
 7. Open `https://your-domain/_/`, sign in with the configured superuser, and configure PocketBase
@@ -123,7 +124,7 @@ credentials automatically. The local environment still needs:
 
 - `NEXT_PUBLIC_PB_URL`
 - `NEXT_PUBLIC_APP_URL`
-- matching `START_INTERNAL_API_SECRET` values for the web app and PocketBase
+- matching `WEB_INTERNAL_API_SECRET` values for the web app and PocketBase
 - `GENERAL_FORMS_RECIPIENT`
 - `MAIL_FROM_NAME` and `MAIL_FROM_ADDRESS` for the Mailpit sender baseline
 
@@ -148,6 +149,8 @@ That means Railway applies committed migrations on startup, but does not generat
 ## Hook Layout
 
 PocketBase loads all `.pb.js` files from `pb_hooks/`.
+Custom PocketBase API routes use `/api/web/...`; `web` in PocketBase custom API names means the
+server side of `apps/web`, not the browser client.
 
 - `organizations.pb.js` - atomic organization creation endpoint
 - `organization-invites.pb.js` - invite inspection and acceptance endpoints
@@ -156,8 +159,8 @@ PocketBase loads all `.pb.js` files from `pb_hooks/`.
 - `users.pb.js` - user lifecycle hooks
 - `cookie-consent-cleanup.pb.js` - daily retention cleanup for `cookie_consent_events`
 
-Invite create/resend/revoke endpoint logic lives in `pb_hooks/lib/start-organization-invites.js`.
-Email rendering and delivery helpers live in `pb_hooks/lib/start-email.js`.
+Invite create/resend/revoke endpoint logic lives in `pb_hooks/lib/organization-invites.js`.
+Email rendering and delivery helpers live in `pb_hooks/lib/app-email.js`.
 
 Cookie consent audit events are retained for 395 days. The cleanup hook runs daily through PocketBase cron and removes old rows in bounded batches, reusing the existing `created` index.
 
@@ -182,7 +185,8 @@ Do not share a Volume across environments.
 - Do not edit already deployed migrations.
 - Create a new migration file for every schema change.
 - Use `migrate collections` only for an intentional snapshot or schema history squash.
-- The current pre-deployment baseline is intentionally squashed into one initial schema snapshot.
+- The baseline started as a squashed initial schema snapshot. Add follow-up migrations when
+  already-created local/test databases need a committed settings or schema update.
 - For destructive schema changes, add an explicit migration. Snapshot imports use `app.importCollections(snapshot, false)`, so missing fields and collections are not deleted from existing deployments.
 - Keep schema in migrations and environment-specific settings outside the repo.
 

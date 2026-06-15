@@ -9,7 +9,7 @@ export function SkipToContent({ children, className, ...props }: React.Component
       {...props}
       className={cn(
         buttonVariants({ variant: "default", size: "lg" }),
-        "fixed top-6 left-6 z-1000 hidden -translate-y-[1000%] focus-visible:translate-y-0 pointer-fine:inline-flex",
+        "fixed top-6 left-6 z-1000 hidden translate-y-[-1000%] focus-visible:translate-y-0 pointer-fine:inline-flex",
         className
       )}
     >
