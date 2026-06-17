@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:full": "pnpm local:up && pnpm dev",
+    "dev:down": "pnpm local:down",
     "local:up": "node ./scripts/local-stack.mjs up",
     "local:down": "node ./scripts/local-stack.mjs down",
     "build": "turbo run build",
