@@ -9,6 +9,20 @@ This repository uses `pnpm` workspaces and Turborepo.
 - `infra/**`: follow the infrastructure rules below
 - repo root: workspace tooling, scripts, docs, and cross-app configuration only
 
+## Agent skills
+
+### Issue tracker
+
+Issues, specs, and tickets live as local markdown files under `.scratch/`; GitHub Issues and PRs are not used as a work tracker. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the default mattpocock/skills triage state vocabulary in local markdown metadata. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repo: read root `CONTEXT.md` and relevant ADRs in `docs/adr/`. See `docs/agents/domain.md`.
+
 ## Repo Rules
 
 - Keep app-specific code and config inside the owning `apps/*` directory.
