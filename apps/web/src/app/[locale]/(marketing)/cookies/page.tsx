@@ -35,22 +35,24 @@ export default async function Page({ params }: PageProps<"/[locale]/cookies">) {
 
   return (
     <div className="relative">
-      <Container size="sm" className="prose py-16">
-        <CookiePolicy
-          company={{
-            name: product.company.legalName,
-            address: product.company.address,
-            id: product.company.id,
-            domain: product.site.domain,
-          }}
-          contact={{
-            email: product.company.contact.email,
-            phone: product.company.contact.phone,
-          }}
-          policy={cookiePolicy}
-          cookies={cookieCatalog}
-          effectiveDate={formattedEffectiveDate}
-        />
+      <Container size="sm" className="py-16">
+        <div className="typeset typeset-docs max-w-[37em]">
+          <CookiePolicy
+            company={{
+              name: product.company.legalName,
+              address: product.company.address,
+              id: product.company.id,
+              domain: product.site.domain,
+            }}
+            contact={{
+              email: product.company.contact.email,
+              phone: product.company.contact.phone,
+            }}
+            policy={cookiePolicy}
+            cookies={cookieCatalog}
+            effectiveDate={formattedEffectiveDate}
+          />
+        </div>
       </Container>
     </div>
   );

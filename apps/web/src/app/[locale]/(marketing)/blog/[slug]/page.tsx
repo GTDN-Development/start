@@ -121,7 +121,7 @@ export default async function Page({ params }: PageProps<"/[locale]/blog/[slug]"
 
       <Container size="prose" className="mt-12 pb-24">
         <div
-          className="prose prose-neutral dark:prose-invert max-w-none"
+          className="typeset typeset-docs max-w-[37em]"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </Container>

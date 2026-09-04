@@ -68,7 +68,10 @@ export function Faq({
                 {item.question}
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground">
-                <div className="prose" dangerouslySetInnerHTML={{ __html: item.answer }} />
+                <div
+                  className="typeset typeset-docs max-w-[37em]"
+                  dangerouslySetInnerHTML={{ __html: item.answer }}
+                />
               </AccordionContent>
             </AccordionItem>
           );

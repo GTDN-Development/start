@@ -37,24 +37,26 @@ export default async function Page({ params }: PageProps<"/[locale]/terms-of-ser
 
   return (
     <div className="relative">
-      <Container size="sm" className="prose py-16">
-        <TermsOfService
-          company={{
-            name: product.company.name,
-            legalName: product.company.legalName,
-            address: product.company.address,
-            id: product.company.id,
-            domain: product.site.domain,
-            vatId: product.company.vatId,
-            registration: product.company.registration,
-          }}
-          contact={{
-            email: product.company.contact.email,
-            phone: product.company.contact.phone,
-          }}
-          terms={termsOfService}
-          effectiveDate={formattedEffectiveDate}
-        />
+      <Container size="sm" className="py-16">
+        <div className="typeset typeset-docs max-w-[37em]">
+          <TermsOfService
+            company={{
+              name: product.company.name,
+              legalName: product.company.legalName,
+              address: product.company.address,
+              id: product.company.id,
+              domain: product.site.domain,
+              vatId: product.company.vatId,
+              registration: product.company.registration,
+            }}
+            contact={{
+              email: product.company.contact.email,
+              phone: product.company.contact.phone,
+            }}
+            terms={termsOfService}
+            effectiveDate={formattedEffectiveDate}
+          />
+        </div>
       </Container>
     </div>
   );

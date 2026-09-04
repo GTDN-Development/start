@@ -35,21 +35,23 @@ export default async function Page({ params }: PageProps<"/[locale]/gdpr">) {
 
   return (
     <div className="relative">
-      <Container size="sm" className="prose py-16">
-        <GdprPolicy
-          company={{
-            name: product.company.legalName,
-            address: product.company.address,
-            id: product.company.id,
-            domain: product.site.domain,
-          }}
-          contact={{
-            email: product.company.contact.email,
-            phone: product.company.contact.phone,
-          }}
-          policy={gdprPolicy}
-          effectiveDate={formattedEffectiveDate}
-        />
+      <Container size="sm" className="py-16">
+        <div className="typeset typeset-docs max-w-[37em]">
+          <GdprPolicy
+            company={{
+              name: product.company.legalName,
+              address: product.company.address,
+              id: product.company.id,
+              domain: product.site.domain,
+            }}
+            contact={{
+              email: product.company.contact.email,
+              phone: product.company.contact.phone,
+            }}
+            policy={gdprPolicy}
+            effectiveDate={formattedEffectiveDate}
+          />
+        </div>
       </Container>
     </div>
   );

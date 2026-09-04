@@ -16,12 +16,12 @@ import { CookieConsentBanner } from "@/features/cookies/cookie-consent-banner";
 import { CookieSettingsDialog } from "@/features/cookies/cookie-settings-dialog";
 import { CookieErrorBoundary } from "@/features/cookies/cookie-error-boundary";
 
-const fontSans = Inter({
-  variable: "--font-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const fontMono = Geist_Mono({
+const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
@@ -83,7 +83,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`scroll-pt-16 ${fontSans.variable} ${fontMono.variable}`}
+      className={`scroll-pt-16 ${inter.variable} ${geistMono.variable}`}
     >
       <body className="antialiased">
         <NextIntlClientProvider
