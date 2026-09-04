@@ -8,6 +8,6 @@
     "test": "node --test ./scripts/*.test.mjs"
   },
   "dependencies": {
-    "pocketbase": "^0.26.9"
+    "pocketbase": "^0.28.0"
   }
 }
